@@ -1,0 +1,60 @@
+#
+# Copyright 2012 Double Precision, Inc.
+# See COPYING for distribution information.
+#
+
+LIBCXX_XSLTPROC ?= xsltproc
+
+LIBCXX_XINCLUDEDIR := $(dir $(lastword $(MAKEFILE_LIST)))
+
+LIBCXX_MSGDISPATCHER_SET_PARAMS=$(foreach param,$(1),--stringparam $(subst =, ,$(param)))
+
+# If this gets grokked from automake-generated Makefile, provide some
+# additional targets
+
+ifneq ($(AUTOMAKE),)
+.PHONY: distclean-libx
+
+distclean: distclean-libx
+
+distclean-libx:
+	rm -f $(LIBCXX_CLEANFILES)
+
+EXTRA_DIST += $(sort $(LIBCXX_SOURCES))
+endif
+
+define MSGDISPATCHER_INVOKE
+
+# Workaround for BUILT_SOURCES in all's dependencies being already etched in stone
+
+ifdef AUTOMAKE
+all: $(1)
+endif
+
+LIBCXX_CLEANFILES += $(1)
+
+LIBCXX_SOURCES += $(2)
+
+$(1): $(2) $(LIBCXX_XINCLUDEDIR)/libcxx.mk $(LIBCXX_XINCLUDEDIR)msgdispatcher.xsl
+	$$(LIBCXX_XSLTPROC) $$(call LIBCXX_MSGDISPATCHER_SET_PARAMS,$(3)) $(LIBCXX_XINCLUDEDIR)msgdispatcher.xsl $$< >$$@.tmp
+	mv -f $$@.tmp $$@
+endef
+
+MSGDISPATCHER_GEN=$(foreach mode,$(2),$(eval $(call MSGDISPATCHER_INVOKE,$(1).$(mode).H,$(1).xml,mode=$(mode) $(3))))
+
+define OPTIONS_INVOKE
+
+ifdef AUTOMAKE
+all: $(1)
+endif
+
+LIBCXX_CLEANFILES += $(1)
+
+LIBCXX_SOURCES += $(2)
+
+$(1): $(2) $(LIBCXX_XINCLUDEDIR)/libcxx.mk $(LIBCXX_XINCLUDEDIR)optgen.xsl
+	$$(LIBCXX_XSLTPROC) $(LIBCXX_XINCLUDEDIR)optgen.xsl $$< >$$@.tmp
+	mv -f $$@.tmp $$@
+endef
+
+OPTIONS_GEN=$(eval $(call OPTIONS_INVOKE,$(1),$(2)))

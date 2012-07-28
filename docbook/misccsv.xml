@@ -1,0 +1,147 @@
+<!--
+
+Copyright 2012 Double Precision, Inc.
+See COPYING for distribution information.
+
+-->
+
+<chapter id="csv">
+  <title>CSV-formatted data</title>
+
+  <blockquote>
+    <informalexample>
+      <programlisting>
+#include &lt;&ns;/csv.H&gt;
+
+for (size_t row=0; row&lt;3; row++)
+{
+    std::vector&lt;std::string&gt; v;
+
+    for (size_t col=0; col&lt;5; col++)
+    {
+        std::ostringstream o;
+
+        o &lt;&lt; row*10 + col;
+
+        v.push_back(o.str());
+    }
+
+    &ns;::tocsv(v.begin(), v.end(),
+         std::ostreambuf_iterator&lt;char&gt;(std::cout));
+    std::cout &lt;&lt; std::endl;
+}</programlisting>
+    </informalexample>
+  </blockquote>
+
+  <para>
+    The first two parameters to
+    <ulink url="&link-function-x-tocsv;"><methodname>&ns;::tocsv</methodname>()</ulink>
+    are a beginning and and ending input iterator which iterate over strings.
+    <methodname>&ns;::tocsv</methodname>() formats this input sequence using
+    a "comma-separated-value" format.
+  </para>
+
+  <para>
+    The strings may contain any characters, including newlines. Therefore,
+    parsing a "comma-separated-value" format <emphasis>cannot</emphasis> be
+    done one line at a time. A character input iterator is required with
+    <ulink url="&link-function-x-fromcsv;"><methodname>&ns;::fromcsv</methodname>()</ulink>:
+  </para>
+
+  <blockquote>
+    <informalexample>
+      <programlisting>
+#include &lt;&ns;/csv.H&gt;
+
+std::istream &amp;i;
+
+// ...
+
+std::istreambuf_iterator&lt;char&gt; b(i), e;
+
+while (b != e)
+{
+    std::cout &lt;&lt; "Line: " &lt;&lt; std::endl;
+
+    std::vector&lt;std::string&gt; rows;
+
+    b=&ns;::fromcsv(b, e, rows);
+
+    if (b == e || *b++ != '\n')
+    {
+        std::cerr &lt;&lt; "Formatting error" &lt;&lt; std::endl;
+    }
+    else
+    {
+        for (std::vector&lt;std::string&gt;::const_iterator
+                 b=rows.begin(), e=rows.end(); b != e; ++b)
+        {
+            std::cout &lt;&lt; "   Col: " &lt;&lt; *b &lt;&lt; std::endl;
+        }
+    }
+}</programlisting>
+    </informalexample>
+  </blockquote>
+
+  <para>
+    This example shows the proper way to parse "comma-separated-values":
+  </para>
+
+  <itemizedlist>
+    <listitem>
+      <para>
+	Define a beginning and an ending input iterator to the formatted
+	character input data.
+      </para>
+    </listitem>
+
+    <listitem>
+      <para>
+	Until the iterators compare equal, invoke
+	<methodname>&ns;::fromcsv</methodname>(), which parses a single
+	"CSV" formatted list of string values from the character input.
+	After <methodname>&ns;::fromcsv</methodname>() returns, the updated
+	input iterator is expected to point to the newline sequence that
+	separated the CSV lists. Otherwise it's a formatting error.
+      </para>
+    </listitem>
+  </itemizedlist>
+
+  <blockquote>
+    <informalexample>
+      <programlisting>
+#include &lt;&ns;/csv.H&gt;
+
+std::istream &amp;i;
+
+// ...
+std::map&lt;std::string, size_t&gt; headers;
+
+std::istreambuf_iterator&lt;char&gt; b(i), e;
+
+b=&ns;::csvheaderrow(b, e, headers);
+
+if (b == e || *b++ != '\n')
+{
+    std::cerr &lt;&lt; "Formatting error" &lt;&lt; std::endl;
+}
+else
+{
+    // ...</programlisting>
+    </informalexample>
+  </blockquote>
+
+  <para>
+    <methodname>&ns;::csvheaderrow</methodname>() uses
+    <methodname>&ns;::fromcsv</methodname>() to parse a CSV header line,
+    placing the column names into a map keyed by the column name, with the
+    value being the 0-based column number.
+  </para>
+</chapter>
+
+<!--
+Local Variables:
+mode: sgml
+sgml-parent-document: ("book.xml" "part" "chapter")
+End:
+-->

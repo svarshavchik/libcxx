@@ -1,0 +1,59 @@
+<!--
+
+Copyright 2012 Double Precision, Inc.
+See COPYING for distribution information.
+
+-->
+
+<chapter id="pwdgrp">
+  <title>User, group, and port lookups</title>
+
+  <para>
+    The <ulink url="&link-x--passwd;"><classname>&ns;::passwd</classname></ulink>
+    and
+    <ulink url="&link-x--group;"><classname>&ns;::group</classname></ulink>
+    classes provide an interface to the password and the group file,
+    analogous to the <methodname>getpw</methodname> and <methodname>getgr</methodname>
+    functions:
+  </para>
+
+  <blockquote>
+    <informalexample>
+      <programlisting>
+#include &lt;&ns;/pwd.H&gt;
+#include &lt;&ns;/grp.H&gt;
+
+&ns;::passwd pw(getuid());
+&ns;::group gr(getgid());
+
+std::cout &lt;&lt; (pw->pw_name ? pw->pw_name:"unknown") &lt;&lt; ":"
+	  &lt;&lt; (gr->gr_name ? gr->gr_name:"unknown") &lt;&lt; std::endl;</programlisting>
+    </informalexample>
+  </blockquote>
+
+  <para>
+    These classes use the thread safe <quote>_r</quote> variants of the
+    <methodname>getpw</methodname> and <methodname>getgr</methodname> functions,
+    and take care of allocating a sufficient buffer for the internal
+    character strings.
+  </para>
+
+  <para>
+    The <ulink url="&link-x--servent;"><classname>&ns;::servent</classname></ulink>
+    class is an analogous interface to the services/port list:
+  </para>
+
+  <blockquote>
+    <informalexample>
+      <programlisting>
+#include &lt;&ns;/servent.H&gt;
+
+&ns;::servent service("https", "tcp");
+
+if (service->s_name)
+
+std::cout &lt;&lt; "port " &lt;&lt; ntohs(service-&gt;port) &lt;&lt; std::endl;</programlisting>
+    </informalexample>
+  </blockquote>
+
+</chapter>

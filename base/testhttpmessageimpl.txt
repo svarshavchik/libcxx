@@ -1,0 +1,39 @@
+POST /content-length HTTP/1.0
+Host: localhost
+Content-Length: 7
+
+Dummy
+POST /content-length HTTP/1.0
+Host: localhost
+Content-Length: 7
+
+Dummy
+POST /content-length HTTP/1.1
+Host: localhost
+Transfer-Encoding: chunked
+
+e
+Dummy string
+
+0
+
+POST /content-length HTTP/1.1
+Host: localhost
+Transfer-Encoding: chunked
+
+a
+Dummy stri
+4
+ng
+
+0
+
+POST /content-length HTTP/1.1
+Host: localhost
+Transfer-Encoding: chunked
+
+e
+Dummy string
+
+0
+

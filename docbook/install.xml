@@ -1,0 +1,365 @@
+<!--
+
+Copyright 2012 Double Precision, Inc.
+See COPYING for distribution information.
+
+-->
+
+<appendix id="INSTALL">
+  <title>Installing &app;</title>
+
+  <para>
+    &app; should be converted into an installable package, instead of building
+    and installing &app; directly. The source tarball
+    includes a canned build script for Fedora. Running
+    <quote><command>rpm -ta libcxx-<replaceable>version</replaceable>.tar.bz2</command></quote>
+    creates the following packages:
+  </para>
+
+  <itemizedlist>
+    <listitem>
+      <para>The main binary rpm package, with runtime libraries.</para>
+    </listitem>
+    <listitem>
+      <para>
+	The <quote>devel</quote> subpackage, containing header files and
+	other supporting files used for developing applications that use the
+	&app;.
+      </para>
+    </listitem>
+    <listitem>
+      <para>
+	An <quote>httpd</quote> subpackage containing an Apache configuration
+	file. This subpackage only needs to be installed if Apache is also
+	installed.
+      </para>
+    </listitem>
+  </itemizedlist>
+
+  <para>
+    Use the following documentation if the
+    bundled <acronym>RPM</acronym> script cannot be used for some reason.
+  </para>
+
+  <simplesect>
+    <title>Requirements and prerequisites</title>
+
+    <itemizedlist>
+      <listitem>
+	<para>
+	  A filesystem that implements extended file attributes. This is
+	  usually the case these days. Some older Linux systems, that have been
+	  upgraded for a long period of time, might be still on a filesystem
+	  without extended attribute support; but it's usually a simple command
+	  or two to enable this.
+	</para>
+      </listitem>
+
+      <listitem>
+	<para>
+	  <acronym>GNU</acronym> <command>make</command>; if it's installed
+	  as <quote>gmake</quote>, use that in place of the <quote>make</quote>
+	  command.
+	</para>
+      </listitem>
+
+      <listitem>
+	<para>
+	  <application>GCC</application> version 4.7, or a higher version if
+	  it's the current dominant version of <application>GCC</application>.
+	  As new <application>GCC</application> releases improve support for
+	  C++11, this library will probably be updated to take advantage of
+	  them.
+	</para>
+      </listitem>
+
+      <listitem>
+	<para>
+	  <application>pcre</application>,
+	  <application>libxslt</application>,
+	  <application>gnutls</application>, and
+	  <application>libgcrypt</application>.
+	</para>
+      </listitem>
+
+      <listitem>
+	<para>
+	  <application>pkg-config</application>.
+	</para>
+      </listitem>
+
+      <listitem>
+	<para>
+	  An installed list of default certificate authorities, in
+	  <filename>/etc/pki/tls/cert.pem</filename> by default.
+	</para>
+      </listitem>
+
+      <listitem>
+	<para>
+	  Other non-Linux platforms (currently consists
+	  of one specific version of FreeBSD) might have additional
+	  requirements for Linux compatibility.
+	</para>
+      </listitem>
+    </itemizedlist>
+  </simplesect>
+
+  <simplesect>
+    <title>Configuring and building</title>
+
+    <para>
+      Run the <filename>configure</filename> script, followed by
+      <command>make</command>
+      (or <command>gmake</command>).
+      <filename>configure</filename> takes the usual options that specify
+      non-default installation directories, for various files.
+      Additional options are:
+    </para>
+
+    <variablelist>
+      <varlistentry>
+	<term>--with-pkgconfigdir=<replaceable>dir</replaceable></term>
+
+	<listitem>
+	  <para>
+	    Specifies where pkgconfig configuration file gets installed.
+	    The <command>configure</command> script goes through the list of
+	    some common directories, and checks if they exist.
+	  </para>
+
+	  <para>
+	    This option may be needed to override the default even if
+	    <command>configure</command> finds it, and does not complain, if
+	    it ends up finding and installs its pkgconfig file into the wrong
+	    directory.
+	  </para>
+	</listitem>
+      </varlistentry>
+
+      <varlistentry>
+	<term>--with-cacerts=<replaceable>file</replaceable></term>
+
+	<listitem>
+	  <para>
+	    Specifies the file with a list of trusted certificate authorities.
+	    The <command>configure</command> script knows about some common
+	    locations, and will check them. If it can't find it, and complains,
+	    use this option to tell it where it is.
+	  </para>
+	</listitem>
+      </varlistentry>
+    </variablelist>
+
+    <para>
+      When building &app;, for the first time, it's also a good idea to
+      run <command>(g)make check</command>, but that shouldn't be a part of an
+      automated build script, since it may fail on a heavily loaded build
+      server, due to some test scripts' timing.
+    </para>
+
+    <para>
+      Run <command>(g)make install DESTDIR=/tmp/libcxx-install</command>. This
+      creates an installation image in the
+      <filename>/tmp/libcxx-install</filename> directory, to use as a basis for
+      creating an installable package.
+      A plain <command>(g)make install</command> will do it
+      <quote>for real</quote>, of course.
+      However, using an installable package is strongly recommended.
+    </para>
+  </simplesect>
+
+  <simplesect>
+    <title>Regenerating emphemeral <acronym>DSA</acronym> and <acronym>RSA</acronym> parameters</title>
+
+    <para>
+      This is required by &app;'s <acronym>API</acronym> for the
+      <application>GnuTLS</application> library.
+      Generating these parameters is often a time-consuming task, depending
+      on the hardware, so &app; loads pregenerated parameters from
+      a file.
+      The files are located in <filename><replaceable>localstatedir</replaceable>/tlsparams</filename>,
+      which is usually
+      <filename>/usr/local/var/tlsparams</filename> or
+      <filename>/var/tlsparams</filename>.
+      These parameter files should be periodically regenerated.
+      The process for doing so is as follows:
+    </para>
+
+    <para>
+      The <command>tlsparamsgen</command> regenerates the parameter files in
+      <filename><replaceable>localstatedir</replaceable>/tlsparams</filename>.
+      <command>make install</command> creates a
+      <filename>tlsparams</filename> subdirectory in
+      <filename><replaceable>sysconfdir</replaceable></filename>
+      (usually <filename>/usr/local/etc</filename> or
+      <filename>/etc</filename>).
+      This directory contains files with options for the
+      <command>tlsparamsgen</command> script.
+      Then, the <command>tlsparamsgen.sh</command> wrapper script
+      (installed in <filename><replaceable>sbindir</replaceable></filename>,
+      which is <filename>/usr/sbin</filename> or
+      <filename>/usr/local/sbin</filename>)
+      reads these
+      options, and runs <command>tlsparamsgen</command> to regenerate the
+      emphemeral files. A regularly-scheduled job should be scheduled to run
+      this script (a monthly frequency is fine).
+    </para>
+
+    <para>
+      <command>make install</command> runs a script that generates
+      an initial set of ephemeral parameter files, so that &app; is
+      immediately usable after installation. However, the initial
+      emphemeral parameters are low security, generated with a minimum number
+      of bits. This is because full, high security parameter files may take
+      hours to be generated, depending on the hardware (and even the low
+      security ones can take several minutes). This is fine for some job that
+      runs monthly at off-peak times. but this does not work very well
+      for a canned build script.
+      The recommended approach is the following compromise:
+    </para>
+
+    <para>
+      Include the pregenerated low security
+      ephemeral parameter files in the installable package. Then,
+      as part of the package installation, the
+      package should make arrangements to execute
+      <command>tlsparamsgen.sh</command> soon after
+      installation, to replace the low-security ephemeral parameters.
+    </para>
+
+    <para>
+      This is taken care of by the Fedora package. No manual action is required
+      with the Fedora packages.
+      All of this is described
+      for documentation purposes only.
+    </para>
+
+    <para>
+      Furthermore, the Fedora package uses a
+      slightly more robust approach, as follows:
+    </para>
+
+    <itemizedlist>
+      <listitem>
+	<para>
+	  The <quote><literal>INSTALL_TLSPARAM_SUFFIX=.dist</literal></quote>
+	  parameter to <command>make install</command> installs the low-security
+	  ephemeral parameter files with a <quote>.dist</quote> suffix. This
+	  is what goes into the <acronym>RPM</acronym> package.
+	</para>
+      </listitem>
+
+      <listitem>
+	<para>
+	  A post-install script checks if each ephemeral parameter file already
+	  exists, or not, and only links the installed
+	  <filename>.dist</filename> file to the real one if it does not exist.
+	  So, if there are already high security ephemeral parameter files
+	  from a previously-installed version of &app;, they get preserved.
+	</para>
+
+	<para>
+	  Therefore, &app; is usable immediately after installation, and
+	  only a new install has the low security stock ephemeral parameters
+	  until the first reboot, because:
+	</para>
+      </listitem>
+
+      <listitem>
+	<para>
+	  The startup script that runs at boot time, to start
+	  <command>httportmap</command>, checks if parameter files are the
+	  initial low
+	  security ones, and runs <command>tlsparamsgen</command> in the
+	  background, immediately.
+	  The <acronym>RPM</acronym>s also install a monthly
+	  <command>cron</command> job to generate new parameter files.
+	</para>
+      </listitem>
+    </itemizedlist>
+
+    <para>
+      The end result is that &app; package gets installed without
+      lengthy delays for generating ephemeral parameter files. This occurs
+      during the first reboot after installation. And going forward, the
+      cron job in the package regenerates them monthly.
+    </para>
+  </simplesect>
+
+  <simplesect>
+    <title>Installing and starting <command>httportmapd</command></title>
+
+    <para>
+      The <command>httportmapd</command> daemon is a part of &app;.
+      A package that installs &app; needs to execute the
+      <command>properties</command> command to configure
+      <command>httportmapd</command>'s property file. This is done by
+      <command>make install</command>, however property files are stored in
+      extended attributes, which are typically not preserved by binary
+      package file formats.
+      This usually needs to be done after &app; package's
+      installation.
+    </para>
+
+    <para>
+      The property file is <filename>httportmapd.properties</filename>, and
+      it gets installed in
+      <filename><replaceable>sysconfdir</replaceable></filename>, which is
+      usually <filename>/usr/local/etc</filename>, or <filename>/etc</filename>.
+      <command>httportmapd</command> gets installed in
+      <filename><replaceable>sbindir</replaceable></filename>, which is
+      usually <filename>/usr/local/sbin</filename>,
+      or <filename>/usr/sbin</filename>; and the
+      <command>properties</command> command gets installed into
+      <filename><replaceable>bindir</replaceable></filename>, which is usually
+      <filename>/usr/local/bin</filename>,
+      or <filename>/usr/bin</filename>:
+    </para>
+
+    <blockquote>
+      <informalexample>
+	<programlisting>
+/usr/bin/properties --set /usr/local/etc/httportmapd.properties /usr/local/sbin/httportmapd</programlisting>
+      </informalexample>
+    </blockquote>
+
+    <para>
+      Afterwards, arrangements must be made to have
+      <command>httportmapd</command> started during system boot:
+    </para>
+
+    <blockquote>
+      <informalexample>
+	<programlisting>
+/usr/local/sbin/httportmapd --http --daemon start</programlisting>
+      </informalexample>
+    </blockquote>
+
+    <para>
+      This forks and runs the portmapper as a child process. The portmapper
+      process opens and binds the <acronym>HTTP</acronym> port 80, to handle
+      portmapper service requests.
+      <command>httportmapd stop</command> may be added to the system shutdown
+      script, to stop the daemon process.
+    </para>
+
+    <para>
+      Leave out the <option>--http</option> if there's already an
+      <acronym>HTTP</acronym> server, such as <application>Apache</application>
+      on port 80. In that case, the portmapper expects to be invoked as a
+      <acronym>CGI</acronym> application for all <quote>http://hostname/portmap"</quote>
+      <acronym>URL</acronym>s.
+      In the source tarball, <filename>httportmap/apache.conf.in</filename>
+      is a sample <application>Apache</application> configuration, with a
+      placeholder for <command>httportmapd</command>'s installation location.
+    </para>
+  </simplesect>
+</appendix>
+
+<!--
+Local Variables:
+mode: sgml
+sgml-parent-document: ("book.xml" "book" "appendix")
+End:
+-->

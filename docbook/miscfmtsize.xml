@@ -1,0 +1,56 @@
+<!--
+
+Copyright 2012 Double Precision, Inc.
+See COPYING for distribution information.
+
+-->
+
+<chapter id="fmtsize">
+  <title>Formatting memory or file sizes</title>
+
+  <para>
+    The <methodname>fmtsize</methodname>() function formats a numerical value
+    in kilobytes, megabytes, gigabytes, or terabytes, as appropriate:
+  </para>
+
+  <blockquote>
+    <informalexample>
+      <programlisting>
+#include &lt;&ns;/fmtsize.H&gt;
+
+&ns;::fd filedesc;
+
+// ...
+
+std::cout &lt;&lt; "File size: " &lt;&lt; &ns;::fmtsize(filedesc->stat()->st_size)
+          &lt;&lt; std::endl;</programlisting>
+    </informalexample>
+  </blockquote>
+
+  <para>
+    This is intended for descriptive or display purposes. For small values,
+    <function>&ns;::fmtsie</function>() formats
+    something like <quote>150 bytes</quote>. For larger values,
+    <quote><literal>Kb</literal></quote>,
+    <quote><literal>Mb</literal></quote>,
+    <quote><literal>Gb</literal></quote>, or
+    <quote><literal>Tb</literal></quote> is selected, based on the value.
+    Note that the formatted value is not meant to be exact.
+    <quote>fmtsize(1025)</quote> returns
+    <quote><literal>1.0 Kb</literal></quote>.
+  </para>
+
+  <para>
+    <methodname>parsesize</methodname>() is the approximate opposite: it parses
+    a <classname>std::string</classname> that looks like <quote>X kb</quote>
+    or <quote>X Mb</quote> and returns a numerical
+    <classname>uint64_t</classname> that represents the given size, in
+    bytes.
+  </para>
+</chapter>
+<!--
+Local Variables:
+mode: sgml
+sgml-parent-document: ("book.xml" "part" "chapter")
+End:
+-->

@@ -1,0 +1,97 @@
+<!--
+
+Copyright 2012 Double Precision, Inc.
+See COPYING for distribution information.
+
+-->
+
+<refentry id="properties.1">
+  <info>
+    <author>
+      <firstname>Sam</firstname>
+      <surname>Varshavchik</surname>
+      <contrib>Author</contrib>
+    </author>
+    <productname>&app;</productname>
+  </info>
+
+  <refmeta>
+    <refentrytitle>properties</refentrytitle>
+    <manvolnum>1</manvolnum>
+    <refmiscinfo class='manual'>&appshort;</refmiscinfo>
+  </refmeta>
+
+  <refnamediv>
+    <refname>properties</refname>
+    <refpurpose>Set application property file</refpurpose>
+  </refnamediv>
+
+  <refsynopsisdiv>
+    <cmdsynopsis>
+      <command>properties</command>
+
+      <group choice='opt'>
+	<arg choice='plain'>
+	  <group choice='req'>
+	    <arg choice='plain'>-s</arg>
+	    <arg choice='plain'>--set</arg>
+	  </group>=<replaceable>filename</replaceable>
+
+	  <arg choice='opt'>
+	    <group choice='req'>
+	      <arg choice='plain'>-n</arg>
+	      <arg choice='plain'>--nocheckset</arg>
+	    </group>
+	  </arg>
+	</arg>
+
+	<arg choice='plain'>
+	  <group choice='req'>
+	    <arg choice='plain'>-c</arg>
+	    <arg choice='plain'>--clear</arg>
+	  </group>
+	</arg>
+      </group>
+      <arg choice='req' rep='repeat'>executable</arg>
+    </cmdsynopsis>
+  </refsynopsisdiv>
+
+  <refsect1>
+    <title>Description</title>
+
+    <para>
+      This command sets or clears an extended attribute of a &app; application
+      that specifies its <quote>property file</quote>.
+      The property file initializes the application's configuration.
+      See the application's documentation for a descriptions of what the
+      configuration settings are.
+      The <command>properties</command> command only specifies the filename
+      where the property settings come from.
+    </para>
+
+    <para>
+      With no options, <command>properties</command> displays each
+      <replaceable>executable</replaceable>'s current property filename
+      attribute.
+      <option>--set</option> replaces any existing property filename attribute
+      (if any). <option>--clear</option> removes the property filename attribute
+      completely, leaving it unspecified.
+    </para>
+
+    <para>
+      <option>--set</option> checks if the property file exists, and reports
+      an error if the specified property file does not exist. Only the
+      file's existence is checked, <command>properties</command> has no means
+      of determining if its contents comprise a valid application configuration.
+      <option>--nocheckset</option> disables this check, and the property
+      filename setting gets updated even if the specified file does not exist.
+    </para>
+  </refsect1>
+</refentry>
+
+<!--
+Local Variables:
+mode: sgml
+sgml-parent-document: ("book.xml" "appendix" "refentry")
+End:
+-->

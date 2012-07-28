@@ -1,0 +1,84 @@
+set -e
+
+./httportmapd --http --port=0 --socket=`pwd`/testsocket --daemon start >testsocket.port
+
+port="`cat testsocket.port`"
+
+if test "$port" = ""
+then
+    exit 1
+fi
+
+echo "Using port $port"
+
+./testhttportmap --set-property @LIBCXX_NAMESPACE@::httportmap::port=$port --name=service --register=90 --register=91 --exclusive >testsuite.1.out
+
+./testhttportmap --set-property @LIBCXX_NAMESPACE@::httportmap::port=$port --name=service --register=90 --register=91 --register2=100 --register2=101 --exclusive >testsuite.2.out 2>testsuite.2.err
+
+./testhttportmap --set-property @LIBCXX_NAMESPACE@::httportmap::port=$port --name=service --register=90 --register=91 --register2=100 --register2=101 >testsuite.3.out
+
+./testhttportmap --set-property @LIBCXX_NAMESPACE@::httportmap::port=$port --name=service --register=90 --register=91 --deregister=90 --deregister=91 --register2=100 --register2=101 --exclusive >testsuite.4.out
+
+./testhttportmap --set-property @LIBCXX_NAMESPACE@::httportmap::port=$port --pid2exe >testsuite.5.out 2>&1
+
+./testhttportmap2 --set-property @LIBCXX_NAMESPACE@::httportmap::port=$port >testsuite.6.out 2>&1
+
+./testsingletonapp --set-property @LIBCXX_NAMESPACE@::httportmap::port=$port
+
+./testsingletonapp2 --set-property @LIBCXX_NAMESPACE@::httportmap::port=$port
+
+./testhttportmap3 --set-property @LIBCXX_NAMESPACE@::httportmap::port=$port -- ./httportmapd --http --port=$port --socket=`pwd`/testsocket --daemon start >testsuite.7.out 2>&1
+
+./httportmapd --http --port=$port --socket=`pwd`/testsocket stop
+
+didnotexpect()
+{
+    echo "$1"
+    echo "Run 'ps' to check for rogue httportmapd background processes that are left"
+    echo "running in the background"
+    exit 1
+}
+
+if test `wc -l <testsuite.1.out` != 4
+then
+	didnotexpect "Did not get the expected output from testhttportmap in testsuite1.out"
+fi
+
+if test `wc -l <testsuite.2.out` != 4
+then
+	didnotexpect "Did not get the expected output from testhttportmap in testsuite2.out"
+fi
+
+if test `wc -l <testsuite.2.err` != 1
+then
+	didnotexpect "Did not get the expected error message from testhttportmap in testsuite2.err"
+fi
+
+if test `wc -l <testsuite.3.out` != 6
+then
+	didnotexpect "Did not get the expected output from testhttportmap in testsuite.3.out"
+fi
+
+if test `wc -l <testsuite.4.out` != 4
+then
+	didnotexpect "Did not get the expected output from testhttportmap in testsuite.4.out"
+fi
+
+if test `wc -l <testsuite.5.out` != 3
+then
+	didnotexpect "Did not get the expected output from testhttportmap in testsuite.5.out"
+fi
+
+if test `wc -l <testsuite.6.out` != 0
+then
+	didnotexpect "Did not get the expected output from testhttportmap2 in testsuite.6.out"
+fi
+
+if test "`cat testsuite.7.out`" != "yes"
+then
+	didnotexpect "Did not get the expected output from testhttportmap3 in testsuite.7.out"
+fi
+
+rm -f testsuite.?.out testsuite.?.err
+rm -rf testsocket.priv
+rm -f testsocket*

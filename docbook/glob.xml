@@ -1,0 +1,64 @@
+<!--
+
+Copyright 2012 Double Precision, Inc.
+See COPYING for distribution information.
+
+-->
+
+<chapter id="glob">
+  <title>Filename pattern globbing</title>
+
+  <blockquote>
+    <informalexample>
+      <programlisting>
+#include &lt;&ns;/glob.H&gt;
+
+&ns;::glob globber(&ns;::glob::create());
+
+globber->expand("/bin/*")-&gt;expand("/usr/bin/*");
+
+std::vector&lt;std::string&gt; filenames;
+
+filenames-&gt;get(std::back_insert_iterator&lt;std::vector&lt;std::string&gt; &gt;(buf));</programlisting>
+    </informalexample>
+  </blockquote>
+
+  <para>
+    <ulink url="&link-typedef-x-glob;"><classname>&ns;::glob</classname></ulink>
+    is a reference-counted object that implements filename expansion using
+    <citerefentry>
+      <refentrytitle>glob</refentrytitle>
+      <manvolnum>3</manvolnum>
+    </citerefentry>.
+    The <methodname>expand</methodname>() function performs filename expansion.
+    <methodname>expand</methodname>() takes an optional parameter that specifies
+    the bitwise-ored options described in the
+    <citerefentry>
+      <refentrytitle>glob</refentrytitle>
+      <manvolnum>3</manvolnum>
+    </citerefentry> manual page.
+    Do not specify the
+    <literal>GLOB_DOOFFS</literal> and
+    <literal>GLOB_ALTDIRFUNC</literal> options, as they are meaningless in this
+    case. Do not specify <literal>GLOB_APPEND</literal>, this option
+    gets supplied automatically when invoking
+    <methodname>expand</methodname>() more than once.
+  </para>
+
+  <para>
+    <methodname>get</methodname>() retrieves the accumulated list of expanded
+    filenames. This template function takes an output iterator, as shown in
+    the above example. Specialized definitions of
+    <methodname>get</methodname>() take
+    <classname>std::vector&lt;std::string&gt;</classname> or a
+    <classname>std::set&lt;std::string&gt;</classname> instead of an output
+    iterator. The accumulated list of expanded filenames get added to the
+    existing contents of the passed container.
+  </para>
+</chapter>
+<!--
+Local Variables:
+mode: sgml
+sgml-parent-document: ("book.xml" "book" "chapter")
+End:
+-->

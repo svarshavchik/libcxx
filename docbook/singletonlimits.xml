@@ -1,0 +1,23 @@
+<!--
+
+Copyright 2012 Double Precision, Inc.
+See COPYING for distribution information.
+
+-->
+
+<para>
+  The parameter to the template class must be a
+  <link linkend="refobj">reference-counted object</link> that has a
+  default constructor. An instance of the singleton template class can only
+  be declared in the static scope, and may not be declared on the stack.
+</para>
+
+<note>
+  <para>
+    <methodname>get</methodname>() may not be invoked from constructors or
+    destructors of other classes. Constructors and destructors can get called
+    when a thread or an application is in the middle of initializing or
+    terminating, and the underlying support for singleton objects is not
+    available.
+  </para>
+</note>

@@ -1,0 +1,289 @@
+<!--
+
+Copyright 2012 Double Precision, Inc.
+See COPYING for distribution information.
+
+-->
+
+<preface id="index">
+  <title>&app; Class Collection</title>
+  <section id="intro">
+    <title>Introduction</title>
+    <para>
+      You are reading the manual/tutorial for
+      this library of high level C++11 applicationclasses and templates.
+      This library
+      is a part of the <application>Stasher object
+	repository</application> server, but
+      it's packaged as a standalone library, and contains classes that are
+      general enough, in nature, for them to be useful in other applications.
+      This library is focused on the following areas of functionality:
+    </para>
+
+    <itemizedlist>
+      <listitem>
+	<para>
+	  C++ classes for implementing Linux kernel-specific interfaces,
+	  such as <link linkend="eventfd">event</link>,
+	  <link linkend="timerfd">timer</link>, and
+	  <link linkend="signalfd">signal</link> file descriptors.
+	</para>
+      </listitem>
+
+      <listitem>
+	<para>
+	  <link linkend="refobj">Templates for reference-counted objects</link>
+	  that offer a larger set
+	  of functionality than <classname>shared_ptr</classname>.
+	  The &ref;, &ptr;, &const_ref;, and &const_ptr; templates implement
+	  semantic concepts that are analogous to the conceptual differences
+	  between a <classname>iterator</classname> and
+	  <classname>const_iterator</classname>, as well as a native pointer
+	  and a native reference, in the C++ language.
+	</para>
+
+	<para>
+	  The reference-counted object implementation is based on a virtual
+	  object superclass root, enabling proper implementation of
+	  multiple inheritance, in the context of a reference-counted
+	  object-based framework; as well as so-called
+	  <link linkend="ondestroy">destructor callbacks</link> which
+	  work very well in setting up common design patterns where
+	  <quote>something</quote> needs to be done after
+	  <quote>something else</quote>,
+	  such as a request or a message of some kind,
+	  gets processed, without really <quote>something else</quote>
+	  caring what <quote>something</quote> is.
+	</para>
+      </listitem>
+	  
+      <listitem>
+	<para>
+	  The reference-counted templates serve as a framework for
+	  higher-level classes, such as
+	  <link linkend="weakcontainers">weak containers</link>;
+	  reference-counted
+	  <link linkend="threads">thread objects</link>; some basic support
+	  for <link linkend="http"><acronym>HTTP</acronym> client and
+	    server applications</link>; including SSL/TLS, with
+	  a reference-counted
+	  <link linkend="gnutls">GnuTLS library classes</link>.
+	</para>
+      </listitem>
+    </itemizedlist>
+
+    <para>
+      This is just a brief overview, see the
+      <link linkend="book">table of contents</link> for a more complete list
+      of the classes and templates in the library.
+    </para>
+
+    <para>
+      &app; is free software, distributed under the terms of the
+      <link linkend="COPYING">GPL, version 3</link>.
+    </para>
+  </section>
+
+  <section id="requirements">
+    <title>Requirements</title>
+
+    <para>
+      This library uses Linux-specific APIs, and
+      with one exception, &app; compiles only on Linux,
+      see <xref linkend="INSTALL" /> for general installation instructions.
+      The exception is that currently it builds on FreeBSD 9 with
+      an alternative implementation of Linux-specific APIs,
+      see <xref linkend="freebsdport" />
+      for more information.
+    </para>
+
+    <para>
+      <application>gcc 4.7</application> is required. Since this library uses
+      C++11 classes, applications must be compiled with the
+      <option>-std=c++0x</option> option, as well as
+      <option>-fno-omit-frame-pointer</option>. This is done automatically
+      when <link linkend="using">using autotools</link>.
+    </para>
+  </section>
+
+  <section id="libnamespace">
+    <title>Library namespace</title>
+
+    <para>
+      All classes and templates in this library are defined in the
+      <quote>&ns;</quote> namespace. This documentation includes
+      <ulink url="ref/index.html">doxygen-generated reference pages</ulink>
+      for each documented class.
+      Currently, the class documentation does not always
+      explicitly note the
+      <literal>&ns;</literal> namespace. When reading the separate class
+      documentation pages, mentally prepend the <literal>&ns;</literal>
+      namespace to all documented classes that do not have one.
+      Example: <quote><literal>&ns;::obj</literal></quote>,
+      <quote><literal>&ns;::ref</literal></quote>, and so on.
+    </para>
+
+    <para>
+      Patches to the voluminous header files, noting the explicit namespace
+      reference, are welcome. See the existing header files for an example
+      (the namespace is referenced by a macro that's handled by pre-processing,
+      prior to documentation generation).
+    </para>
+  </section>
+
+  <section id="using">
+    <title>Using &app; to build C++ applications</title>
+
+    <para>
+      Read this manual to learn about this library. This manual is a work
+      in progress. Everything is documented, perhaps not as thorough as it
+      should be, but it's documented. You're reading &app;'s manual that's
+      organized as a loosely-structured tutorial. The tutorial contains
+      additional links to doxygen-generated class references, where more
+      information can be dug out.
+    </para>
+
+    <para>
+      &app; uses autotools.
+      If you're not familiar with
+      <ulink url="http://www.gnu.org/software/automake/"><command>automake</command></ulink>,
+      <ulink url="http://www.gnu.org/software/autoconf/"><command>autoconf</command></ulink>, and
+      <ulink url="http://www.gnu.org/software/libtool/"><command>libtool</command></ulink>,
+      follow these links, and start there.
+      After <link linkend="INSTALL">installing the library and the
+      header files</link> add the
+      <literal>LIBCXX_INIT</literal> macro
+      <filename>configure.ac</filename> in order to set up the environment
+      to develop and build applications with  &app;:
+    </para>
+
+    <blockquote>
+      <informalexample>
+	<programlisting>
+LIBCXX_INIT</programlisting>
+      </informalexample>
+    </blockquote>
+
+    <para>
+      This macro overrides <envar>CC</envar> and <envar>CXX</envar>, and
+      sets them to the compiler that built &app;.
+      The same compiler must be used to build
+      any code that links with it. The macro also adds any additional compiler
+      flags (currently <quote>-fno-omit-frame-pointer -std=c++0x</quote>).
+    </para>
+
+    <para>
+      The
+      <ulink url="examples/managedsingleton"><filename>examples/managedsingleton</filename></ulink> subdirectory in
+      &app;'s source code tarball is an example of building C++
+      applicaitons with &app;, complete with a basic autotools configuration:
+    </para>
+
+    <blockquote>
+      <informalexample>
+	<programlisting>
+$ aclocal
+$ autoreconf -i
+<emphasis>[ output not shown]</emphasis>
+$ ./configure
+<emphasis>[ output not shown]</emphasis>
+$ make
+make  all-am
+make[1]: Entering directory `/home/mrsam/src/ng/examples/managedsingleton'
+g++ -DHAVE_CONFIG_H -I.     -g -O2 -fno-omit-frame-pointer -std=c++0x -I/usr/inc
+lude/p11-kit-1   -MT managedsingleton.o -MD -MP -MF .deps/managedsingleton.Tpo -
+c -o managedsingleton.o managedsingleton.C
+mv -f .deps/managedsingleton.Tpo .deps/managedsingleton.Po
+/bin/sh ./libtool --tag=CXX   --mode=link g++  -g -O2 -fno-omit-frame-pointer -s
+td=c++0x -I/usr/include/p11-kit-1     -o managedsingleton managedsingleton.o -lcxx
+ 
+libtool: link: g++ -g -O2 -fno-omit-frame-pointer -std=c++0x -I/usr/include/p11-
+kit-1 -o managedsingleton managedsingleton.o  /usr/lib64/libcxx.so -lpthread -lrt</programlisting>
+      </informalexample>
+    </blockquote>
+
+    <para>
+      This is the example code from <xref linkend="singletonapp" />.
+    </para>
+  </section>
+
+  <section id="noautotools">
+    <title>Using &app; to build C++ applications without autotools</title>
+
+    <para>
+      This is certainly possible, but the autotools support in &app; takes
+      care of many ancillary details. Here's an explanation of what
+      needs to be done by hand, and what the automake macros do:
+    </para>
+
+    <itemizedlist>
+      <listitem>
+	<para>
+	  Link with <literal>-lcxx</literal>;
+	  <literal>-lcxxtls</literal> gets the
+	  <link linkend="gnutls">GnuTLS-based classes</link>.
+	  Also, link with <literal>-lpthread</literal> and
+	  <literal>-lrt</literal> (for Linux).
+	</para>
+      </listitem>
+
+      <listitem>
+	<para>
+	  <literal>LIBCXX_INIT</literal> sets the C compiler to the same one
+	  that was used to build &app; and the correct options
+	  (<quote><literal>-std=c++0x -fno-omit-frame-pointer</literal></quote>).
+	</para>
+      </listitem>
+
+      <listitem>
+	<para>
+	  The <link linkend="optgenmake"><literal>OPTIONS_GEN</literal></link>
+	  macro runs an <acronym>XSLT</acronym> processor on the
+	  <filename>optgen.xsl</filename> stylesheet in
+	  <replaceable>pkgdatadir</replaceable>, which is usually
+	  <filename>/usr/share/libcxx</filename> or
+	  <filename>/usr/local/share/libcxx</filename>.
+	</para>
+      </listitem>
+
+      <listitem>
+	<para>
+	  The <link linkend="msgdispatchermake"><literal>MSGDISPATCHER_GEN</literal></link>
+	  macro runs an <acronym>XSLT</acronym> processor on the
+	  <filename>msgdispatcher.xsl</filename> stylesheet in
+	  <replaceable>pkgdatadir</replaceable>, which is usually
+	  <filename>/usr/share/libcxx</filename> or
+	  <filename>/usr/local/share/libcxx</filename>.
+	</para>
+
+	<para>
+	  The second parameter to the <literal>MSGDISPATCHER_GEN</literal>
+	  macro is the <varname>mode</varname> stylesheet parameter.
+	  Invoking <literal>MSGDISPATCHER_GEN</literal> with a list of modes
+	  runs the stylesheet once, for each mode.
+	  The macro forms the output filename, as described in
+	  <xref linkend="msgdispatcher" /> by including the mode name in the
+	  name of the outputfile that the <command>xsltproc</command>'s
+	  output goes to.
+	</para>
+
+	<para>
+	  <replaceable>name=value</replaceable>s from the third parameter
+	  to <literal>MSGDISPATCHER</literal> are stylesheet parameters.
+	  <quote>dispatch=public</quote> sets the <varname>dispatch</varname>
+	  parameter to <literal>public</literal>
+	  (<literal>--stringparam dispatch public</literal> parameters
+	  to <command>xsltproc</command>, for example).
+	</para>
+      </listitem>
+    </itemizedlist>
+  </section>
+
+</preface>
+
+<!--
+Local Variables:
+mode: sgml
+sgml-parent-document: ("book.xml" "book" "preface")
+End:
+-->

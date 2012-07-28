@@ -1,0 +1,53 @@
+/*
+** Copyright 2012 Double Precision, Inc.
+** See COPYING for distribution information.
+*/
+
+#include "libcxx_config.h"
+#include "epoll.H"
+#include "fd.H"
+#include "sysexception.H"
+#include "timespec.H"
+#if HAVE_KQUEUE
+#include <sys/types.h>
+#include <sys/event.h>
+#include <sys/time.h>
+#endif
+#include <fcntl.h>
+
+namespace LIBCXX_NAMESPACE {
+#if 0
+};
+#endif
+
+static int create_epoll_fd()
+{
+#if HAVE_LINUXSYSCALLS
+
+	int nfd= ::epoll_create1(EPOLL_CLOEXEC);
+#else
+#if HAVE_KQUEUE
+
+	int nfd=kqueue();
+
+#else
+	errno=ENODEV;
+	int nfd= -1;
+#endif
+#endif
+
+	if (nfd < 0)
+		throw SYSEXCEPTION("epoll_create");
+
+	return nfd;
+}
+
+epollObj::epollObj() : fdObj(-1)
+{
+	filedesc=create_epoll_fd();
+}
+
+#if 0
+{
+#endif
+}

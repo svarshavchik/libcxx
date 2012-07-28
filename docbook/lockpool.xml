@@ -1,0 +1,263 @@
+<!--
+
+Copyright 2012 Double Precision, Inc.
+See COPYING for distribution information.
+
+-->
+
+<chapter id="lockpool">
+  <title>A pool of locks that use event file descriptors</title>
+
+  <para>
+    The
+    <ulink url="&link-x--lockpool;"><classname>&ns;::lockpool</classname></ulink>
+    template implements a thread-safe locking mechanism that uses
+    an <link linkend="eventfd">event file descriptor</link> for signaling.
+    The template takes several parameters, with the type of the lock
+    identifier being the only required parameter:
+  </para>
+
+  <blockquote>
+    <informalexample>
+      <programlisting>
+#include &lt;&ns;/lockpool.H&gt;
+
+typedef &ns;::lockpool&lt;std::string&gt; mylockpool_t;
+
+mylockpool_t mylockpool(mylockpool_t::create());</programlisting>
+    </informalexample>
+  </blockquote>
+
+  <para>
+    This example defines <classname>mylockpool_t</classname> as a reference
+    to a <link linkend="refobj">reference-counted object</link> that implements
+    locking based on text strings. That is, a lock is identified by a
+    simple text string:
+  </para>
+
+  <blockquote>
+    <informalexample>
+      <programlisting>
+&ns;::eventfd evfd(&ns;::eventfd::create());
+
+mylockpool_t::lockentry myLock(mylockpool-&gt;addLockSet("filelock", evfd));
+
+while (!myLock-&gt;locked())
+{
+    evfd-&gt;event();
+}</programlisting>
+    </informalexample>
+  </blockquote>
+
+  <para>
+    Acquiring a lock involves invoking the lock pool object's
+    <methodname>addLockSet</methodname>() method, that takes a lock identifier
+    and an <link linkend="eventfd">event file descriptor</link>.
+    <methodname>addLockSet</methodname>() returns
+    an opaque <classname>lockentry</classname>, which is a
+    <link linkend="refobj">reference</link>.
+    <methodname>addLockSet</methodname>() does not wait until the requested lock
+    has been acquired, it always returns immediately.
+  </para>
+
+  <para>
+    Use the <classname>lockentry</classname>'s <methodname>locked</methodname>()
+    method to check if the lock has been acquired. In this example, if another
+    thread already holds a lock named <quote>filelock</quote>,
+    <methodname>locked</methodname>() returns <literal>false</literal> until the
+    existing lock gets released.
+    The lock pool may simultaneously hold other locks with
+    different names; <methodname>locked</methodname>() checks only that the
+    given lock has been acquired. If not, the thread may then wait
+    for an event to be registered on the given event file descriptor.
+  </para>
+
+  <para>
+    The lock, once acquired, exists as long as the
+    <classname>lockentry</classname> instance remains in scope.
+    The lock gets released
+    when this <classname>lockentry</classname> reference goes out of
+    scope.
+    When the lock gets released, any thread that's waiting &mdash; for the
+    same lock identifier &mdash; acquires it.
+  </para>
+
+  <para>
+    In the given example, only one lock gets acquired
+    at a time. Multiple locks must be acquired one at a time. This is
+    allowed. A single thread may hold more than one
+    <classname>lockentry</classname>,
+    however the application is responsible for avoiding deadlocks
+    between multiple threads that are attempting to acquire locks held by
+    each other.
+    <classname>&ns;::lockpool</classname> cannot detect deadlocks.
+  </para>
+
+  <para>
+    It is possible to define a
+    <classname>&ns;::lockpool</classname> that is capable of acquiring multiple
+    locks simultaneously, where the first parameter to
+    <methodname>addLockSet</methodname>() is a container of some sorts, that may
+    hold multiple lock identifiers.
+    The resulting <classname>lockentry</classname>'s
+    <methodname>locked</methodname>() method returns <literal>false</literal>
+    as long as any lock identifier is already locked.
+    Only when all lock identifiers in the lock set are not lock,
+    the lock identifiers, in the lock set, get acquired simultaneously.
+    The <ulink url="&link-x--multilockpool;"><classname>&ns;::multilockpool</classname></ulink>
+    template provides a convenient way to define lock pools where multiple
+    lock identifiers get acquired at once.
+  </para>
+
+  <para>
+    Note that it's still possible to end up in a deadlock situation, where
+    conflicting threads attempt to acquire lock sets that contain lock
+    identifiers that are already held by each other.
+    However, with the ability to acquire multiple locks at the same time,
+    the need for a single thread to acquire multiple lock sets diminishes, and
+    it should be possible to use logic with each individual application thread
+    needing to acquire only one <classname>lockentry</classname> at a time,
+    which eliminates any possibility for deadlocking.
+  </para>
+
+  <section id="lockstarvation">
+    <title>Lock pool starvation option</title>
+
+    <para>
+      The fourth, optional, parameter to the <classname>lockpool</classname>
+      defaults to <literal>true</literal>.
+      A waiting lock gets acquired at the earliest possible
+      opportunity, as soon as a blocking lock gets removed from the lock pool.
+      This &mdash; depending on the comparison function, and whether or not
+      the lock pool implements multiple lock acquisition &mdash; may result in
+      older waiting locks
+      getting continuously starved by newer locks jumping ahead of
+      them; as well as a lengthy scan of a long list of waiting locks, searching
+      for any lock that can be acquired at this time.
+    </para>
+
+    <para>
+      Explicitly setting the <varname>starve</varname> flag
+      to <literal>false</literal> sets a strict first-come/first-serve
+      lock acquisition order. If the oldest waiting lock cannot be acquired
+      because it's blocked, any newer locks are not checked. This results in
+      faster performance and no starvation, however it means that a newer
+      lock gets placed on the waiting list
+      even when it is not blocked by another existing
+      lock, because it must wait its turn behind an older waiting lock.
+    </para>
+    <para>
+      See the
+      <ulink url="&link-x--lockpool;">reference documentation for
+	<classname>&ns;::lockpool</classname></ulink> for more information.
+    </para>
+  </section>
+
+  <section id="rwlockpool">
+    <title>Read-write lock pools</title>
+
+    <blockquote>
+      <informalexample>
+	<programlisting>
+#include &lt;&ns;/lockpool.H&gt;
+
+typedef &ns;::rwlockpool&lt;&gt; rwpool_t;
+
+rwpool_t rwlockpool(rwpool_t::create());
+
+rwpool_t::lockentry rlock(rwlockpool->addLockSet(rwpool_t::readlock,
+                                                 &ns;::eventfd::create());
+
+rwpool_t::lockentry rlock(rwlockpool->addLockSet(rwpool_t::writelock,
+                                                 &ns;::eventfd::create());</programlisting>
+      </informalexample>
+    </blockquote>
+
+    <para>
+      <ulink url="&link-x--rwlockpool;"><classname>&ns;::rwlockpool</classname></ulink>
+      is a specialization of a <link linkend="lockpool">lock pool</link>
+      that implements the semantics of
+      <link linkend="rwmutex"><classname>&ns;::rwmutex</classname></link>.
+      The single template parameter specifies the
+      <link linkend="lockstarvation">lock starvation</link> option.
+      In this specialization, the default
+      <varname>starve</varname> value is <literal>false</literal>.
+      Once a write lock is in the lock pool's waiting list, any subsequent
+      read locks queue up on the waiting list until all existing read locks
+      go out of scope, permitting the waiting write lock to acquire the lock
+      pool. This ensures that the write lock will eventually be acquired.
+    </para>
+
+    <para>
+      Setting <varname>starve</varname> to <literal>true</literal> results
+      in read locks starving the pending write locks as long as at least
+      one read lock exists, until all read locks
+      go out of scope.
+    </para>
+  </section>
+
+  <section id="mutexpool">
+    <title>Mutually-exclusive lock pools</title>
+
+    <blockquote>
+      <informalexample>
+	<programlisting>
+#include &lt;&ns;/lockpool.H&gt;
+
+typedef &ns;::mutexpool&lt;&gt; blocklock_t;
+
+blocklock_t mutexpool(blocklock_t::create());
+
+blocklock_t::lockentry usagelock(mutexpool->addLockSet(false,
+                                                       &ns;::eventfd::create());
+
+blocklock_t::lockentry blocklock(mutexpool->addLockSet(true
+                                                       &ns;::eventfd::create());</programlisting>
+      </informalexample>
+    </blockquote>
+
+    <para>
+      <ulink url="&link-x--mutexpool;"><classname>&ns;::mutexpool</classname></ulink>
+      is a specialization of a <link linkend="lockpool">lock pool</link>
+      that implements the semantics of a <quote>mutually-exclusive</quote>
+      lock.
+      The mutually-exclusive lock poool allows only one value to be locked at
+      the same time, but the same value may be locked multiple times.
+      Attempts to place another lock value into the lock pool get blocked,
+      until all existing locks, of the same value, are released.
+    </para>
+
+    <para>
+      The above example, using <classname>bool</classname>
+      for a block value is convenient implementation of a "blocking lock" for
+      some unspecified resource. The contract is that using this resource
+      requires obtaining a <literal>false</literal> lock value. This allows multiple concurrent
+      usage. Concurrent existence of multiple <literal>false</literal> values is allowed.
+    </para>
+
+    <para>
+      Acquiring a <literal>true</literal> lock value, in this example, effectively blocks usage
+      of the protected resource. The <literal>true</literal> lock value gets acquired only after
+      all existing <literal>false</literal> values no longer exist, and future <literal>false</literal> lock
+      values won't get acquired until the <literal>true</literal> lock values are gone. Multiple
+      <literal>true</literal> lock values may exist, blocking access to the resource, and
+      <literal>false</literal> lock values won't get acquired until the last <literal>true</literal> lock is gone.
+    </para>
+
+    <para>
+      In this example, the <literal>true</literal> and <literal>false</literal> lock values are symmetric. Each
+      one blocks the other lock value. The first parameter to this template
+      class can be something other than a
+      <classname>bool</classname>, resulting in the same
+      semantics: once the first lock value is acquired, only same lock values
+      may be acquired additionally; all other lock values are blocked until
+      all existing lock values are gone.
+    </para>
+  </section>
+</chapter>
+<!--
+Local Variables:
+mode: sgml
+sgml-parent-document: ("book.xml" "book" "chapter")
+End:
+-->

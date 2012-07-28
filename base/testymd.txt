@@ -1,0 +1,41 @@
+std=20 01 2009-01-01 001 01 4 4 09 2009 Thu Thursday Jan January
+alt%=20 01 01 4 4 09 2009
+01-Jan-2009
+01-Jan-2009
+std=20 01 2009-01-01 001 01 4 4 09 2009 Thu Thursday Jan January
+alt%=20 01 01 4 4 09 2009
+std=20 01 2009-01-01 001 01 4 4 09 2009 Thu Thursday Jan January
+alt%=20 01 01 4 4 09 2009
+std=20 01 2009-01-01 001 01 4 4 09 2009 Thu Thursday Jan January
+alt%=20 01 01 4 4 09 2009
+00
+00
+01
+09 2009-W01-4
+08 2008-W01-2
+03-Aug-2009
+03-Aug-2009
+03-Aug-2009
+03-Aug-2009
+03-Aug-2009
+03-Aug-2009
+07-Jan-2009
+2009-W02-3
+4 years, 1 month, 2 weeks, 3 days
+2 hours, 10 seconds
+2 hours, 10 seconds
+9 minutes, 53 seconds
+8 minutes, 43 seconds
+-10 minutes, -7 seconds
+1 minute, 7 seconds
+1 minute
+4 hours, 1 minute, 30 seconds
+1 hour, 10 seconds
+56 minutes, 50 seconds
+-2 minutes, -10 seconds
+3661
+216 hours
+215 hours
+ 7:23:30 PM
+ 7:23:30 PM
+19 hours, 23 minutes, 30 seconds

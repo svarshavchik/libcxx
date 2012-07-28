@@ -1,0 +1,7 @@
+<Location /portmap>
+SetHandler cgi-script
+Options +ExecCGI
+</Location>
+
+RewriteEngine on
+RewriteRule /portmap @httportmapd@

@@ -1,0 +1,7 @@
+<class name="thr">
+
+  <method name="terminated" />
+
+  <method name="stoplistening" />
+
+</class>

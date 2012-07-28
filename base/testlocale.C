@@ -1,0 +1,136 @@
+/*
+** Copyright 2012 Double Precision, Inc.
+** See COPYING for distribution information.
+*/
+
+#include "libcxx_config.h"
+#include "ctype.H"
+#include "exception.H"
+#include "tostring.H"
+#include "strftime.H"
+#include "strtok.H"
+#include <iostream>
+#include <sstream>
+#include <iterator>
+
+static void testctype()
+{
+	LIBCXX_NAMESPACE::ctype ctype(LIBCXX_NAMESPACE::locale::base::utf8());
+
+	std::cout << ctype.toupper("Hello world") << std::endl;
+	std::cout << ctype.toupper(std::string("Hello world")) << std::endl;
+	std::cout << ctype.tolower("Hello world") << std::endl;
+	std::cout << ctype.tolower(std::string("Hello world")) << std::endl;
+
+	if (ctype.narrow(ctype.widen(std::string("rosebud")), ' ')
+	    != "rosebud")
+		throw EXCEPTION("narrow/widen failure");
+}
+
+static void testwctype()
+{
+	LIBCXX_NAMESPACE::locale utf8(LIBCXX_NAMESPACE::locale::base::utf8());
+
+	LIBCXX_NAMESPACE::wctype ctype(utf8);
+
+	std::cout << LIBCXX_NAMESPACE::tostring(ctype.toupper(L"Hello world"),
+					      utf8) << std::endl;
+	std::cout << LIBCXX_NAMESPACE::tostring(ctype.toupper(std::wstring(L"Hello world")),
+					      utf8) << std::endl;
+	std::cout << LIBCXX_NAMESPACE::tostring(ctype.tolower(L"Hello world"),
+					      utf8) << std::endl;
+	std::cout << LIBCXX_NAMESPACE::tostring(ctype.tolower(std::wstring(L"Hello world")),
+					      utf8) << std::endl;
+	if (ctype.narrow(ctype.widen(std::string("rosebud")), ' ')
+	    != "rosebud")
+		throw EXCEPTION("narrow/widen failure");
+}
+
+static void showwords(const std::list<std::string> &s)
+{
+	const char *sep="";
+
+	std::list<std::string>::const_iterator
+		b=s.begin(),
+		e=s.end();
+
+	while (b != e)
+	{
+		std::cout << sep << *b++;
+		sep=":";
+	}
+}
+
+
+static void teststrtok()
+{
+	std::list<std::string> wordlist;
+
+	LIBCXX_NAMESPACE::strtok_str("  ab \t cd", " \t", wordlist);
+	std::cout << "strtok1: ";
+	showwords(wordlist);
+	std::cout << std::endl;
+	wordlist.clear();
+
+	LIBCXX_NAMESPACE::strtok_str(std::string("  ab \t cd"), " \t", wordlist);
+	std::cout << "strtok2: ";
+	showwords(wordlist);
+	std::cout << std::endl;
+	wordlist.clear();
+
+	LIBCXX_NAMESPACE::ctype ct(LIBCXX_NAMESPACE::locale::base::utf8());
+
+	ct.strtok_is("  ab \t cd", wordlist, std::ctype_base::space);
+	std::cout << "strtok3: ";
+	showwords(wordlist);
+	std::cout << std::endl;
+	wordlist.clear();
+
+	ct.strtok_is(std::string("  ab \t cd"), wordlist,
+		     std::ctype_base::space);
+	std::cout << "strtok4: ";
+	showwords(wordlist);
+	std::cout << std::endl;
+	wordlist.clear();
+
+	ct.strtok_not("aa a  aaa a", wordlist, std::ctype_base::space);
+	std::cout << "strtok5: [";
+	showwords(wordlist);
+	std::cout << "]" << std::endl;
+	wordlist.clear();
+
+	ct.strtok_not(std::string("aa a  aaa a"),
+		     wordlist, std::ctype_base::space);
+	std::cout << "strtok6: [";
+	showwords(wordlist);
+	std::cout << "]" << std::endl;
+	wordlist.clear();
+
+	ct.strtok_is("word1 word2  \"word3  word4\"\"word5 \" word6",
+		     wordlist, std::ctype_base::space, '"');
+	std::cout << "strtok7: [";
+	showwords(wordlist);
+	std::cout << "]" << std::endl;
+	wordlist.clear();
+}
+
+int main(int argc, char *argv[])
+{
+	try {
+		alarm(30);
+		testctype();
+		testwctype();
+
+		if (LIBCXX_NAMESPACE::strftime(1000000000, LIBCXX_NAMESPACE::tzfile::base::utc(), LIBCXX_NAMESPACE::locale::base::utf8())("%Y")
+		    != "2001")
+			throw EXCEPTION("What's up with strftime()?");
+
+
+		teststrtok();
+
+	} catch (LIBCXX_NAMESPACE::exception &e)
+	{
+		std::cout << e << std::endl;
+	}
+	return 0;
+}

@@ -1,0 +1,148 @@
+#
+# Copyright 2012 Double Precision, Inc.
+# See COPYING for distribution information.
+#
+
+Summary: LIBCXX
+Name: libcxx
+Version: @VERSION@
+Release: 1%{?extrarelease}
+License: GPL
+Group: System Environment/Libraries
+Source0: %{name}-%{version}.tar.bz2
+
+%define _hardened_build 1
+
+BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root
+BuildRequires: gettext
+BuildRequires: gnutls-devel
+BuildRequires: %{__perl}
+BuildRequires: libxslt
+BuildRequires: pcre-devel
+Requires(post): /bin/systemctl
+Requires(preun): /bin/systemctl
+
+%description
+The C++ class library provides many classes that are useful
+for developing C++ applications on Linux.
+
+%package devel
+Group: Development/Libraries
+Summary: libcxx development libraries
+Requires: %{name} = 0:%{version}-%{release}
+Requires: %{_datadir}/aclocal
+Requires: libxslt
+Requires: pcre-devel
+
+%package httpd
+Group: System Environment/Daemons
+Summary: Apache httportmap configuration
+Requires: %{name} = 0:%{version}-%{release}
+Requires: /etc/httpd/conf.d
+
+%description devel
+This package installs files needed to develop applications that use libcxx.
+
+%description httpd
+This package configurates Apache to redirect http://localhost/portmap URLs
+to the httportmap daemon. This package must be installed if Apache is also
+installed on this server.
+
+%prep
+%setup -q
+%configure
+
+%build
+%{__make} %{_smp_mflags}
+
+%install
+rm -rf $RPM_BUILD_ROOT
+%{__make} install DESTDIR=$RPM_BUILD_ROOT INSTALL_TLSPARAM_SUFFIX=.dist
+mkdir -p $RPM_BUILD_ROOT/etc/httpd/conf.d
+%{__install} -m 0444 httportmap/apache.conf $RPM_BUILD_ROOT/etc/httpd/conf.d/httportmap.conf
+mkdir -p $RPM_BUILD_ROOT/etc/rc.d/init.d
+%{__install} -m 0555 packaging/fedora/sysinit $RPM_BUILD_ROOT%{_datadir}/httportmap/sysinit
+mkdir -p $RPM_BUILD_ROOT%{_unitdir}
+%{__install} -m 0644 packaging/fedora/systemd $RPM_BUILD_ROOT%{_unitdir}/httportmap.service
+
+%{__mkdir_p} $RPM_BUILD_ROOT%{_localstatedir}/run/httportmap.systemd
+%{__mkdir_p} $RPM_BUILD_ROOT%{_localstatedir}/run/httportmap.priv
+
+for f in $RPM_BUILD_ROOT%{_localstatedir}/run/httportmap $RPM_BUILD_ROOT%{_localstatedir}/run/httportmap.client $RPM_BUILD_ROOT%{_localstatedir}/run/httportmap.priv/socket
+do
+	%{__perl} -e 'use Socket; socket(S, PF_UNIX, SOCK_STREAM, 0); bind(S, sockaddr_un("'$f'"));'
+done
+>$RPM_BUILD_ROOT%{_localstatedir}/run/httportmap.lock
+chmod 600 $RPM_BUILD_ROOT%{_localstatedir}/run/httportmap.lock
+
+%{__mkdir_p} $RPM_BUILD_ROOT%{_sysconfdir}/cron.monthly
+%{__ln_s} %{_sbindir}/tlsparamsgen.sh $RPM_BUILD_ROOT%{_sysconfdir}/cron.monthly/tlsparamsgen
+%clean
+rm -rf $RPM_BUILD_ROOT
+
+%post
+/sbin/ldconfig
+%{_bindir}/properties --set %{_sysconfdir}/httportmapd.properties %{_sbindir}/httportmapd >/dev/null
+/bin/systemctl daemon-reload || :
+/bin/systemctl enable httportmap.service &> /dev/null || :
+/bin/systemctl reload-or-try-restart httportmap.service &> /dev/null || :
+for f in %{_localstatedir}/tlsparams/system.dh %{_localstatedir}/tlsparams/system.rsa
+do
+	test -f $f || ln $f.dist $f
+done
+
+%preun
+if test "$1" = 0
+then
+	/bin/systemctl stop httportmap.service
+	/bin/systemctl disable httportmap.service
+	rm -f %{_localstatedir}/tlsparams/system.dh
+	rm -f %{_localstatedir}/tlsparams/system.rsa
+fi
+
+%postun
+/sbin/ldconfig
+/bin/systemctl daemon-reload || :
+
+%files
+%defattr(-,root,root,-)
+%{_libdir}/*.so.*
+%{_bindir}/*
+%{_sbindir}/*
+%{_datadir}/aclocal/*
+%{_datadir}/httportmap
+%{_datadir}/libcxx
+%{_mandir}/*/*
+%{_unitdir}/*
+%attr(0777, root, root) %verify(user group mode) %ghost %config(missingok) %{_localstatedir}/run/httportmap
+%attr(0777, root, root) %verify(user group mode) %ghost %config(missingok) %{_localstatedir}/run/httportmap.client
+%attr(0700, root, root) %dir %{_localstatedir}/run/httportmap.priv
+%attr(0777, root, root) %verify(user group mode) %ghost %config(missingok) %{_localstatedir}/run/httportmap.priv/socket
+%attr(0600, root, root) %verify(user group mode) %config(missingok) %{_localstatedir}/run/httportmap.lock
+%attr(0700, root, root) %dir %{_localstatedir}/run/httportmap.systemd
+
+%dir %{_sysconfdir}/tlsparams
+%config(noreplace) %{_sysconfdir}/tlsparams/*
+
+%{_localstatedir}/tlsparams
+%{_sysconfdir}/cron.monthly/*
+%config %{_sysconfdir}/*.properties
+
+%files devel
+%defattr(-,root,root,-)
+%{_libdir}/*.so
+%{_libdir}/*.la
+%{_libdir}/*.a
+%{_libdir}/pkgconfig/*
+%{_includedir}/*
+%{_datadir}/libcxx
+%{_datadir}/aclocal/*
+
+%files httpd
+%defattr(-,root,root,-)
+/etc/httpd/conf.d/*
+
+%changelog
+* Sat Feb 23 2008 Mr. Sam <sam@email-scan.com> - 
+- Initial build.
+

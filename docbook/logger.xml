@@ -1,0 +1,57 @@
+<!--
+
+Copyright 2012 Double Precision, Inc.
+See COPYING for distribution information.
+
+-->
+
+<chapter id="logger">
+  <title>Application logging</title>
+
+  <para>
+    The
+    <ulink url="&link-x--logger;"><classname>&ns;::logger</classname></ulink>
+    class provides facilities for flexible application logging.
+    The class is not used directly. Rather, various macros, described in the
+    class documentation, define logging scopes and messages.
+  </para>
+
+  <para>
+    Logging is configured in the
+    <link linkend="properties">application properties file</link>.
+    The default logging levels, in the order of increased priority, are
+    <quote>trace</quote>,
+    <quote>debug</quote>,
+    <quote>info</quote>,
+    <quote>warning</quote>,
+    <quote>error</quote>, and
+    <quote>fatal</quote>, with a corresponding macro that generates a log
+    entry for each logging level. The default logging level is
+    <quote>error</quote>, and may be adjusted, for individual logging scopes,
+    in the application properties.
+    Setting a log level enables all log messages at or above the set log
+    level. For example, setting a log level to <quote>info</quote> enables
+    all
+    <quote>info</quote>,
+    <quote>warning</quote>,
+    <quote>error</quote>, and
+    <quote>fatal</quote> log entries for the given scope.
+  </para>
+
+  <para>
+    See the
+    <ulink url="&link-x--logger;">logger class documentation</ulink>
+    for more information.
+  </para>
+
+  <para>
+    See also: <xref linkend="maillogs.1" />
+  </para>
+</chapter>
+
+<!--
+Local Variables:
+mode: sgml
+sgml-parent-document: ("book.xml" "book" "chapter")
+End:
+-->

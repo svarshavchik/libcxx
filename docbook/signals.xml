@@ -1,0 +1,257 @@
+<!--
+
+Copyright 2012 Double Precision, Inc.
+See COPYING for distribution information.
+
+-->
+
+<chapter id="signals">
+  <title>Signals and signal file descriptors</title>
+
+  <blockquote>
+    <informalexample>
+      <programlisting>
+#include &lt;&ns;/sigset.H&gt;
+
+&ns;::sigset signals;
+
+signals += SIGHUP;</programlisting>
+    </informalexample>
+  </blockquote>
+
+  <para>
+    <ulink url="&link-x--sigset;"><classname>&ns;::sigset</classname></ulink>
+    is a wrapper for <classname>sigset_t</classname>, and implements the
+    functionality
+    of the 
+    <citerefentry>
+      <refentrytitle>sigsetops</refentrytitle>
+      <manvolnum>2</manvolnum>
+    </citerefentry> man page. Its
+    <methodname>block</methodname>(),
+    <methodname>unblock</methodname>(), and
+    <methodname>set</methodname>() methods invoke
+    <citerefentry>
+      <refentrytitle>pthread_sigmask</refentrytitle>
+      <manvolnum>3</manvolnum>
+    </citerefentry>.
+    <methodname>current</methodname>() returns the current thread's signal mask.
+  </para>
+
+  <section id="sigblock">
+    <title>Blocking signals</title>
+
+    <blockquote>
+      <informalexample>
+	<programlisting>
+{
+    &ns;::sigset::block_all sigblock;
+
+    // ...
+}</programlisting>
+      </informalexample>
+    </blockquote>
+
+    <para>
+      The
+      <ulink url="&link-x--sigset--block-all;"><classname>&ns;::sigset::block_all</classname></ulink>
+      class is a convenient shortcut. It must be instantiated on the stack.
+      Its constructor blocks all signals except for
+      <literal>SIGABRT</literal>, and the destructor restores the original
+      set of thread signals. The above example disables all signals
+      in the scope where <varname>sigblock</varname> is declared.
+    </para>
+
+    <blockquote>
+      <informalexample>
+	<programlisting>
+#include &lt;&ns;/sigset.H&gt;
+
+&ns;::ref&lt;&ns;::obj&gt; mcguffin=&ns;::sigset::block(SIGHUP);</programlisting>
+      </informalexample>
+    </blockquote>
+
+    <para>
+      This example blocks the <literal>SIGHUP</literal> signal, using
+      <citerefentry>
+	<refentrytitle>pthread_sigmask</refentrytitle>
+	<manvolnum>3</manvolnum>
+      </citerefentry>.
+      <methodname>&ns;::sigset::block</methodname>() returns
+      a <link linkend="ondestroy">mcguffin</link> representing the blocked
+      signal. The signal remains blocked until the mcguffin goes out of scope
+      and gets destroyed, at which point
+      <citerefentry>
+	<refentrytitle>pthread_sigmask</refentrytitle>
+	<manvolnum>3</manvolnum>
+      </citerefentry> gets invoked to unblock it.
+    </para>
+
+    <para>
+      It's possible to create multiple mcguffins that block the same signal.
+      Instantiating a mcguffin for signal that's already blocked does nothing.
+      The signal remains blocked as long as any mcguffin remains in scope,
+      and gets unblocked only after all blocking mcguffins go out of scope
+      and no longer exist.
+    </para>
+
+    <para>
+      Mcguffins for different signals track their respective signals
+      independently of each other.
+    </para>
+  </section>
+
+  <section id="signalfd">
+    <title>Signal file descriptors</title>
+
+    <blockquote>
+      <informalexample>
+	<programlisting>
+#include &lt;&ns;/signalfd.H&gt;
+
+&ns;::signalfd fd=&ns;::signalfd::create();
+
+fd->capture(SIGHUP);
+
+fd->nonblock(true);
+
+// ...
+
+&ns;::signalfd::getsignal_t gs=fd->getsignal();
+
+
+if (gs.ssi_signo == SIGHUP)
+    handle_sighup();</programlisting>
+      </informalexample>
+    </blockquote>
+
+    <para>
+      This is an implementation of signal file descriptors, a Linux kernel
+      specific feature. A signal file descriptor enables the implementation
+      of signal processing by reading a file descriptor in an orderly
+      fashion, instead of installing an asynchronous signal handler, and
+      being constrained by the reentrance requirements imposed on asynchronous
+      signal handlers.
+    </para>
+
+    <para>
+      A <ulink url="&link-typedef-x-signalfd;"><classname>&ns;::signalfd</classname></ulink>
+      is a <link linkend="fd">file descriptor</link>.
+      The list of signals processed via the signal file descriptor must be
+      explicitly declared by invoking
+      <methodname>capture</methodname>() (and undone by
+      <methodname>uncapture</methodname>(), if needed).
+      Upon receipt of a signal, instead of interrupting the process and
+      invoking a signal handler, the signal file descriptor becomes readable
+      (and for that reason it's usually made non-blocking).
+    </para>
+
+    <para>
+      Reading from the underlying file descriptor returns a structure.
+      This implementation provides a convenient wrapper,
+      <methodname>getsignal</methodname>() that gives the structure read from the
+      signal file descriptor. Of particular importance, its
+      <varname>ssi_signo</varname> gives the signal number received by the
+      process. The same signal file descriptor can capture multiple signals.
+    </para>
+
+    <para>
+      If no signals are pending for the process,
+      <methodname>getsignal</methodname>() blocks until a capture signal gets
+      delivered, if the signal file descriptor is blocking.
+      <methodname>getsignal</methodname>() returns immediately for a non-blocking
+      file descriptor, with the signal number given as 0.
+    </para>
+
+    <note>
+      <para>
+	As noted by
+	<citerefentry>
+	  <refentrytitle>signalfd</refentrytitle>
+	  <manvolnum>2</manvolnum>
+	</citerefentry>, signals must be blocked before they can be captured
+	by a file descriptor, and any execution thread that does not have
+	the signal blocked will catch the signal instead of it being reported
+	via a signal file descriptor. Applications that use signal file
+	descriptors should block them in <methodname>main</methodname>(), before
+	starting any threads.
+      </para>
+    </note>
+  </section>
+
+  <section id="sighandler">
+    <title>Signal handlers</title>
+
+    <blockquote>
+      <informalexample>
+	<programlisting>
+#include &lt;&ns;/sighandler.H&gt;
+
+class myhandlerObj : public &ns;::sighandlerObj {
+
+public:
+
+// ...
+
+	void signal(int signum);
+
+};
+
+&ns;::ref&lt;myhandlerObj&gt; handler=&ns;::ref&lt;myhandlerObj&gt;::create();
+
+// ...
+
+&ns;::ref&lt;&ns;::obj&gt; mcguffin=&ns;::sighandler::install(SIGHUP, handler);</programlisting>
+      </informalexample>
+    </blockquote>
+
+    <para>
+      Signal handlers provide a higher level interface for handling signals.
+      Installing a signal handler starts a background thread that creates
+      a <link linkend="signalfd">signal file descriptor</link> and invokes
+      the installed handler upon receipt of a signal.
+    </para>
+
+    <para>
+      A signal handler class derives from
+      <ulink url="&link-x--sighandlerObj;"><classname>&ns;::sighandlerObj</classname></ulink>,
+      and gets installed by <methodname>&ns;::sighandler::install</methodname>().
+      The same signal handler object may be installed for different signals.
+      More than one handler may be installed for the same signal.
+      Upon receipt of a signal, each registered handler gets invoked by a
+      separate thread. There's a single thread that implements signal
+      processing, so the signal handler should not implement time-consuming
+      tasks.
+    </para>
+
+    <para>
+      <methodname>&ns;::sighandler::install</methodname>() returns a
+      <link linkend="ondestroy">mcguffin</link>. The signal handler remains
+      installed until the mcguffin goes out of scope and gets destroyed, at
+      which time it gets uninstalled, and will no longer handle signals.
+      If there are no other references to the signal handler object, it gets
+      destroyed. If the mcguffin goes out of scope, there are no other
+      references to the handler, but the signal thread is currently executing
+      the handler due to a receipt of a signal, the signal handler object gets
+      destroyed when it returns.
+    </para>
+
+    <para>
+      When all signal handlers are uninstalled, the signal handler thread gets
+      stopped and the signal file descriptor is closed. The next installation
+      of a signal handler restarts the thread and recreates the signal
+      file descriptor.
+    </para>
+
+    <para>
+      <link linkend="signalfd">As noted</link>, applications must block
+      individual signals in order to effect signal handling.
+    </para>
+  </section>
+</chapter>
+<!--
+Local Variables:
+mode: sgml
+sgml-parent-document: ("book.xml" "book" "chapter")
+End:
+-->

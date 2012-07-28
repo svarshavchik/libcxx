@@ -1,0 +1,120 @@
+<!--
+
+Copyright 2012 Double Precision, Inc.
+See COPYING for distribution information.
+
+-->
+
+<chapter id="eventfactory">
+  <title>Event factories</title>
+
+  <para>
+    An
+    <ulink url="&link-x--eventfactory;">event factory</ulink> is a generic
+    thread-safe object for dispatching internal application events.
+    Application events are identified by an event key, and have some
+    associated event data.
+  </para>
+
+  <blockquote>
+    <informalexample>
+      <programlisting>
+typedef eventfactory&lt;std::string, int&gt; myfactory_t;
+
+myfactory_t myfactory(myfactory_t::create());</programlisting>
+    </informalexample>
+  </blockquote>
+
+  <para>
+    This example creates an event factory whose events are identified by
+    a <classname>std::string</classname>, with each
+    event's data being a simple <classname>int</classname>.
+  </para>
+
+  <para>
+    Handlers for an event are implemented by subclassing from
+    <ulink url="&link-x--eventhandlerObj;">&ns;::eventhandlerObj</ulink>.
+    This is a template class, whose template parameter is the event data
+    type.
+  </para>
+
+  <blockquote>
+    <informalexample>
+      <programlisting>
+class myEventHandlerObj : public &ns;::eventhandlerObj&lt;int&gt; {
+
+public:
+    myEventHandlerObj() noexcept {}
+    ~myEventHandlerObj() noexcept {}
+    void event(const int &amp;eventArg);
+};
+
+typedef &ns;::ref&lt;myEventHandlerObj&gt; myEventHandler;
+
+myEventHandler evh(myEventHandler::create());</programlisting>
+    </informalexample>
+  </blockquote>
+
+  <para>
+    <classname>&ns;::eventhandlerObj</classname> is a
+    <link linkend="refobj">reference-counted object</link>.
+    The event handler subclass must implement the <methodname>event</methodname>
+    method, that takes a constant reference to the event data type as its sole
+    argument.
+  </para>
+
+  <para>
+    The event handler gets registered with the event factory by invoking
+    the <methodname>registerHandler</methodname> method:
+  </para>
+
+  <blockquote>
+    <informalexample>
+      <programlisting>
+&ns;::eventregistration regevent(myfactory-&gt;registerHandler("fileavailable",
+                                                         evh);</programlisting>
+    </informalexample>
+  </blockquote>
+
+  <para>
+    The event handler is associated with an event key
+    <quote>fileavailable</quote>. This example uses an event factory whose
+    events are keyed by a <classname>std::string</classname>.
+    Reported events with the given event key are passed along to all event
+    handlers registered for the event key, and each registered handler's
+    <methodname>event</methodname>() method receives the event argument,
+    the <classname>int</classname>.
+  </para>
+
+  <para>
+    <methodname>registerHandler</methodname>() returns an
+    <ulink url="&link-typedef-x-eventregistration;"><classname>&ns;::eventregistration</classname></ulink>.
+    This is an opaque reference to the registered event handler.
+    The registered event handler receives events as long as this opaque
+    reference remains in scope.
+    When this
+    <classname>&ns;::eventregistration</classname>
+    goes out of scope, the event handler gets deregistered from the event
+    factory, and will no longer receive any reported events.
+  </para>
+
+  <para>
+    An event gets reported by invoking <methodname>event()</methodname>:
+  </para>
+
+  <blockquote>
+    <informalexample>
+      <programlisting>
+myfactory-&gt;event("fileavailable", 4);</programlisting>
+    </informalexample>
+  </blockquote>
+
+  <para>
+    All event handlers that are registered for the
+    <quote>fileavailable</quote> event are invoked, receiving
+    <literal>4</literal> as the event handler's argument.
+    <ulink url="&link-x--eventfactory;"><classname>&ns;::eventfactory</classname></ulink>
+    has several overloaded <methodname>event</methodname>() methods for reporting
+    multiple events in several convenient ways.
+  </para>
+</chapter>

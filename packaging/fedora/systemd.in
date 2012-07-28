@@ -1,0 +1,15 @@
+[Unit]
+Description=HTTP-based portmapper
+After=basic.target
+After=httpd.service
+After=httpd-event.service
+After=httpd-worker.service
+
+[Install]
+WantedBy=default.target
+
+[Service]
+Type=forking
+ExecStart=@datadir@/httportmap/sysinit systemd start
+ExecStop=@datadir@/httportmap/sysinit systemd stop
+ExecReload=@datadir@/httportmap/sysinit systemd-restart start

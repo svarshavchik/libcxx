@@ -1,0 +1,1114 @@
+<!--
+
+Copyright 2012 Double Precision, Inc.
+See COPYING for distribution information.
+
+-->
+
+<chapter id="serialization">
+  <title>Object serialization</title>
+
+  <para>
+    Serialization is the process of converting an object to a sequence
+    of bytes, which can be saved to a file or a buffer, and subsequently
+    recreating the object from the saved byte sequence.
+  </para>
+
+  <section id="serializationusecases">
+    <title>Use cases</title>
+
+    <para>
+      The format of serialized objects is not documented.
+      It partially depends on the implementation-defined platform and the C++
+      <acronym>ABI</acronym>. As such,
+      serialization is not really suitable for long term object
+      persistance, since a platform change or a compiler change may
+      result in incompatibility with previously-serialized objects.
+      This object serialization is generally
+      intended for interprocess communication
+      between version-compatible client and server processes.
+    </para>
+
+    <para>
+      Serialized byte sequences include a signature of the serialized
+      object. Attempting to deserialize into an incompatible object
+      results in a well-defined error path, a thrown exception.
+    </para>
+  </section>
+
+  <section id="serializableobj">
+    <title>Supported objects</title>
+
+    <para>
+      These templates support serialization and deserialization of the
+      following objects:
+    </para>
+
+    <itemizedlist>
+      <listitem>
+	<para>
+	  Native integer types.
+	</para>
+      </listitem>
+
+      <listitem>
+	<para>
+	  Enumerated types, after manually specializing a helper template
+	  class.
+	</para>
+      </listitem>
+
+      <listitem>
+	<para>
+	  Native floating point types.
+	</para>
+      </listitem>
+
+      <listitem>
+	<para>
+	  Instances of classes that
+	  <link linkend="serializingclasses"> implement the
+	  <methodname>serialize</methodname>() template method</link>.
+	</para>
+      </listitem>
+
+      <listitem>
+	<para>
+	  Containers of objects that themselves are serializable, and
+	  which define a default constructor and a copy constructor. The
+	  suitable containers are:
+	  <classname>std::basic_string</classname> (including native
+	  string literals,
+	  <classname>const char *</classname>
+	  and <classname>const wchar_t *</classname>);
+	  <classname>std::list</classname>,
+	  <classname>std::deque</classname>,
+	  <classname>std::vector</classname>,
+	  <classname>std::map</classname>,
+	  <classname>std::multimap</classname>,
+	  <classname>std::set</classname>,
+	  <classname>std::multiset</classname>, and a
+	  a <classname>std::pair</classname>
+	  of two serializable classes.
+	</para>
+      </listitem>
+
+      <listitem>
+	<para>
+	  <link linkend="refobj">References</link> to classes
+	  that implement the <methodname>serialize</methodname>() template method,
+	  and the class defines a default constructor, or if serialization
+	  uses custom traits that provide a suitable implementation for
+	  instantiating a reference to the object to be deserialized.
+	</para>
+      </listitem>
+    </itemizedlist>
+
+    <para>
+      A serialized object can be deserialized only into a structurally
+      compatible object.
+      It goes without saying that an object is structurally compatible
+      to any object of the same exact class.
+      All containers of the same class are structurally
+      compatible. A serialized
+      <classname>std::list&lt;std::string&gt;</classname>
+      can be deserialized into a
+      <classname>std::vector&lt;std::string&gt;</classname>, and vice versa.
+      This applies to
+      all supported container types. A
+      <classname>std::map</classname> is structurally
+      compatible to a container of a <classname>std::pair</classname> of
+      the key and value types,
+      so a serialized
+      <classname>std::map&lt;int, std::string&gt;</classname>
+      may be deserialized
+      into a <classname>std::list&lt;std::pair&lt;int,
+	std::string&gt; &gt;</classname>.
+      The opposite is
+      also true, but only as long as the serialized keys are unique.
+      An exception gets thrown if a deserialized value cannot be
+      inserted into its container.
+    </para>
+
+    <para>	
+      All floating point types are converted to strings before
+      serialization, so floating point objects are structurally
+      compatible
+      with a <classname>std::string</classname>. This also means
+      that a serialized <classname>std::string</classname> may be
+      deserialized into a native floating point object. An exception
+      gets thrown if the serialized string cannot be parsed as a
+      floating point type. It is undefined
+      whether an exception gets thrown if the
+      floating point type has insufficient precision for the serialized
+      floating value.
+    </para>
+
+    <para>	
+      Native character string literals are structurally compatible to their
+      corresponding <classname>std::basic_string</classname> types.
+      Although native
+      character string literals may be serialized, deserializing native
+      character string literals is functionally meaningless. Literal strings
+      may be deserialized only into
+      <classname>std::basic_string</classname>
+      or its structurally compatible containers.
+    </para>
+  </section>
+
+  <section id="serializetoiter">
+    <title>Serializing an object</title>
+
+    <blockquote>
+      <informalexample>
+	<programlisting>
+#include &lt;&ns;/serialize.H&gt;
+
+int intvalue;
+
+std::vector&lt;std::string&gt; strarray;
+
+// ...
+	
+std::ofstream ofs("object.dat");
+	
+std::ostreambuf_iterator&lt;char&gt; ofs_iter(ofs.rdbuf());
+
+&ns;::serialize::iterator&lt;std::ostreambuf_iterator&lt;char&gt; &gt;
+    o_iter(ofs_iter);
+
+o_iter(intvalue);
+o_iter(strarray);</programlisting>
+      </informalexample>
+    </blockquote>
+
+    <para>
+      The <classname>&ns;::serialize</classname> namespace defines a
+      <ulink url="&link-x--serialize--iterator;">
+	<classname>iterator</classname></ulink> template class.
+      The <classname>iterator</classname> output iterator
+      iterates over objects, serializing them.
+      The parameter to this template class is an output iterator.
+      <classname>std::ostreambuf_iterator&lt;char&gt;</classname> is the
+      popular choice.
+      The constructor
+      takes a reference to the output iterator of this class.
+      <classname>iterator</classname>
+      saves a reference to the output iterator, which
+      must exist as long as the <classname>iterator</classname> object
+      itself remains in scope.
+      The output iterator's value type must be either
+      <classname>char</classname> or
+      <classname>unsigned char</classname>.
+    </para>
+
+    <para>
+      <methodname>iterator::operator</methodname>()
+      serializes the passed object into the output iterator.
+      It returns a reference to <literal>this</literal>,
+      allowing for the following
+      shorthand:
+    </para>
+
+    <blockquote>
+      <informalexample>
+	<programlisting>
+o_iter(intvalue)(strarray);</programlisting>
+      </informalexample>
+    </blockquote>
+  </section>
+
+  <section id="serializeenum">
+    <title>Serializing enumerated values</title>
+
+    <para>
+      An enumeratation is a distinct type, but it can be serialized by
+      specializing <classname>&ns;::serialization::serialize_integer_type</classname>:
+    </para>
+
+    <informalexample>
+      <blockquote>
+	<programlisting>
+
+enum errmsg_t {
+
+// ...
+
+};
+
+namespace &ns; {
+    namespace serialization {
+        template&lt;&gt; class serialize_integer_type&lt;errmsg_t&gt;
+        public:
+
+            typedef char int_t;
+        };
+};</programlisting>
+      </blockquote>
+    </informalexample>
+
+    <para>
+      After declaring the above specialization, instances of
+      <classname>errmsg_t</classname> can be serialized and deserialized
+      normally. This example uses <classname>char</classname> values for
+      serializing this enumeration type. Any natural integer type may be
+      declared for <classname>int_t</classname>. The natural integer type
+      must, of course, be wide enough to represent all values of the
+      enumerated type.
+    </para>
+
+    <blockquote>
+      <informalexample>
+	<programlisting>
+LIBCXX_SERIALIZE_ENUMERATION(errmsg_t, char);</programlisting>
+      </informalexample>
+    </blockquote>
+
+    <para>
+      The <varname>LIBCXX_SERIALIZE_ENUMERATION</varname> macro is a simple
+      equivalent macro that expands out to the same text.
+    </para>
+  </section>
+  <section id="serializerange">
+    <title>Serializing a beginning/ending iterator range</title>
+
+    <blockquote>
+      <informalexample>
+	<programlisting>
+std::vector&lt;char&gt;::iterator begin_iter, end_iter;
+
+// ...
+
+o_iter.range(begin_iter, end_iter);</programlisting>
+      </informalexample>
+    </blockquote>
+
+    <para>
+      The output iterator defines a <methodname>range</methodname>() method that
+      takes two random access iterators, a beginning iterator and an ending
+      iterator to the same container, and serializes just the container
+      subset that's specified by this iterator range.
+    </para>
+
+    <note>
+      <para>
+	<methodname>range</methodname>() only works with random access iterators,
+	so its application is limited to <classname>std::vector</classname>
+	and <classname>std::basic_string</classname>.
+      </para>
+    </note>
+  </section>
+
+  <section id="serializesizeof">
+    <title>Calculating the size of the serialized object</title>
+
+    <para>
+      The number of bytes required to represent a serialized object
+      cannot be easily known in advance. It is possible to calculate it,
+      but it's an expensive process. The object gets serialized twice:
+      the first time to count the number of bytes, and the second time
+      for real. This is expensive, but can be convenient sometimes:
+    </para>
+
+    <blockquote>
+      <informalexample>
+	<programlisting>
+#include &lt;&ns;/serialize.H&gt;
+
+std::vector&lt;std::string&gt; strarray;
+
+// ...
+	
+&ns;::serialize::sizeof_iterator cnt;
+	
+cnt(strarray);
+	
+std::vector&lt;char&gt; buffer;
+	
+buffer.resize(cnt.counter());
+	
+char *ptr=&amp;buffer[0];
+
+&ns;::serialize::iterator&lt;char *&gt; o_iter(ptr);
+	
+o_iter(strarray);
+	</programlisting>
+      </informalexample>
+    </blockquote>
+
+    <para>
+      <ulink url="&link-x--serialize--sizeof-iterator;">
+	<classname>sizeof_iterator</classname></ulink>
+      is a subclass of
+      <link linkend="serializetoiter"><classname>iterator</classname></link>
+      that throws
+      away the serialized bytes, after counting them.
+      Its <methodname>counter</methodname>()
+      method returns the resulting byte count.
+      This example allocates
+      a suitable buffer, then the object gets serialized
+      for real, using a plain <classname>char *</classname>
+      as an output iterator.
+    </para>
+
+    <para>	
+      It goes without saying that the
+      serialized objects cannot be modified between
+      the first and the second serialization pass in a manner that
+      affects their serialized representation.
+    </para>
+  </section>
+
+  <section id="serializefunc">
+    <title>Convenience functions for serializing a single object</title>
+
+    <blockquote>
+      <informalexample>
+	<programlisting>
+#include &lt;&ns;/serialize.H&gt;
+
+std::vector&lt;std::string&gt; strarray;
+	
+// ...
+	
+std::vector&lt;char&gt; buffer;
+	
+buffer.resize(&ns;::serialize::object(strarray));
+	
+char *ptr=&amp;buffer[0];
+
+&ns;::serialize::object(strarray, ptr);</programlisting>
+      </informalexample>
+    </blockquote>
+
+    <para>
+      The single argument version of
+      <ulink url="&namespace-x--serialize;"><classname>&ns;::serialize</classname></ulink>'s
+      <methodname>object</methodname>() public member function
+      constructs an instance of
+      <link linkend="serializesizeof"><classname>sizeof_iterator</classname></link>,
+      serialized the given object,
+      and returns the resulting byte count.
+    </para>
+
+    <para>	
+      The two argument version of <methodname>object</methodname>() constructs an
+      instance of
+      <link linkend="serializetoiter"><classname>iterator</classname></link>
+      and serializes the given object.
+    </para>
+  </section>
+
+  <section id="deserialization">
+    <title>Deserializing an object</title>
+	
+    <blockquote>
+      <informalexample>
+	<programlisting>
+#include &lt;&ns;/deserialize.H&gt;
+
+int intvalue;
+
+std::vector&lt;std::string&gt; strarray;
+
+std::ifstream ifs("object.dat");
+
+std::istreambuf_iterator&lt;char&gt; beg(ifs.rdbuf()), end;
+
+typedef &ns;::deserialize::iterator&lt;std::istreambuf_iterator&lt;char&gt; &gt; deser_t;
+
+deser_t deser(beg, end);
+	
+deser(intvalue);
+deser(strarray);</programlisting>
+      </informalexample>
+    </blockquote>
+
+    <para>
+      The <classname>&ns;::deserialize</classname> namespace
+      defines the
+      <ulink url="&link-x--deserialize--iterator;">
+	<classname>iterator</classname></ulink> template class.
+      This <classname>iterator</classname>
+      iterates over objects, deserializing them from a serialized byte stream.
+      The parameter to this template class is the input iterator type,
+      <classname>std::istreambuf_iterator&lt;char&gt;</classname> is the
+      popular choice.
+      The constructor
+      takes a reference to the beginning input iterator and an ending
+      input iterator.
+      <classname>iterator</classname>
+      saves a reference to both iterators, which
+      must exist as long as <classname>iterator</classname> object
+      itself remains in scope.
+      The input iterator's value type must be either
+      <classname>char</classname> or
+      <classname>unsigned char</classname>.
+    </para>
+
+    <para>
+      <methodname>iterator::operator</methodname>()
+      deserializes the passed object from the byte stream.
+      It returns a reference to <literal>this</literal>,
+      allowing for the following
+      shorthand:
+    </para>
+
+    <blockquote>
+      <informalexample>
+	<programlisting>
+deser(intvalue)(strarray);</programlisting>
+      </informalexample>
+    </blockquote>
+
+    <para>	
+      An exception gets thrown if the type of objects that were
+      serialized does not match the type of objects to
+      deserialize (but see below).
+    </para>
+
+    <para>
+      Note that objects being deserialized must be constructed beforehand
+      and then deserialized.
+    </para>
+
+    <para>
+      An exception gets thrown if the input iterator has reached the ending
+      input iterator before all objects have been deserialized.
+    </para>
+
+    <section id="serializemaxsize">
+      <title>Maximum sequence sizes</title>
+
+      <para>
+	When deserializing an object, an optional second parameter to the
+	<classname>iterator</classname> call sets the maximum
+	sequence size that will be deserialized:
+      </para>
+
+      <blockquote>
+	<informalexample>
+	  <programlisting>
+std::string objname;
+
+deser(objname, 255);</programlisting>
+	</informalexample>
+      </blockquote>
+
+      <para>
+	If the string's size comes in to more than 255 characters,
+	an exception gets thrown. This is used in environments where
+	the serialized byte stream comes from an untrusted source.
+	Normally, after receiving the sequence's size, the deserialization
+	iterator allocates the suitable amount of memory, and this prevents
+	an untrusted source from sending a large sequence size that allocates
+	a huge amount of memory.
+      </para>
+
+      <para>
+	The second parameter is allowed only when the object is a container.
+	The serialization iterator also allows a second parameter, which is
+	ignored. This allows the definition of the
+	<link linkend="serializingclasses"><methodname>serialize()</methodname></link>
+	template method that handles both serialization and deserialization.
+	When serializing, the sequence size parameter gets ignored,
+	when deserializing, it gets checked.
+      </para>
+
+      <para>
+	It's presumed that a thin API layer handles serialization on the
+	untrusted source side, and provides a meaningful error path that
+	enforces the maximum sequence size. However, since the source is
+	untrusted, the deserialization side needs to enforce this check
+	anyway.
+      </para>
+    </section>
+
+    <section id="deserializeany">
+      <title>Deserializing any one of several objects</title>
+
+      <blockquote>
+	<informalexample>
+	  <programlisting>
+
+class object_iter;
+
+class Aobject {
+
+// ...
+public:
+
+    Aobject(object_iter &amp;);
+};
+
+class Bobject;
+
+class Bobject_wrapper : public Bobject {
+
+// ...
+    Bobject_wrapper(object_iter &amp;);
+};
+
+// ...
+
+class object_iter {
+
+public:
+
+    template&lt;typename iter_type&gt;
+    static void classlist(iter_type &amp;iter)
+    {
+        iter.template serialize&lt;Aobject&gt;();
+	iter.template serialize&lt;Bobject, Bobject_wrapper&gt;();
+    }
+
+    void deserialized(Aobject &amp;obj)
+    {
+        // ...
+    }
+
+    void deserialized(Bobject &amp;obj)
+    {
+        // ...
+    }
+};
+
+// ...
+
+object_iter any_object;
+
+deser_t::any&lt;object_iter&gt; any_deser(deser, any_object);
+
+any_deser();</programlisting>
+	</informalexample>
+      </blockquote>
+
+      <para>
+	This is an example of deserializing one of several possible objects.
+	This is done when the serialized byte stream may contain any one of
+	different objects, and whichever one it is needs to be deserialized and
+	handled in some way.
+	The steps to do this are as follows:
+      </para>
+
+      <itemizedlist>
+	<listitem>
+	  <para>
+	    Define and instantiate a class called an
+	    <quote>object iterator class</quote>.
+	    The object iterator class defines an overloaded
+	    <methodname>deserialized</methodname>() method for each possible
+	    class that may be deserialized. The object iterator class
+	    also defines a <methodname>classlist</methodname>() method.
+	  </para>
+	</listitem>
+
+        <listitem>
+	  <para>
+	    Each class that may be deserialized must have a constructor that
+	    takes a reference to the object iterator class as a parameter.
+	    Since the same class is presumably used on the serialization
+	    side, without the deserialization object iterator class, it
+	    should also have other constructors as well, probably a default
+	    constructor explicitly defined.
+	  </para>
+	</listitem>
+
+	<listitem>
+	  <para>
+	    Define and instantiate an <classname>any</classname> template
+	    class instance. The deserialization iterator class defines
+	    an <classname>any</classname> template class, that takes the
+	    object iterator as the template parameter. Its contructor takes
+	    the deserialization iterator, and the object iterator class
+	    instance as a parameter.
+	  </para>
+	</listitem>
+
+	<listitem>
+	  <para>
+	    Each invocation of <classname>any</classname>'s
+	    <methodname>operator ()</methodname> deserializes a class from
+	    the deserialization iterator, and invokes the appropriate
+	    <methodname>deserialized</methodname>() method in the object iterator
+	    class.
+	  </para>
+	</listitem>
+
+	<listitem>
+	  <para>
+	    The object iterator class instance and the deserialization iterator
+	    must remain in scope as long as the <classname>any</classname>
+	    instance remains in scope.
+	  </para>
+	</listitem>
+
+	<listitem>
+	  <para>
+	    From the object iterator's class classlist() method, calls to
+	    serialize() may also specify a second template class, which
+	    gets instantiated instead of the class being deserialized,
+	    when deserialization occurs. The above example results in
+	    <classname>Bobject_wrapper</classname> getting instantiated
+	    when deserialize <classname>Bobject</classname>.
+	    <classname>Bobject_wrapper</classname> subclasses from
+	    <classname>Bobject</classname>, and presumably
+	    <classname>Bobject</classname>'s
+	    <methodname>serialize</methodname>() gets called to do the deed,
+	    while it's <classname>Bobject_wrapper</classname> gets instantiated.
+	    The object iterator class's overloaded
+	    <methodname>deserialized</methodname>() may specify either
+	    <classname>Bobject_wrapper</classname> or
+	    <classname>Bobject</classname>.
+	  </para>
+	</listitem>
+      </itemizedlist>
+
+      <para>
+	More specifically, the
+	requirements of an object iterator class are:
+      </para>
+
+      <itemizedlist>
+	<listitem>
+	  <para>
+	    A template
+	    function named <methodname>classlist</methodname>()
+	    (see below).</para>
+	</listitem>
+
+	<listitem>
+	  <para>
+	    When <methodname>any</methodname>()
+	    determines which object should be deserialized,
+	    the templated object gets constructed on the stack.
+	    If the second class was given in <methodname>classlist</methodname>,
+	    the second class gets constructed instead of the first one.
+	  </para>
+	</listitem>
+
+	<listitem>
+	  <para>
+	    The constructed object's <methodname>serialize</methodname>() method
+	    gets invoked.
+	  </para>
+	</listitem>
+
+	<listitem>
+	  <para>
+	    An overloaded
+	    <methodname>deserialized</methodname>() method (which can be a
+	    template), one for each class iterated in the
+	    <classname>classlist</classname>() method.
+	    If two classes were specified in the
+	    <classname>classlist</classname>() method's iteration, either
+	    the first class or the second may be used for
+	    <methodname>deserialized</methodname>().
+	  </para>
+
+	  <para>
+	    <methodname>any</methodname>() constructs the appropriate object,
+	    and invokes the appropriate
+	    <methodname>deserialized</methodname>() method. The deserialized
+	    object goes out of scope before <methodname>any</methodname>() returns.
+	  </para>
+	</listitem>
+      </itemizedlist>
+
+      <para>
+	The object iterator's
+	<methodname>classlist</methodname> template function takes one or two
+	template classes as a parameter, and one argument, a reference
+	to the template class.
+      </para>
+
+      <para>
+	The template class instance that's passed as an argument to
+	<methodname>classlist</methodname>()
+	will have a public member template function,
+	<methodname>serialize</methodname>().
+      </para>
+
+      <para>
+	<methodname>classlist</methodname>() should iterate over a list of
+	all classes that may be deserialized, by invoking
+	the passed iterator's <methodname>serialize</methodname>() template method.
+	The previous example iterates over two classes
+	<classname>Aobject</classname> and
+	<classname>Bobject</classname>/<classname>Bobject_wrapper</classname>,
+	and shows the expected implementation
+	pattern for any number of classes that may be deserialized.
+      </para>
+    </section>
+  </section>
+
+  <section id="deserializefunc">
+    <title>Convenience functions for deserializing a single object</title>
+
+    <blockquote>
+      <informalexample>
+	<programlisting>
+#include &lt;&ns;/deserialize.H&gt;
+
+std::vector&lt;std::string&gt; strarray;
+	
+// ...
+	
+std::vector&lt;char&gt; charbuf;
+	
+// ...
+
+&ns;::deserialize::object(strarray, charbuf.begin(), charbuf.end());</programlisting>
+      </informalexample>
+    </blockquote>
+
+    <para>
+      The three argument version of
+      <ulink url="&namespace-x--deserialize;"><classname>&ns;::deserialize</classname></ulink>'s
+      <methodname>object</methodname>() public member function takes a reference to
+      an object, a beginning iterator, and an ending iterator.
+      An <classname>iterator</classname> object gets constructed using the two
+      iterators, then the first argument
+      to <methodname>object</methodname>() gets deserialized.
+    </para>
+
+    <blockquote>
+      <informalexample>
+	<programlisting>
+#include &lt;&ns;/deserialize.H&gt;
+
+&ns;::deserialize::object(strarray, charbuf);</programlisting>
+      </informalexample>
+    </blockquote>
+
+    <para>
+      The two argument version of
+      <methodname>object</methodname>() takes a container
+      for its second argument. The container's
+      <methodname>begin</methodname>() and <methodname>end</methodname>()
+      method provide the beginning and the ending iterator, which are
+      deserialized accordingly into the object referenced by its
+      first argument.
+    </para>
+  </section>
+
+  <section id="serializingclasses">
+    <title>Serializing classes</title>
+
+    <para>
+      Support for serializing and deserializing objects is implemented
+      by adding a <methodname>serialize</methodname>() template method to the
+      class:
+    </para>
+
+    <blockquote>
+      <informalexample>
+	<programlisting>
+class hms {
+
+public:
+
+// ...
+
+    template&lt;typename iter_type&gt;
+    void serialize(iter_type &amp;i)
+    {
+        i(h);
+        i(m);
+	i(s);
+    }
+};</programlisting>
+      </informalexample>
+    </blockquote>
+
+    <para>
+      This is an abbreviated excerpt from the actual definition of the
+      <link linkend="intervals"><classname>&ns;::hms</classname></link> class
+      that holds a interval of time expressed as hours, minutes, and seconds.
+      Defining the <methodname>serialize</methodname>() template function makes
+      this class serializable.
+      To support serialization of containers of the serializable class,
+      the class must also implement a default constructor and a copy
+      constructor (explicitly or implicitly).
+    </para>
+
+    <para>
+      The <methodname>serialize</methodname>() template method receives a
+      reference to one of two possible iterators.
+      When serializing, <methodname>serialize</methodname>() receives
+      an instance of a
+      <link linkend="serializetoiter">serializing
+	<classname>iterator</classname></link>.
+      When deserializing, <methodname>serialize</methodname>() receives an
+      instance of a
+      <link linkend="deserialization">deserializing
+	<classname>iterator</classname></link>.
+      The unified <methodname>serialize</methodname>() template method iterates
+      over the same class members, in the same order, using the iterator,
+      automatically implementing identical serializing and deserializing
+      logic.
+    </para>
+
+    <note>
+      <para>
+	Although the serializing process does not modify the object,
+	a single non-const <methodname>serialize</methodname>() template
+	function gets invoked to serialize the object. However serializing
+	a constant object works. This is because the template which
+	implements serializing temporarily drops the const-ness of the
+	object, during serializing, enabling the usage of the
+	<methodname>serialize</methodname>() template function.
+      </para>
+
+      <para>
+	This is, unfortunately, a necessary evil.
+	The benefits of defining a single physical block of code for
+	serializing and deserializing outweighs the idealistic purity of
+	implementing two template methods, one constant method that handles
+	serializing, and a second non-constant method that handles
+	deserializing.
+      </para>
+    </note>
+
+    <para>
+      Still,
+      sometimes different logic is necessary when serializing and
+      deserilizing. Here's the <methodname>serialize</methodname>()
+      method from the
+      <link linkend="tzfile"><classname>&ns;::tzfile</classname></link> class:
+    </para>
+
+    <blockquote>
+      <informalexample>
+	<programlisting>
+template&lt;typename iter_type&gt;
+void serialize(iter_type &amp;i)
+{
+    i(name, 255);
+
+    if (!i.serializing)
+    {
+        std::string namecpy(name);
+
+        load_file(namecpy);
+    }
+}</programlisting>
+      </informalexample>
+    </blockquote>
+
+    <para>
+      <classname>&ns;::tzfile</classname> contains detailed data structures
+      that implement the mapping between epoch time and local time.
+      This mapping is loaded from the system timezone database, and
+      consists of a collection of arrays of various objects, and other
+      boring data.
+    </para>
+
+    <para>
+      It's possible to simply serialize each one of the internal class
+      members. However, since a serialized object may only be
+      deserialized into a structurally compatible object, changing anything
+      about the internal <classname>&ns;::tzfile</classname> class members
+      ends up invalidating all the previously serialized objects.
+    </para>
+
+    <para>
+      An arbitrary timezone is defined solely by the timezone's name,
+      which is a single string. Therefore,
+      <classname>&ns;::tzfile</classname> is serialized
+      simply by serializing its name.
+      That means only the timezone's name gets deserialized
+      (enforcing the maximum timezone name size of 255 characters), so
+      the timezone definition must be loaded from the system timezone
+      database also. This is what happens in the given example.
+    </para>
+
+    <para>
+      <quote><replaceable>iterator</replaceable>.serializing</quote> is
+      a constant expression that evaluates
+      to <literal>true</literal> if the parameter to
+      <methodname>serialize</methodname>() is the serializing iterator, and
+      <literal>false</literal> if it's the deserializing iterator.
+      First, the timezone mapping name gets either serialized or deserialized.
+      When serializing, the process is finished at this point.
+      When deserializing the object, <methodname>load_file</methodname>() gets
+      invoked. This is an internal class method that loads the given
+      timezone mapping from the system database.
+    </para>
+
+    <para>
+      The tradeoff here is that a serializing timezone mapping can only be
+      truly deserialized if an identical
+      timezone mapping exists at the time and place
+      when deserializing occurs. This is a reasonable assumption.
+      Although serializing the internal structure of
+      <classname>&ns;::tzfile</classname> is possible, as previously mentioned,
+      the added imposition of prohibiting any future changes to the inner
+      structure of this class is weighed to be too high of a price to pay for
+      the ability to deserialize a timezone mapping in an environment that
+      does not have an identical mapping available.
+      This is a rare possibility, so the value added is very small.
+    </para>
+
+    <para>
+      (The reason for making a copy of the timezone mapping when deserializing
+      is because <methodname>load_file</methodname> takes a reference to the
+      timezone mapping as a parameter, and assigns the referenced string
+      object to the <quote>name</quote> class member).
+    </para>
+  </section>
+
+  <section id="refserialize">
+    <title>Serialization of object references</title>
+
+    <para>
+      A <link linkend="refobj">reference to a reference-counted object</link>
+      is serializable if the object's class defines the
+      <link linkend="serializingclasses"><methodname>serialize</methodname>()</link>
+      template function, and either the class has a default constructor,
+      or a
+      <link linkend="serializationtraits">custom traits class</link>
+      is used when deserializing with an
+      implementation of <methodname>classcreate</methodname>() that takes care
+      of constructing a new object references.
+      If <classname>C</classname> is a class that meets these requirements,
+      a <classname>&ns;::ptr&lt;C&gt;</classname> can be serialized and
+      deserialized.
+      If the <classname>&ns;::ptr&lt;C&gt;</classname> is an undefined
+      reference, and serialized, deserialization results in an undefined
+      reference. Otherwise a new instance of <classname>C</classname>,
+      referenced by the <classname>&ns;::ptr&lt;C&gt;</classname>,
+      gets instantiated, then deserialized.
+    </para>
+
+    <note>
+      <para>
+	If <classname>&ns;::ptr&lt;C&gt;</classname> is actually a reference to
+	some subclass of <classname>C</classname>, only the
+	<classname>C</classname> superclass gets serialized, and
+	deserializing puts a reference to the <classname>C</classname> object
+	into the <classname>&ns;::ptr&lt;C&gt;</classname>.
+      </para>
+    </note>
+  </section>
+
+  <section id="serializationtraits">
+    <title>Deserialization traits class</title>
+
+    <blockquote>
+      <informalexample>
+	<programlisting>
+#include &lt;&ns;/deserialize.H&gt;
+
+class Aobj : virtual public &ns;::obj {
+
+  // ...
+
+};
+
+class Bobj : virtual public &ns;::obj {
+
+  // ...
+
+};
+
+class mytraits {
+
+public:
+
+    template&lt;typename ref_type&gt;
+    static void classcreate(ref_type &amp;ref)
+    {
+        if (ref.null())
+           ref=ref_type::create();
+    }
+};
+
+std::ifstream ifs("object.dat");
+
+std::istreambuf_iterator&lt;char&gt; beg(ifs.rdbuf()), end;
+
+&ns;::deserialize::iterator&lt;std::istreambuf_iterator&lt;char&gt;, mytraits&gt;
+   deser(beg, end);
+
+// ...
+
+   &ns;::ptr&lt;Aobj&gt; a;
+
+   deser(a);</programlisting>
+      </informalexample>
+    </blockquote>
+
+    <para>
+      An optional second parameter to the deserialization iterator template
+      specifies a template class. When deserializing a reference to an object,
+      the reference gets passed to the <classname>classcreate</classname>()
+      static method of the traits class.
+    </para>
+
+    <para>
+      The above example is the default traits class, which invokes the
+      default constructor for the object to initialize a null reference. If
+      the reference passed to the deserialization iterator already refers to
+      an existing object instance, it gets left alone.
+    </para>
+
+    <para>
+      The default traits class also has a specialized
+      <classname>classcreate</classname> for
+      <link linkend="serializefd">deserializing file descriptors</link>.
+    </para>
+
+    <para>
+      A custom serialization traits class can define specialized
+      <methodname>classcreate</methodname>() methods for
+      instantiating references to new class instances.
+    </para>
+  </section>
+
+  <section id="serializefd">
+    <title>Serializing file descriptors</title>
+
+    <blockquote>
+      <informalexample>
+	<programlisting>
+#include &lt;&ns;/serialize.H&gt;
+
+typedef &ns;::serialize&lt;&gt; serialize_impl;
+
+std::stringstream sb;
+
+std::ostreambuf_iterator&lt;char&gt; ofs_iter=sb.rdbuf();
+
+serialize_impl::iterator&lt;std::ostreambuf_iterator&lt;char&gt; &gt;
+    o_iter(ofs_iter);
+
+x::fd fd(x::fd::open("filename", O_WRONLY | O_CREAT | O_TRUNC, 0666));
+
+o_iter(fd);</programlisting>
+      </informalexample>
+    </blockquote>
+
+    <para>
+      File descriptors implement a serialization method. The file descriptor
+      serialization method serializes the contents of the file descriptor.
+      Serialization is implemented for regular files only, and the file
+      descriptor must be positioned at the beginning of the file before
+      serializing or deserializing it.
+    </para>
+
+    <para>
+      When passing a file descriptor reference to a deserialization iterator,
+      if the file descriptor is already open, the contents of the file get
+      deserialized into the opened file. Otherwise, a temporary file gets
+      created and opened. This functionality is implemented in the default
+      traits class.
+    </para>
+  </section>
+</chapter>
+<!--
+Local Variables:
+mode: sgml
+sgml-parent-document: ("book.xml" "book" "chapter")
+End:
+-->

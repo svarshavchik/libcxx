@@ -1,0 +1,150 @@
+<!--
+
+Copyright 2012 Double Precision, Inc.
+See COPYING for distribution information.
+
+-->
+
+<chapter id="df">
+  <title>Free disk space</title>
+
+  <blockquote>
+    <informalexample>
+      <programlisting>
+#include &lt;&ns;/df.H&gt;
+
+&ns;::df space;
+
+// ...
+
+space=&ns;::df::create("/etc");
+
+// ...
+
+space=&ns;::df::create(filedesc);
+
+// ...
+
+std::cout &lt;&lt; &ns;::fmtsize(space->allocSize() * space->allocFree())
+          &lt;&lt; " (" &lt;&lt; &ns;::fmtsize(space->allocSize())
+          &lt;&lt; " allocation unit), "
+          &lt;&lt;  space->inodeFree() &lt;&lt; " inodes left" &lt;&lt; std::endl;
+
+// ...
+
+space-&gt;refresh();
+</programlisting>
+    </informalexample>
+
+    <para>
+      <ulink url="&link-typedef-x-df;"><classname>&ns;::df</classname></ulink>
+      is a reference to a reference-counted object that reports on the amount
+      of free space left on a disk partition. <methodname>create</methodname>()
+      takes either an explicit name of any file or directory on the partition,
+      or an open file descriptor.
+    </para>
+
+    <note>
+      <para>
+	If a reference to a file descriptor object is specified, a reference
+	to this file descriptor object remains until the last reference to
+	the disk space object goes out of scope, and the underlying file
+	descriptor must remain open to the same file.
+      </para>
+    </note>
+
+    <para>
+      The <methodname>allocFree</methodname>() method returns the number of
+      free allocation units remaining on the partition.
+      <methodname>inodeFree</methodname>() returns the number of free inodes.
+      These methods report the number of allocation units, or inodes, for
+      non-privileged users.
+      <methodname>allocSize</methodname>() returns the size of an allocation unit,
+      in bytes.
+    </para>
+
+    <note>
+      <para>
+	The amount of free space or inodes gets retrieved initially by
+	<methodname>&ns;::df::create</methodname>(), and the referenced object's
+	methods only report on the retrieved usage, they do not recheck it.
+	<methodname>refresh</methodname>() reloads the amount of free disk space and
+	inodes, to reflect any changes since the last
+	<methodname>&ns;::df::create</methodname>(), or
+	<methodname>refresh</methodname>() method was called.
+      </para>
+    </note>
+
+    <para>
+      There's a <quote>reservation</quote> mechanism that temporarily excludes
+      some amount of free disk space or inodes from being reported:
+    </para>
+
+    <blockquote>
+      <informalexample>
+	<programlisting>
+&ns;::df::reservation res(space-&gt;reserve(1024 * 1024 / space->allocSize(), 100));</programlisting>
+      </informalexample>
+    </blockquote>
+
+    <para>
+      This example excludes one megabyte and 100 inodes from being reported
+      by all subsequent calls to <methodname>allocFree</methodname>() and
+      <methodname>inodeFree</methodname>(). The first parameter to
+      <methodname>reserve</methodname>() is the number of allocation units to
+      exclude, the second parameter is the number of inodes to exclude.
+    </para>
+
+    <para>
+      The reserved amount continues to be excluded after subsequent calls
+      to <methodname>refresh</methodname>().
+      <classname>&ns;::df::reservation</classname> is a reference to a
+      reference-counted object. The reserved amount remains excluded as long
+      as the underlying object remains in scope.
+      When the last <classname>&ns;::df::reservation</classname> goes out of
+      scope and the object gets destroyed, subsequent calls to
+      <methodname>allocFree</methodname>() and
+      <methodname>inodeFree</methodname>() no longer exclude the reserved amount.
+    </para>
+
+    <para>
+      Invoking the reservation object's <methodname>commit</methodname>() method
+      has the effect that the reserved space remains in reserve until the
+      next call to refresh(), rather than until the reservation handle goes
+      out of scope.
+    </para>
+
+    <para>
+      Multiple reservations may be instantiated, and are tracked separately.
+      The total number of reserved allocation units and inodes is a
+      <classname>long</classname>, and cannot exceed the maximum value
+      that may be stored in a <classname>long</classname>.
+      The reservation object is thread-safe.
+    </para>
+
+    <note>
+      <para>
+	If invoking
+	<methodname>allocFree</methodname>() and
+	<methodname>inodeFree</methodname>() one after another, another thread
+	may make or release a reservation between the two calls.
+	Furthermore, although
+	the allocation unit count and inode count are atomic values, the
+	process of allocating or releasing a reservation is not an atomic;
+	it updates one value, or the other.
+	In a multithreaded context, the amounts reported by
+	<methodname>allocFree</methodname>() and
+	<methodname>inodeFree</methodname>(), in any order, may include only one
+	value claimed by a reservation and not the other one, either the
+	allocation unit count or the inode count, if another thread is
+	in the middle of making or releasing a reservation.
+      </para>
+    </note>
+  </blockquote>
+</chapter>
+<!--
+Local Variables:
+mode: sgml
+sgml-parent-document: ("book.xml" "part" "chapter")
+End:
+-->

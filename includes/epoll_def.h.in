@@ -1,0 +1,37 @@
+#ifdef x_epollobj_H
+
+/*
+** Copyright 2012 Double Precision, Inc.
+** See COPYING for distribution information.
+*/
+
+#define EPOLLIN 1
+#define EPOLLOUT 2
+#define EPOLLRDHUP 4
+#define EPOLLPRI 8
+#define EPOLLERR 16
+#define EPOLLHUP 32
+
+/* #define EPOLLET 64 */
+
+#define EPOLLONESHOT 128
+
+#define EPOLL_CTL_ADD 1
+#define EPOLL_CTL_MOD 2
+#define EPOLL_CTL_DEL 3
+
+typedef union epoll_data {
+	void        *ptr;
+	int          fd;
+	uint32_t     u32;
+
+	@INCLUDE_UPOLL_u64@
+
+} epoll_data_t;
+
+struct epoll_event {
+	uint32_t     events;      /* Epoll events */
+	epoll_data_t data;        /* User data variable */
+};
+
+#endif

@@ -1,0 +1,13 @@
+/apache.conf
+/httportmap
+/httportmap_server.opts.h
+/httportmapd
+/localstatedir.h
+/portmapdatadir.h
+/testhttportmap
+/testhttportmap2
+/testhttportmap3
+/testsingletonapp
+/testsingletonapp2
+/testsuite
+/x

@@ -1,0 +1,194 @@
+<!--
+
+Copyright 2012 Double Precision, Inc.
+See COPYING for distribution information.
+
+-->
+
+<chapter id="headers">
+  <title>Headers</title>
+
+  <para>
+    <ulink url="&link-x--headersbase;"><classname>&ns;::headersbase</classname></ulink>
+    is a non reference-counted container for
+    something that looks like a set of HTTP or MIME headers. This class
+    is typically not used directly, but via one of its two subclasses:
+    <ulink url="&link-x--headersimpl;"><classname>&ns;::headersimpl&lt;&ns;::headersbase::crlf_endl&gt;</classname></ulink>
+    or
+    <ulink url="&link-x--headersimpl;"><classname>&ns;::headersimpl&lt;&ns;::headersbase::lf_endl&gt;</classname></ulink>.
+  </para>
+
+  <para>
+    <classname>&ns;::headersbase</classname> provides methods for using headers
+    that were already parsed. The two template-based subclasses provide methods
+    for parsing headers in environments where individual lines of text are
+    terminated by either the <literal>CRLF</literal> or
+    <literal>LF</literal> character sequence:
+  </para>
+
+  <variablelist>
+    <varlistentry>
+      <term><classname>&ns;::headersbase::lf_endl</classname></term>
+      <listitem>
+	<para>
+	  Each header line is terminated by the <literal>LF</literal>
+	  character.
+	</para>
+      </listitem>
+    </varlistentry>
+
+    <varlistentry>
+      <term><classname>&ns;::headersbase::crlf_endl</classname></term>
+      <listitem>
+	<para>
+	  Each header line is terminated by the
+	  <literal>CR</literal><literal>LF</literal>
+	  character sequence.
+	  Lone <literal>CR</literal> and <literal>LF</literal> characters
+	  are syntactically considered to be a part of the header's contents.
+	</para>
+      </listitem>
+    </varlistentry>
+  </variablelist>
+
+  <blockquote>
+    <informalexample>
+      <programlisting>
+&ns;::headersimpl&lt;&ns;::headersbase::crlf_endl&gt; headers;
+
+headers.parse(std::cin);</programlisting>
+    </informalexample>
+  </blockquote>
+
+  <para>
+    This example parses headers from an input stream. The headers may be
+    also parsed from some arbitrary input sequence that's defined by an
+    beginning and ending input iterators:
+  </para>
+
+  <blockquote>
+    <informalexample>
+      <programlisting>
+&ns;::headersimpl&lt;&ns;::headersbase::crlf_endl&gt; headers;
+
+headers.parse(buf.begin(), buf.end());</programlisting>
+    </informalexample>
+  </blockquote>
+
+  <para>
+    <methodname>parse</methodname>() interprets each line as
+    <quote>header: value</quote>. A line that begins with a whitespace
+    character is considered to be a continuation of the value from the
+    previous line. The combined, or <quote>folded</quote> value includes the
+    intervening <literal>LF</literal> or
+    <literal>CR</literal><literal>LF</literal>.
+  </para>
+
+  <para>
+    <type>&ns;::headersbase::iterator</type> and
+    <type>&ns;::headersbase::const_iterator</type> define opaque
+    type that iterate over an associative multimap keyed by headers' names:
+  </para>
+
+  <blockquote>
+    <informalexample>
+      <programlisting>
+&ns;::headersbase::const_iterator p(headers.find("Mime-Version"));
+
+if (p != headers.end())
+    std::cout &lt;&lt; p-&gt;second.value() &lt;&lt; std::endl;</programlisting>
+    </informalexample>
+  </blockquote>
+
+  <para>
+    <classname>&ns;::headers</classname> defines a small subset of methods of a
+    <classname>std::multimap</classname>:
+    <methodname>begin</methodname>(),
+    <methodname>end</methodname>(),
+    <methodname>find</methodname>(),
+    <methodname>equal_range</methodname>(), and
+    <methodname>erase</methodname>() (several overloaded flavors).
+    Use <methodname>equal_range</methodname>() to process headers which may occur
+    more than once.
+  </para>
+
+  <para>
+    The multimap's iterators point to a pair whose
+    second value is
+    <ulink url="&link-x--headersbase--header-map-val-t;"><classname>&ns;::headersbase::header_map_val_t</classname></ulink>.
+    This class defines three methods:
+  </para>
+
+  <variablelist>
+    <varlistentry>
+      <term><methodname>name</methodname>()</term>
+      <listitem>
+	<para>
+	  Returns this header's name.
+	</para>
+      </listitem>
+    </varlistentry>
+
+    <varlistentry>
+      <term><methodname>value</methodname>()</term>
+      <listitem>
+	<para>
+	  Returns the value of the header. The leading and trailing whitespace
+	  is trimmed off (but any internal
+	  <literal>LF</literal> or
+	  <literal>CR</literal><literal>LF</literal>
+	  sequences in folded headers are preserved as is).
+	</para>
+      </listitem>
+    </varlistentry>
+
+    <varlistentry>
+      <term><methodname>begin</methodname>() and <methodname>end</methodname>()</term>
+      <listitem>
+	<para>
+	  Returns a beginning and an ending iterator for a sequence that
+	  defines the header's value. This is less expensive than
+	  <methodname>value</methodname>().
+	</para>
+      </listitem>
+    </varlistentry>
+  </variablelist>
+
+  <para>
+    <classname>&ns;::headerbase</classname>'s
+    <methodname>list</methodname>() returns a
+    <classname>const std::list&lt;&ns;::headerbase::header&gt; &amp;</classname> that contains
+    the entire set of headers, in their original order.
+    <classname>&ns;::headerbase::header</classname> is a subclass of
+    <classname>std::string</classname> that
+    also implements the same
+    <methodname>name</methodname>(),
+    <methodname>value</methodname>(), and
+    <methodname>nameiter</methodname>() methods that are implemented by
+    <classname>&ns;::headersbase::header_map_val_t</classname>.
+  </para>
+
+  <para>
+    The <ulink url="&link-x--headersimpl;"><classname>&ns;::headersimpl</classname></ulink>
+    template subclass provides additional methods.
+    <methodname>parse</methodname>() was described previously.
+    <methodname>toString</methodname>() is the opposite of
+    <methodname>parse</methodname>(), it formats the headers into an output
+    iterator.
+    <methodname>append</methodname>() adds a line of text to the parsed headers.
+    If the line starts with a space, the line is appended to the most recently
+    appended header.
+    <methodname>replace</methodname>() removes any existing header and replaces it.
+  </para>
+
+  <para>
+    These classes are not reference-counted objects, and must remain in scope
+    as long as any instantiated iterator remains in scope.
+  </para>
+</chapter>
+<!--
+Local Variables:
+mode: sgml
+sgml-parent-document: ("book.xml" "book" "chapter")
+End:
+-->

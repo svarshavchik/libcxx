@@ -1,0 +1,87 @@
+#! @SHELL@
+#
+### BEGIN INIT INFO
+#
+# Provides: httportmap
+# Should-Start: httpd
+# Default-Start: 2 3 4 5
+# Default-Stop: 0 1 6
+# Description: httportmap startup script
+#
+### END INIT INFO
+#
+# Copyright 2012 Double Precision, Inc.
+# See COPYING for distribution information.
+#
+
+prefix="@prefix@"
+exec_prefix="@exec_prefix@"
+sbindir="@sbindir@"
+
+if test -f /etc/sysconfig/httportmap
+then
+    . /etc/sysconfig/httportmap
+fi
+
+startcmd=start
+stopcmd=stop
+
+if test "$1" = "systemd"
+then
+    startcmd=systemd-start
+    stopcmd=systemd-stop
+    shift
+fi
+
+if test "$1" = "systemd-restart"
+then
+    startcmd=systemd-restart
+    shift
+fi
+
+case "$1" in
+    start)
+	echo -n "Starting httportmap: "
+
+	# Replace stock public key parameters without waiting for cron.monthly
+
+	@sbindir@/tlsparamsgen.sh --definit &
+
+	if test ! -d /etc/httpd/conf.d
+	then
+	    args="$args --http"
+	fi
+
+	$sbindir/httportmapd $args --daemon $startcmd
+	echo ""
+	;;
+    stop)
+	echo -n "Stopping httportmap: "
+	$sbindir/httportmapd $stopcmd
+	echo ""
+	;;
+
+    restart)
+	$0 start
+	;;
+    reload)
+	;;
+    force-reload)
+	$0 restart
+	;;
+    try-restart)
+	if $sbindir/httportmapd status
+	then
+	    $0 restart
+	fi
+	;;
+    status)
+	if $sbindir/httportmapd status
+	then
+	    echo "httportmap is running"
+	else
+	    echo "httportmap is not running"
+	fi
+	;;
+esac
+exit 0

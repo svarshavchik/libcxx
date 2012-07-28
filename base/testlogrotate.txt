@@ -1,0 +1,4 @@
+x::logger::handler::log2=testlogdir/2000/02/01/20000201120000.log
+x::logger::handler::log2::rotate=testlogdir/*/*/*/*.log
+x::logger::handler::log2::keep=4
+x::logger::log::handler::default=log2

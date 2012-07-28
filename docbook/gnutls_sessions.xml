@@ -1,0 +1,557 @@
+<!--
+
+Copyright 2012 Double Precision, Inc.
+See COPYING for distribution information.
+
+-->
+
+<chapter id="gnutls_sessions">
+  <title><acronym>TLS</acronym> sessions</title>
+
+  <para>
+    Creating a <acronym>TLS</acronym>
+    session requires a sequence of steps.
+    In this context, <quote>session</quote> is just a technical name for an
+    encrypted connection.
+  </para>
+
+  <para>
+    The first step is to create the underlying network connection.
+    The classes described in this chapter, with
+    the sole exception of a handful of convenience functions, take an
+    existing connection and put an encryption layer on it, creating a
+    <acronym>TLS</acronym> session. Many types of encrypted connections, such
+    as secure <acronym>HTTP</acronym> connections, are encrypted from start
+    to finish, so a <acronym>TLS</acronym> session is prepared immediately
+    after the creation of the underlying network connections. Other protocols
+    may not necessarily be encrypted at first, and a <acronym>TLS</acronym>
+    session gets established after an initial protocol-specific handshake.
+  </para>
+
+  <para>
+    The underlying network connection is traditionally created by creating
+    an <link linkend="fd"><classname>&ns;::fd</classname></link> reference,
+    representing a file descriptor, then using its methods to connect to
+    a server, or listen on a port and accept a connection from a client.
+  </para>
+
+  <section id="credcert">
+    <title>Certificate credentials</title>
+
+    <para>
+      The next step is to create a reference to a credentials object.
+      <ulink url="&link-typedef-x--gnutls--credentials-certificate;"><classname>&ns;::gnutls::credentials::certificate</classname></ulink>
+      is a reference to a
+      <link linkend="refobj">reference-counted object</link> that represents
+      the authentication information for a <acronym>TLS</acronym> session.
+    </para>
+
+    <para>
+      A <acronym>TLS</acronym> session has a client side and a server side.
+      There are slight differences in the steps for setting up
+      the credentials object depending on whether
+      it will be used for the client side or the server side.
+    </para>
+
+    <para>
+      The client side requires the credentials
+      object to be loaded with a list of trusted certificate authorities.
+      <methodname>set_x509_trust_default</methodname> loads the system-wide default
+      list of trusted certificate authorities:
+    </para>
+
+    <blockquote>
+      <informalexample>
+	<programlisting>
+#include &lt;&ns;/gnutls/credentials.H&gt;
+
+&ns;::gnutls::credentials::certificate
+                clientCert(&ns;::gnutls::credentials::certificate::create());
+
+clientCert-&gt;set_x509_trust_default();</programlisting>
+      </informalexample>
+    </blockquote>
+
+    <para>
+      The trusted certificate authority list may also be optionally loaded
+      when setting up the server side of a <acronym>TLS</acronym> session.
+      This is done if the <acronym>TLS</acronym> session uses client
+      certificates. This is an optional part of a <acronym>TLS</acronym>
+      session: the server verifying a client's certificate, which must be
+      be signed by a trusted certificate authority.
+    </para>
+
+    <para>
+      A <acronym>TLS</acronym> session is not just about encryption.
+      Authentication is an essential component of encryption.
+      The whole purpose of encryption is to prevent unauthorized interception
+      of a connection between a client and a server; that is, an intermediate
+      party cannot listen in and make a copy or a log of the client/server
+      connection.
+    </para>
+
+    <para>
+      However, if a hostile party has the means of passively listening in on
+      a connection between the client and the server,
+      it would also have the means
+      to intercept it completely.
+      Without authentication, once the ability to passively listen on a
+      connection is there, intercepting the connection completely is just a
+      minor incremental step. Without any kind of authentication in place,
+      the client would be unaware that it's connected to an interloper, instead
+      of the expected party. The interloper could proceed and
+      establish a separate connection to the server, then manually
+      exchange the traffic across the two separate connections, while
+      intercepting the exchanged traffic surreptitiously.
+    </para>
+
+    <para>
+      As such, authentication is an integral part of an encrypted
+      <acronym>TLS</acronym> session. The client authenticates the server,
+      and requires that the server's certificate be signed by a certificate
+      authority that's on the client's list of trusted certificate authorities.
+      The client may also authenticate itself to the server,
+      this part is
+      optional, and depends on the individual client/server configuration.
+      In <acronym>TLS</acronym>, authentication is implemented
+      with X.509 certificates and
+      trusted certificate authorities. This documentation does not include a
+      full discussion of these topics, beyond this brief introduction, as it
+      falls outside the scope of this documentation.
+    </para>
+
+    <para>
+      The <classname>&ns;::gnutls::credentials::certificate</classname>
+      reference object stores the following authentication-related
+      configuration parameters:
+    </para>
+
+    <itemizedlist>
+      <listitem>
+	<para>
+	  The private key and the certificate (or a certificate chain)
+	  that are used to authenticate this
+	  side of the <acronym>TLS</acronym> session. This is required for
+	  <acronym>TLS</acronym> servers, and optional for
+	  <acronym>TLS</acronym> clients.
+	</para>
+      </listitem>
+
+      <listitem>
+	<para>
+	  A list of trusted certificate authorities to authenticate the other
+	  side of the <acronym>TLS</acronym> session, the peer's
+	  <acronym>TLS</acronym> certificate.
+	</para>
+      </listitem>
+
+      <listitem>
+	<para>
+	  In some situations,
+	  <acronym>TLS</acronym> servers must create
+	  a temporary key to effect the initial
+	  key exchange between the client and the server.
+	  This is called an <quote>ephemeral DH keypair</quote>, which is
+	  also called a <link linkend="pkparams">temporary public key
+	  parameter</link>.
+	  Also the <acronym>TLS</acronym> server needs to create a
+	  <quote>temporary RSA parameter</quote>
+	  if the server should support weak
+	  export-grade <acronym>RSA</acronym> keys.
+	</para>
+
+	<para>
+	  The requirement for a temporary public key parameter or a
+	  temporary <acronym>RSA</acronym> may be satisfied in two ways.
+	  First by explicitly installing an emphemeral DH keypair,
+	  or a temporary RSA parameter that was created in advance.
+	  A second way, is to import the global DH or RSA parameters that are
+	  <link linkend="pkparamsgenerator">periodically regenerated</link>
+	  by the system.
+	</para>
+      </listitem>
+    </itemizedlist>
+
+    <para>
+      To meet these requirements, convenience functions are created that
+      prepare a credentials object with suitable default settings.
+      An earlier example prepares a stock client-side credentials object,
+      that uses <methodname>set_x509_trust_default</methodname>()
+      to load the default system list of
+      trusted certificate authorities.
+      The following example prepares a stock server-side credentials object:
+    </para>
+
+    <blockquote>
+      <informalexample>
+	<programlisting>
+#include &lt;&ns;/gnutls/credentials.H&gt;
+
+&ns;::gnutls::credentials::certificate
+    serverCert(&ns;::gnutls::credentials::certificate::create("certificate.crt",
+                                                           "certificate.key",
+                                                           GNUTLS_X509_FMT_PEM));</programlisting>
+      </informalexample>
+    </blockquote>
+
+    <para>
+      This example creates a default server-side credentials object, loading
+      the server's certificate an private key from <acronym>PEM</acronym>-formatted
+      files (pass the same filename twice if the certificate and the key are in
+      the same file).
+    </para>
+
+    <para>
+      See the
+      <ulink url="&link-typedef-x--gnutls--credentials-certificate;">class
+      reference</ulink> for more information, including
+      examples of advanced usage with a callback
+      selecting one of several private keys and certificates, instead of
+      using a fixed certificate for all <acronym>TLS</acronym> sessions.
+      This is used in situations
+      where a certificate must be selected individually for each session.
+    </para>
+
+    <para>
+      Multiple <acronym>TLS</acronym> sessions may use the same certificate
+      object, and the same authentication configuration.
+      This saves some time from having to initialize the same
+      authentication configuration for each session. Instead, the authentication
+      parameters are loaded once, and attached directly to each instantiated
+      <acronym>TLS</acronym> session.
+    </para>
+  </section>
+
+  <section id="pkparams">
+    <title>Ephemeral and temporary parameters</title>
+
+    <para>
+      Most TLS sessions make use of ephemeral DH parameters to effect the key
+      exchange between the client and the server.
+      Support for weak export-grade encryption also requires temporary RSA
+      parameters. These objects are created on the server side of a TLS
+      session.
+    </para>
+
+    <blockquote>
+      <informalexample>
+	<programlisting>
+#include &lt;&ns;/gnutls/rsaparams.H&gt;
+#include &lt;&ns;/gnutls/dhparams.H&gt;
+#include &lt;&ns;/gnutls/pkparams.H&gt;
+
+&ns;::gnutls::dhparams dh(&ns;::gnutls::dhparams::create());
+
+dh-&gt;generate(2048);
+
+&ns;::gnutls::rsaparams rsa(&ns;::gnutls::rsaparams::create());
+
+rsa-&gt;generate(2048);</programlisting>
+      </informalexample>
+    </blockquote>
+
+    <para>
+      <ulink url="&link-typedef-x--gnutls-dhparams;"><classname>&ns;::gnutls::dhparams</classname></ulink>
+      and
+      <ulink url="&link-typedef-x--gnutls-rsaparams;"><classname>&ns;::gnutls::rsaparams</classname></ulink>
+      are reference to a
+      <link linkend="refobj">reference-counted object</link> that represents
+      the ephemeral DH or the temporary RSA parameter.
+      The above example creates a 2048 parameter of either type.
+      <ulink url="&link-typedef-x--gnutls-pkparams;"><classname>&ns;::gnutls::pkparams</classname></ulink>
+      is a reference to a shared superclass that implements common
+      methods, such as
+      <methodname>generate</methodname>(), which generates a new parameter.
+      <methodname>get_pk_algorithm</methodname>() returns either
+      <constant>GNUTLS_PK_RSA</constant> or <constant>GNUTLS_PK_DSA</constant>
+      that indicates which subclass is referenced by the
+      <classname>&ns;::gnutls::pkparams</classname>.
+    </para>
+  </section>
+
+  <section id="pkparamsgenerator">
+    <title>Loading system-generated ephemeral and temporary parameters</title>
+
+    <para>
+      Generating a temporary parameter is an expensive experation. A common
+      approach is to pregenerate the temporary parameter and save it to
+      a secure file.
+      The low-level methods to implement that are provided in the
+      <ulink url="&link-typedef-x--gnutls-rsaparams;"><classname>&ns;::gnutls::rsaparams</classname></ulink>
+      and
+      <ulink url="&link-typedef-x--gnutls-pkparams;"><classname>&ns;::gnutls::pkparams</classname></ulink>-referenced
+      object.
+      Another approach is to import a system-provided temporary parameter file
+      that gets periodically regenerated.
+    </para>
+
+    <blockquote>
+      <informalexample>
+	<programlisting>
+#include &lt;&ns;/gnutls/dhparams.H&gt;
+
+&ns;::gnutls::dhparams dh(&ns;::gnutls::dhparams::create());
+
+dh-&gt;import();</programlisting>
+      </informalexample>
+    </blockquote>
+
+    <para>
+      A system-wide process periodically generates new DH and RSA parameters
+      and saves them in the directory specified by the
+      <literal>&ns;::gnutls::tlsparamsdir</literal>
+      <link linkend="properties">property</link>.
+      <methodname>import</methodname>() searches this directory for the first
+      file from the following list, and loads the parameters from the file:
+    </para>
+
+    <informaltable>
+      <tgroup cols="2">
+	<colspec colname="first" />
+	<colspec colname="second" />
+	<thead>
+	  <row>
+	    <entry>
+	      <methodname>dhparams-&gt;import()</methodname>
+	    </entry>
+	    <entry>
+	      <methodname>rsaparams-&gt;import()</methodname>
+	    </entry>
+	  </row>
+	</thead>
+	<tfoot>
+	  <row>
+	    <entry namest="first" nameend="second" role="tblfootnote">
+	      <simpara>
+		Note:
+	      </simpara>
+	      <blockquote role="footer">
+		<simpara>
+		  <superscript>*</superscript><replaceable>USERNAME</replaceable> is the process's
+		  effective userid.
+		</simpara>
+		<simpara>
+		  <superscript>+</superscript><replaceable>GROUPNAME</replaceable> is the process's
+		  effective group id. Additionally, any supplementary group ids
+		  are also checked.
+		</simpara>
+	      </blockquote>
+	    </entry>
+	  </row>
+	</tfoot>
+	<tbody>
+	  <row>
+	    <entry>
+	      <filename>user.<replaceable>USERNAME</replaceable>.dh<superscript>*</superscript></filename>
+	    </entry>
+	    <entry>
+	      <filename>user.<replaceable>USERNAME</replaceable>.rsa<superscript>*</superscript></filename>
+	    </entry>
+	  </row>
+	  <row>
+	    <entry>
+	      <filename>group.<replaceable>GROUPNAME</replaceable>.dh<superscript>+</superscript></filename>
+	    </entry>
+	    <entry>
+	      <filename>group.<replaceable>GROUPNAME</replaceable>.rsa<superscript>+</superscript></filename>
+	    </entry>
+	  </row>
+	  <row>
+	    <entry>
+	      <filename>system.dh</filename>
+	    </entry>
+	    <entry>
+	      <filename>system.rsa</filename>
+	    </entry>
+	  </row>
+	</tbody>
+      </tgroup>
+    </informaltable>
+  </section>
+
+  <section id="sessionsetup">
+    <title>Setting up a session</title>
+
+    <blockquote>
+      <informalexample>
+	<programlisting>
+#include &lt;&ns;/gnutls/session.H&gt;
+
+&ns;::fd filedesc=&ns;::netaddr::create("www.example.com", "https",
+                                 SOCK_STREAM)-&gt;connect();
+&ns;::gnutls::session sess(&ns;::gnutls::session::create(GNUTLS_CLIENT, filedesc));
+
+sess-&gt;credentials_set(clientCred);
+sess-&gt;set_default_priority();
+sess-&gt;handshake();
+sess-&gt;verify_peer("www.example.com");</programlisting>
+      </informalexample>
+    </blockquote>
+
+    <para>
+      <ulink url="&link-typedef-x--gnutls-session;"><classname>&ns;::gnutls::session</classname></ulink>
+      is a reference to a
+      <link linkend="refobj">reference-counted object</link> that
+      represents a <acronym>TLS</acronym> session that's attached to
+      an existing file descriptor.
+      Its
+      <ulink url="&link-x--gnutls--sessionBase;">create()</ulink>
+      method
+      takes a reference to an existing file descriptor
+      object, and a parameter that specifies whether the file descriptor
+      should be a <acronym>TLS</acronym> client or a server.
+    </para>
+
+    <para>
+      There are several additional formalities before the <acronym>TLS</acronym>
+      session is ready.
+      First, the authentication credentials must be specified by using
+      <methodname>credentials_set</methodname>() to set the authentication
+      credentials for the session.
+      Then, the list of acceptable ciphers must be set.
+      <methodname>set_default_priority</methodname> specifies the default cipher
+      list.
+      Finally, <methodname>handshake</methodname>() performs the initial
+      <acronym>TLS</acronym> handshake with the peer, and establishes a
+      <acronym>TLS</acronym> session.
+    </para>
+
+    <para>
+      An exception gets thrown if <methodname>handshake</methodname>() fails to
+      establish a <acronym>TLS</acronym> session.
+      <acronym>TLS</acronym> clients should also use
+      <methodname>verify_peer</methodname>() to authenticate the server's
+      certificate's identity.
+      This is an important detail, see
+      <xref linkend="credcert" /> for a brief discussion on the purpose of
+      certificate authentication.
+    </para>
+
+    <section id="sessionconv">
+      <title>Convenience functions</title>
+
+      <blockquote>
+	<informalexample>
+	  <programlisting>
+#include &lt;&ns;/gnutls/session.H&gt;
+
+&ns;::gnutls::session sess(&ns;::gnutls::session::base::client("imap.example.com", 993));</programlisting>
+	</informalexample>
+      </blockquote>
+
+      <para>
+	<methodname>client</methodname>() is a single function that creates a
+	new file descriptor, creates a new socket and connects to a server,
+	creates a new <acronym>TLS</acronym> session objects, and installs
+	a default <link linkend="credcert">credentials</link> objects loaded
+	with the default authentication configuration and loads the default
+	system list of trusted certificate authorities, invokes
+	<methodname>handshake</methodname>() followed by
+	<methodname>verify_peer</methodname>() to validate the server's certificate.
+	The end result is a reference to a session object representing an
+	established <acronym>TLS</acronym> session, ready to be used.
+      </para>
+    </section>
+  </section>
+
+  <section id="usingsession">
+    <title>Using the session</title>
+    <para>
+      After the handshake, the
+      <ulink url="&link-x--gnutls--sessionBase;">session
+	object's</ulink> <methodname>recv</methodname>() and
+      <methodname>send</methodname>() methods may be used to securely exchange
+      raw data with the peer.
+      <methodname>bye</methodname>() performs an orderly shutdown of the
+      <acronym>TLS</acronym>, after which the underlying network connection
+      can be closed. The network connection can, of course, be closed without
+      formally invoking
+      <methodname>bye</methodname>(), however a formal <acronym>TLS</acronym>
+      shutdown process serves a purpose. An unexpected connection
+      teardown may be interpreted as an attack on the <acronym>TLS</acronym>
+      session.
+    </para>
+
+    <para>
+      The <ulink url="&link-x--gnutls--sessionBase;">session
+      object</ulink> also implements the <link linkend="fdbase">file descriptor
+      transport interface</link>, so
+      <methodname>pubread</methodname>() and
+      <methodname>pubwrite</methodname>() may be used instead of
+      <methodname>recv</methodname>() and
+      <methodname>send</methodname>(). If a handshake was not previously completed,
+      the first call to
+      <methodname>recv</methodname>() and
+      <methodname>send</methodname>() transparently calls
+      <methodname>handshake</methodname>() first, before attempting to read or
+      write. If the underlying file descriptor is non-blocking and the handshake
+      is incomplete due to pending I/O, its status gets returned, and the
+      next call to
+      <methodname>recv</methodname>() and
+      <methodname>send</methodname>() invokes <methodname>handshake</methodname>()
+      again.
+    </para>
+
+    <para>
+      <methodname>pubread</methodname>() and
+      <methodname>pubwrite</methodname>() will also invoke
+      <methodname>handshake</methodname>() if one is needed; however the
+      file descriptor must be a blocking file descriptor. In a non-blocking
+      context, the semantics of bi-directional non-blocking I/O required by
+      <methodname>handshake</methodname> cannot be
+      implemented by
+      <methodname>pubread</methodname>() and
+      <methodname>pubwrite</methodname>(), so an exception gets thrown if
+      that situation.
+    </para>
+
+    <para>
+      The file descriptor transport interface's
+      <methodname>getiostream</methodname>() may be used in place of
+      <methodname>send</methodname>() and <methodname>recv</methodname>() also,
+      but only if the underlying file descriptor blocks:
+    </para>
+
+    <blockquote>
+      <informalexample>
+	<programlisting>
+<link linkend="fdstreams">&ns;::iostream</link> ios(sess-&gt;getiostream());
+
+(*ios) &lt;&lt; "GET / HTTP/1.0\r\n" &lt;&lt; std::flush;</programlisting>
+      </informalexample>
+    </blockquote>
+
+    <para>
+      Alternatively, a <link linkend="fdtimeouts">file descriptor timeout</link>
+      may be initialized on top of a non-blocking file descriptor, and
+      the TLS session object attached to the timeout object. This implements
+      a timeout on the transport level. The TLS session object will propagate
+      the timeout exception, when one gets thrown by the timeout object,
+      passed along to the TLS library as an I/O error, and once the error code
+      gets propagated back up to this library, it gets detected and rethrown.
+    </para>
+
+    <para>
+      See the
+      <ulink url="&link-x--gnutls--sessionBase;">session
+	object class reference</ulink>
+      for more information on other session object methods.
+      Note that most of them are allowed only before a handshake occurs.
+    </para>
+
+    <para>
+      Several
+      <ulink url="&link-x--gnutls--sessionBase;">&ns;::gnutls::session</ulink>
+      methods are available that retrieve miscellaneous metadata, such as
+      lists of ciphers, compression methods, and other algorithms that are
+      implemented in the underlying <application>GnuTLS</application>
+      library.
+    </para>
+  </section>
+</chapter>
+<!--
+Local Variables:
+mode: sgml
+sgml-parent-document: ("book.xml" "book" "chapter")
+End:
+-->

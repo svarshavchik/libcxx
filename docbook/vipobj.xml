@@ -1,0 +1,688 @@
+<!--
+
+Copyright 2012 Double Precision, Inc.
+See COPYING for distribution information.
+
+-->
+
+<chapter id="vipobj">
+  <title>Very ImPortant object design pattern</title>
+
+  <para>
+    The
+    <ulink url="&link-x--vipobj;"><classname>&ns;::vipobj</classname></ulink>
+    template instantiates a class that implements a
+    <quote>very important object</quote> design pattern.
+    A <quote>very important object</quote> is an object paired with a list of
+    registered
+    <link linkend="eventcallback">event callbacks</link>.
+    The event callbacks get invoked when the very important object gets
+    <quote>modified</quote>.
+    It's a very important object, after all, and everyone wants to
+    know when it changes, and what its new value is.
+  </para>
+
+  <para>
+    <classname>&ns;::vipobj</classname> atomically registers a new handler, and
+    gives it
+    the current value of the very important object, in a single operation,
+    as the callback's initial value.
+    A key attribute of a <quote>very important object</quote> is that the
+    notification mechanism must be consistent when a new event callback
+    gets registered at the same time that another thread updates the
+    very important object.
+    In this situation, one of two things will happen here.
+    Either the new handler gets the modified value, or it
+    gets the original value of the very important object, then gets notified
+    for the modified value immediately afterwards.
+  </para>
+
+  <para>
+    These well-defined, thread-safe semantics provide a reliable
+    access mechanism that's somewhat more sophisticated than a
+    plain <quote>read lock</quote> and <quote>write lock</quote>
+    design.
+    The very important object design pattern uses four different locking
+    objects
+    that <classname>&ns;::vipobj</classname> exports as part of its
+    implementation.
+    Access to the very important object is thread-safe,
+    as long as these lock objects get
+    instantiated and used as per their documented interface.
+  </para>
+
+  <para>
+    The
+    <ulink url="&link-x--vipobj;"><classname>&ns;::vipobj</classname></ulink>
+    template instance
+    is not a
+    <link linkend="refobj">reference-counted</link>.
+    object itself.
+    A <classname>&ns;::vipobj</classname> is typically not used directly,
+    but is usually a member of a larger (most likely a
+    reference-counted) class that exports a
+    high level <acronym>API</acronym>.
+    The API is implemented using
+    <classname>&ns;::vipobj</classname> lock objects, instantiated
+    in the right order.
+  </para>
+
+  <para>
+    The list of registered callback handlers is implemented
+    by the
+    <link linkend="eventcallback"><classname>&ns;::eventcallback</classname></link>
+    template, and the callbacks are reference-counted objects.
+    <classname>&ns;::eventcallback</classname> keeps weak references to
+    the callback handlers. There's no formal deregistration method for a
+    handler, just a registration mechanisms. The handler
+    callbacks remain registered until they go out of scope and get destroyed.
+  </para>
+
+  <para>
+    When a callback gets registered, as part of registration
+    the callback gets invoked
+    immediately, with the current value of the very important object.
+    The callback
+    continues to be invoked whenever the very important object is modified,
+    with the modified value. In this manner, each
+    callback handler maintains a stable view of the very important
+    object's value, as it gets modified by other threads, over time, starting
+    with the time the handler was registered with the very important object.
+  </para>
+
+  <section id="vipobjcreate">
+    <title>Creating a very important object</title>
+
+    <blockquote>
+      <informalexample>
+	<programlisting>
+#include &lt;&ns;::vipobj.H&gt;
+
+class vipintvalue {
+
+public:
+    int n;
+
+    vipintvalue(int nValue=0);
+    vipintvalue(const std::string &amp;);
+};
+
+
+typedef &ns;::vipobj&lt;vipintvalue&gt; vip_t;
+
+vip_t vip;
+	</programlisting>
+      </informalexample>
+    </blockquote>
+
+    <para>
+      <classname>&ns;::vipobj</classname>'s constructor forwards its arguments
+      to the object's constructor.
+    </para>
+  </section>
+
+  <section id="vipobjnotify">
+    <title>Very important object notification callbacks</title>
+
+    <para>
+      Callback handlers get notified whenever a very important object gets
+      modified.
+    </para>
+
+    <blockquote>
+      <informalexample>
+	<programlisting>
+class vipnotifyObj : public &ns;::eventcallback&lt;vipintvalue&gt;::baseObj {
+
+public:
+  vipnotifyObj();
+  ~vipnotifyObj() noexcept;
+
+  void event(const vipintvalue &amp;value);
+};</programlisting>
+      </informalexample>
+    </blockquote>
+
+    <para>
+      By default, <classname>&ns;::vipobj</classname> uses an event callback
+      list of weak references to a subclass
+      of <classname>eventcallback&lt;<replaceable>T</replaceable>&gt;::baseObj</classname>.
+      <classname>&ns;::vipobj</classname>'s optional second
+      template parameter overrides the callback type. In either case, the
+      callback class must be a reference-counted object.
+    </para>
+
+    <blockquote>
+      <informalexample>
+	<programlisting>
+class vipnotifyObj : virtual public &ns;::obj {
+
+public:
+  vipnotifyObj();
+  ~vipnotifyObj() noexcept;
+
+  void event(const vipintvalue &amp;value);
+};
+
+typedef &ns;::vipobj&lt;vipintvalue, vipnotifyObj&gt; vip_t;
+
+vip_t vip(2);</programlisting>
+      </informalexample>
+    </blockquote>
+
+    <para>
+      This example produces mostly the same results as the first example.
+      When the callback handler gets registered, and whenever the value
+      of the very impotant object's is deemed to have changed, the
+      handler's <methodname>event</methodname>() method gets invoked, with the
+      object's value.
+    </para>
+
+    <para>
+      It's possible to use a different method named other than
+      <methodname>event</methodname>(), or to use separate methods: one method
+      for
+      the initial value of the very important object, at registration time,
+      and another method for all subsequent updates.
+    </para>
+
+    <para>
+      This is done by using callback invocation classes, the same
+      way it's done by
+      <link linkend="customeventcallbacks">event callbacks</link>:
+    </para>
+
+    <blockquote>
+      <informalexample>
+	<programlisting>
+class viphandler : virtual public &ns;::obj {
+
+public:
+	viphandler();
+	~viphandler() noexcept;
+
+	void cbinitial(const vipintvalue &amp;initialvalue);
+
+	void cbupdate(const vipintvalue &amp;updatedvalue);
+};
+
+class invoke_initial {
+
+public:
+	static void event(const &ns;::ptr&lt;viphandler&gt; &amp;h,
+			  const vipintvalue &amp;value)
+	{
+		h-&gt;cbinitial(v);
+	}
+};
+
+class invoke_update {
+
+public:
+	static void event(const &ns;::ptr&lt;viphandler&gt; &amp;h,
+			  const vipintvalue &amp;value)
+	{
+		h-&gt;cbupdate(v);
+	}
+};
+
+typedef &ns;::vipobj&lt;vipintvalue, viphandler, invoke_update, invoke_initial&gt; vip_t;</programlisting>
+      </informalexample>
+    </blockquote>
+
+    <para>
+      The optional third parameter to <classname>&ns;::vipobj</classname>
+      specifies the callback invocation class for updates to the very important
+      object. The fourth parameter specifies the callback invocation class
+      for the initial value of the very important object at the time that
+      the callback handler gets registered, and it defaults to the third
+      template parameter class.
+    </para>
+
+    <para>
+      The callback invocation class defines a static
+      <methodname>event</methodname>() method that takes a reference to a
+      registered handler object, and a reference to the very important object's
+      value. The above example implements a callback handler whose
+      <methodname>cbinitial</methodname>() method gets invoked when the
+      callback handler gets registered, and the
+      <methodname>cbupdate</methodname>() method gets invoked when the very
+      important object value gets updated after registration.
+    </para>
+  </section>
+
+  <section id="vipobjrwlock">
+    <title>Read and write locks</title>
+
+    <blockquote>
+      <informalexample>
+	<programlisting>
+{
+  vip_t::readlock r(vip);
+
+  foo(r-&gt;n);
+}
+
+{
+  vip_t::writelock w(vip);
+
+  w-&gt;n=4;
+}</programlisting>
+      </informalexample>
+    </blockquote>
+
+    <para>
+      Read and write locks implement the typical ways of accessing a
+      very important object.  As mentioned before,
+      <classname>&ns;::vipobj</classname> is lightweight, and not reference-
+      counted. Neither are these, and other kinds of locks. The underlying
+      very important object must remain in scope as long as any of its
+      outstanding locks remain in existence (their destructors release
+      internal locks within the very important object).
+    </para>
+
+    <para>
+      The <classname>&ns;::vipobj::readlock</classname> resolves to a constant
+      value of the very important object, and
+      <classname>&ns;::vipobj::writelock</classname> predictably resolves to
+      a mutable value. Both locks implement the
+      <quote>*</quote> and <quote>-&gt;</quote> operators that resolve to the
+      very important object's value.
+    </para>
+
+    <para>
+      Naturally, multiple <classname>&ns;::vipobj::readlock</classname>s
+      may exist concurrently, but only one
+      <classname>&ns;::vipobj::writelock</classname> at a time, which blocks
+      other
+      <classname>&ns;::vipobj::writelock</classname>s and other
+      <classname>&ns;::vipobj::readlock</classname>s.
+      A <classname>&ns;::vipobj::writelock</classname> does not invoke the
+      registered notification callbacks. Acquiring, using, and releasing
+      read and write locks merely
+      provide a means for modifications to the underlying very important object;
+      and are not reportable to notification handlers.
+    </para>
+  </section>
+
+  <section id="vipobjupdate">
+    <title>An update lock</title>
+
+    <blockquote>
+      <informalexample>
+	<programlisting>
+vip_t::updatelock u(vip);
+
+{
+  vip_t::writelock w(vip);
+
+  // ...
+
+  w-&gt;n=4;
+}
+
+vipintvalue val=*vip_t::readlock(vip);
+
+u.notify(val);</programlisting>
+      </informalexample>
+    </blockquote>
+
+    <para>
+      An <classname>&ns;::vipobj::updatelock</classname> implements a formal
+      notification mechanism for very important objects.
+      Only one <classname>&ns;::vipobj::updatelock</classname> may exist
+      concurrently, and it blocks all other
+      <classname>&ns;::vipobj::updatelock</classname>s.
+      A <classname>&ns;::vipobj::updatelock</classname> is not a write lock,
+      and does not offer any access to the underlying very important
+      object. After instantiating a
+      <classname>&ns;::vipobj::updatelock</classname>, use other
+      <classname>&ns;::vipobj::writelock</classname>s and/or
+      <classname>&ns;::vipobj::readlock</classname>s to access the underlying
+      very important object.
+    </para>
+
+    <para>
+      <methodname>notify</methodname>() invokes all registered callbacks.
+      The argument to <methodname>notify</methodname>() is the very important
+      object's value to report to all registered callbacks.
+    </para>
+
+    <para>
+      All <classname>&ns;::vipobj::writelock</classname>s and/or
+      <classname>&ns;::vipobj::readlock</classname>s should be released before
+      invoking <methodname>notify</methodname>(), which does not return until
+      all registered callback handlers were called.
+      If any <classname>&ns;::vipobj::writelock</classname>s and/or
+      <classname>&ns;::vipobj::readlock</classname>s still remain in scope,
+      they will remain in scope while all the callback handlers get invoked,
+      and affect their access to the underlying very important object.
+      It's preferrable to have the callback handlers refer to the value they
+      receive as an argument; although nothing stops the callbacks from
+      instantiating and using their own 
+      <classname>&ns;::vipobj::writelock</classname>s and/or
+      <classname>&ns;::vipobj::readlock</classname>s on the same object.
+    </para>
+
+    <note>
+      <para>
+	An <classname>&ns;::vipobj::updatelock</classname> only blocks other
+	<classname>&ns;::vipobj::updatelock</classname>s, and does not affect
+	<classname>&ns;::vipobj::writelock</classname>s and
+	<classname>&ns;::vipobj::readlock</classname>s.
+	In particular, while an
+	<classname>&ns;::vipobj::updatelock</classname> gets held, nothing
+	prevents another thread from acquiring a
+	<classname>&ns;::vipobj::writelock</classname> and modifying the
+	very important object's value.
+      </para>
+
+      <para>
+	A <classname>&ns;::vipobj::updatelock</classname> merely assures that
+	reportable updates of a very important objects are synchronous.
+	In most cases, the usual convention is to always obtain an
+	<classname>&ns;::vipobj::updatelock</classname>, followed by
+	a <classname>&ns;::vipobj::writelock</classname>, use to modify the
+	very important object, release the write lock, invoke
+	<methodname>notify</methodname>(), and then release the update lock.
+      </para>
+
+      <para>
+	If the very important object does not end up getting modified,
+	<methodname>notify</methodname>() does not need to get called, so
+	release both locks, and proceed on your way.
+      </para>
+    </note>
+
+    <blockquote>
+      <informalexample>
+	<programlisting>
+vip_t::updatelock u(vip);
+
+vipintvalue val=*vip_t::readlock(vip);
+
+val.n += 2;
+
+u.update(val);
+
+</programlisting>
+      </informalexample>
+    </blockquote>
+
+    <para>
+      The <methodname>update</methodname>() method is a convenience function that:
+    </para>
+
+    <itemizedlist>
+      <listitem>
+	<para>
+	  Acquires a <classname>&ns;::vipobj::writelock</classname>.
+	</para>
+      </listitem>
+
+      <listitem>
+	<para>
+	  Invokes the very important object's assignment operator, giving it
+	  the value passed as an argument to <methodname>update</methodname>(),
+	  basically <quote>assigning</quote> a new value to the object.
+	</para>
+      </listitem>
+
+      <listitem>
+	<para>
+	  Releases the <classname>&ns;::vipobj::writelock</classname>.
+	</para>
+      </listitem>
+
+      <listitem>
+	<para>
+	  Invokes <methodname>notify</methodname>(), passing it the value given
+	  to <methodname>update</methodname>() as an argument.
+	</para>
+      </listitem>
+    </itemizedlist>
+  </section>
+
+  <section id="vipobjregh">
+    <title>A registration handler lock</title>
+
+    <blockquote>
+      <informalexample>
+	<programlisting>
+x::ref&lt;vipnotifyObj&gt; handler;
+
+// ...
+
+{
+  vipintvalue val=*vip_t::readlock(vip);
+
+  vip_t::handlerlock hl(vip);
+
+  hl.install(handler, val);
+}</programlisting>
+      </informalexample>
+    </blockquote>
+
+    <para>
+      Use <classname>&ns;::vipobj::handlerlock</classname>
+      for registering a very important object's callback handler.
+      Instantiating a <classname>&ns;::vipobj::handlerlock</classname> blocks
+      <classname>&ns;::vipobj::updatelock</classname>s, but doesn't block
+      other <classname>&ns;::vipobj::handlerlock</classname>s. Multiple
+      <classname>&ns;::vipobj::handlerlock</classname>s can get instantiated
+      concurrently.
+    </para>
+
+    <para>
+      <methodname>install</methodname>() registers a callback handler
+      for the very important object, and immediately invokes it, passing it the
+      given value as the purported initial value of the very important object.
+      The above example acquires a read lock, copies the value of the
+      very important object, releases the read lock, installs the callback
+      handler, immediately invokes it, and returns.
+    </para>
+
+    <para>
+      The above example releases the read lock before installing the handler.
+      It's permissible to acquire, and hold, read or write locks, while
+      invoking <methodname>install</methodname>(). Of course, that affects the
+      callback handler's own access to the very important object. Additionally,
+      nothing prevents other threads from acquiring their own read and write
+      locks, and accessing the very important object while the handler lock
+      remains in scope.
+      The handler lock only blocks update locks. After the handler lock
+      goes out of scope, official changes to the very important object get
+      reported to the installed handler by instantiating update locks and
+      invoking their <methodname>notify</methodname>() methods.
+    </para>
+
+  </section>
+
+  <section id="vipobjtrylock">
+    <title>Opportunistic locking</title>
+
+    <para>
+      <classname>&ns;::vipobj::readlock</classname>,
+      <classname>&ns;::vipobj::writelock</classname>,
+      <classname>&ns;::vipobj::updatelock</classname>, and
+      <classname>&ns;::vipobj::handlerlock</classname> all take the very
+      important template object as their sole required parameter.
+      Their constructor
+      blocks until it acquires the necessary locks.
+    </para>
+
+    <para>
+      Passing <literal>false</literal> as an optional second parameter
+      results in an opportunistic locking attempt. An exception gets thrown
+      immediately if the lock cannot be acquired.
+    </para>
+  </section>
+
+  <section id="vipobjdebug">
+    <title>Avoiding and debugging deadlocks</title>
+
+    <para>
+      The recommended order for locking very important objects is getting
+      a handler or an update lock first, if required, followed by
+      read locks or
+      write locks. This is not the only ordering that's possible, but this
+      is the recommended order.
+    </para>
+
+    <para>
+      The following example demonstrates a common pitfall:
+    </para>
+
+    <blockquote>
+      <informalexample>
+	<programlisting>
+vip_t::handlerlock(vip).install(notifier, *vip_t::readlock(vip));
+
+// elsewhere...
+
+vip_t::updatelock(vip).update(vip2_value);</programlisting>
+      </informalexample>
+    </blockquote>
+
+    <para>
+      This innocent code results in undefined behavior, and subtle deadlocks.
+      This is because the compiler can generate code which
+      acquires the read lock before or after the handler lock, sometimes
+      depending on the compilation options; or even a different order for
+      different occurences of the same code sequence, depending on other
+      code in the same function or method.
+      The compiler is allowed to
+      evaluate the argument to <methodname>install</methodname>(),
+      which acquires
+      a read lock, before or after the compiler instantiates the temporary
+      handler lock object.
+    </para>
+
+    <para>
+      The end result:
+      one thread gets a read lock on the very important object.
+      At the same time, another thread gets an update lock.
+      Then, the first thread tries to get a handler lock, which gets
+      blocked by the update lock held by the second thread. The second
+      thread invokes update(), which tries to get a write lock, which gets
+      blocked  by the read lock held by the first thread. Deadlock.
+    </para>
+
+    <para>
+      Always instantiate very important object locks individually,
+      in their individual sequence points, so that the order of lock acquisition
+      is consistent, and is not implementation-defined.
+      Avoid temporary lock objects, which are subject to reordering within their
+      sequence point span.
+      Use the
+      <ulink url="&link-x--vipobjdebug;"><classname>&ns;::vipobjdebug</classname></ulink>
+      class template to isolate lock acquisition in the wrong order:
+    </para>
+
+    <blockquote>
+      <informalexample>
+	<programlisting>
+typedef &ns;::vipobjdebug&lt;vipintvalue&gt; vip_t;</programlisting>
+      </informalexample>
+    </blockquote>
+
+    <para>
+      <ulink url="&link-x--vipobjdebug;"><classname>&ns;::vipobjdebug</classname></ulink>
+      derives from, and implements the same interface as
+      <ulink url="&link-x--vipobj;"><classname>&ns;::vipobj</classname></ulink>,
+      and adds additional checks that throw an exception if:
+    </para>
+
+    <itemizedlist>
+      <listitem>
+	<para>
+	  The same thread attempts to acquire a handler lock or an update lock
+	  while holding a read lock or a write lock on the same very important
+	  object.
+	</para>
+      </listitem>
+
+      <listitem>
+	<para>
+	  The same thread attempts to acquire both a read lock and a write lock,
+	  or a handler lock and an update lock on the same object. Normally this
+	  results in an immediate deadlock, which is fairly obvious; but setting
+	  the log level to the trace level gives convenient backtraces where the
+	  conflicting locks were acquired.
+	</para>
+      </listitem>
+    </itemizedlist>
+
+    <para>
+      <classname>&ns;::vipobjdebug</classname> adds significant overhead, and
+      should only be used for debugging purposes. This is just a runtime check,
+      and it's not possible to detect
+      situations where an implementation-defined compilation order results in
+      the correct locking order. This time.
+    </para>
+
+    <para>
+      When a conflicting deadlock sequence gets detected, a fatal message
+      <link linkend="logger">gets logged</link>, a backtrace gets logged at
+      the trace level, and an exception gets thrown.
+      Setting the <literal>&ns;::vipobjdebug_base::abort</literal>
+      <link linkend="properties">property</link>
+      to <literal>true</literal>
+      results in <function>abort</function>(3), and a core dump
+      instead of a thrown exception.
+    </para>
+
+    <warning>
+      <para>
+	<classname>&ns;::vipobjdebug</classname> gives unreliable results if
+	lock instances are allocated on the heap, and juggled between
+	different threads, or if <function>pthread_cancel</function>(3)
+	terminates a thread without unwinding the stack. This debugging class
+	gives accurate results only if lock instances are allocated on the
+	stack. As noted elsewhere, <function>pthread_cancel</function>(3)
+	cannot be used with &app;.
+      </para>
+    </warning>
+  </section>
+
+  <section id="sipobj">
+    <title>Somewhat-ImPortant object design pattern</title>
+
+    <blockquote>
+      <informalexample>
+	<programlisting>
+#include &lt;&ns;::sipobj.H&gt;
+
+class vipintvalue {
+
+public:
+	int n;
+
+	vipintvalue(int nValue) : n(nValue) {}
+};
+
+
+typedef &ns;::sipobj&lt;vipintvalue&gt; vip_t;
+
+vip_t vip(2);
+	</programlisting>
+      </informalexample>
+    </blockquote>
+
+    <para>
+      The
+      <ulink url="&link-x--sipobj;"><classname>&ns;::sipobj</classname></ulink>
+      template class is a subset of
+      <link linkend="vipobj"><classname>&ns;::vipobj</classname></link> that
+      exports only the read and write lock functionality.
+      Use this template class when callback handlers are not called for,
+      and to simply enforce a read/write lock-type design pattern.
+    </para>
+  </section>
+</chapter>
+<!--
+Local Variables:
+mode: sgml
+sgml-parent-document: ("book.xml" "book" "chapter")
+End:
+-->

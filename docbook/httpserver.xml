@@ -1,0 +1,355 @@
+<!--
+
+Copyright 2012 Double Precision, Inc.
+See COPYING for distribution information.
+
+-->
+
+<chapter id="httpserver">
+  <title><acronym>HTTP</acronym> servers</title>
+
+  <para>
+    These classes implement a framework for <acronym>HTTP</acronym> servers.
+    They are not meant to be building blocks for high speed, generic web
+    content servers, but rather as application servers that use
+    <acronym>HTTP</acronym> as a standard means of communication.
+    Here's an example of a generic, bare-bones <acronym>HTTP</acronym>
+    server. Bonus: it also handles <acronym>HTTP</acronym> over
+    <acronym>TLS</acronym>.
+    When started, it starts listening on two randomly chosen ports, a
+    plain <acronym>HTTP</acronym>, and an encrypted <acronym>HTTP</acronym>,
+    with a temporary, on the fly generated, self-signed certificate:
+  </para>
+
+  <blockquote>
+    <title><ulink url="examples">examples/http_server.C</ulink></title>
+    <informalexample>
+      <programlisting><xi:include href="../examples/http_server.C" parse="text" xmlns:xi="http://www.w3.org/2001/XInclude" /></programlisting>
+    </informalexample>
+  </blockquote>
+
+  <para>
+    <ulink url="&link-x--http--fdserverObj;"><classname>&ns;::http::fdserverObj</classname></ulink>
+    and
+    <ulink url="&link-x--gnutls--http--fdtlsserverObj;"><classname>&ns;::gnutls::http::fdtlsserverObj</classname></ulink>
+    implement the appropriate <methodname>run</methodname>() method that
+    makes them directly usable with
+    <link linkend="fdlistener"><classname>&ns;::fdlistenerObj</classname></link>.
+    <classname>&ns;::http::fdserverObj</classname> instantiates an
+    <acronym>HTTP</acronym> server,
+    <classname>&ns;::gnutls::http::fdtlsserverObj</classname> instantiates an
+    <acronym>HTTP</acronym> over <acronym>TLS</acronym> server.
+  </para>
+
+  <para>
+    The above example instantiates a separate subclass for both of them.
+    The general approach is:
+  </para>
+
+  <itemizedlist>
+    <listitem>
+      <para>
+	Derive a subclass from <classname>&ns;::http::fdserverimpl</classname>
+	or <classname>&ns;::gnutls::http::fdtlsserverimpl</classname>,
+	that multiply-inherits from
+	<classname>&ns;::obj</classname>, making it a reference-counted class.
+      </para>
+    </listitem>
+
+    <listitem>
+      <para>
+	Define a reference-counted factory class with a
+	<methodname>create</methodname>() method that constructs a new instance
+	of the server class.
+      </para>
+
+      <para>
+	For TLS servers, a second factory class needs to be constructed, whose
+	<methodname>create</methodname>() takes two parameters, the first one
+	is always a <literal>GNUTLS_SERVER</literal>, the second parameter is
+	the <link linkend="fd">file descriptor</link> for the connected socket.
+	The create() method must return a suitable
+	<link linkend="gnutls_sessions">TLS session</link>, with an installed
+	server certificate.
+      </para>
+
+      <para>
+	<ulink url="&link-x--gnutls--sessionBase;"><classname>&ns;::gnutls::session::base::factory</classname></ulink>
+	implements a suitable TLS session factory, as in this example, but you
+	still must install a suitable certificate, before it can be used.
+      </para>
+    </listitem>
+    <listitem>
+      <para>
+	Instantiate either a
+	<ulink url="&link-typedef-x--http-fdserver;"><classname>&ns;::http::fdserver</classname></ulink> or a
+	<ulink url="&link-typedef-x--gnutls--http-fdtlsserver;"><classname>&ns;::gnutls::http::fdtlserver</classname></ulink>.
+	Pass it to the
+	<link linkend="fdlistener">listener object's
+	  <methodname>start</methodname>()</link>, in addition to the
+	session factory object reference (for TLS servers only) and the
+	server class factory object reference.
+      </para>
+    </listitem>
+  </itemizedlist>
+
+  <para>
+    The above example uses templates to instantiate
+    both the
+    <classname>&ns;::http::fdserverObj</classname>/<classname>&ns;::http::fdserverimpl</classname> and
+    the <classname>&ns;::gnutls::http::fdtlsserverObj</classname>/<classname>&ns;::gnutls::http::fdtlsserverimpl</classname> implementions from
+    a single code base, resulting in an identical server on both the plain
+    and the encrypted <acronym>HTTP</acronym> port.
+  </para>
+
+  <para>
+    A new instance of the server class implementation object gets instantiated
+    for each connection.
+    The implementation object's <methodname>received</methodname>() method
+    gets invoked when the thread receives the <acronym>HTTP</acronym> request
+    from the client.
+    Clients that support persistent <acronym>HTTP</acronym> 1.1 connections
+    may send multiple requests.
+    After <methodname>received</methodname>() returns, it may get called
+    against in the same thread and for the same implementation object, upon
+    receiving the next request from the client over the same persistent
+    connection. However, this is not to be relied upon, since clients may
+    employ multiple connections, which will use different threads.
+  </para>
+
+  <section id="httpserverprocess">
+    <title>Processing <acronym>HTTP</acronym> requests</title>
+
+    <blockquote>
+      <informalexample>
+	<programlisting>
+class myserverimpl : public &ns;::http::fdserverimpl, virtual public &ns;::obj {
+
+public:
+
+// ...
+
+	void received(const &ns;::http::requestimpl &amp;req, bool hasbody)
+	{
+// ...
+
+		send(req, 
+		     "text/html; charset=utf-8",
+                     container.begin(),
+                     container.end());
+        }
+};</programlisting>
+      </informalexample>
+    </blockquote>
+
+    <para>
+      <methodname>received</methodname>(), in a subclass of a
+      <classname>&ns;::http::fdserverimpl</classname> or a
+      <classname>&ns;::gnutls::http::fdtlsserverimpl</classname>,
+      processes an <acronym>HTTP</acronym>
+      request. It receives an instance of
+      <ulink url="&link-x--http--requestimpl;"><classname>&ns;::http::requestimpl</classname></ulink>
+      and a flag indicating whether the request included content.
+      Before it returns, <methodname>received</methodname>() must invoke
+      <methodname>send</methodname>() exactly once, specifying the response to
+      the request.
+    </para>
+
+    <para>
+      The content of an <acronym>HTTP</acronym> request is obtained by
+      invoking <methodname>begin</methodname>() and
+      <methodname>end</methodname>():
+    </para>
+
+    <blockquote>
+      <informalexample>
+	<programlisting>
+void received(const &ns;::http::requestimpl &amp;req, bool hasbody)
+{
+    if (hasbody)
+    {
+        iterator b=begin(), e=end();
+
+// ...</programlisting>
+      </informalexample>
+    </blockquote>
+
+    <para>
+      <methodname>begin</methodname>() and
+      <methodname>end</methodname>() define an input sequence over the request
+      content. They may be invoked only once. They read from the underlying
+      network connection, which may experience delays.
+    </para>
+
+    <para>
+      For the most common use case of <acronym>HTTP</acronym> content
+      consisting of form input, <methodname>getform</methodname>() provides
+      a convenient way to parse it.
+    </para>
+
+    <blockquote>
+      <informalexample>
+	<programlisting>
+void received(const &ns;::http::requestimpl &amp;req, bool hasbody)
+{
+    std::pair&lt;&ns;::http::form::parameters, bool&gt;
+        form=getform(req, hasbody);
+
+    if (form.second)
+        hasbody=false;
+
+//...</programlisting>
+      </informalexample>
+    </blockquote>
+
+    <para>
+      <methodname>getform</methodname>() returns a reference to a
+      <link linkend="httpform">form parameter object</link>, and a flag.
+      <methodname>getform</methodname>() sets the flag to
+      <literal>true</literal> if it processed the contents of the request, so
+      its content has been read and is no longer available.
+      A <literal>false</literal> is not necessarily an indication that the
+      request is not a form submission. An <acronym>HTTP</acronym>
+      <literal>GET</literal> request places form parameters in the
+      query string portion of its <acronym>URI</acronym>, which
+      <methodname>getform</methodname>() retrieves.
+    </para>
+
+    <para>
+      Most applications will want to check <quote>req.getMethod()</quote> to
+      obtain the type of the request (<literal>&ns;::http::GET</literal>,
+      <literal>&ns;::http::POST</literal>,
+      <literal>&ns;::http::HEAD</literal>, and others), first, before
+      processing response.
+      The headers of the <acronym>HTTP</acronym> request in
+      <varname>req</varname> may be examined, they are generally as they
+      were received from the client, except that, for convenience, the
+      <quote>Host</quote> header, if present, is removed and placed into the
+      <acronym>URI</acronym> returned by <methodname>getURI</methodname>().
+    </para>
+
+    <para>
+      The heavily-overloaded <methodname>send</methodname>() sends the
+      response to the <acronym>HTTP</acronym> request, and must be called
+      exactly once, before <methodname>received</methodname>() terminates.
+      Its parameters are:
+    </para>
+
+    <itemizedlist>
+      <listitem>
+	<para>
+	  The original request, a three digit <acronym>HTTP</acronym> status
+	  code, and a brief reason phrase. This is used to send canned
+	  error messages, like 404, that do not require any additional
+	  headers:
+	</para>
+	<blockquote>
+	  <informalexample>
+	    <programlisting>
+send(req, 404, "Not found");</programlisting>
+	  </informalexample>
+	</blockquote>
+      </listitem>
+
+      <listitem>
+	<para>
+	  The original request, and a
+	  <ulink url="&link-x--http--response-exception;"><classname>&ns;::http::response_exception</classname></ulink>
+	  object. This is typically used to handle thrown standard exceptions:
+	</para>
+
+	<blockquote>
+	  <informalexample>
+	    <programlisting>
+// ...
+catch (const &ns;::http::response_exception &amp;e)
+{
+    send(req, e);
+}</programlisting>
+	  </informalexample>
+	</blockquote>
+
+	<para>
+	  This would handle the canned exceptions thrown by the static
+	  member methods in <ulink url="&link-x--http--responseimpl;"><classname>&ns;::http::responseimpl</classname></ulink>.
+	</para>
+      </listitem>
+ 
+      <listitem>
+	<para>
+	  The original request, a <quote>content type</quote> string,
+	  and additional arguments described below. This formats an
+	  <acronym>HTTP</acronym> 200 response:
+	</para>
+
+	<blockquote>
+	  <informalexample>
+	    <programlisting>
+send(req, "text/plain; charset=utf-8", buffer);</programlisting>
+	  </informalexample>
+	</blockquote>
+      </listitem>
+
+      <listitem>
+	<para>
+	  A reference to a
+	  <ulink url="&link-x--http--responseimpl;"><classname>&ns;::http::responseimpl</classname></ulink> object, the original request,
+	  and additional arguments described below. This gives complete
+	  control over the response message:
+	</para>
+
+	<blockquote>
+	  <informalexample>
+	    <programlisting>
+&ns;::http::responseimpl resp(307, "Temporarily redirected");
+
+send(resp, req, "Location", "http://example.com", buffer);</programlisting>
+	  </informalexample>
+	</blockquote>
+
+	<note>
+	  <para>
+	    The response object gets passed by reference, and may be modified
+	    during sending. The above example explicitly adds the
+	    <quote>Location</quote> header to the response object.
+	    Additionally, <methodname>send</methodname>() typically adds
+	    headers such as <quote>Content-Length</quote>, or
+	    <quote>Transfer-Encoding</quote>, depending on the response.
+	  </para>
+	</note>
+      </listitem>
+    </itemizedlist>
+
+    <para>
+      The latter two versions of <methodname>send</methodname>() accept
+      additional parameters, as shown in the previous example:
+    </para>
+
+    <itemizedlist>
+      <listitem>
+	<para>
+	  A list of header names and values, specified as strings.
+	  They get added to the response message.
+	</para>
+      </listitem>
+
+      <listitem>
+	<para>
+	  The content of the response, specified either as a container, or
+	  as a beginning iterator and an ending iterator. The
+	  response to a <literal>HEAD</literal> should be prepared as if
+	  it was to a <literal>GET</literal> or a <literal>POST</literal>.
+	  <methodname>send</methodname>() sets the <acronym>HTTP</acronym>
+	  protocol headers based on the container or the iterators, but
+	  will not actually send the content.
+	</para>
+      </listitem>
+    </itemizedlist>
+  </section>
+</chapter>
+<!--
+Local Variables:
+mode: sgml
+sgml-parent-document: ("book.xml" "book" "chapter")
+End:
+-->

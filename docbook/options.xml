@@ -1,0 +1,1194 @@
+<!--
+
+Copyright 2012 Double Precision, Inc.
+See COPYING for distribution information.
+
+-->
+
+<chapter id="options">
+  <title>Parsing command line options</title>
+
+  <blockquote>
+    <informalexample>
+      <programlisting>
+#include &lt;&ns;/options.H&gt;
+#include &lt;&ns;/locale.H&gt;
+
+&ns;::locale defLocale(x::locale::create(""));
+
+&ns;::option::bool_value verbose_value(option::bool_value::create());
+
+&ns;::option::list options(option::list::create());
+
+options-&gt;add(verbose_value, L'v', L"verbose",
+             0,
+             L"Verbose messages");
+
+options-&gt;addDefaultOptions();
+
+&ns;::option::parser optParser(&ns;::option::parser::create(defLocale));
+
+optParser-&gt;setOptions(options);
+
+int err=optParser-&gt;parseArgv(argc, argv);
+
+if (err == 0)
+    err=optParser-&gt;validate();
+
+if (err == &ns;::option::parser::err_builtin)
+{
+    exit(0);
+}
+
+if (err)
+{
+    std::cerr &lt;&lt;optParser-&gt;errmessage();
+    exit(1);
+}
+
+if (verbose_value-&gt;value)
+{
+// ...
+}</programlisting>
+    </informalexample>
+  </blockquote>
+
+  <para>
+    A set of classes in the
+    <ulink url="&namespace-x--option;"><classname>&ns;::option</classname></ulink>
+    namespace implements a flexible mechanism for parsing command line options.
+    They can be used instead of, or together with
+    <link linkend="properties">application properties</link>.
+  </para>
+
+  <para>
+    First, objects representing values of individual options get instantiated,
+    then assembled into an option list.
+    Default options, with an internal implemention of those options,
+    get added to the list, if
+    desired.
+    A parser object gets instantiated which takes the list of options, and
+    the actual command line arguments, parses them,
+    and places each parsed option's value,
+    if specified, in its corresponding object.
+    See the
+    <ulink url="&namespace-x--option;">documentation</ulink> for more
+    information and examples.
+  </para>
+
+  <para>
+    An alternative to manually writing option parsing code is the
+    option parser generator. The generator produces option parsing code from an
+    XML file that compactly defines the list of options.
+  </para>
+
+  <section id="optgen">
+    <title>Option parser generator</title>
+
+    <blockquote>
+      <informalexample>
+	<programlisting><![CDATA[
+<optclass name="testoptions">
+  <option>
+    <name>verbose</name>
+    <type>bool</type>
+    <default>false</default>
+    <opt>v</opt>
+    <descr>Enable verbose mode</descr>
+  </option>
+
+  <option>
+    <name>filename</name>
+    <type>string</type>
+    <opt>-f</opt>
+    <longopt>filename</longopt>
+    <list />
+    <hasvalue />
+    <descr>List of input filenames</descr>
+    <argdescr>filename</argdescr>
+  </option>
+  <arg>
+    <name>inputfile</name>
+    <required />
+  </arg>
+
+  <defaultoptions />  
+</optclass>
+]]></programlisting>
+      </informalexample>
+    </blockquote>
+
+    <para>
+      This <acronym>XML</acronym> file defines command line options, and
+      gets processed by an <acronym>XSLT</acronym> file, installed by default
+      as <filename>/usr/share/lib&ns;/optgen.xsl</filename> or
+      as <filename>/usr/local/share/lib&ns;/optgen.xsl</filename>. Use an
+      <acronym>XSLT</acronym> processor, such as <command>xsltproc</command>,
+      to turn it into a class
+      definition. If this <acronym>XML</acronym> file is
+      saved as <filename>testoptions.xml</filename>:
+    </para>
+
+    <blockquote>
+      <informalexample>
+	<programlisting>
+xsltproc /usr/share/lib&ns;/optgen.xsl testoptions.xml &gt;testoptions.h</programlisting>
+      </informalexample>
+    </blockquote>
+
+    <para>
+      The stylesheet output defines a class specified by
+      the <tag class='attribute'>name</tag> attribute of the top level
+      <varname>optclass</varname> element, which is <quote>testoptions</quote>
+      in this example. This becomes the name of the class:
+    </para>
+
+    <blockquote>
+      <informalexample>
+	<programlisting><![CDATA[
+#include "testoptions.h"
+
+// ...
+
+int main(int argc, char **argv)
+{
+    testoptions opts;
+
+    std::list<std::string> args(opts.parse(argc, argv)->args);
+
+    if (opts.verbose->isSet())
+    {
+        std::cout << "-v was provided, and it's " << opts.verbose->value
+                  << std::endl;
+    }
+
+    for (std::list<std::string>::iterator b(opts.filenames->values.begin()),
+         e(opts.filenames->values.end()); b != e; ++b)
+    {
+        std::cout << "--filename " << *b << std::endl;
+    }
+
+    for (std::list<std::string>::iterator b(args.begin()),
+         e(args.end()); b != e; ++b)
+    {
+        std::cout << "argument: " << *b << std::endl;
+    }
+}
+
+]]></programlisting>
+      </informalexample>
+    </blockquote>
+
+    <para>
+      The option class defines a <methodname>getParser</methodname>() function
+      that returns an
+      <ulink url="&link-typedef-x--option-parser;"><classname>&ns;::option::parser</classname></ulink>
+      that's been populated with the option list from the class.
+      <methodname>parse</methodname>() calls <methodname>getParser</methodname>(),
+      parses the argument vector received by <methodname>main</methodname>(),
+      calls <methodname>validate</methodname>() to check for missing options, then
+      returns the resulting <classname>&ns;::option::parser</classname>,
+      whose <varname>args</varname> member is the list of command line arguments
+      with all the options removed.
+    </para>      
+
+    <para>
+      The options get parsed into the members of the option class whose names
+      are given by each <tag class='element'>option</tag>'s
+      <tag class='element'>name</tag> element.
+      Each <tag class='element'>option</tag> defines an option, and all names
+      of all the options, therefore,
+      must be unique and follow the rules for class element names.
+    </para>
+
+    <para>
+      The above example defines a <quote>verbose</quote> option.
+      <tag class='element'>opt</tag> gives option's short character,
+      <quote>-v</quote>.
+      <tag class='element'>longopt</tag> gives the option's long name that's
+      introduced by two dashes, such as <quote>--filename</quote>, as shown
+      in the example. An option may have a short character, or a long name,
+      or both.
+    </para>
+
+    <para>
+      Option class members are references to objects with an
+      <methodname>isSet</methodname>() element that indicates whether the
+      given option was specified. An option's value may be retrieved from
+      the <varname>value</varname> member. The presence of
+      <tag class='element'>hasvalue</tag> indicates that the option takes a
+      value
+      (see <ulink url="&namespace-x--option;#optionlist">class
+	documentation</ulink> for more information on the syntax for
+      specifying option values).
+      <varname>list</varname> indicates that the option may occur
+      more than once. Instead of a <varname>value</varname>, there is a
+      a <classname>std::list</classname> names <varname>values</varname> that
+      contains all the collected values.
+    </para>
+
+    <para>
+      <tag class='element'>default</tag> is optional, and sets the default
+      <varname>value</varname> if the option is not specified.
+      The contents of the <tag class='element'>default</tag> are placed in
+      the generated code directly.
+    </para>
+
+    <para>
+      <tag class='element'>defaultoptions</tag> adds and implements the
+      <quote>--help</quote> and <quote>--usage</quote> options that combine
+      the defined options with each one's
+      <tag class='element'>descr</tag>, that gives a brief description of the
+      option, and
+      <tag class='element'>argdescr</tag>, the option's value (should be one
+      word) into a generic help and usage blurb.
+      <tag class='element'>arg</tag>s describe the remaining parameters
+      after all the options get removed.
+    </para>
+
+    <para>
+      <tag class='element'>arg</tag>s
+      do not get validated or used in any way, except as a part of the generic
+      help and usage blurb. They contain only a
+      <tag class='element'>name</tag>, the name of each remaining parameter,
+      with the presence of <tag class='element'>required</tag> indicating
+      that it's mandatory.
+    </para>
+
+    <para>
+      <tag class='element'>required</tag> may also appear inside an
+      <tag class='option'>option</tag>, indicating a mandatory option.
+    </para>
+  </section>
+
+  <section id="optgentypes">
+    <title>Specifying option types</title>
+
+    <para>
+      <tag class='element'>type</tag> is required, and specifies each option's
+      type, what <quote><varname>name</varname>-&gt;value</quote> or
+      <quote><varname>name</varname>-&gt;values</quote> gets.
+      The following types are known:
+      <literal>bool</literal> (useful for options that take no values),
+      <literal>int</literal>,
+      <literal>uint</literal>,
+      <literal>long</literal>,
+      <literal>ulong</literal>,
+      <literal>longlong</literal>,
+      <literal>ulonglong</literal>,
+      <literal>int16</literal>,
+      <literal>uint16</literal>,
+      <literal>int32</literal>,
+      <literal>uint32</literal>,
+      <literal>int64</literal>,
+      <literal>uint64</literal>,
+      <literal>string</literal> (a <classname>std::string</classname>,
+      the value is a generic string that's not intepreted any further),
+      <literal>wstring</literal> (a <classname>std::wstring</classname>,
+      the value is a generic wide string, parsed using the system environment
+      locale),
+      <literal>hms</literal>,
+      <literal>ymd</literal>,
+      <literal>ymd_interval</literal> (<link linkend="intervals"><classname>&ns;::hms</classname>, <classname>&ns;::ymd</classname>, and <classname>&ns;::ymd::interval</classname></link> classes), 
+      <literal>uri</literal> (a <link linkend="uri"><classname>&ns;::uriimpl</classname></link> object),
+      <literal>memsize</literal> (a
+      <ulink url="&link-x--memsize;"><classname>&ns;::memsize</classname></ulink>
+      object that represents a numeric memory or file size value that
+      gets specified as a basic human-readable string, like
+      <quote>10 Mb</quote>.
+    </para>
+
+    <para>
+      <tag class='element'>list /</tag> can be specified for any of the
+      above numerical types, and the narrow and the wide string type.
+      This declares an option list of the given type,
+      see <ulink url="&namespace-x--option;">option reference</ulink>
+      for more information.
+    </para>
+
+    <para>
+      Anything other type gets interpreted as a custom class.
+      The custom class needs to be defined as follows:
+    </para>
+
+    <blockquote>
+      <informalexample>
+	<programlisting><![CDATA[
+
+/* In the XML file: */
+
+  <option>
+    <name>custom</name>
+    <type>customOptClass</type>
+    <opt>c</opt>
+    <descr>A custom option</descr>
+  </option>
+
+/* In the source file: */
+
+]]>#include &lt;&ns;/value_stringable.H&gt;<![CDATA[
+
+class customOptClass {
+
+public:
+
+	std::string s;
+ 
+        static const]]> &ns;::stringable_t stringable=&ns;::class_tostring;<![CDATA[
+
+	template<typename InputIterator>
+	static customOptClass fromString(InputIterator beg_iter,
+					 InputIterator end_iter,
+					 const ]]>&ns;<![CDATA[::const_locale &localeArg)
+	{
+		customOptClass c;
+
+		std::copy(beg_iter, end_iter,
+			  std::back_insert_iterator<std::string>(c.s));
+		return c;
+	}
+
+	template<typename OutputIterator>
+	OutputIterator toString(OutputIterator iter,
+				const ]]>&ns;<![CDATA[::const_locale &localeRef)
+		const
+	{
+		return (std::copy(s.begin(), s.end(), iter));
+	}
+ 
+};
+
+#include "testoptions.h"
+
+
+int main(int argc, char **argv)
+{
+    testoptions opts;
+
+    std::list<std::string> args(opts.parse(argc, argv)->args);
+
+    if (opts.custom->isSet())
+    {
+        /* opts.custom->value is a customOptClass */
+
+    }
+}]]>
+	</programlisting>
+      </informalexample>
+    </blockquote>
+
+    <para>
+      The custom class must support the requirements of the
+      <link linkend="stringability"><classname>&ns;::value_string</classname></link>
+      template.
+      Briefly: the custom class
+      must define a static <methodname>fromString</methodname>
+      template that takes a beginning and an ending input iterator over a
+      character sequence, a <ulink url="locale">locale object</ulink>, and
+      returns an instance of the custom class; and
+      a <methodname>toString</methodname> class template that takes an
+      output iterator for a character sequence, a locale object, and converts
+      the class to a string form, the opposite of
+      <methodname>fromString</methodname>().
+      The class must also declare the <varname>stringable</varname>
+      static constant member, as in the example above.
+    </para>
+
+    <para>
+      The class has the option of implementing
+      <methodname>fromWideString</methodname>() and
+      <methodname>toWideString</methodname>(), and setting
+      <varname>stringable</varname> to <literal>&ns;::towstring</literal>,
+      instead.
+    </para>
+
+    <para>
+      On top of these
+      <classname>&ns;::value_string</classname>
+      <link linkend="customstringability">requirements
+      for custom classes</link>, the custom class must also
+      implement a default constructor, a copy constructor, and an assignment
+      operator.
+    </para>
+  </section>
+
+  <section id="optmutex">
+    <title>Mutually exclusive options</title>
+
+    <blockquote>
+      <informalexample>
+	<programlisting><![CDATA[
+  <option>
+    <name>directory</name>
+    <type>std::string</type>
+    <longopt>directory</longopt>
+    <descr>pathname</descr>
+    <hasvalue />
+  </option>
+
+  <option>
+    <name>socket</name>
+    <type>int</type>
+    <longopt>socket</longopt>
+    <descr>socket port</descr>
+    <hasvalue />
+  </option>
+
+  <mutex>
+    <name>directory</name>
+    <name>socket</name>
+  </mutex>]]></programlisting>
+      </informalexample>
+    </blockquote>
+
+    <para>
+      A separately-specified <tag class='element'>mutex</tag> contains a list
+      of mutually exclusive options. The above example allows either
+      <quote>directory</quote> or <quote>socket</quote>, but not both.
+    </para>
+  </section>
+
+  <section id="optgennumcomb">
+    <title>Combining numeric options</title>
+
+    <blockquote>
+      <informalexample>
+	<programlisting><![CDATA[
+  <option>
+    <name>debugflags</name>
+    <type>int</type>
+    <default>0</default>
+
+    <combine>
+      <type>or</type>
+      <option>
+	<value>1</value>
+	<longopt>debugmsg</longopt>
+	<descr>Debug messages</descr>
+      </option>
+      <option>
+	<value>2</value>
+	<longopt>debugio</longopt>
+	<descr>Debug input and output</descr>
+      </option>
+      <option>
+	<value>4</value>
+	<longopt>debugauth</longopt>
+	<descr>Debug authentication</descr>
+      </option>
+      <option>
+	<value>8</value>
+	<longopt>debugcommit</longopt>
+	<descr>Debug commits</descr>
+      </option>
+
+      <!-- set all bits in debug flags -->
+
+      <option>
+	<value>255</value>
+	<longopt>debugall</longopt>
+	<descr>Debug everything</descr>
+      </option>
+    </combine>
+
+    <combine>
+      <type>and</type>
+      <option>
+	<value>~1</value>
+	<longopt>nodebugmsg</longopt>
+	<descr>Do not debug messages</descr>
+      </option>
+      <option>
+	<value>~2</value>
+	<longopt>nodebugio</longopt>
+	<descr>Do not debug input and output</descr>
+      </option>
+      <option>
+	<value>~4</value>
+	<longopt>nodebugauth</longopt>
+	<descr>Do not debug authentication</descr>
+      </option>
+      <option>
+	<value>~8</value>
+	<longopt>nodebugcommit</longopt>
+	<descr>Do not debug commits</descr>
+      </option>
+    </combine>
+  </option>
+
+/* ... */
+
+#include "testoptions.h"
+
+
+int main(int argc, char **argv)
+{
+    testoptions opts;
+
+    std::list<std::string> args(opts.parse(argc, argv)->args);
+
+    std::cout << "Debug level: " << opts.debugflags->value << std::endl;
+}]]></programlisting>
+      </informalexample>
+    </blockquote>
+
+    <para>
+      <tag class='element'>combine</tag> sets any natural integer option
+      's value by combining multiple values using an <literal>OR</literal>,
+      <literal>AND</literal>, or an <literal>XOR</literal> operation,
+      as specified by its <tag class='element'>type</tag>.
+      The above example defines a single option value
+      called <quote>debugflags</quote> with multiple independent options
+      that set the value of <quote>debugflags</quote>:
+      <option>--debugmsg</option>,
+      <option>--debugio</option>,
+      <option>--debugauth</option>,
+      <option>--debugcommit</option>.
+      Specifying each option results in the associated
+      <tag class='element'>value</tag> logically or-ed into
+      <varname>debugflags</varname>.
+      The <tag class='element'>value</tag> is inserted directly into the
+      generated code,
+      like an option's <tag class='element'>default</tag> value.
+    </para>
+
+    <para>
+      In the above example,
+      <option>--debugall</option> or-s all the bits into
+      <varname>debugflags</varname>, and corresponding
+      <option>--nodebug*</option> turns off the individual debug bits.
+      <quote><option>--debugall</option> <option>--nodebugio</option></quote>,
+      in this order, results in <quote>debugflags</quote> having all the
+      individual bits set except for the <literal>debugio</literal> bit.
+      <quote>opts.debugflags-&gt;value</quote> gives the final
+      <classname>int</classname> value after all options are processed.
+    </para>
+  </section>
+
+  <section id="optgenoptvalues">
+    <title>Default option values</title>
+
+    <para>
+      The <tag class='element'>default</tag> value of an option, and
+      the <tag class='element'>value</tag> of a combining numeric option,
+      gets inserted directly into the generated code without any further
+      interpolation, as is. It can be a constant, a preprocessor symbol, or an
+      expression:
+    </para>
+
+    <blockquote>
+      <informalexample>
+	<programlisting><![CDATA[
+
+        <default>5</default>
+
+ <!-- ... -->
+
+        <default>BUFSIZE+3</default>
+]]></programlisting>
+      </informalexample>
+    </blockquote>
+
+    <para>
+      String values must use quotes.
+    </para>
+
+    <blockquote>
+      <informalexample>
+	<programlisting><![CDATA[
+
+        <option>
+	  <name>reportname</name>
+	  <type>string</type>
+	  <opt>n</opt>
+	  <longopt>name</longopt>
+	  <descr>Report's name</descr>
+	  <hasvalue />
+          <default>"global"</default>
+	  <argdescr>name</argdescr>
+	</option>]]></programlisting>
+      </informalexample>
+    </blockquote>
+
+    <para>
+      Default class values typically require the use of a constructor call.
+    </para>
+
+    <blockquote>
+      <informalexample>
+	<programlisting><![CDATA[
+        <option>
+          <name>nodekey_expire</name>
+          <type>ymd_interval</type>
+          <opt>e</opt>
+          <longopt>expires</longopt>
+          <descr>Key's expiration</descr>
+          <hasvalue />
+	  <argdescr>interval</argdescr>
+          <default>x::ymd::interval("1 year")</default>
+        </option>
+]]></programlisting>
+      </informalexample>
+    </blockquote>
+  </section>
+
+  <section id="optgengroup">
+    <title>Option groups</title>
+
+    <para>
+      A large list of options can be divided into subgroups, with each subgroup
+      being enabled by a top level option. Within each subgroup, the
+      option parameter names have a separate namespace. An option in a subgroup
+      may use the same short one character name or a long name than an option
+      in a different subgroup.
+    </para>
+
+    <blockquote>
+      <informalexample>
+	<programlisting><![CDATA[
+<optclass name="testoptions">
+
+  <option>
+    <name>clustkey</name>
+    <type>bool</type>
+    <longopt>clustkey</longopt>
+    <descr>Cluster key management</descr>
+
+    <group>
+      <option>
+	<name>clustkey_generate</name>
+	<type>bool</type>
+	<longopt>generate</longopt>
+	<descr>Generate a new cluster key</descr>
+
+	<group>
+	  <option>
+	    <name>clustkey_name</name>
+	    <type>string</type>
+	    <opt>n</opt>
+	    <longopt>name</longopt>
+	    <descr>Cluster key's name</descr>
+	    <hasvalue />
+	    <argdescr>name</argdescr>
+	  </option>
+
+	  <option>
+	    <name>clustkey_bits</name>
+	    <type>int</type>
+	    <opt>b</opt>
+	    <longopt>bits</longopt>
+	    <descr>Key's bit size</descr>
+	    <hasvalue />
+	    <argdescr>bits</argdescr>
+	    <default>1024</default>
+	  </option>
+
+	  <option>
+	    <name>clustkey_expire</name>
+	    <type>ymd_interval</type>
+	    <opt>e</opt>
+	    <longopt>expires</longopt>
+	    <descr>Key's expiration</descr>
+	    <hasvalue />
+	    <argdescr>interval</argdescr>
+	    <default>x::ymd::interval("5 years")</default>
+	  </option>
+
+	  <option>
+	    <name>clustkey_type</name>
+	    <type>string</type>
+	    <opt>t</opt>
+	    <longopt>type</longopt>
+	    <descr>Key type (rsa or dsa)</descr>
+	    <hasvalue />
+	    <argdescr>interval</argdescr>
+	    <default>"rsa"</default>
+	  </option>
+
+	  <arg>
+	    <name>directory</name>
+	    <required />
+	  </arg>
+	</group>
+      </option>
+
+      <option>
+	<name>clustkey_remove</name>
+	<type>bool</type>
+	<opt>r</opt>
+	<longopt>remove</longopt>
+	<descr>Remove key</descr>
+
+	<group>
+	  <arg>
+	    <name>directory</name>
+	    <required />
+	  </arg>
+	  <arg>
+	    <name>keyname</name>
+	    <required />
+	  </arg>
+	</group>
+      </option>
+
+      <option>
+	<name>clustkey_list</name>
+	<type>bool</type>
+	<opt>l</opt>
+	<longopt>list</longopt>
+	<descr>List existing keys</descr>
+	<group>
+	  <arg>
+	    <name>directory</name>
+	    <required />
+	  </arg>
+	</group>
+      </option>
+
+      <option>
+	<name>clustkey_export</name>
+	<type>bool</type>
+	<opt>e</opt>
+	<longopt>export</longopt>
+	<descr>Export updated cluster keys to a node key directory</descr>
+	<group>
+	  <arg>
+	    <name>directory</name>
+	    <required />
+	  </arg>
+	  <arg>
+	    <name>nodekeydirectory</name>
+	    <required />
+	  </arg>
+	</group>
+      </option>
+    </group>
+  </option>
+
+  <option>
+    <name>nodekey</name>
+    <type>bool</type>
+    <longopt>nodekey</longopt>
+    <descr>Node key management</descr>
+
+    <group>
+      <option>
+	<name>nodekey_generate</name>
+	<type>bool</type>
+	<longopt>generate</longopt>
+	<descr>Generate a new node key</descr>
+
+	<group>
+	  <option>
+	    <name>nodekey_name</name>
+	    <type>string</type>
+	    <opt>n</opt>
+	    <longopt>name</longopt>
+	    <descr>Node key's name</descr>
+	    <hasvalue />
+	    <argdescr>name</argdescr>
+	  </option>
+
+	  <option>
+	    <name>nodekey_bits</name>
+	    <type>int</type>
+	    <opt>b</opt>
+	    <longopt>bits</longopt>
+	    <descr>Key's bit size</descr>
+	    <hasvalue />
+	    <argdescr>bits</argdescr>
+	    <default>1024</default>
+	  </option>
+
+	  <option>
+	    <name>nodekey_expire</name>
+	    <type>ymd_interval</type>
+	    <opt>e</opt>
+	    <longopt>expires</longopt>
+	    <descr>Key's expiration</descr>
+	    <hasvalue />
+	    <argdescr>interval</argdescr>
+	    <default>x::ymd::interval("1 year")</default>
+	  </option>
+
+	  <option>
+	    <name>nodekey_signkey</name>
+	    <type>string</type>
+	    <opt>k</opt>
+	    <longopt>signkey</longopt>
+	    <hasvalue />
+	    <descr>Signing cluster key (default: newest)</descr>
+	    <argdescr>keyname</argdescr>
+
+	    <group>
+	      <arg>
+		<name>directory</name>
+		<required />
+	      </arg>
+	      <arg>
+		<name>clusterkeydirectory</name>
+		<required />
+	      </arg>
+	    </group>
+	  </option>
+	</group>
+      </option>
+    </group>
+  </option>
+  <defaultoptions />
+</optclass>
+]]></programlisting>
+      </informalexample>
+    </blockquote>
+
+    <para>
+      This example defines two options, <option>--clustkey</option>
+      and <option>--nodekey</option>. These two options are the only two
+      options that are initially defined. When one of them gets specified,
+      the remaining options must come from its
+      <tag class='element'>group</tag>. It's as if the
+      <tag class='element'>group</tag> becomes the effective option list, for
+      the remaining options, and the initial list of <option>--clustkey</option>
+      and <option>--nodekey</option> is no longer in effect.
+      This means that, for example, after specifying
+      <option>--clustkey</option>, <option>--nodekey</option> can no longer
+      be specified, the only remaning options are the one that are listed in
+      the <tag class='element'>group</tag>.
+    </para>
+
+    <para>
+      All option <tag class='element'>name</tag>s must be unique,
+      <tag class='element'>name</tag> gives the name of the member object in
+      the option class, but different groups may use option with the same
+      <tag class='element'>opt</tag>
+      and <tag class='element'>longopt</tag>.
+      In this example the <option>--clustkey</option> option group contains
+      the
+      <option>--generate</option>,
+      <option>--remove</option>,
+      <option>--list</option>, and
+      <option>--export</option>; and the
+      <option>--nodekey</option> option group contains a single option
+      <option>--generate</option> which is a different option. Either
+      <option>--clustkey</option> or <option>--nodekey</option> must be
+      specified first, to open the respective option group, then
+      <option>--generate</option> selects the specified option in the
+      option group.
+    </para>
+
+    <para>
+      Groups may be nested within other group. In this example,
+      the first <option>--generate</option> option is a group containing
+      the <option>--name</option>,
+      <option>--bits</option>,
+      <option>--expires</option>, and
+      <option>--type</option> options.
+      The second <option>--generate</option> option, in the
+      <option>--nodekey</option> group, contains its own
+      <option>--name</option>,
+      <option>--bits</option>,
+      <option>--expires</option>, and
+      <option>--signkey</option> options.
+    </para>
+
+    <para>
+      A group option's
+      <tag class='element'>type</tag> would typically be
+      <classname>bool</classname>, but it may be any type, and have a value.
+      The option's <tag class='element'>group</tag> takes effect after
+      the option's value gets set.
+    </para>
+
+    <para>
+      This example also has several <tag class='element'>group</tag>s that
+      do not contain any <tag class='element'>option</tag>s, only a list of
+      <tag class='element'>arg</tag>s.
+      As stated previously, <tag class='element'>arg</tag>s are generally
+      ignored. This is used to adjust the indentation produced by the
+      default <option>--help</option> option.
+    </para>
+  </section>
+
+  <section id="optgensubclass">
+    <title>Defining an option parsing subclass</title>
+
+    <blockquote>
+      <informalexample>
+	<programlisting><![CDATA[
+<optclass name="testoptions">
+
+  <superclasses>public testoptions_superclass</superclasses>
+
+  <constructorargs>int argc, char **argv</constructorargs>
+
+  <superclass_init>testoptions_superclass(argc, argv, msgcat)</superclass_init>
+
+// ...
+
+]]></programlisting>
+      </informalexample>
+    </blockquote>
+
+    <para>
+      These three elements assist in generating an option parsing class that's
+      derived from some other superclass.
+      The above three elements generate the following class definition:
+    </para>
+
+    <blockquote>
+      <informalexample>
+	<programlisting>
+class testoptions <emphasis>: public testoptions_superclass</emphasis> {
+
+public:
+
+// ...
+      testoptions(<emphasis>int argc, char **argv</emphasis>,
+                  const &ns;::wmessagesptr &amp;msgcat=&ns;::wmessagesptr())
+          : <emphasis>testoptions_superclass(argc, argv, msgcat),</emphasis>
+            // ...</programlisting>
+      </informalexample>
+    </blockquote>
+
+    <para>
+      These three optional elements get inserted, pretty much verbatim, as is,
+      in the appropriate places noted in the above example
+      (the definition of <varname>msgcat</varname> gets inserted by the
+      option parser generator; its described in
+      <xref linkend="optgenlocale" />).
+    </para>
+  </section>
+
+  <section id="optgenlocale">
+    <title>Localizing option strings</title>
+
+    <blockquote>
+      <informalexample>
+	<programlisting>
+#include "testoptions.h"
+
+// ...
+
+int main(int argc, char **argv)
+{
+    &ns;::locale locale(&ns;::locale::base::environment());
+
+    &ns;::wmessages msgcat(&ns;::wmessages::create(locale, "testprog"));
+
+    testoptions opts(msgcat);
+
+    std::list&lt;std::string&gt; args(opts.parse(argc, argv, locale)->args);
+</programlisting>
+      </informalexample>
+    </blockquote>
+
+    <para>
+      The code generated by the
+      <filename>optgen.xsl</filename> contains localizable strings.
+      A localized output from the default <quote>--help</quote> and
+      <quote>--usage</quote> options is produced by passing
+      a <link linkend="msgcatalogs">wide message catalog</link> to the
+      option class constructor, and the
+      <link linkend="localeobj">locale object</link> as the third parameter
+      to <methodname>parse</methodname>().
+    </para>
+
+    <para>
+      The code generated by the
+      <filename>optgen.xsl</filename> marks localizable strings by
+      <replaceable>N_</replaceable> and <replaceable>NN_</replaceable>.
+      If using <acronym>GNU</acronym> <application>gettext</application>,
+      add <quote>--keyword=N_ --keyword=NN_:1,2</quote> to the
+      <varname>XGETTEXT_OPTIONS</varname> setting in
+      <filename>po/Makevars</filename>. The localizable strings are:
+    </para>
+
+    <itemizedlist>
+      <listitem>
+	<para>
+	  Long option names, the
+	  <tag class='element'>longopt</tag> element.
+	</para>
+      </listitem>
+
+      <listitem>
+	<para>
+	  Option descriptions, the
+	  <tag class='element'>descr</tag> element.
+	</para>
+      </listitem>
+
+      <listitem>
+	<para>
+	  Option argument descriptions, the
+	  <tag class='element'>argdescr</tag> element.
+	</para>
+      </listitem>
+
+      <listitem>
+	<para>
+	  Non-option argument names, the
+	  <tag class='element'>name</tag> element in the
+	  <tag class='element'>arg</tag>.
+	</para>
+      </listitem>
+    </itemizedlist>
+
+    <section id="optgengettextmsg">
+      <title>Using <link linkend="gettextmsg"><function>gettextmsg</function>()</link> with localizable strings</title>
+
+      <blockquote>
+	<informalexample>
+	  <programlisting><![CDATA[
+<descr>Specify up to 3 files</descr>]]></programlisting>
+	</informalexample>
+      </blockquote>
+
+      <para>
+	This literal string is localizable, but here's a better way:
+      </para>
+
+      <blockquote>
+	<informalexample>
+	  <programlisting><![CDATA[
+<descr>
+   <format>Specify up to %1% files</format>
+   <param>nfiles</param>
+</descr>]]></programlisting>
+	</informalexample>
+      </blockquote>
+
+      <para>
+	Instead of a literal string, the
+	<tag class='element'>descr</tag> contains a
+	<tag class='element'>format</tag> and one or more
+	<tag class='element'>param</tag>s.
+	This example calls
+	<link linkend="gettextmsg"><function>gettextmsg</function>()</link>
+	to format a localizable string.
+	<tag class='element'>format</tag> specifies the localized string
+	passed as a first parameter to <function>gettextmsg</function>(), with
+	any remaining <tag class='element'>param</tag> elements giving the
+	additional parameters to <function>gettextmsg</function>.
+      </para>
+
+      <para>
+	The contents of <tag class='element'>param</tag> get inserted as is,
+	into the generated code. Here, <replaceable>nfiles</replaceable>
+	might be a member from the option parser object's
+	<link linkend="optgensubclass">superclass</link>.
+      </para>
+
+      <note>
+	<para>
+	  <tag class='element'>descr</tag> is a wide character string, and
+	  the localized string is a wide character string.
+	</para>
+      </note>
+
+      <blockquote>
+	<informalexample>
+	  <programlisting><![CDATA[
+<descr>
+   <format>
+      <singular>Specify up to %1% file</singular>
+      <plural>Specify up to %1% files</plural>
+      <value>nfiles</value>
+   </format>
+   <param>nfiles</param>
+</descr>]]></programlisting>
+	</informalexample>
+      </blockquote>
+
+      <para>
+	Instead of a literal string in the
+	<tag class='element'>format</tag>,
+	this is an example of
+	<acronym>GNU</acronym> <application>gettext</application>'s support
+	for discrete singular and plural forms of localizable strings.
+	<tag class='element'>format</tag>'s
+	<tag class='element'>singular</tag> and
+	<tag class='element'>plural</tag>
+	strings specify the singular and plural forms
+	of a localizable string, selected by
+	<tag class='element'>value</tag>.
+	Note that <tag class='element'>value</tag> only selects the singular or
+	the plural form of the localized string.
+	Once selected, the localized string still has a parameter that
+	gets replaces by the 
+	<tag class='element'>param</tag>.
+      </para>
+    </section>
+  </section>
+
+  <section id="optgenmake">
+    <title><application><acronym>GNU</acronym> make</application> macros</title>
+
+    &automakeintro;
+
+    <blockquote>
+      <informalexample>
+	<programlisting>
+include /usr/share/lib&ns;/libx.mk
+
+$(call OPTIONS_GEN,cliopts.H,cliopts.xml)</programlisting>
+      </informalexample>
+    </blockquote>
+
+    <para>
+      This example creates a rule for <filename>cliopts.H</filename>
+      with a dependency <filename>cliopts.xml</filename>.
+      The target gets created by running the
+      <filename>optgen.xsl</filename> stylesheet.
+    </para>
+  </section>
+
+  <section>
+    <title>Using <acronym>GNU</acronym> <application>make</application> macros with <application>automake</application></title>
+
+    <para>
+      In <filename>configure.ac</filename>:
+    </para>
+
+    <blockquote>
+      <informalexample>
+	<programlisting>
+LIBCXX_INIT</programlisting>
+      </informalexample>
+    </blockquote>
+
+    <para>
+      In <filename>Makefile.am</filename>:
+    </para>
+
+    <blockquote>
+      <informalexample>
+	<programlisting>
+
+@LIBCXX_AM@
+
+# Followed by macro calls:
+
+$(call OPTIONS_GEN,cliopts.H,cliopts.xml)
+
+# ...
+</programlisting>
+      </informalexample>
+    </blockquote>
+
+    <para>
+      After the single line containing <literal>@LIBCXX_AM@</literal>,
+      invoke the <methodname>OPTIONS_GEN</methodname> macro to create the
+      make rules.
+    </para>
+
+    &automakelibxinit;
+
+  </section>
+</chapter>
+<!--
+Local Variables:
+mode: sgml
+sgml-parent-document: ("book.xml" "book" "chapter")
+End:
+-->

@@ -1,0 +1,62 @@
+<!--
+
+Copyright 2012 Double Precision, Inc.
+See COPYING for distribution information.
+
+-->
+
+<optclass name="httportmap_server_opts">
+
+  <option>
+    <name>http</name>
+    <type>bool</type>
+    <longopt>http</longopt>
+    <descr>Start an internal http daemon</descr>
+  </option>
+
+  <option>
+    <name>port</name>
+    <type>int</type>
+    <hasvalue />
+    <longopt>port</longopt>
+    <default>80</default>
+    <descr>Internal http daemon port (default 80)</descr>
+    <argdescr>port</argdescr>
+  </option>
+
+  <option>
+    <name>daemon</name>
+    <type>bool</type>
+    <longopt>daemon</longopt>
+    <descr>
+      <format>Fork, run as nobody, and chroot to %1%</format>
+      <param>PORTMAPDATADIR</param>
+    </descr>
+  </option>
+
+  <option>
+    <name>socket</name>
+    <type>std::string</type>
+    <hasvalue />
+    <longopt>socket</longopt>
+    <default>DEFAULTSOCKET</default>
+    <descr>Override internal socket/lock file, for debugging purposes</descr>
+    <argdescr>filename</argdescr>
+  </option>
+
+  <option>
+    <name>files</name>
+    <type>std::string</type>
+    <hasvalue />
+    <longopt>files</longopt>
+    <default>PORTMAPDATADIR</default>
+    <descr>Override location of httportmap static files, for debugging purposes</descr>
+    <argdescr>directory</argdescr>
+  </option>
+
+  <arg>
+    <name>start|stop|status|systemd-start|systemd-reload|systemd-stop</name>
+  </arg>
+
+  <defaultoptions />
+</optclass>

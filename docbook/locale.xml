@@ -1,0 +1,579 @@
+<!--
+
+Copyright 2012 Double Precision, Inc.
+See COPYING for distribution information.
+
+-->
+
+<chapter id="localeobj">
+  <title>Locale objects</title>
+
+  <para>
+    This is a reference-counted wrapper for the C++ library's localization
+    library:
+  </para>
+
+  <blockquote>
+    <informalexample>
+      <programlisting>
+#include &lt;&ns;/locale.H&gt;
+
+&ns;::locale myLocale;</programlisting>
+    </informalexample>
+  </blockquote>
+
+  <para>
+    <ulink url="&link-typedef-x-locale;"><classname>&ns;::locale</classname></ulink>
+    is a reference to a reference-counted object that represents
+    a C++ library locale. The default constructor creates a locale object
+    for the current global application locale.
+  </para>
+
+  <blockquote>
+    <informalexample>
+      <programlisting>
+&ns;::locale myLocale(&ns;::locale::create("en_US.utf-8"));</programlisting>
+    </informalexample>
+  </blockquote>
+
+  <para>
+    This example creates a reference to an object for an explicitly named
+    locale.
+  </para>
+
+  <blockquote>
+    <informalexample>
+      <programlisting>
+&ns;::locale myLocale(&ns;::locale::create(""));</programlisting>
+    </informalexample>
+  </blockquote>
+
+  <para>
+    An empty locale name creates a locale object for the locale specified
+    by the environment variables.
+    <ulink url="&link-typedef-x-const-locale;"><classname>&ns;::const_locale</classname></ulink>
+    is a reference to a constant
+    locale object, that cannot be modified.
+    At present, no methods are defined for modifying an existing locale object,
+    at this time
+    <classname>&ns;::locale</classname> is converted to
+    <classname>&ns;::const_locale</classname> without any loss of functionality
+    (but not the other way around, of course).
+  </para>
+
+  <blockquote>
+    <informalexample>
+      <programlisting>
+std::cout &lt;&lt; myLocale-&gt;name() &lt;&lt; std::endl;</programlisting>
+    </informalexample>
+  </blockquote>
+
+  <para>
+    <methodname>name</methodname>() returns the locale's name.
+  </para>
+
+  <blockquote>
+    <informalexample>
+      <programlisting>
+myLocale-&gt;global();</programlisting>
+    </informalexample>
+  </blockquote>
+
+  <para>
+    <methodname>global</methodname>() sets the given locale as the applications
+    global locale.
+  </para>
+
+  <blockquote>
+    <informalexample>
+      <programlisting>
+myLocale-&gt;imbue(std::cout);</programlisting>
+    </informalexample>
+  </blockquote>
+
+  <para>
+    <methodname>imbue</methodname>() invokes the <methodname>imbue</methodname>()
+    method of the given C++ library object, to imbue the object with the
+    referenced locale.
+  </para>
+
+  <note>
+    <para>
+      See <xref linkend="freebsdport" /> regarding portability notes that
+      affect <classname>&ns;::locale</classname>.
+    </para>
+  </note>
+
+  <section id="ctype">
+    <title>Character type functions using input or output streams</title>
+
+    <blockquote>
+      <informalexample>
+	<programlisting>
+#include &lt;&ns;/locale.H&gt;
+#include &lt;&ns;/ctype.H&gt;
+	  
+&ns;::ctype ct(myLocale);</programlisting>
+      </informalexample>
+    </blockquote>
+
+    <para>
+      <ulink url="&link-typedef-x-ctype;"><classname>&ns;::ctype</classname></ulink>
+      is a reference to a reference-counted object that implements character
+      conversion and classification functions, such as converting strings
+      to uppercase or lowercase. The conversion takes place in the locale
+      specified by the locale object passed to
+      <classname>&ns;::ctype</classname>'s constructor.
+      <ulink url="&link-typedef-x-wctype;"><classname>&ns;::wctype</classname></ulink>
+      is the wide character version.
+    </para>
+  </section>
+
+  <section id="codecvt">
+    <title>Wide/narrow character conversion</title>
+
+    <para>
+      Conversion between narrow and wide characters is implemented as an
+      <link linkend="iofilters">IO filter</link>.
+    </para>
+
+    <blockquote>
+      <informalexample>
+	<programlisting>
+#include &lt;&ns;/locale.H&gt;
+#include &lt;&ns;/basicstreamcodecvtobj.H&gt;
+
+std::wostringstream widecharbuf;
+
+&ns;::ctow_ostream::streamref_t o(ctow_ostream::create(widecharbuf, l));</programlisting>
+      </informalexample>
+    </blockquote>
+
+    <para>
+      The
+      <ulink url="&link-typedef-x-ctow-ostream;"><classname>&ns;::ctow_ostream</classname></ulink>
+      factory constructs a narrow character output stream,
+      <classname>&ns;::ctow_ostream::streamref_t</classname> is a subclass of
+      <ulink url="&link-typedef-x-ostream;"><classname>&ns;::ostream</classname></ulink>,
+      that converts the
+      written characters to wide characters and writes the resulting characters
+      to a <classname>std::wostream</classname>.
+      The locale for narrow/wide character conversion, and the wide character
+      stream, is passed as arguments to the create() method.
+    </para>
+
+    <para>
+      <ulink url="&link-typedef-x-wtoc-ostream;"><classname>&ns;::wtoc_ostream</classname></ulink>
+      does the opposite conversion: from wide characters to narrow characters.
+      <classname>&ns;::wtoc_ostream::streamref_t</classname> is a reference
+      to a wide-character output stream, that converts the written wide
+      characters to narrow characters which are then written to a narrow
+      character output stream.
+    </para>
+
+    <para>
+      <ulink url="&link-typedef-x-ctow-istream;"><classname>&ns;::ctow_istream</classname></ulink>,
+      and
+      <ulink url="&link-typedef-x-wtoc-istream;"><classname>&ns;::wtoc_istream</classname></ulink>
+      implement the conversion as input streams:
+    </para>
+
+    <blockquote>
+      <informalexample>
+	<programlisting>
+#include &lt;&ns;/locale.H&gt;
+#include &lt;&ns;/basicstreamcodecvtobj.H&gt;
+
+std::istringstream narrowcharbuf;
+
+&ns;::ctow_istream::streamref_t i(ctow_istream::create(narrowcharbuf, l));</programlisting>
+      </informalexample>
+    </blockquote>
+
+    <para>
+      <classname>&ns;::ctow_istream::streamref_t</classname>
+      is a wide character input stream. Reading from it results in
+      reading narrow characters from the underlying narrow character input
+      stream, which get converted to wide characters using the given locale.
+      The narrow character input stream reference and the locale for the
+      conversion are passed as the arguments to the create() method.
+      <classname>&ns;::wtoc_istream::streamref_t</classname> is the opposite
+      conversion: it's a narrow character input stream that reads from a
+      wide character input stream.
+    </para>
+
+    <para>
+      Finally,
+      <ulink url="&link-typedef-x-ctow-iostream;"><classname>&ns;::ctow_iostream</classname></ulink>
+      combines an input stream and an output stream.
+      <classname>&ns;::ctow_iostream</classname> is a narrow character stream
+      that reads/writes from a wide character stream.
+      <ulink url="&link-typedef-x-wtoc-iostream;"><classname>&ns;::wtoc_iostream</classname></ulink>
+      is a wide character stream that reads/writes from a narrow character
+      stream.
+    </para>
+  </section>
+
+  <section id="codecvtiiter">
+    <title>Wide/narrow character conversion using input iterators</title>
+
+    <para>
+      This approach converts between narrow and wide
+      characters using input iterators.
+    </para>
+
+    <blockquote>
+      <informalexample>
+	<programlisting>
+#include &lt;&ns;/codecvtiter.H&gt;
+#include &lt;&ns;/locale.H&gt;
+
+#include &lt;string&gt;
+#include &lt;algorithm&gt;
+
+&ns;::locale conv_locale;
+
+std::string str;
+
+std::wstring wstr;
+
+typedef std::string::iterator inp_iter_t;
+
+typedef &ns;::icodecvtiter&lt;inp_iter_t&gt;::ctow_iter_t ctow_inp_iter_t;
+
+ctow_inp_iter_t::iter ins=std::copy(ctow_inp_iter_t::create(str.begin(),
+                                                            str.end(),
+                                                            conv_locale),
+                                    ctow_inp_iter_t::iter(),
+                                    std::back_insert_iterator&lt;std::wstring&gt;(wstr));</programlisting>
+      </informalexample>
+    </blockquote>
+
+    <para>
+      The template parameter of
+      <ulink url="&link-x--icodecvtiter;"><classname>&ns;::icodecvtiter&lt;<replaceable>inp_iter_t</replaceable>&gt;::ctow_iter_t</classname></ulink>
+      is any narrow character input iterator class.
+    </para>
+
+    <para>
+      The
+      <classname>&ns;::icodecvtiter&lt;<replaceable>inp_iter_t</replaceable>&gt;::ctow_iter_t</classname>
+      template defines a <methodname>create</methodname>() method that returns
+      an <classname>iter</classname> type, also defined in the template.
+      This instance defines an input iterator. Iterating over this iterator
+      iterates over the narrow input sequence, converts it to wide character
+      sequence, which gets iterated over by this iterator.
+      The first parameter to <methodname>create</methodname>() is the beginning
+      iterator for the narrow character sequence, the second parameter is
+      the ending iterator. The optional third parameter specifies the locale
+      for the conversion, and defaults to the global locale.
+    </para>
+
+    <para>
+      <methodname>create</methodname>() returns an <classname>iter</classname>
+      that represents the beginning iterator for the converted input sequence.
+      A default constructor for <classname>iter</classname> produces the
+      ending iterator value for a converted input sequence.
+    </para>
+
+    <para>
+      <classname>&ns;::icodecvtiter&lt;<replaceable>ins_iter_t</replaceable>&gt;::wtoc_iter_t</classname>
+      defines a <methodname>create</methodname>() and an
+      <classname>iter</classname> that implement an
+      analogous input iterator that converts wide characters to
+      narrow characters.
+    </para>
+
+    <blockquote>
+      <informalexample>
+	<programlisting>
+typedef &ns;::icodecvtiter_bytype&lt;ins_iter_t, char, wchar_t&gt;::iter_t ctow_inp_iter_t;</programlisting>
+      </informalexample>
+    </blockquote>
+
+    <para>
+      <ulink url="&link-x--icodecvtiter-bytype;"><classname>&ns;::icodecvtiter_bytype</classname></ulink>
+      is an alternative way to select either
+      <classname>ctow_iter_t</classname> or
+      <classname>wtoc_iter_t</classname>, depending on the
+      template's second and third parameters.
+</para>
+  </section>
+
+  <section id="codecvtoiter">
+    <title>Wide/narrow character conversion using output iterators</title>
+
+    <para>
+      This approach converts between narrow and wide
+      characters using output iterators.
+    </para>
+
+    <blockquote>
+      <informalexample>
+	<programlisting>
+#include &lt;&ns;/codecvtiter.H&gt;
+#include &lt;&ns;/locale.H&gt;
+
+#include &lt;string&gt;
+#include &lt;algorithm&gt;
+
+&ns;::locale conv_locale;
+
+std::string str;
+
+std::wstring wstr;
+
+typedef std::back_insert_iterator&lt;std::wstring&gt; ins_iter_t;
+
+typedef &ns;::ocodecvtiter&lt;ins_iter_t&gt;::ctow_iter_t ctow_ins_iter_t;
+
+typedef ctow_ins_iter_t::iter iter;
+
+ins_iter_t wstr_ins_iter(wstr);
+
+iter ins(ctow_ins_iter_t::create(wstr_ins_iter, conv_locale));
+
+ins=std::copy(str.begin(), str.end(), ins);
+
+wstr_ins_iter=ins.flush();</programlisting>
+      </informalexample>
+    </blockquote>
+
+    <para>
+      The template parameter of
+      <ulink url="&link-x--ocodecvtiter;"><classname>&ns;::ocodecvtiter&lt;<replaceable>ins_iter_t</replaceable>&gt;::ctow_iter_t</classname></ulink>,
+      <classname><replaceable>ins_iter_t</replaceable></classname>
+      is any wide character output iterator class.
+    </para>
+
+    <para>
+      The
+      <classname>&ns;::ocodecvtiter&lt;<replaceable>ins_iter_t</replaceable>&gt;::ctow_iter_t</classname>
+      template defines a <methodname>create</methodname>() method that returns
+      an <classname>iter</classname> type, also defined in the template.
+      <classname>iter</classname> is an output iterator
+      defines an output iterator that receives wide characters, converts them
+      to narrow characters in the specified locale, which then
+      get written to the narrow character output iterator.
+      The first parameter to <methodname>create</methodname>()
+      is a wide iterator class output iterator instance.
+      The optional second parameter defaults to the global locale, and defines
+      the narrow to wide character conversion.
+    </para>
+
+    <para>
+      The <classname>iter</classname> iterator uses internal buffering.
+      Invoke the <methodname>flush</methodname>() method, after the entire narrow
+      character sequence gets written to the output iterator, to flush the
+      internal buffers and write any remaining wide character sequence to the
+      underlying output iterator, whose new value gets returned by
+      <methodname>flush</methodname>(). Following the call to
+      <methodname>flush</methodname>(), the
+      <classname>iter</classname> iterator is no longer useful.
+    </para>
+
+    <para>
+      <classname>&ns;::ocodecvtiter&lt;<replaceable>ins_iter_t</replaceable>&gt;::wtoc_iter_t</classname>
+      defines an analogous output iterator that converts wide characters to
+      narrow characters.
+    </para>
+
+    <blockquote>
+      <informalexample>
+	<programlisting>
+typedef &ns;::ocodecvtiter_bytype&lt;ins_iter_t, char, wchar_t&gt;::iter_t ctow_ins_iter_t;</programlisting>
+      </informalexample>
+    </blockquote>
+
+    <para>
+      <ulink url="&link-x--ocodecvtiter-bytype;"><classname>&ns;::ocodecvtiter_bytype</classname></ulink>
+      is an alternative way to select either
+      <classname>ctow_iter_t</classname> or
+      <classname>wtoc_iter_t</classname>, depending on the
+      template's second and third parameters.
+</para>
+  </section>
+
+  <section id="msgcatalogs">
+    <title>Message catalogs</title>
+
+    <blockquote>
+      <informalexample>
+	<programlisting>
+#include &lt;&ns;/messages.H&gt;
+
+&ns;::messages msgcat(&ns;::messages::create(l, "app"));</programlisting>
+      </informalexample>
+    </blockquote>
+
+    <para>
+      <ulink url="&link-typedef-x-messages;"><classname>&ns;::messages</classname></ulink>
+      is a reference to a reference-counted object that provides access to
+      internationalized message catalogs created by
+      the <ulink url="http://www.gnu.org/software/gettext/">gettext library</ulink>.
+      Its get() method returns strings using the encoding specified by the
+      given locale.
+      <ulink url="&link-typedef-x-wmessages;"><classname>&ns;::wmessages</classname></ulink>
+      is an analogous reference whose get() method returns wide strings.
+    </para>
+
+    <para>
+      <ulink url="&link-typedef-x-const-messages;"><classname>&ns;::const_messages</classname></ulink>
+      and
+      <ulink url="&link-typedef-x-const-wmessages;"><classname>&ns;::const_wmessages</classname></ulink>
+      are references to constant message catalog access objects.
+      At this time, none of the referenced objects' method modify the object,
+      so the constant references are equivalent to their non-constant
+      version, in terms of functionality.
+    </para>
+
+    <section id="gettextmsg">
+      <title>gettextmsg()</title>
+
+      <para>
+	The <methodname>gettextmsg</methodname>() function is a convenience
+	function for creating
+	localized messages in a stream-like fashion:
+      </para>
+
+      <blockquote>
+	<informalexample>
+	  <programlisting>
+std::cout &lt;&lt; &ns;::gettextmsg(msgcat-&gt;get("Window size: %1% rows, %2% columns"),
+                      nrows, ncols) &lt;&lt; std::endl;</programlisting>
+	</informalexample>
+      </blockquote>
+
+      <para>
+	The first argument to <function>gettextmsg</function>() is
+	typically a
+	localized string returned by a message catalog's
+	<methodname>get</methodname>() method, that contains
+	<literal>%<replaceable>n</replaceable>%</literal> placeholders.
+	The remaining variadic arguments to
+	<function>gettextmsg</function>()
+	provide the values for each placeholder.
+	Each placeholder gets replaced by the <replaceable>n</replaceable>th
+	variadic parameter.
+	The message catalog may specify a string with placeholders appearing
+	in a different order, the parameters get rearranged accordingly.
+	<function>gettextmsg</function> returns an object that can be
+	used with the <quote><literal>&lt;&lt;</literal></quote> for an
+	output stream, or assigned directly to a string.
+      </para>
+
+      <para>
+	The argument to <function>gettextmsg</function>() may be a narrow
+	or a wide character string.
+	The result of <function>gettextmsg</function>() can be used
+	used with the <quote><literal>&lt;&lt;</literal></quote>, or assigned
+	to a narrow or a wide stream/string, appropriately.
+      </para>
+
+      <para>
+	Each formatting parameter may be any class with a copy constructor and
+	a
+	<literal>&lt;&lt;</literal> operator into an output stream.
+	This includes I/O manipulators, which are treated no differently than
+	any other parameter.
+	The <literal>&lt;&lt;</literal> operator may write large amounts of
+	output into an output stream.
+	<function>gettextmsg</function> uses the
+	<literal>&lt;&lt;</literal> operator to process the formatting string
+	and its parameters, in the specified order.
+	The parameters will write their output directly into an output stream,
+	or into a temporary string stream if the result of
+	<function>gettextmsg</function> gets assigned to a string; but when
+	the output goes to an output stream directly, no temporary buffer is
+	needed, so large output from a class's
+	<literal>&lt;&lt;</literal> operator does not get buffered, and goes
+	directly to the output stream.
+      </para>
+
+      <para>
+	For convenience, message catalogs provide
+	a <methodname>format</methodname>() method, that employs
+	<function>gettextmsg</function>():
+      </para>
+
+      <blockquote>
+	<informalexample>
+	  <programlisting>
+std::string str=msgcat-&gt;format("Window size: %1% rows, %2% columns",
+                      nrows, ncols);</programlisting>
+	</informalexample>
+      </blockquote>
+
+    </section>
+
+    <section id="singleplural">
+      <title>Single and plural forms</title>
+
+      <blockquote>
+	<informalexample>
+	  <programlisting>
+#include &lt;&ns;/messages.H&gt;
+
+void onthewall(size_t nbeers)
+{
+    &ns;::messages msgcat(&ns;::messages::create(l, "app"));
+
+    printf(msgcat-&gt;get("%d bottle of beer\n",
+                       "%d bottles of beer\n", nbeers).c_str(),
+        nbeers);
+}</programlisting>
+	</informalexample>
+      </blockquote>
+
+      <para>
+	A three-argument form of <methodname>get</methodname>() implements
+	localization of single and plural forms of a given string. Different
+	locales may use something other than a <quote>1 is singular, all other
+	  values are plural</quote> rule. This form of
+	<methodname>get</methodname>() returns a localized string that
+	corresponds to the numerical value of the third parameter.
+      </para>
+
+      <para>
+	<methodname>formatn</methodname>() combines this with
+	<function>gettextmsg</function>:
+      </para>
+
+      <blockquote>
+	<informalexample>
+	  <programlisting>
+#include &lt;&ns;/messages.H&gt;
+
+void onthewall(size_t nbeers)
+{
+    &ns;::messages msgcat(&ns;::messages::create(l, "app"));
+
+    std::cout &lt;&lt; msgcat-&gt;formatn("%1% bottle of beer",
+                                 "%1% bottles of beer", nbeers,
+                                 nbeers) &lt;&lt; std::endl;
+}</programlisting>
+	</informalexample>
+      </blockquote>
+
+      <para>
+	This is equivalent to calling the three argument version of
+	<methodname>get</methodname>() and then using
+	<function>gettextmsg</function>().
+	Note that <quote>nbeers</quote> appears twice, in the above example.
+	Its first occurence becomes a parameter to
+	<methodname>get</methodname>() that selects the singular or the plural
+	form of a
+	localized string. The second occurence becomes the first formatting
+	parameter, that replaces the
+	<quote><literal>%1%</literal></quote> placeholder.
+      </para>
+    </section>
+  </section>
+</chapter>
+
+<!--
+Local Variables:
+mode: sgml
+sgml-parent-document: ("book.xml" "book" "chapter")
+End:
+-->

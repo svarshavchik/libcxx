@@ -1,0 +1,764 @@
+/*
+** Copyright 2012 Double Precision, Inc.
+** See COPYING for distribution information.
+*/
+
+#ifndef x_http_useragentobj_H
+#define x_http_useragentobj_H
+
+#include <x/http/fdclient.H>
+#include <x/http/formfwd.H>
+#include <x/epoll.H>
+#include <x/ptr.H>
+#include <x/obj.H>
+#include <x/fdfwd.H>
+#include <x/property_properties.H>
+#include <x/weakmultimap.H>
+#include <x/gnutls/credentials_certificatefwd.H>
+#include <x/sipobj.H>
+
+#include <list>
+#include <map>
+#include <iterator>
+
+#include <x/namespace.h>
+
+namespace LIBCXX_NAMESPACE {
+
+	namespace http {
+#if 0
+};
+#endif
+
+//! Helper class for compile-time verification of the proper iterator type passed to useragentObj::request()
+
+//! \internal
+//!
+template<typename iterator_category>
+class useragent_iterator_check {
+
+public:
+	//! This is a valid iterator type
+
+	static const int check_value=0;
+};
+
+//! Helper class for compile-time verification of the proper iterator type passed to useragentObj::request()
+
+//! \internal
+//!
+
+template<>
+class useragent_iterator_check<std::input_iterator_tag> {
+
+public:
+	//! This is not a valid iterator type
+
+	static const int check_value= -1;
+};
+
+//! Helper class for compile-time verification of the proper iterator type passed to useragentObj::request()
+
+//! \internal
+//!
+template<>
+class useragent_iterator_check<std::output_iterator_tag> {
+
+public:
+	//! This is not a valid iterator type
+
+	static const int check_value= -1;
+};
+
+//! An HTTP user agent implementation
+
+//! A high level HTTP client that caches persistent HTTP 1.1 connections.
+//! Thread safe.
+//!
+class useragentObj : virtual public obj {
+
+	class idleconnObj;
+
+	//! Client options
+
+	int opts;
+
+	//! List of cached connections
+
+	//! \internal
+	//!
+	typedef std::list< ptr<idleconnObj> > connectionlist_t;
+
+	//! Connection cache key
+
+	//! \internal
+	//!
+	struct cache_key_t {
+
+		//! The scheme of the cached connection
+		std::string scheme;
+
+		//! The host:port of the cached connection
+		std::string hostport;
+
+		//! Default constructor
+		cache_key_t();
+
+		//! Constructor -- extract the key for a URI
+
+		cache_key_t(const uriimpl &uri);
+
+		//! Destructor
+		~cache_key_t() noexcept;
+
+		//! Comparison function for an associative container
+
+		bool operator<(const cache_key_t &a) const
+		{
+			int rc=chrcasecmp::compare(scheme, a.scheme);
+
+			if (rc == 0)
+				rc=chrcasecmp::compare(hostport, a.hostport);
+
+			return rc < 0;
+		}
+	};
+
+	//! A list of all cached connections to the same destination
+
+	//! \internal
+	//!
+	struct idle_connectionlistObj : virtual public obj {
+
+	public:
+		//! Constructor
+		idle_connectionlistObj();
+
+		//! Destructor
+		~idle_connectionlistObj() noexcept;
+
+		//! The list of all cached idle objects that hold a reference to this object
+
+		std::list<idleconnObj *> idle_connection_list;
+	};
+
+	//! A reference to a list of all idle connections to the same destination
+
+	//! \internal
+	//!
+
+	typedef ref<idle_connectionlistObj> idle_connectionlist;
+
+	//! A nullable pointer reference to a list of all idle connections to the same destination
+
+	//! \internal
+	//!
+
+	typedef ptr<idle_connectionlistObj> idle_connectionlistptr;
+
+	class idleconnObj;
+
+	//! An epoll object that's used to clean up closed connections
+
+	//! When the HTTP server closes the socket for a cached connection,
+	//! this callback object helps in deleting it from the useragent.
+
+	//! \internal
+	//!
+
+	class epollCallbackObj : public epoll::base::callbackObj {
+	public:
+		//! This idle connection
+		idleconnObj *conn;
+
+		//! Constructor
+		epollCallbackObj(idleconnObj *connArg);
+
+		//! Destructor
+		~epollCallbackObj() noexcept;
+
+		//! The connection must've been closed. Delink it.
+
+		void event(const fd &fdRef,
+			   event_t event);
+	};
+
+	//! A reference to a cached idle connection
+
+	//! \internal
+	//!
+
+	typedef ref<idleconnObj> idleconn;
+
+	//! A nullable pointer reference to a cached idle connection
+
+	//! \internal
+	//!
+	typedef ptr<idleconnObj> idleconnptr;
+
+	template<typename client_type> class connObj;
+
+	//! Maximum size of connectionlist
+
+	//! \internal
+	//!
+	size_t connectionlist_maxsize;
+
+	//! Maximum number of cached connections to the same host.
+
+	//! \internal
+	//!
+	size_t hostconnectionlist_maxsize;
+
+	//! A map that holds all cached connections to a destination
+
+	//! \internal
+	//!
+
+	typedef weakmultimap<cache_key_t, idle_connectionlistObj>
+	idle_connections_t;
+
+	//! The following data is somewhat important
+
+	class sip {
+
+	public:
+		sip() LIBCXX_HIDDEN;
+		~sip() noexcept LIBCXX_HIDDEN;
+
+		//! An epoll file descriptor that monitors open cached connections
+
+		//! \internal
+		//!
+		epoll epollfd;
+
+		//! A list of all cached connections
+
+		//! \internal
+		//!
+		connectionlist_t connectionlist;
+
+		//! Keep track of the size of connectionlist
+
+		//! \internal
+		//!
+		size_t connectionlist_size;
+
+		//! All cached connections, per a given destination
+
+		//! \note
+		//! An active connection, a connection that some thread is currently
+		//! using, for a pending HTTP request, also holds a reference to the
+		//! stored idle connection list.
+		//!
+		//! \internal
+		//!
+
+		idle_connections_t idle_connections;
+	};
+
+	//! Thread-safe metadata
+
+	typedef sipobj<sip> meta_t;
+
+	//! Safely-locked connection metadata
+	meta_t meta;
+
+	//! A cached connection
+
+	//! \internal
+	//!
+
+	class idleconnObj : virtual public obj {
+
+	public:
+		//! Constructor
+		idleconnObj();
+
+		//! Destructor
+		~idleconnObj() noexcept;
+
+		//! This cached connection is owned by this user agent object
+		useragentObj *uaObj;
+
+		//! My iterator in useragent's idle_connections list
+
+		connectionlist_t::iterator connectionlist_iter;
+
+		//! A reference to a list of all cached connections to the same destination
+		idle_connectionlistptr idlelist;
+
+		//! My iterator in idlelist->idle_connection_list.
+
+		std::list<idleconnObj *>::iterator idlelist_iter;
+
+		//! The connected socket
+		fdptr socket;
+
+		//! This connection is not idle anymore, remove it from useragent's cached list.
+		void notidleanymore(meta_t::writelock &lock) LIBCXX_HIDDEN;
+	};
+
+	//! Multiply inherit from fdclient and idleconnObj
+
+	//! \internal
+	//!
+
+	template<typename client_type>
+	class connObj : public idleconnObj, public client_type {
+
+	public:
+		connObj() LIBCXX_HIDDEN {}
+		~connObj() noexcept LIBCXX_HIDDEN {}
+	};
+
+public:
+	//! Maximum number of persistent connections cached by a useragent
+
+	static property::value<size_t> maxconn;
+
+	//! Maximum number of persistent connections to the same host cached by useragent
+	static property::value<size_t> maxhostconn;
+
+
+	friend class useragentBase;
+
+	class bodycallbackObj;
+
+	//! Response body receiver callback
+
+	//! This callback object's body() method receives the beginning and
+	//! the ending iterator that defines the input sequence of the body
+	//! of a response to a request.
+	//!
+	//! Use "http::useragent::base::bodycallback to reference this typedef.
+	typedef ref<bodycallbackObj> bodycallback;
+
+	//! A nullable pointer to a response body receiver callback.
+
+	//! Use "http::useragent::base::bodycallbackptr to reference this
+	//! typedef.
+
+	typedef ptr<bodycallbackObj> bodycallbackptr;
+
+	//! Default constructor
+	useragentObj(//! Client options.
+
+		     //! Allowable options are:
+		     //!
+		     //! - \c http::noverifypeer
+		     //!
+		     //! - \c http::noverifycert
+
+		     clientopts_t optsArg=http::none,
+
+		     //! Maximum number of persistent connections cached by useragent
+
+		     size_t connectionlist_maxsizeArg=maxconn.getValue(),
+
+		     //! Maximum number of persistent connections to the same host cached by useragent
+
+		     size_t hostconnectionlist_maxsizeArg
+		     =maxhostconn.getValue());
+
+	//! Default destructor
+	~useragentObj() noexcept;
+
+	//! Base class for references and pointers to a reqponse object.
+
+	//! The base class provides defines the typedef for the response content
+	//! iterators.
+
+	class responseBase;
+	class responseObj;
+
+	//! A reference to a response to an HTTP request.
+	typedef ref<responseObj, responseBase> response;
+
+	//! A nullable pointer reference to a response to an HTTP request.
+	typedef ptr<responseObj, responseBase> responseptr;
+
+	//! A reference to a const response to an HTTP request.
+	typedef const_ref<responseObj, responseBase> const_response;
+
+	//! A nullable pointer reference to a const response to an HTTP request.
+	typedef const_ptr<responseObj, responseBase> const_responseptr;
+
+	//! The base class defines an iterator over the response contents.
+	class responseBase : public ptrrefBase {
+
+	public:
+
+		//! Objects returned by http::useragent::base::response::begin() and end().
+
+		typedef fdclientimpl::iterator iterator;
+	};
+
+	//! A response to an HTTP request.
+
+	//! A reference to this object gets returned by request(). This is
+	//! a reference-counted responseimpl object, that also holds internal
+	//! metadata relating to the request.
+	//!
+	class responseObj : virtual public obj {
+
+		//! The underlying connection to the HTTP server, where the content is retrieved from
+
+		idleconnptr conn;
+
+		//! The user agent object that constructed this response.
+		useragentptr ua;
+
+		//! The cache key for the underlying connection in the useragent
+
+		cache_key_t key;
+
+	public:
+		//! Internal constructor, invoked by useragent
+		responseObj(const cache_key_t &keyArg) LIBCXX_HIDDEN;
+
+	private:
+		//! Response content beginning iterator, returned by begin().
+
+		responseBase::iterator content_begin_iter;
+
+		//! Response content ending iterator, returned by end().
+		responseBase::iterator content_end_iter;
+
+	public:
+		friend class useragentObj;
+
+		//! The received HTTP response message
+		responseimpl message;
+
+		//! Destructor
+
+		//! If the response had no content, the destruction is
+		//! immediate. If the response contained content, which has
+		//! not been fully retrieved, there may be a delay to drain
+		//! the unconsumed content, before the underlying connection
+		//! gets returned to the useragent object.
+
+		~responseObj() noexcept;
+
+		//! Return an indication if this response has content.
+		bool has_content() const
+		{
+			return content_begin_iter != content_end_iter;
+		}
+
+		//! Return the response's content beginning iterator
+
+		//! The beginning iterator may be retrieved only once.
+		//! The returned iterator type should be referenced as
+		//! \c http::useragent::base::body_iterator;
+
+		responseBase::iterator begin() const noexcept
+		{
+			return content_begin_iter;
+		}
+
+		//! Return the response's content ending iterator
+
+		//! The returned iterator type should be referenced as
+		//! \c http::useragent::base::body_iterator;
+		responseBase::iterator end() const noexcept
+		{
+			return content_end_iter;
+		}
+
+		//! Convenience method to return a reference to the superclass
+
+	};
+
+	friend class responseObj;
+
+	//! Send a request with a terminatable file descriptor.
+
+	//! The extra parameter, terminate_fd, is the terminatable file
+	//! descriptor.
+	//! If this file descriptor becomes readable, the request is aborted.
+
+	template<typename... Args_t>
+	response request(//! The terminatable file descriptor
+
+			 const fd &terminate_fd,
+
+			 //! Arguments
+			 Args_t && ...args)
+	{
+		return request_terminate_fd(&terminate_fd,
+					    std::forward<Args_t>(args)...);
+	}
+
+	//! Send a request with or without a terminatable file descriptor
+
+	template<typename... Args_t>
+	response request(//! The terminatable file descriptor
+
+			 const fdptr &terminate_fd,
+
+			 //! Arguments
+			 Args_t && ...args)
+	{
+		if (terminate_fd.null())
+			return request_terminate_fd(nullptr,
+						    std::forward<Args_t>
+						    (args)...);
+
+		fd rfd(terminate_fd);
+
+		return request_terminate_fd(&rfd,
+					    std::forward<Args_t>(args)...);
+	}
+
+	//! Send a request without a terminatable file descriptor parameter.
+
+	//! The request gives an explicit requestimpl object.
+	//!
+	template<typename... Args_t>
+	response request(requestimpl &req,
+			 Args_t && ...args)
+	{
+		return request_terminate_fd(nullptr, req,
+					    std::forward<Args_t>(args)...);
+	}
+
+	//! Send a request without a terminatable file descriptor parameter.
+
+	//! A request that starts with an explicit HTTP method.
+	//!
+	template<typename... Args_t>
+	response request(method_t method,
+			 Args_t && ...args)
+	{
+		return request_terminate_fd(nullptr, method,
+					    std::forward<Args_t>(args)...);
+	}
+
+
+private:
+
+	//! A request with headers given in an explicit requestimpl object.
+
+	template<typename... Args_t>
+	response request_terminate_fd(const fd *terminate_fd,
+				      requestimpl &req,
+				      Args_t && ...args)
+	{
+		return request_with_headers(terminate_fd, req,
+					    std::forward<Args_t>(args)...);
+	}
+
+	//! A request that starts with an explicit HTTP method.
+
+	template<typename... Args_t>
+	response request_terminate_fd(const fd *terminate_fd,
+				      method_t method,
+				      Args_t && ...args)
+	{
+		return request_terminate_fd_method(terminate_fd, method,
+						   std::forward<Args_t>(args)...
+						   );
+	}
+
+	//! A URI after the request method
+
+	template<typename... Args_t>
+	response request_terminate_fd_method(const fd *terminate_fd,
+					     method_t method,
+					     const uriimpl &uri,
+					     Args_t && ...args)
+	{
+		requestimpl req(method, uri);
+
+		return request_with_headers(terminate_fd, req,
+					    std::forward<Args_t>(args)...);
+	}
+
+	//! A URI and an HTTP version, after the request method
+
+	template<typename... Args_t>
+	response request_terminate_fd_method(const fd *terminate_fd,
+					     method_t method,
+					     const uriimpl &uri,
+					     httpver_t httpver,
+					     Args_t && ...args)
+	{
+		requestimpl req(method, uri, httpver);
+
+		return request_with_headers(terminate_fd, req,
+					    std::forward<Args_t>(args)...);
+	}
+
+	//! Add header name and value to the request
+
+	template<typename... Args_t>
+	response request_with_headers(const fd *terminate_fd,
+				      requestimpl &req,
+				      const std::string &hdrname,
+				      const std::string &hdrvalue,
+				      Args_t && ...args)
+
+	{
+		req.append(hdrname, hdrvalue);
+
+		return request_with_headers(terminate_fd, req,
+					    std::forward<Args_t>(args)...);
+	}
+
+	//! A request with form parameters
+	response request_with_headers(const fd *terminate_fd,
+				      requestimpl &req,
+				      const form::const_parameters &form)
+;
+
+	//! A request without a body
+
+	response request_with_headers(const fd *terminate_fd,
+				      requestimpl &req)
+;
+
+	//! A request with an arbitrary body
+
+	//! \internal
+	template<typename iter_type>
+	response request_with_headers(const fd *terminate_fd,
+				      requestimpl &req,
+				      const std::pair<iter_type, iter_type>
+				      &req_body)
+
+	{
+		// A compiler error on the following line means that a pair of
+		// input or output iterators were passed to request().
+		//
+		// Output iterators are obviously wrong. Input iterators are,
+		// as documented, not allowed; at the minimum the iterators
+		// should be forward iterators.
+
+		extern char invalid_iterator_type[useragent_iterator_check<typename std::iterator_traits<iter_type>::iterator_category>::check_value]
+			__attribute__((unused));
+
+		// This function requires forward iterators (or bidirectional,
+		// or random).
+
+		request_with_body<iter_type> do_req(req_body.first,
+						    req_body.second);
+
+		return do_request(terminate_fd, req, do_req);
+	}
+
+
+	//! Send a request without a body
+
+	class request_sans_body {
+
+	public:
+		//! Constructor
+
+		request_sans_body();
+
+		//! Destructor
+		~request_sans_body() noexcept;
+
+		//! Send the request
+
+		virtual bool operator()(fdclientimpl &client,
+					requestimpl &req,
+					responseimpl &resp);
+	};
+
+	//! Send a request together with the body
+
+	template<typename iter_type>
+	class request_with_body : public request_sans_body {
+
+		//! Beginning iterator that defines the body
+		iter_type beg_iter;
+
+		//! Ending iterator that defines the body
+		iter_type end_iter;
+
+	public:
+		//! Constructor
+		request_with_body(const iter_type &beg_iterArg,
+				  const iter_type &end_iterArg)
+			: beg_iter(beg_iterArg),
+			  end_iter(end_iterArg)
+		{
+		}
+
+		//! Destructor
+		~request_with_body() noexcept
+		{
+		}
+
+		//! Send the request
+
+		bool operator()(fdclientimpl &client,
+				requestimpl &req,
+				responseimpl &resp)
+		{
+			return client.send(req, beg_iter, end_iter, resp);
+		}
+	};
+
+	//! Implement the request
+
+	response do_request(const fd *terminate_fd,
+			    requestimpl &req,
+			    request_sans_body &impl)
+;
+
+	//! Find a connection for the given destination
+
+	//! \internal
+	//!
+	idleconn findConn(const cache_key_t &key,
+			  const fd *terminate_fd)
+		LIBCXX_INTERNAL;
+
+	//! Recycle an idle connection
+
+	//! \internal
+	void recycle(const cache_key_t &key,
+		     const idleconn &conn)
+		LIBCXX_INTERNAL;
+
+	//! Initialize an http socket
+
+	//! \internal
+	//!
+	idleconn init_http_socket(clientopts_t opts,
+				  const std::string &host,
+				  const fd &socket,
+				  const fdptr &terminator)
+		LIBCXX_HIDDEN;
+
+	//! Initialize an https socket
+
+	//! \internal
+	//!
+
+	idleconn init_https_socket(clientopts_t opts,
+				   const std::string &host,
+				   const fd &socket,
+				   const fdptr &terminator)
+		__attribute__((weak));
+};
+
+#if 0
+{
+	{
+#endif
+	}
+}
+
+
+#ifndef DOXYGEN
+#define LIBCXX_TEMPLATE_DECL extern
+#include <x/http/useragentobj_t.H>
+#undef LIBCXX_TEMPLATE_DECL
+#endif
+
+#endif

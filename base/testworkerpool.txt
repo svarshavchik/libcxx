@@ -1,0 +1,26 @@
+worker started
+worker started
+worker started
+worker started
+Reached 4 workers
+worker exited
+worker exited
+Reached 2 workers
+worker exited
+worker exited
+Destroyed
+worker started
+worker started
+worker started
+Starting 4th job
+worker started
+Starting 6 more jobs
+worker started
+worker started
+Seen all 10 jobs
+worker exited
+worker exited
+worker exited
+worker exited
+worker exited
+worker exited

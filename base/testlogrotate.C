@@ -1,0 +1,28 @@
+/*
+** Copyright 2012 Double Precision, Inc.
+** See COPYING for distribution information.
+*/
+
+#include "libcxx_config.h"
+#include "logger.H"
+#include "exception.H"
+
+LOG_FUNC_SCOPE_DECL(testlogger, testlogger_outer);
+
+static void testlogger()
+{
+	LOG_FUNC_SCOPE(testlogger_outer);
+
+	LOG_ERROR("Error message 1");
+}
+			     
+int main(int argc, char **argv)
+{
+	try {
+		testlogger();
+	} catch (LIBCXX_NAMESPACE::exception &e)
+	{
+		std::cout << e << std::endl;
+	}
+	return 0;
+}

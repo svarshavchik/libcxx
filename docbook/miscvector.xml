@@ -1,0 +1,43 @@
+<!--
+
+Copyright 2012 Double Precision, Inc.
+See COPYING for distribution information.
+
+-->
+
+<chapter id="vector">
+  <title>A reference-counted vector class</title>
+
+  <blockquote>
+    <informalexample>
+      <programlisting>
+#include &lt;&ns;/vector.H&gt;
+
+&ns;::vector&lt;char&gt; vecref(&ns;::vector&lt;char&gt;::create());</programlisting>
+    </informalexample>
+  </blockquote>
+
+  <para>
+    The
+    <ulink url="&link-x--vector;"><classname>&ns;::vector</classname></ulink>
+    template class defines a reference-counted
+    <classname>std::vector</classname>.
+    In this example, <quote>*vecref</quote> is type convertible to a
+    <classname>std::vector&lt;char&gt;</classname>, and may be used in any
+    context that requires it.
+  </para>
+
+  <para>
+    This template class provides a convenient way to define reference-counted
+    <classname>std::vector</classname> buffers.
+    Additionally, the class provides methods for reading or writing the
+    contents of a vector to a file (usable, of course, only with vectors of
+    Plain Old Data).
+  </para>
+</chapter>
+<!--
+Local Variables:
+mode: sgml
+sgml-parent-document: ("book.xml" "part" "chapter")
+End:
+-->

@@ -1,0 +1,116 @@
+<!--
+
+Copyright 2012 Double Precision, Inc.
+See COPYING for distribution information.
+
+-->
+
+<chapter id="strtok">
+  <title>A C++-ish strtok(), and join()</title>
+
+  <para>
+    Two template functions implement strtok()-like functionality that's more
+    C++-like than the standard C library version:
+  </para>
+
+  <blockquote>
+    <informalexample>
+      <programlisting>
+#include &lt;&ns;/strtok.H&gt;
+
+std::string str;
+
+std::list&lt;std::string&gt; container;
+
+&ns;::strtok_str(str, " \t\r\n", container);</programlisting>
+    </informalexample>
+  </blockquote>
+
+  <para>
+    <ulink url="&link-function-x-strtok-str;"><methodname>strtok_str</methodname>()</ulink>
+    works with either narrow or wide
+    character strings. The second argument sets the list of delimiter
+    characters.
+    Consecutive sequences of characters in the first
+    parameter are delimited by characters in the delimiter character list.
+    The sequences extracted and added to the container passed as the third
+    argument. The third argument can be any container that implements
+    <methodname>push_back</methodname>().
+    The above example extracts words from the string delimited by whitespace
+    characeters, and appends them to the container.
+  </para>
+
+  <blockquote>
+    <informalexample>
+      <programlisting>
+#include &lt;&ns;/strtok.H&gt;
+
+std::string str;
+
+std::list&lt;std::string&gt; container;
+
+&ns;::strtok_if(str,
+             [] (char c)
+             {
+                return c == ' '|| c == '\t' || c == '\n' ||
+                    c == '\r';
+             }, container);</programlisting>
+    </informalexample>
+  </blockquote>
+
+  <para>
+    The
+    <ulink url="&link-function-x-strtok-if;"><methodname>strtok_if</methodname>()</ulink>
+    function
+    uses a functor or a predicate
+    rather than a literal string, to define delimiter characters.
+    The functor takes one parameter, a single character, and returns
+    <literal>true</literal> if the character should be considered a delimiter
+    character.
+  </para>
+
+  <para>
+    <ulink url="&link-function-x-join;"><function>&ns;::join</function></ulink>() is
+    the opposite of <function>strtok</function>(), and combines a collection
+    of strings together, with a separator string sandwhiched in between:
+  </para>
+
+  <blockquote>
+    <informalexample>
+      <programlisting>
+#include &lt;&ns;/join.H&gt;
+#include &lt;&ns;/dir.H&gt;
+#include &lt;iostream&gt;
+#include &lt;iterator&gt;
+
+int main()
+{
+    std::set&lt;std::string&gt; files;
+
+    &ns;::dir dir(".");
+
+    std::copy(dir.begin(), dir.end(),
+          std::insert_iterator&lt;std::set&lt;std::string&gt; &gt;(files,
+                                   files.end()));
+
+    std::cout &lt;&lt; &ns;::join(files, "\n") &lt;&lt; std::endl;
+    return 0;
+}</programlisting>
+    </informalexample>
+  </blockquote>
+
+  <para>
+    <function>&ns;::join</function>() is heavily overloaded. The collection
+    of strings can be specified as a container, or as an input sequence defined
+    by a beginning and an ending iterator. The separator string can be a
+    string object or a literal string. The resulting joined string can be
+    written to an output iterator, or returned as a single string.
+  </para>
+</chapter>
+
+<!--
+Local Variables:
+mode: sgml
+sgml-parent-document: ("book.xml" "part" "chapter")
+End:
+-->

@@ -1,0 +1,134 @@
+Method: GET
+Scheme: http
+Script: 
+Path: 
+Uri: /
+Method: GET
+Scheme: http
+Script: 
+Path: 
+Uri: http://localhost
+Method: GET
+Scheme: http
+Script: 
+Path: 
+Uri: http://localhost
+Method: GET
+Scheme: http
+Script: 
+Path: 
+Uri: http://localhost
+
+Method: GET
+Scheme: http
+Script: /cgi-bin/test
+Path: 
+Uri: test
+Method: GET
+Scheme: http
+Script: /cgi-bin/test
+Path: 
+Uri: http://localhost/cgi-bin/test
+Method: GET
+Scheme: http
+Script: /cgi-bin/test
+Path: 
+Uri: http://localhost/cgi-bin/test
+Method: GET
+Scheme: http
+Script: /cgi-bin/test
+Path: 
+Uri: http://localhost/cgi-bin/test
+
+Method: GET
+Scheme: http
+Script: /cgi-bin/test
+Path: /subpath
+Uri: subpath
+Method: GET
+Scheme: http
+Script: /cgi-bin/test
+Path: /subpath
+Uri: http://localhost/cgi-bin/test
+Method: GET
+Scheme: http
+Script: /cgi-bin/test
+Path: /subpath
+Uri: http://localhost/cgi-bin/test/subpath
+Method: GET
+Scheme: http
+Script: /cgi-bin/test
+Path: /subpath
+Uri: http://localhost/cgi-bin/test/subpath
+
+Method: GET
+Scheme: http
+Script: /cgi-bin/test
+Path: /subpath
+Parameter: bAr=baz
+Parameter: foo=bar
+Parameter: foo=foobar
+Uri: subpath
+Method: GET
+Scheme: http
+Script: /cgi-bin/test
+Path: /subpath
+Parameter: bAr=baz
+Parameter: foo=bar
+Parameter: foo=foobar
+Uri: http://www.example.com:80/cgi-bin/test
+Method: GET
+Scheme: http
+Script: /cgi-bin/test
+Path: /subpath
+Parameter: bAr=baz
+Parameter: foo=bar
+Parameter: foo=foobar
+Uri: http://www.example.com:80/cgi-bin/test/subpath
+Method: GET
+Scheme: https
+Script: /cgi-bin/test
+Path: /subpath
+Parameter: bAr=baz
+Parameter: foo=bar
+Parameter: foo=foobar
+Uri: https://www.example.com:80/cgi-bin/test/subpath?bAr=baz&foo=bar&foo=foobar
+Method: GET
+Scheme: https
+Script: /cgi-bin/test
+Path: /subpath
+Parameter: bAr=baz
+Parameter: foo=bar
+Parameter: foo=foobar
+Uri: subpath?bAr=baz&foo=bar&foo=foobar
+
+Method: GET
+Scheme: http
+Script: /test.cgi
+Path: 
+Parameter: bAr=baz
+Parameter: foo=bar
+Parameter: foo2=foob@r
+Uri: http://post.example.com/test.cgi?bAr=baz&foo=bar&foo2=foob%40r
+
+Method: GET
+Scheme: http
+Script: /test.cgi
+Path: 
+Parameter: bAr=baz
+Parameter: extra1=value1
+Parameter: foo=bar
+Parameter: foo2=foob@r
+Uri: http://post.example.com/test.cgi?bAr=baz&extra1=value1&foo=bar&foo2=foob%40r
+
+Method: POST
+Scheme: http
+Script: /test.cgi
+Path: 
+Uri: http://post.example.com/test.cgi
+text/plain; charset=utf-8 data:
+The quick brown fox jumped over the lazy dog's tail
+
+Foo=foo+bar&baz=foo%21&foo=bar
+
+Form parameters too big

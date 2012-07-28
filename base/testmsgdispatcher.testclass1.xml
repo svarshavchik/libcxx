@@ -1,0 +1,15 @@
+<class name="testclass1">
+
+  <method name="method2" default="1">
+    <param><decl>const char *<name>strptr</name></decl></param>
+    <param type="class"><decl>std::string <name>objectarg</name></decl></param>
+  </method>
+
+  <method name="method1">
+    <param><decl>const char *<name>strptr</name></decl></param>
+  </method>
+
+  <method name="method0">
+  </method>
+
+</class>

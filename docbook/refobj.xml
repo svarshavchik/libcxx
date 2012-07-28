@@ -1,0 +1,2280 @@
+<!--
+
+Copyright 2012 Double Precision, Inc.
+See COPYING for distribution information.
+
+-->
+
+<chapter id="refobj">
+  <title>Reference-counted objects</title>
+
+  <para>
+    Nearly all objects in &app; are reference-counted objects, which
+    are similar to what <classname>std::shared_ptr</classname>
+    implements, but with notable differences, as described here.
+    In this context, this is not the same kind of a <quote>reference</quote>
+    that's defined in the C++ language.
+    For clarity, <quote>native references</quote> will refer to traditional
+    C++ references, while the general usage of the term <quote>reference
+      pointer</quote>, or a
+    <quote>reference</quote>, refers to the construct described here.
+  </para>
+
+  <para>
+    Reference-counted objects do not get
+    accessed with an ordinary pointer, but by using a <emphasis>reference
+      pointer</emphasis>, an &reforptr;.
+    A reference-counted object gets instantiated on the heap, using
+    a variadic <methodname>create</methodname>() function that forwards its
+    arguments to the object's constructor;
+    <methodname>create</methodname>()
+    instantiates the object on the heap and
+    constructs the first, initial reference pointer to the
+    newly-instantiated object.
+  </para>
+
+  <para>
+    Reference pointers look like ordinary pointers. They have
+    <literal>*</literal> and <literal>-&gt;</literal> operators that
+    have the expected behavior. Reference pointers may be freely copied and
+    passed around.
+  </para>
+
+  <para>
+    <function>new</function> does not get used, explicitly, to instantiate
+    objects on the heap, this is taken care of by <methodname>create</methodname>().
+    Similarly, <function>delete</function> does not get used, explicitly, with
+    reference-counted objects.
+    When the last reference to an object goes out of scope and longer exists,
+    the last reference pointer takes care of destroying the object
+    with a <literal>delete</literal>, and invoking any
+    <link linkend="ondestroy">destructor callbacks</link>.
+  </para>
+
+  &nopthreadcancel;
+
+  <section id="refcmp">
+    <title>Comparison with other implementations of reference-counted objects</title>
+
+    <para>
+      This implementation of reference-counted objects is
+      similar to other similar implementations, notably
+      <classname>shared_ptr</classname> in the C++ library, however there are
+      fundamental differences. The key differences are:
+    </para>
+
+    <itemizedlist>
+      <listitem>
+	<para>
+	  A <classname>shared_ptr</classname>
+	  contains a pointer to a small heap-allocated object
+	  that stores the reference count, and a second pointer to the
+	  actual object:
+	</para>
+
+	<mediaobject>
+	  <imageobject>
+	    <imagedata fileref="sharedptr.png" />
+	  </imageobject>
+	</mediaobject>
+      </listitem>
+
+      <listitem>
+	<para>
+	  &app;'s reference-counted objects use a different approach
+	  that's similar to Java's implementation of managed objects.
+	  &app;'s reference-counted objects are derived from an
+	  <classname>&ns;::obj</classname> superclass, which stores
+	  the reference
+	  count.
+	  There are two main reference pointer classes,
+	  &ref; and &ptr;, holding a single pointer
+	  to the object:
+	</para>
+
+	<mediaobject>
+	  <imageobject>
+	    <imagedata fileref="ref.png" />
+	  </imageobject>
+	</mediaobject>
+      </listitem>
+
+      <listitem>
+	<para>
+	  <classname>shared_ptr</classname>'s
+	  <methodname>*</methodname> and
+	  <methodname>-&gt;</methodname> operators
+	  dereference a mutable object,
+	  and dereferencing a <literal>nullptr</literal> is
+	  ill-formed.
+	  &ptr; can also be a <literal>nullptr</literal>, but dereferencing a
+	  <literal>nullptr</literal> is not ill-formed:
+	  an exception gets thrown, with defined semantics.
+	  &ref;'s <methodname>*</methodname> and <methodname>-&gt;</methodname>
+	  operators do not check for a <literal>nullptr</literal>
+	  because &ref; cannot be a <literal>nullptr</literal>, it must always
+	  refer to an object. This is enforced. The <literal>nullptr</literal>
+	  gets checked upon an assignment of a &ref;.
+	  &ref; is proven, by contract, never to contain a
+	  <literal>nullptr</literal>; hence its
+	  <methodname>*</methodname> and <methodname>-&gt;</methodname> directly
+	  dereference the internal pointer to the underlying object.
+	</para>
+
+	<para>
+	  An &ref; lvalue is convertible to an &ptr; lvalue without a temporary.
+	  Converting an &ptr; to an &ref; checks for a
+	  <literal>nullptr</literal>
+	  at the time the conversion takes place, where an exception gets
+	  thrown. An &ptr; may be passed to a function that takes an &ref;
+	  argument. If the caller supplies a <literal>nullptr</literal>,
+	  the exception gets thrown in the caller's context, for violating
+	  the contract. The backtrace accurately points to the guilty party,
+	  not the function, but its caller.
+	</para>
+      </listitem>
+
+      <listitem>
+	<para>
+	  &ptr; and &ref; are analogous to natural C++ pointers and
+	  references. Similarly, &app; defines an &const_ptr; and an
+	  &const_ref;, that dereference to constant objects. This is
+	  directly analogous to a <classname>std::iterator</classname> and a
+	  <classname>std::const_iterator</classname>. Nothing similar is
+	  available with a <classname>shared_ptr</classname>.
+	  A <classname>shared_ptr&lt;T&gt;</classname> is convertible to a
+	  <classname>shared_ptr&lt;const T&gt;</classname>, but doing that
+	  for a function call requires the construction of a temporary.
+	  An &ptr; lvalue converts to an &const_ptr;
+	  lvalue without a temporary,
+	  ditto for &ref; and an &const_ref;.
+	</para>
+      </listitem>
+    </itemizedlist>
+
+    <para>
+      The primary advantage of the <classname>shared_ptr</classname>
+      is that it allows any class to acquire reference-counting
+      semantics without modification. Standard C++ library classes, such as
+      various stream objects, can be easily wrapped into a
+      reference-counted framework.
+    </para>
+
+    <para>
+      However, there are several disadvantages to
+      <classname>shared_ptr</classname> that &ref; and &ptr; seek to address.
+    </para>
+
+    <itemizedlist>
+      <listitem>
+	<para>
+	  Each reference-counted object requires allocating another small
+	  object, the reference counter, from the heap. Over the long term,
+	  this is more likely to increase
+	  heap fragmentation, and heap usage, especially
+	  in long running applications, as reference-counted objects get
+	  created and destroyed.
+	</para>
+      </listitem>
+
+      <listitem>
+	<para>
+	  There is no straightforward way to prove, by contract, that a
+	  <classname>shared_ptr</classname> instance is not a
+	  <literal>nullptr</literal>.
+	</para>
+      </listitem>
+
+      <listitem>
+	<para>
+	  It's not possible to construct a <classname>shared_ptr</classname>
+	  from <literal>this</literal>, unless the class explicitly
+	  inherits from an <classname>enable_shared_from_this</classname>
+	  superclass. But this cancels out
+	  <classname>shared_ptr</classname> primary benefit of wrapping any
+	  arbitrary class. Furthermore, this approach becomes somewhat
+	  difficult when multiple inheritance gets involved.
+	</para>
+      </listitem>
+    </itemizedlist>
+
+    <para>
+      &app; stores the reference count in each object's superclass,
+      <classname>&ns;::obj</classname> which is
+      directly accessible by any subclass. A new &reforptr;
+      gets constructed directly from <varname>this</varname>,
+      without much fanfare.
+      This creates a new reference, and increments
+      the object's reference count.
+    </para>
+
+    <para>
+      Furthermore, since the counter is a part of the object, it does not
+      need to be allocated separately, on the heap. The only drawback is that,
+      unlike with <classname>shared_ptr</classname>, it's not possible to
+      implement reference-counted semantics for an arbitrary class. It is
+      necessary to declare a subclass that multiply
+      inherits from that class, and
+      from <classname>&ns;::obj</classname>.
+    </para>
+
+    <para>
+      No special effort is needed to get &ref; and &ptr; reference counting
+      work correctly with multiple inheritance. Each reference-counted class
+      virtual inherits from <classname>&ns;::obj</classname>, which
+      automatically does the right thing when multiple reference-counted
+      classes get inherited from.
+    </para>
+  </section>
+
+  <section id="obj">
+    <title>Objects</title>
+    
+    <para>
+      In this library, all reference-counted
+      objects are virtually derived from the
+      <ulink url="&link-x--obj;"><classname>&ns;::obj</classname></ulink>
+    class:</para>
+
+    <blockquote>
+      <informalexample>
+	<programlisting>
+#include &lt;&ns;/obj.H&gt;
+
+class buttonObj: virtual public &ns;::obj {
+
+// ...
+
+public:
+
+    buttonObj(int width, int height);
+    ~buttonObj() noexcept;
+};
+
+//
+
+#include &lt;&ns;/ref.H&gt;
+#include &lt;&ns;/ptr.H&gt;
+
+typedef &ns;::ref&lt;buttonObj&gt; button;
+
+typedef &ns;::ptr&lt;buttonObj&gt; buttonptr;
+
+typedef &ns;::const_ref&lt;buttonObj&gt; const_button;
+
+typedef &ns;::const_ptr&lt;buttonObj&gt; const_buttonptr;
+
+button okButton=button::create(100, 100);</programlisting>
+</informalexample>
+    </blockquote>
+
+    <para>
+      <classname>&ns;::obj</classname> is the virtual superclass of all
+      reference-counted objects. Objects derived from
+      <classname>&ns;::obj</classname> must always be allocated from the
+      heap using <methodname>create</methodname>() (described later).
+    </para>
+
+    <para>
+      <methodname>create</methodname>() returns a
+      <link linkend="ref">reference pointer</link> to the newly-constructed
+      class instance, either &ref;, or an &ptr;, as described later.
+    </para>
+
+    <para>
+      Once allocated on the heap, reference-counted objects do not get copied.
+      <classname>&ns;::obj</classname> does not implement a copy constructor
+      or the assignment operator.
+      Subclasses of <classname>&ns;::obj</classname> may define their own
+      copy constructors and assignment operators, whose scope is limited to
+      the subclass.
+    </para>
+
+    <para>
+      By convention, names of classes derived from
+      <classname>&ns;::obj</classname> end with <quote>Obj</quote>.
+      <classname>&ns;::obj</classname> maintains an internal counter tracking
+      all outstanding references to the object.
+      All classes derived from
+      <classname>&ns;::obj</classname>
+      must be derived virtually.
+      This is required to correctly implement multiple inheritance.
+      Inheriting from multiple
+      <classname>&ns;::obj</classname>-derived classes ends up with a single
+      instance of the virtual <classname>&ns;::obj</classname> superclass of
+      the derived class, and a single counter, that properly tracks all
+      references to the derived object.
+    </para>
+
+    <para>
+      All classes derived from <classname>&ns;::obj</classname> must
+      explicitly define
+      a destructor that throws no exceptions (the <quote>noexcept</quote>
+      keyword). This is mandatory.
+      Destructors should not throw exceptions anyway, this makes it explicit.
+    </para>
+  </section>
+
+  <section id="ref">
+    <title>Pointers and references</title>
+    <para>
+      Two templates,
+      <ulink url="&link-x--ptr;">&ptr;</ulink>
+      and
+	<ulink url="&link-x--ref;">&ref;</ulink>
+	keep track of reference-counted objects:
+    </para>
+
+    <blockquote>
+      <informalexample>
+	<programlisting>
+#include &lt;&ns;/ptr.H&gt;
+
+typedef &ns;::ptr&lt;buttonObj&gt; button;
+
+button b(button::create(200, 300));
+
+// ...
+
+b-&gt;click();
+
+
+// Alternatively:
+
+#include &lt;&ns;/ref.H&gt;
+
+typedef &ns;::ref&lt;buttonObj&gt; button;
+
+button b(button::create(200, 300));</programlisting>
+      </informalexample>
+    </blockquote>
+
+    <para>
+      As previously mentioned, reference-counted objects get allocated on the
+      heap, but not by using <literal>new</literal>.
+      This is done by the overloaded <function>create</function>()
+      function.
+      The <link linkend="create">description of this variadic method</link>,
+      a member of both
+      <classname>&ns;::ref</classname> and <classname>&ns;::ptr</classname>,
+      follows later.
+      The variadic <methodname>create</methodname>() forwards its parameters
+      to the constructor for the
+      reference-counted class, that gets instantiated on the heap.'
+      In this example,
+      when <varname>b</varname>, and all other references go out of scope, the
+      underlying object gets destroyed. An explicit
+      <literal>delete</literal> never gets used after constructing
+      a reference-counted object. It gets invoked automatically, by the last
+      &reforptr; when it goes out of scope.
+    </para>
+
+    <para>
+      The only difference between an &ptr; and an
+      &ref; is that an &ref; always
+      refers to an object (and therefore does not have a default constructor,
+      since it must be constructed with some object, usually a
+      <methodname>create</methodname>() one, at hand.
+      &ptr;, however, does not have to refer to an instance of a
+      reference-counted class, and may be undefined, this is
+      analogous to a <literal>nullptr</literal>:
+    </para>
+
+    <blockquote>
+      <informalexample>
+	<programlisting>
+typedef &ns;::ptr&lt;buttonObj&gt; buttonptr;
+
+buttonptr b;
+
+// ...
+
+if (!b.null())
+   b->method();</programlisting>
+      </informalexample>
+    </blockquote>
+
+    <para>
+      An &ref; does not have a
+      <methodname>null</methodname>(), because it always refers to some object.
+      An &ref; can always be converted to an
+      &ptr; to the same class.
+      An &ptr; can also be converted to a
+      &ref;, but if its unbound, an
+      <link linkend="exceptions">exception</link> gets thrown at the point the
+      conversion is attempted.
+    </para>
+
+    <para>
+      It follows that a &ref; does not have
+      a default constructor. All &ref;s
+      must be constructed to refer to some existing instance of the
+      referenced class.
+    </para>
+
+    <para>
+      An &reforptr; to one class is convertible to an &reforptr; to another
+      class, if the classes are related. A <function>dynamic_cast</function>
+      converts the underlying pointer. An exception gets thrown if
+      the <function>dynamic_cast</function> fails.
+    </para>
+
+    <blockquote>
+      <informalexample>
+	<programlisting>
+class buttonObj {
+
+public:
+    buttonObj(int width, int height);
+
+// ...
+
+    void click();
+
+};
+
+typedef &ns;::ref&lt;buttonObj&gt; button;
+
+button b(button::create(400, 200));
+
+// ...
+
+b-&gt;click();</programlisting>
+      </informalexample>
+    </blockquote>
+
+    <para>
+      Calling <methodname>create</methodname>() is just like calling
+      <literal>new <replaceable>classname</replaceable></literal>,
+      where <replaceable>classname</replaceable> is the referenced object.
+      This creates a new object using the arguments passed to
+      <methodname>create</methodname>().
+      With no arguments, the default constructor gets used. Passing
+      additional arguments to <methodname>create</methodname>() invokes
+      the appropriate constructor for the new object.
+    </para>
+
+    <para id="thrsafenote">
+      Each individual &reforptr; can only be accessed by one thread, at a time,
+      but different threads may have separate &ref;s and &ptr;s referencing
+      the same object, and use their own &ref;s and &ptr;s, without
+      coordinating with other threads. Reference counting by different
+      &ref;s and &ptr;s is thread-safe.
+      The object gets destroyed
+      when all &ref;s and &ptr;s to the object, in all threads, go out of
+      scope.
+      The object's destructor gets invoked by the thread that held the
+      last &reforptr; to the object, which may not necessarily be the same
+      thread that constructed the object.
+      Whichever lucky winner let the last &reforptr; go out of scope gets
+      to destroy the object, and invoke its
+      <link linkend="ondestroy">destructor callbacks</link>.
+    </para>
+
+    <note>
+      <para>
+	In this context, thread safety also
+	does not mean that all classes derived from
+	<classname>&ns;::obj</classname>
+	are automatically thread safe, just that their reference-counting
+	is thread safe.
+	Classes used by multiple threads are responsible for
+	providing thread-safe class method implementations.
+      </para>
+    </note>
+
+    <para>
+      As mentioned previously,
+      unlike a &ref;, a &ptr; may not be bound to any actual
+      object:
+    </para>
+
+    <blockquote>
+      <informalexample>
+	<programlisting>
+typedef &ns;::ptr&lt;buttonObj&gt; button;
+
+button b;
+
+// ...
+
+if (b.null())
+{
+
+    // ...
+}</programlisting>
+      </informalexample>
+    </blockquote>
+
+    <para>
+	Here, <varname>b</varname> gets instantiated without referring to any
+	object. Using <literal>*</literal> and <literal>-&gt;</literal> on an
+	unbound &ptr; throws an exception, until the &ptr; is assigned
+	to an actual object.
+	<methodname>null</methodname>() returns true when the &ptr; is
+	not bound to any object.
+      </para>
+  </section>
+
+  <section id="constrefobj">
+    <title><classname>&ns;::const_ref</classname> and <classname>&ns;::const_ptr</classname></title>
+
+    <para>
+      <ulink url="&link-x--const-ref;"><classname>&ns;::const_ref</classname></ulink>
+      and
+      <ulink url="&link-x--const-ptr;"><classname>&ns;::const_ptr</classname></ulink>
+      are versions of
+      &ref; and &ptr;
+      whose <literal>*</literal> and <literal>-&gt;</literal> operators
+      resolve to a constant object,
+      similar to the relation between <classname>std::iterator</classname>
+      and <classname>std::const_iterator</classname> in the C++ library.
+      They are subclasses of <classname>&ns;::ref</classname> and
+      <classname>&ns;::ptr</classname> (actually they're superclasses, but
+      it's easier to think of them as subclasses).
+      Passing an &reforptr; to a function that takes an equivalent const
+      argument does not require the creation of a temporary object:
+    </para>
+
+    <blockquote>
+      <informalexample>
+	<programlisting>
+class buttonObj : virtual public &ns;::obj {
+
+// ...
+
+};
+
+typedef &ns;::ref&lt;buttonObj&gt; button;
+
+typedef &ns;::ptr&lt;buttonObj&gt; buttonptr;
+
+
+typedef &ns;::const_ref&lt;buttonObj&gt; const_button;
+
+typedef &ns;::const_ptr&lt;buttonObj&gt; const_buttonptr;
+
+// ...
+
+void draw(const const_button &amp;b);
+
+// ...
+
+button buttonref=button::create();
+
+// ...
+
+draw(buttonref);</programlisting>
+       </informalexample>
+    </blockquote>
+
+    <para>
+      In this example, <quote>draw()</quote> does not create a temporary.
+      It just passes a reference to the <classname>&ns;::const_ref</classname>
+      superclass of the <classname>&ns;::ref</classname>, with the contract
+      that the <classname>&ns;::const_ref</classname> gives access only to
+      <literal>const</literal> class methods and members.
+    </para>
+
+    <para>
+      The above example demonstrates the standard convention for naming a
+      family of reference-counted objects and references:
+    </para>
+
+    <informaltable>
+      <tgroup cols="2">
+	<thead>
+	  <row>
+	    <entry>
+	      Name
+	    </entry>
+	    <entry>
+	      What it is
+	    </entry>
+	  </row>
+	</thead>
+
+	<tbody>
+	  <row>
+	    <entry>class&nbsp;<classname><replaceable>something</replaceable>Obj</classname></entry>
+
+	    <entry>
+	      Virtually derived from <classname>&ns;::obj</classname>, a
+	      reference-counted class.
+	    </entry>
+	  </row>
+	  <row>
+	    <entry>typedef&nbsp;&ns;::ref&lt;<classname><replaceable>something</replaceable>Obj</classname>&gt;&nbsp;<classname><replaceable>something</replaceable></classname></entry>
+	    <entry>
+	      A non-<literal>nullptr</literal> reference to a reference-counted
+	      object.
+	      <methodname><replaceable>something</replaceable>::create</methodname>(<replaceable>args</replaceable>)
+	      calls <methodname><replaceable>something</replaceable>Obj::create</methodname>(<replaceable>args</replaceable>),
+	      and returns a reference to the newly-constructed object.
+	    </entry>
+	  </row>
+	  <row>
+	    <entry>typedef&nbsp;&ns;::const_ref&lt;<classname><replaceable>something</replaceable>Obj</classname>&gt;&nbsp;<classname>const_<replaceable>something</replaceable></classname></entry>
+	    <entry>
+	      A non-<literal>nullptr</literal> reference to a
+	      constant reference-counted object.
+	      <literal>*</literal> and <literal>-&gt;</literal> operators
+	      resolve to a constant object.
+	    </entry>
+	  </row>
+	  <row>
+	    <entry>typedef&nbsp;&ns;::ptr&lt;<classname><replaceable>something</replaceable>Obj</classname>&gt;&nbsp;<classname><replaceable>something</replaceable>ptr</classname></entry>
+	    <entry>
+	      A reference-counted pointer, which may be a
+	      <literal>nullptr</literal>.
+	      <methodname><replaceable>something</replaceable>ptr::create</methodname>(<replaceable>args</replaceable>)
+	      calls <methodname><replaceable>something</replaceable>Obj::create</methodname>(<replaceable>args</replaceable>),
+	      and returns a pointer to the newly-constructed object.
+	      Dereferencing a <literal>nullptr</literal>
+	      <classname><replaceable>something</replaceable>ptr</classname>
+	      throws an exception.
+	    </entry>
+	  </row>
+	  <row>
+	    <entry>typedef&nbsp;&ns;::const_ptr&lt;<classname>const_<replaceable>something</replaceable>Obj</classname>&gt;&nbsp;<classname><replaceable>something</replaceable>ptr</classname></entry>
+	    <entry>
+	      A reference-counted pointer to a constant object, which may be a
+	      <literal>nullptr</literal>.
+	      <literal>*</literal> and <literal>-&gt;</literal> operators
+	      resolve to a constant object.
+	      Dereferencing a <literal>nullptr</literal>
+	      <classname>const_<replaceable>something</replaceable>ptr</classname>
+	      throws an exception.
+	    </entry>
+	  </row>
+	</tbody>
+      </tgroup>
+    </informaltable>
+  </section>
+
+  <section id="create">
+    <title><methodname>create</methodname>() - create reference-counted objects</title>
+
+    <blockquote>
+      <informalexample>
+	<programlisting>
+#include &lt;&ns;/ref.H&gt;
+#include &lt;&ns;/ptr.H&gt;
+
+class buttonObj : virtual public &ns;::obj {
+
+public:
+    buttonObj(int width, int height);
+    ~buttonObj() noexcept;
+
+// ...
+
+};
+
+typedef &ns;::ref&lt;buttonObj&gt; button;
+typedef &ns;::ptr&lt;buttonObj&gt; buttonptr;
+
+button quit(button::create(100, 100));</programlisting>
+      </informalexample>
+    </blockquote>
+
+    <para>
+      An &ref; and an
+      &ptr; defines a member
+      <literal>typedef</literal> named <classname>base</classname>. This is a
+      <literal>typedef</literal> to a class with static methods, or other
+      members that are provided by the &ref; or the
+      &ptr;, to supplement the class
+      <literal>*</literal> and <literal>-&gt;</literal> method operators.
+      A &ref;'s and &ptr;'s <methodname>create</methodname>() is actually
+      a call to <methodname>base::objfactory&lt;<replaceable>T</replaceable>&gt;::create</methodname>(), with
+      <replaceable>T</replaceable> being the &ref; or a &ptr; type that's
+      calling it, and is the expected return type from
+      <methodname>create</methodname>().
+      By default, <classname>base</classname> gets typedef-ed to
+      <classname>&ns;::ptrrefBase</classname>, which defines the
+      <classname>objfactory</classname> template class parameter with a
+      static <methodname>create</methodname>() method that constructs a new
+      object, for the &ref; or the &ptr;.
+    </para>
+
+    <para>
+      &ref;'s and &ptr;'s <methodname>create</methodname>() method
+      forwards its arguments to
+      <methodname>base::objfactory&lt;<replaceable>T</replaceable>&gt;::create</methodname>().
+      The default implementation,
+      <methodname>&ns;::ptrrefBase::objfactory&lt;<replaceable>T</replaceable>&gt;::create</methodname>(),
+      constructs the object on the heap with <literal>new</literal>,
+      and forwards the arguments to the object's constructor.
+      In nearly all cases, it's sufficient to define a constructor in
+      the reference-counted subclass of <classname>&ns;::obj</classname>,
+      but it's possible to define a custom <classname>base</classname> with
+      a <methodname>create</methodname>() that does something else.
+    </para>
+
+    <para>
+      Reference-counted objects do not get explicitly
+      <literal>delete</literal>d, as this is done by the reference-counting
+      templates.
+      <methodname>create</methodname>() removes all the <literal>new</literal>s
+      too. With <methodname>create</methodname>(), &ref;, and &ptr;, an application
+      that uses &app; will not have any <literal>new</literal>s and
+      <literal>delete</literal>s.
+      Outside of <methodname>create</methodname>(), &app; itself
+      has a grand total of
+      two explicit <literal>new</literal>s, to allocate two low-level objects
+      before most of its classes get initialized.
+    </para>
+
+    <section id="createrange">
+      <title>Range-based iteration on reference-counted objects</title>
+
+      <para>
+	The <link linkend="dirwalk">&ns;::dirwalk</link> reference-counted
+	object implements <methodname>begin</methodname>() and
+	<methodname>end</methodname>(), so it's usable as a range iterator:
+      </para>
+
+      <blockquote>
+	<informalexample>
+	  <programlisting>
+&ns;::dirwalk etcdir=&ns;::dirwalk::create("/etc");
+
+for (auto config: *etcdir)
+{
+    // ...
+}</programlisting>
+	</informalexample>
+      </blockquote>
+
+      <para>
+	Note the need to dereference <varname>etcdir</varname> since, for
+	all practical purposes, it's a pointer.
+	<methodname>begin</methodname>() and
+	<methodname>end</methodname>() gets implemented in the object it points
+	to.
+      </para>
+
+      <note>
+	<para>
+	  This alternative approach seems intuitive, but it's actually
+	  ill-formed:
+	</para>
+
+	<blockquote>
+	  <informalexample>
+	    <programlisting>
+for (auto config: *&ns;::dirwalk::create("/etc"))
+{
+    // ...
+}</programlisting>
+	  </informalexample>
+	</blockquote>
+
+	<para>
+	  The range iterator takes an rvalue reference. The reference from
+	  <methodname>create</methodname>() goes out of scope and gets destroyed,
+	  but the rvalue reference remains in scope, and gets invoked for the
+	  <methodname>begin</methodname>() and the
+	  <methodname>end</methodname>().
+	  C++11 defines range iteration as equivalent to
+	  (roughly speaking).
+	</para>
+
+	<blockquote>
+	  <informalexample>
+	    <programlisting>
+
+auto &amp;&amp; range=*&ns;::dirwalk::create("/etc");
+
+for (auto iter=range.begin(); auto != range.end(); ++iter)
+{
+    // ...
+}</programlisting>
+	  </informalexample>
+	</blockquote>
+
+	<para>
+	  <function>&ns;::dirwalk::create()</function> instantiates a
+	  reference-counted object. <literal>*</literal> dereferences, and
+	  leaves it as an rvalue reference. The reference then gets destroyed,
+	  at the end of the sequence point, and as it's the only reference to
+	  the reference-counted object, it gets destroyed.
+	  Meanwhile, the rvalue reference, to the destroyed object remains,
+	  producing ill-formed results.
+	</para>
+      </note>
+    </section>
+  </section>
+
+  <section id="custombase">
+    <title>Specifying a custom <classname>base</classname></title>
+
+    <para>
+      The following example uses a <methodname>create</methodname>() method to
+      instantiate a new reference-counted object, with its initial pointer
+      or reference:
+    </para>
+
+    <blockquote>
+      <informalexample>
+	<programlisting>
+typedef &ns;::ref&lt;buttonObj&gt; button;
+
+button b(button::create());
+
+// ...
+
+b-&gt;click();</programlisting>
+      </informalexample>
+    </blockquote>
+
+
+    <para>
+      &ref;'s and &ptr;'s <classname>base</classname> typedef actually
+      comes from an optional second parameter to the &ref; and the &ptr;
+      template class, which defaults to <classname>&ns;::ptrrefbase</classname>.
+      This can be overridden:
+    </para>
+
+    <blockquote>
+      <informalexample>
+	<programlisting>
+class buttonBase;
+class buttonObj;
+
+typedef &ns;::ref&lt;buttonObj, buttonBase&gt; button;
+typedef &ns;::ptr&lt;buttonObj, buttonBase&gt; buttonptr;
+
+class buttonBase {
+
+public:
+
+    template&lt;typename ptrrefType&gt; class objfactory {
+    public:
+
+        static ptrrefType create()
+        {
+            // ...
+        }
+    };
+    static const int default_width=50, default_height=50;
+};</programlisting></informalexample></blockquote>
+
+    <para>
+      An &reforptr;'s <methodname>create</methodname>() method invokes
+      <methodname>base::objfactory&lt;<replaceable>T</replaceable>&gt;::create</methodname>(), where
+      <replaceable>T</replaceable> is either the &ref; or the &ptr; type.
+
+      in this example, <classname>button::base</classname> gets typedef-ed to
+      <classname>buttonBase</classname> instead of
+      <classname>&ns;::ptrrefBase</classname>, so invoking
+      <methodname>button::create</methodname>() invokes the custom
+      <methodname>create</methodname>() method that returns an &reforptr;,
+      with
+      <varname>button::base::default_width</varname> and
+      <varname>button::base::default_height</varname> referencing the given
+      definitions.
+      In this manner, it's possible to define
+      custom <classname>create</classname>() methods that construct new
+      pointers or references in arbitrary ways, rather than just by invoking
+      the corresponding object constructor.
+    </para>
+
+    <para>
+      The above example also gives the general naming convention:
+      <classname><replaceable>name</replaceable>Obj</classname> for the
+      reference-counted object itself;
+      <classname><replaceable>name</replaceable></classname> for the
+      reference to the object, and
+      <classname><replaceable>name</replaceable>ptr</classname> for the
+      nullable reference pointer to the object, with the same class typedef-ed
+      to
+      <classname><replaceable>name</replaceable>::base</classname> and
+      <classname><replaceable>name</replaceable>ptr::base</classname> .
+    </para>
+
+    <para>
+      Sometimes it's convenient to keep the default variadic
+      <methodname>create</methodname>(), and just supplement
+      <classname>base</classname> with other stuff.
+      Use the following design pattern to inherit the
+      the default variadic implementation of
+      <methodname>create</methodname>() into the base class:
+    </para>
+
+    <blockquote>
+      <informalexample>
+	<programlisting>
+class buttonBase;
+class buttonObj;
+
+typedef &ns;::ref&lt;buttonObj, buttonBase&gt; button;
+typedef &ns;::ptr&lt;buttonObj, buttonBase&gt; buttonptr;
+
+class buttonBase : public &ns;::ptrrefBase {
+
+public:
+    static const int default_width=50, default_height=50;
+};</programlisting></informalexample></blockquote>
+
+    <para>
+      Here, <classname>buttonBase</classname> subclasses
+      <classname>&ns;::ptrrefBase</classname>, which is the default
+      <classname>base</classname> of an &reforptr;, and inherits the
+      default implementation of <classname>objfactory</classname>.
+      For completeness, here's the actual definition of
+      <classname>&ns;::ptrrefBase</classname>:
+    </para>
+
+    <blockquote>
+      <informalexample>
+	<programlisting>
+class ptrrefBase {
+public:
+
+    template&lt;typename ptrrefType&gt; class objfactory {
+    public:
+
+        template&lt;typename... Args_t&gt;
+        static inline ptrrefType
+        create(Args_t &amp;&amp;...args)
+        {
+            return ptrrefType(new typename ptrrefType
+                      ::obj_type(std::forward&lt;Args_t&gt;(args)...));
+        }
+    };
+};</programlisting></informalexample></blockquote>
+
+    <para>
+      &ref; and &ptr; also define the <classname>obj_type</classname>
+      member typedef to the reference-counted object type.
+      <methodname>&ref;::create</methodname>() and
+      <methodname>&ptr;::create</methodname>() forward their arguments to
+      <methodname>base::objfactory&lt;<replaceable>T</replaceable>&gt;::create</methodname>(), where
+      <replaceable>T</replaceable> is the &ref; or the &ptr; type.
+    </para>
+  </section>
+
+  <section id="multinhobj">
+    <title>Multiple inheritance and casting</title>
+
+    <para>
+	A subclass that inherits from two different reference-counted objects
+	inherits a single <classname>&ns;::obj</classname> superclass, since
+	it's virtually inherited:</para>
+
+    <blockquote>
+      <informalexample>
+	<programlisting>
+class widgetObj : virtual public &ns;::obj {
+
+// ....
+
+};
+
+class containerObj : virtual public &ns;::obj {
+
+// ....
+
+};
+
+class boxObj : public widgetObj, public containerObj {
+
+// ....
+};
+
+typedef &ns;::ref&lt;widgetObj&gt; widget;
+typedef &ns;::ref&lt;containerObj&gt; container;
+typedef &ns;::ref&lt;boxObj&gt; box;
+
+typedef &ns;::ptr&lt;widgetObj&gt; widgetptr;
+typedef &ns;::ptr&lt;containerObj&gt; containerptr;
+typedef &ns;::ptr&lt;boxObj&gt; boxptr;</programlisting>
+      </informalexample>
+    </blockquote>
+
+    <para>
+	This is the reason why <classname>&ns;::obj</classname> should always
+	be inherited virtually.
+      </para>
+
+    <para>
+      An &reforptr;
+      to a subclass may be converted to an &reforptr; to its
+      superclass. The opposite is also true: an &reforptr; to a superclass
+      may be converted to an &reforptr; to a subclass, but only if the
+      referenced object is actually an instance of the subclass, of course:
+    </para>
+
+    <blockquote>
+      <informalexample>
+	<programlisting>
+widget wRef;
+container cRef;
+
+// ...
+
+cRef=wRef;
+
+// ...
+
+wRef=cRef;</programlisting>
+      </informalexample>
+    </blockquote>
+
+    <para>
+      A runtime exception gets thrown if the
+      pointer or the reference cannot be converted.
+      Use <literal>dynamic_cast&lt;&gt;</literal> if it's unknown whether
+      the superclass reference refers to an instance of a subclass:
+    </para>
+
+    <blockquote>
+      <informalexample>
+	<programlisting>
+if (!wRef.null())
+{
+    widgetObj *wptr(&amp;*wRef);
+
+    if (dynamic_cast&lt;boxObj *&gt;(wptr))
+    {
+       container cRef(wRef);
+
+       // ....
+    }
+}</programlisting>
+      </informalexample>
+    </blockquote>
+  </section>
+
+  <section id="reffromthis">
+    <title>Creating an &reforptr; from <varname>this</varname></title>
+
+    <para>
+      An &reforptr; can be constructed from a native object pointer.
+      This is frequently used by class methods to create pointers or
+      references to
+      the <varname>this</varname> object:
+    </para>
+
+    <blockquote>
+      <informalexample>
+	<programlisting>
+class widgetObj : virtual public &ns;::obj {
+
+// ...
+
+};
+
+typedef &ns;::ref&lt;widgetObj&gt; widget;
+
+// ...
+
+void widgetObj::method()
+{
+    // ...
+
+    widget myRef(this);
+
+    // ...
+}</programlisting>
+      </informalexample>
+    </blockquote>
+
+    <para>
+	This allows a class method to create an &reforptr; to the object
+	pointed by <varname>this</varname>, so that it can be passed along
+	to other objects or methods, for example. Note, however:
+      </para>
+
+    <note>
+      <para>
+	Creating an &reforptr;
+	to <varname>this</varname> in the object's
+	constructor is generally prohibited, for the following reason.
+	The object has not finished its own construction, but the
+	<classname>&ns;::obj</classname> virtual superclass is already
+	constructed, with its reference count set to zero. When the object
+	gets fully constructed, it gets assigned to its initial &reforptr;,
+	incrementing the reference count to 1, resulting in
+	an object with a single reference from its initial &reforptr;.
+	But this hasn't happened yet.
+      </para>
+
+      <para>
+	If the object's constructor also creates an &reforptr; from
+	<varname>this</varname>, the object's reference count gets incremented
+	to 1 prematurely. This is no different than if any other
+	&reforptr; took ownership of an	existing object.
+	But now, if this interloper, the &reforptr; created in the constructor,
+	then skips down, goes out of scope, and gets destroyed before the
+	cosntructor
+	returns, and no other references to the object remain, the
+	object's reference count becomes zero,
+	and the object gets destroyed and
+	its memory deallocated.
+      </para>
+
+      <para>
+	But, if you're keeping score, the initial constructed hasn't returned
+	yet.
+	When the constructor returns, the newly-created object's
+	memory has already been deallocated. However, the object has been
+	created in the context of initializing the first reference to the
+	object, so the caller's context expects the constructor to produce
+	a new object, whose reference count gets immediately incremented.
+	Memory corruption results.
+      </para>
+
+      <para>
+	Furthermore, creating an &reforptr; from <varname>this</varname> in its
+	own destructor is a guaranteed crash.
+      </para>
+    </note>
+  </section>
+
+  <section id="multinherit">
+    <title>Multiple inheritance with reference-counted objects</title>
+
+    <blockquote>
+      <informalexample>
+	<programlisting>
+class ButtonRendererObj: virtual public &ns;::obj {
+
+// ...
+
+};
+
+class InputInterfaceObj: virtual public &ns;::obj {
+
+// ...
+
+};
+
+class ButtonObj : public ButtonRenderObj, public InputInterfaceObj {
+
+// ...
+
+};
+
+&ns;::ptr&lt;ButtonRendererObj>&gt; button;
+
+&ns;::ptr&lt;InputInterfaceObj>&gt; inputp;
+
+// ...
+
+inputp=button;</programlisting>
+      </informalexample>
+    </blockquote>
+
+    <para>
+      Multiple inheritance works as expected. Virtual inheritance of the
+      <classname>&ns;::obj</classname> superclass results in the derived
+      object virtually inheriting a single instance of it, and references
+      to any member of the inheritance hierarchy are convertible to any
+      other member of the inheritance hierarchy.
+    </para>
+  </section>
+
+  <section id="multinherit">
+    <title>Private inheritance of reference-counted objects</title>
+
+    <para>
+      <classname>&ns;::obj</classname> must be publicly inherited:
+    </para>
+
+    <blockquote>
+      <informalexample>
+	<programlisting>
+class ButtonRendererObj: virtual private &ns;::obj {
+
+// ...
+
+};</programlisting>
+      </informalexample>
+    </blockquote>
+
+    <para>
+      This won't work because
+      <classname>&ns;::ref&lt;ButtonRendererObj&gt;</classname> needs to access
+      the <classname>&ns;::obj</classname> superclass. For the same reason,
+      a reference-counted object cannot have non-public inheritance, either.
+    </para>
+
+    <blockquote>
+      <informalexample>
+	<programlisting>
+class ButtonRendererObj: virtual public &ns;::obj {
+
+// ...
+
+};
+
+class ButtonObj : private ButtonRendererObj {
+
+// ...
+
+	};</programlisting>
+      </informalexample>
+    </blockquote>
+
+    <para>
+      Explicitly inheriting from <classname>&ns;::obj</classname> allows
+      references to work, but with a caveat:
+    </para>
+
+    <blockquote>
+      <informalexample>
+	<programlisting>
+class ButtonRendererObj: virtual public &ns;::obj {
+
+// ...
+
+public:
+     void doButtonRender();
+
+};
+
+class ButtonObj : private ButtonRendererObj, virtual public &ns;::obj {
+
+// ...
+
+	};</programlisting>
+      </informalexample>
+    </blockquote>
+
+    <para>
+      References to either class now works as expected,
+      but the private inheritance isn't really private:
+    </para>
+
+    <blockquote>
+      <informalexample>
+	<programlisting>
+&ns;::ptr&lt;ButtonObj&gt; buttonp;
+
+// ...
+
+buttonp-&gt;doButtonRender(); // doesn't work, private inheritance.
+
+
+&ns;::ref&lt;ButtonObj&gt;(&ns;::ref&lt;&ns;::obj&gt;(buttonp))-&gt;doButtonRender(); // this works</programlisting>
+      </informalexample>
+    </blockquote>
+
+    <para>
+      Both classes publicly inherit from <classname>&ns;::obj</classname>,
+      so a pointer or a reference to one can be dynamically casted through
+      <classname>&ns;::obj</classname> to the other one.
+    </para>
+
+    <para>
+      Careful usage of private inheritance, and friend declarations with
+      &ptr;, allows truly private inheritance
+      of reference-counted objects. But that adds extra complexity, and the
+      basic approach strikes a reasonable balance. Private inheritance is
+      voluntarily enforced, unless a long detour gets taken to work around
+      it; and this backdoor might actually have a useful
+      access mechanism for out-of-band situations, like automated
+      regression tests.
+    </para>
+  </section>
+
+  <section id="weakptr">
+    <title>Weak pointers</title>
+
+    <para>
+      When all pointers and references to an object go out of scope, the
+      object gets automatically destroyed. An ordinary pointer can be
+      converted to a weak pointer. When all ordinary pointers and
+      and references go out
+      of scope, the object gets destroyed even if there's a weak pointer to the
+      object:
+      </para>
+
+    <blockquote>
+      <informalexample>
+	<programlisting>
+#include &lt;&ns;/obj.H&gt;
+#include &lt;&ns;/ref.H&gt;
+#include &lt;&ns;/weakptr.H&gt;
+
+class widgetObj : virtual public &ns;::obj {
+
+// ...
+
+};
+
+typedef &ns;::ref&lt;widgetObj&gt; widget;
+
+typedef &ns;::ptr&lt;widgetObj&gt; widgetptr;
+
+typedef &ns;::weakptr&lt;widgetptr&gt; weakwidget;
+
+// ...
+
+widget w(widget::create());
+
+// ...
+
+weakwidget weakw(w);
+
+// ...
+
+widgetptr origw(weakw.getptr());
+
+if (!origw.null())
+{
+    // ...
+}</programlisting>
+      </informalexample>
+    </blockquote>
+    
+    <para>
+	The
+	<ulink url="&link-x--weakptr;"><classname>weakptr</classname></ulink>
+	template takes a &ptr; (not a &ref;), and makes a weak version of it.
+	A weak pointer is similarly instantiated from an existing,
+	ordinary pointer. The only method implemented by a
+	<classname>weakptr</classname> is <methodname>getptr</methodname>(),
+	which returns an ordinary, strong pointer to the underlying object,
+	if it still exists.
+	If all other existing references to the object previously went out of
+	scope and the object got destroyed,
+	<methodname>getptr</methodname>() returns an unbound reference.
+      </para>
+
+    <para>
+	Like &ptr;, the
+	implementation of <classname>weakptr</classname>
+	is thread-safe, however see
+	<link linkend="thrsafenote">important comments about thread safety of
+	  references</link>.
+      </para>
+  </section>
+
+  <section id="ondestroy">
+    <title>Destructor callbacks and mcguffins</title>
+
+    <para>
+      It is possible to set up one or more <quote>callbacks</quote> that get
+      invoked
+      when some subclass of <classname>&ns;::obj</classname>,
+      some <quote>mcguffin</quote>, gets destroyed after the last &reforptr;
+      to the mcguffin goes out of scope.
+      This <quote>callback</quote> is a method, in some instance of some other,
+      otherwise unrelated, class. The method gets invoked whenever the
+      first class gets destroyed. Here, the first class is called a
+      <quote>mcguffin</quote>. This name comes from
+      the film director Alfred Hitchcock who uses it
+      to describe some minor prop or gadget that is of little inherent value,
+      but is responsible for driving the major plot of a movie.
+      (Although <quote>macguffin</quote> is the more popular spelling, I like
+      the <quote>mcguffin</quote> spelling better, and I'm the one
+      writing this documentation).
+    </para>
+
+    <para>
+      A mcguffin is some
+      <link linkend="refobj">reference-counted object</link>
+      whose own implicit existence has some inherent purpose, and defines some
+      part of its functionality, loosely speaking.
+      Its mere existence drives other
+      logic around it that's not directly expressed by its own methods.
+      Its inherent existence makes it a mcguffin.
+      A mcguffin may be a very distinguished class on its own merits. It might
+      have many methods and members of its own; but it's a mcguffin because
+      it exists, and for no other reason.
+    </para>
+
+    <para>
+      A mcguffin
+      typically has a <quote>destructor callback</quote>
+      attached to it. This destructor callback gets triggered when
+      the last &reforptr; to a <link linkend="refobj">reference-counted
+	object</link> goes out of scope and
+      the object gets destroyed. The destructor callback gets invoked
+      immediately after the object's destructor returns and the object
+      gets destroyed.
+      Once invoked, the destructor callback does whatever it wants to do.
+      The callback gets invoked by whichever thread destroyed the last
+      reference to the object, not necessarily the
+      same thread that created it!
+    </para>
+
+    <para>
+      By the time the destructor callback gets called, the mcguffin is already
+      destroyed, and the destructor callback has no means to access it. But
+      that's fine, the object's existence was what made it a mcguffin, and
+      now the destructor callback gets invoked because the object got
+      destroyed.
+    </para>
+
+    <blockquote>
+      <informalexample>
+	<programlisting>
+#include &lt;&ns;/destroycallback.H&gt;
+
+class myDestructorCallbackObj : public &ns;::destroyCallbackObj {
+
+public:
+      myDestructorCallbackObj();
+      ~myDestructorCallbackObj() noexcept;
+      void destroyed() noexcept override;
+};
+
+class mcguffinObj : virtual public &ns;::obj {
+
+// ...
+
+};
+
+typedef &ns;::ref&lt;myDestructorCallbackObj&gt; myDestructorCallback;
+
+myDestructorCallback mycb(myDestructorCallback::create());
+
+&ns;::ref&lt;mcguffinObj&gt; myobj=&ns;::ref&lt;mcguffinObj&gt;::create();
+
+myobj-&gt;addOnDestroy(mycb);</programlisting>
+      </informalexample>
+    </blockquote>
+
+    <para>
+      Subclassing
+      <ulink url="&link-x--destroyCallbackObj;"><classname>&ns;::destroyCallbackObj</classname></ulink>,
+      defining the <methodname>destroyed</methodname>() method,
+      and attaching the subclass instance to a <quote>mcguffin</quote>
+      object results in <methodname>destroyed</methodname>() getting invoked
+      when the last &reforptr; to the mcguffin goes out of scope and the
+      mcguffin gets destroyed.
+    </para>
+
+    <para>
+      The above example attaches a destructor callback to
+      an instance of a <classname>mcguffinObj</classname>. This
+      class may have its own
+      methods, or serve some particular purpose that's unrelated to its
+      role as a mcguffin. The above example leaves its methods unspecified.
+      They don't matter. It's a mcguffin.
+    </para>
+
+    <para>
+      For a
+      <quote>pure</quote> mcguffin, the destructor callback
+      gets attached to a plain
+      <classname>&ns;::ref&lt;&ns;::obj&gt;</classname>.
+      An <classname>&ns;::obj</classname> is nothing more than the base class
+      for reference-counted objects, and a mere reference to this object
+      has no other functionality, except serving as a convenient mcguffin,
+      for any occasion.
+    </para>
+
+    <para>
+      See the <ulink url="&link-x--ref;">&ref;
+      documentation</ulink> for more information on destructor callbacks.
+    </para>
+
+    <note id="destroyednoexcept">
+      <para>
+	<methodname>destroyed</methodname>() is explicitly
+	<literal>noexcept</literal> because it essentially becomes a part of
+	the mcguffin's destructor, and cannot throw any exceptions.
+	All <link linkend="exceptions">exceptions</link> must be caught.
+      </para>
+    </note>
+
+    <section id="destroycallbackfunctor">
+      <title>Using a functor as a destructor callback</title>
+
+      <para>
+	A <ulink url="&link-typedef-x-destroyCallback;">helper
+	  <function>create</function>()</ulink> template function
+	instantiates a subclass of
+	<ulink url="&link-x--destroyCallbackObj;"><classname>&ns;::destroyCallbackObj</classname></ulink>
+	whose <methodname>destroyed</methodname>() invokes a functor:
+      </para>
+
+      <blockquote>
+	<informalexample>
+	  <programlisting>
+#include &lt;&ns;/destroycallback.H&gt;
+
+class mcguffinObj;
+
+// ...
+
+&ns;::ref&lt;mcguffinObj&gt; myobj=&ns;::ref&lt;mcguffinObj&gt;::create();
+
+// ...
+myobj-&gt;addOnDestroy(&ns;::destroyCallback::create([]
+        {
+           // Functor goes here..
+        });</programlisting>
+	</informalexample>
+      </blockquote>
+
+      <para>
+	In this example, <function>create</function>() instantiates
+	a &ref; to a subclass of <classname>&ns;::destroyCallbackObj</classname>
+	whose <methodname>destroyed</methodname>() invokes the functor.
+      </para>
+
+      <para>
+	Additionally, the <methodname>destroyed</methodname>() functor wrapper
+	takes care of <link linkend="destroyednoexcept">catching and
+	  logging</link> any
+	<link linkend="exceptions">exceptions</link> thrown from the
+	functor.
+      </para>
+    </section>
+
+    <section id="destroycallbackflag">
+      <title>A basic destructor callback</title>
+
+      <para>
+	<ulink url="&link-typedef-x-destroyCallbackFlag;"><classname>&ns;::destroyCallbackFlag</classname></ulink>
+	is a reference to a simple subclass of
+	<classname>&ns;::destroyCallbackObj</classname> that implements the
+	ability to wait for another object to be destroyed, presumably by
+	some other thread, before proceeding:
+      </para>
+
+      <blockquote>
+	<informalexample>
+	  <programlisting>
+&ns;::destroyCallbackFlag cb=&ns;::destroyCallbackFlag::create();
+
+// ...
+
+&ns;::ref&lt;&ns;::obj&gt; mcguffin;
+
+mcguffin-&gt;addOnDestroy(cb);
+
+// ...
+
+cb->wait();</programlisting>
+	</informalexample>
+      </blockquote>
+
+      <para>
+	This subclass implements a
+	<methodname>wait</methodname>(), that waits indefinitely for
+	the mcguffin to get destroyed, if it's not already has been destroyed.
+      </para>
+
+      <note>
+	<para>
+	  <classname>&ns;::destroyCallbackFlag</classname> is one time use only,
+	  and can be attached as a callback to only one object.
+	  It's your responsibility to attach it as a destructor callback to
+	  at least one object, before invoking
+	  <methodname>wait</methodname>(). If it's not been
+	  <methodname>addOnDestroy</methodname>()ed anywhere, its
+	  <methodname>destroyed</methodname>() can never get invoked, and
+	  <methodname>wait</methodname>() waits forever.
+	</para>
+      </note>
+    </section>
+
+    <section id="ondestroyguard">
+      <title>A destructor callback guard</title>
+
+      <para>
+	A
+	<ulink url="&link-x--destroyCallbackFlagBase--guard;"><classname>&ns;::destroyCallbackFlag::base::guard</classname></ulink>
+	is an object meant to be instantiated on the stack.
+	Its destructor waits until other objects placed in its care get
+	destroyed, before the destructor itself returns:
+      </para>
+
+      <blockquote>
+	<informalexample>
+	  <programlisting>
+void run()
+{
+    &ns;::destroyCallbackFlag::base::guard guard;
+
+    &ns;::ref&lt;&ns;::obj&gt; mcguffin;
+
+    guard(mcguffin);
+
+// ...
+}</programlisting>
+	</informalexample>
+      </blockquote>
+
+      <para>
+	When <function>run</function>()'s scope exits, its auto-scoped objects
+	get destroyed in reverse order of declaration. But even after this
+	<varname>mcguffin</varname> gets destroyed, other references to the
+	mcguffin object might exist somewhere else, and/or used by other
+	threads.
+      </para>
+
+      <para>
+	Use this guard object when you want to wait for these mcguffins
+	to go out of scope and get destroyed. The guard object's destructor
+	waits indefinitely until the guarded objects gets destroyed, if they're
+	not destroyed already.
+      </para>
+
+      <para>
+	More than one object can be guarded. The guard's
+	<function>operator()</function> attaches a destructor callback to the
+	mcguffin, and the guard's own destructor waits until all attached
+	destructor callbacks get invoked, if they're not already invoked.
+      </para>
+
+      <para>
+	The guard's
+	<function>operator()</function> is a template function that returns
+	the same &ref; that was passed to it. That makes it possible to do
+	something like this:
+      </para>
+
+      <blockquote>
+	<informalexample>
+	  <programlisting>
+void run()
+{
+    &ns;::destroyCallbackFlag::base::guard guard;
+
+    start_timer(guard(&ns;::ref&lt;&ns;::obj&gt;::create()));
+
+// ...
+}</programlisting>
+	</informalexample>
+      </blockquote>
+
+      <para>
+	<function>start_timer</function>() is some external function that takes
+	a mcguffin as an argument. The mcguffin is no longer needed after
+	invoking it, and <function>run</function>() has no further use for it;
+	and no more references to the mcguffin should remain,
+	<function>start_timer</function>() owns it entirely.
+	Here, guard's <function>operator()</function> does its job, returns
+	whatever &ref; it got, which gets subsequently passed to
+	<function>start_timer</function>().
+      </para>
+
+      <para>
+	Subsequently, when <varname>guard</varname> goes out of scope, it
+	waits for the mcguffin to get destroyed, wherever it is.
+      </para>
+    </section>
+
+    <section id="ondestroyrevocable">
+      <title>Revocable destructor callbacks</title>
+
+      <para>
+	Attaching an ordinary destructor callback to a mcguffin is
+	an irrevocable act. The destructor callback gets attached, and it
+	gets invoked whenever the mcguffin ends up getting destroyed.
+	Use <ulink url="&link-typedef-x-ondestroy;"><classname>&ns;::ondestroy</classname></ulink>
+	to set up destructor callbacks that can be revoked:
+      </para>
+
+      <blockquote>
+	<informalexample>
+	  <programlisting>
+class myDestructorCallbackObj : public &ns;::destroyCallbackObj {
+
+public:
+      myDestructorCallbackObj() noexcept;
+      ~myDestructorCallbackObj() noexcept;
+      void destroyed() noexcept;
+};
+
+class mcguffinObj : virtual public &ns;::obj {
+
+// ...
+
+};
+
+typedef &ns;::ref&lt;myDestructorCallbackObj&gt; myDestructorCallback;
+
+myDestructorCallback mycb(myDestructorCallback::create());
+
+&ns;::ref&lt;mcguffinObj&gt; mcguffin=&ns;::ref&lt;mcguffinObj&gt;::create();
+
+&ns;::ondestroy ondestroyHook(&ns;::ondestroy::create(myDestructorCallback, mcguffin,
+                                           true);
+
+// ...
+
+ondestroyHook-&gt;cancel();</programlisting>
+	</informalexample>
+      </blockquote>
+
+      <para>
+	The destructor callback stays attached
+	to its mcguffin until <classname>&ns;::ondestroy</classname>'s
+	<methodname>cancel</methodname>() gets invoked. After the
+	<methodname>cancel</methodname>(), the destructor callback will no
+	longer get invoked when the mcguffin gets destroyed. If the mcguffin is
+	already destroyed, and its destructor callbacks were already invoked,
+	<methodname>cancel</methodname>() has no effect.
+      </para>
+
+      <para>
+	<classname>&ns;::ondestroy</classname> itself is a reference to
+	a reference-counted object, that can be freely passed around or copied.
+	If the last parameter to
+	<methodname>&ns;::ondestroy::create</methodname> is <literal>true</literal>,
+	<methodname>cancel</methodname>() gets automatically invoked when
+	the <classname>&ns;::ondestroy</classname>-referenced instance itself
+	goes out of scope and gets destroyed. With <literal>false</literal>,
+	when <classname>&ns;::ondestroy</classname> gets destroyed the
+	destructor callback becomes permanent.
+      </para>
+
+      <para>
+	If another thread is already running a just-destroyed object's
+	callbacks, invoking <methodname>cancel</methodname>() explicitly
+	blocks until the object's callbacks return.
+	An explicit <methodname>cancel</methodname>()'s contract is that the
+	destructor callback's
+	<methodname>destroyed</methodname>() can never get called after
+	<methodname>cancel</methodname>() returns.
+	A <methodname>cancel</methodname>() that's automatically invoked, when
+	<classname>&ns;::ondestroy</classname> goes out of scope and gets
+	destroyed, does not block if another thread is executing the object's
+	destructors.
+      </para>
+
+      <para>
+	This is to allow an <classname>&ns;::ondestroy</classname> to go out
+	of scope and get destroyed as a
+	direct or an indirect result of the same object's destructor
+	callback getting invoked. Otherwise, this ends up deadlocking the
+	thread with itself: something is executing the object's destructor
+	callbacks, and <classname>&ns;::ondestroy</classname>'s destructor
+	needs to wait for the callback to return, but that can't happen until
+	the destructor itself returns.
+      </para>
+    </section>
+
+    <section id="onanydestroy">
+      <title>Invoking a destructor callback when any of several objects gets destroyed</title>
+
+      <blockquote>
+	<informalexample>
+	  <programlisting>
+#include &lt;&ns;/ondestroy.H&gt;
+
+class myDestructorCallbackObj : public &ns;::destroyCallbackObj {
+
+public:
+      myDestructorCallbackObj() noexcept;
+      ~myDestructorCallbackObj() noexcept;
+      void destroyed() noexcept;
+};
+
+typedef &ns;::ref&lt;myDestructorCallbackObj&gt; myDestructorCallback;
+
+myDestructorCallback mycb(myDestructorCallback::create());
+
+// ...
+
+std::list&lt;&ns;::ref&lt;&ns;::obj&gt; &gt; objects;
+
+mycb-&gt;onAnyDestroyed(objects.begin(), objects.end());</programlisting>
+	</informalexample>
+      </blockquote>
+
+      <para>
+	<methodname>onAnyDestroyed</methodname>() is a template method in
+	<classname>&ns;::destroyCallbackObj</classname>. Its parameters are
+	a beginning and an ending input iterator for a sequence of references
+	to reference-counted object class instances.
+      </para>
+
+      <para>
+	<methodname>onAnyDestroyed</methodname>() results in the destructor
+	callback's <methodname>destroyed</methodname>() getting invoked when
+	any of the objects in the sequence go out of scope and gets destroyed.
+	<methodname>destroyed</methodname>() gets invoked only once; for all
+	practical matters, for the first object in the sequence that goes out
+	of scope and gets destroyed. Subsequent destruction of other objects
+	in the sequence does not result in
+	<methodname>destroyed</methodname>() getting invoked on their behalf.
+      </para>
+
+      <para>
+	Of course, the same destructor callback can be attached to other
+	mcguffins, whose own destruction will result in
+	<methodname>destroyed</methodname>() invocations on their behalf.
+      </para>
+
+      <para>
+	The input sequence is expected to produce strong &ref;s only. However,
+	it's an arbitrary input sequence. Once a &ref; has been iterated over,
+	it is no longer in scope, and, with a custom input iterator, its
+	possible that it can get destroyed. If so, it's possible that
+	<methodname>destroyed</methodname>() gets called before
+	<methodname>onAnyDestroyed</methodname>() returns.
+      </para>
+
+      <para>
+	<methodname>destroyed</methodname>() also gets called in the event
+	that the iterators define an empty input sequence.
+      </para>
+
+      <note>
+	<para>
+	  It's the mcguffin's
+	  <methodname>addOnDestroy</methodname>() method that gets invoked,
+	  and it takes the callback as a parameter.
+	  It is a destructor callback's
+	  <methodname>onAnyDestroyed</methodname>() method that gets invoked,
+	  and it takes an input sequence of mcguffins.
+	</para>
+      </note>
+
+      <note>
+	<para>
+	  <methodname>onAnyDestroyed</methodname>() gets implemented
+	  by
+	  <classname>&ns;::destroyCallbackObj</classname>.
+
+	  The object referenced by
+	  <link linkend="destroycallbackflag"><classname>&ns;::destroyCallbackFlag</classname></link>
+	  is a subclass of <classname>&ns;::destroyCallbackObj</classname>.
+	  <classname>&ns;::destroyCallbackFlag</classname> works with
+	  <methodname>onAnyDestroyed</methodname>():
+	</para>
+
+	<blockquote>
+	  <informalexample>
+	    <programlisting>
+&ns;::destroyCallbackFlag cb=&ns;::destroyCallbackFlag::create();
+
+cb->onAnyDestroyed(objects.begin(), objects.end());</programlisting>
+	  </informalexample>
+	</blockquote>
+
+	<para>
+	  All other semantics of
+	  <classname>&ns;::destroyCallbackFlag</classname>
+	  remain in place.
+	</para>
+      </note>
+    </section>
+  </section>
+
+  <section id="destroycallbackwait4">
+    <title>Waiting for a cascading destructor</title>
+
+    <para>
+      An <ulink url="&link-typedef-x-destroyCallbackFlagWait4;"><classname>&ns;::destroyCallbackFlagWait4</classname></ulink>
+      implements a way for a thread that destroys one object to stop, and then
+      wait for some other object to get destroyed too, presumably by another
+      thread.
+      A typical use case is when a thread constructs an object, and this
+      object constructs a reference to the second object. The first object
+      is considered to be the owner of the second object, but the second
+      object can also be used by other threads, and when the first object
+      goes out of scope and gets destroyed, it's necessary to also wait for
+      any other fleeting references to the second object to go out of scope
+      so that the second object gets destroyed too.
+    </para>
+
+    <para>
+      This is similar to a
+      <link linkend="ondestroyguard">guard object</link>, except that the
+      guard object gets instantiated on the stack, and waits for all guarded
+      objects to get destroyed, when the guard object goes out of scope.
+      <classname>&ns;::destroyCallbackFlagWait4</classname> is a reference
+      to a <link linkend="refobj">reference-counted object</link>. Once
+      it gets created and installed, explicit references to the object are
+      no longer needed. A reference remains to it, since it's installed as a
+      destructor callback to some other object. Whichever thread ends up
+      destroying it, invokes the destructor callback, which then waits for
+      the second object to get destroyed, before proceeding.
+    </para>
+
+    <blockquote>
+      <informalexample>
+	<programlisting>
+#include &lt;&ns;/destroycallbackflagwait4.H&gt;
+#include &lt;&ns;/threads/run.H&gt;
+
+class parentObj : virtual public &ns;::obj {
+
+    class childObj;
+
+public:
+    parentObj()
+    {
+    }
+
+    void start_child()
+    {
+        auto child=&ns;::ref&lt;childObj&gt;::create();
+
+        addOnDestroy(&ns;::destroyCallbackFlagWait4::create(child));
+
+        &ns;::run(child);
+    }
+};</programlisting>
+      </informalexample>
+    </blockquote>
+
+    <para>
+      <classname>&ns;::destroyCallbackFlagWait4</classname>'s constructor
+      takes a reference to a reference-counted object.
+      Its <methodname>destroyed</methodname>() method, when and if it gets
+      invoked, waits for the object's destruction, if it's not already
+      destroyed.
+      After the <classname>&ns;::destroyCallbackFlagWait4</classname> gets
+      installed as a parent's destructor callback, once the parent object
+      goes out of scope and gets destroyed, if, previously, a child
+      object got started, parent's destruction automatically waits for the
+      child thread to exit, and for any other references to the child object
+      to also go out of scope, and get destroyed, before the destruction
+      of the parent object fully concludes.
+    </para>
+
+    <para>
+      Here's a slight variation on this theme:
+    </para>
+
+    <blockquote>
+      <informalexample>
+	<programlisting>
+        &ns;::run(child)->addOnDestroy(&ns;::destroyCallbackFlagWait4::create(child));</programlisting>
+      </informalexample>
+    </blockquote>
+
+    <para>
+      By installing a <classname>&ns;::destroyCallbackFlagWait4</classname>
+      destructor callback on the thread's return value object, this has
+      the effect of only waiting until the thread finishes execution.
+      With no other references to the thread return value object, it goes out
+      of scope and gets destroyed when the thread finishes, even if the child
+      thread object remains in scope due to other references.
+    </para>
+
+    <note>
+      <para>
+	Any thread where the last reference to the object
+	that goes out of scope ends up invoking the destructor callback
+	and waiting indefinitely for the other object to get destroyed, by some
+	other thread. Threads and objects should be carefully designed, so that
+	can actually happen, in pradtice.
+      </para>
+    </note>
+
+    <para>
+      Internally, <classname>&ns;::destroyCallbackFlagWait4</classname> uses
+      <link linkend="destroycallbackflag"><classname>&ns;::destroyCallbackFlag</classname></link>,
+      which is where it gets the class name from.
+    </para>
+  </section>
+
+  <section id="weakcontainers">
+    <title>Weak containers</title>
+
+    <para>
+      &app; implements several variations of &stl; containers that store
+      <link linkend="weakptr">weak pointers</link>, with an additional
+      aspect that
+      the weak pointer gets removed from the container automatically when its
+      referenced object goes out of scope and gets destroyed.
+    </para>
+
+    <para>
+      The container itself is an ordinary
+      <link linkend="refobj">reference-counted object</link> (which can
+      certainly have its own weak pointers), and it contains only weak pointers
+      to other objects.
+      When the weakly-references object goes out of scope and gets
+      destroyed, not only does the weak pointer, in the weak container,
+      becomes undefined, it gets removed from the container, automatically.
+    </para>
+
+    <para>
+      <ulink url="&link-x--weaklist;"><classname>&ns;::weaklist</classname></ulink>
+      is a template alias for <link linkend="ref">a reference</link> to
+      a container with
+      <classname>std::list</classname>-like properties.
+      <ulink url="&link-x--weaklistptr;"><classname>&ns;::weaklistptr</classname></ulink>
+      is the corresponding &ptr; template alias.
+      The <classname>&ns;::weaklist</classname> accepts
+      weak pointers:
+    </para>
+
+    <blockquote>
+      <informalexample>
+	<programlisting>
+#include &lt;&ns;/weaklist.H&gt;
+
+class widgetObj;
+
+typedef &ns;:ref&lt;widgetObj&gt; widget;
+
+typedef &ns;::weaklist&lt;widgetObj&gt; weakwidgetlist;
+
+weakwidgetlist currentWidgets(weakwidgetlist::create());
+
+// ...
+
+widget p=widget::create();
+
+currentWidgets-&gt;push_back(p);</programlisting>
+      </informalexample>
+    </blockquote>
+
+    <para>
+      The template parameter is a <link linkend="refobj">reference-counted
+	object</link>.
+      <classname>&ns;::weaklist</classname> and
+      <classname>&ns;::weaklistptr</classname> refer to a
+      <classname>std::list</classname>-like objects whose
+      <methodname>push_front</methodname>() and
+      <methodname>push_back</methodname>() methods take a regular,
+      strong reference, but place a
+      <link linkend="weakptr">weak pointer</link> into the weak list.
+      <methodname>push_front</methodname>() and
+      <methodname>push_back</methodname>() do not retain the strong reference
+      they receive as a parameter, they retain only a weak pointer.
+    </para>
+
+    <para>
+      There is no <methodname>erase</methodname>() method in the container.
+      When the weakly-referenced object goes out of scope and gets destroyed,
+      the weak pointer also gets removed from the container.
+    </para>
+
+    <blockquote>
+      <informalexample>
+	<programlisting>
+for (weakwidgetlist::base::iterator b=currentWidgets->begin(),
+     e=currentWidgets->end(); b != e; ++b)
+{
+    widgetptr p=b->getptr();
+
+    if (!p.null())
+    {
+       // ...
+</programlisting>
+      </informalexample>
+    </blockquote>
+
+    <para>
+      Weak list containers offer
+      <methodname>begin()</methodname>,
+      <methodname>end()</methodname>,
+      <methodname>empty()</methodname>,
+      <methodname>size()</methodname>,
+      <methodname>push_back()</methodname>, and
+      <methodname>push_front()</methodname>.
+      Iteration over a weak list container iterates over
+      <link linkend="weakptr">weak pointers</link>, so
+      <methodname>getptr</methodname>() must be used to recover a strong
+      reference.
+      Although the weak pointers get purged from the container upon destruction
+      of the referenced object, it's
+      still possible that an occasional null weak pointer gets encountered.
+      When the last reference to the weakly-referenced object goes out of
+      scope and it gets destroyed, the weak pointer to the object normally
+      gets removed from the container automatically. However, this is not
+      possible if there are iterators in scope. They are
+      currently iterating over the weak container, which cannot be modified
+      as long as they remain in scope. For this, and a few other reasons,
+      it's possible that
+      a null pointer gets recovered from a weak pointer.
+      The weak pointer to the destroyed object gets purged from the weak
+      container only after the last
+      weak container iterator goes out of scope and gets destroyed,
+      so nothing else refers to the weak container
+      (except pointers or references to the container itself).
+      Once the contents of the container are safe from potential access,
+      the weak pointers to destroyed objects get purged from the container.
+    </para>
+
+    <para>
+      For this reason, iterators over a weak list, or a weak map,
+      should be short lived, and not stashed away someplace. Where possible,
+      use a <link linkend="createrange">range iterator</link>.
+    </para>
+
+    <para>
+      <ulink url="&link-x--weakmap;"><classname>&ns;::weakmap</classname></ulink>
+      and
+      <ulink url="&link-x--weakmultimap;"><classname>&ns;::weakmultimap</classname></ulink>
+      define analogous containers with map-like properties:
+    </para>
+
+    <blockquote>
+      <informalexample>
+	<programlisting>
+#include &lt;&ns;/weakmap.H&gt;
+
+// Or multimap.H
+
+class widgetObj;
+
+typedef &ns;:ptr&lt;widgetObj&gt; widgetptr;
+
+typedef &ns;::weakmap&lt;std::string, widgetObj&gt; weakwidgetmap;
+
+weakwidgetmap currentWidgets(weakwidgetmap::create());
+
+// ...
+
+widgetptr p=widgetptr::create();
+
+currentWidgets-&gt;insert(std::make_pair("left", p));
+
+// ...
+
+weakwidgetmap::base::iterator iter=currentWidgets-&gt;find("left");
+
+if (iter != currentWidgets-&gt;end())
+{
+    widgetptr p=iter-&gt;second.getptr();
+
+    if (!p.null())
+    {
+// ...</programlisting>
+      </informalexample>
+    </blockquote>
+
+    <para>
+      Like a weak list container's, the weak maps do not implement
+      <methodname>erase</methodname>(); when the weakly-referenced object goes out
+      of scope and gets destroyed, its weak pointers gets removed
+      automatically, if no iterators exist at the time; or after the last
+      iterator goes out of scope and gets destroyed.
+      It follows that iterators over the maps' contents should have a brief
+      existence, to avoid the containers growing with undefined weak
+      pointers.
+    </para>
+
+    <para>
+      Not surprisingly, weak map iterators iterate over
+      <classname>std::pair</classname>s containing the key, and its
+      corresponding weak pointer.
+      Weak map containers implement the following
+      <classname>std::map</classname>/<classname>std::multimap</classname>
+      methods:
+      <methodname>begin()</methodname>,
+      <methodname>end()</methodname>,
+      <methodname>empty()</methodname>,
+      <methodname>size()</methodname>,
+      <methodname>find()</methodname>,
+      <methodname>count()</methodname>,
+      <methodname>lower_bound()</methodname>,
+      <methodname>upper_bound()</methodname>, and
+      <methodname>equal_range()</methodname> (meaningful only for
+      <classname>&ns;::weakmultimap</classname>s).
+    </para>
+
+    <para>
+      <methodname>insert()</methodname> adds a weak pointer to the map.
+      An alternative version of <methodname>insert()</methodname>
+      exists, that takes the key
+      and the pointer separately, without the need for an intermediate
+      <classname>std::pair</classname>:
+    </para>
+
+    <blockquote>
+      <informalexample>
+	<programlisting>
+currentWidgets-&gt;insert("left", p);</programlisting>
+      </informalexample>
+    </blockquote>
+
+    <para>
+      The weak map container also offers <methodname>operator[]</methodname>,
+      as syntactical sugar, but since the container is a reference-counted
+      object that must be dereferenced by a <methodname>*</methodname>, this may
+      not be very useful.
+    </para>
+  </section>
+
+  <section id="circularrefs">
+    <title>Circular strong references</title>
+
+    <para>
+      &ref;s and &ptr;s generally take the chore out of keeping track of
+      heap-allocated objects, and destroying them when they're no longer needed.
+      When the last reference to the object goes away, that's it. For this to
+      work, it's important not to create circular references.
+      The simplest circular reference is an &reforptr;
+      in one object pointing to a second object, and an &reforptr;
+      in the second object pointing to the first one. This is true for a
+      circular reference of any size or structure, a sequence of any lengths
+      of &ref;'s; and &ptr;s eventually leading back to the starting point.
+      A circular reference prevents the
+      objects from getting destroyed, when no other references to the objects
+      in a circular reference remain.
+    </para>
+
+    <para>
+      <link linkend="weakptr">Weak pointers</link> do not count, and
+      won't create circular references, but there has to be a strong reference
+      to an object somewhere, for it to exist. &app;'s documentation
+      often specifies
+      when a class or an object instance holds a strong reference to another
+      object, and under what circumstances. This should be considered when
+      designing a class hierarchy, and avoiding creation of circular references
+      and memory leaks.
+    </para>
+
+    <para>
+      The internal usage of &ref;'s and &ptr;'s is very widespread, and their
+      existence gets explicitly noted, in this documentation, only when it is
+      counterintuitive, or not obvious. For destructor callbacks and mcguffins:
+    </para>
+
+    <itemizedlist>
+      <listitem>
+	<para>
+	  A mcguffin holds a strong reference on all callbacks that were
+	  <link linkend="ondestroy"><methodname>addOnDestroy</methodname>()ed</link>.
+	  Those strong references naturally go out of scope, and get destroyed,
+	  as part of the mcguffin's destruction (and invocation of all of its
+	  <methodname>addOnDestroy</methodname>()ed callbacks).
+	</para>
+      </listitem>
+
+      <listitem>
+	<para>
+	  An
+	  <link linkend="ondestroyrevocable"><classname>&ns;::ondestroy</classname></link>
+	  indirectly holds a strong reference to the mcguffin's destructor
+	  callback. <classname>&ns;::ondestroy</classname> does not actually
+	  hold a strong reference of its own.
+	  What happens is that <classname>&ns;::ondestroy</classname>'s
+	  <methodname>cancel</methodname>() (whether invoked explicitly or
+	  implicitly) releases the mcguffin's strong reference on its callback,
+	  if it's not yet invoked. If it was already invoked, as part of the
+	  mcguffin's destruction, <classname>&ns;::ondestroy</classname> has
+	  no further impact.
+	</para>
+      </listitem>
+
+      <listitem>
+	<para>
+	  <link linkend="onanydestroy"><methodname>onAnyDestroyed</methodname></link>()
+	  creates a strong reference from every mcguffin, defined by the
+	  input sequence, to <methodname>onAnyDestroyed</methodname>()'d
+	  destructor callback. Those strong references go out of scope when
+	  one of those mcguffins goes out of scope, gets destroyed, and results
+	  in the contracted-for invocation of
+	  <methodname>destroyed</methodname>().
+	</para>
+      </listitem>
+    </itemizedlist>
+  </section>
+</chapter>
+
+<!--
+Local Variables:
+mode: sgml
+sgml-parent-document: ("book.xml" "book" "chapter")
+End:
+-->

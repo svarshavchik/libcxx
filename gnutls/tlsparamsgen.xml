@@ -1,0 +1,75 @@
+<!--
+
+Copyright 2012 Double Precision, Inc.
+See COPYING for distribution information.
+
+-->
+
+<optclass name="tlsparamsgen">
+  <option>
+    <name>type</name>
+    <type>std::string</type>
+    <hasvalue />
+    <required />
+    <argdescr>algorithm</argdescr>
+    <opt>t</opt>
+    <longopt>type</longopt>
+    <descr>Algorithm (rsa or dsa)</descr>
+  </option>
+
+  <option>
+    <name>bits</name>
+    <type>int</type>
+    <hasvalue />
+    <argdescr>n</argdescr>
+    <default>1024</default>
+    <opt>b</opt>
+    <longopt>bits</longopt>
+    <descr>Number of bits in the DH or RSA parameter</descr>
+  </option>
+
+  <option>
+    <name>user</name>
+    <type>std::string</type>
+    <hasvalue />
+    <argdescr>username</argdescr>
+    <opt>u</opt>
+    <longopt>user</longopt>
+    <descr>Create the DH or RSA parameter file owned by this username</descr>
+  </option>
+
+  <option>
+    <name>group</name>
+    <type>std::string</type>
+    <argdescr>groupname</argdescr>
+    <hasvalue />
+    <opt>g</opt>
+    <longopt>group</longopt>
+    <descr>Create the DH or RSA parameter file owned by this groupname</descr>
+  </option>
+
+  <option>
+    <name>mode</name>
+    <type>std::string</type>
+    <argdescr>octal</argdescr>
+    <hasvalue />
+    <default>"400"</default>
+    <opt>m</opt>
+    <longopt>mode</longopt>
+    <descr>Create the DH or RSA parameter file with these permissions</descr>
+  </option>
+
+  <option>
+    <name>definit</name>
+    <type>bool</type>
+    <opt>d</opt>
+    <longopt>definit</longopt>
+    <descr>Only replace an existing file if it's the installation default one</descr>
+  </option>
+  <arg>
+    <name>filename</name>
+    <required />
+  </arg>
+
+  <defaultoptions />
+</optclass>

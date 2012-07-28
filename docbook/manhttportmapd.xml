@@ -1,0 +1,105 @@
+<!--
+
+Copyright 2012 Double Precision, Inc.
+See COPYING for distribution information.
+
+-->
+
+<refentry id="httportmapd.8">
+  <info>
+    <author>
+      <firstname>Sam</firstname>
+      <surname>Varshavchik</surname>
+      <contrib>Author</contrib>
+    </author>
+    <productname>&app;</productname>
+  </info>
+
+  <refmeta>
+    <refentrytitle>httportmapd</refentrytitle>
+    <manvolnum>8</manvolnum>
+    <refmiscinfo class='manual'>&appshort;</refmiscinfo>
+  </refmeta>
+
+  <refnamediv>
+    <refname>httportmapd</refname>
+    <refpurpose>Application portmapper</refpurpose>
+  </refnamediv>
+
+  <refsynopsisdiv>
+    <cmdsynopsis>
+      <command>httportmapd</command>
+
+      <arg choice='opt'>--http</arg>
+
+      <arg choice='opt'>--daemon</arg>
+
+      <arg choice='opt'>--port=<replaceable>n</replaceable></arg>
+
+      <arg choice='opt'>--socket=<replaceable>filename</replaceable></arg>
+
+      <arg choice='opt'>--files=<replaceable>directory</replaceable></arg>
+
+      <group choice='req'>
+	<arg choice='plain'>start</arg>
+	<arg choice='plain'>stop</arg>
+      </group>
+    </cmdsynopsis>
+  </refsynopsisdiv>
+
+  <refsect1>
+    <title>Description</title>
+
+    <para>
+      This daemon implements an <acronym>HTTP</acronym>-based portmapper
+      service for applications built with &app;.
+    </para>
+
+    <para>
+      <quote>start</quote> starts the portmapper daemon,
+      <quote>stop</quote> stops it.
+      If the portmapper daemon was already started, <quote>start</quote>
+      restarts it.
+      Normally, specifying <quote>--daemon</quote> forks the service as a
+      daemon process that runs in the background. This option may be omitted
+      for debugging or diagnostic purposes, resulting in
+      <command>httportmapd</command> continuing to run in the
+      foreground.
+    </para>
+
+    <para>
+      <quote>--http</quote> opens and listens for requests on the
+      <acronym>HTTP</acronym> port. Without this option,
+      <command>httportmapd</command> expects another server, like
+      <application>Apache</application>, to do that and invoke
+      <command>httportmapd</command> via <acronym>CGI</acronym> for all
+      <quote>/portmap</quote> requests. In <acronym>CGI</acronym> mode it is
+      still necessary to start <command>httportmapd</command> beforehand,
+      separately.
+    </para>
+
+    <para>
+      The remaining options are not needed, and exist for diagnostic purposes.
+      <option>--port</option> overrides the default <acronym>HTTP</acronym>
+      port 80. <option>--socket</option> sets the internal filesystem socket
+      that <command>httportmapd</command> uses for connections from registered
+      clients, and <option>--files</option> sets the directory containing
+      <command>httportmapd</command>'s static <acronym>HTTP</acronym> files.
+    </para>
+
+    <para>
+      Opening <quote>http://<replaceable>hostname</replaceable>/portmap</quote>
+      in a modern browser
+      displays all registered services, if any. Opening
+      <quote>http://localhost/portmap</quote> shows registered services that
+      listen on network ports and on local filesystem sockets.
+    </para>
+  </refsect1>
+</refentry>
+
+<!--
+Local Variables:
+mode: sgml
+sgml-parent-document: ("book.xml" "appendix" "refentry")
+End:
+-->

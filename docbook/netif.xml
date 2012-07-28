@@ -1,0 +1,131 @@
+<!--
+
+Copyright 2012 Double Precision, Inc.
+See COPYING for distribution information.
+
+-->
+
+<chapter id="netif">
+  <title>Network interfaces</title>
+
+  <blockquote>
+    <informalexample>
+      <programlisting>
+#include &lt;&ns;/netif.H&gt;
+
+std::vector&lt;&ns;::netif&gt; interfaces;
+
+&ns;::netif::enumerate(interfaces);
+
+for (std::vector&lt;&ns;::netif&gt;::iterator b(interfaces.begin()),
+    e(interfaces.end()); b != e; ++b)
+{
+   &ns;::netif netif_ref(*b);
+
+   std::cout &lt;&lt; "interface: " &lt;&lt; netif_ref-&gt;getName() &lt;&lt; std::endl;
+
+   // ...
+}
+
+</programlisting>
+    </informalexample>
+  </blockquote>
+
+  <para>
+    <ulink url="&link-x--netifBase;"><methodname>&ns;::netif::enumerate</methodname></ulink>()
+    populates a vector of <link linkend="refobj">references</link> to
+    <ulink url="&link-x--netifObj;"><classname>&ns;::netifObj</classname></ulink> objects.
+    This object holds metadata about one network interface.
+    <methodname>getName</methodname>() returns the network interface's name.
+    <methodname>getIndex</methodname>() and
+    <methodname>getFlags</methodname>() return the corresponding interface metadata
+    from the
+    <citerefentry>
+      <refentrytitle>ioctl</refentrytitle>
+      <manvolnum>2</manvolnum>
+    </citerefentry>,
+    calls that retrieve the network interface's index and flags
+    (such as <literal>IFF_LOOPBACK</literal>).
+  </para>
+
+  <blockquote>
+    <informalexample>
+      <programlisting>
+std::vector&lt;unsigned char&gt; mac=netif_ref-&gt;getMacAddress(mac);</programlisting>
+    </informalexample>
+  </blockquote>
+
+  <para>
+    <methodname>getMacAddress</methodname>() returns a vector with the
+    network interface's <acronym>MAC</acronym> address.
+    The vector will be empty if the network interface's
+    <acronym>MAC</acronym> address cannot be determined.
+  </para>
+
+  <section id="netifaddrs">
+    <title>Network interface addresses</title>
+
+    <para>
+      <methodname>getAddrs</methodname>() returns a reference to a constant
+      vector of <classname>&ns;::netif::ifaddr</classname> objects:
+    </para>
+
+    <blockquote>
+      <informalexample>
+	<programlisting>
+std::cout &lt;&lt; "addresses: ";
+
+const char *sep="";
+
+for (auto &amp;netif : netif_ref-&gt;getAddrs())
+{
+    std::cout &lt;&lt; sep &lt;&lt; (std::string)*netif.addr;
+
+    if (netif.netmask-&gt;size())
+        std::cout &lt;&lt; "/" &lt;&lt; (std::string)*netif.netmask;
+    sep=", ";
+}
+
+std::cout &lt;&lt; std::endl;</programlisting>
+      </informalexample>
+    </blockquote>
+
+    <para>
+      <methodname>getAddrs</methodname>() returns a native reference to a
+      vector of
+      <classname>&ns;::netif::ifaddr</classname>s.
+      A <classname>&ns;::netif::ifaddr</classname> contains two
+      <ulink url="&link-typedef-x-const-sockaddr;"><classname>&ns;::const_sockaddr</classname></ulink>s:
+      <varname>addr</varname> and
+      <varname>netmask</varname>, the network interface's IP address and netmask.
+      <classname>&ns;::sockaddr</classname> is a reference to a
+      <link linkend="refobj">reference-counted</link> subclass of a
+      <classname>std::vector&lt;char&gt;</classname> that holds a socket
+      addressed subject.
+      The
+      <varname>netmask</varname> vector may be empty, if the no netmask is
+      defined (the network interface is a point-to-point link).
+    </para>
+
+    <note>
+      <para>
+	<ulink url="&link-x--netifBase;"><methodname>&ns;::netif::enumerate</methodname></ulink>()
+	enumerates a network interface only if it has at least one network
+	address.
+	A network interface without a defined address does not get enumerated.
+      </para>
+
+      <para>
+	The vector returned by
+	<methodname>getAddrs</methodname>() will have more than one address if the
+	network interface is multihomed.
+      </para>
+    </note>
+  </section>
+</chapter>
+<!--
+Local Variables:
+mode: sgml
+sgml-parent-document: ("book.xml" "book" "chapter")
+End:
+-->

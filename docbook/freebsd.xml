@@ -1,0 +1,163 @@
+<!--
+
+Copyright 2012 Double Precision, Inc.
+See COPYING for distribution information.
+
+-->
+
+<appendix id="freebsdport">
+  <title>Porting and compatibility notes</title>
+
+  <para>
+    <link linkend="index">As noted in the introduction</link>, &app;
+    currently builds on FreeBSD 9, with the following notes:
+  </para>
+
+  <itemizedlist>
+    <listitem>
+      <para>
+	The
+	<application>pkg-config</application>,
+	<application>ca_root_nss</application>,
+	<application>pcre</application>,
+	<application>libxslt</application>,
+	<application>gnutls</application>,
+	<application>libgcrypt</application>,
+	<application>gettext</application>
+	<application>execinfo</application>, and
+	<application>libiconv</application> packages need to be installed to
+	build &app;, in addition to
+	<application>gcc47</application>
+	and <application>gmake</application>
+	that must be used to compile it.
+      </para>
+
+      <para>
+	Additionally, <literal>procfs</literal> must be mounted.
+      </para>
+    </listitem>
+
+    <listitem>
+      <para>
+	Without the <interfacename>xlocale</interfacename>
+	<acronym>API</acronym>,
+	many classes that use <classname>&ns;::locale</classname> will suffer
+	poor performance, since they must obtain an exclusive global lock,
+	in order to temporarily set the global application locale.
+      </para>
+
+      <para>
+	Subsequently, <methodname>imbue</methodname>(), and any other code that
+	touches a locale object must be wrapped inside an instance
+	of <classname>&ns;::globlocale</classname>:
+      </para>
+
+      <blockquote>
+	<informalexample>
+	  <programlisting>
+&ns;::locale l;
+
+{
+   &ns;::globlocale global_locale(l);
+
+   // Imbue the locale somewhere, then imbue somewhere's original locale back
+   // into the same "somewhere".
+}</programlisting>
+	</informalexample>
+      </blockquote>
+
+      <para>
+	On a platform
+	without the <interfacename>xlocale</interfacename>
+	<acronym>API</acronym>,
+	<classname>&ns;::globlocale</classname> acquires a global process
+	mutex, and sets the global application locale. Before it goes out of
+	scope, the original locale gets restored.
+	On Linux this class is declared as an inline no-op, and will hopefully
+	get optimized away.
+      </para>
+    </listitem>
+
+    <listitem>
+      <para>
+	The <interfacename>kqueue</interfacename>
+	<acronym>API</acronym> emulates	Linux
+	<link linkend="epoll">epoll</link>,
+	<link linkend="eventfd">event</link>,
+	<link linkend="timerfd">timer</link>, and
+	<link linkend="signals">signal</link> file descriptors.
+	Currently, a separate <interfacename>kqueue</interfacename> gets created
+	for each one of the emulated file descriptor <acronym>API</acronym>s,
+	rather than a shared <interfacename>kqueue</interfacename>
+	for all of them.
+      </para>
+
+      <para>
+	Some aspects of the Linux <acronym>API</acronym>s behave differently,
+	but still within its specifications, to various degrees. Events posted
+	to event file descriptors do not generally accumulate, but are
+	retrieved individually, in posted order. A substitute
+	<classname>&ns;::signalfd::getsignal_t</classname> gets defined in the
+	header files, containing only <varname>ssi_signo</varname>, and none
+	of the other fields defined in Linux. Application that use
+	other stuff that's documented in Linux's
+	<citerefentry>
+	  <refentrytitle>signalfd</refentrytitle>
+	  <manvolnum>2</manvolnum>
+	</citerefentry>
+	won't compile.
+	&app; provides most, but not complete, equivalents of the macro
+	constants used by the <interfacename>epoll</interfacename>
+	<acronym>API</acronym>, and the <varname>u64</varname> member of the
+	<classname>epoll_data</classname> union is not defined on 32-bit
+	platforms.
+      </para>
+    </listitem>
+
+    <listitem>
+      <para>
+	As documented in <xref linkend="fd" />, all file descriptor objects
+	get created with their close-on-exec set by default, using
+	Linux-specific APIs.
+	This is emulated by using regular POSIX APIs and then manually setting
+	the close-on-exec flag immediately
+	upon creation, while holding a global application lock.
+	Applications should use
+	<ulink url="&link-function-x-fork;"><methodname>&ns;::fork</methodname></ulink>,
+	which calls
+	<citerefentry>
+	  <refentrytitle>fork</refentrytitle>
+	  <manvolnum>2</manvolnum>
+	</citerefentry>
+	while holding the same lock. This prevents child process from
+	inheriting the file descriptor created by some other thread, before its
+	close-on-exec bit gets set.
+      </para>
+
+      <para>
+	At this time, instantiate a
+	<ulink url="&link-x--globlock;"><classname>&ns;::globlock</classname></ulink>
+	manually before invoking <function>exec</function>(), or its aliases,
+	until such time as something like <classname>&ns;::exec</classname>
+	gets created.
+      </para>
+    </listitem>
+
+    <listitem>
+      <para>
+	If a process's executable gets deleted but the process still exists,
+	<link linkend="pidinfo"><classname>&ns;::pidinfo</classname></link>
+	on that process throws an exception. On Linux, the executable's name
+	gets affixed with <quote>(deleted)</quote> which, presumably, is a
+	nonexistent pathname.
+      </para>
+    </listitem>
+  </itemizedlist>
+</appendix>
+
+<!--
+Local Variables:
+mode: sgml
+sgml-parent-document: ("book.xml" "book" "appendix")
+End:
+-->

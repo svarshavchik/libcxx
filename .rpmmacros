@@ -1,0 +1,11 @@
+%_topdir         /home/mrsam/src/libcxx/rpm
+%_rpmdir         %{_topdir}/RPMS
+%_srcrpmdir      %{_topdir}/SRPMS
+%_sourcedir      %{_topdir}/SOURCES
+%_specdir        %{_topdir}/SPECS
+%_builddir       %{_topdir}/BUILD
+%_build_name_fmt %%{NAME}-%%{VERSION}-%%{RELEASE}.%%{ARCH}.rpm
+%_tmppath        /var/tmp
+
+%__spec_prep_pre     rm -rf %{_rpmdir} ; mkdir %{_rpmdir} ; mkdir -p %{_builddir} ; %{___build_pre}
+

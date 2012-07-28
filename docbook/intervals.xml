@@ -1,0 +1,407 @@
+<!--
+
+Copyright 2012 Double Precision, Inc.
+See COPYING for distribution information.
+
+-->
+
+<chapter id="intervals">
+  <title>Date and time intervals</title>
+
+  <para>
+    An <ulink url="&link-x--hms;"><classname>&ns;::hms</classname></ulink>
+    object parses a time interval down to individual
+    hour, minute, and second values:
+  </para>
+
+  <blockquote>
+    <informalexample>
+      <programlisting>
+#include &lt;&ns;/hms.H&gt;
+
+&ns;::hms interval("1 hour, 10 minutes, 30 seconds");</programlisting>
+    </informalexample>
+  </blockquote>
+
+  <para>
+    Several different constructors are available to instantiate
+    <classname>&ns;::hms</classname> objects.
+    This class contains three members:
+    <varname>h</varname>, <varname>m</varname>, and <varname>s</varname>,
+    which represent the deconstructed time interval.
+  </para>
+
+  <para>
+    An <ulink url="&link-x--ymd;"><classname>&ns;::ymd</classname></ulink>
+    object stores a date value:
+  </para>
+
+  <blockquote>
+    <informalexample>
+      <programlisting>
+#include &lt;&ns;/ymd.H&gt;
+
+&ns;::locale en_us(&ns;::locale::create("en_US.utf-8"));
+
+&ns;::ymd independence_day(1776, 7, 4);
+
+independence_day += &ns;::ymd::interval("200 years");
+
+std::cout &lt;&lt; independence_day.formatDate("%F", en_us) &lt;&lt; std::endl;</programlisting>
+
+    </informalexample>
+  </blockquote>
+
+  <para>
+    <classname>&ns;::ymd</classname> implements increment and decrement
+    operators, which adjust the date by one day.
+    It also implements an addition operator with either a integer, interpreted
+    as a number of days, or with the
+    <ulink url="&link-x--ymd--interval;"><classname>&ns;::ymd::interval</classname></ulink> class,
+    which specifies an arbitrary interval in terms of days, weeks, months,
+    and or years. Adding or subtracting an
+    <classname>&ns;::ymd::interval</classname> to a
+    <classname>&ns;::ymd</classname> adjusts
+    <classname>&ns;::ymd</classname>'s date accordingly.
+    Subtracting two <classname>&ns;::ymd</classname> objects results in an
+    integer giving the number of days between the dates.
+    <methodname>getYear()</methodname>,
+    <methodname>getMonth()</methodname>, and
+    <methodname>getDay()</methodname> methods return the corresponding portions
+    of the date value.
+  </para>
+
+  <para>
+    <classname>&ns;::hms</classname> objects may also be added or subtracted
+    together. Addition results in another <classname>&ns;::hms</classname>
+    object, whose <varname>m</varname> and <varname>s</varname> members
+    are normalized to the range of 00-59 (or the range -59 to 00, for negative
+    time intervals).
+    Adding or subtracting an integer is interpreted as adding or subtracting
+    the given number of seconds; the resulting
+    <classname>&ns;::hms</classname> object is also normalized.
+    An
+    <ulink url="&link-x--ymd--interval;"><classname>&ns;::ymd::interval</classname></ulink>
+    object that specifies a number of days or weeks
+    may also be added/subtracted
+    to <classname>&ns;::hms</classname>, which
+    is equivalent to adding or subtracting the equivalent number of seconds.
+  </para>
+
+  <para>
+    <classname>&ns;::ymd</classname> and
+    <classname>&ns;::hms</classname> have overloaded
+    convenience methods that instantiate a
+    <link linkend="strftime"><classname>&ns;::strftime</classname></link>
+    object, and use it to format the date or the time value as a string.
+  </para>
+
+  <para>
+    <classname>&ns;::ymd</classname>'s
+    <methodname>formatDate()</methodname> method formats the date as a string.
+    Its second parameter is an optional <link linkend="localeobj">locale</link>:
+  </para>
+
+  <blockquote>
+    <informalexample>
+      <programlisting>
+#include &lt;&ns;/ymd.H&gt;
+
+&ns;::ymd::iso8601 firstDayOfYear(2009, 1, 1);
+
+&ns;::locale en_us(&ns;::locale::create("en_US.utf-8"));
+
+std::cout &lt;&lt; &ns;::ymd(firstDayOfYear).formatDate("%F", en_us) &lt;&lt; std::endl;</programlisting>
+    </informalexample>
+  </blockquote>
+
+  <para>
+    <ulink url="&link-x--ymd--iso8601;"><classname>&ns;::ymd::8601</classname></ulink>
+    represents an ISO 8601 date, defining a date as a year, week, and day
+    number. The ISO 8601 date object is convertible to and from a regular
+    <classname>&ns;::ymd</classname> object.
+  </para>
+
+  <para>
+    The <classname>&ns;::ymd</classname> object can be casted directly into
+    a string, which results in the <quote><literal>%X</literal></quote>
+    conversion in the global locale:
+  </para>
+
+  <blockquote>
+    <informalexample>
+      <programlisting>
+#include &lt;&ns;/ymd.H&gt;
+
+&ns;::ymd::iso8601 firstDayOfYear(2009, 1, 1);
+
+&ns;::locale::create("de_DE.utf-8")-&gt;global();
+
+std::cout &lt;&lt; (std::string)&ns;::ymd(firstDayOfYear) &lt;&lt; std::endl;</programlisting>
+    </informalexample>
+  </blockquote>
+
+  <para>
+    See the reference documentation for
+    <ulink url="&link-x--hms;"><classname>&ns;::hms</classname></ulink>
+    and <ulink url="&link-x--ymd;"><classname>&ns;::ymd</classname></ulink>
+    for more information on formatting these classes.
+  </para>
+
+  <para>
+    An
+    <ulink url="&link-x--ymd--parser;"><classname>&ns;::ymd::parser</classname></ulink>
+    object initializes <classname>&ns;::ymd</classname>
+    objects from narrow or wide character text strings:
+  </para>
+
+  <blockquote>
+    <informalexample>
+      <programlisting>
+#include &lt;&ns;/ymd.H&gt;
+
+&ns;::locale en_us(&ns;::locale::create("en_US.utf-8"));
+
+&ns;::ymd::parser&lt;char&gt; dateParser(en_us);
+
+&ns;::ymd independence_day(dateParser.parse("July 4, 1776"));</programlisting>
+    </informalexample>
+  </blockquote>
+
+  <para>
+    <methodname>parser</methodname>() understands a wide variety of date formats,
+    including <quote><replaceable>dddd</replaceable>-<replaceable>dd</replaceable>-<replaceable>dd</replaceable></quote>,
+    a string with a two digit day number, a month name, and a four digit
+    year, in any order, as well as
+    <quote><replaceable>dddd</replaceable>-W<replaceable>dd</replaceable>-<replaceable>dd</replaceable></quote>,
+    the ISO8601 date format.
+  </para>
+
+  <note>
+    <para>
+      <quote><replaceable>dd</replaceable>/<replaceable>dd</replaceable>/<replaceable>dddd</replaceable></quote>
+      is parsed by default as
+      <quote><replaceable>dd</replaceable>/<replaceable>mm</replaceable>/<replaceable>yyyy</replaceable></quote>.
+      Use the mdy() method to have this sequence parsed as
+      <quote><replaceable>mm</replaceable>/<replaceable>dd</replaceable>/<replaceable>yyyy</replaceable></quote>
+      (the US date format).
+    </para>
+  </note>
+
+  <section id="tzfile">
+    <title>Loading timezone files</title>
+
+    <blockquote>
+      <informalexample>
+	<programlisting>
+#include &lt;&ns;/tzfile.H&gt;
+
+&ns;::tzfile nyc(&ns;::tzfile::create("America/New_York")),
+    local(&ns;::tzfile::base::local()),
+    utc(&ns;::tzfile::base::utc());</programlisting>
+      </informalexample>
+    </blockquote>
+
+    <para>
+      <ulink url="&link-typedef-x-const-tzfile;">&ns;::tzfile</ulink> is a
+      reference to a
+      <link linkend="refobj">reference-counted object</link> that specifies a
+      timezone.
+      The only thing that can be done to a timezone object is to create it, by
+      loading a timezone specification from the system timezone database.
+      Timezone objects offer no useful methods of their own, they are used in
+      conjunction with
+      <link linkend="ymdhms"><classname>&ns;::ymdhms</classname></link> and
+      <link linkend="strftime"><classname>&ns;::strftime</classname></link>
+      objects.
+    </para>
+
+    <para>
+      This is an independent timezone implementation that is not related to
+      timezone support in the standard C library, but it uses the same
+      timezone library. This implementation does not include some obscure
+      features of the standard C library's timezone implementation, which
+      are unlikely to be in actual use. Namely, if the C library does not find a
+      timezone entry with the specified name, the C library attempts to parse
+      the specified name as a literal POSIX timezone string, and manufacture
+      a timezone record from the literal timezone string.
+    </para>
+
+    <para>
+      In this implementation, the timezone name must always refer to an
+      existing entry in the system
+      timezone database. Specifying a nonexistent
+      timezone throws an exception.
+      <methodname>&ns;::tzfile::base::utc()</methodname> returns a reference to a
+      timezone object referring to the linear <acronym>UTC</acronym>
+      timezone.
+      <methodname>&ns;::tzfile::base::local()</methodname> returns a reference to a
+      timezone object referring to the system's default timezone, or to the
+      <acronym>UTC</acronym> timezone if the system's default timezone cannot
+      be determined.
+      Both
+      <methodname>&ns;::tzfile::base::utc()</methodname> and
+      <methodname>&ns;::tzfile::base::local()</methodname> create their corresponding
+      objects the first time they're called.
+      Subsequent invocations return a reference to the same object, which
+      gets destroyed when the application terminates. For this reason,
+      these two functions cannot be used in object destructors which can
+      also be invoked when the application terminates, since the order in
+      which objects get destroyed at application shutdown is not specified.
+    </para>
+  </section>
+
+  <section id="ymdhms">
+    <title>Local time</title>
+
+    <blockquote>
+      <informalexample>
+	<programlisting>
+#include &lt;&ns;/tzfile.H&gt;
+#include &lt;&ns;/ymdhms.H&gt;
+
+time_t t=time(NULL);
+
+&ns;::ymdhms now(t, &ns;::tzfile::base::local());
+
+&ns;::ymd now_date(now);
+&ns;::hms now_time(now);</programlisting>
+      </informalexample>
+    </blockquote>
+
+    <para>
+      A
+      <ulink url="&link-x--ymdhms;"><classname>&ns;::ymdhms</classname></ulink>
+      combines
+      <classname>&ns;::ymd</classname>,
+      <classname>&ns;::hms</classname>, and a
+      <classname>&ns;::tzfile</classname> to specify a date and time expressed
+      in a timezone.
+      A number of constructors are available for creating
+      <classname>&ns;::ymdhms</classname> from alternate sources; such as
+      a <classname>time_t</classname> calendar time value and a timezone; or
+      an explicit
+      <classname>&ns;::ymd</classname> and
+      <classname>&ns;::hms</classname> objects, together with a timezone; or
+      a C library <classname>tm</classname> structure.
+    </para>
+
+    <para>
+      <classname>&ns;::ymdhms</classname> implements a convenience
+      <methodname>toString</methodname>() method
+      that instantiates a
+      <link linkend="strftime"><classname>&ns;::strftime</classname></link>
+      object, and uses it to format the <classname>&ns;::ymdhms</classname>,
+      accordingly.
+    </para>
+
+    <para>
+      See the
+      <ulink url="&link-x--ymdhms;">reference documentation</ulink> for a
+      more complete description of <classname>&ns;::ymdhms</classname>.
+      Note that this class incurs more overhead than the
+      <classname>tm</classname>-related functions in the C library.
+      Basic needs that can be satisfied by C library functions should use them.
+      Use this class for complicated requirements that cannot be easily
+      satisfied by the C library, such as pulling apart the date and time
+      components, and/or date/time arithmetic.
+    </para>
+  </section>
+
+  <section id="interval">
+    <title>Generic interval parser</title>
+
+    <para>
+      <ulink url="&link-x--interval;"><classname>&ns;::interval</classname></ulink>
+      is a template class for generic parsing of multidimensional
+      numeric values, using localized strings as dimension names.
+      This template class is used by other interval string parsers,
+      but is useful enough for other purposes.
+    </para>
+
+    <blockquote>
+      <informalexample>
+	<programlisting>
+#include &lt;&ns;/locale.H&gt;
+#include &lt;&ns;/messages.H&gt;
+#include &lt;&ns;/interval.H&gt;
+
+&ns;::locale en_us(&ns;::locale::create("en_us.UTF-8"));
+
+&ns;::wmessages msgcat(&ns;::wmessages::create(en_us), "application");
+
+static const char *const units[]={"block", "blocks",
+                                  "section", "sections",
+                                  "lot", "lots",
+                                  0};
+
+x::interval&lt;int&gt; i(units, 0, msgcat);
+
+std::vector&gt;int&lt; value(i.parse("3 blocks, 1 section, 1 lot"));</programlisting>
+      </informalexample>
+    </blockquote>
+
+    <para>
+      The first parameter to <classname>&ns;::interval</classname>'s
+      constructor is a read-only array of strings. The number of strings must
+      be even, and the last one followed by a null pointer. Each pair of
+      strings specifies the name of a dimension, in the single and plural
+      form. The single and the plural form is used to look up the localized
+      dimensional name in the wide character
+      <link linkend="msgcatalogs">message catalog</link>.
+      The above example passes an array of six strings, or three dimensions.
+      The second aprameter to the constructor is the 0-based index of the
+      default dimension. In the above example the default dimension parameter
+      may be between 0 and 2, inclusive.
+    </para>
+
+    <para>
+      <methodname>parse</methodname>() parses a narrow or a wide character
+      string, which must consists of pair of names and values. Each value
+      gets associated with a dimension specified by the name. The value
+      may appear before or after the corresponding name.
+      <methodname>parse</methodname>() places each value in a vector sized
+      to the number of dimensions, with the value being placed in the
+      appropriate index in the vector.
+      The above example returns a vector of three values: element 0 is
+      the block value, element 1 is the section value, element 2 is the
+      lot value.
+      If the parsed string does not specify a value for some particular
+      dimension, its value is 0.
+      If the parsed string consists of a single numeric value, without a
+      dimension name, the default dimension index specifies its dimension,
+      and the corresponding vector element.
+    </para>
+  </section>
+</chapter>
+
+<chapter id="strftime">
+  <title>Format time using strftime</title>
+
+  <para>
+    <ulink url="&link-typedef-x-strftime;"><classname>&ns;::strftime</classname></ulink>, and
+    <ulink url="&link-typedef-x-wstrftime;"><classname>&ns;::wstrftime</classname></ulink>
+    format a given date or time using a <citerefentry>
+    <refentrytitle>strftime</refentrytitle>
+      <manvolnum>3</manvolnum>
+    </citerefentry>
+    formatting string.
+    The date and/or the time may be specified in several ways:
+    a C library <classname>tm</classname> structure, a
+    <classname>time_t</classname>, or an
+    <link linkend="ymdhms"><classname>&ns;::ymdhms</classname></link> object.
+    <link linkend="intervals"><classname>&ns;::ymd</classname> and
+    <classname>&ns;::hms</classname></link> work too, with only the date or the
+    time-related <citerefentry>
+    <refentrytitle>strftime</refentrytitle>
+      <manvolnum>3</manvolnum>
+    </citerefentry> formatting conversions producing meaningful results
+    in these cases.
+  </para>
+</chapter>
+<!--
+Local Variables:
+mode: sgml
+sgml-parent-document: ("book.xml" "book" "chapter")
+End:
+-->

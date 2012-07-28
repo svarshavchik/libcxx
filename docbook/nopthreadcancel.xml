@@ -1,0 +1,35 @@
+<!--
+
+Copyright 2012 Double Precision, Inc.
+See COPYING for distribution information.
+
+-->
+
+<warning>
+  <para>
+    <function>pthread_cancel</function>(3) cannot be used in code that uses
+    &app;. <function>pthread_cancel</function>(3) terminates a thread without
+    unwinding the stack. The stack may contain references to
+    <link linkend="refobj">reference-counted objects</link>, or other objects
+    whose destructors contain critical functionality.
+  </para>
+
+  <para>
+    Using <function>pthread_cancel</function>(3) will result in memory leaks,
+    deadlocks, and other unstable behavior. This is likely to be the case with
+    any <application>C++</application>-based process of non-trivial complexity,
+    not just &app;. The only safe way to forcibly terminate the thread is
+    by throwing an exception that unwinds the entire stack frame.
+    <link linkend="msgdispatcher"><classname>&ns;::msgdispatcherObj</classname></link>
+    provides a convenient message-based thread design pattern which
+    supplies a <methodname>stop</methodname>() method that sends a message to the
+    running thread that causes it to throw an exception and terminate, in an
+    orderly manner.
+  </para>
+</warning>
+<!--
+Local Variables:
+mode: sgml
+sgml-parent-document: ("book.xml" "section" "warning")
+End:
+-->

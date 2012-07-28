@@ -1,0 +1,43 @@
+<!--
+
+Copyright 2012 Double Precision, Inc.
+See COPYING for distribution information.
+
+-->
+<optclass name="propertiescli">
+
+  <option>
+    <name>setvalue</name>
+    <type>std::string</type>
+    <hasvalue />
+    <opt>s</opt>
+    <longopt>set</longopt>
+    <descr>Attach a property file to an executable</descr>
+    <argdescr>filename</argdescr>
+  </option>
+
+  <option>
+    <name>nocheckset</name>
+    <type>bool</type>
+    <opt>n</opt>
+    <longopt>nocheckset</longopt>
+    <descr>Do not check if --set property file exists</descr>
+    <argdescr>filename</argdescr>
+  </option>
+
+  <option>
+    <name>clearvalue</name>
+    <type>bool</type>
+    <opt>c</opt>
+    <longopt>clear</longopt>
+    <descr>Remove property file from an executable</descr>
+    <argdescr>filename</argdescr>
+  </option>
+
+  <arg>
+    <name>executable</name>
+    <repeated />
+  </arg>
+
+  <defaultoptions />
+</optclass>

@@ -1,0 +1,208 @@
+<optclass name="testoptions">
+
+  <!-- The testoptions class is derived from this class. This is optional. -->
+
+  <superclasses>public testoptions_superclass</superclasses>
+
+  <!-- Optional constructorargs defines any arguments to the constructor -->
+
+  <constructorargs>int nbeersArg</constructorargs>
+
+  <!-- 
+  Optional superclassinit goes into the constructor initialization section,
+  It's typically used to construct the superclass.
+  -->
+
+  <superclassinit>testoptions_superclass(nbeersArg)</superclassinit>
+
+  <!-- A bool option -->
+
+  <option>
+    <name>verbose</name>
+    <type>bool</type>
+    <default>false</default>
+    <opt>v</opt>
+    <descr>Enable verbose mode</descr>
+  </option>
+
+  <!-- Another bool option that enables a suboption group -->
+
+  <option>
+    <name>debug</name>
+    <type>bool</type>
+    <default>false</default>
+    <opt>d</opt>
+    <longopt>debug</longopt>
+    <descr>Enable debugging</descr>
+
+    <!-- Suboptions of -d -->
+
+    <group>
+      <option>
+	<name>funcs</name>
+	<type>bool</type>
+	<opt>f</opt>
+	<longopt>funcs</longopt>
+	<descr>Debug function calls</descr>
+      </option>
+
+      <option>
+	<name>io</name>
+	<type>bool</type>
+	<opt>i</opt>
+	<longopt>io</longopt>
+	<descr>Debug input/output</descr>
+      </option>
+
+      <arg>
+	<name>required</name>
+	<required />
+      </arg>
+      <arg>
+	<name>optional</name>
+      </arg>
+    </group>
+  </option>
+
+  <!-- Make -v and -d mutually exclusive -->
+
+  <mutex>
+    <name>verbose</name>
+    <name>debug</name>
+  </mutex>
+
+  <option>
+    <name>outputformat</name>
+    <type>outputFormatClass</type>    
+    <opt>o</opt>
+    <hasvalue />
+    <longopt>output</longopt>
+    <descr>Specify custom output format</descr>
+    <argdescr>initializer</argdescr>
+  </option>
+
+  <!-- column is a bitmask. -->
+
+  <option>
+    <name>columns</name>
+    <type>int</type>
+    <default>0</default>
+
+    <!-- Use an OR operation to turn on individual bits in columns -->
+
+    <combine>
+      <type>or</type>
+      <option>
+	<value>1</value>
+	<longopt>col1</longopt>
+	<descr>Output first column</descr>
+      </option>
+      <option>
+	<value>2</value>
+	<longopt>col2</longopt>
+	<descr>Output second column</descr>
+      </option>
+      <option>
+	<value>3</value>
+	<longopt>col3</longopt>
+	<descr>Output third column</descr>
+      </option>
+
+      <!-- set all bits in the columns value -->
+
+      <option>
+	<value>255</value>
+	<longopt>all</longopt>
+	<descr>Output all columns</descr>
+      </option>
+    </combine>
+
+    <!-- Use all, the use these options to turn off individual bits in columns -->
+
+    <combine>
+      <type>and</type>
+      <option>
+	<value>~1</value>
+	<longopt>not1</longopt>
+	<descr>Suppress column 1 from output</descr>
+      </option>
+      <option>
+	<value>~2</value>
+	<longopt>not2</longopt>
+	<descr>Suppress column 2 from output</descr>
+      </option>
+      <option>
+	<value>~4</value>
+	<longopt>not3</longopt>
+	<descr>Suppress column 3 from output</descr>
+      </option>
+    </combine>
+  </option>
+
+  <!-- A string list option -->
+
+  <option>
+    <name>filename</name>
+    <type>string</type>
+    <longopt>filename</longopt>
+    <list />
+    <hasvalue />
+    <descr>List of input filenames</descr>
+    <argdescr>filename</argdescr>
+  </option>
+
+  <!-- An option that's handled by an external function -->
+
+  <option>
+    <name>setregion</name>
+    <type>function</type>
+    <longopt>region</longopt>
+    <argdescr>name</argdescr>
+    <descr>Specify reporting region</descr>
+  </option>
+
+  <!-- Another option that's handled by an external function -->
+
+  <option>
+    <name>setflag</name>
+    <type>function</type>
+    <longopt>setflag</longopt>
+    <descr>Set debugging flag</descr>
+  </option>
+
+  <option>
+    <name>nbeers</name>
+    <type>int</type>
+    <default>0</default>
+    <longopt>nbeers</longopt>
+
+    <descr>
+      <format>
+	<singular>%1% bottle of beer on the wall</singular>
+	<plural>%1% bottles of beer on the wall</plural>
+
+	<!--
+	    This is an expression, passed as is.
+	    This might be a function in the superclass, for example
+	-->
+	<value>beercount()</value>
+      </format>
+
+      <param>beercount()</param>
+    </descr>
+  </option>
+
+  <!-- Remaining arguments, for descriptive purposes only -->
+
+  <arg>
+    <name>title</name>
+    <required />
+  </arg>
+
+  <arg>
+    <name>author</name>
+    <repeated />
+  </arg>
+
+  <defaultoptions />
+</optclass>

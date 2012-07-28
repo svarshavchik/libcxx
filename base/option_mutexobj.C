@@ -1,0 +1,36 @@
+/*
+** Copyright 2012 Double Precision, Inc.
+** See COPYING for distribution information.
+*/
+
+#include "libcxx_config.h"
+#include "option_mutexobj.H"
+#include "option_valuebaseobj.H"
+
+namespace LIBCXX_NAMESPACE {
+	namespace option {
+#if 0
+	};
+};
+#endif
+
+mutexObj::mutexObj() noexcept: value(false)
+{
+}
+
+mutexObj::~mutexObj() noexcept
+{
+}
+
+mutexObj &mutexObj::add(const ptr<valuebaseObj> &valueRef) noexcept
+{
+	valueRef->value_mutex= this;
+	return *this;
+}
+
+#if 0
+{
+	{
+#endif
+	}
+}

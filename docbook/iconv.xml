@@ -1,0 +1,102 @@
+<!--
+
+Copyright 2012 Double Precision, Inc.
+See COPYING for distribution information.
+
+-->
+
+<chapter id="iconv">
+  <title><citerefentry><refentrytitle>iconv</refentrytitle><manvolnum>3</manvolnum></citerefentry> IO filter</title>
+
+  <para>
+    <ulink url="&link-x--iconviofilter;"><classname>&ns;::iconviofilter</classname></ulink>
+    is an <link linkend="iofilters">IO filter</link>,
+    virtually derived from
+    <classname>&ns;::iofilter&lt;char, char&gt;</classname> that implements the
+    <citerefentry><refentrytitle>iconv</refentrytitle><manvolnum>3</manvolnum></citerefentry>
+    interface as an IO filter.
+  </para>
+
+  <para>
+    The constructor takes two parameters, the input character set and the
+    output character set. The <methodname>filter</methodname>() function consumes
+    available input and/or writes to the available output buffer, performing the
+    requested character conversion:
+  </para>
+
+  <blockquote>
+    <informalexample>
+      <programlisting>
+#include &lt;fstream&gt;
+#include &lt;iterator&gt;
+#include &lt;algorithm&gt;
+#include &lt;&ns;/basicstreambufiofilter.H&gt;
+#include &lt;&ns;/iconviofilter.H&gt;
+
+class utf8toucs4 : public &ns;::basic_istreambufiofilter&lt;char, char&gt;,
+		   public &ns;::iconviofilter,
+		   virtual public &ns;::iofilter&lt;char, char&gt; {
+public:
+	utf8toucs4(std::istream &amp;i)
+		: &ns;::basic_istreambufiofilter&lt;char, char&gt;(i),
+		  &ns;::iconviofilter("UTF-8", "UCS-4BE")
+	{
+	}
+
+	~utf8toucs4() noexcept
+	{
+	}
+
+	void filter()
+	{
+		&ns;::iconviofilter::filter();
+	}
+};
+
+int main(int argc, char **argv)
+{
+	if (argc &gt; 1)
+	{
+		std::vector&lt;unsigned char&gt; buf;
+
+		try
+		{
+			std::ifstream i(argv[1]);
+
+			if (i.is_open())
+			{
+				utf8toucs4 conv(i);
+
+				std::istream i2(&amp;conv);
+
+				std::copy(std::istreambuf_iterator&lt;char&gt;(i2),
+					  std::istreambuf_iterator&lt;char&gt;(),
+					  std::back_insert_iterator
+					  &lt;std::vector&lt;unsigned char&gt; &gt;(buf));
+			}
+		}
+		catch (&ns;::exception &amp;e)
+		{
+			std::cerr &lt;&lt; e &lt;&lt; std::endl;
+			return 1;
+		}
+
+		size_t cnt=0;
+		uint32_t n=0;
+
+		for (std::vector&lt;unsigned char&gt;::const_iterator
+			     b(buf.begin()), e(buf.end()); b != e; ++b)
+		{
+			n= (n &lt;&lt; 8) | *b;
+
+			if ((++cnt % 4) == 0)
+			{
+				std::cout &lt;&lt; n &lt;&lt; std::endl;
+			}
+		}
+	}
+	return 0;
+}</programlisting>
+    </informalexample>
+  </blockquote>
+</chapter>

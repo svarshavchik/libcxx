@@ -1,0 +1,3 @@
+//! C++ library clock type
+
+typedef @sys_clock_t@ sys_clock_t;

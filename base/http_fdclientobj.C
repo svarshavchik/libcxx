@@ -1,0 +1,29 @@
+/*
+** Copyright 2012 Double Precision, Inc.
+** See COPYING for distribution information.
+*/
+
+#include "libcxx_config.h"
+#include "http/fdclientobj.H"
+
+namespace LIBCXX_NAMESPACE {
+	namespace http {
+#if 0
+	};
+};
+#endif
+
+fdclientObj::fdclientObj()
+{
+}
+
+fdclientObj::~fdclientObj() noexcept
+{
+}
+
+#if 0
+{
+	{
+#endif
+	}
+}

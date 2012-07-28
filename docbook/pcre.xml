@@ -1,0 +1,82 @@
+<!--
+
+Copyright 2012 Double Precision, Inc.
+See COPYING for distribution information.
+
+-->
+
+<chapter id="pcre">
+  <title><application>Perl</application>-compatible regular expressions</title>
+
+  <blockquote>
+    <informalexample>
+      <programlisting>
+#include &lt;&ns;/pcre.H&gt;
+
+std::string line;
+
+&ns;::pcre pattern=&ns;::pcre::create("(.*) (.*)");
+
+if (!pattern->match(line))
+    std::cout &lt;&lt; "No match" &lt; &lt; std::endl;
+else
+{
+    if (pattern->subpatterns.size() == 3)
+        process_words(pattern->subpatterns[0],
+                      pattern->subpatterns[1]);
+}</programlisting>
+    </informalexample>
+  </blockquote>
+
+  <para>
+    This is a
+    <application>Perl</application>-compatible regular expression engine,
+    a facade for the <application>pcre</application> library.
+  </para>
+
+  <para>
+    <ulink url="&link-typedef-x-pcre;"><classname>&ns;::pcre</classname></ulink>
+    constructs a <link linkend="refobj">reference to a reference-counted
+      object</link> that specifies a regular expression.
+    The <function>create</function>() constructor throws an exception if
+    the given regular expression's syntax is malformed.
+    <function>create</function>() takes an optional second argument,
+    an <classname>int</classname> of option flags, see
+    <citerefentry><refentrytitle>pcre_compile</refentrytitle><manvolnum>3</manvolnum></citerefentry>
+    for a list of available option flags.
+  </para>
+
+  <para>
+    Once compiled, <methodname>match</methodname>() checks if the string
+    matches a regular expression. <methodname>match</methodname>() also
+    takes an optional second argument,
+    an <classname>int</classname> of option flags,
+    <citerefentry><refentrytitle>pcre_exec</refentrytitle><manvolnum>3</manvolnum></citerefentry>
+    for a list of available option flags.
+  </para>
+
+  <para>
+    Upon a succesful match, the part of the string that matched each
+    subpattern, if any, in the regular expression can be found in the
+    <varname>subpatterns</varname> vector.
+    <varname>subpatterns[0]</varname> is always the entire matched string,
+    <varname>subpatterns[1]</varname> is the first subpattern, and so on.
+  </para>
+
+  <note>
+    <para>
+      Although, once constructed, the reference-counted object's
+      <methodname>match</methodname>() can be invoked by multiple threads,
+      this object is not directly thread safe. It's up to you to make the
+      necessary arrangement for invoking
+      <methodname>match</methodname>(), and accessing
+      <varname>subpatterns</varname> by one thread at a time.
+    </para>
+  </note>
+</chapter>
+<!--
+Local Variables:
+mode: sgml
+sgml-parent-document: ("book.xml" "book" "chapter")
+End:
+-->

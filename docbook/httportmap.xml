@@ -1,0 +1,422 @@
+<!--
+
+Copyright 2012 Double Precision, Inc.
+See COPYING for distribution information.
+
+-->
+
+<part id="httportmap">
+  <title><application>httportmap</application></title>
+  <partintro id="portmapintro">
+    <title>Introduction</title>
+
+    <para>
+      <application>httportmap</application> implements a similar
+      portmapper functionality
+      as the traditional system <application>portmap</application> daemon.
+      A portmapper enables applications to
+      listen on any available port number instead
+      of a specific, assigned port.
+    </para>
+
+    <para>
+      As a brief overview, a portmapper allows known applications to listen on
+      any available port, instead of assigning a dedicated port to each
+      application. All applications have an assigned name. An application
+      instance starts listening on any available port, and simply registers its
+      name and the port that it's listening on, with the portmapper.
+      An application that wants to to connect to another application's port
+      asks the portmapper which port the other application listens on, then
+      connects to it.
+    </para>
+
+    <para>
+      <application>httportmap</application> is an improvement over the
+      traditional system portmapper, that dates back to SunOS 2.0,
+      in several ways:
+    </para>
+
+    <itemizedlist>
+      <listitem>
+	<para>
+	  <application>httportmap</application> uses <acronym>HTTP</acronym>
+	  for its implementation, instead of a binary RPC-like mechanism.
+	  To see a list of applications running on the server, open
+	  <quote><literal>http://server/portmap</literal></quote> in a
+	  modern browser that supports <acronym>XML</acronym> stylesheets.
+	</para>
+      </listitem>
+
+      <listitem>
+	<para>
+	  Application names use the Internet domain naming scheme for their
+	  namespace. The traditional portmapper requires applications to be
+	  officially assigned a numerical identifier that the application is
+	  known by.
+	  With httportmap, applications do not require an identifier assignment,
+	  or an explicit addition to a system configuration file. By custom,
+	  applications register with
+	  <application>httportmap</application> using a domain name, that may
+	  take the form of a hostname or an email address. Applications use
+	  the application's owner Internet domain namespace, for identification.
+	</para>
+      </listitem>
+
+      <listitem>
+	<para>
+	  Applications may use standard port numbers, or
+	  <literal>AF_UNIX</literal> domain pathnames for applications running
+	  on the same host.
+	</para>
+      </listitem>
+
+      <listitem>
+	<para>
+	  Applications may selectively choose exclusivity. Registering the same
+	  application more than once may be allowed or disallowed; it's the
+	  application's choice.
+	  Exclusivity is on a per-userid basis. An application
+	  registers both its name and its system userid with the portmapper,
+	  and exclusivity is enforced on a per-userid level. Different userids
+	  may register the same exclusive service, separately.
+	</para>
+      </listitem>
+    </itemizedlist>
+
+    <section id="httportmap_nofork">
+      <title><application>httportmap</application>'s limitations</title>
+
+      <para>
+	There's an internal socket connection between the application and the
+	portmapper service. The connection gets established when the first
+	portmapper object gets instantiated, as described later. The portmapper
+	service saves each connecting application's userid and groupid
+	when the application connects to the portmapper, and that determines the
+	service exclusivity. A process's changed userid does not get
+	reflected by any services that get registered subsequently,
+	the portmapper continues to use the process's original userid.
+      </para>
+
+      <para>
+	Additionally, with one exception,
+	an application that uses <function>fork</function>() cannot use the
+	portmapper for several reasons. &app; uses an internal
+	socket connection to the portmapper, which gets
+	inherited by a forked process, and multiple processes attempting to use
+	the same internal connection does not work.
+      </para>
+
+      <para>
+	Although it's theoretically possible for multiple processes to share
+	the same internal portmapper connection, this is impractical.
+	Each individual portmapper object's destructor sends a message to
+	the portmapper, deregistering any services that the object had
+	registered, so any kind of sharing must include controlled scope and
+	lifetime of each process's individual portmapper object.
+      </para>
+
+      <para>
+	Additionally, the portmapper maintains an association between
+	each process ID, and its executable pathname, as described in
+	<xref linkend="httportmap_pid2exe" />.
+	If one of the application's processes terminates, and another process
+	gets the same process id, and registers its own, different
+	executable pathname,
+	the portmapper disables the original registration.
+      </para>
+
+      <para>
+	Exception: forking before the first portmapper object instantiation
+	is fine.
+      </para>
+    </section>
+  </partintro>
+
+  <chapter id="httpportmap_reg">
+    <title>Registering an application</title>
+
+    <blockquote>
+      <informalexample>
+	<programlisting>
+#include &lt;&ns;/fd.H&gt;
+#include &lt;&ns;/httportmap.H&gt;
+
+&ns;::fd socket(&ns;::fd::base::socket(AF_INET6, SOCK_STREAM));
+
+socket-&gt;bind(&ns;::sockaddr::create(AF_INET6, "", 0));
+
+socket-&gt;listen();
+&ns;::httportmap portmapper(&ns;::httportmap::create());
+
+if (!portmapper-&gt;reg("test.example.com", socket,
+                        &ns;::httportmap::base::pm_exclusive))
+{
+    std::cerr &lt;&lt; "Application already started"  &lt;&lt; std::endl;
+    exit(1);
+}</programlisting>
+      </informalexample>
+    </blockquote>
+
+    <para>
+      This example creates and listens on an <literal>AF_INET6</literal>
+      socket (on Linux, <literal>AF_INET6</literal> sockets, by default, also
+      accept IPv4 connections).
+      A default
+      <ulink url="&link-typedef-x-httportmap;"><classname>&ns;::httportmap</classname></ulink>
+      instance represents a connection to a portmapper daemon on the same server.
+      <methodname>reg</methodname>() registers the listening socket with the
+      portmapper under the application name of <quote>test.example.com</quote>.
+    </para>
+
+    <para>
+      Application names are arbitrary labels, however they may not contain any
+      control characters, and they should be valid domain names or email
+      addresses, and applications should use only Internet domains that they
+      own. This way, the application name domain is globally unique and
+      different applications names will not clash.
+      This implementation reserves application names ending with
+      <quote><literal>.libcxx</literal></quote> for internal use.
+    </para>
+
+    <para>
+      All applications are registered by their name <emphasis>AND</emphasis>
+      the application's userid. The third parameter to
+      <methodname>reg</methodname>() indicates whether the application registration
+      is exclusive. If <literal>true</literal>, the portmapper will not
+      register the same application name and userid more than once.
+      The portmapper accepts the same application name registered by
+      different userids. If <literal>false</literal>, the same userid can
+      register the same application name more than once.
+    </para>
+
+    <para>
+      Multiple services may be registered through the same portmapper object.
+      The port remains registered as long as the portmapper object remains in
+      scope. The portmapper object maintains an open socket connection with the
+      local portmapper daemon. When the process terminates, or when the
+      portmapper object goes out of scope and gets destroyed, all services
+      registered by the object gets deregistered.
+    </para>
+
+    <note>
+      <para>
+	The default portmapper configuration limits each process to
+	ten registered services, at a time.
+      </para>
+    </note>
+  </chapter>
+
+  <chapter id="httpportmap_connect">
+    <title>Connecting to applications</title>
+
+    <blockquote>
+      <informalexample>
+	<programlisting>
+#include &lt;&ns;/fd.H&gt;
+#include &lt;&ns;/httportmap.H&gt;
+#include &lt;unistd.H&gt;
+
+&ns;::httportmap portmapper(&ns;::httportmap::create());
+
+&ns;::fd socket=portmapper-&gt;connect("test.example.com", getuid());</programlisting>
+      </informalexample>
+    </blockquote>
+
+    <para>
+      This example creates a socket connection to an application socket named
+      <quote>test.example.com</quote> running under the same userid.
+      If there are more than one sockets registered under the same name and
+      userid (if this application name is not exclusive), a connection gets
+      established to one of them, at random.
+    </para>
+
+    <blockquote>
+      <informalexample>
+	<programlisting>
+&ns;::fd socket=portmapper-&gt;connect_root("test.example.com");</programlisting>
+      </informalexample>
+    </blockquote>
+
+    <para>
+      <methodname>connect_root</methodname>() passes 0 for the userid parameter
+      to <methodname>connect</methodname>().
+      Userid 0 is <literal>root</literal>, and this example expects a root
+      process on the same server to have registered this application label,
+      which is connected to.
+    </para>
+
+    <blockquote>
+      <informalexample>
+	<programlisting>
+&ns;::fd socket=portmapper-&gt;connect_any("test.example.com");</programlisting>
+      </informalexample>
+    </blockquote>
+
+    <para>
+      <methodname>connect_any</methodname>() connects to an application socket created
+      by a process with any userid.
+    </para>
+
+    <note>
+      <para>
+	Applications are responsible for implementing their own appropriate
+	security. Any application can connect to any port, and the portmapper
+	service will not prevent applications from connecting to application
+	services running as a different userid.
+      </para>
+    </note>
+
+    <blockquote>
+      <informalexample>
+	<programlisting>
+#include &lt;&ns;/fd.H&gt;
+#include &lt;&ns;/httportmap.H&gt;
+#include &lt;unistd.H&gt;
+
+&ns;::httportmap portmapper(&ns;::httportmap::create("www.domain.com"));
+
+&ns;::fd socket=portmapper-&gt;connect("test.example.com", 0);</programlisting>
+      </informalexample>
+    </blockquote>
+
+    <para>
+      This example creates a connection to a portmapper running on a different
+      server, <literal>www.domain.com</literal>, and connects to an instance of
+      <quote><literal>test.example.com</literal></quote> running on that server
+      as root,
+      instead of the same server as this application.
+    </para>
+  </chapter>
+
+  <chapter id="httportmap_other">
+    <title>Other portmapper functionality</title>
+
+    <para>
+      The portmapper object has a <methodname>dereg</methodname>()
+      method that undoes
+      a <methodname>reg</methodname>() - deregisters a specific port or ports with
+      the portmapper daemon, while keeping any other registered ports.
+    </para>
+    <para>
+      <methodname>reg</methodname>(), <methodname>dereg</methodname>(), and
+      <methodname>connect</methodname>() methods also take an additional optional
+      parameter, a
+      <link linkend="fdterminator">terminator file descriptor</link>. If the
+      terminator file descriptor becomes readable, an exception gets thrown,
+      and the connection to the portmapper daemon is closed, all registered
+      ports get deregistered.
+    </para>
+
+    <section id="httportmap_pid2exe">
+      <title>Advertising executable's pathname</title>
+
+      <para>
+	On Linux, the
+	<filename>/proc/<replaceable>pid</replaceable>/exe</filename>
+	symlink gives the
+	name of the executable that started the process.
+	On Linux, reading a process's executable pathname succeeds
+	only if both processes have the same userid.
+	The portmapper provides a way for cooperating processes to make
+	their executable's name visible to other processes.
+      </para>
+
+      <para>
+	The third parameter
+	to <methodname>reg()</methodname> is a set of bitwise-or flags one of which
+	is <literal>&ns;::httportmap::base::pm_public</literal>. If set, the
+	process's executable pathname gets included as part of the registered
+	service.
+	A low-level portmapper method, <methodname>list</methodname>(), returns a list
+	of services registered with the portmapper, include the executable
+	pathname, if made public.
+      </para>
+
+      <para>
+	This is the low-level approach. The high level approach uses
+	<methodname>regpid2exe</methodname>():
+      </para>
+
+      <blockquote>
+	<informalexample>
+	  <programlisting>
+#include &lt;&ns;/httportmap.H&gt;
+
+&ns;::httportmap portmapper(&ns;::httportmap::create());
+
+portmapper-&gt;regpid2exe();
+
+// ...
+pid_t pid;
+
+// ...
+
+std::string path=portmapper->pid2exe(pid);</programlisting>
+	</informalexample>
+      </blockquote>
+
+      <para>
+	<methodname>regpid2exe</methodname>() advertises this process's executable
+	pathname through the portmapper. <methodname>pid2exe</methodname>() returns
+	another process's executable pathname, if the other process
+	called <methodname>regpid2exe</methodname>() previously. An empty string gets
+	returned if the process could not be found, or did not call
+	<methodname>regpid2exe</methodname>().
+      </para>
+
+      <para>
+	There's also a <methodname>deregpid2exe</methodname>() that deregisters the
+	reserved service that announces the executable pathname.
+	Like other portmapper methods, these three functions also take an optional
+	timeout file descriptor parameter; although that since they always connect
+	to a portmapper instance running on the same machine, the timeout file
+	descriptor offers little practical purpose.
+      </para>
+
+      <note>
+	<para>
+	  <methodname>regpid2exe</methodname>() counts towards the limit on the
+	  maximum number of registered services, with the portmapper,
+	  from the same process.
+	</para>
+      </note>
+
+      <note>
+	<para>
+	  Advertised executable pathnames are considered to be supplementary
+	  metadata, and should not be exclusively relied upon, for authentication.
+	  For example, after reading an executable's process id, the original
+	  process can fork, with the parent exiting, and subsequently the
+	  process id gets recycled for another process.
+	  When a process creates a connection with the portmapper, if the
+	  portmapper has a registered entry ostensibly from the same process id,
+	  but a different executable name, the portmapper removes the other
+	  process's executable name.
+	</para>
+
+	<para>
+	  Announcing and advertising a pathname provides a means for identifying
+	  and connecting to applications. In situations that involve some kind of
+	  authentication, it should be done by
+	  other means, like sending userid/groupid credentials over filesystem
+	  domain sockets.
+	</para>
+
+	<para>
+	  If a process's executable binary gets deleted, but the process
+	  still runs, its executable pathname no longer exists.
+	  Long-running server daemons should connect to the portmapper and
+	  advertise their pathname promptly after starting, on systems that use
+	  prelink, which tends to overwrite binaries, periodically.
+	</para>
+      </note>
+    </section>
+  </chapter>
+</part>
+
+<!--
+Local Variables:
+mode: sgml
+sgml-parent-document: ("book.xml" "book" "part")
+End:
+-->

@@ -1,0 +1,22 @@
+1.2
+Initial int value: 4
+Initial str value: foo
+Initial int2 value: 5
+int value: 5
+str value: bar
+int2 value: 6
+bool value: 0
+bool value: 1
+bool value: 0
+bool value: 1
+bool value: 0
+1 hour, 2 minutes
+2 months, 1 week
+4096 bytes
+4.0 Kb
+4916 bytes
+4.8 Kb
+[foo=bar]
+[foo::bar=foo bar]
+[foo::bar=\ foo bar\ ]
+[foo::bar=foo\nbar\\foo\#bar\nfoo\tbar\13foo]

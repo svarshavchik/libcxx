@@ -1,0 +1,96 @@
+/*
+** Copyright 2012 Double Precision, Inc.
+** See COPYING for distribution information.
+*/
+
+#include "libcxx_config.h"
+#include "option_groupdefinitionobj.H"
+#include "option_parser.H"
+#include <string>
+#include <sstream>
+#include <iomanip>
+#include <algorithm>
+#include <vector>
+#include <cwctype>
+#include <cwchar>
+
+namespace LIBCXX_NAMESPACE {
+	namespace option {
+#if 0
+	};
+};
+#endif
+groupdefinitionObj::groupdefinitionObj(ptr<valuebaseObj> valueArg,
+				       wchar_t shortnameArg,
+				       std::wstring longnameArg,
+				       list groupOptionsArg,
+				       std::wstring descriptionArg,
+				       std::wstring argDescriptionArg) noexcept
+	: definitionObj(valueArg, shortnameArg, longnameArg, 0,
+			descriptionArg, argDescriptionArg),
+	  groupOptions(groupOptionsArg)
+{
+}
+
+groupdefinitionObj::~groupdefinitionObj() noexcept
+{
+}
+
+int groupdefinitionObj::set(parserObj &parserArg) const
+{
+	int rc=value->pubset();
+
+	if (rc == 0)
+		parserArg.current_options=groupOptions;
+
+	return rc;
+}
+
+int groupdefinitionObj::set(parserObj &parserArg,
+			    std::string valueArg,
+			    const const_locale &localeArg)
+	const
+{
+	return option::parser::base::err_invalidoption; // Values not allowed
+}
+
+void groupdefinitionObj::reset()
+{
+	definitionObj::reset();
+	groupOptions->reset();
+}
+
+bool groupdefinitionObj::multiple() const noexcept
+{
+	return false;
+}
+
+bool groupdefinitionObj::usage(std::wostream &o,
+			       size_t indentlevel,
+			       size_t width) const
+{
+	std::wostringstream tmpO;
+
+	definitionObj::usage(tmpO, indentlevel, width);
+
+	o << tmpO.str() << std::endl;
+
+	groupOptions->usage_internal(o, L"", width, indentlevel+2);
+
+	return true;
+}
+
+void groupdefinitionObj::help(std::wostream &o,
+			      size_t indentlevel,
+			      size_t width) const
+{
+	definitionObj::help(o, indentlevel, width);
+	groupOptions->help_internal(o, width, indentlevel+2);
+}
+
+#if 0
+{
+	{
+#endif
+	}
+}

@@ -1,0 +1,14 @@
+Verbose: 1
+Debug: 1
+Mutually exclusive option: -d
+Output format: foo
+Invalid option: --funcs
+Debug: 1
+    funcs: 1
+setregion: x
+setregion: y
+setflag called
+setflag called
+Arg: foo
+Arg: bar
+Invalid option: --setflag=false

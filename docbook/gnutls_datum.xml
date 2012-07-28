@@ -1,0 +1,49 @@
+<!--
+
+Copyright 2012 Double Precision, Inc.
+See COPYING for distribution information.
+
+-->
+
+<chapter id="gnutls_datum">
+  <title>A wrapper for <classname>gnutls_datum_t</classname></title>
+
+  <para>
+    Many <application>GnuTLS</application> functions return opaque binary blobs
+    represented by a <classname>gnutls_datum_t</classname> handle.
+    A memory buffer holds the blobs' contents, which must be deallocated when
+    the blob is no longer needed.
+    These binary blobs become a
+    <ulink url="&link-typedef-x--gnutls-datum-t;"><classname>&ns;::gnutls::datum_t</classname></ulink>
+    reference, a reference to a
+    <link linkend="refobj">reference-counted object</link> which may be freely
+    passed around. When the last
+    <classname>&ns;::gnutls::datum_t</classname> reference to the underlying blob
+    goes out of scope, the underlying object gets
+    destroyed and the underlying memory buffer gets removed.
+  </para>
+
+  <blockquote>
+    <informalexample>
+      <programlisting>
+#include &lt;&ns;/gnutls/x509_privkey.H&gt;
+#include &lt;&ns;/gnutls/datumwrapper.H&gt;
+
+&ns;::gnutls::x509::privkey pk(&ns;::gnutls::x509::privkey::create());
+
+pk->generate(GNUTLS_PK_RSA, 1024);
+pk->fix();
+
+&ns;::gnutls::datum_t pkd(pk-&gt;export_pkcs(GNUTLS_X509_FMT_PEM);
+pkd-&gt;save("privkey.pem");</programlisting>
+    </informalexample>
+  </blockquote>
+
+  <para>
+    <classname>&ns;::gnutls::datum_t</classname> is just a subclass of a
+    <link linkend="vector"><classname>&ns;::vector</classname></link>.
+    Its typical usage includes storing <acronym>PEM</acronym>-formatted objects
+    and <classname>&ns;::vector</classname> provides convenient methods to save and load
+    the objects from files.
+  </para>
+</chapter>

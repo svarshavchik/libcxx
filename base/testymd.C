@@ -1,0 +1,366 @@
+/*
+** Copyright 2012 Double Precision, Inc.
+** See COPYING for distribution information.
+*/
+
+#include "libcxx_config.h"
+#include "ymd.H"
+#include "hms.H"
+#include "tostring.H"
+#include "tostring.H"
+
+#include <iostream>
+
+#define VERIFY(cond) do {						\
+		if (!(cond)) throw EXCEPTION("Assertion failed: " #cond); \
+	} while(0)
+
+#define VERIFYFAIL(cond) do {						\
+	bool fail=false;						\
+	try {								\
+		(cond);							\
+	} catch (LIBCXX_NAMESPACE::exception &e)					\
+	{								\
+		fail=true;						\
+	}								\
+	if (!fail)							\
+		throw EXCEPTION("Assertion failure: " #cond);		\
+	} while(0)
+
+static void CHECK_DATEDIFF_S(int y1, int m1, int d1,
+			     int y2, int m2, int d2,
+			     int diff)
+{
+	VERIFY( LIBCXX_NAMESPACE::ymd(y1,m1,d1).jd() + diff == LIBCXX_NAMESPACE::ymd(y2,m2,d2).jd());
+	VERIFY( LIBCXX_NAMESPACE::ymd(y1,m1,d1)+diff == LIBCXX_NAMESPACE::ymd(y2,m2,d2));
+	VERIFY( LIBCXX_NAMESPACE::ymd(y1,m1,d1)+(2000+diff)-2000 == LIBCXX_NAMESPACE::ymd(y2,m2,d2));
+	VERIFY( LIBCXX_NAMESPACE::ymd(y1,m1,d1)-(2000-diff)+2000 == LIBCXX_NAMESPACE::ymd(y2,m2,d2));
+	VERIFY( LIBCXX_NAMESPACE::ymd(y2,m2,d2)-LIBCXX_NAMESPACE::ymd(y1,m1,d1) == diff);
+}
+
+static void CHECK_DATEDIFF(int y1, int m1, int d1, int y2, int m2, int d2,
+			   int diff)
+{
+	CHECK_DATEDIFF_S(y1,m1,d1,y2,m2,d2,diff);
+	CHECK_DATEDIFF_S(y2,m2,d2,y1,m1,d1,-(diff));
+}
+
+static void CHECK_LY(int y)
+{
+	CHECK_DATEDIFF(y-1,12,31,y,1,1,1);
+	CHECK_DATEDIFF(y,2,28,y,2,29,1);
+	CHECK_DATEDIFF(y,2,29,y,3,1,1);
+	CHECK_DATEDIFF(y,2,28,y,3,1,2);
+	CHECK_DATEDIFF(y,12,31,y+1,1,1,1);
+}
+
+static void CHECK_NLY(int y)
+{
+	CHECK_DATEDIFF(y-1,12,31,y,1,1,1);
+	CHECK_DATEDIFF(y,2,28,y,3,1,1);
+	CHECK_DATEDIFF(y,12,31,y+1,1,1,1);
+}
+
+class Testymd {
+
+public:
+
+	static void test();
+
+	static void testdateput();
+};
+
+void Testymd::test()
+{
+	CHECK_DATEDIFF(1752,9,2,1752,9,14,1);
+
+	CHECK_NLY(1900);
+	CHECK_NLY(1901);
+	CHECK_NLY(1902);
+	CHECK_NLY(1903);
+	CHECK_LY (1904);
+
+	CHECK_LY(2000);
+	CHECK_NLY(2001);
+	CHECK_NLY(2002);
+	CHECK_NLY(2003);
+	CHECK_LY (2004);
+
+	CHECK_LY(1600);
+	CHECK_NLY(1601);
+	CHECK_NLY(1602);
+	CHECK_NLY(1603);
+	CHECK_LY(1604);
+		 
+	CHECK_LY(1700);
+	CHECK_NLY(1701);
+	CHECK_NLY(1702);
+	CHECK_NLY(1703);
+	CHECK_LY(1704);
+
+	VERIFY( LIBCXX_NAMESPACE::ymd(1969,8,3) + (LIBCXX_NAMESPACE::ymd(2009,5,18)-LIBCXX_NAMESPACE::ymd(1969,8,3))
+		== LIBCXX_NAMESPACE::ymd(2009,5,18));
+
+	VERIFYFAIL( LIBCXX_NAMESPACE::ymd(1,1,1)-1);
+
+	VERIFYFAIL( LIBCXX_NAMESPACE::ymd(1,1,1)-1000);
+
+	VERIFYFAIL( LIBCXX_NAMESPACE::ymd(9999,12,31)+1);
+
+	VERIFYFAIL( LIBCXX_NAMESPACE::ymd(9999,12,31)+0x7FFFFFFF);
+
+	VERIFY( LIBCXX_NAMESPACE::ymd(1, 1, 1).getDayOfWeek() == 6);
+
+	VERIFY( LIBCXX_NAMESPACE::ymd(1752, 9, 2).getDayOfWeek() == 3);
+
+	VERIFY( LIBCXX_NAMESPACE::ymd(1752, 9, 14).getDayOfWeek() == 4);
+
+	VERIFY( LIBCXX_NAMESPACE::ymd(1905, 1, 1).getDayOfWeek() == 0);
+
+	VERIFY( LIBCXX_NAMESPACE::ymd(1970, 1, 1).getDayOfWeek() == 4);
+
+	VERIFY( LIBCXX_NAMESPACE::ymd(2009, 5, 17).getDayOfWeek() == 0);
+
+	VERIFY( LIBCXX_NAMESPACE::ymd(2009, 1, 1) + LIBCXX_NAMESPACE::ymd::months(12) ==
+		LIBCXX_NAMESPACE::ymd(2010, 1, 1));
+
+	VERIFY( LIBCXX_NAMESPACE::ymd(2010, 1, 1) + LIBCXX_NAMESPACE::ymd::months(-12) ==
+		LIBCXX_NAMESPACE::ymd(2009, 1, 1));
+
+	VERIFY( LIBCXX_NAMESPACE::ymd(2009, 1, 1) + LIBCXX_NAMESPACE::ymd::years(1) ==
+		LIBCXX_NAMESPACE::ymd(2010, 1, 1));
+
+	VERIFY( LIBCXX_NAMESPACE::ymd(2010, 1, 1) + LIBCXX_NAMESPACE::ymd::years(-1) ==
+		LIBCXX_NAMESPACE::ymd(2009, 1, 1));
+
+	VERIFY( LIBCXX_NAMESPACE::ymd(2007, 2, 28) + LIBCXX_NAMESPACE::ymd::months(1) ==
+		LIBCXX_NAMESPACE::ymd(2007, 3, 31));
+
+	VERIFY( LIBCXX_NAMESPACE::ymd(2007, 2, 28) + LIBCXX_NAMESPACE::ymd::years(1) ==
+		LIBCXX_NAMESPACE::ymd(2008, 2, 29));
+
+	VERIFY( LIBCXX_NAMESPACE::ymd(2007, 3, 31) - LIBCXX_NAMESPACE::ymd::months(1) ==
+		LIBCXX_NAMESPACE::ymd(2007, 2, 28));
+
+	VERIFY( LIBCXX_NAMESPACE::ymd(2007, 3, 30) - LIBCXX_NAMESPACE::ymd::months(1) ==
+		LIBCXX_NAMESPACE::ymd(2007, 2, 28));
+
+	VERIFY( LIBCXX_NAMESPACE::ymd(1752, 10, 10) - LIBCXX_NAMESPACE::ymd::months(1) ==
+		LIBCXX_NAMESPACE::ymd(1752, 9, 2));
+
+	VERIFY( LIBCXX_NAMESPACE::ymd(1752, 8, 10) + LIBCXX_NAMESPACE::ymd::months(1) ==
+		LIBCXX_NAMESPACE::ymd(1752, 9, 14));
+
+	VERIFYFAIL(LIBCXX_NAMESPACE::hms(  ({LIBCXX_NAMESPACE::ymd::interval i;
+					i.weeks=0x7FFFFFFF / 7; i.days=14; i; })));
+}
+
+void Testymd::testdateput()
+{
+	LIBCXX_NAMESPACE::locale en_us(LIBCXX_NAMESPACE::locale::create("en_US.UTF-8"));
+
+	LIBCXX_NAMESPACE::ymd ymd(2009,1,1);
+
+	std::cout << ymd.formatDate("std=%C %d %F %j %m %u %w %y %Y %a %A %b %B%n"
+				    "alt%%=%EC %Od %Om %Ou %Ow %Ey %EY",
+				    en_us) << std::endl;
+
+	std::cout << (std::string)ymd << std::endl;
+	std::cout << LIBCXX_NAMESPACE::tostring((std::wstring)ymd,
+					      en_us) << std::endl;
+
+	std::cout <<
+		ymd.formatDate(std::string("std=%C %d %F %j %m %u %w %y %Y %a %A %b %B%n"
+					   "alt%%=%EC %Od %Om %Ou %Ow %Ey %EY"),
+			       en_us) << std::endl;
+
+	std::wostringstream w1, w2;
+
+	w1 << ymd.formatDate(L"std=%C %d %F %j %m %u %w %y %Y %a %A %b %B%n"
+			     "alt%%=%EC %Od %Om %Ou %Ow %Ey %EY",
+			     en_us) << std::endl;
+
+	w2 << ymd.formatDate(std::wstring(L"std=%C %d %F %j %m %u %w %y %Y %a %A %b %B%n"
+					  "alt%%=%EC %Od %Om %Ou %Ow %Ey %EY"),
+			     en_us) << std::endl;
+
+	std::cout << LIBCXX_NAMESPACE::tostring(w1.str(), en_us)
+		  << LIBCXX_NAMESPACE::tostring(w2.str(), en_us);
+	std::cout << LIBCXX_NAMESPACE::ymd(2009,1,1).formatDate("%U%n", en_us);
+	std::cout << LIBCXX_NAMESPACE::ymd(2009,1,3).formatDate("%U%n", en_us);
+	std::cout << LIBCXX_NAMESPACE::ymd(2009,1,4).formatDate("%U%n", en_us);
+	std::cout << LIBCXX_NAMESPACE::ymd(2009,1,1).formatDate("%g %G-W%V-%u%n", en_us);
+	std::cout << LIBCXX_NAMESPACE::ymd(2008,1,1).formatDate("%g %G-W%V-%u%n", en_us);
+	VERIFY(LIBCXX_NAMESPACE::ymd(LIBCXX_NAMESPACE::ymd::iso8601(LIBCXX_NAMESPACE::ymd(2009,1,1))) == LIBCXX_NAMESPACE::ymd(2009,1,1));
+	VERIFY(LIBCXX_NAMESPACE::ymd(LIBCXX_NAMESPACE::ymd::iso8601(LIBCXX_NAMESPACE::ymd(2008,1,1))) == LIBCXX_NAMESPACE::ymd(2008,1,1));
+
+	static const int isochk[][7]={
+		{2005,1,1,2004,53,6},
+		{2005,1,2,2004,53,7},
+		{2005,12,31,2005,52,6},
+		{2007,1,1,2007,1,1},
+		{2007,12,30,2007,52,7},
+		{2007,12,31,2008,1,1},
+		{2008,1,1,2008,1,2},
+		{2008,12,29,2009,1,1},
+		{2008,12,31,2009,1,3},
+		{2009,1,1,2009,1,4},
+		{2009,12,31,2009,53,4},
+		{2010,1,3,2009,53,7},
+
+		{2009,12,31,2009,53,4},
+		{2010,1,1,2009,53,5},
+		{2010,1,2,2009,53,6},
+		{2010,1,3,2009,53,7},
+		{2010,1,4,2010,1,1},
+		
+		{2008,12,28,2008,52,7},
+		{2008,12,29,2009,1,1},
+		{2008,12,30,2009,1,2},
+		{2008,12,31,2009,1,3},
+		{2009,1,1,2009,1,4}};
+
+
+	for (size_t i=0; i<sizeof(isochk)/sizeof(isochk[0]); i++)
+	{
+		LIBCXX_NAMESPACE::ymd::iso8601 iso8601(LIBCXX_NAMESPACE::ymd(isochk[i][0],
+					       isochk[i][1],
+					       isochk[i][2]));
+
+		if (iso8601.getYear() != isochk[i][3] ||
+		    iso8601.getWeek() != isochk[i][4] ||
+		    iso8601.getDayOfWeek() != isochk[i][5])
+		{
+			std::ostringstream errmsg;
+
+			errmsg << "ISO 8601 check failed for "
+			       << isochk[i][0] << "-"
+			       << isochk[i][1] << "-"
+			       << isochk[i][2];
+
+			throw EXCEPTION(errmsg.str());
+		}
+	}
+
+	LIBCXX_NAMESPACE::ymd::parser<char> cp;
+	LIBCXX_NAMESPACE::ymd::parser<wchar_t> wcp;
+
+	std::cout << (std::string)cp.parse("3-aug-2009") << std::endl;
+	std::cout << (std::string)wcp.parse(L"august 3, 2009") << std::endl;
+	std::cout << (std::string)LIBCXX_NAMESPACE::ymd("3/8/2009", false, en_us) << std::endl;
+	std::cout << (std::string)LIBCXX_NAMESPACE::ymd(L"2009-8-3", false) << std::endl;
+	std::cout << (std::string)wcp.mdy().parse(L"08/03/2009") << std::endl;
+	std::cout << (std::string)LIBCXX_NAMESPACE::ymd(std::string("2009-8-3"), false, en_us)
+		  << std::endl;
+	std::cout << (std::string)LIBCXX_NAMESPACE::ymd(std::wstring(L"2009-W2-3"))
+		  << std::endl;
+	std::cout << (std::string)LIBCXX_NAMESPACE::ymd::iso8601(cp.parse("2009-W2-3")) << std::endl;
+}
+
+int main(int argc, char **argv)
+{
+	alarm(30);
+
+	try {
+		LIBCXX_NAMESPACE::locale::create("en_US.UTF-8")->global();
+		Testymd::testdateput();
+		Testymd::test();
+
+		LIBCXX_NAMESPACE::ymd::interval
+			inter("years 4, 1 month, 2 w, 3 days");
+
+		std::cout << inter.toString<char>(LIBCXX_NAMESPACE::locale::create("en_US.UTF-8"))
+			  << std::endl;
+		std::wstring s(inter);
+
+		LIBCXX_NAMESPACE::hms hms("hour 1, 59 minutes, 70 seconds");
+
+		std::cout << hms.verboseString<char>() << std::endl;
+
+		std::cout << LIBCXX_NAMESPACE::hms(hms.verboseString<wchar_t>())
+			.verboseString<char>()
+			  << std::endl;
+
+		std::cout << LIBCXX_NAMESPACE::hms("10 minute -7 seconds").verboseString<char>()
+			  << std::endl;
+
+		std::cout << LIBCXX_NAMESPACE::hms("10 minute -77 seconds").verboseString<char>()
+			  << std::endl;
+
+		std::cout << LIBCXX_NAMESPACE::hms("-10 minute -7 seconds").verboseString<char>()
+			  << std::endl;
+		std::cout << LIBCXX_NAMESPACE::hms("67").verboseString<char>()
+			  << std::endl;
+
+		std::cout << LIBCXX_NAMESPACE::hms("00:01").verboseString<char>()
+			  << std::endl;
+		std::cout << LIBCXX_NAMESPACE::hms("04:01:30").verboseString<char>()
+			  << std::endl;
+
+		std::cout << (LIBCXX_NAMESPACE::hms("00:58:30")+
+			      LIBCXX_NAMESPACE::hms("00:01:40")).verboseString<char>()
+			  << std::endl;
+
+		std::cout << (LIBCXX_NAMESPACE::hms("00:58:30")-
+			      LIBCXX_NAMESPACE::hms("00:01:40")).verboseString<char>()
+			  << std::endl;
+		std::cout << (LIBCXX_NAMESPACE::hms("00:58:30")-
+			      LIBCXX_NAMESPACE::hms("01:00:40")).verboseString<char>()
+			  << std::endl;
+		std::cout << LIBCXX_NAMESPACE::hms("1h1m1s").seconds()
+			  << std::endl;
+
+		std::cout << 
+			LIBCXX_NAMESPACE::hms(LIBCXX_NAMESPACE::ymd::interval("1 week 2 days")).verboseString<char>()
+			  << std::endl;
+		std::cout << LIBCXX_NAMESPACE::hms("1 week 2 days -1 hour").verboseString<char>()
+			  << std::endl;
+
+		LIBCXX_NAMESPACE::hms testTime("19:23:30");
+
+		testTime.toString(std::ostreambuf_iterator<char>
+				  (std::cout.rdbuf()),
+				  LIBCXX_NAMESPACE::locale::base::global(),
+				  std::string("%l:%M:%S %p"));
+		std::cout << std::endl;
+
+		std::cout << testTime.hhmmss(std::string("%l:%M:%S %p"))
+			  << std::endl;
+
+		std::cout << LIBCXX_NAMESPACE::tostring(testTime) << std::endl;
+
+		{
+			std::string s("1 week");
+
+			LIBCXX_NAMESPACE::ymd::interval i(s.begin(), s.end());
+
+			if (i.weeks != 1)
+				throw EXCEPTION("1 week is not 1 week");
+		}
+
+		LIBCXX_NAMESPACE::ymd Feb1(2010, 02, 01);
+
+		if (LIBCXX_NAMESPACE::ymd("2010-02-01") != Feb1)
+			throw EXCEPTION("YYYY-MM-DD is not parsed properly");
+
+		if (LIBCXX_NAMESPACE::ymd("01-02-2010") != Feb1)
+			throw EXCEPTION("DD-MM-YYYY is not parsed properly");
+
+		if (LIBCXX_NAMESPACE::ymd("02/01/2010", true) != Feb1)
+			throw EXCEPTION("MM/DD/YYYY is not parsed properly");
+
+		if (LIBCXX_NAMESPACE::ymd("01-Feb-2010") != Feb1)
+			throw EXCEPTION("DD-MON-YYYY is not parsed properly");
+
+		if (LIBCXX_NAMESPACE::ymd("February 1, 2010") != Feb1)
+			throw EXCEPTION("MONTH DAY, YEAR is not parsed properly");
+		if (LIBCXX_NAMESPACE::ymd("2010-W1-1") !=
+		    LIBCXX_NAMESPACE::ymd(LIBCXX_NAMESPACE::ymd
+					::iso8601(2010, 1, 1)))
+			throw EXCEPTION("YYYY-W-D is not parsed properly");
+	} catch (LIBCXX_NAMESPACE::exception &e)
+	{
+		std::cout << e << std::endl;
+	}
+	return 0;
+}

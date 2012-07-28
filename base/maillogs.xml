@@ -1,0 +1,89 @@
+<optclass name="maillogs">
+
+  <option>
+    <name>sender</name>
+    <type>string</type>
+    <hasvalue />
+    <opt>f</opt>
+    <longopt>from</longopt>
+    <descr>Sender's address</descr>
+    <argdescr>user@domain</argdescr>
+  </option>
+
+  <option>
+    <name>recipient</name>
+    <type>string</type>
+    <hasvalue />
+    <list />
+    <opt>t</opt>
+    <longopt>to</longopt>
+    <descr>Recipient's address</descr>
+    <argdescr>user@domain</argdescr>
+  </option>
+
+  <option>
+    <name>subject</name>
+    <type>string</type>
+    <hasvalue />
+    <opt>s</opt>
+    <longopt>subject</longopt>
+    <descr>Mail's subject</descr>
+    <argdescr>text</argdescr>
+    <default>"Log report"</default>
+  </option>
+
+  <option>
+    <name>charset</name>
+    <type>string</type>
+    <hasvalue />
+    <opt>C</opt>
+    <longopt>charset</longopt>
+    <descr>Specify MIME character set</descr>
+    <argdescr>charset</argdescr>
+    <default>"utf-8"</default>
+  </option>
+
+  <option>
+    <name>tostdout</name>
+    <type>bool</type>
+
+    <longopt>stdout</longopt>
+    <descr>Write new log lines to standard output, instead of mailing them</descr>
+  </option>
+
+  <option>
+    <name>pattern</name>
+    <type>string</type>
+    <hasvalue />
+    <opt>p</opt>
+    <longopt>pattern</longopt>
+    <descr>Only mail long lines that match \"pattern\"</descr>
+  </option>
+
+  <option>
+    <name>utf8pattern</name>
+    <type>string</type>
+    <hasvalue />
+    <opt>P</opt>
+    <longopt>utf8pattern</longopt>
+    <descr>Only mail long lines that match \"pattern\", which is coded in UTF-8</descr>
+  </option>
+
+  <mutex>
+    <name>pattern</name>
+    <name>utf8pattern</name>
+  </mutex>
+
+  <arg>
+    <name>statefile</name>
+    <required />
+  </arg>
+
+  <arg>
+    <name>logfile</name>
+    <repeated />
+    <required />
+  </arg>
+
+  <defaultoptions />
+</optclass>

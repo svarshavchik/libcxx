@@ -1,0 +1,259 @@
+<!--
+
+Copyright 2012 Double Precision, Inc.
+See COPYING for distribution information.
+
+-->
+
+<chapter id="miscpostponed">
+  <title>A <quote>postponed</quote> function call or an object call</title>
+
+  <blockquote>
+    <informalexample>
+      <programlisting>
+static std::string test1_cb(const std::string &amp;a, const std::string &amp;b)
+{
+	return a+b;
+}
+
+// ...
+
+auto callback=&ns;::make_postponedcall(test1_cb, std::string("foo"), std::string("bar"));
+
+// ...
+
+callback-&gt;invoke();</programlisting>
+    </informalexample>
+  </blockquote>
+
+  <para>
+    The first argument
+    to <ulink url="&link-function-x-make-postponedcall;"><function>&ns;::make_postponedcall</function></ulink>()
+    is a callback object of some kind.
+    It can be a simple function pointer, a lambda,
+    or an object that implements an
+    <methodname>operator()</methodname>().
+    Any remaining parameters get forwarded as parameters the function call.
+  </para>
+
+  <para>
+    The function call does not occur immediately.
+    Rather,
+    <function>&ns;::make_postponedcall</function>() returns
+    an &ref;, a reference to a
+    <link linkend="refobj">reference-counted object</link>, a handle that
+    can be freely copied and passed around.
+  </para>
+
+  <para>
+    Dereferencing the handle and calling
+    <methodname>invoke</methodname>() executes the function call, with the
+    arguments that were previously passed to
+    <function>&ns;::make_postponedcall</function>().
+  </para>
+
+  <para>
+    In other words, <function>&ns;::make_postponedcall</function>()
+    <quote>freezes</quote> the function call, the object/function getting
+    called and its parameters. The frozen function call
+    gets saved in an internal object,
+    whose handle gets returned. <methodname>invoke</methodname>()
+    <quote>thaws</quote> and invokes the saved function call.
+    The callback object, and any arguments passed to
+    <function>&ns;::make_postponedcall</function>()
+    must be copy-constructible.
+    <methodname>invoke</methodname>() can be called multiple times. Each
+    invocation repeats the same function call.
+  </para>
+
+  <para>
+    <function>&ns;::make_postponedcall</function>() copies the callback
+    parameters into an object that holds them, until it's time to make
+    the actual call. The types of the stored callback arguments is determined
+    by the types of the arguments to
+    <function>&ns;::make_postponedcall</function>(). In the above example,
+    the literal string constants are explicitly casted into
+    <classname>std::string</classname>s, and they get stored as such.
+    Without the explicit cast, they would get stored as
+    <type>const char *</type>s, and coerced to
+    <classname>std::string</classname>s at the time of the callback
+    invocation.
+  </para>
+
+  <para>
+    The callback object may take its parameters by reference, getting a
+    mutable reference to the parameter it the storage object. Invoking
+    a postponed function call simply passes each stored parameter to the
+    callback object, so it can be passed by reference:
+  </para>
+
+  <blockquote>
+    <informalexample>
+      <programlisting>
+static std::string test1_cb(std::string &amp;a, std::string &amp;b)
+{
+// ...</programlisting>
+    </informalexample>
+  </blockquote>
+
+  <para>
+    Note that this requires that the call to
+    <function>&ns;::make_postponedcall</function>() now must supply
+    <classname>std::string</classname>s as parameters, so that's what gets
+    stored in the callback handle. A literal
+    <type>const char *</type> won't cut it any more.
+  </para>
+
+  <para>
+    The callback object can modify the argument that's passed by reference.
+    Invoking the callback again passes the reference to the modified value!
+  </para>
+
+  <para>
+    As previously mentioned, the callback can be an object, rather than a
+    function pointer:
+  </para>
+
+  <blockquote>
+    <informalexample>
+      <programlisting>
+class add_cl {
+
+public:
+
+	int operator()(int a, int b)
+	{
+		return a+b;
+	}
+};
+
+// ...
+
+const add_cl callback;
+
+auto handle=&ns;::make_postponedcall(callback, 2, 2);</programlisting>
+    </informalexample>
+  </blockquote>
+
+  <para>
+    Note that the callback object gets copied into the returned handle,
+    so it must be copy-constructible. A lambda will also work, just as well:
+  </para>
+
+  <blockquote>
+    <informalexample>
+      <programlisting>
+auto call2=&ns;::make_postponedcall([](const std::string &amp;a,
+                                    const std::string &amp;b)
+                                    {
+                                        return a+b;
+                                    }, str1, str2);</programlisting>
+    </informalexample>
+  </blockquote>
+
+  <para>
+    <function>&ns;::make_postponedcall</function>()
+    returns a &ref; to a complicated template class, parametrized by the
+    decayed
+    callback object type, callback return value type, and decayed callback
+    parameter types. An <literal>auto</literal> declaration is the only way
+    to maintain one's sanity. If the return type of the callback invocation
+    is known, <function>&ns;::make_postponedcall</function>()
+    can be converted to a
+    <classname>&ns;::postponedcallBaseObj&lt;T&gt; &gt;</classname>, where
+    <replaceable>T</replaceable> is the return value type:
+  </para>
+
+  <blockquote>
+    <informalexample>
+      <programlisting>
+static size_t length_cb(const std::string &amp;a, const std::string &amp;b)
+{
+   return a.size() + b.size();
+}
+
+// ...
+&ns;::ref&lt;&ns;::postponedcallBaseObj&lt;size_t&gt; &gt;
+    handle=&ns;::make_postponedcall(test1_cb, "a", "bb"));</programlisting>
+    </informalexample>
+  </blockquote>
+
+  <section id="misctuple2parampack">
+    <title>Converting tuples to parameter packs</title>
+
+    <para>
+      <link linkend="miscpostponed">&ns;::make_postponedcall</link>()
+      saves the postponed parameters in a
+      <classname>std::tuple</classname>.
+      It uses the following set of template classes to convert the tuple back
+      into a parameter pack, for the subsequent function call.
+      These templates can be used independently. To convert a tuple into a
+      parameter pack:
+    </para>
+
+    <blockquote>
+      <itemizedlist>
+	<listitem>
+	  <para>
+	    Define a class with an opaque template parameter:
+	  </para>
+	  <informalexample>
+	    <programlisting>
+#include &lt;&ns;/tuple_param_pack.H&gt;
+
+template&lt;typename ParamPackArgsType&gt; class postponedCallbackHelper;
+	    </programlisting>
+	  </informalexample>
+	</listitem>
+
+	<listitem>
+	  <para>
+	    Specialize the template for
+	    <quote><classname>size_t ...n</classname></quote>,
+	    with the specialized class of
+	    <classname>&ns;::tuple_param_pack&lt;n...&gt;</classname> and use
+	    <quote>std::get&lt;n&gt;(<replaceable>tuple</replaceable>)...</quote>
+	    to get your parameter pack:
+	  </para>
+	  <informalexample>
+	    <programlisting>
+template&lt;size_t ...n&gt;
+class postponedCallbackHelper&lt;&ns;::tuple_param_pack&lt;n...&gt;&gt; {
+
+public:
+    template&lt;typename callback_type, typename tuple_arg_type&gt;
+    static auto invoke(callback_type &amp;callback, tuple_arg_type &amp;args)
+        -> decltype(callback(std::get&lt;n&gt;(args)...))
+    {
+        return callback(std::get&lt;n&gt;(args)...);
+    }
+	    </programlisting>
+	  </informalexample>
+	</listitem>
+
+	<listitem>
+	  <para>
+	    Instantiate the template class, specifying the template parameter
+	    as <quote><classname>&ns;::tuple_2_param_pack&lt;sizeof...(Args)&gt;::type</classname></quote>
+	    where <replaceable>Args</replaceable> is the tuple pack.
+	  </para>
+	  <informalexample>
+	    <programlisting>
+class F callback;
+std::tuple&lt;TupleArgs...&gt; arguments;
+
+// ...
+
+postponedCallbackHelper&lt;&ns;::tuple_2_param_pack&lt;sizeof...(TupleArgs)&gt;::type&gt;::invoke(callback, arguments);</programlisting>
+	  </informalexample>
+	</listitem>
+      </itemizedlist>
+    </blockquote>
+  </section>
+</chapter>
+<!--
+Local Variables:
+mode: sgml
+sgml-parent-document: ("book.xml" "part" "chapter")
+End:
+-->

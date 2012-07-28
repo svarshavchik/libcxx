@@ -1,0 +1,68 @@
+<!--
+
+Copyright 2012 Double Precision, Inc.
+See COPYING for distribution information.
+
+-->
+
+
+<chapter id="uuid">
+  <title>Unique identifiers</title>
+
+  <blockquote>
+    <informalexample>
+      <programlisting>
+#include &lt;&ns;/uuid.H&gt;
+
+&ns;::uuid newid;
+
+&ns;::uuid::charbuf newidStr;
+
+newid.toString(newidStr);</programlisting>
+    </informalexample>
+  </blockquote>
+
+  <para>
+    <ulink url="&link-x--uuid;"><classname>&ns;::uuid</classname></ulink>
+    is a unique id generator class. Each instance of
+    <classname>&ns;::uuid</classname> creates a new unique identifier.
+    The class defines a comparison function,
+    instances of <classname>&ns;::uuid</classname> may be used as key values
+    in associative containers.
+  </para>
+
+  <para>
+    <classname>&ns;::uuid</classname> has a single member:
+    <varname>val</varname>. This is an opaque array of
+    <classname>uint16_t</classname> that contains a unique sequence of
+    values, in binary. The
+    <methodname>toString</methodname> member function converts the unique id
+    value to a zero-terminated string containing Ascii characters.
+    <classname>&ns;::uuid::charbuf</classname> is an array of characters long
+    enough to hold the generated string.
+  </para>
+
+  <para>
+    The unique ID value is formed by combining the running thread ID,
+    a counter, the system clock, and the MAC address of the first network
+    interface found, if one is present. The resulting ID values should be
+    globally unique.
+  </para>
+
+  <blockquote>
+    <informalexample>
+      <programlisting>
+std::vector&lt;unsigned char&gt; mac(&ns;::uuid::getmac()-&gt;mac);</programlisting>
+    </informalexample>
+  </blockquote>
+
+  <para>
+    <methodname>getmac</methodname>() returns a reference to a
+    <link linkend="singleton">singleton</link> object that contains one
+    member, <varname>mac</varname> the <acronym>MAC</acronym> address used in
+    the unique ID generator.
+    The vector will be empty if a
+    <link linkend="netif">network interface</link> with a suitable
+    <acronym>MAC</acronym> address was not available.
+  </para>
+</chapter>

@@ -1,0 +1,64 @@
+/*
+** Copyright 2012 Double Precision, Inc.
+** See COPYING for distribution information.
+*/
+
+#ifndef x_globlocale_H
+#define x_globlocale_H
+
+#include <x/ptr.H>
+#include <x/threadlocale.H>
+#include <x/xlocale.H>
+#include <x/localefwd.H>
+
+namespace LIBCXX_NAMESPACE {
+#if 0
+};
+#endif
+
+class localeObj;
+
+#if @HAVE_XLOCALE@
+
+//! No-op
+
+//! This platform has xlocale, so no workaround is required
+
+class globlocale {
+
+public:
+	//! no-op constructor
+	globlocale(const const_locale &localeArg) noexcept {}
+
+	//! no-op destructor
+	~globlocale() noexcept {}
+};
+
+#else
+
+//! Switch to a locale, under a global lock
+
+//! This platform does not implement xlocale. No other choice but to take
+//! a global lock.
+
+//! On platforms that do not implement xlocale, the std::locale object
+//! gets always instantiated with the C locale, and a thread_locale
+//! crams the real locale down everyone's throat, while holding a
+//! global lock. Yuck.
+
+class globlocale : public thread_locale {
+
+public:
+	globlocale(const const_locale &localeArg);
+	~globlocale() noexcept;
+};
+
+#endif
+
+
+#if 0
+{
+#endif
+}
+#endif
+

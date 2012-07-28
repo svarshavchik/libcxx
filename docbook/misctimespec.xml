@@ -1,0 +1,33 @@
+<!--
+
+Copyright 2012 Double Precision, Inc.
+See COPYING for distribution information.
+
+-->
+
+<chapter id="timespec">
+  <title>The <classname>&ns;::timespec</classname> class</title>
+  <blockquote>
+    <informalexample>
+      <programlisting>
+#include &lt;&ns;/timespec.H&gt;</programlisting>
+    </informalexample>
+  </blockquote>
+
+  <para>
+    <ulink url="&link-x--timespec;"><classname>&ns;::timespec</classname></ulink>
+    is derived from the <classname>timespec</classname> class that's defined
+    in the <filename>sys/time.h</filename> header file.
+
+    It provides constructors for initializing a
+    <classname>timespec</classname> in several convenient ways.
+    See the class documentation for more information.
+  </para>
+</chapter>
+
+<!--
+Local Variables:
+mode: sgml
+sgml-parent-document: ("book.xml" "part" "chapter")
+End:
+-->

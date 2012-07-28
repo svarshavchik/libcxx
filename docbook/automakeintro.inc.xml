@@ -1,0 +1,24 @@
+<!--
+
+Copyright 2012 Double Precision, Inc.
+See COPYING for distribution information.
+
+-->
+
+<para>
+  A <application><acronym>GNU</acronym> make</application> rule is
+  installed by default as
+  <filename>/usr/share/libcxx/libcxx.mk</filename> or
+  <filename>/usr/local/share/libcxx/libcxx.mk</filename>,
+  and contains
+  a couple of useful <command>gmake</command> macros.
+  This rule requires <application><acronym>GNU</acronym>
+  make</application>
+  and <command>xsltproc</command>:
+</para>
+<!--
+Local Variables:
+mode: sgml
+sgml-parent-document: ("book.xml" "section" "para")
+End:
+-->

@@ -1,0 +1,114 @@
+<!--
+
+Copyright 2012 Double Precision, Inc.
+See COPYING for distribution information.
+
+-->
+
+<chapter id="exceptions">
+  <title>Throwing exceptions</title>
+
+  <blockquote>
+    <informalexample>
+      <programlisting>
+#include &lt;&ns;/exception.H&gt;
+
+try {
+
+// ...
+
+    if (!parse_file(filename))
+    {
+        throw EXCEPTION("File parsing error: " &lt;&lt; filename);
+    }
+
+// ...
+
+    pid_t p=fork();
+
+    if (p &lt; 0)
+    {
+        throw SYSEXCEPTION("fork() failed: ");
+    }
+
+// ...
+
+} catch (const &ns;::sysexception &amp;e)
+{
+    LOG_ERROR(e);
+    LOG_TRACE(e-&gt;backtrace);
+} catch (const &ns;::exception &amp;e)
+{
+    std::cerr &lt;&lt; e.what();
+}
+
+// ...
+
+std::cerr &lt;&lt; e &lt;&lt; std::endl;</programlisting>
+    </informalexample>
+  </blockquote>
+
+  <para>
+    This library throws
+    <ulink url="&link-x--exception;"><classname>&ns;::exception</classname></ulink>
+    exceptions, but
+    applications should use
+    the <literal>EXCEPTION</literal> or a <literal>SYSEXCEPTION</literal>
+    macro.
+    These macros take an argument that can generally appear on the right
+    hand side of a <quote>std::ostream &lt;&lt;</quote>. The exception text
+    gets formatted using an output stream formatter.
+  </para>
+
+  <para>
+    <classname>&ns;::exception</classname> can be passed
+    to a <classname>std::ostream</classname> via the
+    <methodname>&lt;&lt;</methodname> operator.
+    It is also a subclass of <classname>std::exception</classname> that
+    implements <function>what</function>() by returning a pointer to a
+    C string that includes both the error message text and the backtrace.
+  </para>
+
+  <para>
+    Alternatively, <classname>&ns;::exception</classname>s can also
+    get also logged by
+    the <link linkend="logger">logging macros</link>.
+    Internally, it's a <link linkend="refobj">reference-counted object</link>,
+    with a
+    <varname>backtrace</varname> member that
+    describes the stack backtrace at the time the exception object was
+    constructed (which is usually just before it gets thrown).
+  </para>
+
+  <note>
+    <para>
+      The application must be compiled with <command>g++</command>'s
+      <option>-fno-omit-frame-pointer</option> option, and linked with
+      <option>-export-dynamic</option>.
+      The absence of <option>-fno-omit-frame-pointer</option> may result in
+      thrown exceptions causing a segfault, with some versions of
+      <command>g++</command>, and
+      without <option>-export-dynamic</option>
+      <methodname>backtrace</methodname>() can't resolve
+      symbols from the <acronym>ELF</acronym> objects that were linked
+      directly into the executable.
+    </para>
+  </note>
+
+  <para>
+    <literal>SYSEXCEPTION</literal> constructs a
+    <ulink url="&link-x--sysexception;"><classname>&ns;::sysexception</classname></ulink>,
+    a subclass of <classname>&ns;::exception</classname>. This macro appends
+    the system error message text, based on the value of
+    <varname>errno</varname> to the error message that's passed as an argument
+    to the macro. The value of <varname>errno</varname> is also saved, and
+    may be retrieved by the <methodname>getErrorCode</methodname>() method.
+  </para>
+</chapter>
+
+<!--
+Local Variables:
+mode: sgml
+sgml-parent-document: ("book.xml" "book" "chapter")
+End:
+-->

@@ -1,0 +1,117 @@
+Usage: testoptions [-r|--retries=count]
+                [-f=filename]...
+                [--debug-alloc]
+                [--debug-auth] flag
+                [filename...]
+Usage: testoptions [OPTION]...
+  -r, --retries=count
+                    How many times to
+                    retry
+  -f=filename       Filename to process
+  --debug-alloc     Debug allocations
+  --debug-auth      Debug
+                    authentication
+test2: 0
+A: 1
+B: 1
+C: 1
+D: 1
+E: earg
+F: 1
+G: garg
+Param: word1
+Param: word2
+Param: word3
+Param: -z
+Param: word4
+test3.1: 0
+A: 31
+test3.2: 0
+A: 32
+test3.3: 1: --a
+--function option invoked
+--intfunction=2 option invoked
+test4: 0
+A: 
+B: bval
+C: cval
+D: 
+E: earg
+F: 
+Param: word1
+test5: 0
+A: 4
+test6: 2: -b
+A: 1
+B: 0
+C: 0
+Usage: testoptions [OPTION]...
+  --a=avalue        A parameter
+  -b=bvalue         B parameter
+  --c=value         C parameter
+  --properties      List application
+                    properties ("=all"
+                    - show hidden
+                    options)
+  --set-property="name=value"
+                    Set application
+                    property "name" to
+                    "value"
+test6.2: 5
+Usage: testoptions --a=avalue -b=bvalue
+                [--c=value]
+                [--properties]
+                [--set-property="name=value"]
+test6.3: 5
+Usage: testoptions [OPTION]...
+  -g                Dummy flag
+  --properties      List application
+                    properties ("=all"
+                    - show hidden
+                    options)
+  --set-property="name=value"
+                    Set application
+                    property "name" to
+                    "value"
+  --sprockets       Do something with
+                    sprockets
+    --add           Add a sprocket
+    --del           Delete a sprocket
+    --grok          Grok a sprocket
+    --from          From a sprocket
+  --sprickets       Do something with
+                    sprickets
+    --add           Add a spricket
+    --del           Delete a spricket
+  --groz            Do something with
+                    grozes
+Usage: testoptions [-g] [--properties]
+                [--set-property="name=value"]
+                [--sprockets]
+                  [--add] [--del]
+                  [--grok] [--from]
+                [--sprickets]
+                  [--add] [--del]
+                [--groz]
+                  [grozA] [grozB]
+Status before: 0
+Status after --sprickets --del: 34
+Status before: 0
+Status after --spoickets --add: 80
+Mutex test 1: 0, a=1, b=0
+Mutex test 2: 0, a=0, b=1
+Mutex test 2: 3, a=1, b=0
+Time: 1 hour
+Date: 01-May-2010
+Interval: 1 week
+URI path: /cgi-bin/test.cgi
+Usage: testoptions [-s|--memsize=size]
+Usage: testoptions [OPTION]...
+  -s, --memsize=size
+                    Memory size
+bytes: 4096
+Usage: testoptions
+                [-s|--wstring=string]
+Usage: testoptions [OPTION]...
+  -s, --wstring=string
+                    Wide string

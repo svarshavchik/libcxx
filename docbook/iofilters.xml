@@ -1,0 +1,228 @@
+<!--
+
+Copyright 2012 Double Precision, Inc.
+See COPYING for distribution information.
+
+-->
+
+<chapter id="iofilters">
+  <title>IO filter classes</title>
+
+  <para>
+    An <quote>input/output filter</quote>, or an IO filter, is a design pattern
+    that originally came from several libraries that implement data compression,
+    but is now found in other applications too.
+    An IO filter transfers some chunk
+    of data from an input buffer to an output buffer, using some transformation
+    process. The input to the transformation process is a pointer to the input
+    data, a count of how many input elements there are available, a pointer to
+    the output buffer, and the size of the output buffer.
+    The input buffer may not contain the entire set of data to be filtered.
+    Typically, the input data gets presented in small portions or chunks, and
+    gets filtered, or transformed, in small chunks.
+  </para>
+
+  <para>
+    Each transformation step can consume the entire input buffer, or some
+    part of it, and produce a full output buffer, or fill a part of it.
+    The transformation step updates the input pointer, the input count, the
+    output buffer pointer, and the remaining unused output buffer size
+    accordingly, to reflect the filtered data.
+  </para>
+
+  <para>
+    The
+    <ulink url="&link-x--iofilter;"><classname>&ns;::iofilter</classname></ulink>
+    class template defines an interface to a filter.
+    The <classname>&ns;::iofilter</classname> template takes two parameters:
+    an input type and an output type.
+    An <classname>&ns;::iofilter</classname> does not necessarily convert
+    between two same types, an implementation may convert an input sequence
+    of one type to an input sequence of another type.
+    An implementation must derive virtually from
+    <classname>&ns;::iofilter</classname>, in order to implement it.
+  </para>
+
+  <para>
+    <ulink url="&link-x--basic-ostreambufiofilter;"><classname>&ns;::basic_ostreambufiofilter</classname></ulink> virtually
+    subclasses from <classname>std::streambuf</classname> and
+    <classname>&ns;::iofilter</classname>.
+    This template implements an output <classname>std::streambuf</classname>.
+    A sequence written to this <classname>std::streambuf</classname>
+    gets filtered through
+    an <classname>&ns;::iofilter</classname>, the results gets
+    written to another <classname>std::ostream</classname>
+    (in the case of character-based streams).
+    The following example implements a dummy IO filter that
+    XOR-s the output with 1, flipping the lowest bit of each character, before
+    writing it to another stream:
+  </para>
+
+  <blockquote>
+    <informalexample>
+      <programlisting><![CDATA[
+#include <iostream>
+#include <x/basicstreambufiofilter.H>
+
+class xor1 : public x::basic_ostreambufiofilter<char, char>,
+             virtual public x::iofilter<char, char> {
+public:
+  xor1(std::ostream &o)
+    : x::basic_ostreambufiofilter<char, char>(o)
+  {
+  }
+
+  ~xor1() noexcept
+  {
+  }
+
+  void filter()
+  {
+    while (avail_in && avail_out)
+    {
+      *next_out++ = *next_in++ ^ 1;
+      --avail_in;
+      --avail_out;
+    }
+  }
+};
+
+int main()
+{
+  xor1 xor1_impl(std::cout);
+
+  std::ostream o(&xor1_impl);
+
+  o << "Trust noone" << std::flush;
+  std::cout << std::endl;
+  return (0);
+}]]>
+      </programlisting>
+    </informalexample>
+  </blockquote>
+
+  <para>
+    This example implements an stream buffer filter, from
+    <classname>char</classname> to a <classname>char</classname>.
+    An instance gets created, which writes the converted sequence to
+    <varname>std::cout</varname>.  Since <classname>xor1</classname> is
+    a subclass of a <classname>std::streambuf</classname>, a
+    <classname>std::ostream</classname> gets instantiated
+    which writes to this <classname>std::streambuf</classname>.
+    The output from this example is <quote>Ustru!onnod</quote>.
+  </para>
+
+  <para>
+    <ulink url="&link-x--basic-istreambufiofilter;"><classname>&ns;::basic_istreambufiofilter</classname></ulink>
+    is analogous, but uses a <classname>std::istream</classname>
+    (in the case of a character-based stream),
+    and implements an input
+    <classname>std::streambuf</classname>.
+    Input is obtained by reading from some other
+    <classname>std::istream</classname>
+    and converting the read data using an IO filter. For example:
+  </para>
+
+  <blockquote>
+    <informalexample>
+      <programlisting>
+#include &lt;iostream&gt;
+#include &lt;&ns;/basicstreambufiofilter.H&gt;
+
+class xor1 : public &ns;::basic_istreambufiofilter&lt;char, char&gt;,
+	     virtual public &ns;::iofilter&lt;char, char&gt; {
+public:
+	xor1(std::istream &amp;i)
+		: &ns;::basic_istreambufiofilter&lt;char, char&gt;(i)
+	{
+	}
+
+	~xor1() noexcept
+	{
+	}
+
+	void filter()
+	{
+		while (avail_in &amp;&amp; avail_out)
+		{
+			*next_out++ = *next_in++ ^ 1;
+			--avail_in;
+			--avail_out;
+		}
+	}
+};
+
+int main()
+{
+	std::istringstream str("64738");
+	xor1 xor1_impl(str);
+
+	std::istream i(&amp;xor1_impl);
+
+	int n;
+
+	i &gt;&gt; n;
+
+	std::cout &lt;&lt; n &lt;&lt; std::endl;
+	return (0);
+}</programlisting>
+    </informalexample>
+  </blockquote>
+
+  <para>
+    The instance of <classname>xor1</classname> implements a
+    <classname>std::streambuf</classname>
+    that reads from the given string buffer.
+    Attaching an <classname>std::istream</classname>
+    to the <classname>xor1</classname> and
+    reads from it ends up reading from the string buffer and
+    filtering. The output from this example is <quote>75629</quote>.
+  </para>
+
+  <para>
+    Finally,
+    <ulink url="&link-x--basic-iostreambufiofilter;"><classname>&ns;::basic_iostreambufiofilter</classname></ulink>
+    subclasses from <classname>&ns;::basic_istreambufiofilter</classname> and
+    <classname>&ns;::basic_ostreambufiofilter</classname>, implementing
+    a <classname>std::streambuf</classname> that could, theoretically,
+    read and write from another
+    input/output stream using an IO filter.
+  </para>
+
+  <para>
+    Practically, it is not generally useful. This is because implementing
+    read/write functionality requires two IO filters: one to convert sequences
+    when reading, and a second one to convert sequences when writing.
+    Since IO filters must use virtual inheritance, and the same class can
+    only be virtually inherited once, this means that an
+    <classname>&ns;::basic_iostreambufiofilter</classname> can be used only
+    for converting to and from different types, which ends up instantiating
+    two different IO filters: <classname>&ns;::iofilter&lt;A,B&gt;</classname>
+    and <classname>&ns;::iofilter&lt;B,A&gt;</classname>, which requires
+    elaborate class inheritance in order to implement it.
+  </para>
+
+  <para>
+    Given that the C++ library implements stream buffers for only two
+    fundamental types: <classname>char</classname> and
+    <classname>wchar_t</classname>, the only practical use of
+    <classname>&ns;::basic_iostreambufiofilter</classname> is for converting
+    between narrow characters and wide characters, and there is already
+    an implementation for that:
+
+    <ulink url="&link-typedef-x-ctow-ostreambuf;"><classname>&ns;::ctow_ostreambuf</classname></ulink>,
+    <ulink url="&link-typedef-x-wtoc-ostreambuf;"><classname>&ns;::wtoc_ostreambuf</classname></ulink>,
+    <ulink url="&link-typedef-x-ctow-istreambuf;"><classname>&ns;::ctow_istreambuf</classname></ulink>,
+    <ulink url="&link-typedef-x-wtoc-istreambuf;"><classname>&ns;::wtoc_istreambuf</classname></ulink>,
+    <ulink url="&link-typedef-x-ctow-iostreambuf;"><classname>&ns;::ctow_iostreambuf</classname></ulink>,
+    and
+    <ulink url="&link-typedef-x-wtoc-iostreambuf;"><classname>&ns;::wtoc_iostreambuf</classname></ulink>.
+  </para>
+</chapter>
+
+<!--
+Local Variables:
+mode: sgml
+sgml-parent-document: ("book.xml" "book" "chapter")
+End:
+-->

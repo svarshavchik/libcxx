@@ -1,0 +1,78 @@
+/*
+** Copyright 2012 Double Precision, Inc.
+** See COPYING for distribution information.
+*/
+
+#ifdef x_fdobj_H
+
+//! Read from the file descriptor, at a given offset
+
+//! \return number of elements read from the file descriptor.
+//! Errors are reported by throwing an %exception.
+//!
+//! \note
+//! \c EAGAIN and \c EWOULDBLOCK, on a nonblocking socket, does not
+//! throw an %exception. 0 bytes read gets returned instead.
+//! Check \c errno if 0 is returned. An end-of-file condition gets
+//! reported with a 0 return, and with \c errno set to 0.
+
+size_t pread(//! Starting file position offset
+
+	     off64_t offset,
+
+	     //! Buffer
+	     char *buffer,
+
+	     //! Element count
+
+	     size_t cnt)
+
+{
+ again:
+	ssize_t n=::@LIBCXX_PREAD64@(filedesc, buffer, cnt, offset);
+
+	if (n < 0)
+	{
+		if (errno == EINTR)
+			goto again;
+
+		read_exception();
+	}
+
+	return n;
+}
+
+//! Write to the file descriptor, starting at a given offset.
+
+//! \return number of elements written.
+//! Errors are reported by throwing an %exception.
+//!
+//! \note
+//! \c EAGAIN and \c EWOULDBLOCK, on a nonblocking socket, does not
+//! throw an %exception. 0 bytes read gets returned instead.
+
+size_t pwrite(//! Starting offset
+	      off64_t offset,
+
+	      //! Buffer
+
+	      const char *buffer,
+
+	      //! Element count
+
+	      size_t cnt)
+{
+ again:
+	ssize_t n=::@LIBCXX_PWRITE64@(filedesc, buffer, cnt, offset);
+
+	if (n < 0)
+	{
+		if (errno == EINTR)
+			goto again;
+
+		write_exception();
+	}
+
+	return n;
+}
+#endif

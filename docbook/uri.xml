@@ -1,0 +1,162 @@
+<!--
+
+Copyright 2012 Double Precision, Inc.
+See COPYING for distribution information.
+
+-->
+
+<chapter id="uri">
+  <title>URIs</title>
+
+  <para>
+    A
+    <ulink url="&link-x--uriimpl;"><classname>&ns;::uriimpl</classname></ulink>
+    is a class that
+    represents a <acronym>URI</acronym> as defined in RFC 3986.
+  </para>
+
+  <blockquote>
+    <informalexample>
+      <programlisting>
+&ns;::uriimpl u("http://uid:pw@host/path?query#fragment");
+
+std::cout &lt;&lt; "scheme: " &lt;&lt; u.getScheme() &lt;&lt; std::endl
+	  &lt;&lt; "authority: " &lt;&lt; (u.getAuthority() ?
+			       u.getAuthority().toString()
+			       : std::string("(null)")) &lt;&lt; std::endl
+	  &lt;&lt; "path: " &lt;&lt; u.getPath() &lt;&lt; std::endl
+	  &lt;&lt; "query: " &lt;&lt; u.getQuery() &lt;&lt; std::endl
+	  &lt;&lt; "fragment: " &lt;&lt; u.getFragment() &lt;&lt; std::endl;
+      </programlisting>
+    </informalexample>
+  </blockquote>
+
+  <para>
+    A
+    <ulink url="&link-x--uriimpl;"><classname>&ns;::uriimpl</classname></ulink>
+    may also be constructed from an input sequence defined by a beginning and
+    an ending iterator.
+  </para>
+
+  <blockquote>
+    <informalexample>
+      <programlisting>
+&ns;::uriimpl u(str.begin(), str.end());</programlisting>
+    </informalexample>
+  </blockquote>
+
+  <para>
+    The constructors throw an exception if the passed string cannot be
+    parsed as an <acronym>URI</acronym>. <methodname>getScheme</methodname>(),
+    <methodname>getAuthority</methodname>(),
+    <methodname>getPath</methodname>(),
+    <methodname>getQuery</methodname>(), and
+    <methodname>getFragment</methodname>() retrieve the corresponding parts of the
+    <acronym>URI</acronym>.
+  </para>
+
+  <para>
+    <methodname>getAuthority</methodname>() returns a reference to
+    a
+    <ulink url="&link-x--uriimpl--authority-t;"><classname>&ns;::uriimpl::authority_t</classname></ulink>,
+    a class that's
+    convertible to a <type>bool</type>
+    indicating whether the <acronym>URI</acronym> includes
+    an authority part. Other get methods return a
+    <classname>std::string</classname> which will be empty if the
+    <acronym>URI</acronym> did not have the corresponding part.
+  </para>
+
+  <para>
+    <classname>&ns;::uriimpl::authority_t</classname> has three fields:
+  </para>
+
+  <variablelist>
+    <varlistentry>
+      <term><varname>userinfo</varname></term>
+      <listitem>
+	<para>
+	  The <quote>userinfo</quote> portion of the authority.
+	</para>
+      </listitem>
+    </varlistentry>
+
+    <varlistentry>
+      <term><varname>has_userinfo</varname></term>
+      <listitem>
+	<para>
+	  This <type>bool</type> is true if the authority specifies a
+	  <quote>userinfo</quote> part.
+	</para>
+
+	<para>
+	  An empty string in <varname>userinfo</varname> does not necessarily
+	  indicate that the authority did not have a <quote>userinfo</quote>
+	  part. The strict syntax allows an empty userinfo to be specified.
+	  If <varname>has_userinfo</varname> is true, and
+	  <varname>userinfo</varname> is an empty string, the authority had
+	  a <quote><literal>@</literal></quote> character with nothing to its
+	  left.
+	</para>
+      </listitem>
+    </varlistentry>
+
+    <varlistentry>
+      <term><varname>hostport</varname></term>
+      <listitem>
+	<para>
+	  The host portion of the authority, with an optional
+	  <quote><literal>:</literal><replaceable>port</replaceable></quote>
+	  suffix.
+	</para>
+      </listitem>
+    </varlistentry>
+  </variablelist>
+
+  <para>
+    <methodname>setScheme</methodname>(),
+    <methodname>setAuthority</methodname>(),
+    <methodname>setPath</methodname>(),
+    <methodname>setQuery</methodname>(), and
+    <methodname>setFragment</methodname>() replace the corresponding part of the
+    <acronym>URI</acronym>. Their
+    <classname>std::string</classname> parameter specifies the new value
+    (including <methodname>setAuthority</methodname>()). An exception gets thrown
+    if the passed string contains characters that are not allowed in the
+    <acronym>URI</acronym> part.
+  </para>
+
+  <para>
+    A <classname>&ns;::uriimpl</classname> may hold an absolute or a relative
+    <acronym>URI</acronym>. The <literal>+=</literal> or <literal>+</literal>
+    operation combines two <acronym>URI</acronym>s together.
+  </para>
+
+  <blockquote>
+    <informalexample>
+      <programlisting>
+&ns;::uriimpl absuri("http://example.com/cgi-bin/printenv.cgi");
+
+absuri += &ns;::uriimpl("../images");
+
+std::string str;
+
+absuri.toString(std::back_insert_iterator&lt;std::string&gt;(str));
+      </programlisting>
+    </informalexample>
+  </blockquote>
+
+  <para>
+    <methodname>toString</methodname>() formats the <acronym>URI</acronym> as
+    a string, and writes it to the given output iterator.
+  </para>
+
+  <para>
+    <classname>&ns;::uriimpl</classname> defines all comparison operators, as
+    such this class may be used as a key in an associative container.
+    As specified by the RFC, the <acronym>URI</acronym> scheme and the
+    host component of the authority is case insensitive. This comparison
+    operation has no knowledge of scheme-specific semantics, so all other parts
+    of a <acronym>URI</acronym> are considered case sensitive.
+  </para>
+</chapter>

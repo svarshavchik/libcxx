@@ -1,0 +1,28 @@
+/*
+** Copyright 2012 Double Precision, Inc.
+** See COPYING for distribution information.
+*/
+
+#if @HAS_INT64_SYNC_FETCH_AND_ADD@
+
+#else
+
+//! No 64 bit int fetch support in gcc
+
+template<typename argType>
+class valueImplBase<argType, 8, true>
+	: public valueImplBase<argType, 8, false> {
+
+public:
+
+	//! Default constructor
+
+	valueImplBase(argType initialValue) noexcept
+		: valueImplBase<argType, 8, false>(initialValue) {}
+
+	//! Default destructor
+	~valueImplBase() noexcept {}
+
+};
+
+#endif

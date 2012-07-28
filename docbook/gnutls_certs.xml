@@ -1,0 +1,47 @@
+<!--
+
+Copyright 2012 Double Precision, Inc.
+See COPYING for distribution information.
+
+-->
+
+<chapter id="gnutls_certs">
+  <title>Certificates</title>
+
+  <para>
+    <ulink url="&link-typedef-x--gnutls--x509-crt;"><classname>&ns;::gnutls::x509::crt</classname></ulink>
+    is a reference to a
+    <link linkend="refobj">reference-counted object</link> that represents an
+    X.509 certificate:
+  </para>
+
+  <blockquote>
+    <informalexample>
+      <programlisting>
+#include &lt;&ns;/gnutls/x509_crt.H&gt;
+
+std::list&lt;&ns;::gnutls::x509::crt&gt; crtchain;
+
+&ns;::gnutls::x509::crt::base::import_cert_list(crtchain, "cert.pem",
+                                             GNUTLS_X509_FMT_PEM);</programlisting>
+    </informalexample>
+  </blockquote>
+
+  <para>
+    Typical client usage involves loading a certificate chain from a file,
+    using
+    <ulink url="&link-x--gnutls--x509--crtBase;">overloaded
+      <methodname>import_cert_list</methodname>()</ulink>
+    methods.
+    See the
+    <ulink url="&link-typedef-x--gnutls--x509-crt;">class
+    reference</ulink>
+    for more information regarding creating and managing X.509 certificates.
+  </para>
+</chapter>
+<!--
+Local Variables:
+mode: sgml
+sgml-parent-document: ("book.xml" "book" "chapter")
+End:
+-->

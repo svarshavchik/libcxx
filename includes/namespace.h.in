@@ -1,0 +1,59 @@
+/*! \file
+
+\internal
+
+*/
+
+/*
+** Copyright 2012 Double Precision, Inc.
+** See COPYING for distribution information.
+*/
+
+//! This library's namespace
+
+//! \internal
+//!
+#define LIBCXX_NAMESPACE @LIBCXX_NAMESPACE@
+
+//! This library's namespace
+
+//! \internal
+//!
+#define LIBCXX_NAMESPACE_STR "@LIBCXX_NAMESPACE@"
+
+//! This library's namespace
+
+//! \internal
+//!
+#define LIBCXX_NAMESPACE_WSTR L"@LIBCXX_NAMESPACE@"
+
+#ifndef LIBCXX_HIDDEN
+
+//! gcc compiler directive
+
+//! This method is not exported
+//!
+
+#define LIBCXX_HIDDEN __attribute__((visibility("hidden")))
+#endif
+
+#ifndef LIBCXX_INTERNAL
+
+//! gcc compiler directive
+
+//! This method is not exported, is not called from another module, and is
+//! never called through a function pointer.
+
+#define LIBCXX_INTERNAL __attribute__((visibility("internal")))
+
+#endif
+
+#ifndef LIBCXX_PUBLIC
+
+//! gcc compiler directive
+
+//! This method is exported.
+
+#define LIBCXX_PUBLIC __attribute__((visibility("default")))
+
+#endif

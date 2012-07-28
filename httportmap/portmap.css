@@ -1,0 +1,15 @@
+
+html { background-color: #ffffff; color: #000080;
+     font-family: monospace, fixed }
+
+h1 { font-family: sans-serif, Arial; }
+
+table, th, td { border: 1px solid #000000; border-collapse: collapse }
+
+thead { background-color: #ccccff }
+
+th, td { text-align: left; padding: .3em }
+
+.odd { background-color: #dddddd }
+
+.even { background-color: #eeeeee }

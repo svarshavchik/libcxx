@@ -1,0 +1,616 @@
+<!--
+
+Copyright 2012 Double Precision, Inc.
+See COPYING for distribution information.
+
+-->
+
+<chapter id="httpuseragent">
+  <title>A simple <acronym>HTTP</acronym> client example</title>
+
+  <blockquote>
+    <title><ulink url="examples">examples/http_client.C</ulink></title>
+    <informalexample>
+      <programlisting><xi:include href="../examples/http_client.C" parse="text" xmlns:xi="http://www.w3.org/2001/XInclude" /></programlisting>
+    </informalexample>
+  </blockquote>
+
+  <para>
+    This is an example of implementing a basic <acronym>HTTP</acronym> client.
+
+    <ulink url="&link-typedef-x--http-useragent;"><classname>&ns;::http::useragent</classname></ulink>
+    and
+    <ulink url="&link-typedef-x--http-useragentptr;"><classname>&ns;::http::useragentptr</classname></ulink>
+    are a reference and a nullable pointer reference to a
+    <link linkend="refobj">reference-counted object</link> that implements
+    a generic <acronym>HTTP</acronym> <quote>user agent</quote> client.
+  </para>
+
+  <para>
+    A user agent object manages connections with <acronym>HTTP</acronym>
+    servers.
+    An application should invoke <function>&ns;::http::useragent::base::https_enable</function>()
+    if the application uses <acronym>HTTPS</acronym>.
+    This is strictly necessary only when employing static linking. Linking
+    with <option>-lcxxtls</option> dynamically automatically enables
+    <acronym>HTTPS</acronym>;
+    but using static linkage is convenient when debugging, and that requires
+    <function>&ns;::http::useragent::base::https_enable</function>().
+  </para>
+
+  <para>
+    The <methodname>create</methodname>() method takes three optional parameters
+    that specify configuration options for the user agent object.
+    The first parameter is a set of flags (use 0 to specify none of the
+    following):
+  </para>
+
+  <variablelist>
+    <varlistentry>
+      <term><ulink url="&link-variable-x--gnutls--http-noverifypeer;"><literal>&ns;::http::noverifypeer</literal></ulink></term>
+      <listitem>
+	<para>
+	  For <acronym>HTTPS</acronym> connections, do not verify that the
+	  server's certificate's name matches the server's name.
+	</para>
+      </listitem>
+    </varlistentry>
+    <varlistentry>
+      <term><ulink url="&link-variable-x--gnutls--http-noverifycert;"><literal>&ns;::http::noverifycert</literal></ulink></term>
+      <listitem>
+	<para>
+	  For <acronym>HTTPS</acronym> connections, do not verify that the
+	  server's certificate is signed by a trusted certificate authority, and
+	  do not verify that the server's certificate's name matches the
+	  server's name.
+	</para>
+
+	<para>
+	  The list of trusted certificate authorities is set by the
+	  <literal>&ns;::gnutls::calist</literal>
+	  <link linkend="properties">property</link>.
+	</para>
+      </listitem>
+    </varlistentry>
+  </variablelist>
+
+  <para>
+    When enabled the same user agent object manages both
+    <acronym>HTTP</acronym> and <acronym>HTTPS</acronym> connections.
+    An application can create multiple user agent objects, with different
+    options.
+    The reference-counted user agent object is thread safe. A single user
+    agent object may be used, simultaneously, by multiple threads.
+  </para>
+
+  <para>
+    <acronym>HTTP</acronym> 1.1 servers can use the same connection for
+    multiple requests.
+    The user agent object handles one request at a time, and saves
+    open <acronym>HTTP 1.1</acronym> connections internally. A subsequent
+    request for a <acronym>URI</acronym> with the same server tries to use the
+    existing connection, if it is still open.
+    The second optional parameter to <methodname>create</methodname>()
+    sets the maximum number of simultaneous connections saved by a
+    user agent object, and defaults to the
+    <literal>&ns;::http::useragent::pool::maxconn</literal>
+    <link linkend="properties">property</link>.
+    The third optional parameter, that defaults to the
+    <literal>&ns;::http::useragent::pool::maxhostconn</literal>
+    property, sets the maximum number of saved connections to the same
+    server.
+  </para>
+
+  <note>
+    <para>
+      These properties do not set the maximum number of simultaneous requests,
+      but the maximum number of unused connections saved by the user agent
+      objects. When the number of unused connections exceed these maximums,
+      the oldest connections get closed, as many as needed to bring them
+      down below the limits.
+    </para>
+  </note>
+
+  <section id="httpuseragentreq">
+    <title>Sending requests</title>
+
+    <para>
+      The <link linkend="httpuseragent">user agent</link>'s
+      <methodname>request</methodname>() method is heavily overloaded,
+      and takes the following parameters:
+    </para>
+
+    <orderedlist>
+      <listitem>
+	<formalpara>
+	  <title>A terminator file descriptor object</title>
+	  <para>
+	    <blockquote>
+	      <informalexample>
+		<programlisting>
+&ns;::fd timeoutfd;
+
+// ...
+
+auto resp=ua-&gt;request(timeoutfd, &ns;::http::GET, "https://localhost");</programlisting>
+	      </informalexample>
+	    </blockquote>
+	  </para>
+	</formalpara>
+
+	<para>
+	  <methodname>request</methodname>() sends a request and waits until
+	  the server responds.
+	  <methodname>request</methodname>() does not return until it receives
+	  a response.
+	  The
+	  <literal>&ns;::http::client::response_timeout</literal>
+	  <link linkend="properties">property</link> defaults to fifteen
+	  minutes. If the server does not reply, the request times out and
+	  a timeout response object gets returned.
+	</para>
+
+	<para>
+	  The first parameter to
+	  <methodname>request</methodname>() can optionally be a
+	  <link linkend="fdterminator">terminator file descriptor</link>.
+	  If it becomes readable, the request gets aborted before the
+	  timeout expires.
+	</para>
+
+	<note>
+	  <para>
+	    If specified, the timeout property does not get overridden, but
+	    rather supplemented. The request times out either when the
+	    interval specified by
+	    <literal>&ns;::http::client::response_timeout</literal> elapses,
+	    or the terminator file descriptor becomes readable,
+	    whichever occurs first.
+	  </para>
+	</note>
+      </listitem>
+
+      <listitem>
+	<formalpara>
+	  <title>An <acronym>HTTP</acronym> request method</title>
+	  <para>
+	    One of the <acronym>HTTP</acronym> request types,
+	    usually <literal>&ns;::HTTP::GET</literal> or
+	    <literal>&ns;::HTTP::POST</literal>.
+	  </para>
+	</formalpara>
+      </listitem>
+
+      <listitem>
+	<formalpara>
+	  <title>A <acronym>URI</acronym></title>
+	  <para>
+	    The next parameter to <methodname>request</methodname>() is a
+	    <ulink url="&link-x--uriimpl;"><classname>&ns;::uriimpl</classname></ulink>
+	    that specifies the requested
+	    <acronym>URI</acronym> being requested.
+	  </para>
+	</formalpara>
+
+	<para>
+	  The <classname>&ns;::uriimpl</classname> is
+	  constructable from a literal string.
+	</para>
+      </listitem>
+
+      <listitem>
+	<formalpara>
+	  <title>A reference to an <classname>&ns;::requestimpl</classname></title>
+
+	  <para>
+	    This is an alternative for a method an a URI. The following
+	    two examples are generally equivalent to each other.
+	  </para>
+	</formalpara>
+
+	<blockquote>
+	  <informalexample>
+	    <programlisting>
+auto resp=ua-&gt;request(&ns;::http::GET, "http://localhost");
+
+// ...
+
+&ns;::http::requestimpl req;
+
+req.setMethod(&ns;::http::GET);
+req.setURI("http://localhost");
+
+auto resp=ua-&gt;request(req);</programlisting>
+	  </informalexample>
+	</blockquote>
+
+	<note>
+	  <para>
+	    <methodname>request</methodname>() receives a
+	    <classname>&ns;::http::requestimpl</classname> by reference, and
+	    may adjust its contents, in order to format the request according
+	    to the connection parameters.
+	  </para>
+	</note>
+      </listitem>
+
+      <listitem>
+	<formalpara>
+	  <title>Additional <acronym>HTTP</acronym> headers</title>
+
+	  <para>
+	    <blockquote>
+	      <informalexample>
+		<programlisting>
+auto resp=ua-&gt;request(&ns;::http::GET, "http://localhost",
+                     "Accept", "text/plain",
+                     "Accept-Language", "en");</programlisting>
+	      </informalexample>
+	    </blockquote>
+	  </para>
+	</formalpara>
+
+	<para>
+	  An optional list of name/value tuples follows the request method
+	  and the <acronym>URI</acronym>.
+	  If specified, the <acronym>HTTP</acronym> request includes these
+	  as custom headers (a name/value tuple list may also
+	  follow if they are replaced by a
+	  <classname>&ns;::http::requestimpl</classname>, which has the effect
+	  of modifying the <classname>&ns;::http::requestimpl</classname>
+	  object).
+	</para>
+
+	<para>
+	  This example adds <quote>Accept: text/plain</quote> and
+	  <quote>Accept-Language: en</quote> to the request. See
+	  <ulink url="http://www.w3.org/Protocols/rfc2616/rfc2616.html">RFC
+	    2616</ulink> for a list of headers that can be added.
+	</para>
+      </listitem>
+
+      <listitem>
+	<formalpara>
+	  <title>An <acronym>HTTP</acronym> form or content</title>
+
+	  <para>
+	    The last parameter to <methodname>request</methodname>() is optional.
+	    It specifies any content that's part of the request. There are two
+	    ways to specify the content.
+	  </para>
+	</formalpara>
+
+	<blockquote>
+	  <informalexample>
+	    <programlisting>
+auto resp=ua-&gt;request(&ns;::http::POST, "http://localhost/cgi-bin/req.pl",
+	              &ns;::http::form::parameters::create("username",
+                                                        "alfred",
+                                                        "password",
+                                                        "rosebud"));</programlisting>
+	  </informalexample>
+	</blockquote>
+
+	<para>
+	  An
+	  <link linkend="httpform"><classname>&ns;::http::form::parameters</classname></link>
+	  parameter specifies <acronym>HTTP</acronym> form parameters as
+	  the contents of the request.
+	  The above example specifies two parameters,
+	  <quote>username=alfred</quote> and
+	  <quote>password=rosebud</quote>.
+	  For a <literal>&ns;::http::GET</literal> request, this sets the
+	  <quote>query string</quote> part of the URI, otherwise the request's
+	  <quote>Content-Type</quote> header gets set to
+	  <quote>application/x-www-form-urlencoded</quote> and the request's
+	  content consists of the form's parameters, appropriately encoded.
+	</para>
+
+	<blockquote>
+	  <informalexample>
+	    <programlisting>
+std::vector&lt;char&gt; buf;
+
+// ...
+
+auto resp=ua-&gt;request(&ns;::http::POST, "http://localhost/cgi-bin/upload.pl",
+                      "Content-Type", "text/plain",
+                      std::make_pair(buf.begin(), buf.end()));</programlisting>
+	  </informalexample>
+	</blockquote>
+
+	<para>
+	  Non-form request content takes the form of a
+	  <classname>std::pair</classname> with a beginning and an
+	  ending iterator that define an input sequence that forms the content
+	  of the request.
+	</para>
+
+	<note>
+	  <para>
+	    The iterators must be, at a minimum, forward iterators. Input
+	    iterators are not sufficient. Random access iterators are preferred.
+	    Content defined by non-random access iterators may have to be
+	    iterated over more than once, depending on the connection parameters
+	    with the <acronym>HTTP</acronym> server.
+	  </para>
+	</note>
+
+      </listitem>
+    </orderedlist>
+
+    <note>
+      <para>
+	Requests should specify a complete, absolute <acronym>URI</acronym>.
+	Do not set a <quote>Host</quote> header in the request, giving the
+	hostname part of the <acronym>URI</acronym>.
+	Just specify an absolute <acronym>URI</acronym> and
+	<methodname>request</methodname>() takes
+	care of formatting the request.
+      </para>
+    </note>
+  </section>
+
+  <section id="httpresponse">
+    <title>Processing <acronym>HTTP</acronym> responses</title>
+
+    <blockquote>
+      <informalexample>
+	<programlisting>
+&ns;::http::useragent::base::response
+    resp=ua-&gt;request(&ns;::http::GET, "https://localhost");
+
+std::cout &lt;&lt; resp-&gt;message.getStatusCode()
+      &lt;&lt; " " &lt;&lt; resp-&gt;message.getReasonPhrase() &lt;&lt; std::endl;
+
+for (auto hdr: resp-&gt;message)
+{
+    std::cout &lt;&lt; hdr.first &lt;&lt; "="
+          &lt;&lt; hdr.second.value() &lt;&lt; std::endl;
+}
+
+if (resp-&gt;has_content())
+{
+    std::copy(resp-&gt;begin(), resp-&gt;end(),
+          std::ostreambuf_iterator&lt;char&gt;(std::cout.rdbuf()));
+    std::cout &lt;&lt; std::flush;
+}</programlisting>
+      </informalexample>
+    </blockquote>
+
+    <para>
+      <methodname>request</methodname>() returns
+      response to an <acronym>HTTP</acronym> request. Note that certain
+      fatal errors, like a failure to connect to the requested server, result
+      in a thrown exception, rather than a <classname>response</classname>
+      object.
+    </para>
+
+    <para>
+      <ulink url="&link-x--http--useragentBase;"><classname>&ns;::http::useragent::base::response</classname></ulink>
+      is a reference to a
+      <link linkend="refobj">reference-counted object</link> that contains the
+      following:
+    </para>
+
+    <itemizedlist>
+      <listitem>
+	<para>
+	  The <varname>message</varname> class member is a
+	  <ulink url="&link-x--http--responseimpl;"><classname>&ns;::http::responseimpl</classname></ulink>
+	  class instance with the headers of the
+	  response, a <methodname>getStatusCode</methodname>() that returns the
+	  numerical three digit <acronym>HTTP</acronym> status code, and a
+	  <methodname>getReasonPhrase</methodname>(), that returns the brief
+	  <acronym>HTTP</acronym> status response.
+	</para>
+      </listitem>
+
+      <listitem>
+	<para>
+	  <classname>&ns;::http::responseimpl</classname> is a subclass
+	  <ulink url="&link-x--headersbase;"><classname>&ns;::headersbase</classname></ulink>
+	  that holds the headers in the received response. The headers can be
+	  iterated over.
+	</para>
+      </listitem>
+
+      <listitem>
+	<para>
+	  <methodname>has_content</methodname>() returns an indication whether the
+	  response contains any content. The content of the
+	  <acronym>HTTP</acronym> response is fetched by
+	  <methodname>begin</methodname>() and <methodname>end</methodname>(). They
+	  return <classname>&ns;::http::useragent::base::body_iterator</classname>s
+	  that define an input sequence for the content.
+	</para>
+
+	<note>
+	  <para>
+	    <methodname>begin</methodname>() and <methodname>end</methodname>() can
+	    be called exactly once. The iterators read directly from the
+	    connection with the <acronym>HTTP</acronym> server. If the iterators
+	    go out of scope before the entire contents are read, the
+	    remainder gets read, and discarded, in the destructors.
+	  </para>
+
+	  <para>
+	    In either case, these iterators read directly from the
+	    connection with the server. This may encounter delays, and thrown
+	    exceptions, in the event of connection-related issues.
+	  </para>
+	</note>
+      </listitem>
+    </itemizedlist>
+  </section>
+
+  <section id="httppersistent">
+    <title>Persistent <acronym>HTTP</acronym> connections</title>
+
+    <para>
+      After a <link linkend="httpresponse">response to an
+	<acronym>HTTP</acronym> request</link> is no longer needed, the
+      <classname>&ns;::http::useragent::base::response</classname>, and any
+      ontent iterators need to go out of scope.
+      If the <acronym>HTTP</acronym> server supports persistent connections,
+      the <link linkend="httpuseragent">user agent object</link> uses them
+      for multiple requests.
+    </para>
+    <para>
+      However an existing connection cannot be used
+      until its previous request is completed, and the response object and
+      any iterators go out of scope.
+      When the response object and all of its iterators go out of scope,
+      the destructors return the connection with the server to the
+      user agent object it came from, which makes
+      the connection available to future requests,
+      from the same thread or other threads.
+    </para>
+  </section>
+
+  <section id="httpform">
+    <title><acronym>HTTP</acronym> forms</title>
+
+    <para>
+      <ulink url="&link-typedef-x--http--form-parameters;"><classname>&ns;::http::form::parameters</classname></ulink>
+      is a reference to <link linkend="refobj">reference-counted object</link>
+      that represents parameters for a submitted form. It is,
+      essentially, a
+      <classname>std::multimap&lt;std::string, std::string&gt;</classname>,
+      and can be treated as such:
+    </para>
+
+    <blockquote>
+      <informalexample>
+	<programlisting>
+#include &lt;&ns;/http/form.H&gt;
+&ns;::http::form::parameters params(&ns;::http::form::parameters::create());
+
+params->insert(std::make_pair("password", "opensesame"));</programlisting>
+      </informalexample>
+    </blockquote>
+
+    <para>
+      The <filename>form.H</filename> header files also defines
+      <classname>&ns;::http::form::parametersptr</classname>, a nullable
+      reference pointer; also
+      <classname>&ns;::http::form::const_parameters</classname> and
+      <classname>&ns;::http::form::const_parametersptr</classname>, the
+      constant variations.
+    </para>
+
+    <para>
+      The following constructors are available
+      in addition to the default constructor (forwarded by the
+      reference <methodname>create</methodname>() method) that instantiates an
+      empty form parameter map:
+    </para>
+
+    <blockquote>
+      <informalexample>
+	<programlisting>
+&ns;::http::form::parameters::create("list", "alpha", "list", "beta",
+                                  "option", "explicit");</programlisting>
+      </informalexample>
+    </blockquote>
+
+    <para>
+      An even-sized string list initializes the contents of the map.
+    </para>
+
+    <blockquote>
+      <informalexample>
+	<programlisting>
+&ns;::http::form::parameters::create("list=alpha&amp;list=beta&amp;option=explicit")</programlisting>
+      </informalexample>
+    </blockquote>
+
+    <para>
+      A single string parameter initializes form parameters from an
+      <literal>application/x-www-form-urlencoded</literal>-formatted string.
+    </para>
+
+    <blockquote>
+      <informalexample>
+	<programlisting>
+std::vector&lt;char&gt; buf;
+
+&ns;::http::form::parameters::create(buf);</programlisting>
+      </informalexample>
+    </blockquote>
+
+    <para>
+      A container passed as a parameter initializes form parameters from
+      the sequence obtained by the container's
+      <methodname>begin</methodname>() and <methodname>end</methodname>() methods.
+    </para>
+
+    <section id="httpformlimitediter">
+      <title>Limiting form size</title>
+
+      <blockquote>
+	<informalexample>
+	  <programlisting>
+typedef std::istreambuf_iterator&lt;char&gt; iterator;
+
+iterator beg_iter, end_iter;
+
+// ...
+
+&ns;::http::form::parameters params;
+
+params-&gt;decode_params(&ns;::http::form::limited_iter&lt;iterator&gt;(beg_iter, 8192),
+                      &ns;::http::form::limited_iter&lt;iterator&gt;(end_iter));</programlisting>
+	</informalexample>
+      </blockquote>
+
+      <para>
+	The form parameter object's <methodname>decode_params</methodname>() method
+	takes a beginning and an ending iterator. It adds additional
+	parameters to the form that are from the
+	<literal>application/x-www-form-urlencoded</literal>-formatted string
+	that's defined by the beginning and the ending iterator.
+	<classname>&ns;::http::form::limited_iter</classname> is a convenient
+	template class that enforces a maximum limit on the overall size of
+	the form, in situations where it's not known in advance.
+      </para>
+
+      <para>
+	<classname>&ns;::http::form::limited_iter</classname>'s constructor
+	for a beginning iterator takes the underlying iterator, and a byte
+	count, then constructs a wrapper that iterates over the
+	underlying iterator, but throws an exception after the specified number
+	of bytes, 8192 in the above example.
+	<classname>&ns;::http::form::limited_iter</classname>'s constructor
+	for an ending iterator is generally a no-op.
+      </para>
+    </section>
+
+    <section id="httpformencoding">
+      <title>Encoding an <acronym>HTTP</acronym> form</title>
+
+      <blockquote>
+	<informalexample>
+	  <programlisting>
+&ns;::http::form::parameters params;
+
+&ns;::http::form::parameters::base::encode_iter b=params->begin(), e=params->end();
+
+std::copy(b, e, std::ostreambuf_iterator&lt;char&gt;(std::cout);</programlisting>
+	</informalexample>
+      </blockquote>
+
+      <para>
+	The form's <methodname>begin</methodname>() and <methodname>end</methodname>()
+	methods define an input sequence that encode the form using
+	<literal>application/x-www-form-urlencoded</literal> encoding.
+      </para>
+    </section>
+  </section>
+</chapter>
+<!--
+Local Variables:
+mode: sgml
+sgml-parent-document: ("book.xml" "book" "chapter")
+End:
+-->

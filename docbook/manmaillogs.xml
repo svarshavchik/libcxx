@@ -1,0 +1,262 @@
+<!--
+
+Copyright 2012 Double Precision, Inc.
+See COPYING for distribution information.
+
+-->
+
+<refentry id="maillogs.1">
+  <info>
+    <author>
+      <firstname>Sam</firstname>
+      <surname>Varshavchik</surname>
+      <contrib>Author</contrib>
+    </author>
+    <productname>&app;</productname>
+  </info>
+
+  <refmeta>
+    <refentrytitle>maillogs</refentrytitle>
+    <manvolnum>1</manvolnum>
+    <refmiscinfo class='manual'>&appshort;</refmiscinfo>
+  </refmeta>
+
+  <refnamediv>
+    <refname>maillogs</refname>
+    <refpurpose>Send log files by mail</refpurpose>
+  </refnamediv>
+
+  <refsynopsisdiv>
+    <cmdsynopsis>
+      <command>maillogs</command>
+
+      <arg choice='opt'>
+	<group choice='req'>
+	  <arg choice='plain'>-f=<replaceable>user@domain</replaceable></arg>
+	  <arg choice='plain'>--from=<replaceable>user@domain</replaceable></arg>
+	</group>
+      </arg>
+
+      <group choice='req'>
+	<arg choice='plain'>--tostdout</arg>
+	<arg choice='req' rep='repeat'>
+	  <group choice='req'>
+	    <arg choice='plain'>-t=<replaceable>user@domain</replaceable></arg>
+	    <arg choice='plain'>--to=<replaceable>user@domain</replaceable></arg>
+	  </group>
+	</arg>
+      </group>
+
+      <arg choice='opt'>
+	<group choice='req'>
+	  <arg choice='plain'>-s="<replaceable>subject</replaceable>"</arg>
+	  <arg choice='plain'>--subject="<replaceable>subject</replaceable>"</arg>
+	</group>
+      </arg>
+
+      <arg choice='opt'>
+	<group choice='req'>
+	  <arg choice='plain'>-c=<replaceable>charset</replaceable></arg>
+	  <arg choice='plain'>--charset=<replaceable>charset</replaceable></arg>
+	</group>
+      </arg>
+
+      <group choice='opt'>
+	<group choice='req'>
+	  <arg choice='plain'>-p=<replaceable>value</replaceable></arg>
+	  <arg choice='plain'>--pattern=<replaceable>value</replaceable></arg>
+	</group>
+
+	<group choice='req'>
+	  <arg choice='plain'>-P=<replaceable>value</replaceable></arg>
+	  <arg choice='plain'>--utf8pattern=<replaceable>value</replaceable></arg>
+	</group>
+      </group>
+      <arg choice='req'>statefile</arg>
+      <arg choice='req' rep='repeat'>logfile</arg>
+    </cmdsynopsis>
+  </refsynopsisdiv>
+
+  <refsect1>
+    <title>Description</title>
+
+    <para>
+      Everyone's too lazy to look at log files.
+      <command>maillogs</command> reads some log files, and emails them
+      to somebody, who will hopefully open their mailbox and read them.
+    </para>
+
+    <para>
+      <command>maillogs</command> expects to be executed regularly
+      (hint: <filename>cron.hourly</filename>).
+      <command>maillogs</command> does not mail all the log files every time
+      it runs, only what it finds in each log file that wasn't there the last
+      time <command>maillogs</command> looked at it. The first non-option
+      parameter to <command>maillogs</command> is a file where
+      <command>maillogs</command> saves its state (creating it if necessary):
+      namely what it saw already. The remaining parameters are log files that
+      <command>maillogs</command> reads. Using shell wildcards is an
+      excellent way to handle log rotation:
+    </para>
+
+    <blockquote>
+      <informalexample>
+	<programlisting>$ maillogs [options] /var/mail.state /var/log/mail/*.log</programlisting>
+      </informalexample>
+    </blockquote>
+
+    <para>
+      Each time a new <filename>/var/log/mail/*.log</filename>
+      appears, <command>maillogs</command> picks it up and dumps it on someone's
+      desk.
+    </para>
+
+    <note>
+      <para>
+	<command>maillogs</command> cannot be used with applications that
+	rotate log files by renaming them. <command>maillogs</command> expects
+	the log file creator to create a new log file, each time, and remove
+	the older ones.
+      </para>
+    </note>
+
+    <para>
+      <command>maillogs</command> expects each individual log file to consist
+      of a plain text file, one line per log entry.
+      By default, each time <command>maillogs</command> runs, it mails
+      every new line it finds in each file, since the last time
+      <command>maillogs</command> ran.
+      <option>--pattern</option> or <option>--utf8pattern</option> are
+      optional, and specify that only the individual lines matching the given
+      pattern, which gets specified using the same syntax as Perl
+      regular expressions (<command>maillogs</command> uses the
+      <application>pcre</application> library).
+    </para>
+
+    <para>
+      <command>maillogs</command> does not
+      send any mail if it doesn't find anything new in any log file.
+      Otherwise, the result is nothing fancy:
+      just all the new/selected lines from all log files, concatenated.
+    </para>
+
+    <para>
+      Only one regular expression pattern can be specified. To select
+      multiple patterns, try shoehorning them into a single regular
+      expression. The alternative is to run <command>maillogs</command>
+      separately, once for each pattern, giving the same log files, but a
+      <emphasis>different state file</emphasis>. This, of course, results in
+      a separate mail from each instance of <command>maillogs</command>.
+    </para>
+  </refsect1>
+
+  <refsect1>
+    <title>Options</title>
+
+    <variablelist>
+      <varlistentry>
+	<term><option>-f, --from=<replaceable>user@domain</replaceable></option></term>
+	<listitem>
+	  <para>
+	    This parameter names the sender's address for the mail.
+	    This is optional, if not present <command>maillogs</command>
+	    lets <command>sendmail</command> figure it out.
+	  </para>
+	</listitem>
+      </varlistentry>
+
+      <varlistentry>
+	<term><option>-t, --to=<replaceable>user@domain</replaceable></option></term>
+	<listitem>
+	  <para>
+	    This parameter names the recipient's address. This parameter may
+	    occur more than once, to send the mail to multiple recipient.
+	    Each occurence of this parameter gives a single address.
+	  </para>
+	</listitem>
+      </varlistentry>
+
+      <varlistentry>
+	<term><option>--tostdout</option></term>
+	<listitem>
+	  <para>
+	    Do not send the mail, only format it and send it to standard output.
+	    Either <option>--tostdout</option>, or at least one
+	    <option>-t, --to</option> option must be given.
+	  </para>
+	</listitem>
+      </varlistentry>
+
+      <varlistentry>
+	<term><option>-s, --subject="<replaceable>text</replaceable>"</option></term>
+	<listitem>
+	  <para>
+	    Set "<replaceable>text</replaceable>" as the mail's subject.
+	  </para>
+	</listitem>
+      </varlistentry>
+
+      <varlistentry>
+	<term><option>-c, --charset="<replaceable>codeset</replaceable>"</option></term>
+	<listitem>
+	  <para>
+	    Specify "<replaceable>codeset</replaceable>" as the mail's
+	    <acronym>MIME</acronym> character set.
+	  </para>
+	</listitem>
+      </varlistentry>
+
+      <varlistentry>
+	<term><option>-p, --pattern="<replaceable>regexp</replaceable>"</option></term>
+	<listitem>
+	  <para>
+	    Mail only the individual lines of text that match the
+	    "<replaceable>regexp</replaceable>" regular expression, which
+	    generally uses the Perl syntax for regular expressions.
+	    The regular expression is not anchored, and can match any part
+	    of each individual line in the log file.
+	    Use <quote>^</quote> to anchor the regular expression to the
+	    start of the line.
+	  </para>
+	</listitem>
+      </varlistentry>
+
+      <varlistentry>
+	<term><option>-P, --utf8pattern="<replaceable>regexp</replaceable>"</option></term>
+	<listitem>
+	  <para>
+	    An alternative of <option>--pattern</option>
+	    that specifies that the regular expression
+	    and all the log files are presumed to be coded in the
+	    <literal>UTF-8</literal> codeset. Requires that the
+	    <application>pcre</application> library be compiled with
+	    <literal>UTF-8</literal> support (usually the case now).
+	  </para>
+	</listitem>
+      </varlistentry>
+    </variablelist>
+
+    <para>
+      <command>maillogs</command> runs <command>/usr/sbin/sendmail</command>
+      or the program specified by the <envar>SENDMAIL</envar> environment
+      variable, to send the mail, unless
+      <option>--tostdout</option> is given.
+    </para>
+  </refsect1>
+
+  <refsect1>
+    <title>Bugs</title>
+
+    <para>
+      <option>--subject</option> does not MIME-encode non-Latin characters in
+      the mail's subject. You'll have to do it yourself.
+    </para>
+  </refsect1>
+</refentry>
+
+<!--
+Local Variables:
+mode: sgml
+sgml-parent-document: ("book.xml" "appendix" "refentry")
+End:
+-->

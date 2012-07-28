@@ -1,0 +1,1439 @@
+<!--
+
+Copyright 2012 Double Precision, Inc.
+See COPYING for distribution information.
+
+-->
+
+<chapter id="fd">
+  <title>File descriptor and stream objects</title>
+
+  <blockquote>
+    <informalexample>
+      <programlisting>
+#include &lt;&ns;/fd.H&gt;
+
+&ns;::fd file(&ns;::fd::base::open("/etc/passwd", O_RDONLY));
+
+&ns;::fdptr fileptr;</programlisting>
+    </informalexample>
+  </blockquote>
+
+  <para>
+    <ulink url="&link-x--fdObj;"><classname>&ns;::fdObj</classname></ulink>
+    is a <link linkend="refobj">reference-counted</link> object that represents
+    an open file descriptor.
+    This object provides a somewhat lower-level access to file
+    descriptor than &stl;'s input/output library.
+    An <classname>&ns;::fdObj</classname>
+    wouldn't be usually instantiated directly,
+    but by using constructors defined in the base class of the
+    <ulink url="&link-typedef-x-fd;"><classname>&ns;::fd</classname></ulink>
+    and
+    <ulink url="&link-typedef-x-fdptr;"><classname>&ns;::fdptr</classname></ulink>
+    typedefs for <classname>&ns;::fdObj</classname>.
+  </para>
+
+  <para>
+    The <classname>&ns;::fd</classname> typedef is a
+    <ulink url="&link-x--ref;">&ns;::ref</ulink> to an open file descriptor
+    object, while <classname>&ns;::fdptr</classname> is a typedef for a reference
+    &ptr;. Use
+    <methodname>null</methodname>() to check if a
+    <classname>&ns;::fdptr</classname> points to a file
+    descriptor object, or not.
+  </para>
+
+  <para>
+    When the last reference or pointer to the file descriptor object goes out
+    of scope, and the object gets destroyed, the underlying file descriptor
+    gets closed automatically.
+    <classname>&ns;::fdObj</classname>'s methods, generally, throw an exception
+    when an error occurs, instead of returning an error code. However, when
+    <classname>&ns;::fdObj</classname>'s destructor closes the underlying
+    file descriptor, no exceptions gets thrown if the system
+    <methodname>close</methodname>() returns an error (as it can, for certain
+    kinds of file descriptors and situations).
+  </para>
+
+  <blockquote>
+    <informalexample>
+      <programlisting>
+&ns;::fd file;
+
+// ...
+
+file->close();</programlisting>
+    </informalexample>
+  </blockquote>
+  
+  <para>
+    An explicit call to <methodname>close</methodname>() closes the underlying
+    file descriptor, and throws an exception if an error occured.
+    <classname>&ns;::fdObj</classname>
+    still exists after <methodname>close</methodname>() returns, but calling
+    its methods will throw exceptions. Use an explicit
+    <methodname>close</methodname>() when it's desirable to verify that the
+    file descriptor gets closed without any errors.
+  </para>
+
+  <para>
+    The base class of
+    <ulink url="&link-typedef-x-fd;"><classname>&ns;::fd</classname></ulink>
+    and
+    <ulink url="&link-typedef-x-fdptr;"><classname>&ns;::fdptr</classname></ulink>
+    defines several constructors that open new file descriptors.
+  </para>
+
+  <note>
+    <para>
+      All of the following constructors are equally accessed via either
+      <classname>&ns;::fd::base</classname> or
+      <classname>&ns;::fdptr::base</classname>, for convenience. They are
+      documented with one or the other for clarity only.
+    </para>
+
+    <para>
+      Unless otherwise noted, all of these constructors create file descriptors
+      that have their close-on-exec bit set by default:
+    </para>
+  </note>
+
+  <blockquote>
+    <informalexample>
+      <programlisting>
+&ns;::fd regular_file(&ns;::fd::base::open("filename.dat", O_CREAT|O_TRUNC|O_RDWR, 0777);
+
+&ns;::fd create_file_on_close(&ns;::fd::create("filename", 0777));
+
+&ns;::fd duped_filedesc(&ns;::fd::base::dup(0));
+
+std::pair&lt;&ns;::fd, &ns;::fd&gt; pipe(&ns;::fd::base::pipe());
+
+std::pair&lt;&ns;::fd, &ns;::fd&gt; spipe(&ns;::fd::base::socketpair());
+
+&ns;::fd temporary_file(&ns;::fd::base::tmpfile());
+
+&ns;::fd temporary_file(&ns;::fd::base::tmpfile("/var/tmp"));
+
+&ns;::fd sock(&ns;::fd::base::socket(PF_UNIX, SOCK_STREAM));
+
+std::string dirname=&ns;::fd::base::mktempdir(0700);
+std::pair&lt;&ns;::fd, std::string&gt; sock(&ns;::fd::base::tmpunixfilesock(dirname + "/sysmon."));
+
+&ns;::fdptr lock_file(&ns;::fdptr::base::lockf("/var/tmp/sysmon.lock", F_TLOCK, 0777);</programlisting>
+    </informalexample>
+  </blockquote>
+
+  <para>
+    <methodname>open</methodname>() constructs a file descriptor object referring
+    to an open file, using the traditional
+    <citerefentry><refentrytitle>open</refentrytitle><manvolnum>2</manvolnum></citerefentry>
+    parameters.
+    <methodname>create</methodname>() is a version of <methodname>open</methodname>()
+    that always uses <literal>O_CREAT|O_TRUNC|O_RDWR</literal>, additionally
+    the file gets actually created as
+    <quote><replaceable>filename</replaceable>.tmp</quote>, then renamed to
+    <replaceable>filename</replaceable> when the file gets closed, either
+    automatically when the last pointer or reference to the object goes out of
+    scope and it gets destroyed, or by an explicit <methodname>close</methodname>().
+  </para>
+
+  <para>
+    <methodname>dup</methodname>() dup-es the specified raw file descriptor, and
+    constructs a new file descriptor object, that owns the dup-ed file
+    descriptor. An existing <classname>&ns;::fd</classname> or
+    <classname>&ns;::fdptr</classname> may be given instead of a raw
+    file descriptor, referring to another open file descriptor. This
+    essentially clones an existing file descriptor object.
+  </para>
+
+  <para>
+    <methodname>pipe</methodname>() and <methodname>spipe</methodname>() create a
+    regular pipe, and a socketpair pipe, respectively.
+    <methodname>tmpfile</methodname>() creates a temporary file in the default, or
+    an explicitly specified directory (which carries only an academic purpose,
+    since, as is the tradition with temporary files, it gets immediately
+    unlinked from the directory, immediately upon creation.
+  </para>
+
+  <para>
+    <methodname>socket</methodname>() creates a new socket.
+    <methodname>mktempdir</methodname>() initializes a temporary subdirectory in
+    <filename>/tmp</filename> with the specific permissions.
+    <methodname>mktempdir</methodname>() tries to use
+    <quote>libcxx.app.dir.<replaceable>userid</replaceable>.<replaceable>groupid</replaceable>.<replaceable>permissions</replaceable></quote>,
+    first, creating it if necessary. If this subdirectory already exists,
+    the process's effective user and group id must match the existing
+    subdirectory's actual ownership. Otherwise,
+    <methodname>mktempdir</methodname>()
+    creates a random subdirectory in <filename>/tmp</filename>.
+    <methodname>tmpunixfilesock</methodname>() creates and binds a filesystem
+    domain socket. The socket's name gets created randomly, with the prefix
+    that's specified as the mandatory parameter. Note that "/" must be
+    appended to the return value from mktempdir, so that
+    <methodname>tmpunixfilesock</methodname>() gets a pathname into that
+    directory, since <methodname>tmpunixfilesock</methodname>() treats its
+    parameter as a simple prefix (it's also recommended to
+    also prepend the application's name, too).
+    <methodname>tmpunixfilesock</methodname>() returns the opened socket,
+    and its filename. The socket's filesystem permissions are set to
+    <literal>0777</literal>
+  </para>
+
+  <para>
+    Combined together,
+    <methodname>mktempdir</methodname>() and
+    <methodname>tmpunixfilesock</methodname>() provide the means for
+    securely installing filesystem domain sockets in <filename>/tmp</filename>
+    using filesystem permissions to keep out interlopers, and keeping the
+    pollution in <filename>/tmp</filename> at a minimum. In a multiuser
+    environment, admins should keep an eye out on impersonators in
+    <filename>/tmp</filename>. Because <methodname>mktempdir</methodname>()
+    verifies any existing subdirectory's permissions, it'll then use
+    a random subdirectory as a fallback plan, meanwhile the pretender's
+    actual userid will identify the culprit.
+  </para>
+
+  <para>
+    The first time, though, any application creates the right subdirectory
+    with <methodname>mktempdir</methodname>(), it should not remove the
+    subdirectory itself, but rather do any housekeeping inside it.
+    The subdirectory's persistance will keep the troublemakers away,
+    automatically.
+  </para>
+
+  <para>
+    See
+    <ulink url="&link-x--fdObj;"><classname>&ns;::fdObj</classname></ulink>
+    for more information on <classname>&ns;::fdObj</classname>'s available
+    methods, once that object gets constructed.
+  </para>
+  
+  <section id="fdmisc">
+    <title>Other miscellaneous file-related function</title>
+
+    <para>
+      <classname>&ns;::fd::base</classname> and
+      <classname>&ns;::fdptr::base</classname> also define several
+      miscellaneous file-related functions:
+    </para>
+
+    <blockquote>
+      <informalexample>
+	<programlisting>
+std::string dir=&ns;::fd::base::cwd();</programlisting>
+      </informalexample>
+    </blockquote>
+
+    <para>
+      <methodname>cwd</methodname>() returns the process's current working
+      directory.
+    </para>
+  </section>
+
+  <section id="epoll">
+    <title>Linux epoll() implementation</title>
+
+    <para>
+      <ulink url="&link-typedef-x-epoll;"><classname>&ns;::epoll</classname></ulink>
+      is a reference, and
+      <ulink url="&link-typedef-x-epollptr;"><classname>&ns;::epollptr</classname></ulink>
+      is a nullable pointer reference
+      to a reference-counted object that implements the
+      Linux kernel <citerefentry>
+      <refentrytitle>epoll</refentrytitle>
+      <manvolnum>7</manvolnum>
+      </citerefentry> API.
+    </para>
+
+    <blockquote>
+      <informalexample>
+	<programlisting>
+class myEpollCallbackObj : public &ns;::epoll::callbackObj {
+public:
+    myEpollCallbackObj();
+    ~myEpollCallbackObj();
+    void event(const fd &amp;fileDesc,
+               event_t events);
+};
+
+&ns;::ref&lt;myEpollCallbackObj&gt; cb(&ns;::ref&lt;myEpollCallbackObj&gt;::create());
+
+&ns;::epoll epollSet(&ns;::epoll::create());
+
+&ns;::fd myFd(netaddr("mail.example.com", "smtp")-&gt;connect();
+
+myFd-&gt;epoll(EPOLLIN, epollSet, cb);</programlisting>
+      </informalexample>
+    </blockquote>
+
+    <para>
+      A file descriptor object's <methodname>epoll</methodname>() method
+      adds the file descriptor to the epoll set, and attaches a callback object
+      to the file descriptor.
+      An epoll object's <methodname>epoll_wait</methodname> waits for an
+      event to occur in the event set, after which the event() method from
+      the file descriptor's associated callback object gets invoked, with
+      parameters indicating which file descriptor's event has occured, and
+      what the event is.
+    </para>
+  </section>
+
+  <section id="eventfd">
+    <title>Linux eventfd() implementation</title>
+
+    <para>
+      <ulink url="&link-typedef-x-eventfd;"><classname>&ns;::eventfd</classname></ulink>
+      is a reference to a reference-counted object that implements the
+      Linux kernel <citerefentry>
+      <refentrytitle>eventfd</refentrytitle>
+      <manvolnum>2</manvolnum>
+      </citerefentry> API.
+    </para>
+
+    <blockquote>
+      <informalexample>
+	<programlisting>
+&ns;::eventfd ev(&ns;::eventfd::create());
+
+// ...
+
+ev-&gt;event(1);
+
+// ...
+eventfd_t cnt=ev-&gt;event();
+
+</programlisting>
+      </informalexample>
+    </blockquote>
+
+    <para>
+      <methodname>event</methodname>(<replaceable>n</replaceable>) increments
+      the event file descriptor's event counter by
+      <replaceable>n</replaceable> (calling the
+      <methodname>eventfd_write</methodname>() function, as documented in the
+      <citerefentry>
+	<refentrytitle>eventfd</refentrytitle>
+	<manvolnum>2</manvolnum>
+      </citerefentry>
+      manual page. <methodname>event</methodname>() calls
+      <methodname>eventfd_read</methodname>, and returns the event count.
+    </para>
+
+    <para>
+      The event file descriptor inherits from the
+      <ulink url="&link-x--fdObj;">file descriptor object</ulink>.
+      It is safe to use the following methods from the underlying file
+      descriptor object:
+      <methodname>epoll</methodname>()
+      (allowing the file descriptor object to be used in an
+      <link linkend="epoll">epoll set</link>),
+      <methodname>closeonexec</methodname>(),
+      <methodname>nonblock</methodname>(), and
+      <methodname>getFd</methodname>(). Using other methods is discouraged,
+      to avoid unintended side-effects.
+    </para>
+  </section>
+
+  <section id="timerfd">
+    <title>Linux timerfd() implementation</title>
+
+    <para>
+      <ulink url="&link-typedef-x-timerfd;"><classname>&ns;::timerfd</classname></ulink>
+      is a reference to a reference-counted object that implements the
+      Linux kernel timer file descriptor API
+      (the <citerefentry>
+      <refentrytitle>timerfd_create</refentrytitle>
+      <manvolnum>2</manvolnum>
+      </citerefentry>,
+      <citerefentry>
+	<refentrytitle>timerfd_settime</refentrytitle>
+	<manvolnum>2</manvolnum>
+	</citerefentry>, and
+	<citerefentry>
+	  <refentrytitle>timerfd_gettime</refentrytitle>
+	  <manvolnum>2</manvolnum>
+	  </citerefentry> system calls).
+	  See the reference documentation for more information on using
+	  the timer file descriptor.
+    </para>
+
+    <para>
+      The timer file descriptor inherits from the
+      <ulink url="&link-x--fdObj;">file descriptor object</ulink>.
+      It is safe to use the following methods from the underlying file
+      descriptor object:
+      <methodname>epoll</methodname>()
+      (allowing the file descriptor object to be used in an
+      <link linkend="epoll">epoll set</link>),
+      <methodname>closeonexec</methodname>(),
+      <methodname>nonblock</methodname>(), and
+      <methodname>getFd</methodname>(). Using other methods is discouraged,
+      to avoid unintended side-effects.
+    </para>
+
+  </section>
+
+  <section id="fdbase">
+    <title>The file descriptor transport superclass</title>
+
+    <para>
+      <classname>&ns;::fd</classname> is a subclass of a generic file
+      descriptor transport interface.
+      <ulink url="&link-typedef-x-fdbase;"><classname>&ns;::fdbase</classname></ulink>
+      is a reference to a reference-counted object that defines an abstract
+      interface for a subset of file descriptor methods:
+    </para>
+
+    <itemizedlist>
+      <listitem>
+	<para>
+	  pubread(), pubwrite(), pubseek(), and pubconnect()
+	  are the equivalent to their
+	  non-"pub" versions, except that they are virtual.
+	  <classname>&ns;::fd</classname> implements
+	  read(), write(), seek() and connect() as inline functions
+	  that are suitable for compile-time optimizations, and
+	  implements the pub methods by invoking the non-pub functions.
+	</para>
+      </listitem>
+
+      <listitem>
+	<para>
+	  pubread_pending() returns the number of unread bytes that are
+	  waiting to be read. If the next call to pubread() specifies
+	  not more than the returned number of bytes, pubread() is guaranteed
+	  to return immediately, without blocking.
+	</para>
+
+	<para>
+	  The implementation in <classname>&ns;::fd</classname> always
+	  returns 0. The <link linkend="sessionsetup">TLS session object</link>
+	  passes through this method to the underlying library. An encrypted
+	  bytestream gets transferred in large blocks, which are then doled
+	  out, piecemeal, by pubread(), so at a given time there may be
+	  additional data that's available to be read.
+	</para>
+      </listitem>
+
+      <listitem>
+	<para>
+	  getistream(), getostream() and getiostream() return a
+	  reference-counted <link linkend="fdstreams">stream object</link>.
+	</para>
+      </listitem>
+
+      <listitem>
+	<para>
+	  getFd() returns the underlying open file descriptor.
+	</para>
+      </listitem>
+    </itemizedlist>
+  </section>
+
+  <section id="fditer">
+    <title>Lightweight input and output file descriptor iterators</title>
+
+    <para>
+      This is simpler than using
+      <link linkend="fdstreams"><methodname>getistream</methodname>() or
+	<methodname>getostream</methodname>()</link> and constructing
+      a <classname>std::istreambuf_iterator</classname> or a
+      <classname>std::ostreambuf_iterator</classname>:
+    </para>
+
+    <blockquote>
+      <informalexample>
+	<programlisting>
+#include &lt;&ns;/fditer.H&gt;
+
+&ns;::fdbase filedesc=&ns;::fd::base::open("file", O_RDONLY);
+
+std::string str;
+
+std::copy(&ns;::fdinputiter(filedesc, 1024), &ns;::fdinputiter(),
+          std::back_insert_iterator&lt;std::string&gt;(str));
+	</programlisting>
+      </informalexample>
+    </blockquote>
+
+    <para>
+      <ulink url="&link-x--fdinputiter;"><classname>&ns;::fdinputiter</classname></ulink>
+      constructs an input iterator that reads from the underlying file
+      descriptor transport. The second optional parameter is the size of
+      the internal buffer, which defaults to the
+      <literal>&ns;::fd::buffer_size</literal>
+      <link linkend="properties">property</link>.
+      The default constructor instantiates an ending iterator value.
+    </para>
+
+    <blockquote>
+      <informalexample>
+	<programlisting>
+&ns;::fdbase filedesc=&ns;::fd::base::create("file", 0777);
+
+std::string str;
+
+&ns;::fd::outputiter iter(filedesc, 1024);
+
+iter=std::copy(str.begin(), str.end(), iter);
+
+// ...
+
+iter.flush();
+	</programlisting>
+      </informalexample>
+    </blockquote>
+
+    <para>
+      <ulink url="&link-x--fdoutputiter;"><classname>&ns;::fdoutputiter</classname></ulink>
+      constructs an output iterator that writes to the underlying file
+      descriptor transport, also using an internal buffer.
+      It's destructor does not flush unwritten buffer contents,
+      <methodname>flush</methodname>() must be explicitly invoked to do that.
+    </para>
+
+    <note>
+      <para>
+	An input and an output iterator can be constructed concurrently,
+	however they are completely independent
+	from each other, and use their own separate buffers.
+	Reading from the input iterator does not flush the output iterator,
+	and writing to the output iterator does not clear the input buffer.
+      </para>
+    </note>
+
+    <para>
+      The iterators can be constructed from any subclass of the
+      <link linkend="fdbase">file descriptor transport superclass</link>,
+      and not just <classname>&ns;::fd</classname>. This includes
+      <link linkend="gnutls_sessions"><classname>&ns;::gnutls::session</classname></link>.
+      The iterators also hold their own reference to the file descriptor
+      transport object they're iterating over.
+      Using
+      <classname>std::istreambuf_iterator</classname> or
+      <classname>std::ostreambuf_iterator</classname> requires that the
+      underlying stream objects remain in scope.
+      <classname>&ns;::fdinputiter</classname> and
+      <classname>&ns;::fdoutputiter</classname>, in addition to being
+      references to reference-counted objects themselves, hold their own
+      reference on the underlying reference-counted file descriptor transport
+      superclass.
+    </para>
+  </section>
+
+  <section id="fdtimeouts">
+    <title>Automatic file descriptor timeouts</title>
+
+    <para>
+      It is possible to set up a timeout mechanism for reading or writing
+      to a <link linkend="fd">file descriptor object</link>.
+
+      An <ulink url="&link-typedef-x-fdtimeout;"><classname>&ns;::fdtimeout</classname></ulink>
+      gets attached to a file descriptor transport, and in turn exports a
+      file descriptor transport with a timeout facade. Reading and writing
+      through the <classname>&ns;::fdtimeout</classname> object reads and
+      writes the attached file descriptor, with the timeout functionality,
+      when it's enabled.
+    </para>
+
+    <itemizedlist>
+      <listitem>
+	<para>
+	  A timeout for reading and a timeout for writing to a file descriptor
+	  are independent and separate from each time, but only one read timeout
+	  and one write timeout may be set up for an individual file descriptor.
+	  Setting up a read timeout cancels any previously set up read timeout.
+	  Setting up a write timeout cancels any previously set up write
+	  timeout.
+	</para>
+
+	<para>
+	  Additionally, an <classname>&ns;::fdtimeout</classname> object may
+	  not be attached to another <classname>&ns;::fdtimeout</classname>
+	  object (although multiple <classname>&ns;::fdtimeout</classname>
+	  objects may be attached to the same underlying
+	  <ulink url="&link-typedef-x-fd;"><classname>&ns;::fd</classname></ulink>
+	  and used separately from each other).
+	</para>
+      </listitem>
+
+      <listitem>
+	<para>
+
+	  <methodname>pubread</methodname>() and
+	  <methodname>pubwrite</methodname>()
+	  methods of <classname>&ns;::fdtimeout</classname> observe the
+	  corresponding timeouts, when enabled.
+	  <methodname>pubconnect</methodname>() observes the write timeout, if set.
+	  If the underlying <methodname>pubread_pending</methodname>() returns
+	  non-0, <methodname>pubread</methodname>() invokes the underlying
+	  <methodname>pubread</methodname>() immediately.
+	</para>
+      </listitem>
+
+      <listitem>
+	<para>
+	  The file descriptor must be nonblocking for read and write timeouts
+	  to work reliably. Invoke <quote>nonblock(true)</quote> before
+	  creating a read or a write timeout.
+	</para>
+
+	<para>
+	  When the file descriptor is set to nonblocking mode,
+	  <methodname>pubread</methodname>() and
+	  <methodname>pubwrite</methodname>() still block. They block until
+	  the underlying file descriptor is readable or writable, or until
+	  the timeout expires.
+	</para>
+      </listitem>
+
+      <listitem>
+	<para>
+	  Once a read or a write timeout occurs, additional attempts to
+	  read/write/connect a file descriptor fail immediately, until
+	  the timeout is reset.
+	</para>
+      </listitem>
+    </itemizedlist>
+
+    <blockquote>
+      <informalexample>
+	<programlisting>
+#include &lt;&ns;::fdtimeout.H&gt;
+
+&ns;::fd fd;
+
+&ns;::fdtimeout fd_with_timeout(&ns;::fdtimeout::create(fd));
+
+&ns;::istream i(fd_with_timeout-&gt;getistream());
+
+// ...
+
+fd_with_timeout-&gt;set_read_timeout(5);
+
+std::string line;
+
+std::getline(i, line);
+
+// ...
+try {
+    fd_with_timeout->pubread(buffer, bufsize);
+} catch (const &ns;::exception &amp;e) {
+}
+
+fd-&gt;cancel_read_timeout();</programlisting>
+      </informalexample>
+    </blockquote>
+
+    <para>
+      <methodname>set_read_timeout</methodname>() starts a timer. Its parameter
+      is actually a
+      <link id="timespec"><classname>&ns;::timespec</classname></link>.
+      Invoking <methodname>pubread</methodname>() directly or indirectly
+      waits for either data to be
+      available, or for the timer to expire.
+      In this case, an input stream reads a line from the
+      file descriptor, invoking its <methodname>pubread</methodname>() method.
+    </para>
+
+    <para>
+      If the timer expires before the file descriptor is readable,
+      <methodname>pubread</methodname>() throws an exception. If the file
+      descriptor's <methodname>pubread</methodname>() gets invoked directly, catch
+      this exception
+      to detect a timeout condition (as demonstrated in the given example).
+    </para>
+
+    <note>
+      <para>
+	Formatted input and output stream operators
+	catch all exceptions thrown by the underlying 
+	<classname>streambuf</classname>, and set the failed bit in the stream's
+	state (which may rethrow a <classname>std::exception</classname>, if the
+	stream object is configured to do so), causing
+	<methodname>std::getline</methodname>() to return.
+      </para>
+    </note>
+
+    <para>
+      <methodname>cancel_read_timeout</methodname>() removes the read timeout from
+      the file descriptor.
+      <methodname>set_write_timeout</methodname>() and
+      <methodname>cancel_write_timeout</methodname>() implement an equivalent
+      timeout functionality for writing to the file descriptor.
+    </para>
+
+    <note>
+      <para>
+	Timeouts do not get cleared automatically, after a succesful read or
+	a write. They are more like a deadline. After the timeout expires,
+	all subsequent reads and writes fail. The timeouts should be explicitly
+	cleared, if they get installed for the benefit of a single read or a
+	write attempt.
+      </para>
+    </note>
+
+    <para>
+      It is possible to set up a periodic read or a write timeout by
+      specifying a byte count in addition to the timeout:
+    </para>
+
+    <blockquote>
+      <informalexample>
+	<programlisting>
+fd_with_timeout-&gt;set_read_timeout(8192, 15);</programlisting>
+      </informalexample>
+    </blockquote>
+
+    <para>
+      This example sets a 15 second timeout. A timer gets started.
+      As soon as 8192 bytes are read, the timer gets restarted. The timer
+      will continue to get re-started, every 8192 bytes, until it's cancelled
+      by <methodname>cancel_read_timeout</methodname>().
+    </para>
+
+    <blockquote>
+      <informalexample>
+	<programlisting>
+fd_with_timeout-&gt;set_write_timeout(8192, 15);</programlisting>
+      </informalexample>
+    </blockquote>
+
+    <para>
+      This example sets up a write timeout with equivalent semantics.
+    </para>
+
+    <note>
+      <para>
+	Only the behavior of <methodname>pubread</methodname>() and
+	<methodname>pubwrite</methodname>() is affected by setting a read or a write
+	timeout. Other methods are not affected (except indirectly,
+	as the result of the file descriptor set to the non-blocking
+	mode).
+      </para>
+    </note>
+  </section>
+
+  <section id="fdterminator">
+    <title>Automatic file descriptor terminator</title>
+
+    <para>
+      <link linkend="fdtimeouts"><classname>&ns;::fdtimeout</classname></link>
+      also implements the concept of a file descriptor terminator. A file
+      descriptor terminator is a separate file descriptor object that's
+      attached to the primary file descriptor.
+      When the terminator file descriptor becomes readable, calls to
+      primary descriptor's pubread(), pubwrite() and pubconnect() methods
+      throw an exception:
+    </para>
+
+    <blockquote>
+      <informalexample>
+	<programlisting>
+&ns;::fd socket, terminatefd;
+
+// ...
+socket-&gt;nonblock(true);
+
+&ns;::fdtimeout socket_with_timeout(&ns;::fdtimeout::create(socket));
+
+socket_with_timeout-&gt;set_terminate_fd(terminatefd);</programlisting>
+      </informalexample>
+    </blockquote>
+
+    <para>
+      In this example, when <varname>terminatefd</varname> becomes readable,
+      all subsequent attempts to read or write from
+      <varname>socket_with_timeout</varname> throw an exception.
+      The same terminator file descriptor may be attached, using
+      <methodname>set_terminate_fd</methodname>() to multiple file descriptors.
+    </para>
+
+    <note>
+      <para>
+	The primary
+	file descriptor must be placed in non-blocking mode for this
+	to work, however its <methodname>pubread</methodname>() and
+	<methodname>write</methodname>() will block until either the primary file
+	is readable or writable, or until the terminator file descriptor
+	becomes readable.
+      </para>
+    </note>
+
+    <para>
+      Use <methodname>cancel_terminate_fd</methodname>() to remove a terminator
+      file descriptor.
+    </para>
+
+    <note>
+      <para>
+	Only the behavior of <methodname>pubread</methodname>(),
+	<methodname>pubwrite</methodname>(), and
+	<methodname>pubconnect</methodname> is affected by attaching a terminator
+	file descriptor. Other methods are not affected (except indirectly,
+	as the result of the file descriptor set to the non-blocking
+	mode).
+      </para>
+    </note>
+
+    <para>
+      This is a convenient mechanism to shut down a multithreaded server.
+      Each client socket connection is serviced by a separate thread, and
+      a terminator file descriptor gets attached to each socket file descriptor.
+      The terminator file descriptor is the read end of a pipe, or an
+      <link linkend="eventfd">event file descriptor</link>.
+      Closing a pipe, or posting an event, stops reading and writing to all
+      active sockets, which presumably results in automatic termination of
+      all threads.
+    </para>
+  </section>
+
+  <section id="fdreadlimits">
+    <title>Read limits</title>
+
+    <para>
+      A read limits is a similar mechanism that causes
+      <methodname>pubread</methodname>() to throw an exception as soon as a
+      predetermined number of bytes gets read from the underlying
+      file descriptor.
+    </para>
+
+    <blockquote>
+      <informalexample>
+	<programlisting>
+#include &lt;&ns;/fdreadlimit.H&gt;
+
+&ns;::fdreadlimit fd_with_readlimit(fdreadlimit::create(fd));
+
+fd_with_readlimit-&gt;set_read_limit(1000000);</programlisting>
+      </informalexample>
+    </blockquote>
+
+    <para>
+      This example sets a counter.
+      <ulink url="&link-typedef-x-fdreadlimit;"><classname>&ns;::fdreadlimit</classname></ulink>'s
+      <methodname>pubread</methodname>() throws
+      an exception after 1000000 bytes are counted while reading from the
+      file descriptor.
+      <methodname>cancel_read_limit</methodname>() removes the previously set
+      read limit.
+    </para>
+
+    <para>
+      A read limit is a mechanism to place an automatic
+      upper limit on amount of data received from an external source.
+      Both a read limit, and a read timeout, can be installed at the same time:
+    </para>
+
+    <blockquote>
+      <informalexample>
+	<programlisting>
+
+	  &ns;::fdtimeout fd_with_timeout(&ns;::fdtimeout::create(fd));
+	  &ns;::fdreadlimit fd_with_readlimit(fdreadlimit::create(fd_with_timeout));
+
+	  fd_with_timeout-&gt;set_read_timeout(60)
+	  fd_with_readlimit-&gt;set_read_limit(1000000);
+
+	  &ns;::istream i(fd_with_readlimit-&gt;getistream());
+	</programlisting>
+      </informalexample>
+    </blockquote>
+
+    <para>
+      This example attaches an <classname>&ns;::fdtimeout</classname>
+      to the file descriptor object, then attaches a
+      <classname>&ns;::fdreadlimit</classname> to the timeout object.
+      Both <classname>&ns;::fdtimeout</classname>'s and 
+      <classname>&ns;::fdreadlimit</classname>'s <methodname>create</methodname>()
+      take the <link linkend="fdbase"><classname>&ns;::fdbase</classname>
+      file descriptor transport superclass</link>, and each class implements
+      the interface.
+    </para>
+
+    <note>
+      <para>
+	Only one timeout and a read limit object can be attached to an
+	underlying file descriptor object, but this can be done in either
+	order.
+      </para>
+    </note>
+
+    <para>
+      Reading and writing, in the above example from
+      <varname>fd_with_readlimit</varname> implements the functionality of
+      both the read limit and the timeout object.
+    </para>
+
+    <note>
+      <para>
+	Only the behavior of <methodname>pubread</methodname>()
+	is affected by a read limit.
+	Other methods are not affected, and are passed through to the
+	underlying object.
+      </para>
+    </note>
+  </section>
+
+  <section id="fdsockets">
+    <title>Using sockets</title>
+
+    <para>
+    The 
+    <ulink url="&link-typedef-x-fd;"><classname>&ns;::fd</classname></ulink>
+    reference-counted object
+    provides standard wrappers for the usual socket functions,
+<citerefentry>
+	<refentrytitle>socket</refentrytitle>
+	<manvolnum>2</manvolnum>
+      </citerefentry>,
+<citerefentry>
+	<refentrytitle>connect</refentrytitle>
+	<manvolnum>2</manvolnum>
+      </citerefentry>,
+<citerefentry>
+	<refentrytitle>listen</refentrytitle>
+	<manvolnum>2</manvolnum>
+      </citerefentry>,
+<citerefentry>
+	<refentrytitle>bind</refentrytitle>
+	<manvolnum>2</manvolnum>
+      </citerefentry>, and
+<citerefentry>
+	<refentrytitle>accept</refentrytitle>
+	<manvolnum>2</manvolnum>
+      </citerefentry>.
+Additionally, the
+<ulink url="&link-typedef-x-netaddr;"><classname>&ns;::netaddr</classname></ulink>
+reference provides a convenient high level interface for creating sockets:
+</para>
+    <blockquote>
+      <informalexample>
+	<programlisting>
+#include &lt;&ns;/fd.H&gt;
+#include &lt;&ns;/netaddr.H&gt;
+
+&ns;::fd sock=&ns;::netaddr::create("www.example.com", "http", SOCK_STREAM)
+        -&gt;domain(AF_INET)-&gt;connect();</programlisting>
+      </informalexample>
+    </blockquote>
+
+    <para>
+      <classname>&ns;::netaddr</classname> holds an unresolved network address
+      (the hostname, port, socket type, and a few other attributes). Its
+      <methodname>connect</methodname>() method uses
+      <citerefentry>
+	<refentrytitle>getaddrinfo</refentrytitle>
+	<manvolnum>3</manvolnum>
+      </citerefentry> to resolve the network address, then tries connecting
+      to each resolved address. If the server's name resolves to multiple
+      addresses, a connection attempt gets made to each address, until a
+      connection gets established. An exception gets thrown if connection
+      to all resolved addresses fails.
+    </para>
+
+    <para>
+      An optional parameter to <methodname>connect</methodname>() implements a
+      general mechanism for timing out a connection attempt:
+    </para>
+
+    <blockquote>
+      <informalexample>
+	<programlisting>
+#include &lt;&ns;/fdtimeoutconfig.H&gt;
+
+class my_timeout_config : public &ns;::fdtimeoutconfig {
+
+public:
+    &ns;::fd termfd;
+
+    &ns;::fdbase operator()(const fd &amp;fdArg) const
+    {
+        &ns;::fdtimeout fd_with_timeout(&ns;::fdtimeout::create(fd));
+
+        fd_with_timeout->set_terminate_fd(termfd);
+
+        return fd_with_timeout;
+    }
+};
+
+// ...
+
+my_timeout_config timeout;
+
+// ...
+
+fd sock=&ns;::netaddr::create("www.example.com", "http", SOCK_STREAM)
+        -&gt;domain(AF_INET)
+        -&gt;connect(timeout);</programlisting>
+      </informalexample>
+    </blockquote>
+
+    <para>
+      The optional parameter to <methodname>connect</methodname>() is a functor
+      subclass of
+      <ulink url="&link-x--fdtimeoutconfig;"><classname>&ns;::fdtimeoutconfig</classname></ulink>.
+      The functor receives the newly created socket object, and returns a
+      reference to the
+      <link linkend="fdbase"><classname>&ns;::fdbase</classname></link> which
+      will be used for the actual connection attempt.
+      The above example sets a
+      <link linkend="fdterminator">file descriptor terminator</link>.
+      If the terminator descriptor becomes readable, the connection attempt
+      gets aborted.
+    </para>
+
+    <blockquote>
+      <informalexample>
+	<programlisting>
+fd sock=&ns;::netaddr::create("www.example.com", "http", SOCK_STREAM)
+        -&gt;domain(AF_INET)
+        -&gt;connect(&ns;::fdtimeoutconfig::terminate_fd(termfd));</programlisting>
+      </informalexample>
+    </blockquote>
+
+    <para>
+      Use
+      <ulink url="&link-x--fdtimeoutconfig--terminate-fd;"><classname>&ns;::fdtimeoutconfig::terminate_fd</classname></ulink>
+      as a convenient shortcut to implement the same functionality.
+      The constructor takes a terminator file descriptor, and defines a
+      functor that installs the terminator file descriptor into each received
+      file descriptor.
+    </para>
+
+    <blockquote>
+      <informalexample>
+	<programlisting>
+std::list&lt;&ns;::fd&gt; fdList;
+
+    &ns;::netaddr::create("", "http", SOCK_STREAM)
+        -&gt;bind(fdList, true);</programlisting>
+      </informalexample>
+    </blockquote>
+
+    <para>
+      <classname>&ns;::netaddr</classname>'s bind() method creates a list of
+      socket objects and binds them to the specified address. It's possible
+      that the specified address may resolve to multiple addresses, for example
+      an IPv4 and an IPv6 socket. This is why bind() takes a list of
+      sockets as a parameter. bind() creates all sockets, binds each socket,
+      and adds them to the list.
+    </para>
+
+    <para>
+      The second parameter may also be a string with a list of port names
+      or numbers, separated by commas or spaces; or an explicit
+      <classname>std::list&lt;int&gt; &amp;</classname>.
+      When used with <methodname>bind</methodname>(), this creates listening sockets
+      on all specified ports.
+      When used with <methodname>connect</methodname>(), this connects to the
+      first port in the list that's listening for connections.
+    </para>
+
+    <para>
+      An alternative format provides for a unified way to create either
+      a network or filesystem domain socket:
+    </para>
+
+    <blockquote>
+      <informalexample>
+	<programlisting>
+&ns;::fd fd=&ns;::netaddr::create(SOCK_STREAM, "inet:www.example.com", "http");
+
+// ...
+
+&ns;::fd fd=&ns;::netaddr::create(SOCK_STREAM, "file:/tmp/sock");
+
+        -&gt;bind(fdList, true);</programlisting>
+      </informalexample>
+    </blockquote>
+
+    <para>
+      Specify <quote>inet:<replaceable>host</replaceable></quote> creates a
+      network socket, and
+      <quote>file:<replaceable>path</replaceable></quote> connects to a
+      filesystem socket. For network sockets, <quote>/port</quote> may also
+      be appended to the host parameter, instead of given as a separate
+      argument.
+    </para>
+
+    <blockquote>
+      <informalexample>
+	<programlisting>
+std::string d=&ns;::fd::base::mktempdir(0700);
+std::pair&lt;&ns;::fd, std::string&gt; tmpsock=&ns;::fd::tmpunixfilesock(d + "/sysmon.");</programlisting>
+      </informalexample>
+    </blockquote>
+
+    <para>
+      As explained at the <link linkend="fd">beginning of this chapter</link>,
+      <methodname>&ns;::fd::mktempdir</methodname>() creates a temporary
+      subdirectory, with the right permissions, in
+      <filename>/tmp</filename>.
+      <methodname>&ns;::fd::tmpunixfilesock</methodname>() creates a randomly
+      named filename  and attempts to bind a filesystem
+      domain socket, returning the socket and the bound name. To prevent
+      pollution, every attempt to manually unlink the socket should be made,
+      before the process terminates.
+    </para>
+  </section>
+
+  <section id="fileattr">
+    <title>File attributes</title>
+
+    <para>
+      The
+      <ulink url="&link-typedef-x-fileattr;"><classname>&ns;::fileattr</classname></ulink>
+      object provides access to file attributes, specifically:</para>
+
+    <itemizedlist>
+      <listitem>
+        <simpara>
+          File inode information (the stat(2) system call).</simpara>
+      </listitem>
+      <listitem>
+        <simpara>
+          Access control lists, where available.</simpara>
+      </listitem>
+      <listitem>
+        <simpara>
+          Targets of symbolic links.</simpara>
+      </listitem>
+    </itemizedlist>
+
+    <para>
+      An explicitly constructed
+      <classname>&ns;::fileattr</classname> object provides attributes of an
+      existing file or a directory.
+      This is a reference to a reference counted subclass of
+      <classname>&ns;::basic_attr</classname>, which defines the interface
+      described in this section.
+      Additionally,
+      <ulink url="&link-typedef-x-fd;"><classname>&ns;::fd</classname></ulink>
+      objects are also subclassed from
+      <classname>&ns;::basic_attr</classname>, and implement the same methods
+      for an open file descriptor:</para>
+
+    <blockquote>
+      <informalexample>
+	<programlisting>
+#include &lt;&ns;::attr.H&gt;
+
+&ns;::fd fd;
+
+// ...
+
+&ns;::fileattr filenameAttr(&ns;::fileattr::create("filename", true));
+
+filenameAttr-&gt;stat(); // The stat() system call on an existing file
+
+// ...
+fd-&gt;stat(); // The fstat() system call on an open file descriptor</programlisting>
+      </informalexample>
+    </blockquote>
+  </section>
+
+  <section id="fdstreams">
+    <title>Stream objects</title>
+
+    <para>
+    <ulink url="&link-typedef-x-fd;"><classname>&ns;::fd</classname></ulink>
+    references provide three methods that associate an
+    <literal>std</literal> stream object with the file descriptor:
+    getistream(), getostream(), and getiostream().
+    They return an
+    <ulink url="&link-typedef-x-istream;"><classname>&ns;::istream</classname></ulink>,
+    <ulink url="&link-typedef-x-ostream;"><classname>&ns;::ostream</classname></ulink>,
+    <ulink url="&link-typedef-x-iostream;"><classname>&ns;::iostream</classname></ulink> references, accordingly.
+    These references point to an object that's derived from its
+    namesake in the <literal>std</literal> namespace, and
+    <link linkend="refobj"><classname>&ns;::obj</classname></link>.
+    There are no equivalent for wide-character streams. &app;
+    implements wide character support differently. The C++ library implements
+    conversion between narrow and wide characters in the stream buffer.
+    &app; uses the IO filters framework to handle wide character conversion
+    as a separate layer.
+    Note that because
+    <classname>&ns;::istream</classname>,
+    <classname>&ns;::ostream</classname> and
+    <classname>&ns;::iostream</classname> are references, use
+    the <literal>*</literal> operator where the context calls for a 
+    <literal>std</literal> stream:
+    </para>
+
+    <blockquote>
+      <informalexample>
+	<programlisting>
+#include &lt;&ns;/fd.H&gt;
+
+&ns;::fd outputFile(&ns;::fd::create("outputfile.dat"));
+
+&ns;::ostream outputFileStream(outputFile->getostream());
+
+(*outputFileStream) &lt;&lt; std::setw(10) &lt;&lt; "Title" &lt;&lt; std::endl &lt;&lt; std::flush;
+</programlisting>
+      </informalexample>
+    </blockquote>
+
+    <para>
+    Output stream objects require more explicit flushing than their
+    <literal>std</literal> counterparts. They maintain an internal stream
+    buffer object. Since it's a reference-counted object,
+    it gets destroyed automatically
+    when the last reference to the underlying object goes out of scope.
+    Anything that was still buffered by the underlying stream buffer object
+    gets lost, and not flushed to the underlying file descriptor.
+    </para>
+  </section>
+
+  <section id="stringstreams">
+    <title>String stream objects</title>
+
+    <para>
+      Reference-counted versions of string stream objects:
+      <ulink url="&link-typedef-x-istringstream;"><classname>&ns;::istringstream</classname></ulink>,
+      <ulink url="&link-typedef-x-ostringstream;"><classname>&ns;::ostringstream</classname></ulink>,
+      <ulink url="&link-typedef-x-stringstream;"><classname>&ns;::stringstream</classname></ulink>,
+      and their wide character counterparts,
+      <ulink url="&link-typedef-x-wistringstream;"><classname>&ns;::wistringstream</classname></ulink>,
+      <ulink url="&link-typedef-x-wostringstream;"><classname>&ns;::wostringstream</classname></ulink>,
+      <ulink url="&link-typedef-x-wstringstream;"><classname>&ns;::wstringstream</classname></ulink>,
+      examples:
+    </para>
+
+    <blockquote>
+      <informalexample>
+	<programlisting>
+#include &lt;x/basicstringstreamobj.H&gt;
+
+&ns;::ostringstream o(&ns;::ostringstream::create());
+
+(*o) &lt;&lt; "Grand total: " &lt;&lt; n;
+
+// ...
+
+std::string str;
+
+&ns;::istringstream i(&ns;::istringstream::create(str));
+
+i &gt;&gt; n;</programlisting>
+      </informalexample>
+    </blockquote>
+  </section>
+
+  <section id="fdlistener">
+    <title>File descriptor listeners and servers</title>
+
+    <blockquote>
+      <informalexample>
+	<programlisting>
+#include &lt;x/fdlistener.H&gt;
+
+class myServerThread : virtual public &ns;::obj {
+
+public:
+    void run(const &ns;::fd &amp;raw_socket,
+             const &ns;::fd &amp;termfd)
+    {
+        raw_socket-&gt;nonblock(true);
+
+        &ns;::fdtimeout socket(&ns;::fdtimeout::create(raw_socket));
+
+        socket-&gt;set_terminate_fd(termfd);
+
+        // read and write from socket.
+    }
+};
+
+&ns;::ref&lt;myServerThread&gt; server(&ns;::ref&lt;myServerThread&gt;::create());
+
+&ns;::fdlistener listener(&ns;::fdlistener::create(4000));
+
+listener-&gt;start(server);
+
+// ...
+
+listener-&gt;stop();
+listener-&gt;wait();</programlisting>
+      </informalexample>
+    </blockquote>
+
+    <para>
+      <ulink url="&link-typedef-x-fdlistener;"><classname>&ns;::fdlistener</classname></ulink>
+      is a reference to
+      a reference-counted object that implements a thread which listens on one
+      or more sockets for incoming connections, starting a new thread for
+      each established connection.
+    </para>
+
+    <para>
+      <methodname>create</methodname>() creates a new listener object.
+      Its parameter may be one of the following:
+    </para>
+
+    <variablelist>
+      <varlistentry>
+	<term>A port number</term>
+	<listitem>
+	  <para>
+	    A listening <literal>SOCK_STREAM</literal> socket is created,
+	    bound to this port, and
+	    <citerefentry>
+	    <refentrytitle>listen</refentrytitle>
+	    <manvolnum>3</manvolnum></citerefentry>d on.
+	  </para>
+	</listitem>
+      </varlistentry>
+
+      <varlistentry>
+	<term>A string containing a list of port names or numbers</term>
+	<listitem>
+	  <para>
+	    A listening <literal>SOCK_STREAM</literal> socket is created
+	    for each port in the given list, separated by commas or spaces.
+	    Each file descriptor is bound to the port and
+	    <citerefentry>
+	      <refentrytitle>listen</refentrytitle>
+	      <manvolnum>3</manvolnum></citerefentry>d on.
+	  </para>
+	</listitem>
+      </varlistentry>
+
+      <varlistentry>
+	<term>A <classname>std::list&lt;int&gt;</classname></term>
+	<listitem>
+	  <para>
+	    A listening <literal>SOCK_STREAM</literal> socket is created
+	    for multiple port numbers specified by the given list.
+	    Each socket is bound to a port and
+	    <citerefentry>
+	      <refentrytitle>listen</refentrytitle>
+	      <manvolnum>3</manvolnum></citerefentry>d on.
+	  </para>
+	</listitem>
+      </varlistentry>
+
+      <varlistentry>
+	<term>A <classname>std::list&lt;&ns;::fd&gt;</classname></term>
+	<listitem>
+	  <para>
+	    This is presumed to be a list of file descriptors that have
+	    already been bound to their appropriate ports.
+	    Each file descriptor in the list is
+	    <citerefentry>
+	      <refentrytitle>listen</refentrytitle>
+	      <manvolnum>3</manvolnum></citerefentry>d on.
+	  </para>
+	</listitem>
+      </varlistentry>
+    </variablelist>
+
+    <para>
+      <methodname>create</methodname>() also takes several optional parameters for
+      its internal thread worker, which are described
+      in the <link linkend="workerpool">worker pool documentation</link>.
+    </para>
+
+    <para>
+      The constructor instantiates an object.
+      <methodname>start</methodname>() spawns a thread that accepts connections
+      from listening sockets, and starts other threads, for each accepted
+      connection. The parameter to
+      <methodname>start</methodname>() is a reference to an object
+      that defines a <methodname>run</methodname>() method, as given in the
+      example above. <methodname>run</methodname>() gets invoked for each accepted
+      connection, in its own separate thread, and all connection threads
+      use the same server object's
+      <methodname>run</methodname>() method.
+    </para>
+
+    <para>
+      The first parameter to <methodname>run</methodname>() is a reference to
+      a file descriptor object for the new socket.
+      The second parameter is a reference to a
+      <link linkend="fdterminator">terminator file descriptor</link>.
+      This file descriptor becomes readable if the connection thread
+      is still running when the listener thread stops.
+    </para>
+
+    <para>
+      The connection thread should terminate when the terminator file
+      descriptor becomes readable. The above example
+      demonstrates the direct approach of directly setting it as a
+      <link linkend="fdterminator">file descriptor terminator</link> for
+      the raw socket.
+    </para>
+
+    <para>
+      The <methodname>run</methodname>() method may also take additional
+      parameters that get forwarded by the listener object's
+      <methodname>start</methodname>():
+    </para>
+
+    <blockquote>
+      <informalexample>
+	<programlisting>
+#include &lt;x/fdlistener.H&gt;
+
+class documentObj;
+
+typedef &ns;::ref&lt;documentObj&gt; document;
+
+
+class myServerThread : virtual public &ns;::obj {
+
+public:
+    void run(const &ns;::fd &amp;raw_socket,
+             const &ns;::fd &amp;termfd,
+             const document &amp;doc)
+    {
+        raw_socket-&gt;nonblock(true);
+
+        &ns;::fdtimeout socket(&ns;::fdtimeout::create(raw_socket));
+
+        socket-&gt;set_terminate_fd(termfd);
+
+        // read and write from socket.
+    }
+};
+
+&ns;::ref&lt;myServerThread&gt; server(&ns;::ref&lt;myServerThread&gt;::create());
+
+&ns;::fdlistener listener(&ns;::fdlistener::create(4000));
+
+listener-&gt;start(server, document::create());</programlisting>
+      </informalexample>
+    </blockquote>
+
+    <para>
+      The additional parameters to the listener object's
+      <methodname>start</methodname>() get forwarded as additional parameters
+      to the server object's <methodname>run</methodname>().
+    </para>
+
+    <note>
+      <para>
+	The same parameters given to <methodname>start</methodname>() get
+	forwarded to each thread that gets started for each accepted connection.
+	The parameters given to <methodname>start</methodname>() get saved.
+	The parameters must be copy-constructible. Each started thread
+	is passed a copy of the same saved parameter values.
+      </para>
+
+      <para>
+	Only one copy of the stored parameters gets saved. Each thread gets
+	a reference to a constant parameter value.
+	The thread's <methodname>run</methodname>() must declare the forwarded
+	parameter types as rvalues or as references to constant types.
+      </para>
+    </note>
+  </section>
+</chapter>
+<!--
+Local Variables:
+mode: sgml
+sgml-parent-document: ("book.xml" "book" "chapter")
+End:
+-->

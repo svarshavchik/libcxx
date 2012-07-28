@@ -1,0 +1,698 @@
+/*
+** Copyright 2012 Double Precision, Inc.
+** See COPYING for distribution information.
+*/
+
+#include "libcxx_config.h"
+#include "httportmap.H"
+#include "sysexception.H"
+#include "sockaddr.H"
+#include "messages.H"
+#include "http/cgiimpl.H"
+#include "property_value.H"
+#include "http/useragent.H"
+#include "servent.H"
+#include "gettext_in.h"
+
+#include <sstream>
+
+namespace LIBCXX_NAMESPACE {
+#if 0
+};
+#endif
+
+property::value<int> LIBCXX_HIDDEN default_portmaport_prop(LIBCXX_NAMESPACE_WSTR
+							 L"::httportmap::port",
+							 80);
+
+const char httportmapBase::portmap_service[]="httportmap.libcxx";
+const char httportmapBase::pid2exe_service[]="pid2exe.libcxx";
+
+#define LIBCXX_TEMPLATE_DECL
+#include "x/httportmap_t.H"
+#undef LIBCXX_TEMPLATE_DECL
+
+int httportmapObj::getDefaultPort()
+{
+	return default_portmaport_prop.getValue();
+}
+
+class LIBCXX_HIDDEN httportmapBase::regpid2exeObj : virtual public x::obj {
+
+ public:
+
+	httportmap instance;
+
+	regpid2exeObj() : instance(httportmap::create())
+	{
+		instance->regpid2exe();
+	}
+
+	~regpid2exeObj() noexcept {}
+};
+
+singleton<httportmapBase::regpid2exeObj> LIBCXX_HIDDEN local_regpid2exe_instance;
+
+httportmap httportmapBase::regpid2exe()
+{
+	return local_regpid2exe_instance.get()->instance;
+}
+
+// A singleton that contains a socket connection to the local portmapper's
+// registration service.
+
+class LIBCXX_HIDDEN httportmapObj::daemonConnObj : virtual public obj {
+
+public:
+	fdptr clientfd;
+
+	friend class httportmapObj;
+
+	daemonConnObj()
+	{
+	}
+
+	~daemonConnObj() noexcept
+	{
+	}
+};
+
+singleton<httportmapObj::daemonConnObj> LIBCXX_HIDDEN local_daemon;
+
+// A lock on the connection with the portmapper registration singleton
+
+// Before instantating this object, acquire a mutex lock on the singleton.
+// Instantiating this object copies the connection file descriptor
+// object into this structure, then removes the file descriptor in the
+// singleton. Before this object goes out of scope, the user must invoke
+// check(), this puts the file descriptor back into the singleton.
+//
+// Otherwise, if an exception gets thrown, indicating some problem talking with
+// the daemon, the singleton is left without a file descriptor for the
+// connection, its left here, and gets closed.
+
+class LIBCXX_HIDDEN httportmapObj::clock {
+
+ public:
+	fdptr origfd;
+
+	iostream io;
+
+	clock(const ref<daemonConnObj> &conn,
+	      const fdptr &timeoutfd,
+	      httportmapObj &obj)
+		: origfd(conn->clientfd),
+		io(
+		   ({
+			   fdptr t(origfd);
+
+			   if (!timeoutfd.null())
+			   {
+				   fdtimeout timeout(fdtimeout::create(t));
+
+				   timeout->set_terminate_fd(timeoutfd);
+
+				   t=timeout;
+			   }
+
+			   t->getiostream();
+		   })
+		   )
+		{
+			conn->clientfd=fdptr();
+
+			// An exception occuring after construction results in
+			// automatically closing the client connection, until
+			// succesfull completion, which restores origfd.
+		}
+
+	void check(const ref<daemonConnObj> &conn)
+	{
+		if (!io->good())
+			throw SYSEXCEPTION("portmapper");
+
+		conn->clientfd=origfd;
+	}
+
+	~clock() noexcept
+	{
+	}
+};
+
+httportmapObj::httportmapObj(const std::string &serverArg,
+			     int server_portArg)
+	: ua(http::useragent::base::global()),
+	  server(serverArg), server_port(server_portArg)
+{
+}
+
+httportmapObj::httportmapObj(const http::useragent &uaArg,
+			     const std::string &serverArg,
+			     int server_portArg)
+	: ua(uaArg), server(serverArg), server_port(server_portArg)
+{
+}
+
+httportmapObj::~httportmapObj() noexcept
+{
+	if (daemon.null())
+		return;
+
+	try {
+		ref<daemonConnObj> conn(daemon);
+
+		std::lock_guard<std::mutex> connlock(conn->objmutex);
+
+		if (conn->clientfd.null())
+			return;
+
+		clock connection_lock(conn, fdptr(), *this);
+
+		(*connection_lock.io) << "DROP\t" << x::tostring(uuid)
+				      << "\n" << std::flush;
+
+		std::string resp;
+
+		if (connection_lock.io->good())
+			std::getline(*connection_lock.io, resp);
+
+		connection_lock.check(conn);
+	} catch (...)
+	{
+	}
+}
+
+http::useragent::base::response
+httportmapObj::request_csv_list(const fdptr &timeoutfd,
+				const std::set<std::string> &service_list,
+				const std::set<uid_t> &users_list,
+				const std::set<pid_t> &pid_list)
+	const
+{
+	http::form::parameters params(http::form::parameters::create());
+
+	for (auto service: service_list)
+		params->insert(std::make_pair("service", service));
+
+	for (auto uid: users_list)
+	{
+		std::ostringstream o;
+
+		o << uid;
+
+		params->insert(std::make_pair("user", o.str()));
+	}
+
+	for (auto pid: pid_list)
+	{
+		std::ostringstream o;
+
+		o << pid;
+
+		params->insert(std::make_pair("pid", o.str()));
+	}
+
+	http::useragent::base::response resp=
+		ua->request(timeoutfd, http::POST,
+			    ({
+				    std::ostringstream o;
+
+				    o << "http://" << (server.size()
+						       ? server:"localhost");
+
+				    if (server_port !=
+					servent("http", "tcp")->s_port)
+					    o << ":" << server_port;
+
+				    o << "/portmap";
+				    o.str();
+			    }),
+			    "Connection", "close",
+			    "Accept", "text/csv",
+			    params);
+
+	if (resp->message.getStatusCode() != 200)
+		throw EXCEPTION(resp->message.getReasonPhrase());
+
+	return resp;
+}
+
+httportmap::base::service httportmapObj
+::init_service(const std::vector<std::string> &row,
+	       const std::map<std::string, size_t> &colmap)
+
+{
+	httportmap::base::service serv;
+
+	std::map<std::string, size_t>::const_iterator
+		service_val(colmap.find("service")),
+		user_val(colmap.find("user")),
+		pid_val(colmap.find("pid")),
+		port_val(colmap.find("port")),
+		path_val(colmap.find("prog"));
+
+	if (service_val != colmap.end())
+		serv.key.name=row[service_val->second];
+
+	serv.key.user= (uid_t)-1;
+
+	if (user_val != colmap.end())
+	{
+		std::istringstream i(row[user_val->second]);
+		i >> serv.key.user;
+	}
+
+	serv.pid= (pid_t)-1;
+	if (pid_val != colmap.end())
+	{
+		std::istringstream i(row[pid_val->second]);
+
+		i >> serv.pid;
+	}
+
+	if (port_val != colmap.end())
+		serv.port=row[port_val->second];
+
+	if (path_val != colmap.end())
+		serv.path=row[path_val->second];
+
+	return serv;
+}
+
+bool httportmapObj::reg(const std::string &svc, const fd &fdArg,
+			int flags, const fdptr &timeoutfd)
+
+{
+	std::ostringstream o;
+
+	{
+		sockaddr name(fdArg->getsockname());
+
+		switch (name->family()) {
+		case AF_INET:
+		case AF_INET6:
+			o << name->port();
+			break;
+		case AF_UNIX:
+			o << name->address();
+			break;
+		default:
+			return false;
+		}
+	}
+
+	return reg(svc, o.str(), flags, timeoutfd);
+}
+
+bool httportmapObj::reg(const std::string &svc,
+			const std::list<fd> &fdList,
+			int flags, const fdptr &timeoutfd)
+
+{
+	std::list<reginfo> ports;
+
+	std::set<std::string> portset;
+
+	for (std::list<fd>::const_iterator
+		     b(fdList.begin()), e(fdList.end()); b != e; ++b)
+	{
+		reginfo newreg;
+
+		newreg.name=svc;
+		newreg.flags=flags;
+
+		sockaddr name((*b)->getsockname());
+
+		switch (name->family()) {
+		case AF_INET:
+		case AF_INET6:
+			{
+				std::ostringstream o;
+
+				o << name->port();
+
+				newreg.port=o.str();
+			}
+			break;
+		case AF_UNIX:
+			newreg.port=name->address();
+			break;
+		default:
+			return false;
+		}
+
+		if (!portset.insert(newreg.port).second)
+			continue; // Dupe
+
+		ports.push_back(newreg);
+	}
+
+	return reg(ports, timeoutfd);
+}
+
+bool httportmapObj::reg(const std::string &svc, int port,
+			int flags, const fdptr &timeoutfd)
+
+{
+	std::ostringstream o;
+
+	o << port;
+
+	return reg(svc, o.str(), flags, timeoutfd);
+}
+
+bool httportmapObj::reg(const std::string &svc, const std::string &port,
+			int flags, const fdptr &timeoutfd)
+
+{
+	reginfo newreg;
+
+	newreg.name=svc;
+	newreg.port=port;
+	newreg.flags=flags;
+
+	std::list<reginfo> ports;
+
+	ports.push_back(newreg);
+
+	return reg(ports, timeoutfd);
+}
+
+bool httportmapObj::reg(const std::list<reginfo> &ports, const fdptr &timeoutfd)
+
+{
+	if (ports.empty())
+		return true;
+
+	for (std::list<reginfo>::const_iterator
+		     b(ports.begin()), e(ports.end()); b != e; ++b)
+	{
+		std::string n=b->name + b->port;
+		std::string::const_iterator cb, ce;
+
+		for (cb=n.begin(), ce=n.end(); cb != ce; ++cb)
+			if ((unsigned char)*cb < ' ')
+				badsvcport();
+
+		if (b->name.size() == 0 || b->port.size() == 0)
+			badsvcport();
+	}
+
+	std::lock_guard<std::mutex> lock(objmutex);
+
+	if (daemon.null() && (daemon=local_daemon.get()).null())
+		return true; // App shutdown, most likely. Punt.
+
+	ref<daemonConnObj> conn(daemon);
+
+	std::lock_guard<std::mutex> connlock(conn->objmutex);
+
+	if (conn->clientfd.null())
+	{
+		fd newfd(connect(httportmap::base::portmap_service, 0, timeoutfd));
+
+		if (!newfd->send_credentials())
+		{
+			errno=ETIMEDOUT;
+			throw SYSEXCEPTION("connect");
+		}
+
+		conn->clientfd=newfd;
+	}
+
+	clock connection_lock(conn, timeoutfd, *this);
+
+	std::string resp;
+
+	for (std::list<reginfo>::const_iterator
+		     b(ports.begin()), e(ports.end()); b != e; ++b)
+	{
+		(*connection_lock.io)
+			<< "SVC\t"
+			<< (b->flags & httportmap::base::pm_exclusive ? "X":"")
+			<< (b->flags & httportmap::base::pm_public ? "P":"")
+			<< "-"
+			<< '\t' << b->name
+			<< '\t' << b->port << '\n' << std::flush;
+
+		if (!connection_lock.io->good()
+		    || !std::getline(*connection_lock.io, resp).good())
+			badclient();
+
+		if (resp.substr(0, 1) != "+")
+			badclient();
+	}
+
+	(*connection_lock.io)
+		<< "REG\t" << x::tostring(uuid) << "\n" << std::flush;
+
+	if (!connection_lock.io->good()
+	    || !std::getline(*connection_lock.io, resp).good())
+		badclient();
+
+	connection_lock.check(conn);
+	return resp.substr(0, 1) == "+";
+}
+
+void httportmapObj::dereg(const std::string &svc,
+			  const std::string &port,
+			  const fdptr &timeoutfd)
+
+{
+	{
+		std::string n=svc+port;
+		std::string::const_iterator cb, ce;
+
+		for (cb=n.begin(), ce=n.end(); cb != ce; ++cb)
+			if ((unsigned char)*cb < ' ')
+				badsvcport();
+	}
+
+	std::lock_guard<std::mutex> lock(objmutex);
+
+	if (daemon.null())
+		badclient();
+
+	ref<daemonConnObj> conn(daemon);
+
+	std::lock_guard<std::mutex> connlock(conn->objmutex);
+
+	if (conn->clientfd.null())
+		badclient();
+
+	clock connection_lock(conn, timeoutfd, *this);
+
+	std::string resp;
+
+	(*connection_lock.io) << "DEREG\t" << x::tostring(uuid) << '\t'
+			      << svc << '\t' << port << "\n" << std::flush;
+
+	if (!connection_lock.io->good() ||
+	    !std::getline(*connection_lock.io, resp).good() ||
+	    resp.substr(0, 1) != "+")
+		badclient();
+
+	connection_lock.check(conn);
+}
+
+void httportmapObj::dereg(const std::string &svc,
+			  int port,
+			  const fdptr &timeoutfd)
+
+{
+	std::ostringstream o;
+
+	o << port;
+
+	dereg(svc, o.str(), timeoutfd);
+}
+
+void httportmapObj::dereg(const std::string &svc,
+			  const fd &fdArg,
+			  const fdptr &timeoutfd)
+
+{
+	std::ostringstream o;
+
+	{
+		sockaddr name(fdArg->getsockname());
+
+		switch (name->family()) {
+		case AF_INET:
+		case AF_INET6:
+			o << name->port();
+			break;
+		case AF_UNIX:
+			o << name->address();
+			break;
+		default:
+			throw EXCEPTION(libmsg()
+					->get(_txt("Unknown file descriptor name")));
+		}
+	}
+
+	dereg(svc, o.str(), timeoutfd);
+}
+
+
+void httportmapObj::dereg(const std::string &svc,
+			  const std::list<fd> &fdList,
+			  const fdptr &timeoutfd)
+
+{
+	for (std::list<fd>::const_iterator b(fdList.begin()),
+		     e(fdList.end()); b != e; ++b)
+		dereg(svc, *b, timeoutfd);
+}
+
+void httportmapObj::nosuchuser(uid_t u)
+{
+	throw EXCEPTION(libmsg()->format(_txt("httportmap: userid %1% not found"), u));
+}
+
+void httportmapObj::badresponse()
+{
+	throw EXCEPTION(libmsg()
+			->get(_txt("Unable to parse response from portmapper"))
+			);
+}
+
+fd httportmapObj::connect_any(const std::string &name,
+			      const fdptr &timeoutfd)
+{
+	std::vector<httportmap::base::service> entries;
+
+	{
+		std::set<std::string> services;
+		std::set<uid_t> userids;
+		std::set<pid_t> pids;
+
+		services.insert(name);
+
+		list(std::back_insert_iterator<std::vector<httportmap::base::service>
+					       >(entries),
+		     services, userids, pids, timeoutfd);
+	}
+
+	return do_connect(entries, timeoutfd, name);
+}
+
+fd httportmapObj::connect(const std::string &name,
+			  uid_t user,
+			  const fdptr &timeoutfd)
+{
+	std::vector<httportmap::base::service> entries;
+
+	list(std::back_insert_iterator<std::vector<httportmap::base::service> >
+	     (entries), name, user, timeoutfd);
+
+	std::ostringstream o;
+
+	o << name << "." << user;
+
+	return do_connect(entries, timeoutfd, o.str());
+}
+
+fd httportmapObj::do_connect(std::vector<httportmap::base::service> &entries,
+			     const fdptr &timeoutfd,
+			     const std::string &servicename)
+
+{
+	if (server.size() > 0)
+	{
+		for (std::vector<httportmap::base::service>::iterator
+			     b(entries.begin()),
+			     e(entries.end()), p; (p=b) != e; )
+		{
+			++b;
+
+			if (p->getPort().substr(0, 1) == "/")
+				entries.erase(p);
+		}
+	}
+
+	for (std::vector<httportmap::base::service>::const_iterator
+		     b(entries.begin()),
+		     e(entries.end()); b != e; )
+	{
+		const std::string &port=b->getPort();
+
+		++b;
+
+		try {
+			netaddr res=port.substr(0, 1) == "/"
+				? netaddr::create(SOCK_STREAM,
+							"file:" + port,
+							"")
+				: netaddr::create(SOCK_STREAM,
+							server, port);
+
+			return timeoutfd.null()
+				? res->connect()
+				: res->connect(fdtimeoutconfig::terminate_fd
+					       (timeoutfd));
+		} catch (...) {
+			if (b == e)
+				throw;
+		}
+	}
+
+	errno=ECONNREFUSED;
+
+	throw SYSEXCEPTION(servicename);
+}
+
+void httportmapObj::badclient()
+{
+	throw EXCEPTION(libmsg()
+			->get(_txt("Lost connection with the httportmap service")));
+}
+
+void httportmapObj::badsvcport()
+{
+	throw EXCEPTION(libmsg()
+			->get(_txt("Invalid service or port name")));
+}
+
+void httportmapObj::regpid2exe(const fdptr &timeoutfd)
+
+{
+	if (!reg(httportmap::base::pid2exe_service, "*",
+		 httportmap::base::pm_public,
+		 timeoutfd))
+		throw EXCEPTION("Unexpected failure registering pid2exe service");
+
+}
+
+void httportmapObj::deregpid2exe(const fdptr &timeoutfd)
+
+{
+	dereg(httportmap::base::pid2exe_service, timeoutfd);
+}
+
+std::string httportmapObj::pid2exe(pid_t pid, const fdptr &timeoutfd)
+
+{
+	std::string exe;
+
+	std::set<std::string> service_list;
+	std::set<uid_t> users_list;
+	std::set<pid_t> pid_list;
+
+	service_list.insert(httportmap::base::pid2exe_service);
+	pid_list.insert(pid);
+
+	std::vector<httportmap::base::service> services;
+
+	list(std::back_insert_iterator< std::vector<httportmap::base::service> >(services),
+	     service_list, users_list, pid_list, timeoutfd);
+
+	if (services.size() > 0)
+		exe=services[0].path;
+	return exe;
+}
+
+#if 0
+{
+#endif
+}

@@ -1,0 +1,1067 @@
+<!--
+
+Copyright 2012 Double Precision, Inc.
+See COPYING for distribution information.
+
+-->
+
+<chapter id="singletonapp">
+  <title>Application singleton design pattern</title>
+
+  <para>
+    An application singleton design pattern has a single process running
+    an application. An attempt to start another process running the same
+    application results in the first process taking over and performing some
+    appropriate action, like opening a new window or a file, with the second
+    process terminating and not taking any action. With an application
+    singleton design pattern, a single process executes the action defined by
+    running another application process.
+  </para>
+
+  <blockquote>
+    <informalexample>
+      <programlisting>
+#include &lt;&ns;/singletonapp.H&gt;
+
+class singletonThreadObj : virtual public &ns;::obj {
+
+public:
+    singletonThreadObj();
+    ~singletonThreadObj() noexcept;
+
+    void run(const &ns;::fd &amp;connection)
+    {
+        &ns;::singletonapp::validate_peer(connection);
+
+        // ...
+    }
+};
+
+typedef &ns;::ref&lt;singletonThreadObj&gt; singletonThread;
+
+class threadFactoryObj : virtual public &ns;::obj {
+
+public:
+    threadFactoryObj();
+    ~threadFactoryObj() noexcept;
+
+    singletonThread newThread()
+    {
+        return singletonThread::create();
+    }
+};
+
+int main()
+{
+    auto factory=&ns;::ref&lt;threadFactoryObj&gt;::create();
+
+    &ns;::singletonapp::instance instance=&ns;::singletonapp::create(factory);
+
+    &ns;::fd connection=instance->connection;
+
+    &ns;::singletonapp::validate_peer(connection);
+
+    return 0;
+}</programlisting>
+    </informalexample>
+  </blockquote>
+
+  <para>
+    <ulink url="&link-x--singletonapp;"><classname>&ns;::singletonapp</classname></ulink>
+    implements an application singleton design pattern by, essentially,
+    establishing socket connections from multiple processes that run the same
+    application to individual threads within a single process, which forms the
+    singleton.
+  </para>
+
+  <para>
+    The argument to <function>&ns;::singletonapp::create</function>() is your
+    thread factory.
+    Your thread factory implements the <methodname>newThread</methodname>()
+    method. It returns a reference
+    to an object with a <methodname>run</methodname>() that takes a file
+    descriptor as an argument.
+  </para>
+
+  <para>
+    Your <methodname>newThread</methodname>() does not run a new thread, only
+    constructs a new object. Each call to <methodname>newThread</methodname>()
+    must construct a new object. <methodname>newThread</methodname>() must not
+    return the same object for each thread. Furthermore, no other references
+    to the constructed object must remain in scope. After the thread object's
+    <methodname>run</methodname>() returns, it's expected that no other
+    references to the object exist and the object gets destroyed.
+  </para>
+
+  <para>
+    An application singleton process constructs the factory object,
+    and calls <methodname>&ns;::singletonapp::create</methodname>().
+    This function returns an
+    <ulink url="&link-x--singletonapp--instanceObj;"><classname>&ns;::singletonapp::instance</classname></ulink>
+    with a <varname>connection</varname> member which is a file descriptor
+    of an open socket.
+  </para>
+
+  <para>
+    If this is the first application process,
+    <methodname>&ns;::singletonapp::create</methodname>() calls
+    <methodname>newThread</methodname>(), followed by
+    <link linkend="ethreads"><function>&ns;::run</function></link> to start
+    a new thread running the thread object's <methodname>run</methodname>(),
+    with a socket that's connected to the <varname>connection</varname> in the
+    <classname>&ns;::singletonapp::instance</classname>.
+    If there's already an existing process running this application,
+    the factory object that's created in the new process is not used. The
+    existing process's factory object invokes
+    <methodname>newThread</methodname>(), and the new thread that executes
+    the resulting object's <methodname>run</methodname>() gets a socket that's
+    connected to the socket in the other process's
+    <varname>connection</varname>.
+  </para>
+
+  <section id="singletonstartstop">
+    <title>Singleton startup and termination</title>
+
+    <para>
+      The scope of
+      <ulink url="&link-x--singletonapp;"><classname>&ns;::singletonapp</classname></ulink>
+      is limited to establishing socket connections from multiple processes
+      running the same application to multiple threads running in a first
+      process that's running the application. Once the sockets are established,
+      <classname>&ns;::singletonapp</classname>'s job is done.
+      It's expected that a singleton
+      process's <function>main</function>() uses the socket to send the
+      application startup parameters, commands, options, and similar
+      information to its peer thread, and then terminate immediately
+      (or, have <link linkend="singletonappmanaged"><methodname>managed</methodname>()</link>
+      take care of it, as described later).
+      If this is the first application process, that started the first thread,
+      <classname>&ns;::singletonapp::instance</classname>'s destructor waits
+      until all threads have stopped. If this is not the first application
+      process, there are no threads to wait for, and the instance object gets
+      destroyed immediately, and <function>main</function>() returns.
+    </para>
+
+    <para>
+      If, before the first thread terminated, another process resulted in the
+      first application process starting a new singleton thread, the
+      <classname>&ns;::singletonapp::instance</classname>'s destructor in
+      the first process keeps waiting until all threads stop, then finishes
+      destroying the instance object, the first process finally terminates,
+      and the singleton is now permanently stopped.
+    </para>
+
+    <para>
+      The <link linkend="singletonapp">previous example</link> has a short
+      <function>main</function>() that instantiates a
+      <classname>&ns;::singletonapp::instance</classname> reference.
+      Presumably the ommited part of <function>main</function>()
+      sends startup parameters to the first singleton threads, then exits
+      the scope. At this point, the destructor's instance waits for all
+      singleton threads to stop. Any new threads, started as a result of
+      connections from other singleton processes, will also have to stop,
+      before the destructor in the first process completes.
+    </para>
+
+    <para>
+      In other application processes, there are no threads to stop, and
+      the destructor completes immediately (and the factory object does not
+      get used, in those processes).
+    </para>
+  </section>
+
+  <section id="singletonsignals">
+    <title>Signals in singleton processes</title>
+
+    <para>
+      The first singleton process creates a listening socket in
+      <filename>/tmp</filename>, that gets registered with the
+      <link linkend="httportmap">portmapper</link>.
+      Other singleton processes connect to an existing, registered socket.
+    </para>
+
+    <para>
+      Filesystem sockets must be explicitly removed. To avoid
+      polluting <filename>/tmp</filename>,
+      <methodname>&ns;::singletonapp::create</methodname>() blocks the following
+      signals:
+      <literal>SIGINT</literal>,
+      <literal>SIGHUP</literal>,
+      <literal>SIGTERM</literal>, and
+      <literal>SIGQUIT</literal>.
+      A <link linkend="sighandler">signal handler</link> gets installed to
+      catch these signals.
+    </para>
+
+    <para>
+      When any of those signals are received, the singleton process stops
+      accepting any more connections
+      from other application processes, and stops creating
+      new threads, however the destructor in the singleton process cannot
+      terminate until all existing threads terminate, first. It is expected
+      that a receipt of this signal promptly stops all existing threads,
+      at which point the entire singleton process terminates.
+      This may be done in two ways:
+    </para>
+
+    <itemizedlist>
+      <listitem>
+	<para>
+	  If the thread object that's returned by
+	  <methodname>newThread</methodname>() inherits from
+	  <link linkend="stoppable"><classname>&ns;::stoppableObj</classname></link>,
+	  its <methodname>stop</methodname>() method gets invoked.
+	</para>
+      </listitem>
+
+      <listitem>
+	<para>
+	  Alternatively, signal handlers may be separately installed, and
+	  perform the necessary duties that result in the termination of all
+	  threads.
+	</para>
+
+	<blockquote>
+	  <informalexample>
+	    <programlisting>
+class myhandlerObj : public &ns;::sighandlerObj {
+
+public:
+
+// ...
+
+	void signal(int signum);
+
+};
+
+std::list&lt; &ns;:ref&lt;obj&gt; &gt; mcguffins;
+
+// ...
+
+&ns;::ptr&lt;myhandlerObj&gt; stophandler;
+
+// ...
+
+&ns;::singletonapp::installsighandler(stophandler, mcguffins);</programlisting>
+	    </informalexample>
+	</blockquote>
+	<para>
+	  <methodname>installsighandler</methodname>() is a convenience function
+	  that installs the given
+	  handler for all signals that result in the singleton process stopping
+	  accepting any new connections.
+	  It's expected that the signal handler will make necessary arrangements
+	  for all existing thread's swift termination.
+	</para>
+      </listitem>
+    </itemizedlist>
+  </section>
+
+  <section id="singletonapppeervalid">
+    <title>Peer validation</title>
+
+    <para>
+      The socket that effects singleton instances is a public socket that anyone
+      can connect to, and it's even publicly registered. Some minimum security
+      may be implemented by invoking
+      <methodname>validate_peer</methodname>(), which verifies that the
+      connected peer is the same application that invoked
+      <methodname>validate_peer</methodname>().
+    </para>
+
+    <blockquote>
+      <informalexample>
+	<programlisting>
+&ns;::singletonapp::validate_peer(connection);</programlisting>
+      </informalexample>
+    </blockquote>
+
+    <para>
+      <methodname>validate_peer</methodname>() is typically invoked:
+    </para>
+
+    <itemizedlist>
+      <listitem>
+	<para>
+	  After <methodname>&ns;::singletonapp::create</methodname>() returns,
+	  using the socket file descriptor from the constructed
+	  <classname>instance</classname>.
+	</para>
+      </listitem>
+
+      <listitem>
+	<para>
+	  In a single singleton thread's <methodname>run</methodname>() method,
+	  which receives a connection socket object for its starting
+	  argument.
+	</para>
+      </listitem>
+    </itemizedlist>
+
+    <para>
+      <methodname>validate_peer</methodname>() takes the following actions:
+    </para>
+
+    <itemizedlist>
+      <listitem>
+	<para>
+	  Make the socket temporarily non-blocking.
+	</para>
+      </listitem>
+
+      <listitem>
+	<para>
+	  Send the process's system credentials, its userid, group id, and
+	  process id, and wait up to 30 seconds for the peer to reciprocate
+	  in turn.
+	  The peer is also expected to invoke
+	  <methodname>validate_peer</methodname>() on the
+	  peer's side, to do the same.
+	</para>
+      </listitem>
+
+      <listitem>
+	<para>
+	  A sanity check that the other process is running the same executable
+	  binary that this process is running.
+	</para>
+      </listitem>
+
+      <listitem>
+	<para>
+	  Return the socket to a blocking state.
+	</para>
+      </listitem>
+    </itemizedlist>
+
+    <para>
+      An exception gets thrown if the peer does not respond in 30 seconds
+      or if it fails validation for any reason.
+    </para>
+
+    <note>
+      <para>
+	<methodname>validate_peer</methodname>() advertises the process's
+	executable pathname <link linkend="httportmap_pid2exe">via the
+	  portmapper</link>.
+      </para>
+    </note>
+  </section>
+
+  <section id="singletonappglobal">
+    <title>Systemwide application singletons</title>
+
+    <para>
+      Application singletons are normally per-userid. Different userids can
+      start the same application and run a singleton application process
+      under that userid. By default, a started application singleton would only
+      connect to any existing application process that runs under the same
+      real userid. An existing application singleton process running
+      under some userid will not prevent a different userid from
+      starting its own singleton process.
+    </para>
+
+    <para>
+      It's possible to have a systemwide application singleton, one singleton
+      that spawns a thread and connects to any other userid that starts the
+      same application.
+    </para>
+
+    <blockquote>
+      <informalexample>
+	<programlisting>
+&ns;::singletonapp::instance instance=&ns;::singletonapp::create(factory, 0, 0755);</programlisting>
+      </informalexample>
+    </blockquote>
+
+    <para>
+      <methodname>&ns;::singletonapp::create</methodname>() takes two optional
+      parameters: a system userid, and the permissions for the singleton's
+      filesystem socket. They default to the real userid of the process that
+      invoked it, and <literal>0700</literal>, and has the following
+      effect:
+    </para>
+
+    <itemizedlist>
+      <listitem>
+	<para>
+	  If there's already an existing process running the same application
+	  as specified userid, this is the existing singleton process to
+	  connect to, to start a new thread.
+	</para>
+      </listitem>
+
+      <listitem>
+	<para>
+	  Otherwise, this is the first singleton process, but if the given
+	  real userid is not the invoking process's userid, the singleton
+	  cannot be started. The first instance got started under the
+	  wrong userid, so an exception gets thrown.
+	</para>
+
+	<para>
+	  Arrangements must be made, separately, so that the first instance
+	  of an application gets started with the proper real userid, otherwise
+	  the application singleton cannot be started.
+	</para>
+      </listitem>
+
+      <listitem>
+	<para>
+	  The filesystem mode permissions must reflect whether the singleton
+	  accepts connections only from processes with the same userid, or
+	  from all userids.
+	</para>
+      </listitem>
+    </itemizedlist>
+
+    <para>
+      The filesystem socket gets created in a temporary directory whose
+      default permissions are
+      <literal>0700</literal>, preventing connections from processes that run
+      under a different userid. For a systemwide singleton, it must specify
+      permissions of <literal>0755</literal>, in order to accept connections
+      from processes from all userids. In all cases, even with per-userid
+      singletons, additional credentials verifications are needed.
+      <methodname>validate_peer</methodname>() also does a sanity check that the
+      peer is running the same executable, and not just it's a process with
+      the same userid.
+      With systemwide singletons, <methodname>validate_peer</methodname>()
+      only checks that it's the same executable:
+    </para>
+
+    <blockquote>
+      <informalexample>
+	<programlisting>
+uid_t uid=&ns;::singletonapp::validate_peer(connection, false);</programlisting>
+      </informalexample>
+    </blockquote>
+
+    <para>
+      <methodname>validate_peer</methodname>(),
+      by default, requires that the socket's peer must have the same real userid
+      as the process that invokes it, otherwise an exception gets thrown.
+      A single systemwide singleton can spawn threads after other real
+      userids started the singleton process, so this check gets disabled by
+      setting the second, optional, parameter to
+      <methodname>validate_peer</methodname>() to <literal>false</literal>.
+      <methodname>validate_peer</methodname>() returns the peer's system userid,
+      which can be processed in any application-specific manner.
+    </para>
+
+    <note>
+      <para>
+	<methodname>newThread</methodname>() gets invoked, and the
+	subsequent thread runs as, using the real userid of the process that
+	started the singleton process, notwithstanding the userid of the
+	other singleton process that's connected to the one that's running
+	the threads.
+      </para>
+    </note>
+  </section>
+
+  <section id="singletonappmanaged">
+    <title>Managed application singletons</title>
+
+    <para>
+      <function>&ns;::singletonapp::managed</function>() is a wrapper for
+      <function>&ns;::singletonapp::create</function>()
+      that gives a higher-level implementation of an
+      <link linkend="singletonapp">application singleton design pattern</link>.
+      It replaces <function>create</function>(), as follows:
+    </para>
+
+    <itemizedlist>
+      <listitem>
+	<para>
+	  <function>managed</function>() supplies the
+	  thread factory for <function>create</function>().
+	</para>
+      </listitem>
+
+      <listitem>
+	<para>
+	  Instead of a thread factory, the first parameter to
+	  <function>managed</function>() is a functor. The functor instantiates
+	  an application object.
+	</para>
+      </listitem>
+
+      <listitem>
+	<para>
+	  <function>managed</function>() handles the singleton instance returned
+	  by <function>create</function>(), and the singleton socket connection.
+	</para>
+      </listitem>
+
+      <listitem>
+	<para>
+	  Each invocation of an application singleton's instance constructs a
+	  <quote>parameter object</quote>.
+	  The parameter object represents the parameters
+	  of this particular singleton invocation.
+	  They parameter object typically contains
+	  <function>main</function>()'s argc/argv, maybe something from
+	  the environment, or some other input source.
+	</para>
+      </listitem>
+
+      <listitem>
+	<para>
+	  Similarly, the singleton instance produces a
+	  <quote>return value object</quote>,
+	  which gets returned by <function>managed</function>(), that
+	  represents the return value from the singleton instance.
+	  Naturally, the initial invocation of the application singleton does
+	  not return until the entire singleton process stops.
+	  For subsequent invocation of the application singleton, the
+	  application controls whether it gives the return value object
+	  immediately, back to the additional singleton invocation, or at
+	  some point later, perhaps when the application singleton itself
+	  stops, too. The additional application singleton invocation
+	  waits patiently for its return object.
+	</para>
+      </listitem>
+
+      <listitem>
+	<para>
+	   <function>managed</function>()
+	   <link linkend="serialization">serializes</link> the parameter object
+	   into the socket connection to the singleton instance.
+	   <function>managed</function>()
+	   implements a thread factory, for <function>create</function>() that:
+	</para>
+
+	<orderedlist>
+	  <listitem>
+	    <para>
+	      <link linkend="deserialization">Deserializes</link>
+	      the parameter object.
+	    </para>
+	  </listitem>
+
+	  <listitem>
+	    <para>
+	      If this is the initial application singleton thread, invokes
+	      the factory functor to instantiate an application object, then
+	      invokes the instantiated object's
+	      <methodname>run</methodname>() method, giving it the
+	      singleton invocation instance's userid (which, in nearly all cases
+	      will be the same userid that invoked the application singleton),
+	      and the invocation's parameter object.
+	      <methodname>run</methodname>() is expected to return
+	      the return value.
+	    </para>
+
+	    <para>
+	      For additional application singleton thread, the
+	      previously-instantiated application object's
+	      <methodname>instance</methodname>() object gets invoked. Its
+	      parameters are:
+	      the additional singleton invocation instance's userid,
+	      (which may or may not be a different userid, depending upon
+	      whether
+	      the application singleton is a systemwide application singleton);
+	      the invocation parameter object; a constructed
+	      return value object;
+	      a constructed processed flag object; and a mcguffin. After
+	      <methodname>instance</methodname>() returns, the thread waits
+	      for the mcgufin to go out of scope, and get destroyed.
+	    </para>
+	  </listitem>
+
+	  <listitem>
+	    <para>
+	      Serializes the return object, and the processed flag
+	      (which is always presumed to be true in the case of an
+	      initial singleton invocation) to the singleton connection socket.
+	    </para>
+	  </listitem>
+	</orderedlist>
+      </listitem>
+
+      <listitem>
+	<para>
+	   <function>managed</function>() deserializes the return object from
+	   the socket connection, and the processed flag; if it's
+	   true, <function>managed</function>() returns a
+	   <classname>std::pair</classname> containing the return object,
+	   and the singleton process's userid.
+	   Otherwise the parameter object is deemed as not processed, and
+	   <function>managed</function>() repeats everything again.
+	</para>
+      </listitem>
+    </itemizedlist>
+
+    <para>
+      <function>managed</function>()
+      <ulink url="&link-x--singletonapp;">takes the following
+	parameters</ulink>:
+    </para>
+
+    <orderedlist>
+      <listitem>
+	<para>
+	  A functor that instantiates an application object, and returns
+	  a <link linkend="ref">&ref;</link> to it.
+	</para>
+      </listitem>
+
+      <listitem>
+	<para>
+	  A <link linkend="ref">&ref;</link> to a parameter object.
+	</para>
+      </listitem>
+
+      <listitem>
+	<para>
+	  The singleton's running userid, which gets passed through to
+	  the underlying <function>create</function>(). It defaults to the
+	  process's userid.
+	</para>
+      </listitem>
+
+      <listitem>
+	<para>
+	  The permissions mode for the singleton socket,
+	  which gets passed through to
+	  the underlying <function>create</function>(). It defaults to
+	  <literal>0700</literal>.
+	</para>
+      </listitem>
+
+      <listitem>
+	<para>
+	  The <quote>sameuser</quote> flag that gets passed through to
+	  <function>&ns;::singletonapp::validate_peer</function>().
+	  It defaults to <literal>true</literal>.
+	</para>
+      </listitem>
+    </orderedlist>
+	  
+    <para>
+      The first two parameters are required, the remaining are optional, and
+      default to the values that produce a per-userid singleton.
+      For global, systemwide singletons, the userid parameters should be set
+      to the singleton's starting userid (usually 0), with the socket
+      permissions of <literal>0755</literal> and the
+      <quote>sameuser</quote> flag set to <literal>false</literal>
+      <function>managed</function>() has the following
+      additional requirements:
+    </para>
+
+    <orderedlist>
+      <listitem>
+	<para>
+	  The functor parameter must return a
+	  <link linkend="ref">&ref;</link> to an object that implements three
+	  methods: <methodname>run</methodname>(),
+	  <methodname>instance</methodname>(), and
+	  <methodname>stop</methodname>().
+	</para>
+      </listitem>
+
+      <listitem>
+	<para>
+	  The constructed application object's
+	  <methodname>stop</methodname>() can get
+	  <link linkend="singletonsignals">invoked at any time in
+	  response to a signal</link>.
+	  The application class optionally inherits from
+	  <link linkend="stoppable"><classname>&ns;::stoppableObj</classname></link>
+	  and implements its <methodname>stop</methodname>() method; however
+	  it can be implemented without formally inheriting from
+	  <classname>&ns;::stoppableObj</classname>.
+	</para>
+      </listitem>
+
+      <listitem>
+	<para>
+	  The application object's <methodname>run</methodname>() method
+	  takes two parameters, as previously described: a userid, and the
+	  singleton application invocation parameter.
+	</para>
+      </listitem>
+
+      <listitem>
+	<para>
+	  The application invocation parameter's prototype can be declared as
+	  <quote>&ns;::ptr&lt;<replaceable>argsObj</replaceable>&gt; &amp;</quote>.
+	  Despite the invocation
+	  parameter being a &ptr; it'll never be an null
+	  reference pointer. A native
+	  reference to a &ptr; allows it to be discarded, by assigning
+	  &ns;::ptr&lt;<replaceable>argsObj</replaceable>&gt;()
+	  to it, releasing the
+	  reference on the application parameter object after it is no longer
+	  needed.
+	</para>
+      </listitem>
+
+      <listitem>
+	<para>
+	  The application object's <methodname>run</methodname>() method
+	  returns a
+	  <quote>&ns;::ref&lt;<replaceable>retObj</replaceable>&gt;</quote>,
+	  the return value object.
+	</para>
+      </listitem>
+
+      <listitem>
+	<para>
+	  Both <replaceable>argsObj</replaceable> and
+	  <replaceable>retObj</replaceable> are reference-counted objects that
+	  implement a <link linkend="serializingclasses">serialization
+	    template</link>. Both must have default constructors.
+	</para>
+      </listitem>
+
+      <listitem>
+	<para>
+	  The application object's <methodname>instance</methodname>() method
+	  receives five parameters:
+	  the invocation instance process's userid;
+	  the invocation instance's parameter object
+	  (which can also be prototyped as
+	  <quote>&ns;::ptr&lt;<replaceable>argsObj</replaceable>&gt; &amp;</quote>);
+	  the return value object, a
+	  <quote>&ns;::ref&lt;<replaceable>retObj</replaceable>&gt;</quote>
+	  that's instantiated with the default destructor;
+	  a <classname>&ns;::singletonapp::processed</classname>;
+	  and a &ref;&lt;<classname>&ns;::obj</classname>&gt;
+	  <link linkend="ondestroy">mcguffin</link>.
+	</para>
+      </listitem>
+    </orderedlist>
+
+    <para>
+      The <methodname>run</methodname>() method gets invoked by the initial
+      application singleton invocation. It's expected to be the main singleton
+      thread, when it returns the return object, it gets returned as the
+      original invocation's return object.
+    </para>
+
+    <para>
+      Additional singleton application invocation threads invoke
+      <methodname>instance</methodname>(), then wait for the mcguffin to get
+      destroyed. The return objects gets deserialized back to the singleton
+      invocation socket.
+    </para>
+
+    <section id="singletonappmanagedthr">
+      <title>Notes on thread concurrency with managed singletons</title>
+
+      <itemizedlist>
+	<listitem>
+	  <para>
+	    It's possible that one thread invokes
+	    <methodname>instance</methodname>() before another thread
+	    invokes <methodname>run</methodname>().
+	    This possibilty can materialize
+	    if there are two concurrent singleton invocations.
+	    The first singleton
+	    invocation constructs the application singleton, but before it
+	    finishes the race to invoke <methodname>run</methodname>(), the
+	    roll of the dice gives the second invocation some CPU time, and
+	    it sprints into <methodname>instance</methodname>().
+	  </para>
+
+	  <para>
+	    There are many ways to make this a non-issue. When
+	    <link linkend="singletonappmanagedmsg">implementing the application
+	      object as a message dispatching thread</link>, all
+	    <methodname>instance</methodname>() ends up doing is placing a
+	    message into a queue, and <methodname>run</methodname>() takes care
+	    of it, when its turn in the spotlight arrives.
+	  </para>
+	</listitem>
+
+	<listitem>
+	  <para>
+	    It's possible that <methodname>instance</methodname>() gets invoked
+	    just after <methodname>run</methodname>() terminates. As previously
+	    described, when <methodname>instance</methodname>() determines
+	    that the initial thread has terminated, is about to terminate,
+	    or has commited to termination, in some application-specific
+	    manner, it should return without setting the processed flag.
+	    If possible, the mcguffin argument should remain in scope as long
+	    as possible. This results in the singleton invocation attempting
+	    to restart the singleton.
+	  </para>
+
+	  <para>
+	    This gets handled by a message dispatching thread-based singleton
+	    automatically. The flag object, and the mcguffin, are a part of the
+	    message that gets queued up on the
+	    message queue. When the application object gets completely
+	    destroyed, everything goes out of scope, the mcguffin gets
+	    destroyed, and unprocessed flag goes back to the singleton
+	    invocation instance, which then rewinds everything.
+	  </para>
+	</listitem>
+
+	<listitem>
+	  <para>
+	    Its expected that the application object gets instantiated once,
+	    for the lifetime of the application singleton process. However, the
+	    application object should be prepared to be instantiated a second
+	    time, when really hitting a lucky roll of the dice. This can occur
+	    with the following sequence of events.
+	  </para>
+
+	  <orderedlist>
+	    <listitem>
+	      <para>
+		Only one application singleton thread is left, the initial one
+		that's executing <methodname>run</methodname>().
+	      </para>
+	    </listitem>
+	    <listitem>
+	      <para>
+		It decides to terminate. It returns. The application object
+		gets destroyed, but the singleton thread is not yet finished,
+		and the singleton application instance is on its remaining
+		life support, for just a few more cycles.
+	      </para>
+	    </listitem>
+
+	    <listitem>
+	      <para>
+		Another application singleton connection gets established.
+		The singleton's death sentence is now commuted.
+		But, the application object has been destroyed.
+		In this situation, another application object gets constructed.
+	      </para>
+	    </listitem>
+
+	    <listitem>
+	      <para>
+		Pushing this marginal situation to the next margin: the
+		application object (or any &app; reference-counted object,
+		for mcguffin-related purposes) is considered destroyed just
+		before its class destructor gets invoked. It's possible that
+		another thread instantiates another application object's
+		instance, and invokes its constructors, while the first
+		application object's destructor is still cleaning things up.
+	      </para>
+	    </listitem>
+	  </orderedlist>
+	</listitem>
+      </itemizedlist>
+    </section>
+    <section id="singletonappmanagedex">
+      <title>Example of a managed application singleton</title>
+
+      <para>
+	Here's an example singleton that prints the command line parameters
+	of its every invocation, with an argument of <quote>stop</quote>
+	stopping the singleton:
+      </para>
+
+      <blockquote>
+	<title><ulink url="examples/managedsingleton">examples/managedsingleton/managedsingleton.C</ulink></title>
+	<informalexample>
+	  <programlisting><xi:include href="../examples/managedsingleton/managedsingleton.C" parse="text" xmlns:xi="http://www.w3.org/2001/XInclude" /></programlisting>
+	</informalexample>
+      </blockquote>
+
+      <para>
+	The application object's, <classname>appObj</classname>'s,
+	<methodname>run</methodname>() dumps the initial invocation's arguments
+	and waits for an additional invocation with a <quote>stop</quote>
+	parameter, then returns a return object with a single
+	<quote>Goodbye!</quote> message.
+      </para>
+
+      <para>
+	Each invocation's <methodname>instance</methodname>() invokes
+	<methodname>processed</methodname>() to mark the invocation as
+	processed, dumps the additional invocation's parameters, handling
+	the <quote>stop</quote> parameter by invoking stop().
+      </para>
+
+      <note>
+	<para>
+	  <methodname>stop</methodname>() also gets invoked upon
+	  <link linkend="singletonsignals">receipt of
+	  an interrupt or a termination signal</link>.
+	</para>
+      </note>
+
+      <note>
+	<para>
+	  The second parameter to <methodname>run</methodname>() and
+	  <methodname>instance</methodname>() can also be declared as
+	  <quote><classname>app_argsptr</classname> &amp;</quote>, allowing
+	  it to be nulled, and the underlying parameter object to go out of
+	  scope and get destroyed, if it's no longer needed.
+	</para>
+      </note>
+
+      <note>
+	<para>
+	  The purpose of the flag parameter is to signal that the singleton
+	  instance is being destroyed. An additional refinement would be to
+	  check <varname>quitflag</varname>
+	  (while holding a lock on the mutex, of course), and return from
+	  <methodname>instance</methodname>() without further processing, if
+	  it's set. This situation could happen, for example, if two invocations
+	  of the singleton application occur concurrently, with the first one
+	  invocing <methodname>stop</methodname>(), but the second invocation
+	  reaching the singleton process before
+	  <methodname>run</methodname>() has a chance to wake up and terminate.
+	</para>
+
+	<para>
+	  It's presumed, in this case, that the singleton's lifetime is about
+	  to end, and, as previously described, the singleton invocation tries
+	  again, immediately. In this case, the singleton should truly give
+	  up the ghost immediately, since the original invocation will keep
+	  trying to take its place, burning up the CPU.
+	</para>
+      </note>
+
+      <para>
+	In the above example, setting the <envar>SUID</envar> environment
+	variable to <literal>0</literal> (the <literal>root</literal> user),
+	and <envar>SAME</envar> to <literal>0</literal> too (false),
+	and making the initial invocation
+	as root, makes this a global application singleton
+	(the additional invocation must also have the same environment variables
+	set).
+      </para>
+    </section>
+
+    <section id="singletonappmanagedmsg">
+      <title>Implementing a managed application singleton as a message dispatching-based thread</title>
+
+      <para>
+	The semantics of <methodname>instance</methodname>() easily accomodates
+	its implementation, and the implementation of the application object
+	overall, as <link linkend="msgdispatcher">message
+	  dispatching-based</link> thread.
+      </para>
+
+      <blockquote>
+	<informalexample>
+	  <programlisting>
+#include &lt;&ns;/managedsingletonapp.H&gt;
+#include &lt;&ns;/eventqueuemsgdispatcher.H&gt;
+#include &lt;&ns;/logger.H&gt;
+
+class appObj : virtual public &ns;::eventqueuemsgdispatcherObj {
+
+// ...
+
+public:
+	ret_args run(uid_t uid, const app_args &amp;args)
+	{
+		// Do the startup thing.
+
+		try {
+			while (1)
+				msgqueue->pop()->dispatch();
+		} catch (const &ns;::stopexception &amp;e)
+		{
+		} catch (const &ns;::exception &amp;e)
+		{
+			LOG_ERROR(e);
+			LOG_TRACE(e->backtrace);
+		}
+	}
+
+#include "app.msgs.all.H"
+};
+
+void appObj::dispatch(const instance_msg &amp;msg)
+{
+	msg.flag->processed();
+
+	// ...
+}</programlisting>
+	</informalexample>
+      </blockquote>
+
+      <para>
+	The message stylesheet file then contains:
+      </para>
+
+      <blockquote>
+	<informalexample>
+	  <programlisting>
+&lt;method name="instance"&gt;
+  &lt;comment&gt;
+    //! A command from another invocation sent to the singleton instance.
+  &lt;/comment&gt;
+
+  &lt;param&gt;
+    &lt;comment&gt;
+	//! The other invocation's uid
+    &lt;/comment&gt;
+
+    &lt;decl&gt;uid_t &lt;name&gt;uid&lt;/name&gt;&lt;/decl&gt;
+  &lt;/param&gt;
+
+  &lt;param type="class"&gt;
+    &lt;comment&gt;
+	//! The invocation's arguments.
+    &lt;/comment&gt;
+
+    &lt;decl&gt;app_args &lt;name&gt;args&lt;/name&gt;&lt;/decl&gt;
+  &lt;/param&gt;
+
+  &lt;param type="class"&gt;
+    &lt;comment&gt;
+	//! The return value to the original invocation
+    &lt;/comment&gt;
+
+    &lt;decl&gt;ret_args &lt;name&gt;ret&lt;/name&gt;&lt;/decl&gt;
+  &lt;/param&gt;
+
+  &lt;param type="class"&gt;
+    &lt;comment&gt;
+	//! Invoke flag-&gt;processed() to indicate that the request was processed
+    &lt;/comment&gt;
+
+    &lt;decl&gt;&ns;::singletonapp::processed &lt;name&gt;flag&lt;/name&gt;&lt;/decl&gt;
+  &lt;/param&gt;
+
+  &lt;param type="class"&gt;
+    &lt;comment&gt;
+	//! Request mcguffin
+
+	//! When this object goes out of scope and gets destroyed, the
+	//! "ret" and "flag" gets sent back to the original invocation.
+    &lt;/comment&gt;
+
+    &lt;decl&gt;&ns;::ref&amp;lt;&ns;::obj&amp;gt; &lt;name&gt;mcguffin&lt;/name&gt;&lt;/decl&gt;
+  &lt;/param&gt;
+
+&lt;/method&gt;</programlisting>
+	</informalexample>
+      </blockquote>
+
+      <para>
+	<link linkend="msgdispatchergen">Processing this stylesheet</link>
+	results in an <methodname>instance</methodname>() implementation that
+	sends a <classname>instance_msg</classname> message to the thread, to
+	be dispatched.
+      </para>
+
+      <para>
+	The dispatching function, in this case, always sets the processed flag.
+	If the dispatching <methodname>run</methodname>() takes a
+	<classname>&ns;::stopexception</classname> and returns, before
+	dispatching this message, the processed flag never gets set, and
+	the singleton invocation proceeds and attempts to start another
+	singleton instance, as intended.
+      </para>
+    </section>
+  </section>
+</chapter>
+<!--
+Local Variables:
+mode: sgml
+sgml-parent-document: ("book.xml" "book" "chapter")
+End:
+-->

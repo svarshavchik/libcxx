@@ -1,0 +1,31 @@
+<!--
+
+Copyright 2012 Double Precision, Inc.
+See COPYING for distribution information.
+
+-->
+
+<class name="timerObj::implObj">
+
+  <method name="newtask" attributes="LIBCXX_HIDDEN">
+    <param type='class'>
+      <decl>taskinfo <name>newtask</name></decl>
+    </param>
+    <param type='class'>
+      <decl>ref&lt;installedObj&gt; <name>installed</name></decl>
+    </param>
+    <param type='class'>
+      <decl>ptr&lt;obj&gt; <name>mcguffin</name></decl>
+    </param>
+  </method>
+
+  <method name="canceltask" attributes="LIBCXX_HIDDEN">
+    <param type='class'>
+      <decl>weakptr&lt;timertaskentryptr&gt; <name>taskentry</name></decl>
+    </param>
+
+    <param type='class'>
+      <decl>ref&lt;obj&gt; <name>mcguffin</name></decl>
+    </param>
+  </method>
+</class>

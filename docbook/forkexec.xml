@@ -1,0 +1,173 @@
+<!--
+
+Copyright 2012 Double Precision, Inc.
+See COPYING for distribution information.
+
+-->
+
+<chapter id="forkexec">
+  <title>Forking other processes</title>
+
+  <para>
+    Starting execution threads, with either
+    <link linkend="ethreads"><function>&ns;::run</function>()</link> or by
+    using <classname>std::thread</classname> is generally mutually-exclusive
+    with a multi-process based approach that uses <function>fork</function>().
+    This is because a forked process may get started with inconsistent
+    internal contents of <link linkend="threadsintro">mutexes and
+      condition variables</link> that a different execution thread was
+    modifying during the fork.
+  </para>
+
+  <para>
+    It is safe to <function>fork</function>() and immediately
+    <function>exec</function>() something else.
+    <ulink url="&link-x--forkexec;"><classname>&ns;::forkexec</classname></ulink>
+    implements the common details involved in this process.
+  </para>
+
+  <blockquote>
+    <informalexample>
+      <programlisting>
+#include &lt;&ns;/forkexec.H&gt;
+
+if (&ns;::forkexec("ls", "-al").system() != 0)
+{
+    std::cout &lt;&lt; "Where did ls go?" &lt;&lt; std::endl;
+}</programlisting>
+    </informalexample>
+  </blockquote>
+
+  <para>
+    This is not the best way to <link linkend="dir">read the contents of
+      a directory</link>, but only an example.
+    <classname>&ns;::forkexec</classname> is just a container for the
+    program's arguments. The constructor takes a variadic list of strings,
+    naming the program and any arguments. Alternatively,
+    the constructor can also take a single
+    <classname>std::vector&lt;std::string&gt;</classname>, which cannot
+    be empty.
+  </para>
+
+  <para>
+    <methodname>system</methodname>() forks and has the child process
+    exec the program, then waits for the child process to exit.
+    This is exactly equivalent to:
+  </para>
+
+  <blockquote>
+    <informalexample>
+      <programlisting>
+#include &lt;&ns;/forkexec.H&gt;
+
+&ns;::forkexec lsal("ls", "-al");
+
+pid_t p=lsal.spawn();
+
+if (&ns;::forkexec::wait4(p) != 0)
+{
+    std::cout &lt;&lt; "Where did ls go?" &lt;&lt; std::endl;
+}</programlisting>
+    </informalexample>
+  </blockquote>
+
+  <para>
+    <methodname>system</methodname>() is equivalent to a
+    <methodname>spawn</methodname>(), which forks and execs the child process
+    without waiting for it to terminate,
+    followed by <methodname>wait4</methodname>().
+  </para>
+
+  <para>
+    <methodname>spawn_detached</methodname>() is an alternative to
+    <methodname>spawn</methodname>() that forks twice before execing, with
+    the first child process exiting, leaving the parent process without
+    a child process.
+    <command>init</command> becomes the exec'd process's parent.
+  </para>
+
+  <para>
+    The name of the process to execute gets taken from the first argument
+    vector string. <methodname>program</methodname> overrides it:
+  </para>
+
+  <blockquote>
+    <informalexample>
+      <programlisting>
+#include &lt;&ns;/forkexec.H&gt;
+
+if (&ns;::forkexec("-sh").program("/bin/bash").system() != 0)
+{
+    std::cout &lt;&lt; "Where did ls go?" &lt;&lt; std::endl;
+}</programlisting>
+    </informalexample>
+  </blockquote>
+
+  <para>
+    This executes <filename>/bin/bash</filename>, but passes
+    <quote>-sh</quote> to it as an argument.
+  </para>
+
+  <para>
+    In all cases, the child process's filename can specify an explicit path,
+    or use <envar>PATH</envar> to find it.
+  </para>
+
+  <para>
+    If the process cannot be executed for some reason,
+    <methodname>system</methodname>(),
+    <methodname>spawn</methodname>(), or
+    <methodname>spawn_detached</methodname>() throws an exception.
+    There's also an <methodname>exec</methodname>() method, which execs the
+    current process. Either it succeeds, and never returns, or throws an
+    exception.
+  </para>
+
+  <section id="forkexecfd">
+    <title>Redirecting file descriptors</title>
+
+    <blockquote>
+      <informalexample>
+	<programlisting>
+#include &lt;&ns;/forkexec.H&gt;
+
+&ns;::forkexec wc("wc", "-l");
+
+&ns;::fd wcstdin = wc.pipe_to();
+&ns;::fd wcstdout = wc.pipe_from();
+
+pid_t p=wc.spawn();
+
+// ...</programlisting>
+      </informalexample>
+    </blockquote>
+
+    <para>
+      After constructing an <classname>&ns;::forkexec</classname> but
+      before starting the process, <methodname>pipe_to</methodname>() makes
+      arrangements to attach a pipe to the new process's standard input,
+      and returns the write side of the pipe.
+      Similarly, <methodname>pipe_from</methodname>() attaches a pipe to the
+      new process's standard ouput, and returns the read side of the pipe.
+    </para>
+
+    <para>
+      An explicit <classname>int</classname> is an optional argument, naming
+      an explicit file descriptor, rather than standard input or output.
+      There's also an <methodname>socket_fd</methodname>(),
+      that creates a bidirection
+      pipe socket, attaches one end of it to the new process's file descriptor,
+      and returns the other end of the socket pipe.
+      Finally, <methodname>set_fd</methodname>() takes a numerical file
+      descriptor number, and an <classname>&ns;::fd</classname> that you
+      created, and attaches it to the new process's file descriptor
+      (when it actually gets started).
+    </para>
+  </section>
+</chapter>
+<!--
+Local Variables:
+mode: sgml
+sgml-parent-document: ("book.xml" "book" "chapter")
+End:
+-->

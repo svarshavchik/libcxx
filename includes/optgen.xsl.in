@@ -1,0 +1,528 @@
+<?xml version='1.0'?>
+
+<!--
+
+Copyright 2012 Double Precision, Inc.
+See COPYING for distribution information.
+
+-->
+
+<xsl:stylesheet  
+    xmlns:xsl="http://www.w3.org/1999/XSL/Transform" version="1.0">
+
+  <xsl:output method="text" />
+
+  <xsl:template name="varname">
+
+    <xsl:choose>
+      <xsl:when test="count(name)=0">
+	<xsl:value-of select="generate-id()" />
+      </xsl:when>
+      <xsl:otherwise>
+	<xsl:value-of select="name" />
+      </xsl:otherwise>
+    </xsl:choose>
+  </xsl:template>
+
+  <xsl:template name="lstring">
+    <xsl:choose>
+      <xsl:when test="format">
+	<xsl:text>@LIBCXX_NAMESPACE@::gettextmsg(</xsl:text>
+	<xsl:for-each select="format">
+	  <xsl:call-template name="lstringfmt" />
+	</xsl:for-each>
+	<xsl:for-each select="param">
+	  <xsl:text>, </xsl:text>
+	  <xsl:value-of select="." />
+	</xsl:for-each>
+	<xsl:text>)</xsl:text>
+      </xsl:when>
+
+      <xsl:otherwise>
+	<xsl:call-template name="lstringfmt" />
+      </xsl:otherwise>
+    </xsl:choose>
+  </xsl:template>
+
+  <xsl:template name="lstringfmt">
+    <xsl:choose>
+      <xsl:when test="singular">
+	<xsl:text>getoptmsg(msgcat, NN_(L"</xsl:text>
+	<xsl:value-of select="singular" />
+	<xsl:text>", L"</xsl:text>
+	<xsl:value-of select="plural" />
+	<xsl:text>"), </xsl:text>
+	<xsl:value-of select="value" />
+	<xsl:text>)</xsl:text>
+      </xsl:when>
+      <xsl:when test=".">
+	<xsl:text>getoptmsg(msgcat, N_(L"</xsl:text>
+	<xsl:value-of select="." />
+	<xsl:text>"))</xsl:text>
+      </xsl:when>
+      <xsl:otherwise>
+	<xsl:text>L""</xsl:text>
+      </xsl:otherwise>
+    </xsl:choose>
+  </xsl:template>
+
+  <!-- Declare option variables -->
+
+  <xsl:template match="mutex" mode="decl">
+
+    <xsl:text>&#10;    /* MUTEX: </xsl:text>
+
+    <xsl:for-each select="name">
+      <xsl:if test="position() &gt; 1" >
+	<xsl:text>, </xsl:text>
+      </xsl:if>
+      <xsl:value-of select="node()" />
+    </xsl:for-each>
+    <xsl:text> */&#10;</xsl:text>
+
+    <xsl:text>&#10;    @LIBCXX_NAMESPACE@::option::mutex </xsl:text>
+    <xsl:value-of select='generate-id()' />
+    <xsl:text>;&#10;</xsl:text>
+
+  </xsl:template>
+
+  <xsl:template match="option[type != 'function']" mode="decl">
+
+    <xsl:variable name="type" select="type" />
+
+    <xsl:variable name="custom">
+      <xsl:choose>
+	<xsl:when test="type='bool'" />
+	<xsl:when test="type='int'" />
+	<xsl:when test="type='uint'" />
+	<xsl:when test="type='long'" />
+	<xsl:when test="type='ulong'" />
+	<xsl:when test="type='longlong'" />
+	<xsl:when test="type='ulonglong'" />
+	<xsl:when test="type='int16'" />
+	<xsl:when test="type='uint16'" />
+	<xsl:when test="type='int32'" />
+	<xsl:when test="type='uint32'" />
+	<xsl:when test="type='int64'" />
+	<xsl:when test="type='uint64'" />
+	<xsl:when test="type='string'" />
+	<xsl:when test="type='hms'" />
+	<xsl:when test="type='ymd'" />
+	<xsl:when test="type='ymd_interval'" />
+	<xsl:when test="type='uri'" />
+	<xsl:otherwise>
+	  <xsl:text>1</xsl:text>
+	</xsl:otherwise>
+      </xsl:choose>
+    </xsl:variable>
+
+    <xsl:text>&#10;    /* OPTION: </xsl:text>
+    <xsl:call-template name="varname" />
+    <xsl:text> */&#10;</xsl:text>
+
+    <xsl:text>&#10;    typedef </xsl:text>
+
+    <xsl:choose>
+      <xsl:when test="$custom = '1'">
+	<xsl:text>@LIBCXX_NAMESPACE@::ref&lt;@LIBCXX_NAMESPACE@::option::valueObj&lt;</xsl:text>
+	<xsl:value-of select='type' />
+	<xsl:text>&gt; &gt; </xsl:text>
+      </xsl:when>
+
+      <xsl:otherwise>
+	<xsl:text>@LIBCXX_NAMESPACE@::option::</xsl:text><xsl:value-of select='type' />
+	<xsl:choose>
+	  <xsl:when test="list">
+	    <xsl:text>_list</xsl:text>
+	  </xsl:when>
+	  <xsl:otherwise>
+	    <xsl:text>_value</xsl:text>
+	  </xsl:otherwise>
+	</xsl:choose>
+	<xsl:text> </xsl:text>
+      </xsl:otherwise>
+    </xsl:choose>
+    <xsl:call-template name="varname" />
+    <xsl:text>_t;&#10;</xsl:text>
+    <xsl:text>&#10;    </xsl:text>
+    <xsl:call-template name="varname" />
+    <xsl:text>_t </xsl:text>
+    <xsl:call-template name="varname" />
+    <xsl:text>;&#10;</xsl:text>
+
+    <xsl:if test="count(combine/option) &gt; 0">
+
+      <xsl:for-each select="combine">
+
+	<xsl:variable name="op" select="type" />
+
+	<xsl:for-each select="option">
+
+	  <xsl:text>&#10;    typedef @LIBCXX_NAMESPACE@::option::</xsl:text>
+	  <xsl:value-of select='$op' />
+	  <xsl:text>_op&lt;</xsl:text>
+	  <xsl:value-of select='$type' />
+	  <xsl:text>&gt;::value </xsl:text>
+	  <xsl:call-template name="varname" />
+	  <xsl:text>_t;&#10;</xsl:text>
+
+	  <xsl:text>&#10;    </xsl:text>
+	  <xsl:call-template name="varname" />
+	  <xsl:text>_t </xsl:text>
+	  <xsl:call-template name="varname" />
+	  <xsl:text>;&#10;</xsl:text>
+	</xsl:for-each>
+      </xsl:for-each>
+    </xsl:if>
+
+    <xsl:if test="count(group) = 1">
+
+      <xsl:text>&#10;    @LIBCXX_NAMESPACE@::option::list </xsl:text>
+      <xsl:for-each select="group">
+	<xsl:value-of select="generate-id()" />
+      </xsl:for-each>
+      <xsl:text>;&#10;</xsl:text>
+
+      <xsl:apply-templates select="group/option" mode="decl" />
+    </xsl:if>
+
+  </xsl:template>
+
+  <!-- Constructor initialization -->
+
+  <xsl:template match="mutex" mode="constr">
+
+    <xsl:text>,&#10;       </xsl:text>
+    <xsl:value-of select='generate-id()' />
+    <xsl:text>(@LIBCXX_NAMESPACE@::option::mutex::create())</xsl:text>
+
+  </xsl:template>
+
+  <xsl:template match="option[type != 'function']" mode="constr">
+
+    <xsl:text>,&#10;        </xsl:text>
+    <xsl:call-template name="varname" />
+    <xsl:text>(</xsl:text>
+    <xsl:call-template name="varname" />
+    <xsl:text>_t::create(</xsl:text>
+    <xsl:value-of select='default' />
+    <xsl:text>))</xsl:text>
+
+    <xsl:variable name='mainvalue'>
+      <xsl:call-template name="varname" />
+    </xsl:variable>
+
+    <xsl:for-each select="combine/option">
+      <xsl:text>,&#10;        </xsl:text>
+      <xsl:call-template name="varname" />
+      <xsl:text>(</xsl:text>
+      <xsl:call-template name="varname" />
+      <xsl:text>_t::create(</xsl:text>
+      <xsl:value-of select='$mainvalue' />
+      <xsl:text>, </xsl:text>
+      <xsl:value-of select='value' />
+      <xsl:text>))</xsl:text>
+    </xsl:for-each>
+
+    <xsl:if test="count(group) = 1">
+      <xsl:text>,&#10;        </xsl:text>
+      <xsl:for-each select="group">
+	<xsl:value-of select="generate-id()" />
+      </xsl:for-each>
+      <xsl:text>(@LIBCXX_NAMESPACE@::option::list::create())</xsl:text>
+    </xsl:if>
+
+    <xsl:apply-templates select="group/option" mode="constr" />
+
+  </xsl:template>
+
+  <xsl:template match="optclass">
+    <xsl:variable name="toplevellist">
+      <xsl:value-of select="generate-id()" />
+    </xsl:variable>
+    <xsl:text>#include &lt;x/options.H&gt;
+#include &lt;x/locale.H&gt;
+#include &lt;x/messages.H&gt;
+
+#ifndef N_
+#define N_(x) x
+#endif
+
+#ifndef NN_
+#define NN_(s, p) s, p
+#endif&#10;</xsl:text>
+
+    <xsl:text>&#10;class </xsl:text><xsl:value-of select="@name" />
+    <xsl:if test="superclasses">
+      <xsl:text> : </xsl:text>
+      <xsl:value-of select="superclasses" />
+    </xsl:if>
+    <xsl:text> {&#10;&#10;public:&#10;</xsl:text>
+
+    <xsl:text>    @LIBCXX_NAMESPACE@::option::list </xsl:text>
+    <xsl:value-of select="$toplevellist" /><xsl:text>; /* Top level option list */&#10;</xsl:text>
+
+    <!-- Declarations -->
+
+    <xsl:apply-templates mode="decl" />
+
+    <!-- Constructor -->
+
+    <xsl:text>&#10;    /* CONSTRUCTOR */&#10;</xsl:text>
+
+    <xsl:text>&#10;    </xsl:text>
+    <xsl:value-of select="@name" />
+    <xsl:text>(</xsl:text>
+
+    <xsl:if test="constructorargs">
+      <xsl:value-of select="constructorargs" />
+      <xsl:text>, </xsl:text>
+    </xsl:if>
+
+    <xsl:text>const @LIBCXX_NAMESPACE@::wmessagesptr &amp;msgcat=@LIBCXX_NAMESPACE@::wmessagesptr())
+ : </xsl:text>
+    <xsl:if test="superclassinit">
+      <xsl:value-of select="superclassinit" />
+	<xsl:text>, </xsl:text>
+    </xsl:if>
+
+    <xsl:value-of select="$toplevellist" />
+    <xsl:text>(@LIBCXX_NAMESPACE@::option::list::create())</xsl:text>
+
+    <xsl:apply-templates mode="constr" />
+    <xsl:text>
+    {
+        init(msgcat);
+    }
+
+    static std::wstring getoptmsg(const @LIBCXX_NAMESPACE@::wmessagesptr &amp;msgcat, const wchar_t *str)
+    {
+        return (!msgcat.null() ? msgcat-&gt;get(str):str);
+    }
+
+    template&lt;typename int_type&gt;
+    static std::wstring getoptmsg(const x::wmessagesptr &amp;msgcat, const wchar_t *singular, const wchar_t *plural, int_type value)
+    {
+        return (!msgcat.null() ? msgcat-&gt;get(singular, plural, value): value == 1 ? singular:plural);
+    }
+
+    void init(const @LIBCXX_NAMESPACE@::wmessagesptr &amp;msgcat)
+    {&#10;</xsl:text>
+    <xsl:for-each select=".//mutex">
+      <xsl:text>        </xsl:text>
+      <xsl:value-of select="generate-id()" />
+      <xsl:for-each select="name">
+	<xsl:choose>
+	  <xsl:when test="position() = 1">
+	    <xsl:text>-&gt;</xsl:text>
+	  </xsl:when>
+	  <xsl:otherwise>
+	    <xsl:text>.</xsl:text>
+	  </xsl:otherwise>
+	</xsl:choose>
+	<xsl:text>add(</xsl:text>
+	<xsl:value-of select="node()" />
+	<xsl:text>)</xsl:text>
+      </xsl:for-each>
+      <xsl:text>;&#10;</xsl:text>
+    </xsl:for-each>
+
+    <xsl:for-each select=".//option">
+
+      <xsl:choose>
+
+	<!-- Ignore options that will be combined from other options -->
+
+	<xsl:when test="count(combine/option) &gt; 0">
+	</xsl:when>
+
+	<xsl:otherwise>
+
+	  <xsl:text>&#10;        </xsl:text>
+
+	  <!-- Find the list the option goes into -->
+
+	  <xsl:choose>
+	    <xsl:when test="ancestor::combine">
+	      <xsl:for-each select="../../..">
+		<xsl:value-of select="generate-id()" />
+	      </xsl:for-each>
+	    </xsl:when>
+	    <xsl:otherwise>
+	      <xsl:for-each select="..">
+		<xsl:value-of select="generate-id()" />
+	      </xsl:for-each>
+	    </xsl:otherwise>
+	  </xsl:choose>
+
+	  <xsl:text>-&gt;add(</xsl:text>
+	  <xsl:if test="type='function'">
+	    <xsl:text>&amp;</xsl:text>
+	  </xsl:if>
+
+	  <xsl:call-template name="varname" />
+
+	  <xsl:text>, </xsl:text>
+
+	  <xsl:choose>
+	    <xsl:when test="opt">
+	      <xsl:text>L'</xsl:text>
+	      <xsl:value-of select="opt" />
+	      <xsl:text>'</xsl:text>
+	    </xsl:when>
+	    <xsl:otherwise>
+	      <xsl:text>0</xsl:text>
+	    </xsl:otherwise>
+	  </xsl:choose>
+
+	  <xsl:text>, </xsl:text>
+
+	  <xsl:choose>
+	    <xsl:when test="longopt">
+	      <xsl:for-each select="longopt">
+		<xsl:call-template name="lstring" />
+	      </xsl:for-each>
+	    </xsl:when>
+	    <xsl:otherwise>
+	      <xsl:text>L""</xsl:text>
+	    </xsl:otherwise>
+	  </xsl:choose>
+	  <xsl:text>, </xsl:text>
+
+	  <xsl:choose>
+	    <xsl:when test="count(group) = 1">
+	      <xsl:for-each select="group">
+		<xsl:value-of select="generate-id()" />
+	      </xsl:for-each>
+	    </xsl:when>
+
+	    <xsl:otherwise>
+	      <xsl:text>0</xsl:text>
+
+	      <xsl:if test="hasvalue">
+		<xsl:text> | @LIBCXX_NAMESPACE@::option::list::base::hasvalue</xsl:text>
+	      </xsl:if>
+
+	      <xsl:if test="required">
+		<xsl:text> | @LIBCXX_NAMESPACE@::option::list::base::required</xsl:text>
+	      </xsl:if>
+	    </xsl:otherwise>
+	  </xsl:choose>
+
+	  <xsl:text>, </xsl:text>
+
+	  <xsl:choose>
+	    <xsl:when test="descr">
+	      <xsl:for-each select="descr">
+		<xsl:call-template name="lstring" />
+	      </xsl:for-each>
+	    </xsl:when>
+	    <xsl:otherwise>
+	      <xsl:text>L""</xsl:text>
+	    </xsl:otherwise>
+	  </xsl:choose>
+
+	  <xsl:if test="argdescr">
+	    <xsl:text>, </xsl:text>
+	    <xsl:for-each select="argdescr">
+	      <xsl:call-template name="lstring" />
+	    </xsl:for-each>
+	  </xsl:if>
+
+	  <xsl:text>);&#10;</xsl:text>
+	</xsl:otherwise>
+      </xsl:choose>
+    </xsl:for-each>
+
+    <xsl:for-each select=".|.//group">
+      <xsl:variable name="listnode">
+	<xsl:value-of select="generate-id()" />
+      </xsl:variable>
+
+      <xsl:for-each select="arg">
+	<xsl:text>&#10;        </xsl:text>
+	<xsl:value-of select="$listnode" />
+	<xsl:text>-&gt;addArgument(</xsl:text>
+
+	<xsl:choose>
+	  <xsl:when test="name">
+	    <xsl:for-each select="name">
+	      <xsl:call-template name="lstring" />
+	    </xsl:for-each>
+	  </xsl:when>
+	  <xsl:otherwise>
+	    <xsl:text>L""</xsl:text>
+	  </xsl:otherwise>
+	</xsl:choose>
+
+	<xsl:text>, 0</xsl:text>
+
+	<xsl:if test="required">
+	  <xsl:text> | @LIBCXX_NAMESPACE@::option::list::base::required</xsl:text>
+	</xsl:if>
+
+	<xsl:if test="repeated">
+	  <xsl:text> | @LIBCXX_NAMESPACE@::option::list::base::repeated</xsl:text>
+	</xsl:if>
+	<xsl:text>);&#10;</xsl:text>
+      </xsl:for-each>
+    </xsl:for-each>
+    <xsl:if test="defaultoptions">
+      <xsl:text>&#10;        </xsl:text>
+      <xsl:value-of select="$toplevellist" />
+      <xsl:text>-&gt;addDefaultOptions();&#10;</xsl:text>
+    </xsl:if>
+
+    <xsl:text>    }&#10;</xsl:text>
+
+    <xsl:text>&#10;    /* Construct a parser object */&#10;</xsl:text>
+
+    <xsl:text>&#10;    @LIBCXX_NAMESPACE@::option::parser getParser(const @LIBCXX_NAMESPACE@::const_locale &amp;localeArg=@LIBCXX_NAMESPACE@::locale::base::environment())&#10;</xsl:text>
+    <xsl:text>    {&#10;</xsl:text>
+    <xsl:text>        @LIBCXX_NAMESPACE@::option::parser parser(@LIBCXX_NAMESPACE@::option::parser::create(localeArg));&#10;</xsl:text>
+    <xsl:text>&#10;        parser->setOptions(</xsl:text>
+
+    <xsl:value-of select="$toplevellist" /><xsl:text>);&#10;</xsl:text>
+
+    <xsl:text>&#10;        return parser;</xsl:text>
+    <xsl:text>&#10;    }&#10;</xsl:text>
+
+    <xsl:text>&#10;    /* Parse argc/argv as received by main(), return parser object */
+
+    @LIBCXX_NAMESPACE@::option::parser parse(int argc, char **argv,
+                            const @LIBCXX_NAMESPACE@::const_locale &amp;localeArg
+                               =@LIBCXX_NAMESPACE@::locale::base::environment())
+    {
+        @LIBCXX_NAMESPACE@::option::parser parser=getParser(localeArg);
+
+        int err=parser->parseArgv(argc, argv);
+
+        if (err == 0) err=parser->validate();
+
+        if (err)
+        {
+            if (err == @LIBCXX_NAMESPACE@::option::parser::base::err_builtin)
+                exit(0);
+
+            std::cerr &lt;&lt; parser-&gt;errmessage();
+	    std::cerr.flush();
+            exit(1);
+        }
+
+        return parser;  /* Retrieve parser-&gt;args, if desired. */
+    }
+};&#10;</xsl:text>
+  </xsl:template>
+
+  <xsl:template match="@*|node()">
+    <xsl:apply-templates />
+  </xsl:template>
+
+  <xsl:template match="@*|node()" mode="decl">
+    <xsl:apply-templates mode='decl' />
+  </xsl:template>
+
+  <xsl:template match="@*|node()" mode="constr">
+    <xsl:apply-templates mode='constr' />
+  </xsl:template>
+</xsl:stylesheet>

@@ -1,0 +1,26 @@
+x::logger::format::notime=@{class}: @{msg}
+x::logger::format::notime3=notime3: @{class}: @{msg}
+
+x::logger::level::mywarning=warning
+
+x::logger::format::notime2=$notime
+
+x::logger::handler::log2=testlogdir/log2.%Y
+
+
+testlogger::@log::handler::default::format=notime2
+
+testlogger::warnlevel::@log::level=mywarning
+
+testlogger::warnlevel::@log::handler::unknown1::format=notime2
+
+testlogger::warnlevel::@log::handler::unknown2=stderr
+
+testlogger::secondlogfile::@log::handler::log2=log2
+testlogger::secondlogfile::@log::handler::log2::format=notime2
+
+testlogger::secondlogfile::noinherit::@log::inherit=false
+testlogger::secondlogfile::noinherit::@log::handler::default=stderr
+testlogger::secondlogfile::noinherit::@log::handler::default::format=notime2
+
+testlogger::loglevelupdate::@log::level=error

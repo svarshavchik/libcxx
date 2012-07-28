@@ -1,0 +1,259 @@
+<!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN"
+ "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [
+
+<!ENTITY % entity-list SYSTEM "entities">
+
+<!ENTITY app "<application><emphasis>LIBCXX</emphasis></application>">
+<!ENTITY appshort "LIBCXX">
+<!ENTITY nopthreadcancel SYSTEM "nopthreadcancel.xml">
+<!ENTITY singletonlimits SYSTEM "singletonlimits.xml">
+
+<!ENTITY intro SYSTEM "intro.xml">
+<!ENTITY exceptions SYSTEM "exceptions.xml">
+<!ENTITY refobj SYSTEM "refobj.xml">
+<!ENTITY fd SYSTEM "fd.xml">
+<!ENTITY signals SYSTEM "signals.xml">
+<!ENTITY glob SYSTEM "glob.xml">
+<!ENTITY pcre SYSTEM "pcre.xml">
+<!ENTITY netif SYSTEM "netif.xml">
+<!ENTITY iofilters SYSTEM "iofilters.xml">
+<!ENTITY iconv SYSTEM "iconv.xml">
+<!ENTITY dir SYSTEM "dir.xml">
+<!ENTITY threads SYSTEM "threads.xml">
+<!ENTITY forkexec SYSTEM "forkexec.xml">
+<!ENTITY locale SYSTEM "locale.xml">
+<!ENTITY properties SYSTEM "properties.xml">
+<!ENTITY options SYSTEM "options.xml">
+<!ENTITY logger SYSTEM "logger.xml">
+<!ENTITY singleton SYSTEM "singleton.xml">
+<!ENTITY lockpool SYSTEM "lockpool.xml">
+<!ENTITY eventqueue SYSTEM "eventqueue.xml">
+<!ENTITY eventcallback SYSTEM "eventcallback.xml">
+<!ENTITY vipobj SYSTEM "vipobj.xml">
+<!ENTITY eventfactory SYSTEM "eventfactory.xml">
+<!ENTITY msgdispatcher SYSTEM "msgdispatcher.xml">
+<!ENTITY singletonapp SYSTEM "singletonapp.xml">
+<!ENTITY serialization SYSTEM "serialization.xml">
+<!ENTITY intervals SYSTEM "intervals.xml">
+<!ENTITY uuid SYSTEM "uuid.xml">
+<!ENTITY pwdgrp SYSTEM "pwdgrp.xml">
+<!ENTITY uri SYSTEM "uri.xml">
+<!ENTITY headers SYSTEM "headers.xml">
+<!ENTITY httportmap SYSTEM "httportmap.xml">
+<!ENTITY miscstringability SYSTEM "miscstringability.xml">
+<!ENTITY miscstrtok SYSTEM "miscstrtok.xml">
+<!ENTITY miscwordexp SYSTEM "miscwordexp.xml">
+<!ENTITY misctimespec SYSTEM "misctimespec.xml">
+<!ENTITY miscfmtsize SYSTEM "miscfmtsize.xml">
+<!ENTITY miscvector SYSTEM "miscvector.xml">
+<!ENTITY misccsv SYSTEM "misccsv.xml">
+<!ENTITY miscstrwchar SYSTEM "miscstrwchar.xml">
+<!ENTITY miscdf SYSTEM "miscdf.xml">
+<!ENTITY miscpidinfo SYSTEM "miscpidinfo.xml">
+<!ENTITY miscpostponed SYSTEM "miscpostponed.xml">
+<!ENTITY xml_escape SYSTEM "xml_escape.xml">
+<!ENTITY gnutls_datum SYSTEM "gnutls_datum.xml">
+<!ENTITY gnutls_keys SYSTEM "gnutls_keys.xml">
+<!ENTITY gnutls_certs SYSTEM "gnutls_certs.xml">
+<!ENTITY gnutls_sessions SYSTEM "gnutls_sessions.xml">
+<!ENTITY freebsd SYSTEM "freebsd.xml">
+<!ENTITY install SYSTEM "install.xml">
+<!ENTITY manproperties SYSTEM "manproperties.xml">
+<!ENTITY manmaillogs SYSTEM "manmaillogs.xml">
+<!ENTITY manhttportmapd SYSTEM "manhttportmapd.xml">
+<!ENTITY httpuseragent SYSTEM "httpuseragent.xml">
+<!ENTITY httpserver SYSTEM "httpserver.xml">
+
+<!ENTITY ns "x">
+<!ENTITY ref "<classname>&ns;::ref</classname>">
+<!ENTITY ptr "<classname>&ns;::ptr</classname>">
+<!ENTITY const_ref "<classname>&ns;::const_ref</classname>">
+<!ENTITY const_ptr "<classname>&ns;::const_ptr</classname>">
+<!ENTITY reforptr "&ref; or an &ptr;">
+<!ENTITY stl "<acronym>STL</acronym>">
+
+<!ENTITY automakeintro SYSTEM "automakeintro.inc.xml">
+<!ENTITY automakelibxinit SYSTEM "automakelibxinit.inc.xml">
+
+%entity-list;
+
+]>
+
+<!--
+
+Copyright 2012 Double Precision, Inc.
+See COPYING for distribution information.
+
+-->
+
+<book id="book">
+  <title>&app;</title>
+
+  &intro;
+
+  <part id="core">
+    <title>Core classes</title>
+    <partintro>
+      <para>
+	To access the following core classes,
+	the application must be linked with the <option>-lcxx</option> option.
+      </para>
+    </partintro>
+    &exceptions;
+    &refobj;
+    &properties;
+    &logger;
+    &fd;
+    &signals;
+    &glob;
+    &pcre;
+    &netif;
+    &iofilters;
+    &iconv;
+    &dir;
+    &singleton;
+    &threads;
+    &forkexec;
+    &locale;
+    &options;
+    &eventqueue;
+    &eventfactory;
+    &eventcallback;
+    &vipobj;
+    &msgdispatcher;
+    &lockpool;
+    &serialization;
+    &singletonapp;
+    &intervals;
+    &uuid;
+    &pwdgrp;
+    &uri;
+    &headers;
+  </part>
+
+  <part id="misc">
+    <title>Miscellaneous classes and functions</title>
+
+    &miscstringability;
+    &miscstrtok;
+    &miscwordexp;
+    &misctimespec;
+    &miscfmtsize;
+    &miscvector;
+    &miscpostponed;
+    &misccsv;
+    &miscstrwchar;
+    &miscdf;
+    &miscpidinfo;
+  </part>
+
+  &httportmap;
+
+  <part id="xml">
+    <title><acronym>XML</acronym>-related classes and functions</title>
+
+    <partintro>
+      <para>
+	The following classes and functions are useful for handling
+      <acronym>XML</acronym>-related documents.</para>
+    </partintro>
+
+    &xml_escape;
+  </part>
+
+  <part id="gnutls">
+    <title>GnuTLS classes</title>
+
+    <partintro>
+      <para>
+	The following GnuTLS classes are obtained by linking with the
+	<option>-lcxxtls</option> option.
+	If you're impatient, you can skip ahead and browse some sample code
+	that implements TLS in <xref linkend="httpuseragent" />
+	and <xref linkend="httpserver" />.
+      </para>
+    </partintro>
+
+    &gnutls_datum;
+    &gnutls_keys;
+    &gnutls_certs;
+    &gnutls_sessions;
+
+  </part>
+
+  <part id="http">
+
+    <title><acronym>HTTP</acronym> clients and servers</title>
+
+    <partintro>
+      <para>
+	The following classes implement <acronym>HTTP</acronym> for client
+	and server applications, including <acronym>HTTPS</acronym>, with the
+	help of <link linkend="gnutls">GnuTLS classes</link>
+	(which must be linked with <option>-lcxxtls</option>).
+      </para>
+
+      <section id="httpoverview">
+	<title>Overview and current status</title>
+
+	<itemizedlist>
+	  <listitem>
+	    <para>
+	      <acronym>HTTP</acronym>, and <acronym>HTTPS</acronym>
+	      with certificate verification.
+	    </para>
+	  </listitem>
+
+	  <listitem>
+	    <para>
+	      A high-level <acronym>HTTP</acronym> user agent implementation,
+	      with persistent <acronym>HTTP</acronym> connections, if
+	      supported by the <acronym>HTTP</acronym> server.
+	    </para>
+	  </listitem>
+
+	  <listitem>
+	    <para>
+	      <acronym>HTTP</acronym> authentication not implemented at this
+	      time (although the appropriate headers can be manipulated and
+	      set manually, this doesn't really count).
+	    </para>
+	  </listitem>
+
+	  <listitem>
+	    <para>
+	      Redirection and cookies not implemented at this time.
+	    </para>
+	  </listitem>
+	</itemizedlist>
+      </section>
+    </partintro>
+
+    &httpuseragent;
+    &httpserver;
+  </part>
+
+  &install;
+  &freebsd;
+
+  <appendix id="manpages">
+    <title>Manual Pages</title>
+
+    &manhttportmapd;
+    &manmaillogs;
+    &manproperties;
+  </appendix>
+
+  <appendix id="COPYING">
+    <title>COPYING</title>
+
+    <para role="COPYING">
+      &app; is free software, distributed under the terms of the
+      GPL, version 3:
+    </para>
+    <blockquote>
+      <literallayout><xi:include href="../COPYING" parse="text" xmlns:xi="http://www.w3.org/2001/XInclude" /></literallayout>
+    </blockquote>
+  </appendix>
+
+</book>

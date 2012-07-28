@@ -1,0 +1,53 @@
+<!--
+
+Copyright 2012 Double Precision, Inc.
+See COPYING for distribution information.
+
+-->
+
+<chapter id="singleton">
+  <title>Singleton objects</title>
+
+  <para>
+    <ulink url="&link-x--singleton;"><classname>&ns;::singleton</classname></ulink>
+    implements support for classes that always have only a single class
+    instance during the application's lifetime:
+  </para>
+
+  <blockquote>
+    <informalexample>
+      <programlisting>
+#include &lt;&ns;/singleton.H&gt;
+
+class myClassObj : virtual public &ns;::obj {
+
+// class definition
+
+};
+
+typedef &ns;::ref&lt;myClassObj&gt; myClass;
+
+&ns;::singleton&lt;myClassObj&gt; myClassInstance;
+
+// ...
+
+myClass c(myClassInstance.get());
+
+c-&gt;method();</programlisting>
+    </informalexample>
+  </blockquote>
+
+  <para>
+    The object gets constructed the first time <methodname>get</methodname>()
+    gets invoked. Subsequent calls to <methodname>get</methodname>() returns
+    a reference to the same object.
+  </para>
+
+  &singletonlimits;
+</chapter>
+<!--
+Local Variables:
+mode: sgml
+sgml-parent-document: ("book.xml" "book" "chapter")
+End:
+-->

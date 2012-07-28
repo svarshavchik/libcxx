@@ -1,0 +1,1746 @@
+<!--
+
+Copyright 2012 Double Precision, Inc.
+See COPYING for distribution information.
+
+-->
+
+<chapter id="threads">
+  <title>Threads and related objects</title>
+
+  <section id="threadsintro">
+    <title>Introduction</title>
+    <para>
+      &app; adds
+      <ulink url="&link-x--rwmutex;"><classname>&ns;::rwmutex</classname></ulink>
+      to supplement <classname>std::rwmutex</classname> and
+      <classname>std::condition_variable</classname> from the C++ library.
+      This is a lightweight readers/writer design pattern implemented
+      as a pair of <literal>TimedLockable</literal> classes, with appropriate
+      semantics.
+    </para>
+
+    <para>
+      <ulink url="&link-typedef-x-mutex;"><classname>&ns;::mutex</classname></ulink>,
+      <ulink url="&link-typedef-x-cond;"><classname>&ns;::cond</classname></ulink>, and
+      <ulink url="&link-typedef-x-rwlock;"><classname>&ns;::rwlock</classname></ulink>,
+      are full fledged
+      <link linkend="refobj">reference-counted objects</link> that implement
+      similar semantics as their C++ library equivalent, except that they are
+      reference-counted objects. A mutex lock
+      gets released when the thread that holds the last reference to a lock
+      goes out of scope, which may not necessarily be the same thread that
+      acquired the lock. The read-write lock is a reference-counted wrapper for
+      <classname>&ns;::rwmutex</classname>.
+    </para>
+
+    <para>
+      These classes implement basic locking functionality. An additional set of
+      templates create formal design patterns that force acquisition of an
+      appropriate
+      lock in order to gain access to a protected object.
+      <ulink url="&link-x--mpobj;"><classname>&ns;::mpobj</classname></ulink>
+      implements a basic
+      design pattern that forces lock acquisition in order to access
+      and underlying resource in a thread-safe manner.
+      Forgetting to acquire a mutex lock, before accessing an object, is a
+      common source of difficult bugs.
+      <classname>&ns;::mpobj</classname> enforces lock acquisition.
+      Access to the object requires obtaining a lock
+      structure that's typically short-lived, so this is not a reference-counted
+      object.
+      <ulink url="&link-x--mpcobj;"><classname>&ns;::mpcobj</classname></ulink>
+      supplements <classname>&ns;::mpobj</classname> with a condition
+      variable.
+    </para>
+
+    <para>
+      The next step up is the <classname>&ns;::sipobj</classname> template
+      that defines <quote><link linkend="sipobj">somewhat important
+	  objects</link></quote>, which demand proper locking rights from a
+      <classname>&ns;::rwmutex</classname>, providing two levels of access to
+      the underlying objects.
+      Finally, the <classname>&ns;::vipobj</classname> template defines
+      <quote><link linkend="vipobj">very important objects</link></quote>,
+      which extend mere
+      somewhat important objects with a protocol for registering and invoking
+      handlers that notify interested parties anytime the very important object
+      gets changed.
+    </para>
+
+    <para>
+      See <xref linkend="freebsdport" /> for some additional notes on mutex
+      objects.
+    </para>
+  </section>
+
+  <section id="mpobj">
+    <title>Mutex-protected objects</title>
+
+    <blockquote>
+      <informalexample>
+	<programlisting>
+#include &lt;&ns;/ref.H&gt;
+#include &lt;&ns;/mpobj.H&gt;
+
+class msgObj;
+
+// A container for pending messages
+
+typedef std::list&lt;&ns;::ref&lt;msgObj&gt; &gt; messages_t;
+
+// Pending messages
+
+&ns;::mpcobj&lt;messages_t&gt; messages;
+
+// A lock on the messages queue
+
+typedef mpcobj&lt;messages_t&gt;::lock lock_t;
+
+// ...
+
+{
+   lock_t lock(messages);
+
+   lock-&gt;push_back(msg);
+   lock.notify_all();
+}
+
+// ...
+
+&ns;::ref&lt;msgObj&gt; msg=({
+   lock_t lock(messages);
+
+   while (lock-&gt;empty())
+      lock.wait();
+
+   auto msg=lock-&gt;front();
+   lock-&gt;pop_front();
+   msg;
+});</programlisting>
+      </informalexample>
+    </blockquote>
+
+    <para>
+      The
+      <ulink url="&link-x--mpcobj;"><classname>&ns;::mpcobj</classname></ulink>
+      template class implements a design pattern for a
+      <quote>mutex-protected object</quote>, which
+      attaches a <classname>std::mutex</classname> and a
+      <classname>std::condition_variable</classname>.
+      Access to the object requires obtaining a lock, which then may be used
+      as a pointer to the locked object. The lock also provides access to the
+      underlying condition variable, for signaling and waiting purposes.
+    </para>
+
+    <note>
+      <para>
+	These are not reference-counted classes. The underlying mutex-protected
+	object instance must remain in scope as long as there are instances of
+	instantiated locks.
+      </para>
+    </note>
+
+    <para>
+      An
+      <ulink url="&link-x--mpobj;"><classname>&ns;::mpobj</classname></ulink>
+      template class implements a mutex-protected object without a condition
+      variable. Use it when a condition variable is not needed, only an
+      object that's protected by a mutex.
+    </para>
+
+    <para>
+      The second optional parameter to the
+      <classname>&ns;::mpobj</classname> or
+      the <classname>&ns;::mpcobj</classname>
+      template overrides <classname>std::mutex</classname> as the
+      underlying mutex type.
+    </para>
+  </section>
+
+  <section id="rwmutex">
+    <title>Readers/writer mutex pairs</title>
+
+    <blockquote>
+      <informalexample>
+	<programlisting>
+#include &lt;&ns;/rwmutex.H&gt;
+
+&ns;::rwmutex rw;
+
+// ...
+
+std::lock_guard&lt;&ns;::rwmutex::rmutex&gt; lock(rw.r);
+
+// ...
+
+std::lock_guard&lt;&ns;::rwmutex::wmutex&gt; lock(rw.w);
+
+</programlisting>
+      </informalexample>
+    </blockquote>
+
+    <para>
+      <ulink url="&link-x--rwmutex;"><classname>&ns;::rwmutex</classname></ulink>
+      is a class that instantiates two members, <varname>r</varname> and
+      <varname>w</varname>, their types are
+      <classname>&ns;::rwmutex::rmutex</classname> and
+      <classname>&ns;::rwmutex::wmutex</classname>.
+    </para>
+
+    <para>
+      <classname>&ns;::rwmutex::rmutex</classname> and
+      <classname>&ns;::rwmutex::wmutex</classname> implement
+      <literal>TimedLockable</literal>, and can be used together with the
+      C++ library's locking objects, like
+      <classname>std::lock_guard</classname> and
+      <classname>std::unique_lock</classname>, with the following semantics.
+    </para>
+
+    <itemizedlist>
+      <listitem>
+	<para>
+	  An execution thread can own <varname>r</varname> as long as no
+	  execution thread owns the corresponding <varname>w</varname>.
+	  Multiple threads can own the same <varname>r</varname> as long as
+	  no execution thread owns <varname>w</varname>.
+	</para>
+      </listitem>
+
+      <listitem>
+	<para>
+	  An execution thread can own <varname>w</varname> as long as
+	  no execution thread owns the corresponding <varname>r</varname>
+	  and no other thread owns <varname>w</varname>.
+	  When an execution thread owns <varname>w</varname>, no other thread
+	  can own <varname>w</varname> or the corresponding
+	  <varname>r</varname>.
+	</para>
+      </listitem>
+
+      <listitem>
+	<para>
+	  In all other situations, the locking attempt blocks until the
+	  required condition is met.
+	</para>
+      </listitem>
+    </itemizedlist>
+
+    <note>
+      <para>
+	An execution thread can own a read mutex or a write mutex, but not both.
+	That's intrinsic to the above definition. What's less obvious is that
+	an execution thread cannot attempt to own a read mutex if it already
+	owns it. Just because a thread owns a read mutex doesn't mean that
+	it can grab another read mutex.
+      </para>
+
+      <para>
+	This is because, in order to prevent starvation, an attempt to acquire
+	a write mutex blocks any future read mutex acquisition, even if there
+	are existing read mutex owners. If a thread owns a read mutex, and
+	there's a waiting write mutex attempt, an attempt to acquire a second
+	read mutex blocks, and because the same thread also has an existing
+	lock on the read mutex, it deadlocks with the thread that's trying to
+	lock the write mutex.
+      </para>
+
+      <para>
+	Most of the time, the second read lock will succeed. Until you win
+	the lottery, and get yourself deadlocked.
+      </para>
+    </note>
+
+    <blockquote>
+      <informalexample>
+	<programlisting>
+#include &lt;&ns;/rwmutexdebug.H&gt;
+
+#define rwmutex rwmutexdebug</programlisting>
+      </informalexample>
+    </blockquote>
+
+    <para>
+      <ulink url="&link-x--rwmutexdebug;"><classname>&ns;::rwmutexdebug</classname></ulink>
+      has the same API as <classname>&ns;::rwmutexdebug</classname>, except that
+      it manually tracks all threads and throws an exception if the same
+      thread tries to grab more than one lock.
+    </para>
+
+    <para>
+      It should be sufficient to just <literal>#define</literal> it,
+      on as-needed basis (but only after <literal>#include</literal>-ing the
+      real class definition, of course). Better yet: use an intermediate
+      <literal>typedef</literal> that can be switched easily.
+    </para>
+
+    <para>
+      The debug class is slow, it should only be used as a
+      temporary debugging measure, to nail down bad locking.
+      Once a bad lock gets detected, a backtrace gets dumped to standard error,
+      and an exception gets thrown, for good measure.
+    </para>
+  </section> 
+
+  <section id="mutex">
+    <title>Mutex objects</title>
+
+    <blockquote>
+      <informalexample>
+	<programlisting>
+#include &lt;&ns;/mutex.H&gt;
+
+&ns;::mutex m(&ns;::mutex::create());
+
+// ...
+
+{
+  &ns;::mutex::base::mlock lock=m-&gt;lock();
+
+  // ...
+
+}</programlisting>
+      </informalexample>
+    </blockquote>
+
+    <para>
+      <ulink url="&link-typedef-x-mutex;"><classname>&ns;::mutex</classname></ulink>
+      is a
+      <link linkend="refobj">reference-counted</link>
+      object with similar semantics as
+      <classname>std::mutex</classname>.
+      Its <function>lock</function>() method instantiates a
+      <classname>&ns;::mutex::base::mlock</classname>, which itself a
+      reference on a reference-counted object. Only one lock object may exist
+      at a time.
+      The mutex gets unlocked when the last reference to the lock object
+      goes out of scope and gets destroyed.
+    </para>
+
+    <para>
+      <classname>&ns;::mutex</classname> and
+      <classname>&ns;::mutex::base::mlock</classname> are references to
+      <link linkend="refobj">reference-counted objects</link>; as such,
+      for example, a lock can get acquired by one thread, and passed around.
+      Whichever thread holds the last reference to the lock unlocks the mutex
+      when it goes out of scope and gets destroyed. The
+      <classname>std::mutex</classname> limitations that the mutex must be
+      unlocked by the same thread that locked it does not apply here.
+    </para>
+
+    <para>
+      If a lock object already exists, <function>lock</function>() waits until
+      the existing lock object goes out of scope.
+      Following the usual convention for reference-counted objects,
+      <ulink url="&link-typedef-x-mutexptr;"><classname>&ns;::mutexptr</classname></ulink>
+      is a typedef for a nullable pointer reference to a mutex, and
+      <classname>&ns;::mutex::base::mlockptr</classname> is a nullable
+      pointer reference to a lock object:
+    </para>
+
+    <blockquote>
+      <informalexample>
+	<programlisting>
+&ns;::mutex::base::mlockptr lock=m-&gt;trylock();
+
+if (lock.null())
+   // ...
+</programlisting>
+      </informalexample>
+    </blockquote>
+
+    <para>
+      <function>trylock</function>() does not wait until an existing lock
+      object goes out of scope. If one exists, a null pointer reference gets
+      returned instead of constructing a lock.
+      There's also an overloaded <function>wait_until</function>() that takes
+      a time point that sets the wait expiration.
+      If a lock is not immediately available, it gets waited for until
+      the specified time point. A null pointer reference gets returned also,
+      instead of a lock object reference:
+    </para>
+
+    <blockquote>
+      <informalexample>
+	<programlisting>
+#include &lt;&ns;/mutex.H&gt;
+#include &lt;chrono&gt;
+
+&ns;::mutex m=&ns;::mutex::create();
+
+&ns;::mutex::base::mlockptr p=
+    m-&gt;wait_until(std::chrono::monotonic_clock::now() +
+        std::chrono::milliseconds(500));
+
+    if (!p.null())
+        // ...</programlisting>
+      </informalexample>
+    </blockquote>
+
+    <para>
+      This example waits half a second for the lock to be acquired, before
+      giving up.
+    </para>
+  </section> 
+
+  <section id="cond">
+    <title>Condition variable objects</title>
+
+    <para>
+      The condition variable employed by a
+      <link linkend="mutex">mutex's</link> <function>trylock</function>() is
+      an internal condition variable.
+      A separate object provides condition variable-like semantics:
+    </para>
+
+    <blockquote>
+      <informalexample>
+	<programlisting>
+#include &lt;&ns;/mutex.H&gt;
+#include &lt;&ns;/cond.H&gt;
+
+&ns;::mutex::base::mlock lock=m-&gt;lock();
+
+&ns;::cond c=&ns;::cond::create();
+
+// ...
+
+c-&gt;wait(lock);
+
+// ...
+c-&gt;notify_all();</programlisting>
+      </informalexample>
+    </blockquote>
+
+    <para>
+      <ulink url="&link-typedef-x-cond;"><classname>&ns;::cond</classname></ulink>
+      is a
+      <link linkend="refobj">reference-counted</link>
+      object that provides
+      <classname>std::condition_variable</classname>-like semantics for
+      <link linkend="mutex">mutexes</link>.
+
+      like the mutex object does. It also has an overloaded
+      <function>wait</function>() that takes a second parameter that specifies
+      an optional expiration time.
+      It implements <function>notify</function>() and
+      <function>notify_all</function>() which are analogous to its
+      thin, non-reference counted cousin.
+    </para>
+  </section> 
+
+  <section id="rwlock">
+    <title>Readers-writer lock objects</title>
+
+    <blockquote>
+      <informalexample>
+	<programlisting>
+#include &lt;&ns;/rwlock.H&gt;
+
+&ns;::rwlock lock=&ns;::rwlock::create();
+
+// ...
+
+{
+  &ns;::rwlock::base::rlock rlock=lock->readlock();
+
+
+}
+
+// ...
+
+{
+  &ns;::rwlock::base::wlock wlock=lock->writelock();
+
+
+}</programlisting>
+      </informalexample>
+    </blockquote>
+
+    <para>
+      <ulink url="&link-typedef-x-rwlock;"><classname>&ns;::rwlock</classname></ulink>
+      is mostly a
+      <link linkend="refobj">reference-counted</link>
+      version of
+      <link linkend="rwmutex">&ns;::rwmutex</link> that also uses
+      reference-counted lock objects.
+      Its <function>readlock</function>() acquires a lock on the underlying
+      <varname>r</varname> object,
+      and <function>writelock</function>() acquires a lock on the underlying
+      <varname>w</varname> object.
+      The underlying locks are also reference-counted objects, that can
+      be freely passed around. The locks are released when the last reference
+      to a lock object goes out of scope and an object gets destroyed.
+      <classname><classname>&ns;::rwlock</classname></classname> implements
+      <function>try_readlock</function>() and
+      <function>try_writelock</function>() which are analogous to a
+      <link linkend="mutex">mutex's <function>try_lock</function>()</link>,
+      in a read lock's or a write lock's case.
+    </para>
+
+    <para>
+      <function>try_readlock_until</function>(),
+      <function>try_readlock_for</function>(),
+      <function>try_writelock_until</function>(), and
+      <function>try_writelock_for</function>() also return a nullable
+      reference pointer to the acquired lock, which is null if the lock
+      cannot be acquired.
+    </para>
+  </section> 
+
+  <section id="ethreads">
+    <title>Execution threads</title>
+
+    <para>
+      <ulink url="&link-function-x-run;"><function>&ns;::run</function>()</ulink>
+      adapts <classname>std::thread</classname>
+      and <classname>std::packaged_task</classname> to &app;'s
+      <link linkend="refobj">reference-counted object model</link>.
+      <function>&ns;::run</function>() takes a reference to an object with a
+      <methodname>run</methodname>() method, which gets invoked in a new
+      thread.
+    </para>
+
+    <blockquote>
+      <informalexample>
+	<programlisting>
+#include &lt;&ns;/obj.H&gt;
+#include &lt;&ns;/ref.H&gt;
+#include &lt;&ns;/threads/run.H&gt;
+
+class buttonObj : virtual public &ns;::obj {
+
+public:
+
+   bool run(int x, int y);
+
+   buttonObj() noexcept;
+   ~buttonObj() noexcept;
+
+   // ...
+};
+
+typedef &ns;::ref&lt;buttonObj&gt; button;
+
+// ...
+
+button okButton=button::create();
+
+// ...
+
+&ns;::runthread&lt;bool&gt; ret=&ns;::run(okButton, 100, 100);
+
+// ...
+
+if (ret->terminated())
+   // ...
+
+ret->wait();
+
+bool status=ret->get();</programlisting>
+      </informalexample>
+    </blockquote>
+
+    <para>
+      The first parameter to
+      <ulink url="&link-function-x-run;"><function>&ns;::run</function></ulink>()
+      is a reference to an object that itself implements a
+      <methodname>run</methodname>() method, possibly with parameters.
+      <function>&ns;::run</function> takes the reference to an object,
+      and invokes the referenced object's <methodname>run</methodname>(),
+      forwarding to it the remaining arguments to
+      <function>&ns;::run</function>().
+    </para>
+
+    <para>
+      The referenced object's <methodname>run</methodname>() gets invoked in a
+      new execution thread, meanwhile <function>&ns;::run</function>()
+      returns a
+      <ulink url="&link-x--runthread;"><classname>&ns;::runthread&lt;<replaceable>T</replaceable>&gt;</classname></ulink>.
+      The arguments to <methodname>run</methodname>() must be
+      copy-constructible.
+      <function>&ns;::run</function>() copies the arguments, and
+      the thread object's <methodname>run</methodname>() gets invoked with the
+      copied arguments, which get destroyed after
+      <methodname>run</methodname>() returns, and just before the new
+      execution thread terminates.
+    </para>
+
+    <para>
+      <function>&ns;::run</function>() takes care of instantiating
+      a new <classname>std::thread</classname>, and joining the
+      thread when it's done. With <function>&ns;::run</function>(), there is
+      no concept of joinable and detached threads. The thread started by
+      <function>&ns;::run</function>() holds its own reference on the object
+      whose <methodname>run</methodname>() method got invoked, and releases
+      the reference when <methodname>run</methodname>() returns.
+      The calling thread may keep its reference to the object, for other
+      purposes, or all of its references to the object can go out of scope,
+      but the new thread's reference keeps the object from getting destroyed
+      until <methodname>run</methodname>() returns.
+    </para>
+
+    <para>
+      When <methodname>run</methodname>() returns, an internal cleanup thread
+      takes care of joining the terminated thread.
+    </para>
+
+    <section id="runthread">
+      <title>Checking the results of an execution thread</title>
+
+      <para>
+	<function>&ns;::run</function>() returns a
+	<ulink url="&link-x--runthread;"><classname>&ns;::runthread&lt;<replaceable>T</replaceable>&gt;</classname></ulink>,
+	where <replaceable>T</replaceable> is the type of the return value
+	from the thread object's <methodname>run</methodname>().
+	Its <methodname>terminated</methodname>() method
+	returns a boolean that indicates
+	whether <methodname>run</methodname>() in execution thread started by
+	<function>&ns;::run</function>()
+	returned and the thread has terminated.
+	<methodname>get</methodname>() waits for the
+	<methodname>run</methodname>() method to return, and if
+	<replaceable>T</replaceable> is not <classname>void</classname>,
+	returns its return value (the return type of
+	<methodname>run</methodname>()
+	must be, naturally, copy-constructible.
+      </para>
+
+      <para>
+	If the execution thread terminated with an exception, rather than
+	returning from its <methodname>run</methodname>(),
+	<methodname>get</methodname>() rethrows that exception.
+	<methodname>wait</methodname>(),
+	<methodname>wait_for</methodname>(), and
+	<methodname>wait_until</methodname>() wait until the execution
+	thread terminates (either by returning from its
+	<methodname>run</methodname>(), or by throwing an uncaught exception).
+	<methodname>wait</methodname>() waits indefinitely, until
+	<methodname>run</methodname>() returns.
+	<methodname>wait_for</methodname>() and
+	<methodname>wait_until</methodname>() take
+	a <classname>std::chrono::duration</classname> or a
+	<classname>std::chrono::time_point</classname>, respectively, setting
+	the timeout for the wait.
+      </para>
+
+      <note>
+	<para>
+	  All execution threads are expected to terminate before the
+	  main application exits by returning from <function>main</function>()
+	  or by calling <function>exit()</function>.
+	  A warning message gets printed to standard error if not, and
+	  <function>abort</function>() follows if the remaining
+	  threads still do not terminate after thirty seconds.
+	</para>
+      </note>
+
+      <para>
+	<classname>&ns;::runthread&lt;T&gt;</classname> refers to a
+	template class that inherits from a non-template
+	<classname><ulink url="&link-x--runthreadbaseObj;">&ns;::runthreadbaseObj</ulink></classname>
+	class, whose reference type is
+	<classname><ulink url="&link-typedef-x-runthreadbase;">&ns;::runthreadbase</ulink></classname>.
+	It implements just the <methodname>terminated</methodname>() and
+	<methodname>wait</methodname>() methods. In contexts where the return
+	value from an object's <methodname>run</methodname>() is not required,
+	this allows implementation
+	of non-templated code that waits for arbitrary execution
+	threads to terminate.
+      </para>
+      &nopthreadcancel;
+    </section>
+
+    <section id="threadcc">
+      <title>Arguments to <methodname>run</methodname>() methods must be copy-constructible</title>
+
+      <para>
+	It's already been mentioned that arguments to execution threads'
+	<methodname>run</methodname>() methods must have a copy constructor.
+      </para>
+
+      <blockquote>
+	<informalexample>
+	  <programlisting>
+#include &lt;&ns;/obj.H&gt;
+#include &lt;&ns;/ref.H&gt;
+#include &lt;&ns;/threads/run.H&gt;
+
+class widget;
+
+class rendererObj : virtual public &ns;::obj {
+
+public:
+
+    void run(widget &amp;w);
+
+// ...
+};
+
+void runawidget(const &ns;::ref&lt;renderObj&gt; &amp;r,
+                const widget &amp;w)
+{
+    &ns;::run(r, w);
+}</programlisting>
+	</informalexample>
+      </blockquote>
+
+      <para>
+	In this example, the thread object's <methodname>run</methodname>()
+	method takes a reference to a non-constant widget object. However,
+	the argument to <function>&ns;::run</function>() is
+	a reference to a constant widget object.
+      </para>
+
+      <para>
+	This is because the arguments get copied for the new execution thread.
+	The thread object's <methodname>run</methodname>() method get invoked
+	with the thread's copy of each argument passed to
+	<function>&ns;::run</function>().
+	The <methodname>run</methodname>() method's prototype can specify
+	either a constant reference, or a mutable reference to a type, in either
+	case it'll get resolved.
+      </para>
+
+      <para>
+	This means that although an object may have overloaded
+	<methodname>run</methodname>() methods, a <methodname>run</methodname>()
+	that takes a reference to a constant object will never be used if
+	there's an overloaded <methodname>run</methodname>() method that takes
+	a reference to a mutable object (as long as all other parameters are
+	the same).
+      </para>
+
+      <blockquote>
+	<informalexample>
+	  <programlisting>
+template&lt;typename objClass, typename baseClass, typename ...Args&gt;
+auto start(const &ns;::ref&lt;objClass, baseClass&gt; &amp;thread,
+           Args &amp;&amp; ...args)
+-&gt; typename &ns;::runthread&lt;decltype(thread->run(&ns;::invoke_run_param_helper
+	&lt;Args&gt;()...))&gt;
+
+// ...</programlisting>
+	</informalexample>
+      </blockquote>
+
+      <para>
+	As described previously, <function>&ns;::run</function>() returns a
+	<classname>&ns;::runthread&lt;<replaceable>T</replaceable>&gt;</classname>,
+	where <replaceable>T</replaceable> gives the return type of
+	the object's <methodname>run</methodname>(). Sometimes its useful
+	to define a template that uses a related type, such as a corresponding
+	&ptr;, instead.
+	<ulink url="&link-function-x-invoke-run-param-helper;"><function>&ns;::invoke_param_helper</function></ulink>() helps
+	in construing the parameters to a <methodname>run</methodname> as if
+	they were invoked in the executed thread, given the original
+	parameters to <function>&ns;::run</function>().
+	Its definition is very short:
+      </para>
+
+      <blockquote>
+	<informalexample>
+	  <programlisting>
+template&lt;typename param_type&gt; class run_param {
+
+public:
+    typedef typename std::decay&lt;param_type&gt;::type &amp;type;
+};
+
+template&lt;typename param_type&gt;
+typename run_param&lt;param_type&gt;::type &amp;invoke_run_param_helper();</programlisting>
+	</informalexample>
+      </blockquote>
+
+      <para>
+	Each parameter to <function>&ns;::run</function>() is decay-copied into
+	the new execution thread's context, then passed by reference to a
+	<methodname>run</methodname>() method.
+      </para>
+    </section>
+
+    <section id="threadsuperclasses">
+      <title>Optional superclasses of thread-executing objects</title>
+
+      <para>
+	To supply a default thread name <link linkend="logger">for logging
+	  purposes</link>, subclass from
+	<ulink url="&link-x--runthreadname;"><classname>&ns;::runthreadname</classname></ulink>
+	and implement <methodname>getName</methodname>(), as follows:
+      </para>
+
+      <blockquote>
+	<informalexample>
+	  <programlisting>
+#include &lt;&ns;/obj.H&gt;
+#include &lt;&ns;/runthreadname.H&gt;
+
+class myThreadObj : virtual public &ns;::obj, public &ns;::runthreadname {
+
+public:
+
+// ...
+
+    void run( ... );
+
+    std::string getName() const { return "mythread"; }
+};
+</programlisting>
+	</informalexample>
+      </blockquote>
+
+      <para>
+	<function>&ns;::run</function>() invokes
+	<methodname>getName</methodname>() prior to invoking the thread object's
+	<methodname>run</methodname>(), to set the thread's name, for logging
+	purposes.
+      </para>
+
+      <para>
+	By default,
+	<function>&ns;::run</function>() has no issues with starting multiple
+	concurrent threads, at the same time, using the same class instance.
+	To prevent that, subclass
+	<ulink url="&link-x--runthreadsingleton;"><classname>&ns;::runthreadsingleton</classname></ulink>:
+      </para>
+
+      <blockquote>
+	<informalexample>
+	  <programlisting>
+#include &lt;&ns;/obj.H&gt;
+#include &lt;&ns;/runthreadsingleton.H&gt;
+
+class myThreadObj : virtual public &ns;::obj, virtual public &ns;::runthreadsingleton {
+
+// ...
+
+};</programlisting>
+	</informalexample>
+      </blockquote>
+
+      <para>
+	<function>&ns;::run</function>() now throws an exception if an earlier
+	<function>&ns;::run</function>() spawned a thread on the same object,
+	and the earlier thread is still running.
+	Use virtual public inheritance to subclass
+	<classname>&ns;::runthreadsingleton</classname>, so that a subclass
+	that inherits from multiple thread singletons gets a single instance
+	of <classname>&ns;::runthreadsingleton</classname>.
+      </para>
+    </section>
+
+    <section id="threaddestructor">
+      <title>Cleanup thread</title>
+
+      <para>
+	<function>&ns;::run</function>() takes care of the hard work of
+	using <classname>std::thread</classname> directly, notably the
+	requirement to join the started thread before
+	<classname>std::thread</classname>'s destructor gets invoked.
+	<classname>std::thread</classname> is privately owned by a
+	<ulink url="&link-x--runthread;"><classname>&ns;::runthread&lt;<replaceable>T</replaceable>&gt;</classname></ulink>
+	that gets returned by <function>&ns;::run</function>().
+	Additionally, the started thread maintains its own reference on the
+	thread object, and the <classname>&ns;::runthread</classname>
+	instance.
+      </para>
+
+      <para>
+	If all other references to the thread object go out of scope, the
+	thread object does not get destroyed before its
+	<methodname>run</methodname>() returns, since it holds the
+	last remaining reference to the thread object. Furthermore, there's
+	also an indirect reference on the
+	<classname>&ns;::runthread</classname>, with its private
+	<classname>std::thread</classname> instance, that does not get
+	released until after <methodname>run</methodname>(), at which point
+	its turned over to a cleanup thread.
+      </para>
+
+      <para>
+	The first call to <function>&ns;::run</function>() starts a separate
+	thread that joins all threads that return from thread objects'
+	<methodname>run</methodname>()s. A single cleanup thread gets used
+	for all <function>&ns;::run</function>()s-started execution threads.
+      </para>
+
+      <para>
+	A terminated thread's <classname>&ns;::runthread</classname>,
+	containing its <classname>std::thread</classname>, gets turned over
+	to the cleanup thread, which joins it, sets
+	its <classname>&ns;::runthread</classname>'s
+	<methodname>terminated</methodname>() to true, and makes the
+	return value from the thread object's <methodname>run</methodname>()
+	<methodname>get</methodname>()able from the
+	<classname>&ns;::runthread</classname>.
+      </para>
+
+      <para>
+	Even if the <classname>&ns;::runthread</classname> that's returned by
+	<function>&ns;::run</function>() gets ignored, an internal reference
+	to it gets held by the executing thread. This keeps it from getting
+	destroyed until <methodname>run</methodname>() returns and the thread
+	terminates.
+	When that happens, the <classname>&ns;::runthread</classname> gets
+	turned over to the cleanup thread, which joins the terminated
+	thread, and then releases the last reference on the
+	<classname>&ns;::runthread</classname>, finally destroying it.
+      </para>
+
+      <para>
+	For this reason, the <classname>&ns;::runthread</classname> could,
+	but should not be used as a mcguffin. The cleanup thread is unable
+	to continue joining other threads until any destructor callbacks
+	return.
+      </para>
+    </section>
+
+    <section id="threadnoforks">
+      <title>fork() invalidates threads and related objects</title>
+
+      <para>
+	After a <function>fork</function>(), all thread-related contexts in the child process
+	are invalidated. All mutexes, condition variables, and read-write
+	locks no longer have a valid state, and will
+	<methodname>abort</methodname>() the process if any of the objects go
+	out of scope, and the destructor attempts to destroy the object.
+      </para>
+
+      <para>
+	The child process will no longer be able to spawn threads, after
+	a <function>fork</function>().
+      </para>
+
+      <para>
+	<function>fork</function>() has no effect in the parent process.
+	All threads remain valid. All thread objects remain valid.
+      </para>
+    </section>
+
+    <section id="threadlogging">
+      <title>Thread logging</title>
+
+      <para>
+	The full log message format generated by the
+	<link linkend="logger">application logging subsystem</link>
+	includes the name of the running thread. This is set by
+	<methodname>getName</methodname>() method of the thread object passed
+	to <link linkend="ethreads"><function>&ns;::run</function>()</link>,
+	if the thread class inherits from
+	<link linkend="threadsuperclasses"><classname>&ns;::runthreadname</classname></link>,
+	or a default name.
+      </para>
+    </section>
+  </section>
+
+  <section id="timers">
+    <title>Timer threads</title>
+
+    <blockquote>
+      <informalexample>
+	<programlisting>
+#include &lt;&ns;/threads/timer.H&gt;
+
+&ns;::timer bTimer(&ns;::timer::create());
+bTimer-&gt;setTimerName("background-task");</programlisting>
+      </informalexample>
+    </blockquote>
+
+    <para>
+      An
+      <ulink url="&link-typedef-x-timer;"><classname>&ns;::timer</classname></ulink>
+      is a
+      <link linkend="refobj">reference-counted</link> object that
+      starts an on-demand thread that
+      executes <methodname>run</methodname>() methods defined in
+      <ulink url="&link-x--timertaskObj;"><classname>&ns;::timertaskObj</classname></ulink>
+      objects:
+    </para>
+
+    <blockquote>
+      <informalexample>
+	<programlisting>
+#include &lt;&ns;/threads/timertask.H&gt;
+
+class myTaskObj : public &ns;::timertaskObj {
+
+// ...
+public:
+    myTaskObj() noexcept {}
+    ~myTaskObj() noexcept {}
+
+    void run();
+};
+
+typedef &ns;::ptr&lt;myTaskObj&gt; myTask;
+
+myTask newTask(myTask::create());
+
+bTimer-&gt;schedule(newTask, std::chrono::system_clock::now()+std::chrono::seconds(2));</programlisting>
+      </informalexample>
+    </blockquote>
+
+    <para>
+      The tasks get executed in a separate execution thread.
+      Each task gets executed once, or repeatedly, at predetermined
+      intervals, until it's cancelled.
+      One
+      execution thread is associated with each
+      <ulink url="&link-typedef-x-timer;"><classname>&ns;::timer</classname></ulink>
+      object. It is not necessary to subclass
+      <classname>&ns;::timer</classname> and override its
+      <methodname>getName()</methodname> method to set the execution thread's
+      name for logging purposes. Instead, invoke
+      <methodname>setTimerName</methodname>() before adding the first task to the
+      timer object.
+    </para>
+
+    <para>
+      In this example,
+      <classname>myTaskObj</classname>'s <methodname>run</methodname>() method
+      gets executed in two
+      seconds. Other <methodname>schedule</methodname>()
+      methods are available which schedule
+      the task in various ways, including repeated executions at pretedermined
+      intervals, until the task get cancelled:
+    </para>
+
+    <blockquote>
+      <informalexample>
+	<programlisting>
+newTask-&gt;cancel();</programlisting>
+      </informalexample>
+    </blockquote>
+
+    <para>
+      A task's <methodname>run</methodname>() may invoke its own
+      <methodname>cancel</methodname>().
+      The cancellation takes
+      effect when the task's <methodname>run</methodname>() method returns.
+      Multiple <classname>&ns;::timertaskObj</classname> instances can be
+      scheduled with the same
+      <classname>&ns;::timer</classname>.
+      Each
+      <classname>&ns;::timer</classname>
+      runs a single execution thread.
+      While the thread is executing a
+      <classname>&ns;::timertaskObj</classname>'s <methodname>run</methodname>() method, all
+      other pending
+      <classname>&ns;::timertaskObj</classname> objects wait until the
+      current object's <methodname>run</methodname>() method terminates.
+      This timer object is not suitable for long running tasks.
+    </para>
+
+    <para>
+      The timer thread holds a strong reference on each task object that's
+      pending execution. In the case of a one-time task, the thread releases
+      its reference on the task object after executing it, or until it gets
+      cancelled.
+      In the case of a repeated task, the thread releases its reference on the
+      task object after it gets cancelled.
+    </para>
+
+    <para>
+      <ulink url="&link-x--timertaskBase;"><function>&ns;::timertask::base::make_timer_task</function></ulink>() constructs a subclass of
+      <classname>&ns;::timertaskObj</classname> from a functor:
+    </para>
+
+    <blockquote>
+      <informalexample>
+	<programlisting>
+bTimer-&gt;schedule(&ns;::timertask::base::make_timer_task([]
+    {
+        dosomething();
+    }), std::chrono::system_clock::now()+std::chrono::seconds(2));</programlisting>
+      </informalexample>
+    </blockquote>
+
+    <para>
+      <function>make_timer_task</function> takes a reference to a
+      functor, and returns a reference to an instantiated subclass of a
+      <classname>&ns;::timertaskObj</classname> whose
+      <methodname>run</methodname>() invokes the functor.
+    </para>
+
+    <para>
+      The functor takes no arguments, but it can use captured objects.
+      Except under very controlled circumstances, the functor should capture
+      by value, since the functor ends up getting executed by a different
+      thread.
+    </para>
+
+    <section id="autocancel">
+      <title>Using mcguffins to cancel recurring tasks</title>
+
+      <para>
+	Once scheduled, the timer thread holds a strong reference on the
+	timer task object, until the task is no longer scheduled. A recurring
+	task must be explicitly cancelled.
+      </para>
+
+      <para>
+	<classname>&ns;::timertaskObj</classname>'s
+	<methodname>autocancel</methodname>() method returns a mcguffin
+	whose destructor invokes <methodname>cancel</methodname>() on the
+	timer task. When the mcguffin goes out of scope and gets destroyed,
+	this results in the task's automatic cancellation.
+      </para>
+
+      <para>
+	This also applies to task objects created by
+	<function>&ns;::timertask::base::make_timer_task</function>(),
+	since they subclass
+	<classname>&ns;::timertaskObj</classname>:
+      </para>
+
+      <blockquote>
+	<informalexample>
+	  <programlisting>
+auto doSomethingTask=&ns;::timertask::base::make_timer_task([]
+    {
+        dosomething();
+    });
+
+&ns;::ref&lt;&ns;::obj&gt; mcguffin=doSomethingTask->autocancel();
+
+bTimer-&gt;scheduleAtFixedRate(doSomethingTask, std::chrono::seconds(30));</programlisting>
+	</informalexample>
+      </blockquote>
+
+      <para>
+	When this mcguffin goes out of scope and gets destroyed, the task's
+	<methodname>cancel</methodname>() method gets invoked, to cancel it.
+      </para>
+    </section>
+  </section>
+
+  <section id="threadlocal">
+    <title>Weak local thread objects</title>
+
+    <blockquote>
+      <informalexample>
+	<programlisting>
+class cacheObj : virtual public &ns;::obj {
+   
+// ...
+   
+typedef &ns;::ref&lt;cacheObj&gt; cache;
+   
+typedef &ns;::ptr&lt;cacheObj&gt; cacheptr;
+   
+// ...
+   
+cache item=cache::create();
+   
+&ns;::weakthreadlocalObj&lt;cacheObj&gt; weakitem=&ns;::makeweakthreadlocal(item);</programlisting>
+      </informalexample>
+    </blockquote>
+
+    <para>
+      <ulink url="&link-function-x-makeweakthreadlocal;">&ns;::makeweakthreadlocal</ulink>()
+      constructs a weak local thread object reference.
+      It's
+      <ulink url="&link-x--weakthreadlocalObj;"><methodname>getptr</methodname>()</ulink>
+      method is similar to a <link linkend="weakptr">weak pointer</link>'s for
+      a <link linkend="refobj">reference-counted object</link>, but with an
+      additional element that when the thread that created the weak local
+      thread object terminates, the pointer returned by
+      <methodname>getptr</methodname>() becomes
+      <methodname>null</methodname>().
+    </para>
+
+    <note>
+      <para>
+	Threads that create local thread object references must be created
+	by <link linkend="ethreads"><function>&ns;::run</function>()</link>.
+	The weak local thread object references become
+	<methodname>null</methodname>() after the object's
+	<methodname>run</methodname>() method returns, and before the
+	underlying thread gets joined.
+      </para>
+    </note>
+
+    <note>
+      <para>
+	Since thread termination may involve object destruction, weak local
+	thread references may not be instantiated in destructors of other
+	objects, since the thread may currently be in the process of being
+	terminated.
+      </para>
+    </note>
+  </section>
+
+  <section id="threadsingleton">
+    <title>Local thread singleton objects</title>
+
+    <para>
+      The
+      <ulink url="&link-x--threadsingleton--ptr--obj-type--base-class----;"><classname>&ns;::threadsingleton</classname></ulink>
+      template implements support for thread-scoped singletons. It combines
+      <link linkend="threadsingleton">singletons</link> with
+      <link linkend="threadlocal">local thread objects</link>.
+      This template defines a singleton with a lifetime that's scoped to each
+      execution thread.
+      The difference between this template and
+      <ulink url="&link-x--singleton;"><classname>&ns;::singleton</classname></ulink>
+      is that each thread that invokes <methodname>get</methodname>()
+      gets a reference to a separate singleton instance in each execution
+      thread.
+    </para>
+
+    <blockquote>
+      <informalexample>
+	<programlisting>
+#include &lt;&ns;/threads/singleton.H&gt;
+
+class myClassObj : virtual public &ns;::obj {
+
+// class definition
+
+};
+
+typedef &ns;::ptr&lt;myClassObj&gt; myClass;
+
+&ns;::threadsingleton&lt;myClass&gt; myClassInstance;
+
+// ...
+
+myClass c(myClassInstance.get());
+
+c-&gt;method();</programlisting>
+      </informalexample>
+    </blockquote>
+
+    <para>
+      The template parameter to <classname>&ns;::threadsingleton</classname>
+      must be some <classname>&ns;::ptr</classname>.
+      The object gets constructed the first time <methodname>get</methodname>()
+      gets invoked by an execution thread.
+      Subsequent calls to <methodname>get</methodname>() from the same
+      thread returns a reference to the same object. Invoking
+      <methodname>get</methodname>() from a different thread return a different
+      class instance.
+    </para>
+
+    <para>
+      <methodname>get</methodname>() returns a
+      reference, no different than
+      any other reference to a <link linkend="refobj">reference-counted
+	object</link>. The reference returned by
+      <methodname>get</methodname>() can be used by other threads too.
+      If no other references to the object exist, the object gets
+      destroyed when its execution thread terminates, automatically.
+      If the reference to the underlying object exists, in some other thread,
+      that reference, just like any other reference, would keep that object
+      from being destroyed. When a thread terminates, only that thread's local
+      reference to the object goes out of scope.
+    </para>
+
+    <para>
+      <methodname>get</methodname>() return the <classname>&ns;::ptr</classname>
+      template parameter, however it's never <methodname>null()</methodname>
+      Normally, <methodname>get</methodname>() returns a reference, it does not
+      except when it's
+      called when the entire process, or its thread, is in the process of
+      starting and shutting down (as noted below). In a normal environment,
+      <methodname>get</methodname>() should not return a
+      <methodname>null</methodname>().
+    </para>
+
+    <note>
+      <para>
+	Local thread singleton objects work only in the main execution thread
+	or execution threads started by
+	<link linkend="ethreads"><function>&ns;::run</function>()</link>.
+      </para>
+    </note>
+
+    &singletonlimits;
+  </section>
+
+  <section id="workerpool">
+    <title>Thread worker pools</title>
+
+    <para>
+      <link linkend="ethreads"><function>&ns;:run</function>()</link> starts
+      a new thread immediately. A thread worker pool starts new threads
+      in advance, and assigns them to a particular job, with a
+      queue for waiting requests.
+    </para>
+
+    <para>
+      A <ulink url="&link-x--workerpool;"><classname>&ns;::workerpool</classname></ulink>
+      is an object that has its own <methodname>run</methodname>() method
+      that works generally the same way as <function>&ns;::run</function>(),
+      however a number of threads get started in advance (actually, the first
+      time its <methodname>run</methodname>() method gets called):
+    </para>
+
+    <blockquote>
+      <informalexample>
+	<programlisting>
+#include &lt;&ns;/ref.H&gt;
+#include &lt;&ns;/obj.H&gt;
+#include &lt;&ns;/threads/workerpool.H&gt;
+
+class spaceshipObj : virtual public &ns;::obj {
+
+public:
+    spaceshipObj() {}
+    ~spaceshipObj() noexcept {}
+
+    void run(int x, int y);
+};
+
+typedef &ns;::workerpool&lt;spaceshipObj&gt; fleet_t;
+
+fleet_t fleet=fleet_t::create(4, 8, "starship", L"army");
+
+// ...
+
+fleet->run(100, 200);</programlisting>
+      </informalexample>
+    </blockquote>
+
+    <para>
+      The worker pool template class takes a class name parameter that defines
+      which classes get instantiated for each thread in the worker pool.
+      The worker pool constructor takes two required parameters: the minimum
+      number of threads that get started, and the maximum number of threads.
+      The worker pool object will adjust the number of running threads, as
+      needed. An instance of the template class gets constructed and
+      destroyed, as the threads get created and destroyed. In this example,
+      between four and eight threads, and instances of
+      <classname>spaceshipObj</classname> get instantiated. The template class
+      must have a default constructor.
+    </para>
+
+    <para>
+      The third and the fourth parameters are optional. The third parameter
+      set the name of each running thread, for logging purposes. The fourth
+      parameter sets the name of <link linkend="properties">properties</link>
+      that specify the worker pool parameters:
+      <literal><replaceable>property</replaceable>::min</literal>,
+      <literal><replaceable>property</replaceable>::max</literal>,
+      and
+      <literal><replaceable>property</replaceable>::name</literal>.
+      The above example uses three properties,
+      <literal>army::min</literal>,
+      <literal>army::max</literal>, and
+      <literal>army::name</literal>, to set the minimum and the maximum number
+      of threads, and their names. The parameters to the constructor serve as
+      the default value of the corresponding property. In absence of setting
+      those properties, the parameters to the constructor take effect by
+      default.
+    </para>
+
+    <para>
+      Invoking the worker pool object's <methodname>run</methodname>() forwards
+      this call, and its parameters (which must be copy-constructible), to the
+      first available <classname>spaceshipObj</classname> instance/thread.
+      When the object's <methodname>run</methodname>() returns, the thread
+      goes back in line waiting for another call to
+      <methodname>run</methodname>(), or the thread may get terminated, if
+      the thread's services are not required any more.
+    </para>
+
+    <para>
+      <methodname>run</methodname>() always returns immediately. If all threads
+      are busy, the request goes into an internal queue, and goes to
+      some thread when it becomes available.
+    </para>
+
+    <para>
+      When the last reference to the worker pool object itself goes out of
+      scope, and it gets destroyed, the worker pool
+      object's destructor stops any threads that are still running.
+      If a thread is in a middle of a <methodname>run</methodname>() call,
+      the destructor waits unil the thread returns, and terminates.
+      If there were calls to the worker pool object's
+      <methodname>run</methodname>() method that were never forwarded to a
+      thread, because they were all busy, before the worker pool object got
+      destroyed, those calls will never occur (and the internal queue that
+      holds <methodname>run</methodname>()'s parameters gets destroyed,
+      destroying each passed parameter along with it).
+    </para>
+
+    <section id="simpleworkerpoolthread">
+      <title>A simple worker pool thread</title>
+
+
+      <blockquote>
+	<informalexample>
+	  <programlisting>
+#include &lt;&ns;/ref.H&gt;
+#include &lt;&ns;/obj.H&gt;
+#include &lt;&ns;/threads/workerpool.H&gt;
+
+class spaceshipObj : virtual public &ns;::obj {
+
+public:
+    spaceshipObj() {}
+    ~spaceshipObj() noexcept {}
+
+    void run(int x, int y);
+};
+
+typedef &ns;::ref&lt;spaceshipObj&gt; spaceship;
+
+typedef &ns;::workerpool&lt;&gt; fleet_t;
+
+spaceship enterprise=spaceship::create();
+
+fleet_t fleet=fleet_t::create(4, 8, "starship", L"army");
+
+// ...
+
+fleet->run(enterprise, 100, 200);</programlisting>
+	</informalexample>
+      </blockquote>
+
+      <para>
+	The template class parameter to <classname>&ns;::workerpool</classname>
+	is optional. The default thread worker pool object implementation
+	defines
+	a <methodname>run</methodname>() method that takes at least one
+	parameter. Its first parameter is any reference-counted object, with
+	<methodname>run</methodname>() forwarding any remaining parameters to
+	the object's own <methodname>run</methodname>() method.
+      </para>
+
+      <para>
+	The above example constructs a worker pool with a default thread class
+	parameter. This class is simply this:
+      </para>
+
+      <blockquote>
+	<informalexample>
+	  <programlisting>
+class &ns;::simpleWorkerThreadObj {
+
+public:
+
+    template&lt;typename objClass, typename baseClass, typename ...Args&gt;
+    inline void run(const ref&lt;objClass, baseClass&gt; &amp;obj,
+        Args &amp;&amp; ...args)
+    {
+        obj->run(std::forward&lt;Args&gt;(args)...);
+    }
+
+    template&lt;typename objClass, typename baseClass, typename ...Args&gt;
+    inline void run(const const_ref&lt;objClass, baseClass&gt; &amp;obj,
+        Args &amp;&amp; ...args)
+    {
+        obj->run(std::forward&lt;Args&gt;(args)...);
+    }
+};</programlisting>
+	</informalexample>
+      </blockquote>
+
+      <para>
+	The call to the worker pool object's <methodname>run</methodname>()
+	method passes a reference to a <classname>&ns;::spaceshipObj</classname>
+	as the first parameter. The default implementation of a worker pool
+	thread class forwards its parameters to the referenced object's own
+	<methodname>run</methodname>().
+      </para>
+
+      <para>
+	This approach is desirable when a worker pool thread class does not have
+	a default constructor. The worker pool is now simply a means of limiting
+	the maximum number of running threads, at the same time.
+      </para>
+
+      <note>
+	<para>
+	  A reference to the same object may be passed to multiple calls to
+	  <methodname>run</methodname>(). The referenced object's
+	  <methodname>run</methodname>() method may get executed by the same
+	  thread, or by different threads at the same time.
+	</para>
+      </note>
+    </section>
+  </section>
+
+  <section id="eventdestroynotify">
+    <title>Notifying an event file descriptor</title>
+
+    <para>
+      <ulink url="&link-typedef-x-eventdestroynotify;"><classname>&ns;::eventdestroynotify</classname></ulink>
+      is an &ref; to a
+      <link linkend="refobj">reference-counted object</link> which saves
+      a weak reference to a <link linkend="eventfd">event file
+      descriptor</link>, and which gets installed as a destructor callback
+      to a mcguffin. When the mcguffin goes out of scope and gets destroyed,
+      the event file descriptor gets notified.
+    </para>
+
+    <blockquote>
+      <informalexample>
+	<programlisting>
+#include &lt;&ns;/threads/job.H&gt;
+#include &lt;&ns;/eventdestroynotify.H&gt;
+#include &lt;&ns;/threads/workerpool.H&gt;
+
+class myJobObj : public &ns;::jobObj {
+
+// ...
+
+};
+
+typedef &ns;::ref&lt;myJobObj&gt; myJob;
+
+class servantObj;
+
+
+&ns;::workerpool&lt;servantObj&gt; workerpool= // ...
+
+
+&ns;::eventfd eventfdNotify(&ns;::eventfd::create());
+
+&ns;::eventdestroynotify jobCompleted= ({
+
+    myJob j(myJob::create());
+
+    workerpool->run(j);
+
+    &ns;::eventdestroynotify::create(eventfdNotify, j);
+});
+
+// ...
+
+while (!jobCompleted-&gt;wasdestroyed())
+{
+   eventfdNotify-&gt;event();
+}</programlisting>
+      </informalexample>
+    </blockquote>
+
+    <para>
+      This example constructs a job object and submits it to a worker pool.
+      <function>&ns;::eventdestroynotify::create</function>() instantiates
+      an event queue notification object. The main thread waits until the job
+      completes by checking if the job object is destroyed, indicating that
+      the thread worker finished the job, and since no other references to the
+      job object are in scope, it gets destroyed. If the job is not done,
+      the main execution thread waits for the event file descriptor.
+    </para>
+
+    <para>
+      <classname>&ns;::eventdestroynotify</classname>'s destructor
+      callback sets an internal flag, and signals the event file
+      descriptor
+      (unless the event file descriptor went out of scope independently).
+      <methodname>wasdestroyed</methodname>() retrieves the flag.
+    </para>
+  </section>
+
+  <section id="eventqueuedestroynotify">
+    <title>Notifying an event queue</title>
+
+    <para>
+      <ulink url="&link-x--eventqueuedestroynotify;"><classname>&ns;::eventqueuedestroynotify</classname></ulink>
+      is a template class that defines a destructor callback which
+      puts an object on an event queue.
+      Instead of only notifying an event file descriptor, like
+      <link linkend="eventdestroynotify"><classname>&ns;::eventdestroynotify</classname></link>
+      does,
+      <classname>&ns;::eventqueuedestroynotify</classname> takes a
+      reference to an event queue, and some arbitrary event queue object.
+      <classname>&ns;::eventqueuedestroynotify</classname> saves a copy
+      of the event queue object. When the destructor callback gets
+      triggered, the event queue object gets placed into the event queue.
+    </para>
+
+    <blockquote>
+      <informalexample>
+	<programlisting>
+#include &lt;&ns;/threads/job.H&gt;
+#include &lt;&ns;/eventqueuedestroynotify.H&gt;
+#include &lt;&ns;/threads/workerpool.H&gt;
+
+class myJobObj : public &ns;::jobObj {
+
+// ...
+
+};
+
+class myQueueObj;
+
+typedef &ns;::ptr&lt;myJobObj&gt; myJob;
+
+class myServerObj;
+
+&ns;::workerpool&lt;myServerObj&gt;
+    workerpool=&ns;::workerpool&lt;myServerObj&gt;::create(4, 8);
+
+&ns;::eventfd eventfdNotify(&ns;::eventfd::create());
+
+&ns;::eventqueue&lt;myQueueObj&gt; q=
+    &ns;::eventqueue&lt;myQueueObj&gt;::create(eventfdNotify);
+
+&ns;::eventqueuedestroynotify&lt;myQueueObj&gt; sendjob()
+{
+    myJob j(myJob::create());
+
+    // ...
+
+    workerpool-&gt;run(j);
+
+    return &ns;::eventqueuedestroynotify&lt;myQueueObj&gt;
+        ::create(q, &ns;::ref&lt;myQueueObj&gt;::create(), j);
+}
+
+auto jobCompleted=sendjob();
+
+// ...
+
+while (!jobCompleted-&gt;wasdestroyed())
+{
+   eventfdNotify-&gt;event();
+}
+
+myQueueObj res(q&gt;pop());
+</programlisting>
+      </informalexample>
+    </blockquote>
+
+    <para>
+      <ulink url="&link-x--eventqueuedestroynotify;"><classname>&ns;::eventqueuedestroynotify</classname></ulink>
+      is a &ref; to a
+      <link linkend="refobj">reference-counted object</link> which saves
+      a weak reference to the event queue,
+      which gets installed as a destructor callback for a job object.
+      After the job gets processed (or the job queue gets destroyed), the
+      last reference to the job goes out of scope, destroying the job object
+      and invoking the destructor callback.
+    </para>
+
+    <para>
+      The callback sets an internal flag, and inserts the saved event queue
+      object into the event queue
+      (unless the event queue went out of scope independently).
+      <methodname>wasdestroyed</methodname>() retrieves the flag.
+    </para>
+  </section>
+
+  <section id="semaphores">
+    <title>Thread-safe semaphores</title>
+
+    <blockquote>
+      <informalexample>
+	<programlisting>
+#include &lt;&ns;/semaphore.H&gt;
+
+class testownerObj : public &ns;::semaphore::base::ownerObj {
+
+public:
+
+    // ...
+
+    void process(const &ns;::ref&lt;&ns;::obj&gt; &amp;mcguffin) override;
+
+    // ...
+};
+
+typedef &ns;::ref&lt;testownerObj&gt; testowner;
+
+testowner owner=testowner::create();
+
+&ns;::property::value&lt;size_t&gt; maxjobs(L"maxjobs", 10);
+
+&ns;::semaphore sem(&ns;::semaphore::create(maxjobs));
+
+sem-&gt;request(owner, 1);</programlisting>
+      </informalexample>
+    </blockquote>
+
+    <para>
+      <ulink url="&link-typedef-x-semaphore;"><classname>&ns;::semaphore</classname></ulink>
+      is a
+      <link linkend="refobj">reference-counted object</link> that implements
+      a semaphore.
+      The <methodname>create</methodname>() method creates a semaphore, its
+      parameter is a property that specifies the maximum value of the
+      semaphore counter, 10 in the above example.
+    </para>
+
+    <para>
+      Acquiring ownership of the semaphore increments the semaphore counter.
+      Releasing ownership decrements the counter.
+      <methodname>request</methodname>() submits a request to acquire the
+      semaphore. The first parameter is a &ref; to a subclass of
+      <ulink url="&link-x--semaphoreObj--ownerObj;"><classname>&ns;::semaphore::base::ownerObj</classname></ulink>,
+      a reference-counted object which
+      defines <methodname>process</methodname>(), which gets invoked when
+      the requested ownership' gets acquired.
+    </para>
+
+    <para>
+      <methodname>process</methodname>() receives a
+      <link linkend="ondestroy">mcguffin</link>. The ownership of the semaphore
+      does not necessarily get released when <methodname>process</methodname>()
+      returns, but rather when the mcguffin goes out of scope and gets
+      destroyed. If <methodname>process</methodname>() returns without touching
+      the mcguffin, it goes out of scope, gets destroyed, and the acquired
+      ownership of the semaphore gets released automatically upon return from
+      <methodname>process</methodname>.
+      If <methodname>process</methodname>() stashes the mcguffin away,
+      somewhere,
+      the ownership of the semaphore remains with the mcguffin, and gets
+      released only when mcguffin goes out of scope and gets destroyed.
+    </para>
+
+    <para>
+      The second parameter to <methodname>request</methodname>() specifies by how
+      much the semaphore gets incremented (not necessarily 1). If this can
+      be done and the semaphore's count remains at or below the maximum value,
+      the ownership gets acquired immediately, and the owner's
+      <methodname>process</methodname>() gets invoked immediately.
+    </para>
+
+    <para>
+      Otherwise, <methodname>request</methodname>() returns, and
+      <methodname>process</methodname>() gets invoked later, after other owners
+      release their ownership and the semaphore's counter gets decremented
+      sufficiently. The list of requested owners is maintained in a
+      FIFO-ordered queue.
+    </para>
+
+    <para>
+      The semaphore keeps only a weak reference on the requested owners. The
+      owner object can go out of scope and gets destroyed without its
+      <methodname>process</methodname>() ever getting invoked.
+    </para>
+
+    <para>
+      Every thread that calls <methodname>request</methodname>(), and every thread
+      where the last reference to the ownership mcguffin goes out of scope,
+      gets co-opted in processing waiting owners and invoking their
+      <methodname>process</methodname>() method. <methodname>process</methodname>()
+      should not be a time-consuming operation. Blocking and waiting, in
+      <methodname>process</methodname>() should be avoided.
+    </para>
+
+    <note>
+      <para>
+	The value of the semaphore counter property may be changed, and the
+	new maximum value takes effect immediately, in general.
+	If the new maximum semaphore counter
+	exceeds the new semaphore count, no more owners get acquired
+	until the semaphore count goes down below the new maximum value.
+	If the new maximum value gets increased, pending owners do not
+	get acquired immediately. This happens the next time a new owner
+	is requested, or an existing ownership mcguffin goes out of scope;
+	at which time as many owners get acquired as possible, given the
+	new maximum semaphore count.
+      </para>
+    </note>
+  </section>
+</chapter>
+<!--
+Local Variables:
+mode: sgml
+sgml-parent-document: ("book.xml" "book" "chapter")
+End:
+-->

@@ -1,0 +1,55 @@
+<!--
+
+Copyright 2012 Double Precision, Inc.
+See COPYING for distribution information.
+
+-->
+
+<chapter id="properties">
+  <title>Application properties</title>
+
+  <para>
+    Application properties are generic configuration settings that are
+    specified in a separate file that gets loaded when the application starts.
+    Individual property settings are retrieved by accessing a separate
+    property object:
+  </para>
+
+  <blockquote>
+    <informalexample>
+      <programlisting>
+#include &lt;&ns;::/property_value.H&gt;
+
+static property::value&lt;int&gt; window_width(L"main::window::width", 400);
+
+// ...
+
+int window_width_value=window_width.getValue();</programlisting>
+    </informalexample>
+  </blockquote>
+
+  <para>
+    This example defines a property named <quote>main::window::width</quote>
+    (identified by a wide character string).
+    Its value gets specified in the application's property file. If not
+    specified in the property file, its default value is given as 400.
+    <methodname>getValue()</methodname> returns the property's value from the
+    configuration file, or its default value.
+  </para>
+
+  <para>
+    &app; searches for a default application property file in several places.
+    The <ulink url="&namespace-x--property;#details">the property namespace
+    documentation</ulink> describes where the application property file comes
+    from, and provides additional examples of using application properties.
+    See also: <xref linkend="properties.1" />.
+  </para>
+
+</chapter>
+
+<!--
+Local Variables:
+mode: sgml
+sgml-parent-document: ("book.xml" "book" "chapter")
+End:
+-->

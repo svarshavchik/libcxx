@@ -1,0 +1,75 @@
+<!--
+
+Copyright 2012 Double Precision, Inc.
+See COPYING for distribution information.
+
+-->
+
+<chapter id="eventqueue">
+  <title>Event queues</title>
+
+  <para>
+    The
+    <ulink url="&link-x--eventqueue;"><classname>&ns;::eventqueue</classname></ulink>
+    template implements a thread-safe queue of objects which uses
+    an <link linkend="eventfd">event file descriptor</link> for signaling.
+    Adding objects to the queue reports an event to the file descriptor.
+    Waiting for an object to be added to the queue waits for an event
+    on the file descriptor.
+  </para>
+
+  <blockquote>
+    <informalexample>
+      <programlisting>
+&ns;::eventfd ev(&ns;::eventfd::create());
+
+typedef &ns;::eventqueue&lt;std::string&gt; queue_t;
+
+queue_t q(queue_t::create(ev));</programlisting>
+    </informalexample>
+  </blockquote>
+
+  <para>
+    This example creates a queue that contains
+    <classname>std::string</classname>.
+  </para>
+
+  <blockquote>
+    <informalexample>
+      <programlisting>
+q-&gt;event("rosebud");</programlisting>
+    </informalexample>
+  </blockquote>
+
+  <para>
+    <methodname>event</methodname>() adds a new object to the queue.
+  </para>
+
+  <blockquote>
+    <informalexample>
+      <programlisting>
+if (!q-&gt;empty())
+{
+     doSomething(q-&gt;pop());
+}</programlisting>
+    </informalexample>
+  </blockquote>
+
+  <para>
+    <methodname>empty</methodname>() indicates whether the queue is empty. If not,
+    <methodname>pop</methodname>() removes the first object from the queue.
+    If the associated event file descriptor is a blocking file descriptor,
+    calling <methodname>empty</methodname>() is optional. If the queue is empty,
+    <methodname>pop</methodname>() waits for an object to be added to the queue
+    (presumably by another thread), and returns it.
+    <methodname>empty</methodname>() is required when the associated event
+    file descriptor is non-blocking.
+  </para>
+</chapter>
+
+<!--
+Local Variables:
+mode: sgml
+sgml-parent-document: ("book.xml" "book" "chapter")
+End:
+-->

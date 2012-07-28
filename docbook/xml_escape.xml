@@ -1,0 +1,69 @@
+<!--
+
+Copyright 2012 Double Precision, Inc.
+See COPYING for distribution information.
+
+-->
+
+<chapter id="xml_escape">
+  <title>Escaping <acronym>XML</acronym> strings</title>
+
+  <blockquote>
+    <informalexample>
+      <programlisting>
+#include &lt;&ns;/xml_escape.H&gt;
+
+std::string str=&ns;::xml::escapestr("&lt;URL:http://www.example.com&gt;");</programlisting>
+    </informalexample>
+  </blockquote>
+
+  <para>
+    <function>&ns;::xml::escapestr</function>() replaces all occurences of
+    the characters <literal>&lt;</literal>,
+    <literal>&gt;</literal>, and
+    <literal>&amp;</literal> with
+    <quote><literal>&amp;lt;</literal></quote>,
+    <quote><literal>&amp;gt;</literal></quote>, and
+    <quote><literal>&amp;amp;</literal></quote>.
+  </para>
+
+  <para>
+    If the optional second parameter is specified as <literal>true</literal>,
+    the <literal>'</literal>, <literal>"</literal>, and control characters
+    (U+0x0000 to U+0x001F) get replaced with
+    <quote><literal>&amp;#x</literal><replaceable>N</replaceable><literal>;</literal></quote>,
+    where <quote><replaceable>N</replaceable></quote> is the hexadecimal
+    value of the replaced character.
+  </para>
+
+  <para>
+    A more generic alternative is the
+    <function>&ns;::xml::escape</function>() template function.
+    This function defines a string using a beginning and an
+    ending iterator. The replacement string is written to an output iterator.
+    <quote><function>&ns;::xml::escapestr</function>(str, flag)</quote> is
+    exactly equivalent to:
+  </para>
+
+  <blockquote>
+    <informalexample>
+      <programlisting>
+std::string s;
+
+&ns;::xml::escape(str.begin(), str.end(),
+               std::back_insert_iterator&lt;std::string&gt;(s), flag);
+
+return s;</programlisting>
+    </informalexample>
+  </blockquote>
+
+  <para>
+    The optional <parameter>flag</parameter> carries the same meaning as the
+    optional parameter to <function>&ns;::xml::escape</function>().
+    Furthermore, the beginning and the ending input iterators may iterate over
+    integer values larger than a <type>char</type> or
+    <type>unsigned char</type>. If so, integer values
+    <literal>0x80</literal> and higher get also replaced by
+    <quote><literal>&amp;#x</literal><replaceable>N</replaceable><literal>;</literal></quote>.
+  </para>
+</chapter>
