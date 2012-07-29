@@ -1,0 +1,9 @@
+After cloning the libcxx repository:
+
+libtoolize
+aclocal
+automake --add-missing
+autoreconf
+make docs    # <--- required step
+
+Then see libcxx documentation for the build instructions.
