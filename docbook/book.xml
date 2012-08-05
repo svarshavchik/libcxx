@@ -71,6 +71,8 @@
 <!ENTITY const_ptr "<classname>&ns;::const_ptr</classname>">
 <!ENTITY reforptr "&ref; or an &ptr;">
 <!ENTITY stl "<acronym>STL</acronym>">
+<!ENTITY freebsdver "FreeBSD 9">
+<!ENTITY freebsdverdir "<filename>packaging/freebsd9/devel/libcxx</filename>">
 
 <!ENTITY automakeintro SYSTEM "automakeintro.inc.xml">
 <!ENTITY automakelibxinit SYSTEM "automakelibxinit.inc.xml">

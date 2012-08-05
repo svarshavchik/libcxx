@@ -10,7 +10,7 @@ See COPYING for distribution information.
 
   <para>
     <link linkend="index">As noted in the introduction</link>, &app;
-    currently builds on FreeBSD 9, with the following notes:
+    currently builds on &freebsdver;, with the following notes:
   </para>
 
   <itemizedlist>
@@ -23,13 +23,16 @@ See COPYING for distribution information.
 	<application>libxslt</application>,
 	<application>gnutls</application>,
 	<application>libgcrypt</application>,
-	<application>gettext</application>
-	<application>execinfo</application>, and
+	<application>gettext</application>,
+	<application>libunwind</application>, and
 	<application>libiconv</application> packages need to be installed to
 	build &app;, in addition to
 	<application>gcc47</application>
 	and <application>gmake</application>
 	that must be used to compile it.
+	<application>doxygen</application>, <application>graphviz</application>,
+	and <application>doxygen-xsl</application> are also required to build
+	from &app;'s source repository.
       </para>
 
       <para>
@@ -150,6 +153,35 @@ See COPYING for distribution information.
 	on that process throws an exception. On Linux, the executable's name
 	gets affixed with <quote>(deleted)</quote> which, presumably, is a
 	nonexistent pathname.
+      </para>
+    </listitem>
+  </itemizedlist>
+
+  <para>
+    A Makefile is included in the tarball as a means of installing &app;
+    on &freebsdver;, which should be useful as a basic for building a port:
+  </para>
+
+  <itemizedlist>
+    <listitem>
+      <para>
+	Copy the &app; tarball to <filename>/usr/ports/distfiles</filename>.
+      </para>
+    </listitem>
+
+    <listitem>
+      <para>
+	Extract the tarball's contents into a temporary directory, then move
+	the &freebsdverdir; directory in the tarball to
+	<filename>/usr/ports/devel/libcxx</filename>.
+      </para>
+    </listitem>
+
+    <listitem>
+      <para>
+	In <filename>/usr/ports/devel/libcxx</filename>, run
+	<command>make makesum</command> followed by
+	<command>make install</command>.
       </para>
     </listitem>
   </itemizedlist>

@@ -91,7 +91,7 @@ See COPYING for distribution information.
       This library uses Linux-specific APIs, and
       with one exception, &app; compiles only on Linux,
       see <xref linkend="INSTALL" /> for general installation instructions.
-      The exception is that currently it builds on FreeBSD 9 with
+      The exception is that currently it builds on &freebsdver; with
       an alternative implementation of Linux-specific APIs,
       see <xref linkend="freebsdport" />
       for more information.
