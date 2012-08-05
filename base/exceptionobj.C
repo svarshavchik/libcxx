@@ -7,12 +7,22 @@
 #include "exceptionobj.H"
 #include "logger.H"
 
+#if HAVE_BACKTRACE
 #include <execinfo.h>
+#endif
+
+#if HAVE_LIBUNWIND
+#define UNW_LOCAL_ONLY
+#include <libunwind.h>
+#include <dlfcn.h>
+#endif
+
 #include <cxxabi.h>
 #include <cstring>
 #include <cstdlib>
 #include <sstream>
 #include <algorithm>
+#include <iomanip>
 
 namespace LIBCXX_NAMESPACE {
 #if 0
@@ -24,6 +34,7 @@ static property::value<bool> show_filename(LIBCXX_NAMESPACE_WSTR
 
 exceptionObj::exceptionObj() noexcept
 {
+#if HAVE_BACKTRACE
 	int n=32;
 
 	while (1)
@@ -70,8 +81,6 @@ exceptionObj::exceptionObj() noexcept
 
 			// glibc: {exename}({symbol}+{0xHEXOFFSET}){space}...
 
-			// libexecinfo: 0x{address}{space}<{function}+{offset}>
-
 			if (p == e)
 				continue;
 
@@ -80,14 +89,6 @@ exceptionObj::exceptionObj() noexcept
 				if (*--p != ')')
 					continue;
 				++q;
-			}
-			else
-			{
-				if (++p == e || *p++ != '<')
-					continue;
-				q=p;
-				if ((p=std::find(p, e, '>')) == e)
-					continue;
 			}
 
 			p=std::find(q, p, '+');
@@ -133,7 +134,64 @@ exceptionObj::exceptionObj() noexcept
 		backtrace=buf;
 		break;
 	}
+#endif
 
+#if HAVE_LIBUNWIND
+
+	std::ostringstream o;
+	o << std::hex << std::setfill('0');
+
+	unw_cursor_t cursor;
+	unw_context_t uc;
+	unw_word_t ip;
+
+	unw_getcontext(&uc);
+	unw_init_local(&cursor, &uc);
+	while (unw_step(&cursor) > 0)
+	{
+		Dl_info info;
+
+		unw_get_reg(&cursor, UNW_REG_IP, &ip);
+
+		if (dladdr((void *)ip, &info))
+		{
+			unw_word_t diff = ip - (unw_word_t)info.dli_fbase;
+
+			o << info.dli_fname << "(";
+
+			int status;
+			char *t=abi::__cxa_demangle(info.dli_sname,
+						    0, 0, &status);
+
+			if (t)
+			{
+				o << t;
+				free(t);
+			}
+			else
+			{
+				o << info.dli_sname;
+			}
+
+			if (diff)
+			{
+				o << "+0x"
+				  << std::setw(0)
+				  << diff;
+			}
+			o << ")";
+		}
+		else
+		{
+			o << "<unknown>";
+		}
+
+		o << " [0x" << std::setw(sizeof(ip)*2) << std::hex
+		  << ip << "]" << std::endl;
+	}
+
+	backtrace=o.str();
+#endif
 }
 
 exceptionObj::~exceptionObj() noexcept

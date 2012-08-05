@@ -215,7 +215,7 @@ mksigtab.h: mksigtab
 	./mksigtab >mksigtab.h.tmp
 	mv -f mksigtab.h.tmp mksigtab.h
 
-libcxx_la_LIBADD=-lpthread -lrt -lpcre @LIBEXTRAPATH@ @LIBEXECINFO@ @LINKLIBICONV@ @LINKLIBINTL@
+libcxx_la_LIBADD=-lpthread -lrt -lpcre @LIBEXTRAPATH@ @LIBUNWIND@ @LINKLIBICONV@ @LINKLIBINTL@
 
 libcxx_la_LDFLAGS=-version-info 1
 noinst_PROGRAMS=\

@@ -1,0 +1,32 @@
+if test "$2" = "POST-INSTALL"
+then
+
+# make install runs the default install, which installs the config files, so
+# move them to .dist; package tarballs contain the .dist-s, move them back.
+
+	for f in ${PKG_PREFIX}/etc/tlsparams/system.dh.conf ${PKG_PREFIX}/etc/tlsparams/system.rsa.conf ${PKG_PREFIX}/var/tlsparams/system.dh ${PKG_PREFIX}/var/tlsparams/system.rsa
+	do
+		if test ! -f "$f".dist
+		then
+			cp -f "$f" "$f.dist"
+		fi
+
+		if test ! -f "$f"
+		then
+			cp -f "$f.dist" "$f"
+		fi
+	done
+
+	if test -f ${PKG_PREFIX}/sbin/httpd
+	then
+		for d in ${PKG_PREFIX}/etc/apache*/Includes
+		do
+			if test -d "$d"
+			then
+				ln -s ${PKG_PREFIX}/share/libcxx/apache.conf $d/httportmap.conf
+			fi
+		done
+	fi
+	mkdir -p /etc/monthly.local
+	ln -s ${PKG_PREFIX}/libexec/libcxx/tlsparamsgen.sh /etc/monthly.local
+fi

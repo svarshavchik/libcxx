@@ -1,0 +1,14 @@
+if test "$2" = "POST-DEINSTALL"
+then
+	for d in ${PKG_PREFIX}/etc/apache*/Includes
+	do
+		if test -d "$d"
+		then
+			rm -f "$d"/httportmap.conf
+			rmdir "$d" 2>/dev/null
+		fi
+	done
+	rmdir ${PKG_PREFIX}/etc/apache* 2>/dev/null
+	rm -f /etc/monthly.local/tlsparamsgen.sh
+fi
+true

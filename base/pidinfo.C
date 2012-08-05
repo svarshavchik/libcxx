@@ -49,8 +49,6 @@ pidinfo::pidinfo(pid_t pid)
 		std::ostringstream o;
 
 		{
-			globlocale global_locale(l);
-
 			imbue<std::ostringstream> i(l, o);
 
 			o << "/proc/" << pid << PROC_SELF_EXE;
@@ -69,8 +67,6 @@ pidinfo::pidinfo(pid_t pid)
 		std::ostringstream o;
 
 		{
-			globlocale global_locale(l);
-
 			imbue<std::ostringstream> i(l, o);
 
 			o << "/proc/" << pid << PROC_START;

@@ -73,7 +73,7 @@ GCRYPT_CFLAGS=`$GCRYPT_CONFIG --cflags`
 AC_SUBST(GCRYPT_LIBS)
 AC_SUBST(GCRYPT_CFLAGS)
 
-CXXFLAGS="-fno-omit-frame-pointer -std=c++0x $CXXFLAGS"
+CXXFLAGS="$CXXFLAGS -std=c++0x -fno-omit-frame-pointer"
 
 # Checks for header files.
 
@@ -282,42 +282,36 @@ AC_TRY_LINK([
 	backtrace(NULL, 0);
 
 	char **p=backtrace_symbols( NULL, 0);
-], [ : ],
+], [ AC_DEFINE_UNQUOTED(HAVE_BACKTRACE, 1, [Found glibc backtrace()]) ],
+[
 
-   [
-	save_LIBS="$LIBS"
-	LIBEXECINFO="-lexecinfo"
-	LIBS="$LIBEXECINFO $save_LIBS"
-	AC_TRY_LINK( [ ], [ ],[ ],
-		     [
-		     LIBEXECINFOPATH="-L/usr/local/lib -R/usr/local/lib"
-
-		     LIBS="$LIBEXECINFOPATH $LIBS"
-		     AC_TRY_LINK( [ ], [ ],
-		     		  [
-					LIBEXTRAPATH="$LIBEXECINFOPATH $LIBEXTRAPATH"
-				  ],
-    			          [ AC_MSG_ERROR([libexecinfo not found]) ])
-				])
+save_LIBS="$LIBS"
+LIBS="$LIBS -lunwind"
 
 	AC_TRY_LINK([
-#include <execinfo.h>
-#include <stdio.h>
+#define UNW_LOCAL_ONLY
+#include <libunwind.h>
+#include <dlfcn.h>
 ], [
-	backtrace(NULL, 0);
+	unw_cursor_t cursor; unw_context_t uc;
+	unw_word_t ip;
+	Dl_info info;
 
-	char **p=backtrace_symbols( NULL, 0);
-],
-	[
-	:
-],[
-	AC_MSG_ERROR([Cannot find a usable backtrace()])
+	unw_getcontext(&uc);
+	unw_init_local(&cursor, &uc);
+	unw_step(&cursor);
+	unw_get_reg(&cursor, UNW_REG_IP, &ip);
+	dladdr((void *)ip, &info);
+], [
+   AC_DEFINE_UNQUOTED(HAVE_LIBUNWIND,1,[ Found libunwind ])
+   LIBUNWIND="-lunwind"
+], [AC_MSG_ERROR([Cannot find backtrace() or libunwind])]
+)
+
+LIBS="$save_LIBS"
 
 ])
-	LIBS="$save_LIBS"
-])
-
-AC_SUBST(LIBEXECINFO)
+AC_SUBST(LIBUNWIND)
 
 AC_TRY_LINK([
 #include <unistd.h>

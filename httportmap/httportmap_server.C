@@ -28,7 +28,9 @@
 #include <sys/types.h>
 #include <sys/wait.h>
 
+#ifndef DEFAULTSOCKET
 #define DEFAULTSOCKET LOCALSTATEDIR "/run/httportmap"
+#endif
 
 // Fork. The child process returns. The parent waits for the child process
 // to call parent_can_exit().

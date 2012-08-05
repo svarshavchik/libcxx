@@ -1,0 +1,46 @@
+#! /bin/sh
+#
+#
+
+# PROVIDE: httportmap
+# REQUIRE: DAEMON
+# KEYWORD: shutdown
+
+#
+# Add the following lines to /etc/rc.conf to enable httportmap:
+#
+#httportmap_enable="YES"
+#
+#httportmap_args="any additional arguments to httportmap"
+
+. /etc/rc.subr
+
+name="httportmap"
+rcvar=`set_rcvar`
+
+load_rc_config $name
+
+: ${httportmap_args:=}
+
+start_cmd="httportmap_start"
+stop_cmd="httportmap_stop"
+
+prefix="%%PREFIX%%"
+
+httportmap_start() {
+
+    if test ! -f $prefix/sbin/httpd
+    then
+	httportmap_args="$httportmap_args --http"
+    fi
+
+    $prefix/libexec/libcxx/tlsparamsgen.sh --definit &
+    $prefix/libexec/libcxx/httportmapd $httportmap_args --daemon start
+}
+
+httportmap_stop() {
+
+    $prefix/libexec/libcxx/httportmapd stop
+
+}
+run_rc_command "$1"
