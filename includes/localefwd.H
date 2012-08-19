@@ -22,9 +22,13 @@ class localeObj;
 
 //! This is a reference to a wrapper for a \c std::locale.
 //! \code
-//! locale myLocale;    // Instantiate the default, current locale
+//! INSERT_LIBX_NAMESPACE::locale myLocale=INSERT_LIBX_NAMESPACE::locale::base::global();          // Instantiate the default, current locale
 //!
-//! locale myLocale(locale::create("en_US.UTF-8"));  // Instantiate a specific locale
+//! INSERT_LIBX_NAMESPACE::locale myLocale=INSERT_LIBX_NAMESPACE::locale::base::utf8();            // Instantiate the en_US.UTF-8 locale
+//!
+//! INSERT_LIBX_NAMESPACE::locale myLocale=INSERT_LIBX_NAMESPACE::locale::base::environment();     // Instantiate the system environment locale.
+//!
+//! INSERT_LIBX_NAMESPACE::locale myLocale(INSERT_LIBX_NAMESPACE::locale::create("ru_RU.UTF-8"));  // Instantiate a specific locale
 //! \endcode
 //!
 //! Typical usage:
@@ -34,6 +38,7 @@ class localeObj;
 //!
 //! myLocale->global();    // Make this locale the default locale
 //! \endcode
+//!
 //! \see facets, for additional usage examples.
 
 typedef ref<localeObj, localeBase> locale;

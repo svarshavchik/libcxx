@@ -353,6 +353,9 @@ void testtimertask7()
 	sleep(2);
 }
 
+static LIBCXX_NAMESPACE::timer::base::duration_property_t
+dummy(L"duration", std::chrono::seconds(2));
+
 int main()
 {
 	alarm(60);

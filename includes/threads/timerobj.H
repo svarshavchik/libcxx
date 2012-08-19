@@ -23,6 +23,8 @@ namespace LIBCXX_NAMESPACE {
 };
 #endif
 
+class timerbaseObj;
+
 //! A timer implementation
 
 //! The timerObj instance maintains a list of scheduled timer tasks
@@ -72,17 +74,22 @@ private:
 			   //! If the property is not set, the default value.
 			   const duration_t &defaultRepeatDurationArg,
 			   //! The locale the property is parsed with
-			   const const_locale &localeArg)
-			: repeatProperty(repeatPropertyArg, hms(),
-					 localeArg),
-			  defaultRepeatDuration(defaultRepeatDurationArg)
-		{
-		}
+			   const const_locale &localeArg);
+
+		//! Constructor
+		repeatinfo(//! Property that specifies the repeat interval
+			   const property::propvalue &repeatPropertyArg,
+			   //! If the property is not set, the default value.
+			   const duration_t &defaultRepeatDurationArg);
 
 		//! Destructor
-		~repeatinfo() noexcept
-		{
-		}
+		~repeatinfo() noexcept;
+
+		//! Not implemented
+		repeatinfo(const repeatinfo &)=delete;
+
+		//! Not implemented
+		repeatinfo &operator=(const repeatinfo &)=delete;
 
 		//! Retrieve the current repeat interval
 		duration_t getDuration()
@@ -109,6 +116,8 @@ public:
 
 	class repeatinfoObj;
 	class implObj;
+
+	friend class timerbaseObj;
 
 	//! The default constructor
 	timerObj();

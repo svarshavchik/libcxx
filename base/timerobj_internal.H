@@ -9,14 +9,14 @@ public:
 
 	repeatinfoObj(const property::propvalue &repeatPropertyArg,
 		      const duration_t &defaultRepeatDurationArg,
-		      const const_locale &localeArg)
+		      const const_locale &localeArg) LIBCXX_HIDDEN
 		: repeatinfo(repeatPropertyArg,
 			     defaultRepeatDurationArg,
 			     localeArg)
 	{
 	}
 
-	~repeatinfoObj() noexcept
+	~repeatinfoObj() noexcept LIBCXX_HIDDEN
 	{
 	}
 };

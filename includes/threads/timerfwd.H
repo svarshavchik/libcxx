@@ -145,7 +145,7 @@ class timerbaseObj;
 //!
 //! \code
 //! bTimer->schedule(bTask, std::chrono::system_clock::now()
-//!     +std::chrono::seconds(2), "maintenance.interval",
+//!     +std::chrono::seconds(2), "maintenance::interval",
 //!     std::chrono::seconds(2));
 //! \endcode
 //!
@@ -162,7 +162,7 @@ class timerbaseObj;
 //! \code
 //! bTimer->scheduleAfter(bTask, std::chrono::seconds(1),
 //!                       std::chrono::seconds(2),
-//!                       L"maintenance.interval");
+//!                       L"maintenance::interval");
 //! \endcode
 //!
 //! scheduleAfter() takes an optional fourth parameter that also names a
@@ -176,7 +176,7 @@ class timerbaseObj;
 //! the parameters may be any \c std::chrono duration class instance.
 //!
 //! \code
-//! bTimer->scheduleAtFixedRate(bTask, L"maintenance.interval",
+//! bTimer->scheduleAtFixedRate(bTask, L"maintenance::interval",
 //!                             std::chrono::seconds(2));
 //! \endcode
 //!
@@ -185,8 +185,29 @@ class timerbaseObj;
 //! repeat interval when the property is not set.
 //!
 //! All methods that take a property name also take one more optional parameter,
-//! a locale object reference that specifies the locale for parsing the
+//! a
+//! \ref locale "locale object reference"
+//! that specifies the locale for parsing the
 //! time interval specified by the property.
+//!
+//! \code
+//! INSERT_LIBX_NAMESPACE::timer::base::duration_property_t maintenance(L"maintenance::interval", std::chrono::seconds(2));
+//!
+//! // ...
+//!
+//! time_t seconds=maintenance.getDuration();
+//! \endcode
+//!
+//! \ref timerbaseObj::duration_property_t "INSERT_LIBX_NAMESPACE::timer::base::duration_property_t"
+//! exposes the internal class that the timer object uses for a recurring
+//! tasks's duration. The timer object uses getDuration() to retrieve the
+//! current value of the interval property, or the default duration interval
+//! that was passed to the constructor.
+//!
+//! \c INSERT_LIBX_NAMESPACE::timer::base::duration_property_t takes the
+//! same two required parameters, a property name and a default duration
+//! interval, and the optional locale object, that the scheduling methods
+//! take.
 //!
 //! \par Cancelling tasks
 //!

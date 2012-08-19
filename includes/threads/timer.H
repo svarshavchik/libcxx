@@ -39,6 +39,12 @@ public:
 	//! The underlying system clock
 
 	typedef timerObj::duration_t duration_t;
+
+	//! Duration property type.
+
+	//! See \ref timer "INSERT_LIBX_NAMESPACE::timer"
+	//!
+	typedef timerObj::repeatinfo duration_property_t;
 };
 
 #if 0

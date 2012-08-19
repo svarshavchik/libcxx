@@ -53,6 +53,25 @@ timespec timespec::getclock(clockid_t clock_id)
 
 #include "timerobj.msgs.def.H"
 
+timerObj::repeatinfo::repeatinfo(const property::propvalue &repeatPropertyArg,
+				 const duration_t &defaultRepeatDurationArg,
+				 const const_locale &localeArg)
+	: repeatProperty(repeatPropertyArg, hms(), localeArg),
+	  defaultRepeatDuration(defaultRepeatDurationArg)
+{
+}
+
+timerObj::repeatinfo::repeatinfo(const property::propvalue &repeatPropertyArg,
+				 const duration_t &defaultRepeatDurationArg)
+	: repeatinfo(repeatPropertyArg, defaultRepeatDurationArg,
+		     locale::base::environment())
+{
+}
+
+timerObj::repeatinfo::~repeatinfo() noexcept
+{
+}
+
 timerObj::timerObj() : timername("unnamed timer")
 {
 }
