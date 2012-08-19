@@ -63,8 +63,9 @@ timerObj::repeatinfo::repeatinfo(const property::propvalue &repeatPropertyArg,
 
 timerObj::repeatinfo::repeatinfo(const property::propvalue &repeatPropertyArg,
 				 const duration_t &defaultRepeatDurationArg)
-	: repeatinfo(repeatPropertyArg, defaultRepeatDurationArg,
-		     locale::base::environment())
+	: repeatProperty(repeatPropertyArg, hms(),
+			 locale::base::environment()),
+	  defaultRepeatDuration(defaultRepeatDurationArg)
 {
 }
 
