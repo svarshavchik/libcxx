@@ -8,6 +8,7 @@
 
 #include <x/destroycallbackfwd.H>
 #include <x/destroycallbackobj.H>
+#include <x/exception.H>
 #include <x/namespace.h>
 
 #include <type_traits>
@@ -78,8 +79,17 @@ public:
 		static ptrrefType create(//! Callback functor
 					 F && functor)
 		{
-			return ref<functorCallbackObj< typename
-						       std::decay<F>::type > >
+			typedef typename std::decay<F>::type functor_type;
+
+			// If the passed functor is itself a reference, it is
+			// a near certainty that this is wrong.
+
+			typedef typename std::enable_if<
+				! std::is_lvalue_reference<functor_type>::value &&
+				! std::is_rvalue_reference<functor_type>::value,
+				functor_type>::type functor_cannot_be_a_reference;
+
+			return ref<functorCallbackObj< functor_type > >
 				::create(std::forward<F>(functor));
 		}
 
