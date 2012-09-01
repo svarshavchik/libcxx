@@ -138,6 +138,7 @@ public:
 			++b;
 		}
 	}
+#include <x/sys/kqueuenb.h>
 };
 
 #if 0

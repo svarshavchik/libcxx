@@ -12,6 +12,7 @@
 #include <sys/types.h>
 #include <sys/event.h>
 #include <sys/time.h>
+#include "kqueuenb_internal.h"
 #endif
 #include <fcntl.h>
 
@@ -44,8 +45,18 @@ static int create_epoll_fd()
 
 epollObj::epollObj() : fdObj(-1)
 {
+#if HAVE_KQUEUE
+	KQUEUE_NONBLOCK_INIT;
+#endif
+
 	filedesc=create_epoll_fd();
 }
+
+#if HAVE_KQUEUE
+#define KQUEUE_CLASS epollObj
+
+KQUEUE_NONBLOCK_IMPL
+#endif
 
 #if 0
 {

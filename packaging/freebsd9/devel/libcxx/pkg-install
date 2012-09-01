@@ -1,3 +1,15 @@
+set -e
+if test "$2" = "TEST-GCC"
+then
+	cat >$WRKDIR/test.gcc.c <<EOF
+#if __GNUC__ * 10000 + __GNUC_MINOR__ * 100 + __GNUC_PATCHLEVEL__ < 40702
+#error You must update your lang/gcc47 port
+#endif
+EOF
+	$CC -c -o $WRKDIR/test.gcc.o $WRKDIR/test.gcc.c
+	exit 0
+fi
+
 if test "$2" = "POST-INSTALL"
 then
 
@@ -28,5 +40,5 @@ then
 		done
 	fi
 	mkdir -p /etc/monthly.local
-	ln -s ${PKG_PREFIX}/libexec/libcxx/tlsparamsgen.sh /etc/monthly.local
+	ln -fs ${PKG_PREFIX}/libexec/libcxx/tlsparamsgen.sh /etc/monthly.local
 fi

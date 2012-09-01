@@ -20,7 +20,6 @@ LIB_DEPENDS=		pcre:${PORTSDIR}/devel/pcre \
 BUILD_DEPENDS=		${LOCALBASE}/share/certs/ca-root-nss.crt:${PORTSDIR}/security/ca_root_nss \
 			${LOCALBASE}/bin/xsltproc:${PORTSDIR}/textproc/libxslt
 
-
 RUN_DEPENDS=		$(BUILD_DEPENDS)
 
 
@@ -30,8 +29,7 @@ USE_GMAKE=yes
 GNU_CONFIGURE=1
 USE_PKGCONFIG=both
 
-CONFIGURE_ARGS=		--sbindir=${PREFIX}/libexec/libcxx
-MAKE_ARGS=		CPPFLAGS="-DDEFAULTSOCKET=\\\"${PREFIX}/var/httportmap\\\""
+CONFIGURE_ARGS=		--sbindir=${PREFIX}/libexec/libcxx CPPFLAGS="-DDEFAULTSOCKET=\\\"${PREFIX}/var/httportmap\\\""
 MAN1=			maillogs.1 properties.1
 MAN8=			httportmapd.8
 
@@ -41,9 +39,13 @@ MAN8COMPRESSED=		yes
 SUB_FILES=		apache.conf
 USE_RC_SUBR=		httportmap
 
+pre-configure:
+	PKG_PREFIX=${PREFIX} CC=${CC} WRKDIR=$(WRKDIR) ${SH} ${PKGINSTALL} ${PKGNAME} TEST-GCC
+
 post-install:
 	$(INSTALL_DATA) $(WRKDIR)/apache.conf $(PREFIX)/share/libcxx
 	${CHMOD} 700 $(PREFIX)/libexec/libcxx/tlsparamsgen.sh
+	echo 'Libs: -R$(PREFIX)/lib/gcc47 -R$(PREFIX)/lib -L$(PREFIX)/lib/gcc47 -L$(PREFIX)/lib' >>$(PREFIX)/libdata/pkgconfig/libcxx.pc
 	PKG_PREFIX=${PREFIX} ${SH} ${PKGINSTALL} ${PKGNAME} POST-INSTALL
 
 post-deinstall:

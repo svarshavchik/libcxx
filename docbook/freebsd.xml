@@ -17,7 +17,7 @@ See COPYING for distribution information.
     <listitem>
       <para>
 	The
-	<application>pkg-config</application>,
+	<application>pkg-config</application> or <application>pkgconf</application>,
 	<application>ca_root_nss</application>,
 	<application>pcre</application>,
 	<application>libxslt</application>,
@@ -38,6 +38,16 @@ See COPYING for distribution information.
       <para>
 	Additionally, <literal>procfs</literal> must be mounted.
       </para>
+
+      <note>
+	<para>
+	  &app; gets miscompiled by the pre-release version of
+	  <application>gcc 4.7</application> in the installation image's
+	  port collection. <application>gcc 4.7</application> must be updated
+	  from ports to at least 4.7.2, in order to compile &app;
+	  and applications that use &app;
+	</para>
+      </note>
     </listitem>
 
     <listitem>
@@ -159,7 +169,7 @@ See COPYING for distribution information.
 
   <para>
     A Makefile is included in the tarball as a means of installing &app;
-    on &freebsdver;, which should be useful as a basic for building a port:
+    on &freebsdver;, which should be useful as a basis for building a port:
   </para>
 
   <itemizedlist>
@@ -171,17 +181,10 @@ See COPYING for distribution information.
 
     <listitem>
       <para>
-	Extract the tarball's contents into a temporary directory, then move
-	the &freebsdverdir; directory in the tarball to
-	<filename>/usr/ports/devel/libcxx</filename>.
-      </para>
-    </listitem>
-
-    <listitem>
-      <para>
-	In <filename>/usr/ports/devel/libcxx</filename>, run
+	Extract the tarball's contents into a temporary directory, then from
+	the &freebsdverdir; subdirectory run
 	<command>make makesum</command> followed by
-	<command>make install</command>.
+	<command>make install</command> (or <command>make package</command>).
       </para>
     </listitem>
   </itemizedlist>

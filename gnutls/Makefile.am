@@ -89,31 +89,31 @@ bin_PROGRAMS=tlsparamsgen
 sbin_SCRIPTS=tlsparamsgen.sh
 
 testx509privkey_SOURCES=testx509privkey.C
-testx509privkey_LDADD=libcxxtls.la
+testx509privkey_LDADD=../base/libcxx.la libcxxtls.la
 testx509privkey_LDFLAGS=$(LINKTYPE)
 
 testx509cert_SOURCES=testx509cert.C
-testx509cert_LDADD=libcxxtls.la
+testx509cert_LDADD=../base/libcxx.la libcxxtls.la
 testx509cert_LDFLAGS=$(LINKTYPE)
 
 testsession_SOURCES=testsession.C
-testsession_LDADD=libcxxtls.la
+testsession_LDADD=../base/libcxx.la libcxxtls.la
 testsession_LDFLAGS=$(LINKTYPE)
 
 testpkparams_SOURCES=testpkparams.C
-testpkparams_LDADD=libcxxtls.la
+testpkparams_LDADD=../base/libcxx.la libcxxtls.la
 testpkparams_LDFLAGS=$(LINKTYPE)
 
 testhttpclientimpl_SOURCES=testhttpclientimpl.C testtlsimpl.h
-testhttpclientimpl_LDADD=libcxxtls.la
+testhttpclientimpl_LDADD=../base/libcxx.la libcxxtls.la
 testhttpclientimpl_LDFLAGS=$(LINKTYPE)
 
 testhttpserverimpl_SOURCES=testhttpserverimpl.C testtlsimpl.h
-testhttpserverimpl_LDADD=libcxxtls.la
+testhttpserverimpl_LDADD=../base/libcxx.la libcxxtls.la
 testhttpserverimpl_LDFLAGS=$(LINKTYPE)
 
 testuseragent_static_SOURCES=testuseragent.C
-testuseragent_static_LDADD=libcxxtls.la
+testuseragent_static_LDADD=../base/libcxx.la libcxxtls.la
 testuseragent_static_LDFLAGS=-static
 
 testuseragent_shared_SOURCES=testuseragent.C
@@ -122,7 +122,7 @@ testuseragent_shared_LDADD=../base/libcxx.la libcxxtls.la
 $(call OPTIONS_GEN,tlsparamsgen.h,$(srcdir)/tlsparamsgen.xml)
 
 tlsparamsgen_SOURCES=tlsparamsgen.C
-tlsparamsgen_LDADD=libcxxtls.la
+tlsparamsgen_LDADD=../base/libcxx.la libcxxtls.la
 
 DSACFG=--type dsa --bits 2048 --mode 444 "@localstatedir@/tlsparams/system.dh"
 RSACFG=--type rsa --bits 512 --mode 444 "@localstatedir@/tlsparams/system.rsa"
