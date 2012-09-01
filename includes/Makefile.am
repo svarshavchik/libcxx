@@ -15,7 +15,7 @@ aclocaldir=@datadir@/aclocal
 aclocal_DATA=libcxx.m4
 
 BUILT_SOURCES=namespace.h epoll_def.h globlocale.H signal_def.h xlocale.H
-CLEANFILES=namespace.h optgen.xsl msgdispatcher.xsl libcxx.mk
+DISTCLEANFILES=namespace.h optgen.xsl msgdispatcher.xsl libcxx.mk
 EXTRA_DIST=optgen.xsl optgen.sample.xml libcxx.m4
 
 dist-hook:
