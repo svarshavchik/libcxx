@@ -47,6 +47,8 @@ post-install:
 	${CHMOD} 700 $(PREFIX)/libexec/libcxx/tlsparamsgen.sh
 	echo 'Libs: -R$(PREFIX)/lib/gcc47 -R$(PREFIX)/lib -L$(PREFIX)/lib/gcc47 -L$(PREFIX)/lib' >>$(PREFIX)/libdata/pkgconfig/libcxx.pc
 	PKG_PREFIX=${PREFIX} ${SH} ${PKGINSTALL} ${PKGNAME} POST-INSTALL
+	mkdir -p ${PREFIX}/etc/periodic/monthly
+	ln -fs ../../../libexec/libcxx/tlsparamsgen.sh ${PREFIX}/etc/periodic/monthly/tlsparamsgen.sh
 
 post-deinstall:
 	PKG_PREFIX=${PREFIX} ${SH} ${PKGDEINSTALL} ${PKGNAME} POST-DEINSTALL

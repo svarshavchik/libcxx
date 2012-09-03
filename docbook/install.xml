@@ -37,8 +37,8 @@ See COPYING for distribution information.
   </itemizedlist>
 
   <para>
-    Use the following documentation if the
-    bundled <acronym>RPM</acronym> script cannot be used for some reason.
+    Use the following documentation to build &app; without the
+    bundled <acronym>RPM</acronym> script.
   </para>
 
   <simplesect>
@@ -348,8 +348,9 @@ See COPYING for distribution information.
       Leave out the <option>--http</option> if there's already an
       <acronym>HTTP</acronym> server, such as <application>Apache</application>
       on port 80. In that case, the portmapper expects to be invoked as a
-      <acronym>CGI</acronym> application for all <quote>http://hostname/portmap"</quote>
-      <acronym>URL</acronym>s.
+      <acronym>CGI</acronym> application for all <quote>http://hostname/portmap</quote>
+      <acronym>URL</acronym>s (that is, in addition to the daemon instance
+      which still needs to get started).
       In the source tarball, <filename>httportmap/apache.conf.in</filename>
       is a sample <application>Apache</application> configuration, with a
       placeholder for <command>httportmapd</command>'s installation location.

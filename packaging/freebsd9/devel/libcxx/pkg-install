@@ -39,6 +39,4 @@ then
 			fi
 		done
 	fi
-	mkdir -p /etc/monthly.local
-	ln -fs ${PKG_PREFIX}/libexec/libcxx/tlsparamsgen.sh /etc/monthly.local
 fi

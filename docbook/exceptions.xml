@@ -24,11 +24,9 @@ try {
 
 // ...
 
-    pid_t p=fork();
-
-    if (p &lt; 0)
+    if (rmdir("data") &lt; 0)
     {
-        throw SYSEXCEPTION("fork() failed: ");
+        throw SYSEXCEPTION("rmdir(\"data\") failed: ");
     }
 
 // ...

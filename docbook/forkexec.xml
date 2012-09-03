@@ -13,17 +13,23 @@ See COPYING for distribution information.
     <link linkend="ethreads"><function>&ns;::run</function>()</link> or by
     using <classname>std::thread</classname> is generally mutually-exclusive
     with a multi-process based approach that uses <function>fork</function>().
-    This is because a forked process may get started with inconsistent
-    internal contents of <link linkend="threadsintro">mutexes and
-      condition variables</link> that a different execution thread was
-    modifying during the fork.
+    This is because another execution thread could be in the middle of
+    using some
+    <link linkend="threadsintro">mutex or a condition variables</link>,
+    at <function>fork</function>() time.
+    This results in a child process inheriting a potentially inconsistent
+    internal contents of the mutex or a condition variable.
   </para>
 
   <para>
     It is safe to <function>fork</function>() and immediately
     <function>exec</function>() something else.
     <ulink url="&link-x--forkexec;"><classname>&ns;::forkexec</classname></ulink>
-    implements the common details involved in this process.
+    provides a convenient way to implement this.
+    Here's an example. This is not erally the
+    best way to <link linkend="dir">read the contents of
+      a directory</link>, but just an example of using
+    <classname>&ns;::forkexec</classname>;
   </para>
 
   <blockquote>
@@ -39,10 +45,9 @@ if (&ns;::forkexec("ls", "-al").system() != 0)
   </blockquote>
 
   <para>
-    This is not the best way to <link linkend="dir">read the contents of
-      a directory</link>, but only an example.
-    <classname>&ns;::forkexec</classname> is just a container for the
-    program's arguments. The constructor takes a variadic list of strings,
+    <classname>&ns;::forkexec</classname> itself is just a container for an
+    external executable's command line parameters and other attributes.
+    The constructor takes a variadic list of strings,
     naming the program and any arguments. Alternatively,
     the constructor can also take a single
     <classname>std::vector&lt;std::string&gt;</classname>, which cannot
@@ -104,12 +109,12 @@ if (&ns;::forkexec("-sh").program("/bin/bash").system() != 0)
   </blockquote>
 
   <para>
-    This executes <filename>/bin/bash</filename>, but passes
-    <quote>-sh</quote> to it as an argument.
+    This executes <filename>/bin/bash</filename>, but it gets
+    <quote>-sh</quote> as its <literal>argv[0]</literal>.
   </para>
 
   <para>
-    In all cases, the child process's filename can specify an explicit path,
+    In all cases, the child process's filename can have an explicit path,
     or use <envar>PATH</envar> to find it.
   </para>
 
@@ -117,7 +122,8 @@ if (&ns;::forkexec("-sh").program("/bin/bash").system() != 0)
     If the process cannot be executed for some reason,
     <methodname>system</methodname>(),
     <methodname>spawn</methodname>(), or
-    <methodname>spawn_detached</methodname>() throws an exception.
+    <methodname>spawn_detached</methodname>() throws an
+    <link linkend="exceptions">exception</link>.
     There's also an <methodname>exec</methodname>() method, which execs the
     current process. Either it succeeds, and never returns, or throws an
     exception.
@@ -152,12 +158,14 @@ pid_t p=wc.spawn();
     </para>
 
     <para>
-      An explicit <classname>int</classname> is an optional argument, naming
+      <methodname>pipe_from</methodname>() and
+      <methodname>pipe_to</methodname>() take an optional
+      <classname>int</classname> argument, naming
       an explicit file descriptor, rather than standard input or output.
       There's also an <methodname>socket_fd</methodname>(),
-      that creates a bidirection
-      pipe socket, attaches one end of it to the new process's file descriptor,
-      and returns the other end of the socket pipe.
+      that creates a bidirectional pipe socket,
+      attaches one end of it to the new process's file descriptor,
+      then returns the other end of the socket pipe.
       Finally, <methodname>set_fd</methodname>() takes a numerical file
       descriptor number, and an <classname>&ns;::fd</classname> that you
       created, and attaches it to the new process's file descriptor

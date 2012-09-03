@@ -9,6 +9,5 @@ then
 		fi
 	done
 	rmdir ${PKG_PREFIX}/etc/apache* 2>/dev/null
-	rm -f /etc/monthly.local/tlsparamsgen.sh
 fi
 true

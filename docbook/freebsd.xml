@@ -45,7 +45,7 @@ See COPYING for distribution information.
 	  <application>gcc 4.7</application> in the installation image's
 	  port collection. <application>gcc 4.7</application> must be updated
 	  from ports to at least 4.7.2, in order to compile &app;
-	  and applications that use &app;
+	  and applications that use &app;.
 	</para>
       </note>
     </listitem>
@@ -125,6 +125,15 @@ See COPYING for distribution information.
 	<classname>epoll_data</classname> union is not defined on 32-bit
 	platforms.
       </para>
+
+      <note>
+	<para>
+	  kqueues get invalidated by a <function>fork</function>(). This means
+	  that applications that fork and run as daemons cannot instantiate
+	  any of the emulated file descriptor objects before the
+	  <function>fork</function>()ing gets done.
+	</para>
+      </note>
     </listitem>
 
     <listitem>
@@ -148,11 +157,11 @@ See COPYING for distribution information.
       </para>
 
       <para>
-	At this time, instantiate a
+	Use
+	<link linkend="forkexec"><classname>&ns;::forkexec</classname></link>,
+	or instantiate a
 	<ulink url="&link-x--globlock;"><classname>&ns;::globlock</classname></ulink>
-	manually before invoking <function>exec</function>(), or its aliases,
-	until such time as something like <classname>&ns;::exec</classname>
-	gets created.
+	manually before invoking <function>exec</function>(), or its aliases.
       </para>
     </listitem>
 
@@ -168,7 +177,7 @@ See COPYING for distribution information.
   </itemizedlist>
 
   <para>
-    A Makefile is included in the tarball as a means of installing &app;
+    A port Makefile is included in the tarball as a means of installing &app;
     on &freebsdver;, which should be useful as a basis for building a port:
   </para>
 

@@ -324,8 +324,8 @@ std::lock_guard&lt;&ns;::rwmutex::wmutex&gt; lock(rw.w);
       for example, a lock can get acquired by one thread, and passed around.
       Whichever thread holds the last reference to the lock unlocks the mutex
       when it goes out of scope and gets destroyed. The
-      <classname>std::mutex</classname> limitations that the mutex must be
-      unlocked by the same thread that locked it does not apply here.
+      <classname>std::mutex</classname> limitations, that the mutex must be
+      unlocked by the same thread that locked it, do not apply here.
     </para>
 
     <para>
@@ -896,24 +896,28 @@ class myThreadObj : virtual public &ns;::obj, virtual public &ns;::runthreadsing
     </section>
 
     <section id="threadnoforks">
-      <title>fork() invalidates threads and related objects</title>
+      <title>Stick a fork() in it: you're done</title>
 
       <para>
-	After a <function>fork</function>(), all thread-related contexts in the child process
-	are invalidated. All mutexes, condition variables, and read-write
-	locks no longer have a valid state, and will
-	<methodname>abort</methodname>() the process if any of the objects go
-	out of scope, and the destructor attempts to destroy the object.
-      </para>
-
-      <para>
-	The child process will no longer be able to spawn threads, after
-	a <function>fork</function>().
+	<function>fork</function>() invalidates all threads and all thread
+	support library classes. They are used extensively by &app;, so after
+	a <function>fork</function>(), the child processes cannot use any
+	&app; classes or methods.
       </para>
 
       <para>
 	<function>fork</function>() has no effect in the parent process.
 	All threads remain valid. All thread objects remain valid.
+      </para>
+
+      <para>
+	Use <link linkend="forkexec"><classname>&ns;::forkexec</classname></link>
+	to safely <function>fork</function>() and <function>exec</function>()
+	another process.
+      </para>
+
+      <para>
+	See also: <xref linkend="forkexec" />.
       </para>
     </section>
 

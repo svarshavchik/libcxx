@@ -1,5 +1,6 @@
 @stopdaemon httportmap
 share/libcxx/apache.conf
+etc/periodic/monthly/tlsparamsgen.sh
 bin/maillogs
 bin/properties
 bin/tlsparamsgen
