@@ -4,14 +4,15 @@
 */
 
 #include "libcxx_config.h"
-#include "httportmap.H"
-#include "sysexception.H"
-#include "sockaddr.H"
-#include "messages.H"
-#include "http/cgiimpl.H"
-#include "property_value.H"
-#include "http/useragent.H"
-#include "servent.H"
+#include "x/httportmap.H"
+#include "x/sysexception.H"
+#include "x/sockaddr.H"
+#include "x/messages.H"
+#include "x/http/cgiimpl.H"
+#include "x/property_value.H"
+#include "x/http/useragent.H"
+#include "x/servent.H"
+#include "x/pidinfo.H"
 #include "gettext_in.h"
 
 #include <sstream>
@@ -378,8 +379,45 @@ bool httportmapObj::reg(const std::string &svc, const std::string &port,
 	return reg(ports, timeoutfd);
 }
 
-bool httportmapObj::reg(const std::list<reginfo> &ports, const fdptr &timeoutfd)
+void httportmapBase::connect_service(fd &newfd)
+{
+	char dummy[1];
 
+	if (!newfd->send_credentials())
+	{
+		errno=ETIMEDOUT;
+		throw SYSEXCEPTION("connect");
+	}
+
+#if HAVE_SYSCTL_KERN_PROC
+	std::string me=exename();
+
+	if (me.find('\n') != std::string::npos)
+		throw EXCEPTION("My executable name contains newlines?");
+	newfd->read(dummy, 1);
+	me += "\n";
+	newfd->write_full(me.c_str(), me.size());
+#endif
+
+	std::vector<fdptr> replfd;
+
+	replfd.resize(1);
+	newfd->recv_fd(replfd);
+
+	if (replfd.empty())
+		throw EXCEPTION("Failed to receive a socket from portmapper");
+
+	newfd=replfd[0];
+	if (!newfd->send_credentials())
+	{
+		errno=ETIMEDOUT;
+		throw SYSEXCEPTION("connect");
+	}
+
+	newfd->read(dummy, 1);
+}
+
+bool httportmapObj::reg(const std::list<reginfo> &ports, const fdptr &timeoutfd)
 {
 	if (ports.empty())
 		return true;
@@ -411,12 +449,7 @@ bool httportmapObj::reg(const std::list<reginfo> &ports, const fdptr &timeoutfd)
 	{
 		fd newfd(connect(httportmap::base::portmap_service, 0, timeoutfd));
 
-		if (!newfd->send_credentials())
-		{
-			errno=ETIMEDOUT;
-			throw SYSEXCEPTION("connect");
-		}
-
+		httportmapBase::connect_service(newfd);
 		conn->clientfd=newfd;
 	}
 

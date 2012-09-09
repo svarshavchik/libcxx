@@ -24,7 +24,7 @@ class httpserver;
 
 class portmap_server;
 
-#define HTTPORTMAP_SERVER_VERSION "1"
+#define HTTPORTMAP_SERVER_VERSION "2"
 
 class httportmap_server {
 
@@ -79,6 +79,10 @@ public:
 
 	pid2exe_proc_t pid2exe_proc;
 
+	static void parse_pid2exeproc_response(pid2exe_proc_t::lock &lock,
+					       std::string &start_time,
+					       std::string &exename);
+					
 	// Lock used during reexec to hold processing of all requests.
 	LIBCXX_NAMESPACE::rwlock request_lock;
 				

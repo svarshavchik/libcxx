@@ -141,7 +141,7 @@ std::string singletonapp::impl::svcname()
 {
 	std::ostringstream o;
 
-	o << pidinfo().exe << "@app."
+	o << exename() << "@app."
 	  << httportmap::base::portmap_service;
 
 	return o.str();
@@ -196,7 +196,7 @@ singletonapp::impl::impl(const ref<singletonapp::factorybaseObj> &app,
 			notrunning(uid);
 
 		{
-			std::string exename=pidinfo().exe;
+			std::string exename=LIBCXX_NAMESPACE::exename();
 
 			size_t p=exename.rfind('/');
 
@@ -231,7 +231,7 @@ singletonapp::impl::impl(const ref<singletonapp::factorybaseObj> &app,
 void singletonapp::impl::notrunning(uid_t uid)
 {
 	throw EXCEPTION(gettextmsg(_txt("%1% is not running as %2%"),
-				   pidinfo().exe,
+				   exename(),
 				   passwd(uid)->pw_name));
 }
 
@@ -475,7 +475,7 @@ uid_t singletonapp::validate_peer(const httportmap &portmapper,
 	}
 
 	if ((sameuser && uc.uid != getuid())
-	    || pidinfo().exe != portmapper->pid2exe(uc.pid))
+	    || exename() != portmapper->pid2exe(uc.pid))
 	{
 		errno=EPERM;
 		throw SYSEXCEPTION("singletonapp");

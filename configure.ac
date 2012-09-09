@@ -519,21 +519,27 @@ then
 	PROC_START=/stat
 	PROC_START_FIELD=22
 else
-if test -e /proc/curproc/file
-then
-	SELF=curproc
-	EXE=/file
-	PROC_START=/status
-	PROC_START_FIELD=8
-else
-	AC_MSG_ERROR([Unable to find a /proc filesystem that I can understand])
-fi
-fi
+AC_COMPILE_IFELSE([AC_LANG_SOURCE([
+extern "C" {
+#include <sys/types.h>
+#include <sys/sysctl.h>
+#include <sys/param.h>
+#include <sys/user.h>
+#include <sys/stat.h>
+#include <kvm.h>
+};
 
-AC_DEFINE_UNQUOTED(PROC_SELF,"$SELF",[Where in /proc I can find myself])
-AC_DEFINE_UNQUOTED(PROC_SELF_EXE,"$EXE",[Name of symlink in /proc/$SELF that points to myself])
-AC_DEFINE_UNQUOTED(PROC_START,"$PROC_START",[Where in /proc I can find the process start time])
-AC_DEFINE_UNQUOTED(PROC_START_FIELD,$PROC_START_FIELD,[Which field in PROC_START is the process start tiem])
+int symbols$LB $RB = {
+CTL_KERN, KERN_PROC, KERN_PROC_FILEDESC, KERN_PROC_ARGS
+};
+
+struct kinfo_file kf;
+])], [
+     AC_DEFINE_UNQUOTED(HAVE_SYSCTL_KERN_PROC,1,[Found sysctl interface to kern.proc])
+], [
+   AC_MSG_ERROR([Unable to find a compatible way to get my executable pathname])
+])
+fi
 
 AC_TRY_LINK( [
 #include <stdint.h>

@@ -609,7 +609,8 @@ globalListObj::globalListObj()
 	else
 	{
 		try {
-			exename=pidinfo().exe;
+			exename=LIBCXX_NAMESPACE::exename();
+
 			LIBCXX_NAMESPACE::fileattr attrs=
 				LIBCXX_NAMESPACE::fileattr::create(exename);
 

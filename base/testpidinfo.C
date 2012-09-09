@@ -13,6 +13,7 @@
 #include <unistd.h>
 #include <stdlib.h>
 
+#if 0
 void testpidinfo(int argc, char **argv)
 {
 	LIBCXX_NAMESPACE::pidinfo p1;
@@ -72,3 +73,9 @@ int main(int argc, char **argv)
 	return (0);
 }
 
+#endif
+
+int main(int argc, char **argv)
+{
+	std::cout << LIBCXX_NAMESPACE::exename() << std::endl;
+}

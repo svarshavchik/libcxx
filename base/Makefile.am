@@ -143,7 +143,7 @@ libcxx_la_SOURCES=\
 	option_parserobj.C	\
 	option_valuebaseobj.C	\
 	pcreobj.C		\
-	pidinfo.C		\
+	pidinfo.C pidinfo_internal.h \
 	properties.C		\
 	pwd.C			\
 	refcnt.C		\
@@ -725,8 +725,7 @@ check-am: $(noinst_PROGRAMS) $(noinst_DATA)
 	./testsemaphore
 	./testsignalfd
 	./testjoin
-	cp testpidinfo testpidinfo.tmp
-	./testpidinfo.tmp
+	./testpidinfo
 	./testforkexec
 
 $(XTEST_MO_DIR)/$(XTEST_MO_FILE): testmessages.po

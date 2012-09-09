@@ -49,7 +49,6 @@
 <!ENTITY misccsv SYSTEM "misccsv.xml">
 <!ENTITY miscstrwchar SYSTEM "miscstrwchar.xml">
 <!ENTITY miscdf SYSTEM "miscdf.xml">
-<!ENTITY miscpidinfo SYSTEM "miscpidinfo.xml">
 <!ENTITY miscpostponed SYSTEM "miscpostponed.xml">
 <!ENTITY xml_escape SYSTEM "xml_escape.xml">
 <!ENTITY gnutls_datum SYSTEM "gnutls_datum.xml">
@@ -146,7 +145,6 @@ See COPYING for distribution information.
     &misccsv;
     &miscstrwchar;
     &miscdf;
-    &miscpidinfo;
   </part>
 
   &httportmap;

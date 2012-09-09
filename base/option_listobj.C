@@ -30,7 +30,7 @@ listObj::listObj()
 {
 	first_group_option=options.end();
 
-	std::string appName=pidinfo().exe;
+	std::string appName=exename();
 
 	std::string::iterator b=appName.begin(), e=appName.end(), p=b;
 

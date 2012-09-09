@@ -35,10 +35,6 @@ See COPYING for distribution information.
 	from &app;'s source repository.
       </para>
 
-      <para>
-	Additionally, <literal>procfs</literal> must be mounted.
-      </para>
-
       <note>
 	<para>
 	  &app; gets miscompiled by the pre-release version of
@@ -162,16 +158,6 @@ See COPYING for distribution information.
 	or instantiate a
 	<ulink url="&link-x--globlock;"><classname>&ns;::globlock</classname></ulink>
 	manually before invoking <function>exec</function>(), or its aliases.
-      </para>
-    </listitem>
-
-    <listitem>
-      <para>
-	If a process's executable gets deleted but the process still exists,
-	<link linkend="pidinfo"><classname>&ns;::pidinfo</classname></link>
-	on that process throws an exception. On Linux, the executable's name
-	gets affixed with <quote>(deleted)</quote> which, presumably, is a
-	nonexistent pathname.
       </para>
     </listitem>
   </itemizedlist>

@@ -46,7 +46,13 @@ private:
 		     std::vector<struct pollfd> &fds,
 		     std::vector<clientinfo> &clientinfos);
 
-	bool handle_client(clientinfoObj &, std::vector<clientinfo> &);
+	bool handle_client(struct pollfd &,
+			   clientinfoObj &, std::vector<clientinfo> &);
+	bool handle_client_line(clientinfoObj &, std::vector<clientinfo> &,
+				const std::string &);
+	void send_client_fd(struct pollfd &pfd,
+			    clientinfoObj &cl);
+	void install_client(clientinfoObj &cl);
 };
 
 

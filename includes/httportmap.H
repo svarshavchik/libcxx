@@ -71,6 +71,10 @@ public:
 
 	class regpid2exeObj;
 
+	//! Handshake with the portmap server on the internal socket.
+
+	//! \internal
+	static void connect_service(fd &newfd);
 };
 
 #if 0

@@ -10,6 +10,8 @@
 #include "reexecfd.H"
 #include "localstatedir.h"
 #include "portmapdatadir.h"
+#include "x/locale.H"
+#include "x/fileattr.H"
 #include "x/options.H"
 #include "x/httportmap.H"
 #include "x/http/fdclientimpl.H"
@@ -21,15 +23,203 @@
 #include "x/serialize.H"
 #include "x/deserialize.H"
 #include "x/pidinfo.H"
+#include "x/strtok.H"
+#include <fstream>
 #include <cstdlib>
 #include <algorithm>
 #include <unistd.h>
+#include <string.h>
 #include <grp.h>
 #include <sys/types.h>
 #include <sys/wait.h>
 
 #ifndef DEFAULTSOCKET
 #define DEFAULTSOCKET LOCALSTATEDIR "/run/httportmap"
+#endif
+
+#include "../base/pidinfo_internal.h"
+
+#if HAVE_SYSCTL_KERN_PROC
+
+class pidinfo {
+
+public:
+	static std::string pid2exe(const std::string &line);
+};
+
+std::string pidinfo::pid2exe(const std::string &line)
+{
+	std::string s;
+
+	// Split out the pid from the client-offered executable pathname
+
+	size_t sp=line.find(' ');
+
+	if (sp == std::string::npos)
+		return s;
+
+	std::istringstream i(line.substr(0, sp));
+
+	pid_t p=0;
+
+	i >> p;
+
+	if (p == 0)
+		return s;
+
+	std::string exe=line.substr(sp+1);
+
+	if (*exe.c_str() != '/')
+		return s;
+
+	char *rp=realpath(exe.c_str(), NULL);
+
+	if (!rp)
+		return s;
+
+	{
+		char buf[strlen(rp)+1];
+
+		strcpy(buf, rp);
+		free(rp);
+		exe=buf;
+	}
+
+	// Look up the pid's TEXT's dev/ino in sysctl
+
+	dev_t dev;
+	ino_t ino;
+
+	if (!LIBCXX_NAMESPACE::pid2devino(p, dev, ino))
+		return s;
+
+	struct stat stat_buf;
+
+	// Make sure its dev/ino matches the executable's dev/ino
+
+	if (lstat(exe.c_str(), &stat_buf) == 0 &&
+	    stat_buf.st_dev == dev &&
+	    stat_buf.st_ino == ino)
+	{
+		// Grab the pid's starting time.
+
+		std::string start_time=LIBCXX_NAMESPACE::exestarttime(p);
+		if (start_time.empty())
+			return s;
+
+		// Verify that the process's TEXT's dev/ino hasn't changed
+
+		dev_t dev2;
+		ino_t ino2;
+
+		if (!LIBCXX_NAMESPACE::pid2devino(p, dev2, ino2))
+			return s;
+
+		// And that the startting time is still the same
+		if (dev == dev2 && ino == ino2 &&
+		    start_time == LIBCXX_NAMESPACE::exestarttime(p))
+		{
+			// Then we are certain that pid was executing the
+			// given process
+
+			s=start_time + " " + exe;
+		}
+	}
+	return s;
+}
+
+#else
+//! Retrieve the process's executable pathname and start time.
+
+class pidinfo {
+
+public:
+
+	//! The absolute pathname of the executable that started the process.
+	std::string exe;
+
+	//! The time that the executable was started, as an opaque string
+
+	//! This should be treated as an opaque blob, with the only defined
+	//! operation being a comparison for equality or inequality.
+	std::string start_time;
+
+	//! Constructor
+	pidinfo(//! Return this process's information
+		pid_t p);
+	~pidinfo();
+
+	static std::string pid2exe(const std::string &line);
+};
+
+pidinfo::pidinfo(pid_t pid)
+{
+	auto l=LIBCXX_NAMESPACE::locale::create("C");
+
+	if (pid == getpid())
+	{
+		exe=LIBCXX_NAMESPACE::exename();
+	}
+	else
+	{
+		std::ostringstream o;
+
+		{
+			LIBCXX_NAMESPACE::imbue<std::ostringstream> i(l, o);
+
+			o << "/proc/" << pid << "/exe";
+		}
+
+		exe=LIBCXX_NAMESPACE::fileattr::create(o.str(), true)
+			->readlink();
+
+		if (exe.substr(0, 1) != "/")
+		{
+			errno=ENOENT;
+			throw SYSEXCEPTION(exe);
+		}
+	}
+
+	if ((start_time=LIBCXX_NAMESPACE::exestarttime(pid)).empty())
+		throw EXCEPTION("Cannot get start time for " + exe);
+}
+
+pidinfo::~pidinfo()
+{
+}
+
+std::string pidinfo::pid2exe(const std::string &line)
+{
+	std::istringstream i(line);
+
+	pid_t p=0;
+
+	i >> p;
+
+	std::string s;
+
+	if (p)
+	{
+		// Read the executable name and the pid start
+		// time twice. If the start time did not change
+		// this means it was the same process, and
+		// the executable name is valid.
+
+		pidinfo a(p);
+
+		pidinfo b(p);
+
+		if (a.exe == b.exe &&
+		    a.start_time == b.start_time)
+		{
+			s=a.start_time + " " + a.exe;
+		}
+	}
+
+	std::replace(s.begin(), s.end(), '\n', ' ');
+
+	return s;
+}
 #endif
 
 // Fork. The child process returns. The parent waits for the child process
@@ -105,40 +295,36 @@ LIBCXX_NAMESPACE::iostream httportmap_server::pid2exe_thread()
 
 	while (!std::getline(*iosref, line).eof())
 	{
-		std::istringstream i(line);
-
-		p=0;
-
-		i >> p;
-
 		std::string s;
 
 		try {
-			if (p)
-			{
-				// Read the executable name and the pid start
-				// time twice. If the start time did not change
-				// this means it was the same process, and
-				// the executable name is valid.
-
-				LIBCXX_NAMESPACE::pidinfo a(p);
-
-				LIBCXX_NAMESPACE::pidinfo b(p);
-
-				if (a.exe == b.exe &&
-				    a.start_time == b.start_time)
-				{
-					s=a.exe;
-				}
-			}
+			s=pidinfo::pid2exe(line);
 		} catch (...) {
 		}
-
-		std::replace(s.begin(), s.end(), '\n', ' ');
 
 		(*iosref) << s << std::endl << std::flush;
 	}
 	exit(0);
+}
+
+void httportmap_server::parse_pid2exeproc_response(pid2exe_proc_t::lock &lock,
+						   std::string &start_time,
+						   std::string &exename)
+{
+	std::string s;
+
+	std::getline(**lock, s);
+
+	size_t p=s.find(' ');
+
+	start_time.clear();
+	exename.clear();
+
+	if (p == std::string::npos)
+		throw EXCEPTION("Unable to look up process information");
+
+	start_time=s.substr(0, p);
+	exename=s.substr(p+1);
 }
 
 LOG_FUNC_SCOPE_DECL(startup, startup_logger);
@@ -167,8 +353,8 @@ void httportmap_server::startup(const std::string &sockname,
 				->connect(LIBCXX_NAMESPACE::fdtimeoutconfig
 					  ::terminate_fd(timer));
 
-			if (!existing_fd->send_credentials())
-				throw EXCEPTION("Failed");
+			LIBCXX_NAMESPACE::httportmap::base
+				::connect_service(existing_fd);
 
 			existing_fd->nonblock(true);
 
@@ -308,7 +494,7 @@ void httportmap_server::startup_frommeta(bool daemonize,
 	portmap_thread->listen_sockets=
 		meta.sockets[(int)startup_metainfo::sock_portmap];
 
-	std::string me=LIBCXX_NAMESPACE::pidinfo().exe;
+	std::string me=LIBCXX_NAMESPACE::exename();
 
 	if (daemonize && geteuid() == 0)
 	{
@@ -770,7 +956,7 @@ static int main2(int argc, char **argv)
 		return 0;
 
 	std::string &cmd=optionParser->args.front();
-	std::string me=LIBCXX_NAMESPACE::pidinfo().exe;
+	std::string me=LIBCXX_NAMESPACE::exename();
 
 	if (cmd == "start")
 	{

@@ -155,7 +155,7 @@ exceptionObj::exceptionObj() noexcept
 
 		if (dladdr((void *)ip, &info))
 		{
-			unw_word_t diff = ip - (unw_word_t)info.dli_fbase;
+			unw_word_t diff = ip - (unw_word_t)info.dli_saddr;
 
 			o << info.dli_fname << "(";
 

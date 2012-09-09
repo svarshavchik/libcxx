@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: libcxx 0.1\n"
 "Report-Msgid-Bugs-To: mrsam@courier-mta.com\n"
-"POT-Creation-Date: 2012-07-27 22:27-0400\n"
+"POT-Creation-Date: 2012-09-10 08:52-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -267,23 +267,23 @@ msgstr ""
 msgid "Form parameters too big"
 msgstr ""
 
-#: base/httportmap.C:530
+#: base/httportmap.C:563
 msgid "Unknown file descriptor name"
 msgstr ""
 
-#: base/httportmap.C:550
+#: base/httportmap.C:583
 msgid "httportmap: userid %1% not found"
 msgstr ""
 
-#: base/httportmap.C:556
+#: base/httportmap.C:589
 msgid "Unable to parse response from portmapper"
 msgstr ""
 
-#: base/httportmap.C:648
+#: base/httportmap.C:681
 msgid "Lost connection with the httportmap service"
 msgstr ""
 
-#: base/httportmap.C:654
+#: base/httportmap.C:687
 msgid "Invalid service or port name"
 msgstr ""
 
@@ -387,7 +387,7 @@ msgstr ""
 msgid "Unknown error: %1%"
 msgstr ""
 
-#: base/properties.C:645
+#: base/properties.C:646
 msgid "Cannot open %1%: %2%"
 msgstr ""
 
