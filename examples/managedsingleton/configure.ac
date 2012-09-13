@@ -14,7 +14,7 @@ AC_PROG_CXX
 # Override compiler with the same one used to be libx.
 # This sets CXXFLAGS to enable the correct C++ standard
 # mode for libx-based applications.
-LIBX_INIT
+LIBCXX_INIT
 
 # Checks for libraries.
 
