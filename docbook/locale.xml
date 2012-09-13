@@ -87,6 +87,44 @@ myLocale-&gt;global();</programlisting>
   <blockquote>
     <informalexample>
       <programlisting>
+auto locale=&ns;::locale::base::global();</programlisting>
+    </informalexample>
+  </blockquote>
+
+  <para>
+    This returns an object representing whatever the current global
+    application locale is.
+  </para>
+
+  <blockquote>
+    <informalexample>
+      <programlisting>
+auto locale=&ns;::locale::base::utf8();</programlisting>
+    </informalexample>
+  </blockquote>
+
+  <para>
+    This is a convenience function that returns the
+    <literal>en_US.UTF-8</literal> locale. This is equivalent to invoking
+    <literal>&ns;::locale::create("en_US.UTF-8")</literal>
+  </para>
+
+  <blockquote>
+    <informalexample>
+      <programlisting>
+auto locale=&ns;::locale::base::environment();</programlisting>
+    </informalexample>
+  </blockquote>
+
+  <para>
+    This is a convenience function that returns the system environment
+    locale. This is equivalent to invoking
+    <literal>&ns;::locale::create("")</literal>
+  </para>
+
+  <blockquote>
+    <informalexample>
+      <programlisting>
 myLocale-&gt;imbue(std::cout);</programlisting>
     </informalexample>
   </blockquote>

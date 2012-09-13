@@ -15,7 +15,7 @@ See COPYING for distribution information.
     with a multi-process based approach that uses <function>fork</function>().
     This is because another execution thread could be in the middle of
     using some
-    <link linkend="threadsintro">mutex or a condition variables</link>,
+    <link linkend="threadsintro">mutex or a condition variable</link>,
     at <function>fork</function>() time.
     This results in a child process inheriting a potentially inconsistent
     internal contents of the mutex or a condition variable.
@@ -26,9 +26,9 @@ See COPYING for distribution information.
     <function>exec</function>() something else.
     <ulink url="&link-x--forkexec;"><classname>&ns;::forkexec</classname></ulink>
     provides a convenient way to implement this.
-    Here's an example. This is not erally the
+    Here's an example. This is not really the
     best way to <link linkend="dir">read the contents of
-      a directory</link>, but just an example of using
+      a directory</link>, this is just an example of using
     <classname>&ns;::forkexec</classname>;
   </para>
 
@@ -154,7 +154,7 @@ pid_t p=wc.spawn();
       arrangements to attach a pipe to the new process's standard input,
       and returns the write side of the pipe.
       Similarly, <methodname>pipe_from</methodname>() attaches a pipe to the
-      new process's standard ouput, and returns the read side of the pipe.
+      new process's standard output, and returns the read side of the pipe.
     </para>
 
     <para>
@@ -162,7 +162,7 @@ pid_t p=wc.spawn();
       <methodname>pipe_to</methodname>() take an optional
       <classname>int</classname> argument, naming
       an explicit file descriptor, rather than standard input or output.
-      There's also an <methodname>socket_fd</methodname>(),
+      There's also a <methodname>socket_fd</methodname>(),
       that creates a bidirectional pipe socket,
       attaches one end of it to the new process's file descriptor,
       then returns the other end of the socket pipe.
