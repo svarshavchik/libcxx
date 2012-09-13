@@ -410,8 +410,6 @@ bool portmap_server::handle_client(struct pollfd &pfd,
 				  << ": write failed");
 			return false;
 		}
-		return true;
-
 #else
 		{
 			httportmap_server::pid2exe_proc_t::lock

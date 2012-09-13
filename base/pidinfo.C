@@ -233,7 +233,7 @@ std::string exestarttime(pid_t p)
 	while (1)
 	{
 		if (sysctl(mib, 3, NULL, &len, NULL, 0) < 0)
-			return "";
+			break;
 
 		char buf[len];
 
@@ -241,10 +241,10 @@ std::string exestarttime(pid_t p)
 		{
 			if (errno == ENOMEM)
 				continue;
-			return "";
+			break;
 		}
 
-		for (size_t i=0; i<len; ++i)
+		for (size_t i=0; i<len; )
 		{
 			struct kinfo_proc *kp=(struct kinfo_proc *)(buf+i);
 
@@ -263,6 +263,7 @@ std::string exestarttime(pid_t p)
 				return o.str();
 			}
 		}
+		break;
 	}
 
 	return "";
