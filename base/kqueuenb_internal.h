@@ -2,19 +2,31 @@
 #define KQUEUE_NONBLOCK_INIT kqueue_nonblock=false
 
 #define KEVENT_CALL(kfd, changelist, nchanges, eventlist, nevents) ({	\
-			timespec ts;					\
+			int rc;						\
 									\
-			kevent((kfd), (changelist), (nchanges),		\
-			       (eventlist),				\
-			       (nevents), kqueue_nonblock ? &ts:NULL);	\
+			do {						\
+				timespec ts;				\
+									\
+				rc=kevent((kfd), (changelist),		\
+					  (nchanges),			\
+					  (eventlist),			\
+					  (nevents), kqueue_nonblock ?	\
+					  &ts:NULL);			\
+			} while (rc < 0 && errno == EINTR);		\
+			rc;						\
 		})
 
 #define KEVENT_POLL(kfd, changelist, nchanges, eventlist, nevents) ({	\
-			timespec ts;					\
+	int rc;								\
 									\
-			kevent((kfd), (changelist), (nchanges),		\
-			       (eventlist),				\
-			       (nevents), &ts);				\
+	do {								\
+		timespec ts;						\
+									\
+		rc=kevent((kfd), (changelist), (nchanges),		\
+			  (eventlist),					\
+			  (nevents), &ts);				\
+	} while (rc < 0 && errno == EINTR);				\
+	rc;								\
 		})
 
 #define KQUEUE_NONBLOCK_IMPL					\
