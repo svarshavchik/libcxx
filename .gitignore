@@ -17,6 +17,7 @@ Makefile.in
 /depcomp
 /doctags
 /html
+/INSTALL
 /install-sh
 /libcxx.pc
 /libcxx_config.h

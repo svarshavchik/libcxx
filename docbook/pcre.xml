@@ -22,8 +22,8 @@ if (!pattern->match(line))
 else
 {
     if (pattern->subpatterns.size() == 3)
-        process_words(pattern->subpatterns[0],
-                      pattern->subpatterns[1]);
+        process_words(pattern->subpatterns[1],
+                      pattern->subpatterns[2]);
 }</programlisting>
     </informalexample>
   </blockquote>

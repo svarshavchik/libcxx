@@ -16,10 +16,15 @@ EXTRA_DIST=config.rpath DoxygenLayout.xml $(man_MANS) \
 
 DOCS_SRC = $(shell find includes -name '*.H' -print)
 
-docs: html/index.html html/book.css html/logo.png
+docs: html/index.html html/book.css html/logo.png $(shell cd $(srcdir)/docbook; ls *.png | sed 's@^@html/@')
 
-html/logo.png: docbook/logo.png
-	$(INSTALL) -m 0644 $(srcdir)/docbook/logo.png html/logo.png
+html/%.png: docbook/%.png
+	mkdir -p html
+	$(INSTALL) -m 0644 $(srcdir)/$< html
+
+html/book.css: html/index.html docbook/book.css
+	mkdir -p html
+	$(INSTALL) -m 0644 $(srcdir)/docbook/book.css html/book.css
 
 html/index.html: html/ref/index.html $(wildcard docbook/*.xml) docbook/xmllinks.xsl
 	mkdir -p docbook
@@ -33,20 +38,18 @@ html/index.html: html/ref/index.html $(wildcard docbook/*.xml) docbook/xmllinks.
 		--stringparam generate.id.attributes 1 \
 		--param local.l10n.xml 'document("'`pwd`/docbook/l10.xml'")' \
 		$(srcdir)/docbook/docbook.xsl $(srcdir)/docbook/book.xml
-	rm -f html/*.html
-	$(INSTALL) -m 0644 $(srcdir)/docbook/*.png html.tmp
+	-rm -f html/* 2>/dev/null >/dev/null || :
 	mv html.tmp/* html
-	rmdir html.tmp
+	rm -rf html.tmp
 	rm -rf html/examples
-	find examples -depth \( -type d -o -name '*.C' -o -name Makefile.am -o -name configure.ac \) -print | cpio -o --quiet | (cd html; cpio -i --quiet --make-directories)
+	find examples -depth \( -type d -o -name '*.[CH]' -o -name '*.xml' -o -name Makefile.am -o -name configure.ac \) -print | cpio -o --quiet | (cd html; cpio -i --quiet --make-directories)
 	echo 'ForceType text/plain' >html/examples/.htaccess
-
-html/book.css: html/index.html docbook/book.css
-	$(INSTALL) -m 0644 $(srcdir)/docbook/book.css html/book.css
+	links --dump --no-references html/INSTALL.html >INSTALL.tmp
+	mv -f INSTALL.tmp INSTALL
 
 html/ref/index.html: $(DOCS_SRC) Doxyfile
-	rm -rf html
-	mkdir html
+	rm -rf html/ref
+	mkdir -p html/ref
 	doxygen; c=$$?;	perl -p -i -e 's/INSERT_LIBX_NAMESPACE/x/g' html/ref/*.html; exit $$c
 
 .PHONY: rpm

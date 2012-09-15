@@ -219,9 +219,9 @@ See COPYING for distribution information.
     </para>
 
     <para>
-      No special effort is needed to get &ref; and &ptr; reference counting
-      work correctly with multiple inheritance. Each reference-counted class
-      virtual inherits from <classname>&ns;::obj</classname>, which
+      &ref;s and &ptr;s work with multiple inheritance without any special
+      effort. Each reference-counted class
+      virtually inherits from <classname>&ns;::obj</classname>, which
       automatically does the right thing when multiple reference-counted
       classes get inherited from.
     </para>
@@ -360,7 +360,7 @@ button b(button::create(200, 300));</programlisting>
       follows later.
       The variadic <methodname>create</methodname>() forwards its parameters
       to the constructor for the
-      reference-counted class, that gets instantiated on the heap.'
+      reference-counted class, that gets instantiated on the heap.
       In this example,
       when <varname>b</varname>, and all other references go out of scope, the
       underlying object gets destroyed. An explicit
@@ -577,8 +577,8 @@ draw(buttonref);</programlisting>
     </para>
 
     <para>
-      The above example demonstrates the standard convention for naming a
-      family of reference-counted objects and references:
+      The above example shows &app;'s naming convention for
+      reference-counted objects and reference types:
     </para>
 
     <informaltable>
@@ -609,7 +609,7 @@ draw(buttonref);</programlisting>
 	      A non-<literal>nullptr</literal> reference to a reference-counted
 	      object.
 	      <methodname><replaceable>something</replaceable>::create</methodname>(<replaceable>args</replaceable>)
-	      calls <methodname><replaceable>something</replaceable>Obj::create</methodname>(<replaceable>args</replaceable>),
+	      calls <literal>new <classname><replaceable>something</replaceable>Obj</classname>(<replaceable>args</replaceable>)</literal>,
 	      and returns a reference to the newly-constructed object.
 	    </entry>
 	  </row>
@@ -628,15 +628,15 @@ draw(buttonref);</programlisting>
 	      A reference-counted pointer, which may be a
 	      <literal>nullptr</literal>.
 	      <methodname><replaceable>something</replaceable>ptr::create</methodname>(<replaceable>args</replaceable>)
-	      calls <methodname><replaceable>something</replaceable>Obj::create</methodname>(<replaceable>args</replaceable>),
-	      and returns a pointer to the newly-constructed object.
+	      calls <literal>new <classname><replaceable>something</replaceable>Obj</classname>(<replaceable>args</replaceable>)</literal>,
+	      and returns a pointer reference to the newly-constructed object.
 	      Dereferencing a <literal>nullptr</literal>
 	      <classname><replaceable>something</replaceable>ptr</classname>
 	      throws an exception.
 	    </entry>
 	  </row>
 	  <row>
-	    <entry>typedef&nbsp;&ns;::const_ptr&lt;<classname>const_<replaceable>something</replaceable>Obj</classname>&gt;&nbsp;<classname><replaceable>something</replaceable>ptr</classname></entry>
+	    <entry>typedef&nbsp;&ns;::const_ptr&lt;<classname>const_<replaceable>something</replaceable>Obj</classname>&gt;&nbsp;<classname>const_<replaceable>something</replaceable>ptr</classname></entry>
 	    <entry>
 	      A reference-counted pointer to a constant object, which may be a
 	      <literal>nullptr</literal>.
@@ -730,9 +730,9 @@ button quit(button::create(100, 100));</programlisting>
       <title>Range-based iteration on reference-counted objects</title>
 
       <para>
-	The <link linkend="dirwalk">&ns;::dirwalk</link> reference-counted
-	object implements <methodname>begin</methodname>() and
-	<methodname>end</methodname>(), so it's usable as a range iterator:
+	It can be convenient to use a reference-counted object that
+	<methodname>begin</methodname>() and <methodname>end</methodname>(),
+	<link linkend="dirwalk">&ns;::dirwalk</link>, as a range iterator:
       </para>
 
       <blockquote>
@@ -757,7 +757,7 @@ for (auto config: *etcdir)
 
       <note>
 	<para>
-	  This alternative approach seems intuitive, but it's actually
+	  This shorter alternative seems intuitive, but it's actually
 	  ill-formed:
 	</para>
 
@@ -1095,32 +1095,32 @@ void widgetObj::method()
 	constructor is generally prohibited, for the following reason.
 	The object has not finished its own construction, but the
 	<classname>&ns;::obj</classname> virtual superclass is already
-	constructed, with its reference count set to zero. When the object
-	gets fully constructed, it gets assigned to its initial &reforptr;,
-	incrementing the reference count to 1, resulting in
-	an object with a single reference from its initial &reforptr;.
-	But this hasn't happened yet.
+	constructed, with its reference count set to zero.
+	What normally happens when the object
+	gets fully constructed is that it gets assigned to its initial
+	&reforptr;, which
+	increments the reference count to 1, resulting in
+	an object with a single reference.
+	But this hasn't happened yet. The object is still in its
+	constructor.
       </para>
 
       <para>
 	If the object's constructor also creates an &reforptr; from
 	<varname>this</varname>, the object's reference count gets incremented
-	to 1 prematurely. This is no different than if any other
-	&reforptr; took ownership of an	existing object.
-	But now, if this interloper, the &reforptr; created in the constructor,
-	then skips down, goes out of scope, and gets destroyed before the
-	cosntructor
-	returns, and no other references to the object remain, the
-	object's reference count becomes zero,
-	and the object gets destroyed and
-	its memory deallocated.
+	to 1 prematurely. This is no different than from any other
+	&reforptr; getting created from <varname>this</varname>.
+	But now, if the &reforptr; that was created from <varname>this</varname>
+	goes out of scope and gets destroyed before the original constructor
+	finishes, the object's count becomes zero again.
+	When that happens, the object gets destroyed.
       </para>
 
       <para>
-	But, if you're keeping score, the initial constructed hasn't returned
+	But, if you're keeping score, the initial constructor hasn't returned
 	yet.
-	When the constructor returns, the newly-created object's
-	memory has already been deallocated. However, the object has been
+	When the constructor returns, the newly-created object is already
+	destroyed. However, the object has been
 	created in the context of initializing the first reference to the
 	object, so the caller's context expects the constructor to produce
 	a new object, whose reference count gets immediately incremented.
@@ -1129,7 +1129,7 @@ void widgetObj::method()
 
       <para>
 	Furthermore, creating an &reforptr; from <varname>this</varname> in its
-	own destructor is a guaranteed crash.
+	own destructor is also a non-starter.
       </para>
     </note>
   </section>
@@ -1275,8 +1275,8 @@ buttonp-&gt;doButtonRender(); // doesn't work, private inheritance.
       of reference-counted objects. But that adds extra complexity, and the
       basic approach strikes a reasonable balance. Private inheritance is
       voluntarily enforced, unless a long detour gets taken to work around
-      it; and this backdoor might actually have a useful
-      access mechanism for out-of-band situations, like automated
+      it; and this back-door can be useful
+      for out-of-band situations, like automated
       regression tests.
     </para>
   </section>
@@ -1363,11 +1363,11 @@ if (!origw.null())
       when some subclass of <classname>&ns;::obj</classname>,
       some <quote>mcguffin</quote>, gets destroyed after the last &reforptr;
       to the mcguffin goes out of scope.
-      This <quote>callback</quote> is a method, in some instance of some other,
+      This <quote>callback</quote> is some method in an instance of a different,
       otherwise unrelated, class. The method gets invoked whenever the
       first class gets destroyed. Here, the first class is called a
       <quote>mcguffin</quote>. This name comes from
-      the film director Alfred Hitchcock who uses it
+      the film director Alfred Hitchcock who used it
       to describe some minor prop or gadget that is of little inherent value,
       but is responsible for driving the major plot of a movie.
       (Although <quote>macguffin</quote> is the more popular spelling, I like
@@ -1380,34 +1380,56 @@ if (!origw.null())
       <link linkend="refobj">reference-counted object</link>
       whose own implicit existence has some inherent purpose, and defines some
       part of its functionality, loosely speaking.
-      Its mere existence drives other
-      logic around it that's not directly expressed by its own methods.
-      Its inherent existence makes it a mcguffin.
+      Consider a typical situation of a thread sending some kind of a message
+      to another thread. The first thread wants to know when the second thread
+      processed this message.
+    </para>
+
+    <para>
+      You can write and implement an acknowledgement mechanism of some kind,
+      but this quickly gets complicated. What if, for
+      example, the second thread ended
+      normally, but before it had a chance to process the message? You'll
+      have to handle that eventuality too. In most non-trivial situations
+      there will be other ways for things to go off the rails.
+    </para>
+
+    <para>
+      Using a mcguffin makes this much easier. When the message gets received
+      by the thread, processed, and discarded, the last reference to the
+      message object goes out of scope and the mcguffin gets destroyed.
+      If the thread stops, presumably its message queue, together with all
+      of its messages, also gets destroyed. In all cases, the message object
+      gets destroyed. The message object is now a mcguffin, so its destructor
+      callback gets invoked in all cases.
+    </para>
+
+    <para>
       A mcguffin may be a very distinguished class on its own merits. It might
       have many methods and members of its own; but it's a mcguffin because
       it exists, and for no other reason.
     </para>
 
     <para>
-      A mcguffin
-      typically has a <quote>destructor callback</quote>
-      attached to it. This destructor callback gets triggered when
-      the last &reforptr; to a <link linkend="refobj">reference-counted
-	object</link> goes out of scope and
-      the object gets destroyed. The destructor callback gets invoked
+      A mcguffin can have more than one destructor callback.
+      All destructor callbacks get invoked, one at a time, when
+      the last &reforptr; to the mcguffin, a
+      <link linkend="refobj">reference-counted object</link> goes out of scope
+      and
+      the object gets destroyed. The destructor callbacks get invoked
       immediately after the object's destructor returns and the object
       gets destroyed.
-      Once invoked, the destructor callback does whatever it wants to do.
-      The callback gets invoked by whichever thread destroyed the last
+      Once invoked, each destructor callback does whatever it wants to do.
+      The callbacks get invoked by whichever thread destroyed the last
       reference to the object, not necessarily the
       same thread that created it!
     </para>
 
     <para>
-      By the time the destructor callback gets called, the mcguffin is already
+      By the time the destructor callbacks get called, the mcguffin is already
       destroyed, and the destructor callback has no means to access it. But
       that's fine, the object's existence was what made it a mcguffin, and
-      now the destructor callback gets invoked because the object got
+      now the destructor callbacks get invoked because the object got
       destroyed.
     </para>
 
@@ -1989,7 +2011,7 @@ public:
       <link linkend="refobj">reference-counted object</link> (which can
       certainly have its own weak pointers), and it contains only weak pointers
       to other objects.
-      When the weakly-references object goes out of scope and gets
+      When the weakly-referenced object goes out of scope and gets
       destroyed, not only does the weak pointer, in the weak container,
       becomes undefined, it gets removed from the container, automatically.
     </para>
