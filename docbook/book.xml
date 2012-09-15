@@ -9,6 +9,7 @@
 <!ENTITY singletonlimits SYSTEM "singletonlimits.xml">
 
 <!ENTITY intro SYSTEM "intro.xml">
+<!ENTITY core SYSTEM "core.xml">
 <!ENTITY exceptions SYSTEM "exceptions.xml">
 <!ENTITY refobj SYSTEM "refobj.xml">
 <!ENTITY fd SYSTEM "fd.xml">
@@ -94,12 +95,7 @@ See COPYING for distribution information.
 
   <part id="core">
     <title>Core classes</title>
-    <partintro>
-      <para>
-	To access the following core classes,
-	the application must be linked with the <option>-lcxx</option> option.
-      </para>
-    </partintro>
+    &core;
     &exceptions;
     &refobj;
     &properties;
@@ -233,7 +229,6 @@ See COPYING for distribution information.
     &httpserver;
   </part>
 
-  &install;
   &freebsd;
 
   <appendix id="manpages">

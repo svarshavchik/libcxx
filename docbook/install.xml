@@ -5,8 +5,25 @@ See COPYING for distribution information.
 
 -->
 
-<appendix id="INSTALL">
-  <title>Installing &app;</title>
+<section id="INSTALL">
+  <title>Installation, and requirements</title>
+
+  <para>
+    &app; uses Linux-specific APIs;
+    and with one exception &app; compiles only on Linux,
+    The exception is that currently it builds on &freebsdver; with
+    an alternative implementation of Linux-specific APIs,
+    see <xref linkend="freebsdport" />
+    for more information.
+  </para>
+
+  <para>
+    <application>gcc 4.7</application> is required. Since this library uses
+    C++11 classes, applications must be compiled with the
+    <option>-std=c++0x</option> option, as well as
+    <option>-fno-omit-frame-pointer</option>. This is done automatically
+    when <link linkend="using">using autotools</link>.
+  </para>
 
   <para>
     &app; should be converted into an installable package, instead of building
@@ -356,11 +373,11 @@ See COPYING for distribution information.
       placeholder for <command>httportmapd</command>'s installation location.
     </para>
   </simplesect>
-</appendix>
+</section>
 
 <!--
 Local Variables:
 mode: sgml
-sgml-parent-document: ("book.xml" "book" "appendix")
+sgml-parent-document: ("book.xml" "preface" "section")
 End:
 -->

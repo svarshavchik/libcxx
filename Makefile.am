@@ -16,9 +16,12 @@ EXTRA_DIST=config.rpath DoxygenLayout.xml $(man_MANS) \
 
 DOCS_SRC = $(shell find includes -name '*.H' -print)
 
-docs: html/index.html html/book.css
+docs: html/index.html html/book.css html/logo.png
 
-html/index.html: html/ref/index.html $(wildcard docbook/*.xml docbook/*.png) docbook/xmllinks.xsl
+html/logo.png: docbook/logo.png
+	$(INSTALL) -m 0644 $(srcdir)/docbook/logo.png html/logo.png
+
+html/index.html: html/ref/index.html $(wildcard docbook/*.xml) docbook/xmllinks.xsl
 	mkdir -p docbook
 	xsltproc $(srcdir)/docbook/xmllinks.xsl xml/index.xml >docbook/entities
 	rm -rf html.tmp
@@ -29,8 +32,7 @@ html/index.html: html/ref/index.html $(wildcard docbook/*.xml docbook/*.png) doc
 		--stringparam root.filename 'toc' \
 		--stringparam generate.id.attributes 1 \
 		--param local.l10n.xml 'document("'`pwd`/docbook/l10.xml'")' \
-		http://docbook.sourceforge.net/release/xsl/current/xhtml-1_1/chunk.xsl\
-		 $(srcdir)/docbook/book.xml
+		$(srcdir)/docbook/docbook.xsl $(srcdir)/docbook/book.xml
 	rm -f html/*.html
 	$(INSTALL) -m 0644 $(srcdir)/docbook/*.png html.tmp
 	mv html.tmp/* html

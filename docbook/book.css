@@ -130,3 +130,27 @@ div.note h3 {
     border-bottom-style: dashed;
     border-bottom-color: #bbbbbb;
 }
+
+a:link, a:visited {
+    color: blue;
+}
+
+#bodyindex {
+    background-image: url('logo.png');
+    background-position: center;
+    background-repeat: no-repeat;
+    background-color: #ffffff;
+    color: #000000;
+}
+
+#index div.toc {
+    float: right;
+    border-width: thin;
+    border-color: #000000;
+    border-style: solid;
+    border-radius: 5px;
+    padding-left: 1em;
+    padding-right: 1em;
+    font-size: 80%;
+    background-color: #eeeeee;
+}

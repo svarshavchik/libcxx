@@ -182,6 +182,28 @@ See COPYING for distribution information.
 	<command>make install</command> (or <command>make package</command>).
       </para>
     </listitem>
+
+    <listitem>
+      <para>
+	Add <quote>httportmap_enable=YES</quote> to
+	<filename>/etc/rc.conf</filename>.
+	This starts the
+	<link linkend="httportmap"><command>httportmap</command></link>
+	service, which is required by &app;.
+      </para>
+    </listitem>
+
+    <listitem>
+      <para>
+	<command>httportmap</command> works with or without
+	<application>Apache</application>.
+	The <filename>Makefile</filename> checks
+	if the <application>Apache</application> is installed, and if so it installs
+	a link to the required configuration file.
+	If <application>Apache</application> gets installed or deinstalled
+	after &app;, &app; must be reinstalled.
+      </para>
+    </listitem>
   </itemizedlist>
 </appendix>
 
