@@ -107,6 +107,7 @@ public:
 		: proxyFormat(false), method(methodArg),
 		  uri(uriArg), httpver(http11)
 	{
+		uri.fixSchemePort();
 		init_request_params(std::forward<Args_t>(args)...);
 	}
 

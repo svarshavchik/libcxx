@@ -30,6 +30,13 @@ namespace LIBCXX_NAMESPACE {
 };
 #endif
 
+template class base64alphabet<>;
+template class base64<>;
+template class base64<0>;
+
+template class base64alphabet<',', '_'>;
+template class base64<0, base64alphabet<',', '_'>>;
+
 uuid::macObj::macObj()
 {
 	std::vector<netif> interfaces;
@@ -118,13 +125,11 @@ void uuid::init()
 		 parts.uuid_tid);
 }
 
-const char uuid::alphabet[]="0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz,_";
-
 void uuid::asString(charbuf cb) const noexcept
 {
-	*base64::encode( (char *)&val,
-			 (char *)&val[sizeof(val)/sizeof(val[0])],
-			 cb, alphabet, 0)=0;
+	*base64_t::encode( (char *)&val,
+			   (char *)&val[sizeof(val)/sizeof(val[0])],
+			   cb, 0, false)=0;
 }
 
 uuid::uuid(const char *str)
@@ -140,14 +145,14 @@ uuid::uuid(const std::string &str)
 void uuid::decode(const char *str)
 {
 	size_t l=strlen(str);
-	size_t s=base64::decoded_size(l);
+	size_t s=base64_t::decoded_size(l);
 
 	if (s < sizeof(val)+sizeof(val[0])*2)
 	{
 		char buf[sizeof(val)+sizeof(val[0])*2];
 
-		std::pair<char *, bool> ret(base64::decode(str, str+l, &buf[0],
-							   alphabet, 0));
+		std::pair<char *, bool>
+			ret(base64_t::decode(str, str+l, &buf[0]));
 
 		if (ret.second && ret.first - buf == sizeof(val))
 		{

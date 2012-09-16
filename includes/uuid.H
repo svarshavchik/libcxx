@@ -43,10 +43,6 @@ class uuid {
 	LOG_CLASS_SCOPE;
 
 public:
-	//! The base64 encoding alphabet
-
-	static const char alphabet[] LIBCXX_HIDDEN;
-
 	//! A singleton object class for holding the MAC address
 
 	//! This MAC address is used for seeding the UUIDs
@@ -186,7 +182,7 @@ public:
 	//! Convert unique ID to a text string.
 	void asString(charbuf cb) const noexcept;
 
-	//! This class implements toString() and fromString()
+	//! This class implements toString().
 	static const stringable_t stringable=class_tostring;
 
 	//! Alternate string conversion operator.
@@ -206,6 +202,9 @@ public:
 
 		return iter;
 	}
+
+	//! The base64 encoder used by toString()
+	typedef base64<0, base64alphabet<',', '_'> > base64_t;
 
 	//! Construct from a previously-stringized uuid
 
@@ -331,6 +330,9 @@ template<typename iter_type> void uuid::serialize(iter_type &iter)
 
 	iter(helper);
 }
+
+extern template class base64alphabet<',', '_'>;
+extern template class base64<0, base64alphabet<',', '_'> >;
 
 #if 0
 {

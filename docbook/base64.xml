@@ -1,0 +1,301 @@
+<!--
+
+Copyright 2012 Double Precision, Inc.
+See COPYING for distribution information.
+
+-->
+
+
+<chapter id="base64">
+  <title>base64 encoding and decoding</title>
+
+  <blockquote>
+    <informalexample>
+      <programlisting>
+#include &lt;&ns;/base64.H&gt;
+
+typedef &ns;::base64&lt;0&gt; base64_t;</programlisting>
+    </informalexample>
+  </blockquote>
+
+  <para>
+    The
+    <ulink url="&link-x--base64;"><classname>&ns;::base64</classname></ulink>
+    template class defines iterators and convenience functions that
+    implement the <literal>base64</literal> encoding, as defined in
+    RFC 4648.
+  </para>
+
+  <para>
+    <classname>&ns;::base64</classname> takes two optional template parameters.
+    The first parameter is the character that pads out
+    the trailing partial <literal>base64</literal>-encoded sequence, which
+    defaults to the '<literal>=</literal>' character.
+    Explicitly setting the padding character to '<literal>\0</literal>',
+    or just a 0, disables the padding.
+    <ulink url="&link-typedef-x-base64-nopad;"><classname>&ns;::base64_nopad</classname></ulink>
+    is a typedef for a standard base64 alphabet, without padding.
+  </para>
+
+  <para>
+    The second optional template parameter defaults to
+    <classname>&ns;::base64alphabet&lt;&gt;</classname>, and specifies the
+    <literal>base64</literal> alphabet.
+  </para>
+
+  <para>
+    <classname>&ns;::base64alphabet</classname> itself has two optional
+    template parameters, both are <classname>char</classname> values.
+    They specify the characters for the
+    62nd and the 63rd position of the <literal>base64</literal> alphabet,
+    and they default to <literal>'+'</literal> and <literal>'/'</literal>,
+    the default <literal>base64</literal> alphabet.
+  </para>
+
+  <blockquote>
+    <informalexample>
+      <programlisting>
+typedef &ns;::base64alphabet&lt;'-',','&gt; alphabet_t;
+
+typedef &ns;::base64&lt;'=', alphabet_t&gt; base64_t;</programlisting>
+    </informalexample>
+  </blockquote>
+
+  <para>
+    This example implements a non-standard <literal>base64</literal> alphabet
+    with <literal>'-'</literal> and <literal>','</literal> as the 62nd and the
+    63rd alphabet character, and
+    the default padding character of <literal>'='</literal>.
+  </para>
+
+  <section id="base64encoding">
+    <title>Encoding</title>
+
+    <blockquote>
+      <informalexample>
+	<programlisting>
+std::stringstream o;
+
+typedef std::ostreambuf_iterator&lt;char&gt; o_iter;
+
+auto enciter=base64_t::encoder&lt;o_iter&gt;(o_iter(o));
+
+*enciter++=255;
+
+o_iter value=enciter.eof();</programlisting>
+      </informalexample>
+    </blockquote>
+
+    <para>
+      <ulink url="&link-x--base64--encoder;"><classname>&ns;::base64::encoder</classname></ulink>
+      takes an output iterator over <classname>char</classname>s
+      as its template parameter. The constructor takes an instance of this
+      output iterator type, the underlying output iterator.
+      <classname>&ns;::base64::encoder</classname> is an output iterator over
+      <classname>char</classname>s that
+      <literal>base64</literal>-encodes the
+      sequence and outputs the <literal>base64</literal>-encoded sequence to
+      the underlying output iterator.
+    </para>
+
+    <para>
+      Invoke
+      <methodname>eof</methodname>() after writing the entire sequence to the
+      the encoder. <methodname>eof</methodname>() writes out any final, partial,
+      <literal>base64</literal> sequence, possibly padded, to the underlying
+      output iterator and returns the current output iterator value.
+    </para>
+
+    <blockquote>
+      <informalexample>
+	<programlisting>
+auto enciter=base64_t::encoder&lt;o_iter&gt;(o_iter(o), 0);</programlisting>
+      </informalexample>
+    </blockquote>
+
+    <para>
+      There is a second, optional, parameter to
+      <classname>&ns;::base64::encoder</classname>'s constructor. It sets the
+      line size of the <literal>base64</literal>-encoded sequence. The default
+      value of 76 writes a newline after every 76 <literal>base64</literal>
+      characters. The given line size gets rounded up to an even multiple of 4.
+      Setting the line value to 0, as in this example, results in no newlines
+      in the <literal>base64</literal>-encoded sequence. The input sequence
+      gets <literal>base64</literal>-encoded without any line breaks.
+    </para>
+
+    <blockquote>
+      <informalexample>
+	<programlisting>
+auto enciter=base64_t::encoder&lt;o_iter&gt;(o_iter(o), 76, true);</programlisting>
+      </informalexample>
+    </blockquote>
+
+    <para>
+      Setting the third parameter to
+      <classname>&ns;::base64::encoder</classname>'s constructor, also optional,
+      to <literal>true</literal> uses "<literal>\r\n</literal>" instead of
+      "<literal>\n</literal>" for the newline sequence.
+    </para>
+
+    <blockquote>
+      <informalexample>
+      <programlisting>
+size_t needed=base64_t::encoded_size(buffer.size());</programlisting>
+      </informalexample>
+    </blockquote>
+
+    <para>
+      For convenience,
+      <function>encoded_size</function>() calculates the size of of the
+      <literal>base64</literal>-encoded sequence that results from an input
+      sequence with the size that's specified by the first parameter.
+      <function>encoded_size</function>() takes the same two additional
+      optional parameters that
+      <classname>&ns;::base64::encoder</classname> takes. They factor into
+      the resulting size. Pass, or don't pass, the same values for the
+      optional parameters, in order to calculate the correct result.
+    </para>
+
+    <blockquote>
+      <informalexample>
+	<programlisting>
+size_t needed=base64_t::encoded_size(buffer.begin(), buffer.end(), 64);</programlisting>
+      </informalexample>
+    </blockquote>
+
+    <para>
+      <function>encoded_size</function>() also takes a pair of iterators,
+      a beginning iterator and an ending iterator, instead of an explicit size
+      of the input sequence. <function>encoded_size</function>() uses
+      <function>std::distance</function>() to measure them. It uses the result
+      as the size of the input sequence for the purpose of this calculation.
+    </para>
+
+    <blockquote>
+      <informalexample>
+	<programlisting>
+iter=base64_t::encode(buffer.begin(), buffer.end(), iter);</programlisting>
+      </informalexample>
+    </blockquote>
+
+    <para>
+      This is a convenience function that takes a pair of iterators, a beginning
+      input iterator, an ending input iterator; and an output iterator.
+      <function>encode</function>() constructs a
+      <classname>&ns;::base64::encoder</classname>
+      using the output iterator passed as the third parameter;
+      iterates over the input sequence, passing it to the instantiated
+      <classname>&ns;::base64::encoder</classname>;
+      then invokes its <function>eof</function>() and returns the new output
+      iterator.
+    </para>
+
+    <para>
+      This example <literal>base64</literal>-encodes the
+      <varname>buffer</varname> container into the <varname>iter</varname>
+      output iterator, then updating it with the new iterator value.
+      <function>encode</function>() takes two more optional parameters that
+      are the same as
+      <classname>&ns;::base64::encoder</classname>'s optional parameters,
+      which get forwarded to them.
+    </para>
+  </section>
+
+  <section id="base64decoding">
+    <title>Decoding</title>
+    <blockquote>
+      <informalexample>
+	<programlisting>
+std::stringstream o;
+
+typedef std::ostreambuf_iterator&lt;char&gt; o_iter;
+
+base64_t::decoder&lt;o_iter&gt; deciter(o_iter(o));
+
+*std::copy(std::istreambuf_iterator&lt;char&gt;(o),
+    std::istreambuf_iterator&lt;char&gt;(), deciter).eof().first=0;</programlisting>
+      </informalexample>
+    </blockquote>
+
+    <para>
+      <ulink url="&link-x--base64--decoder;"><classname>&ns;::base64::decoder</classname></ulink>
+      is the comparable decoding output iterator.
+      <classname>&ns;::base64::decoder</classname>'s template parameter is
+      an output iterator class.
+      <classname>&ns;::base64::decoder</classname> expects
+      to receive a
+      <literal>base64</literal>-encoded sequence, which gets decoded and
+      written to the output iterator class instance that's passed to
+      <classname>&ns;::base64::decoder</classname>'s constructor.
+    </para>
+    
+    <para>
+      Its <function>eof</function>() decodes any partially-received
+      encoded sequence, then returns a <classname>std::pair</classname>.
+      <varname>first</varname> is the final value of the output iterator
+      originally given to the constructor.
+      <varname>second</varname> is a <classname>bool</classname> which is
+      <literal>true</literal> if the sequence was decoded with no errors, or
+      <literal>false</literal> if the sequence contained any characters not
+      a part of the <literal>base64</literal> alphabet (excepting
+      <literal>CR</literal> and <literal>LF</literal>).
+    </para>
+
+    <blockquote>
+      <informalexample>
+	<programlisting>
+size_t needed=base64_t::decoded_size(buffer.size());</programlisting>
+      </informalexample>
+    </blockquote>
+
+    <para>
+      <function>decoded_size</function>() estimates the size of a decoded
+      <literal>base64</literal> sequence, given the size of the encoded
+      sequence.
+      <function>decoded_size</function>() returns an upper estimate. The
+      exact size cannot be known until the entire sequence gets decoded, because
+      it depends on the presence of any padding characters or newlines.
+      The value returned by <function>decoded_size</function>() is an upper
+      estimate, for a buffer large enough to hold the largest possible
+      decoded sequence from an encoded sequence of the given size.
+    </para>
+
+    <blockquote>
+      <informalexample>
+	<programlisting>
+auto res=base64_t::decode(buffer.begin(), buffer.end(), iter);
+
+iter=res.first;</programlisting>
+      </informalexample>
+    </blockquote>
+
+    <para>
+      This is a convenience function that takes a pair of iterators, a beginning
+      iterator, and an ending iterator for a
+      <literal>base64</literal>-encoded sequence; and an output iterator.
+      <function>decode</function>() constructs a
+      <classname>&ns;::base64::decoder</classname>
+      using the output iterator passed as the third parameter,
+      iterates over the input sequence, passing it to the instantiated
+      <classname>&ns;::base64::decoder</classname>,
+      then invokes its <function>eof</function>() and returns the new output
+      iterator and an indication whether the sequence was valid and did not
+      contain characters other than those in the <literal>base64</literal>
+      alphabet.
+    </para>
+
+    <para>
+      This example <literal>base64</literal>-decodes the
+      <varname>buffer</varname> container into the <varname>iter</varname>
+      output iterator, then updating it with the new iterator value.
+    </para>
+  </section>
+</chapter>
+
+<!--
+Local Variables:
+mode: sgml
+sgml-parent-document: ("book.xml" "book" "chapter")
+End:
+-->

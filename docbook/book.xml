@@ -38,6 +38,7 @@
 <!ENTITY serialization SYSTEM "serialization.xml">
 <!ENTITY intervals SYSTEM "intervals.xml">
 <!ENTITY uuid SYSTEM "uuid.xml">
+<!ENTITY base64 SYSTEM "base64.xml">
 <!ENTITY pwdgrp SYSTEM "pwdgrp.xml">
 <!ENTITY uri SYSTEM "uri.xml">
 <!ENTITY headers SYSTEM "headers.xml">
@@ -125,6 +126,7 @@ See COPYING for distribution information.
     &singletonapp;
     &intervals;
     &uuid;
+    &base64;
     &pwdgrp;
     &uri;
     &headers;

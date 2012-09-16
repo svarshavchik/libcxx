@@ -1591,7 +1591,7 @@ fdBase::tmpunixfilesock(const std::string &pfix)
 
 		for (size_t n=0; n<8; ++n)
 		{
-			o << uuid::alphabet[ nv & 63 ];
+			o << uuid::base64_t::alphabet_t::alphabet[ nv & 63 ];
 
 			nv /= 64;
 		}
