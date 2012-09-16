@@ -5,6 +5,7 @@
 
 <!ENTITY app "<application><emphasis>LIBCXX</emphasis></application>">
 <!ENTITY appshort "LIBCXX">
+<!ENTITY stasher "<ulink url='http://www.libcxx.org/stasher/'><application>Stasher</application></ulink>">
 <!ENTITY nopthreadcancel SYSTEM "nopthreadcancel.xml">
 <!ENTITY singletonlimits SYSTEM "singletonlimits.xml">
 

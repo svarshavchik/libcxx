@@ -37,7 +37,7 @@ std::list&lt;std::string&gt; container;
     argument. The third argument can be any container that implements
     <methodname>push_back</methodname>().
     The above example extracts words from the string delimited by whitespace
-    characeters, and appends them to the container.
+    characters, and appends them to the container.
   </para>
 
   <blockquote>
@@ -72,7 +72,7 @@ std::list&lt;std::string&gt; container;
   <para>
     <ulink url="&link-function-x-join;"><function>&ns;::join</function></ulink>() is
     the opposite of <function>strtok</function>(), and combines a collection
-    of strings together, with a separator string sandwhiched in between:
+    of strings together, with a separator string sandwiched in between:
   </para>
 
   <blockquote>

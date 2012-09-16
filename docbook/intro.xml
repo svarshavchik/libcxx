@@ -9,6 +9,7 @@ See COPYING for distribution information.
   <title>&app; Class Collection</title>
   <section id="intro">
     <title>Introduction</title>
+
     <para>
       This is a library of C++11 application classes and templates that's
       focused on the following areas of functionality:
@@ -76,14 +77,16 @@ See COPYING for distribution information.
       This is just a brief overview, see the
       <link linkend="book">table of contents</link> for a more complete list
       of the classes and templates in this library.
-      The <application>Stasher object repository</application> server uses
-      this library; &app; was developed as part of
-      <application>Stasher</application>, but was
-      factored out as a standalone library. This explains some minor gaps in
+      The &stasher; object repository server uses
+      this library; &app; was originally developed as part of
+      &stasher;. After generic classes and templates in
+      &stasher; exceeded the size and scope of all other classes and templates,
+      they were separated into a standalone library, &app;.
+      This explains some minor gaps in
       the class coverage. For example, at this time the
-       <acronym>HTTP</acronym> classes do not implement <acronym>HTTP</acronym>
-       authentication, since <application>Stasher</application>'s code
-       did not need it.
+      <acronym>HTTP</acronym> classes do not implement <acronym>HTTP</acronym>
+      authentication, since &stasher;'s code
+      did not need it.
     </para>
 
     <para>
@@ -91,7 +94,6 @@ See COPYING for distribution information.
       <link linkend="COPYING">GPL, version 3</link>.
     </para>
   </section>
-
   &install;
 </preface>
 

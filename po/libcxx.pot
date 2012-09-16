@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: libcxx 0.1\n"
 "Report-Msgid-Bugs-To: mrsam@courier-mta.com\n"
-"POT-Creation-Date: 2012-09-10 08:52-0400\n"
+"POT-Creation-Date: 2012-09-23 13:32-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -443,7 +443,7 @@ msgstr ""
 msgid "Deserialization failure: %1%: deserialized a null object"
 msgstr ""
 
-#: base/singletonapp.C:233
+#: base/singletonapp.C:236
 msgid "%1% is not running as %2%"
 msgstr ""
 

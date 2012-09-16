@@ -131,6 +131,9 @@ class LIBCXX_HIDDEN singletonapp::impl::mysighandler : public sighandlerObj {
 
 	void signal(int signum)
 	{
+		LOG_FUNC_SCOPE(singletonapp::logger);
+
+		LOG_DEBUG("Signal " << signum << " received");
 		runthr->stoplistening();
 	}
 };

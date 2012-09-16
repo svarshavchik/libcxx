@@ -16,15 +16,25 @@ EXTRA_DIST=config.rpath DoxygenLayout.xml $(man_MANS) \
 
 DOCS_SRC = $(shell find includes -name '*.H' -print)
 
-docs: html/index.html html/book.css html/logo.png $(shell cd $(srcdir)/docbook; ls *.png | sed 's@^@html/@')
+docs: html/index.html html/book.css html/logo.png html/robots.txt html/.htaccess html/frame.js html/icon.gif $(shell cd $(srcdir)/docbook; ls *.png | sed 's@^@html/@')
 
-html/%.png: docbook/%.png
-	mkdir -p html
-	$(INSTALL) -m 0644 $(srcdir)/$< html
+html/%.png: html/index.html docbook/%.png
+	$(INSTALL) -m 0644 $(srcdir)/docbook/$(notdir $@) html
 
 html/book.css: html/index.html docbook/book.css
-	mkdir -p html
 	$(INSTALL) -m 0644 $(srcdir)/docbook/book.css html/book.css
+
+html/robots.txt: html/index.html docbook/robots.txt
+	$(INSTALL) -m 0644 $(srcdir)/docbook/robots.txt html/robots.txt
+
+html/.htaccess: html/index.html docbook/.htaccess
+	$(INSTALL) -m 0644 $(srcdir)/docbook/.htaccess html/.htaccess
+
+html/frame.js: html/index.html docbook/frame.js
+	$(INSTALL) -m 0644 $(srcdir)/docbook/frame.js html/frame.js
+
+html/icon.gif: html/index.html docbook/icon.gif
+	$(INSTALL) -m 0644 $(srcdir)/docbook/icon.gif html/icon.gif
 
 html/index.html: html/ref/index.html $(wildcard docbook/*.xml) docbook/xmllinks.xsl
 	mkdir -p docbook
@@ -44,13 +54,23 @@ html/index.html: html/ref/index.html $(wildcard docbook/*.xml) docbook/xmllinks.
 	rm -rf html/examples
 	find examples -depth \( -type d -o -name '*.[CH]' -o -name '*.xml' -o -name Makefile.am -o -name configure.ac \) -print | cpio -o --quiet | (cd html; cpio -i --quiet --make-directories)
 	echo 'ForceType text/plain' >html/examples/.htaccess
-	links --dump --no-references html/INSTALL.html >INSTALL.tmp
+	rm -f html/stasher
+	ln -s ../stasher html
+	links --dump html/INSTALL.html >INSTALL.tmp
 	mv -f INSTALL.tmp INSTALL
 
-html/ref/index.html: $(DOCS_SRC) Doxyfile
+html/ref/index.html: $(DOCS_SRC) Doxyfile header.html
 	rm -rf html/ref
 	mkdir -p html/ref
 	doxygen; c=$$?;	perl -p -i -e 's/INSERT_LIBX_NAMESPACE/x/g' html/ref/*.html; exit $$c
+
+header.html: Doxyfile
+	rm -rf header.html.tmp
+	mkdir -p header.html.tmp
+	cd header.html.tmp && doxygen -w html header.html footer.html doxygen.css
+	perl -p -i -e 's@<head>@<head><link rel="icon" href="/icon.gif" type="image/gif"/>@;s@\$$projectbrief@<a href="/">\$$projectbrief</a>@;' header.html.tmp/header.html
+	mv -f header.html.tmp/header.html .
+	rm -rf header.html.tmp
 
 .PHONY: rpm
 
@@ -114,3 +134,13 @@ man.stamp: $(wildcard docbook/man*.xml)
 CLEANFILES += man.stamp
 
 ACLOCAL_AMFLAGS = -I m4
+
+www: html
+	rsync -a --delete-after html/. ~/www/www.courier-mta.org/libcxx/.
+
+tag:
+	git tag -s -a @VERSION@/`date +%Y%m%d%H%M%S` -m 'Tag version @VERSION@'
+
+scp:
+	rm -f @PACKAGE@-@VERSION@.tar.bz2.sig; gpg --detach-sign --default-key mrsam@courier-mta.com @PACKAGE@-@VERSION@.tar.bz2; test -f @PACKAGE@-@VERSION@.tar.bz2.sig || exit 1
+	scp @PACKAGE@-@VERSION@.tar.bz2 @PACKAGE@-@VERSION@.tar.bz2.sig fedorahosted.org:libcxx

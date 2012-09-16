@@ -16,6 +16,7 @@ Makefile.in
 /configure
 /depcomp
 /doctags
+/header.html
 /html
 /INSTALL
 /install-sh
