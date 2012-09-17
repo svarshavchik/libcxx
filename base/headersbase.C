@@ -215,7 +215,14 @@ char headersbase::tokenhdrparser::operator()()
 		++p;
 
 		while (val_start != p)
-			value.push_back(*val_start++);
+		{
+			char c=*val_start++;
+
+			if (c == '\t' || c == '\n' || c == '\r')
+				c=' ';
+
+			value.push_back(c);
+		}
 	}
 
 	if (val_start == val_end)
