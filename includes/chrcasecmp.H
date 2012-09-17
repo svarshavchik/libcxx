@@ -35,6 +35,16 @@ inline static char toupper(char a) noexcept
 	return a;
 }
 
+//! Convert a single character to lowercase
+
+inline static char tolower(char a) noexcept
+{
+	if (a >= 'A' && a <= 'Z')
+		a -= 'A' - 'a';
+	
+	return a;
+}
+
 //! Template function for generating a comparison object for a single char.
 
 template<typename cmp> class cmp_char

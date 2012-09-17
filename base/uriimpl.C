@@ -5,12 +5,12 @@
 
 #include "libcxx_config.h"
 #include "gettext_in.h"
-#include "uriimpl.H"
-#include "http/form.H"
-#include "chrcasecmp.H"
-#include "messages.H"
-#include "servent.H"
-#include "ctype.H"
+#include "x/uriimpl.H"
+#include "x/http/form.H"
+#include "x/chrcasecmp.H"
+#include "x/messages.H"
+#include "x/servent.H"
+#include "x/ctype.H"
 #include <sstream>
 
 #include <arpa/inet.h>
@@ -380,12 +380,14 @@ void uriimpl::setFragment(const std::string &value)
 
 int uriimpl::getSchemePort(const std::string &protocol) const
 {
-	const std::string &s=getScheme();
+	std::string s=getScheme();
 
 	if (s.size() == 0)
 		invalid_authority();
 
-	servent service(ctype(locale::base::global()).tolower(s), protocol);
+	std::transform(s.begin(), s.end(), s.begin(), chrcasecmp::tolower);
+
+	servent service(s, protocol);
 
 	if (service->s_name == NULL)
 		throw EXCEPTION(gettextmsg(libmsg(_txt("%1%: undefined port")),

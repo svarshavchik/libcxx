@@ -512,8 +512,7 @@ public:
 
 	//! Remove an explicit :port in the authority if it's the scheme's default port
 
-	void fixSchemePort(const std::string &protocol="tcp")
-;
+	void fixSchemePort(const std::string &protocol="tcp");
 
 	//! Return the URI's path part
 
