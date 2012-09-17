@@ -7,9 +7,11 @@
 #define x_http_responseimpl_H
 
 #include <x/http/messageimplfwd.H>
+#include <x/chrcasecmp.H>
 #include <exception>
 #include <algorithm>
 #include <sstream>
+#include <map>
 #include <x/namespace.h>
 
 namespace LIBCXX_NAMESPACE {
@@ -56,6 +58,52 @@ class responseimpl : public messageimpl {
 	std::string reasonphrase;
 
 public:
+	//! The container for authentication challenge scheme's parameters
+
+	typedef std::multimap<std::string, std::string,
+			      chrcasecmp::str_less> scheme_parameters_t;
+
+private:
+	//! Internal class used by challenges()
+
+	//! \internal
+	//!
+	class authschemeparser : private tokenhdrparser {
+
+		//! Most recent word returned by tokenhdrparser
+		std::string current_word;
+
+		//! Most recent returned value from tokenhdrparser::operator().
+		char current_char;
+
+	public:
+		//! Constructor
+		authschemeparser(//! Name of header to parse
+				 const char *headername,
+
+				 //! Headers
+				 const headersbase &headers);
+
+		//! Destructor
+		~authschemeparser() noexcept;
+
+		//! Parsed scheme parameters.
+		scheme_parameters_t scheme_parameters;
+
+		//! The extracted realm
+		std::string realm;
+
+		//! Parse the next authentication scheme.
+
+		//! \return the next authentication scheme's name. An empty
+		//! string indicates no more authentication scheme. The
+		//! authentication parameters are placed into scheme_parameters.
+
+		std::string operator()(void);
+	};
+
+public:
+
 	//! Default constructor
 	responseimpl() noexcept;
 
@@ -351,6 +399,57 @@ public:
 	static void throw_http_version_not_supported() __attribute__((noreturn))
 	{
 		throwResponseException(505, msg_505); 
+	}
+
+	//! The "WWW-Authenticate" header.
+	static const char www_authenticate[];
+
+	//! The "Proxy-Authenticate" header.
+	static const char proxy_authenticate[];
+
+	//! Check if this is a 401 response
+	bool www_authentication_required() const
+	{
+		return statuscode == 401;
+	}
+
+	//! Check if this is a 407 response
+	bool proxy_authentication_required() const
+	{
+		return statuscode == 407;
+	}
+
+	//! Extract authentication challenges from this response
+
+	//! If www_authentication_required() or proxy_authentication_required(),
+	//! retrieve the challenges from the response. The parameter is a
+	//! callback functor that gets invoked with three parameters:
+	//! an authentication scheme, converted to lowercase,
+	//! the authentication realm, and a scheme_parameters_t, containing
+	//! the authentication scheme's parameters.
+
+	template<typename callback_type>
+	void challenges(callback_type &&callback) const
+	{
+		const char *p;
+
+		if (www_authentication_required())
+			p=www_authenticate;
+		else if (proxy_authentication_required())
+			p=proxy_authenticate;
+		else return;
+
+		authschemeparser parser(p, *this);
+
+		auto scheme=parser();
+
+		while (!scheme.empty())
+		{
+			callback(scheme, parser.realm,
+				 parser.scheme_parameters);
+
+			scheme=parser();
+		}
 	}
 
 	//! Parse an HTTP/1.1 response message out of some input sequence

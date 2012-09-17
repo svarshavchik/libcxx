@@ -167,6 +167,100 @@ void responseimpl::parse_start_line()
 	reasonphrase=std::string(b, e);
 }
 
+//////////////////////////////////////////////////////////////////////////////
+
+const char responseimpl::www_authenticate[]="WWW-Authenticate";
+const char responseimpl::proxy_authenticate[]="Proxy-Authenticate";
+
+responseimpl::authschemeparser::authschemeparser(const char *headername,
+						 const headersbase &headers)
+	: tokenhdrparser(headername, headers)
+{
+	// Peek ahead to the first word.
+	current_char=tokenhdrparser::operator()();
+	current_word=value;
+}
+
+responseimpl::authschemeparser::~authschemeparser() noexcept
+{
+}
+
+std::string responseimpl::authschemeparser::operator()(void)
+{
+	scheme_parameters.clear();
+	realm.clear();
+
+	std::string scheme;
+	bool first=true;
+
+	while (current_char)
+	{
+		std::string::iterator b=current_word.begin(),
+			e=current_word.end();
+
+		std::string::iterator p;
+
+		if (first)
+		{
+			first=false;
+
+			// The challenge should start with
+			// 'scheme firstparameter=value,'
+			//
+			// tokenhdrparser stops scanning when it seens a comma,
+			// and not a space. So, we find the space ourselves,
+			// and extra the scheme's name from it.
+
+			p=std::find(b, e, ' ');
+
+			scheme=std::string(b, p); // Here it is.
+
+			std::transform(scheme.begin(), scheme.end(),
+				       scheme.begin(), chrcasecmp::tolower);
+
+			while (p < e && *p == ' ')
+				++p;
+			b=p;
+
+			// Set up the iterator to take the first scheme
+			// parameter.
+			p=std::find(b, e, '=');
+		}
+		else
+		{
+			// If this is not the first word word, well, if there's
+			// a space somewhere before the =, this must be the
+			// first parameter of the next authentication scheme.
+			p=std::find(b, e, '=');
+
+			if (std::find(b, p, ' ') < p)
+				break;
+		}
+
+		std::string key=std::string(b, p);
+
+		if (p < e) ++p;
+
+		scheme_parameters.insert(std::make_pair(key,
+							std::string(p, e)));
+
+		// Move to the next word.
+		current_char=tokenhdrparser::operator()();
+		current_word=value;
+	}
+
+	// Extract the realm parameter.
+
+	auto realm_param=scheme_parameters.equal_range("realm");
+
+	if (realm_param.first != realm_param.second)
+		realm=realm_param.first->second;
+
+	scheme_parameters.erase(realm_param.first, realm_param.second);
+
+	return scheme;
+}
+
 template std::istreambuf_iterator<char>
 responseimpl::parse(std::istreambuf_iterator<char>,
 		    std::istreambuf_iterator<char>, size_t);
