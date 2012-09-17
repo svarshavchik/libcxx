@@ -372,11 +372,16 @@ protected:
 
 	//! Number of headers exceeds maximum.
 	static void parse_toomanyheaders() __attribute__((noreturn));
-private:
+protected:
 
 	//! Internal class used by parsetokenheader
 
-	//! \internal
+	//! Iterates over all headers of the given name, returning a sequence
+	//! of words that are terminated by commas or semicolons. For these
+	//! purposes, each header line is considered to be terminated with a
+	//! comma.
+	//!
+	//! Quoted content is unquoted. Whitespace is homogenized to ' '.
 	//!
 	class tokenhdrparser {
 
@@ -448,7 +453,7 @@ public:
 
 	template<typename callback_type>
 	void parsetokenheader(const std::string &headername,
-			      callback_type &callback)
+			      callback_type &&callback)
 		const
 	{
 		tokenhdrparser parser(headername, *this);
