@@ -16,7 +16,7 @@ EXTRA_DIST=config.rpath DoxygenLayout.xml $(man_MANS) \
 
 DOCS_SRC = $(shell find includes -name '*.H' -print)
 
-docs: html/index.html html/book.css html/logo.png html/robots.txt html/.htaccess html/frame.js html/icon.gif $(shell cd $(srcdir)/docbook; ls *.png | sed 's@^@html/@')
+docs: html/index.html html/book.css html/logo.png html/robots.txt html/.htaccess html/frame.js html/icon.gif $(patsubst %,html/%,$(notdir $(wildcard $(srcdir)/docbook/*.png)))
 
 html/%.png: html/index.html docbook/%.png
 	$(INSTALL) -m 0644 $(srcdir)/docbook/$(notdir $@) html
@@ -139,7 +139,7 @@ www: html
 	rsync -a --delete-after html/. ~/www/www.courier-mta.org/libcxx/.
 
 tag:
-	git tag -s -a @VERSION@/`date +%Y%m%d%H%M%S` -m 'Tag version @VERSION@'
+	git tag -s -a @PACKAGE@/@VERSION@/`date +%Y%m%d%H%M%S` -m 'Tag version @VERSION@'
 
 scp:
 	rm -f @PACKAGE@-@VERSION@.tar.bz2.sig; gpg --detach-sign --default-key mrsam@courier-mta.com @PACKAGE@-@VERSION@.tar.bz2; test -f @PACKAGE@-@VERSION@.tar.bz2.sig || exit 1
