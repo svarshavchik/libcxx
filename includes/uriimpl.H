@@ -338,15 +338,13 @@ private:
 
 	//! \internal
 
-	static void invalid_url_char()
- __attribute__((noreturn));
+	static void invalid_url_char() __attribute__((noreturn));
 
 	//! Report an invalid authority component
 
 	//! \internal
 
-	static void invalid_authority()
- __attribute__((noreturn));
+	static void invalid_authority() __attribute__((noreturn));
 
 public:
 	//! Initialize

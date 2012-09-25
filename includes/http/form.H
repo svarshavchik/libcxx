@@ -89,13 +89,14 @@ private:
 		init_from_string_list(std::forward<Args_t>(args)...);
 	}
 
+public:
 	//! Decode CGI form parameters
 
 	//! \internal
 	//!
 	template<typename iter_type>
-	iter_type decode_octet(iter_type b, iter_type e,
-			       std::string &s)
+	static iter_type decode_octet(iter_type b, iter_type e,
+				      std::string &s)
 	{
 		{
 			char c=*b;
@@ -142,7 +143,19 @@ private:
 		return b;
 	}
 
-public:
+	//! Used by useragent to decode authority part of the URL
+
+	template<typename iter_type>
+	static std::string decode_octets(iter_type b, iter_type e)
+	{
+		std::string s;
+
+		while (b != e)
+		{
+			b=decode_octet(b, e, s);
+		}
+		return s;
+	}
 
 	//! Add additional form parameters from x-www-form-urlencoded parameters
 

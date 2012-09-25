@@ -10,7 +10,10 @@ void parametersObj::decode_params(LIBCXX_TEMPLATE_ITER2, LIBCXX_TEMPLATE_ITER2);
 
 LIBCXX_TEMPLATE_DECL template
 LIBCXX_TEMPLATE_ITER2 parametersObj::decode_octet(LIBCXX_TEMPLATE_ITER2,
-					       LIBCXX_TEMPLATE_ITER2,
-					       std::string &);
+						  LIBCXX_TEMPLATE_ITER2,
+						  std::string &);
+LIBCXX_TEMPLATE_DECL template
+std::string parametersObj::decode_octets(LIBCXX_TEMPLATE_ITER2,
+					 LIBCXX_TEMPLATE_ITER2);
 
 #endif
