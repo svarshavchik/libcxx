@@ -4,12 +4,13 @@
 */
 
 #include "libcxx_config.h"
-#include "http/useragent.H"
-#include "http/fdserver.H"
-#include "http/form.H"
-#include "fdlistener.H"
-#include "eventdestroynotify.H"
-#include "netaddr.H"
+#include "x/http/useragent.H"
+#include "x/http/fdserver.H"
+#include "x/http/form.H"
+#include "x/fdlistener.H"
+#include "x/eventdestroynotify.H"
+#include "x/netaddr.H"
+#include "x/options.H"
 #include <sstream>
 #include <iostream>
 #include <algorithm>
@@ -763,9 +764,429 @@ void formpost()
 	listener->wait();
 }
 
+// ------------------------------------------------------------------------
+
+class basic_httpauth_serverimpl : public LIBCXX_NAMESPACE::http::fdserverimpl,
+				  virtual public LIBCXX_NAMESPACE::obj {
+
+public:
+
+	std::list<int> status_codes;
+
+	basic_httpauth_serverimpl(const std::list<int> &status_codesArg)
+		: status_codes(status_codesArg) {}
+	~basic_httpauth_serverimpl() noexcept {}
+
+	void received(const LIBCXX_NAMESPACE::http::requestimpl &req,
+		      bool bodyflag)
+	{
+		auto val=getform(req, bodyflag);
+
+		std::stringstream o;
+
+		const char *header;
+
+		auto dump_functor=[&]
+			(const std::string &auth)
+			{
+				o << header << ": " << auth << std::endl;
+			};
+
+		header=req.proxy_authorization;
+
+		req.get_basic_auth(header, dump_functor);
+
+		header=req.www_authorization;
+
+		req.get_basic_auth(header, dump_functor);
+
+		LIBCXX_NAMESPACE::http::responseimpl resp;
+
+		if (!status_codes.empty())
+		{
+			int statuscode=status_codes.front();
+			status_codes.pop_front();
+
+			switch(-statuscode) {
+			case LIBCXX_NAMESPACE::http::responseimpl
+				::proxy_authenticate_code:
+				resp.throw_proxy_authentication_required
+					(LIBCXX_NAMESPACE::http::auth::basic,
+					 "proxy auth");
+			case LIBCXX_NAMESPACE::http::responseimpl
+				::www_authenticate_code:
+				resp.throw_unauthorized
+					(LIBCXX_NAMESPACE::http::auth::basic,
+					 "www auth");
+			}
+			resp.setStatusCode(statuscode);
+		}
+
+		switch (resp.getStatusCode()) {
+		case LIBCXX_NAMESPACE::http::responseimpl
+			::proxy_authenticate_code:
+			resp.append(resp.proxy_authenticate,
+				    "Basic realm=\"proxy\"");
+			break;
+		case LIBCXX_NAMESPACE::http::responseimpl
+			::www_authenticate_code:
+			resp.append(resp.www_authenticate,
+				    "Basic realm=\"www\"");
+			break;
+		}
+
+		resp.append(LIBCXX_NAMESPACE::http::content_type_header::name,
+			    "text/plain");
+
+		send(resp, req,
+		     std::istreambuf_iterator<char>(o.rdbuf()),
+		     std::istreambuf_iterator<char>());
+	}
+};
+
+class basic_httpauth_serverimplObj : virtual public LIBCXX_NAMESPACE::obj {
+
+public:
+	std::list<int> status_codes;
+
+	template<typename ...Args>
+	basic_httpauth_serverimplObj(Args && ...args)
+	{
+		save_args(std::forward<Args>(args)...);
+	}
+
+	void save_args()
+	{
+	}
+
+	template<typename ...Args>
+	void save_args(int status_code, Args && ...args)
+	{
+		status_codes.push_back(status_code);
+		save_args(std::forward<Args>(args)...);
+	}
+
+	~basic_httpauth_serverimplObj() noexcept {}
+
+	LIBCXX_NAMESPACE::ref<basic_httpauth_serverimpl> create()
+	{
+		return LIBCXX_NAMESPACE::ref<basic_httpauth_serverimpl>
+			::create(std::list<int>(status_codes));
+	}
+};
+
+void testclientauth1()
+{
+	LIBCXX_NAMESPACE::fdlistenerptr listener;
+	LIBCXX_NAMESPACE::ref<basic_httpauth_serverimplObj>
+		server(LIBCXX_NAMESPACE::ref<basic_httpauth_serverimplObj>
+		       ::create((int)LIBCXX_NAMESPACE::http::responseimpl
+				::proxy_authenticate_code, 200));
+
+	std::string serveraddr=createlistener(listener, server);
+
+	std::cout << "Started a listener on " << serveraddr << std::endl;
+
+	LIBCXX_NAMESPACE::http::useragent ua(LIBCXX_NAMESPACE::http::useragent
+					   ::create());
+
+	{
+		LIBCXX_NAMESPACE::http::useragent::base::response resp=
+			ua->request(LIBCXX_NAMESPACE::http::GET,
+				    serveraddr);
+
+		if (resp->message.getStatusCode() !=
+		    LIBCXX_NAMESPACE::http::responseimpl
+		    ::proxy_authenticate_code ||
+		    resp->challenges.size() != 1 ||
+		    resp->challenges.find("proxy") == resp->challenges.end())
+		{
+			throw EXCEPTION("Did not get the initial challenge");
+		}
+		// Must go out of scope, to recycle the HTTP connection.
+
+		auto first=resp->challenges.begin();
+
+		ua->set_authorization(resp, *first,
+				      "user",
+				      "password");
+	}
+
+	std::cout << "Received initial challenge" << std::endl;
+
+	{
+		LIBCXX_NAMESPACE::http::useragent::base::response resp=
+			ua->request(LIBCXX_NAMESPACE::http::GET,
+				    serveraddr);
+
+		if (resp->message.getStatusCode() != 200)
+		{
+			throw EXCEPTION("Proxy authorization did not get through");
+		}
+
+		std::string headers(resp->begin(), resp->end());
+
+		if (headers != "Proxy-Authorization: user:password\n")
+			throw EXCEPTION("Did not receive expected proxy authorization for user:password");
+	}
+}
+
+void testclientauth2()
+{
+	LIBCXX_NAMESPACE::fdlistenerptr listener1, listener2;
+	LIBCXX_NAMESPACE::ref<basic_httpauth_serverimplObj>
+		server1(LIBCXX_NAMESPACE::ref<basic_httpauth_serverimplObj>
+			::create(200, 200,
+				 (int)LIBCXX_NAMESPACE::http::responseimpl
+				 ::www_authenticate_code, 200));
+
+	LIBCXX_NAMESPACE::ref<basic_httpauth_serverimplObj>
+		server2(LIBCXX_NAMESPACE::ref<basic_httpauth_serverimplObj>
+		       ::create());
+
+	std::string server1addr=createlistener(listener1, server1);
+	std::string server2addr=createlistener(listener2, server1);
+
+	std::cout << "Started a listener on " << server1addr << std::endl;
+	std::cout << "Started a listener on " << server2addr << std::endl;
+
+	LIBCXX_NAMESPACE::http::useragent ua(LIBCXX_NAMESPACE::http::useragent
+					   ::create());
+
+	{
+		LIBCXX_NAMESPACE::uriimpl new_uri(server1addr);
+
+		{
+			LIBCXX_NAMESPACE::uriimpl::authority_t
+				auth=new_uri.getAuthority();
+
+			auth.has_userinfo=true;
+			auth.userinfo="user:password";
+			new_uri.setAuthority(auth);
+		}
+
+		LIBCXX_NAMESPACE::http::useragent::base::response resp=
+			ua->request(LIBCXX_NAMESPACE::http::GET, new_uri);
+
+		if (resp->message.getStatusCode() != 200)
+		{
+			throw EXCEPTION("Proxy authorization did not get through");
+		}
+
+		std::string headers(resp->begin(), resp->end());
+
+		if (headers != "Authorization: user:password\n")
+			throw EXCEPTION("Did not receive expected www authorization for http://user:password@...");
+
+		std::cout << "The headers are there for server 1" << std::endl;
+	}
+
+	{
+		LIBCXX_NAMESPACE::http::useragent::base::response resp=
+			ua->request(LIBCXX_NAMESPACE::http::GET, server1addr);
+
+		if (resp->message.getStatusCode() != 200)
+		{
+			throw EXCEPTION("Proxy authorization did not get through");
+		}
+
+		std::string headers(resp->begin(), resp->end());
+
+		if (headers != "Authorization: user:password\n")
+			throw EXCEPTION("Did not receive expected www authorization for http://user:password@...");
+
+		std::cout << "The headers are still there for server 1" << std::endl;
+	}
+
+	{
+		LIBCXX_NAMESPACE::http::useragent::base::response resp=
+			ua->request(LIBCXX_NAMESPACE::http::GET, server2addr);
+
+		if (resp->message.getStatusCode() != 200)
+		{
+			throw EXCEPTION("Proxy authorization did not get through");
+		}
+
+		std::string headers(resp->begin(), resp->end());
+
+		if (headers != "")
+			throw EXCEPTION("Received unexpected www authorization for http://user:password@...: [" + headers + "]");
+
+		std::cout << "The headers are not there for server 2" << std::endl;
+	}
+
+	{
+		LIBCXX_NAMESPACE::http::useragent::base::response resp=
+			ua->request(LIBCXX_NAMESPACE::http::GET, server1addr);
+
+		if (resp->message.getStatusCode() !=
+		    LIBCXX_NAMESPACE::http::responseimpl::www_authenticate_code)
+		{
+			throw EXCEPTION("WWW challenge was not received");
+		}
+
+		std::string headers(resp->begin(), resp->end());
+
+		if (headers != "Authorization: user:password\n")
+			throw EXCEPTION("Did not receive expected www authorization for http://user:password@...");
+
+		std::cout << "The headers are still there for server 1, but not for long" << std::endl;
+	}
+
+	{
+		LIBCXX_NAMESPACE::http::useragent::base::response resp=
+			ua->request(LIBCXX_NAMESPACE::http::GET, server1addr);
+
+		if (resp->message.getStatusCode() != 200)
+		{
+			throw EXCEPTION("Unexpected status code");
+		}
+
+		std::string headers(resp->begin(), resp->end());
+
+		if (headers != "")
+			throw EXCEPTION("We sent an unexpected authorization");
+
+		std::cout << "The headers are gone for server 1" << std::endl;
+	}
+}
+
+void testclientauth3()
+{
+	LIBCXX_NAMESPACE::fdlistenerptr listener;
+	LIBCXX_NAMESPACE::ref<basic_httpauth_serverimplObj>
+		server(LIBCXX_NAMESPACE::ref<basic_httpauth_serverimplObj>
+		       ::create(-LIBCXX_NAMESPACE::http::responseimpl
+				::proxy_authenticate_code,
+				-LIBCXX_NAMESPACE::http::responseimpl
+				::www_authenticate_code));
+
+	std::string serveraddr=createlistener(listener, server);
+
+	std::cout << "Started a listener on " << serveraddr << std::endl;
+
+	LIBCXX_NAMESPACE::http::useragent ua(LIBCXX_NAMESPACE::http::useragent
+					   ::create());
+
+	{
+		LIBCXX_NAMESPACE::http::useragent::base::response resp=
+			ua->request(LIBCXX_NAMESPACE::http::GET,
+				    serveraddr);
+
+		if (resp->message.getStatusCode() !=
+		    LIBCXX_NAMESPACE::http::responseimpl
+		    ::proxy_authenticate_code)
+		{
+			throw EXCEPTION("Did not get the expected proxy auth challenge");
+		}
+
+		std::copy(resp->begin(),
+			  resp->end(),
+			  resp->message.toString(std::ostreambuf_iterator<char>
+						 (std::cout)));
+	}
+
+	{
+		LIBCXX_NAMESPACE::http::useragent::base::response resp=
+			ua->request(LIBCXX_NAMESPACE::http::GET,
+				    serveraddr);
+
+		if (resp->message.getStatusCode() !=
+		    LIBCXX_NAMESPACE::http::responseimpl
+		    ::www_authenticate_code)
+		{
+			throw EXCEPTION("Did not get the expected www auth challenge");
+		}
+
+		std::copy(resp->begin(),
+			  resp->end(),
+			  resp->message.toString(std::ostreambuf_iterator<char>
+						 (std::cout)));
+	}
+}
+
+static void showuri(const LIBCXX_NAMESPACE::uriimpl &uri)
+{
+	auto ua=LIBCXX_NAMESPACE::http::useragent::create();
+
+	bool has_challenge;
+
+	do
+	{
+		auto resp=ua->request(LIBCXX_NAMESPACE::http::GET, uri);
+
+		std::copy(resp->begin(), resp->end(),
+			  std::ostreambuf_iterator<char>(std::cout));
+
+		std::cout << std::flush;
+
+		has_challenge=false;
+
+		for (const auto &challenge:resp->challenges)
+		{
+			has_challenge=true;
+
+			std::cout << "Authentication required for "
+				  << challenge.first << ":" << std::endl
+				  << "Userid: " << std::flush;
+
+			std::string userid, password;
+
+			if (std::getline(std::cin, userid).eof())
+				return;
+
+			std::cout << "Password: " << std::flush;
+
+			if (std::getline(std::cin, password).eof())
+				return;
+
+			ua->set_authorization(resp, challenge,
+					      userid,
+					      password);
+		}
+	} while (has_challenge);
+}
+
 int main(int argc, char **argv)
 {
 	try {
+		LIBCXX_NAMESPACE::option::string_value
+			uri(LIBCXX_NAMESPACE::option::string_value::create());
+
+		LIBCXX_NAMESPACE::option::list
+			options(LIBCXX_NAMESPACE::option::list::create());
+
+		options->add(uri, 'u', L"uri",
+			     LIBCXX_NAMESPACE::option::list::base::hasvalue,
+			     L"uri",
+			     L"uri");
+		options->addDefaultOptions();
+
+		LIBCXX_NAMESPACE::option::parser
+			opt_parser(LIBCXX_NAMESPACE::option::parser::create());
+
+		opt_parser->setOptions(options);
+		int err=opt_parser->parseArgv(argc, argv);
+
+		if (err == 0) err=opt_parser->validate();
+
+		if (err)
+		{
+			if (err == LIBCXX_NAMESPACE::option::parser::base
+			    ::err_builtin)
+				exit(0);
+
+			std::cerr << opt_parser->errmessage();
+			std::cerr.flush();
+			exit(1);
+		}
+
+		if (uri->isSet())
+		{
+			showuri(uri->value);
+			return 0;
+		}
+
 		std::cout << "test1req" << std::endl;
 
 		{
@@ -829,6 +1250,13 @@ int main(int argc, char **argv)
 
 		std::cout << "formpost" << std::endl;
 		formpost();
+		std::cout << "testclientauth1" << std::endl;
+		testclientauth1();
+		std::cout << "testclientauth2" << std::endl;
+		testclientauth2();
+		std::cout << "testclientauth3" << std::endl;
+		testclientauth3();
+
 	} catch (LIBCXX_NAMESPACE::exception &e)
 	{
 		std::cerr << e << std::endl;

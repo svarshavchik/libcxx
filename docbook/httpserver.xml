@@ -346,6 +346,55 @@ send(resp, req, "Location", "http://example.com", buffer);</programlisting>
       </listitem>
     </itemizedlist>
   </section>
+
+  <section id="httpserverauth">
+    <title>Authentication challenges</title>
+
+    <blockquote>
+      <informalexample>
+	<programlisting>
+void received(const &ns;::http::requestimpl &amp;req, bool hasbody)
+{
+    std::set&lt;std::string&gt; auths;
+
+    req.get_basic_auth(req.www_authorization,
+                       [&amp;]
+                       (const std::string &amp;auth)
+                       {
+                           auths.insert(auth);
+                       });
+
+    if (auths.find("user:password") == auths.end())
+        &ns;::http::responseimpl::throw_unauthorized(&ns;::http::auth::basic, "Auth Realm");
+
+    // ...
+}</programlisting>
+      </informalexample>
+    </blockquote>
+
+    <para>
+      The <methodname>get_basic_auth</methodname>() method decodes any
+      basic authentication scheme headers present in a request.
+      The first parameter is either
+      <varname>&ns;::http::requestimpl::www_authorization</varname> or
+      <varname>&ns;::http::requestimpl::proxy_authorization</varname>.
+      The second parameter is a lambda or a functor that gets invoked
+      with the decoded <quote>userid:password</quote> string. The functor may
+      be called more than once if the request includes multiple basic
+      authorization headers.
+    </para>
+
+    <para>
+      <function>&ns;::http::responseimpl::throw_unauthorized</function>()
+      throws an exception that responds to the original request with an
+      authentication challenge.
+      <function>&ns;::http::responseimpl::throw_proxy_authentication_required</function>()
+      sends a proxy authentication challenge response.
+      In either case, the first parameter should be
+      <literal>&ns;::http::auth::basic</literal>; the second parameter is the
+      authentication realm label.
+    </para>
+  </section>
 </chapter>
 <!--
 Local Variables:

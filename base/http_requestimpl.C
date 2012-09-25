@@ -4,11 +4,12 @@
 */
 
 #include "libcxx_config.h"
-#include "http/requestimpl.H"
-#include "http/responseimpl.H"
-#include "http/cgiimpl.H"
-#include "chrcasecmp.H"
-#include "sysexception.H"
+#include "x/http/requestimpl.H"
+#include "x/http/responseimpl.H"
+#include "x/http/cgiimpl.H"
+#include "x/chrcasecmp.H"
+#include "x/sysexception.H"
+#include "x/base64.H"
 #include "gettext_in.h"
 
 #include <cctype>
@@ -190,6 +191,25 @@ std::string requestimpl::hostheader() const
 void requestimpl::tmpfile_error()
 {
 	throw SYSEXCEPTION("Temporary file");
+}
+
+bool requestimpl::is_basic_auth(std::string::const_iterator b,
+				std::string::const_iterator e,
+				std::string &basic_auth)
+{
+	auto p=std::find(b, e, ' ');
+
+	if (chrcasecmp::compare(std::string(b, p), "basic"))
+		return false; // This is not a basic authentication scheme
+
+	//! base64 tolerates spaces
+
+	basic_auth.clear();
+
+	base64<>::decode(p, e,
+			 std::back_insert_iterator<std::string>(basic_auth));
+
+	return true;
 }
 
 template std::istreambuf_iterator<char>

@@ -7,6 +7,9 @@
 #define x_http_useragentobj_H
 
 #include <x/http/fdclient.H>
+#include <x/http/clientauthfwd.H>
+#include <x/http/clientauthimplfwd.H>
+#include <x/http/clientauthcachefwd.H>
 #include <x/http/formfwd.H>
 #include <x/epoll.H>
 #include <x/ptr.H>
@@ -320,7 +323,12 @@ class useragentObj : virtual public obj {
 		~connObj() noexcept LIBCXX_HIDDEN {}
 	};
 
+	//! Internal authentication cache
+
+	clientauthcache authcache;
+
 public:
+
 	//! Maximum number of persistent connections cached by a useragent
 
 	static property::value<size_t> maxconn;
@@ -423,7 +431,8 @@ public:
 
 	public:
 		//! Internal constructor, invoked by useragent
-		responseObj(const cache_key_t &keyArg) LIBCXX_HIDDEN;
+		responseObj(const uriimpl &uriArg,
+			    const cache_key_t &keyArg) LIBCXX_HIDDEN;
 
 	private:
 		//! Response content beginning iterator, returned by begin().
@@ -436,8 +445,26 @@ public:
 	public:
 		friend class useragentObj;
 
+		//! The request's original URI
+		const uriimpl uri;
+
 		//! The received HTTP response message
 		responseimpl message;
+
+		//! A container for the new authentication challenges
+
+		//! Map key is the authentication realm. The value is a pair
+		//! consisting of an authentication scheme, and scheme
+		//! parameters
+
+		typedef std::map<std::string,
+				 std::pair<auth,
+					   responseimpl::scheme_parameters_t>
+				 > challenges_t;
+
+		//! New authentication challenges
+
+		challenges_t challenges;
 
 		//! Destructor
 
@@ -475,8 +502,13 @@ public:
 			return content_end_iter;
 		}
 
-		//! Convenience method to return a reference to the superclass
+		//! Discard the message body
 
+		//! This also happens in the destructor, but with no error
+		//! handling. Here, if there was a network error, an exception
+		//! gets thrown.
+
+		void discardbody();
 	};
 
 	friend class responseObj;
@@ -544,6 +576,22 @@ public:
 					    std::forward<Args_t>(args)...);
 	}
 
+	//! Set the authorization in response to a challenge
+
+	void set_authorization(//! Failed response
+			       const response &response,
+
+			       //! An entry in responseObj::challenges
+
+			       const std::pair<std::string,
+			       std::pair<auth,
+			       responseimpl::scheme_parameters_t> > &challenge,
+
+			       //! Userid
+			       const std::string &userid,
+
+			       //! Password
+			       const std::string &password);
 
 private:
 
@@ -618,14 +666,12 @@ private:
 	//! A request with form parameters
 	response request_with_headers(const fd *terminate_fd,
 				      requestimpl &req,
-				      const form::const_parameters &form)
-;
+				      const form::const_parameters &form);
 
 	//! A request without a body
 
 	response request_with_headers(const fd *terminate_fd,
-				      requestimpl &req)
-;
+				      requestimpl &req);
 
 	//! A request with an arbitrary body
 
@@ -713,10 +759,33 @@ private:
 
 	//! Implement the request
 
+	//! If the URI specifies authentication credentials, remove them,
+	//! and install them as default basic authentication scheme
+	//! credentials.
+	//!
+	//! Call do_request_with_auth. If it sets try_again to true,
+	//! discard the response, and try again.
+
 	response do_request(const fd *terminate_fd,
 			    requestimpl &req,
-			    request_sans_body &impl)
-;
+			    request_sans_body &impl);
+
+	//! Implement the request
+
+	response do_request_with_auth(const fd *terminate_fd,
+				      requestimpl &req,
+				      request_sans_body &impl)
+		LIBCXX_INTERNAL;
+
+	//! Process any authentication challenges.
+
+	//! Returns true if there were authentication challenges, and they
+	//! were all filled from the cache.
+
+	bool process_challenges(const clientauth &authorizations,
+				const requestimpl &req,
+				const response &resp)
+		LIBCXX_INTERNAL;
 
 	//! Find a connection for the given destination
 

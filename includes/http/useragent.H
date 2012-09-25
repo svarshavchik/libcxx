@@ -45,6 +45,10 @@ public:
 
 	typedef useragentObj::response::base::iterator body_iterator;
 
+	//! The container for server's authentication challenges
+
+	typedef useragentObj::responseObj::challenges_t challenges_t;
+
 	//! https support linkage
 
 	static void https_enable() noexcept;

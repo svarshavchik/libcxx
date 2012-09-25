@@ -4,14 +4,16 @@
 */
 
 #include "libcxx_config.h"
-#include "http/useragent.H"
-#include "http/bodycallback.H"
-#include "http/form.H"
-#include "http/content_type_header.H"
-#include "messages.H"
-#include "netaddr.H"
-#include "fdtimeoutconfig.H"
-#include "singleton.H"
+#include "x/http/useragent.H"
+#include "x/http/bodycallback.H"
+#include "x/http/form.H"
+#include "x/http/content_type_header.H"
+#include "x/http/clientauth.H"
+#include "x/http/clientauthcache.H"
+#include "x/messages.H"
+#include "x/netaddr.H"
+#include "x/fdtimeoutconfig.H"
+#include "x/singleton.H"
 #include "gettext_in.h"
 
 namespace LIBCXX_NAMESPACE {
@@ -127,7 +129,8 @@ useragentObj::useragentObj(clientopts_t optsArg,
 
 	: opts(optsArg),
 	  connectionlist_maxsize(connectionlist_maxsizeArg),
-	  hostconnectionlist_maxsize(hostconnectionlist_maxsizeArg)
+	  hostconnectionlist_maxsize(hostconnectionlist_maxsizeArg),
+	  authcache(clientauthcache::create())
 {
 }
 
@@ -135,8 +138,9 @@ useragentObj::~useragentObj() noexcept
 {
 }
 
-useragentObj::responseObj::responseObj(const cache_key_t &keyArg)
- : key(keyArg)
+useragentObj::responseObj::responseObj(const uriimpl &uriArg,
+				       const cache_key_t &keyArg)
+	: key(keyArg), uri(uriArg)
 {
 }
 
@@ -157,6 +161,14 @@ useragentObj::responseObj::~responseObj() noexcept
 		}
 	} catch (...) {
 	}
+}
+
+void useragentObj::responseObj::discardbody()
+{
+	auto b=begin(), e=end();
+
+	while (b != e)
+		++b;
 }
 
 useragentObj::response
@@ -192,7 +204,76 @@ useragentObj::request_with_headers(const fd *terminate_fd,
 useragentObj::response useragentObj::do_request(const fd *terminate_fd,
 						requestimpl &req,
 						request_sans_body &impl)
+{
+	uriimpl &uri=req.getURI();
 
+	// If the URI has user_info, install it as a default basic
+	// authentication scheme.
+
+	{
+		const uriimpl::authority_t &auth=uri.getAuthority();
+
+		if (auth.has_userinfo)
+		{
+			std::string useridcolonpassword=auth.userinfo;
+
+			uriimpl::authority_t no_auth;
+
+			no_auth.hostport=auth.hostport;
+
+			uri.setAuthority(no_auth);
+
+			// Fake response to a www challenge.
+
+			responseimpl resp;
+			resp.setStatusCode(resp.www_authenticate_code);
+
+			authcache->
+				save_basic_authorization(resp,
+							 req.getURI(),
+							 "",
+							 useridcolonpassword);
+		}
+	}
+
+	// Search for any cached authorizations that we know this request
+	// will need.
+
+	auto authorizations=clientauth::create();
+	authcache->search_authorizations(req, authorizations);
+
+	// Add authorizations to the request headers.
+
+	authorizations->add_headers(req);
+
+	{
+		auto resp=do_request_with_auth(terminate_fd, req, impl);
+
+		if (!process_challenges(authorizations, req, resp))
+			return resp;
+
+		// Discard the response, and make sure that the response object
+		// goes completely out of scope, so that the same persistent
+		// HTTP connection can be used, if possible.
+		resp->discardbody();
+	}
+
+	// Install updated authorization headers.
+
+	authorizations->add_headers(req);
+
+	auto resp=do_request_with_auth(terminate_fd, req, impl);
+
+	// If there's still a challenge, make sure to return it.
+
+	(void)process_challenges(authorizations, req, resp);
+	return resp;
+}
+
+useragentObj::response
+useragentObj::do_request_with_auth(const fd *terminate_fd,
+				   requestimpl &req,
+				   request_sans_body &impl)
 {
 	cache_key_t key(req.getURI());
 
@@ -202,7 +283,7 @@ useragentObj::response useragentObj::do_request(const fd *terminate_fd,
 
 		fdclientimpl &c=dynamic_cast<fdclientimpl &>(*cl);
 
-		auto resp=response::create(key);
+		auto resp=response::create(req.getURI(), key);
 
 		if (!impl(c, req, resp->message))
 			continue;
@@ -219,6 +300,65 @@ useragentObj::response useragentObj::do_request(const fd *terminate_fd,
 
 		return resp;
 	}
+}
+
+bool useragentObj::process_challenges(const clientauth &authorizations,
+				      const requestimpl &req,
+				      const response &resp)
+{
+	// If the response was a challenge, see if we can fill it from
+	// the authentication cache.
+
+	bool authentication_required=false;
+	bool try_again_flag=true;
+
+	resp->challenges.clear();
+
+	resp->message
+		.challenges([&, this]
+			    (auth scheme,
+			     const std::string &realm,
+			     const responseimpl::scheme_parameters_t &params)
+			    {
+				    // Message had a challenge
+				    authentication_required=true;
+
+				    if (this->authcache->
+					fail_authorization(req.getURI(),
+							   resp->message,
+							   authorizations,
+							   scheme,
+							   realm,
+							   params))
+					    return;
+
+				    // We did not find
+				    // a cached authentication
+
+				    try_again_flag=false;
+
+				    auto iter=resp->challenges.find(realm);
+
+				    if (iter != resp->challenges.end())
+				    {
+					    if (iter->second.first > scheme)
+						    return;
+					    // Already saved a better method.
+
+					    resp->challenges.erase(iter);
+				    }
+
+				    resp->challenges
+					    .insert(std::make_pair
+						    (realm, std::make_pair
+						     (scheme, params)));
+			    });
+
+	if (authentication_required)
+		return try_again_flag;
+
+	return false;
+	// No authentication challenges, nothing was filled from the cache
 }
 
 void useragentObj::recycle(const cache_key_t &key,
@@ -368,6 +508,22 @@ useragentObj::idleconn useragentObj::init_http_socket(clientopts_t opts,
 
 	newclient->install(socket, terminator);
 	return newclient;
+}
+
+void useragentObj::set_authorization(const response &resp,
+				     const std::pair<std::string,
+				     std::pair<auth,
+				     responseimpl::scheme_parameters_t> >
+				     &challenge,
+				     const std::string &userid,
+				     const std::string &password)
+{
+	if (challenge.second.first == auth::basic)
+		authcache->save_basic_authorization(resp->message,
+						    resp->uri,
+						    challenge.first,
+						    userid,
+						    password);
 }
 
 #if 0

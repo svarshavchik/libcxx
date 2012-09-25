@@ -448,6 +448,14 @@ if (resp-&gt;has_content())
 	  </para>
 	</note>
       </listitem>
+
+      <listitem>
+	<para>
+	  A 401 or a 407 response from the server initializes the
+	  <varname>challenges</varname> container with the server's parsed
+	  <link linkend="httpclientauth">authentication challenge</link>.
+	</para>
+      </listitem>
     </itemizedlist>
   </section>
 
@@ -613,6 +621,141 @@ std::copy(b, e, std::ostreambuf_iterator&lt;char&gt;(std::cout);</programlisting
 	<literal>application/x-www-form-urlencoded</literal> encoding.
       </para>
     </section>
+  </section>
+
+  <section id="httpclientauth">
+    <title><acronym>HTTP</acronym> authentication challenges</title>
+
+    <para>
+      A non-empty <varname>challenges</varname> container in the
+      <link linkend="httpresponse">response</link> indicates an
+      authentication challenge from the server. This container's
+      type is <classname>&ns;::http::useragent::base::challenges_t</classname>.
+      It's a <classname>std::map</classname>, keyed by the authentication
+      realm. The following example displays the document returned by an
+      <acronym>HTTP</acronym> <literal>GET</literal> request. An authentication
+      challenge from the server, prompts for a userid and a password, then
+      the request is repeated.
+    </para>
+
+    <blockquote>
+      <informalexample>
+	<programlisting>
+void showuri(const &ns;::http::useragent &amp;ua, const &ns;::uriimpl &amp;uri)
+{
+	bool has_challenge;
+
+	do
+	{
+		auto resp=ua-&gt;request(&ns;::http::GET, uri);
+
+		std::copy(resp-&gt;begin(), resp-&gt;end(),
+			  std::ostreambuf_iterator&lt;char&gt;(std::cout));
+
+                std::cout &lt;&lt; std::flush;
+		has_challenge=false;
+
+		for (const auto &amp;challenge:resp-&gt;challenges)
+		{
+			has_challenge=true;
+
+			std::cout &lt;&lt; "Authentication required for "
+				  &lt;&lt; challenge.first &lt;&lt; ":" &lt;&lt; std::endl
+				  &lt;&lt; "Userid: " &lt;&lt; std::flush;
+
+			std::string userid, password;
+
+			if (std::getline(std::cin, userid).eof())
+				return;
+
+			std::cout &lt;&lt; "Password: " &lt;&lt; std::flush;
+
+			if (std::getline(std::cin, password).eof())
+				return;
+
+			ua-&gt;set_authorization(resp, challenge,
+					      userid,
+					      password);
+		}
+	} while (has_challenge);
+}</programlisting>
+      </informalexample>
+    </blockquote>
+
+    <para>
+      An <acronym>HTTP</acronym> server or intermediate proxy can
+      return multiple challenges for different authentication realms.
+      The response object declares the <varname>challenges</varname>
+      member as a container whose type is
+      <classname>&ns;::http::useragent::base::challenges_t</classname>.
+      This is a <literal>typedef</literal> for a
+      <classname>std::map</classname>, keyed by the authentication realm.
+      <methodname>set_authorization</methodname>() takes the following
+      parameters: the server's response, the entry in the
+      <varname>challenges</varname> container, and the authorization
+      credentials. This takes effect for the following requests that use
+      the same user agent object, so this example simply tries again.
+    </para>
+
+    <note>
+      <para>
+	The user agent object maintains an internal authentication cache,
+	and automatically responds to additional challenges from the same
+	authentication realm. If the server rejects the authorization and
+	reissues a challenge, the cached authentication gets removed, and
+	the user agent returns the response object with the challenge.
+      </para>
+    </note>
+
+    <note>
+      <para>
+	A server's authentication challenge is an ordinary HTTP response, with
+	a content document, that should be read and processed. The original
+	response object should then get destroyed, before trying again.
+	The above example always shows the contents of the server's response,
+	including server challenges.
+      </para>
+      <para>
+	A server response object must go out of
+	scope and get destroyed before the user agent object can reuse its
+	persistent <acronym>HTTP</acronym> connection, with the same server
+	or proxy. Otherwise, the user agent object has to create another
+	conection. The above example purposefully structures its processing
+	loop so that the original response object gets discarded, before
+	looping around and creating another response object.
+      </para>
+    </note>
+
+    <para>
+      Anticipating a server challenge, the userid and the password values
+      can be given directly in the <acronym>URI</acronym>:
+    </para>
+
+    <blockquote>
+      <informalexample>
+	<programlisting>
+auto resp=ua-&gt;request(&ns;::http::GET, "https://user:password@example.com/");</programlisting>
+      </informalexample>
+    </blockquote>
+
+    <para>
+      When an authentication requirement is known in advance, giving the
+      credentials in the <acronym>URI</acronym> allows the inclusion of this
+      authorization in the initial request, saving a formal challenge.
+      Although the user agent object does not have the
+      authentication realm, the authorization credentials are blindly sent
+      in the request, and the user agent object caches them as the default
+      authorization for all future requests to the same server.
+    </para>
+
+    <note>
+      <para>
+	Authorizations given in the <acronym>URI</acronym> get specified
+	for the origin server authentication only. The only way to set
+	intermediate proxy authorization is by responding to its
+	authentication challenge, in the response object.
+      </para>
+    </note>
   </section>
 </chapter>
 <!--

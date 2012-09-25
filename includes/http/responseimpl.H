@@ -272,6 +272,18 @@ private:
 
 public:
 
+	//! The "WWW-Authenticate" header.
+	static const char www_authenticate[];
+
+	//! The "Proxy-Authenticate" header.
+	static const char proxy_authenticate[];
+
+	//! The www-authenticate code
+	static const int www_authenticate_code=401;
+
+	//! The proxy-authenticate code
+	static const int proxy_authenticate_code=407;
+
 	//! Throw an HTTP error %exception
 
 	static void throwResponseException(int err_code, const char *msg)
@@ -432,18 +444,6 @@ public:
 	{
 		throwResponseException(505, msg_505); 
 	}
-
-	//! The "WWW-Authenticate" header.
-	static const char www_authenticate[];
-
-	//! The "Proxy-Authenticate" header.
-	static const char proxy_authenticate[];
-
-	//! The www-authenticate code
-	static const int www_authenticate_code=401;
-
-	//! The proxy-authenticate code
-	static const int proxy_authenticate_code=407;
 
 	//! Check if this is a 401 response
 	bool www_authentication_required() const

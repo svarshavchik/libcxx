@@ -296,6 +296,33 @@ public:
 
 	bool responseHasMessageBody(const responseimpl &resp) const;
 
+	//! Retrieve basic authentication credentials in the request.
+
+	template<typename Functor>
+	void get_basic_auth(//! \ref www_authorization "www_authorization" or \ref proxy_authorization "proxy_authorization".
+
+			    const std::string &header,
+
+			    //! Callback functor.
+
+			    //! The callback functor gets invoked for every
+			    //! found header. It receives the base64-decoded
+			    //! "userid:password" string.
+
+			    Functor &&functor) const
+	{
+		for (auto headers=this->equal_range(header);
+		     headers.first != headers.second; ++headers.first)
+		{
+			std::string basic_auth;
+
+			if (is_basic_auth(headers.first->second.begin(),
+					  headers.first->second.end(),
+					  basic_auth))
+				functor(basic_auth);
+		}
+	}
+
 private:
 	//! Parse the start line.
 
@@ -307,6 +334,19 @@ private:
 	static bool parse_method_str(std::string::const_iterator p,
 				     size_t plen,
 				     const char *str) noexcept;
+
+	//! Parse basic authentication header
+
+	//! Returns \c true if the first word in this header is "basic"
+
+	static bool is_basic_auth(//! Header start
+				  std::string::const_iterator b,
+
+				  //! Header end
+				  std::string::const_iterator e,
+
+				  //! base64-decoded stuff goes here
+				  std::string &basic_auth);
 
 public:
 	//! Convert a method_t to a string
