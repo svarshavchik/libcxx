@@ -34,6 +34,11 @@ const requestimpl::method_list_t requestimpl::method_list[]={
 	{(method_t)-1, NULL}
 };
 
+const char requestimpl::www_authorization[] = "Authorization";
+
+const char requestimpl::proxy_authorization[] = "Proxy-Authorization";
+
+
 requestimpl::requestimpl() noexcept : proxyFormat(false),
 				     method(GET), httpver(http11)
 				     

@@ -70,6 +70,12 @@ private:
 	httpver_t httpver;
 
 public:
+	//! The "authorization" header.
+	static const char www_authorization[];
+
+	//! The "Proxy-Autherization" header.
+	static const char proxy_authorization[];
+
 	//! Constructor - construct an empty request object
 
 	//! You get to fill in on the details, after construction,
