@@ -27,8 +27,16 @@ namespace LIBCXX_NAMESPACE {
 
 	namespace http {
 #if 0
+	};
 };
 #endif
+
+class clientauthcacheObj;
+
+//! A reference to an internal object that caches client authorizations
+
+typedef ref<clientauthcacheObj> clientauthcache;
+
 
 //! Helper class for compile-time verification of the proper iterator type passed to useragentObj::request()
 

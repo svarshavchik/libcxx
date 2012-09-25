@@ -30,6 +30,7 @@
 /testgetpwgr
 /testglob
 /testhier
+/testhttpclientauth
 /testhttpclientimpl
 /testhttpmessageimpl
 /testhttpresponseimpl

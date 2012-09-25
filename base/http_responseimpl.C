@@ -4,13 +4,13 @@
 */
 
 #include "libcxx_config.h"
-#include "ymdhms.H"
-#include "http/responseimpl.H"
-#include "http/exception.H"
+#include "x/ymdhms.H"
+#include "x/http/responseimpl.H"
+#include "x/http/exception.H"
+#include "x/logger.H"
 #include "gettext_in.h"
 
 #include <sstream>
-#include <algorithm>
 #include <functional>
 #include <cctype>
 
@@ -177,8 +177,14 @@ responseimpl::authschemeparser::~authschemeparser() noexcept
 {
 }
 
-std::string responseimpl::authschemeparser::operator()(void)
+LOG_FUNC_SCOPE_DECL(LIBCXX_NAMESPACE::http::responseimpl, respLogger);
+
+auth responseimpl::authschemeparser::operator()(void)
 {
+	LOG_FUNC_SCOPE(respLogger);
+
+ again:
+
 	scheme_parameters.clear();
 	realm.clear();
 
@@ -206,9 +212,6 @@ std::string responseimpl::authschemeparser::operator()(void)
 			p=std::find(b, e, ' ');
 
 			scheme=std::string(b, p); // Here it is.
-
-			std::transform(scheme.begin(), scheme.end(),
-				       scheme.begin(), chrcasecmp::tolower);
 
 			while (p < e && *p == ' ')
 				++p;
@@ -241,6 +244,9 @@ std::string responseimpl::authschemeparser::operator()(void)
 		current_word=value;
 	}
 
+	if (scheme.empty())
+		return auth::unknown;
+
 	// Extract the realm parameter.
 
 	auto realm_param=scheme_parameters.equal_range("realm");
@@ -250,7 +256,15 @@ std::string responseimpl::authschemeparser::operator()(void)
 
 	scheme_parameters.erase(realm_param.first, realm_param.second);
 
-	return scheme;
+	auto scheme_val=auth_fromstring(scheme);
+
+	if (scheme_val == auth::unknown)
+	{
+		LOG_WARNING("Unknown HTTP authentication scheme: \""
+			    << scheme << "\"");
+		goto again;
+	}
+	return scheme_val;
 }
 
 template std::istreambuf_iterator<char>

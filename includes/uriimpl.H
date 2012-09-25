@@ -561,9 +561,7 @@ public:
 	//! Set the URI's query part using form parameters
 
 	void setQuery(//! Form parameters
-
-		      const http::form::parameters &value)
-;
+		      const http::form::parameters &value);
 
 	//! Set the URI's fragment part
 

@@ -8,6 +8,7 @@
 
 #include <x/http/messageimplfwd.H>
 #include <x/chrcasecmp.H>
+#include <x/http/clientauthimplfwd.H>
 #include <exception>
 #include <algorithm>
 #include <sstream>
@@ -95,11 +96,11 @@ private:
 
 		//! Parse the next authentication scheme.
 
-		//! \return the next authentication scheme's name. An empty
-		//! string indicates no more authentication scheme. The
+		//! \return the next authentication scheme's name. auth::unknown
+		//! indicates no more authentication scheme. The
 		//! authentication parameters are placed into scheme_parameters.
 
-		std::string operator()(void);
+		auth operator()(void);
 	};
 
 public:
@@ -438,16 +439,22 @@ public:
 	//! The "Proxy-Authenticate" header.
 	static const char proxy_authenticate[];
 
+	//! The www-authenticate code
+	static const int www_authenticate_code=401;
+
+	//! The proxy-authenticate code
+	static const int proxy_authenticate_code=407;
+
 	//! Check if this is a 401 response
 	bool www_authentication_required() const
 	{
-		return statuscode == 401;
+		return statuscode == www_authenticate_code;
 	}
 
 	//! Check if this is a 407 response
 	bool proxy_authentication_required() const
 	{
-		return statuscode == 407;
+		return statuscode == proxy_authenticate_code;
 	}
 
 	//! Extract authentication challenges from this response
@@ -455,9 +462,11 @@ public:
 	//! If www_authentication_required() or proxy_authentication_required(),
 	//! retrieve the challenges from the response. The parameter is a
 	//! callback functor that gets invoked with three parameters:
-	//! an authentication scheme, converted to lowercase,
+	//! an authentication scheme,
 	//! the authentication realm, and a scheme_parameters_t, containing
 	//! the authentication scheme's parameters.
+	//!
+	//! An unknown scheme is given as auth::unknown.
 
 	template<typename callback_type>
 	void challenges(callback_type &&callback) const
@@ -474,7 +483,7 @@ public:
 
 		auto scheme=parser();
 
-		while (!scheme.empty())
+		while (scheme != auth::unknown)
 		{
 			callback(scheme, parser.realm,
 				 parser.scheme_parameters);

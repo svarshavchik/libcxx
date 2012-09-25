@@ -49,12 +49,14 @@ void verifychallenge(const std::string &challenge, const std::string &expected)
 	std::ostringstream o;
 
 	resp.challenges([&]
-			(const std::string &scheme,
+			(LIBCXX_NAMESPACE::http::auth scheme,
 			 const std::string &realm,
 			 const LIBCXX_NAMESPACE::http::responseimpl
 			 ::scheme_parameters_t &params)
 			{
-				o << scheme << "\n" << realm << "\n";
+				o << LIBCXX_NAMESPACE::http::
+					auth_tostring(scheme)
+				  << "\n" << realm << "\n";
 
 				for (auto &p:params)
 				{

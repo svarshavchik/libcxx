@@ -1,0 +1,16 @@
+path: [http:example.com:80]
+path: [http:example.com:80]
+path: [http:example.com:80]
+path: [http:example.com:80] [foo] [bar]
+path: [http:example.com:80] [foo] [bar]
+AUTH1: ,/proxyrealm|/http:example.com:80/originrealm1,/http:public.com:80/originrealm2
+SEARCH: http://example.com, proxyrealm=Basic,proxyrealm,P:Basic bmFtZTpwcm94eTE=, originrealm1=Basic,originrealm1,A:Basic bmFtZTpvcmlnaW4x
+SEARCH: http://example.com/cgi-bin/dump, proxyrealm=Basic,proxyrealm,P:Basic bmFtZTpwcm94eTE=, originrealm1=Basic,originrealm1,A:Basic bmFtZTpvcmlnaW4x
+SEARCH: http://example.com/cgi-bin/dump/sub, proxyrealm=Basic,proxyrealm,P:Basic bmFtZTpwcm94eTE=, originrealm1=Basic,originrealm1,A:Basic bmFtZTpvcmlnaW4x
+SEARCH: http://public.com/cgi-bin/dump, proxyrealm=Basic,proxyrealm,P:Basic bmFtZTpwcm94eTE=, originrealm2=Basic,originrealm2,A:Basic bmFtZTpvcmlnaW4y
+FAILED(public.com, realm2): false
+AUTH2: ,/proxyrealm|/http:example.com:80/originrealm1,/http:public.com:80/originrealm2
+FAILED(public.com, originrealm2): true, originrealm2=Basic,originrealm2,A:Basic bmFtZTpvcmlnaW4y
+AUTH3: ,/proxyrealm|/http:example.com:80/originrealm1,/http:public.com:80/originrealm2
+FAILED(public.com, originrealm2): false
+AUTH4: ,/proxyrealm|/http:example.com:80/originrealm1

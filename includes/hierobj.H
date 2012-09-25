@@ -568,10 +568,9 @@ public:
 		//! Move the current node to the specified child node with a value.
 
 		//! Single-purpose optimization of get_child().
-		//! Returns \c true if the specified child node exists and has
-		//! a value. The lock gets repointed to that node.
-		//! Returns \c false if the specified child does not exist or
-		//! has no defined value.
+		//! Returns \c true if the specified child node exists.
+		//! The lock gets repointed to that node.
+		//! Returns \c false if the specified child does not exist.
 
 		bool to_child(const hier_type &h) const
 		{

@@ -97,7 +97,11 @@ libcxx_la_SOURCES=\
 	hier.C			\
 	hms.C			\
 	http_accept_header.C	\
+	http_auth_internal.H    \
 	http_cgiimpl.C		\
+	http_clientauthimplobj.C \
+	http_clientauthcacheobj.C \
+	http_clientauthobj.C	\
 	http_clientimpl.C	\
 	http_content_type_header.C \
 	http_exception.C	\
@@ -243,6 +247,7 @@ noinst_PROGRAMS=\
 	testgetpwgr                   \
 	testglob                      \
 	testhier                      \
+	testhttpclientauth            \
 	testhttpclientimpl            \
 	testhttpmessageimpl           \
 	testhttpresponseimpl          \
@@ -567,6 +572,10 @@ testhier_SOURCES=testhier.C
 testhier_LDADD=libcxx.la
 testhier_LDFLAGS=$(TESTLINKTYPE)
 
+testhttpclientauth_SOURCES=testhttpclientauth.C
+testhttpclientauth_LDADD=libcxx.la
+testhttpclientauth_LDFLAGS=$(TESTLINKTYPE)
+
 propertiescli.h : propertiescli.h.tmp
 	perl -p -e 's/^#include.*//;s/\b@LIBCXX_NAMESPACE@::/LIBCXX_NAMESPACE::/g' <propertiescli.h.tmp >propertiescli.h.tmp2
 	mv propertiescli.h.tmp2 propertiescli.h
@@ -722,6 +731,9 @@ check-am: $(noinst_PROGRAMS) $(noinst_DATA)
 	./testfdserverimpl
 	./testfdclientimpl
 	./testfdlistener
+	./testhttpclientauth >testhttpclientauth.tmp
+	diff $(srcdir)/testhttpclientauth.txt testhttpclientauth.tmp
+	rm -f testhttpclientauth.tmp
 	./testuseragent
 	./testcsv
 	./testeventcallback

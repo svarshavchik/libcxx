@@ -70,7 +70,7 @@ private:
 	httpver_t httpver;
 
 public:
-	//! The "authorization" header.
+	//! The "Authorization" header.
 	static const char www_authorization[];
 
 	//! The "Proxy-Autherization" header.
