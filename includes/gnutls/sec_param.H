@@ -64,7 +64,7 @@ namespace LIBCXX_NAMESPACE {
 //! \endcode
 //!
 //! The sec_param object is convertible to a raw \c gnutls_sec_param_t or a
-//! string. \ref tostring "INSERT_LIBX_NAMESPACE::tostring"() also knows
+//! string. \c INSERT_LIBX_NAMESPACE::tostring() also knows
 //! what to do with it.
 
 typedef LIBCXX_NAMESPACE::param::settable<

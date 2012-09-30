@@ -64,7 +64,7 @@ public:
 //!
 //! The digest_algorithm object is convertible to a raw
 //! \c gnutls_digest_algorithm_t or a
-//! string. \ref tostring "INSERT_LIBX_NAMESPACE::tostring"() also knows
+//! string. \c INSERT_LIBX_NAMESPACE::tostring() also knows
 //! what to do with it.
 
 typedef LIBCXX_NAMESPACE::param::settable<
