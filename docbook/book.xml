@@ -41,6 +41,7 @@
 <!ENTITY pwdgrp SYSTEM "pwdgrp.xml">
 <!ENTITY uri SYSTEM "uri.xml">
 <!ENTITY headers SYSTEM "headers.xml">
+<!ENTITY hier SYSTEM "hier.xml">
 <!ENTITY httportmap SYSTEM "httportmap.xml">
 <!ENTITY miscstringability SYSTEM "miscstringability.xml">
 <!ENTITY miscstrtok SYSTEM "miscstrtok.xml">
@@ -127,6 +128,7 @@ See COPYING for distribution information.
     &pwdgrp;
     &uri;
     &headers;
+    &hier;
   </part>
 
   <part id="misc">

@@ -1,0 +1,680 @@
+<!--
+
+Copyright 2012 Double Precision, Inc.
+See COPYING for distribution information.
+
+-->
+
+<chapter id="hier">
+  <title>Hierarchical container template</title>
+
+  <para>
+    The <ulink url="&link-x--hier;"><classname>&ns;::hier</classname></ulink>
+    template implements a container that uses a hierarchical key.
+    This means that, in general, a value's key in the container
+    is a <classname>std::list&lt;<replaceable>T</replaceable>&gt;</classname>
+    where <classname><replaceable>T</replaceable></classname> is any class
+    that can be used as an associative container key. The values are
+    arranged in a hierarchical tree so, if for example the key is an
+    <classname>int</classname>, then a key of
+    <quote>{1,3}</quote> might have inferior or child keys of
+    <quote>{1,3,6}</quote> or <quote>{1,3,0}</quote>; and it itself would be
+    the inferior to <quote>{1}</quote>. The distinguishing characteristics
+    of this container are:
+  </para>
+
+  <itemizedlist>
+    <listitem>
+      <para>
+	Values for intermediate keys do not have to exist.
+	The container can have a value for a key of <quote>{1,3,6}</quote>
+	without having a value for the keys <quote>{1,3}</quote>
+	or <quote>{1}</quote>.
+      </para>
+    </listitem>
+
+    <listitem>
+      <para>
+	If the container does not have a value for a particular key, there's
+	an option to find the closest parent key with a value.
+	If the container does not have a value for the key of
+	<quote>{1,3,6}</quote>, the search finds the
+	<quote>{1,3}</quote> key, if it has a value.
+      </para>
+    </listitem>
+
+    <listitem>
+      <para>
+	The container is thread-safe, with a readers/writer locking design
+	pattern.
+      </para>
+    </listitem>
+  </itemizedlist>
+
+  <para>
+    The <classname>&ns;::hier</classname>
+    template defines an <link linkend="refobj">&ref;</link>
+    to a reference-counted container object, together with the definitions for
+    <classname>&ns;::hierptr</classname>,
+    <classname>&ns;::const_hier</classname>, and
+    <classname>&ns;::const_hierptr</classname>, according to the usual naming
+    convention.
+  </para>
+
+  <para>
+    The first template parameter specifies the hierarchical key element,
+    from which the container key gets constructed.
+    The container's key becomes
+    <classname>std::list&lt;key&gt;</classname>. The second template must be
+    an &ref; to a reference-counted object, which becomes the value stored in
+    the container. The values in the container must be &ref;s.
+  </para>
+
+  <para>
+    The key element class can be any type that can be used for a key of an
+    associative container. The following example uses an
+    <classname>int</classname> for the key element, resulting in a
+    <classname>std::list&lt;int&gt;</classname> container key.
+    The values stored in the container are small reference-counted objects
+    with a <classname>std::set&lt;std::string&gt;</classname>:
+  </para>
+
+  <blockquote>
+    <title><ulink url="examples/classhier.C">examples/classhier.C</ulink></title>
+    <informalexample>
+      <programlisting><xi:include href="../examples/classhier.C" parse="text" xmlns:xi="http://www.w3.org/2001/XInclude" /></programlisting>
+    </informalexample>
+  </blockquote>
+
+  <section id="hierlocks">
+    <title>Locks</title>
+
+    <para>
+      The two main methods of <classname>&ns;::hier</classname> are
+      <methodname>create_readlock</methodname>() and
+      <methodname>create_writelock</methodname>(), that instantiate a
+      <classname>&ns;::hier&lt;key, value&gt;::base::readlock</classname> and
+      <classname>&ns;::hier&lt;key, value&gt;::base::writelock</classname>,
+      respectively. Other methods are generally convenience shortcuts that
+      instantiate the appropriate lock, perform the requested operation, and
+      release the lock. The previous example invokes
+      <methodname>insert</methodname>() which instantiates a writer lock,
+      invokes the lock's <methodname>insert</methodname>() method, then releases
+      the lock. These methods have a detailed description later.
+    </para>
+
+    <para>
+      Multiple reader locks can exist concurrently. They allow reading the
+      contents of the container. Only one writer lock can exist at a time,
+      blocking all other writer and reader locks. The writer lock does
+      everything that a reader lock does (except for
+      <methodname>clone</methodname>()),
+      and also implements methods that modify the container.
+      A writer lock is convertible to a reader lock, except that the resulting
+      reader lock also cannot do a <methodname>clone</methodname>() since it's
+      still an underlying writer lock.
+    </para>
+
+    <note>
+      <para>
+	The reader and writer locks are reference-counted objects, that
+	can be freely passed around. The locks remain in existence as long as a
+	reference to the lock remains. Although these locking constructs
+	implement thread-safe container access, the locks themselves are not
+	thread safe. Different threads use different locks to access the
+	hierarchical container in a thread-safe manner, but only one thread can
+	access an individual reader or a writer lock, at a time.
+      </para>
+
+      <para>
+	The scope of the reader and writer locks' thread safety is limited, of
+	course, to thread-safe access to the values in the container. Since
+	the values in the hierarchical container are reference-counted objects,
+	a reference to a value in the container can remain in scope after the
+	corresponding reader or a writer lock, used to access the value,
+	goes out of scope. Any subsequent access to the container value is
+	not protected by any lock, and must be done in a thread-safe manner.
+      </para>
+
+      <para>
+	In the example above, all access to the existing values in the container
+	is protected by one of the locks.
+      </para>
+    </note>
+  </section>
+
+  <section id="hierreadlock">
+    <title>Reader locks</title>
+
+    <blockquote>
+      <informalexample>
+	<programlisting>
+typedef &ns;::ref&lt;<replaceable>valueObj</replaceable>&gt; valueRef;
+
+typedef &ns;::ptr&lt;<replaceable>valueObj</replaceable>&gt; valuePtr;
+
+typedef &ns;::hier&lt;<replaceable>keyClass</replaceable>,<replaceable>valueRef</replaceable>&gt; hierclass;
+
+<replaceable>keyClass</replaceable> keyelement;
+
+std::list&lt;<replaceable>keyClass</replaceable>&gt; key;
+
+hierclass h=hierclass::create();
+
+hierclass::base::readlock lock=h-&gt;create_readlock();</programlisting>
+      </informalexample>
+    </blockquote>
+
+    <para>
+      A reader lock implements navigation of a hierachical container, without
+      making any changes to it. Note, though, that after retrieving
+      a value object from the container, there's nothing that prohibits the
+      contents of the referenced object from being modified, but this is
+      outside the scope covered by
+      the reader lock. Multiple reader locks can get created concurrently.
+    </para>
+
+    <para>
+      A reader lock is a
+      <link linkend="refobj">reference-counted object</link> that can be freely
+      passed around. Note that although the reader and
+      <link linkend="hierwritelock">writer locks</link> implement
+      thread-safe access to the hierarchical container, each individual
+      reader or a writer lock can only be accessed by one thread a time.
+    </para>
+
+    <para>
+      <methodname>create_readlock</methodname>() creates a new reader lock.
+      If there's an existing <link linkend="hierwritelock">writer lock</link>,
+      <methodname>create_readlock</methodname>() waits until the writer lock
+      goes out of scope and gets destroyed.
+    </para>
+
+    <blockquote>
+      <informalexample>
+	<programlisting>
+auto lock2=lock-&gt;clone();</programlisting>
+      </informalexample>
+    </blockquote>
+
+    <para>
+      Each reader lock represents a key in the hierarchy, either a key with
+      a value, or an intermediate key without a value.
+      A new reader lock created by
+      <methodname>create_readlock</methodname>() initially
+      represents the hierarchy's root, or an empty key. The root
+      node is no different
+      than any other node in the hierarchy, and may even have a value, but
+      it always exists even in an otherwise completely empty hierarchy.
+      <methodname>clone</methodname>() results in another reader lock,
+      that initially points to the same key.
+    </para>
+
+    <note>
+      <para>
+	Always use <methodname>clone</methodname>() to create another
+	read lock. Invoking <methodname>create_readlock</methodname>()
+	again can result in a deadlock with a pending writer lock from
+	another thread.
+	A pending writer lock may block new reader locks, and the existing
+	reader lock in the same thread can trigger a deadlock, with the
+	thread waiting for the writer lock, and the writer lock thread
+	waiting for the existing reader lock to go away.
+      </para>
+    </note>
+
+    <blockquote>
+      <informalexample>
+	<programlisting>
+valuePtr ptr=lock-&gt;entry();
+
+bool flag=lock-&gt;exists();
+
+const std::list&lt;keyClass&gt; &amp;name=lock-&gt;name();</programlisting>
+      </informalexample>
+    </blockquote>
+
+    <para>
+      <methodname>entry</methodname>()
+      returns a &ptr; of the value of the lock's current node, which may be
+      null if this is an intermediate node, without a value.
+      <methodname>exists</methodname>() checks if the &ptr; would be null.
+      Finally, 
+      <methodname>name</methodname>()
+      returns the current node's key.
+    </para>
+
+    <blockquote>
+      <informalexample>
+	<programlisting>
+keyelement element;
+key valuekey;
+
+bool flag=lock-&gt;parent();
+
+bool flag=lock-&gt;child(element);
+
+std::set&lt;keyClass&gt; children=lock-&gt;children();
+
+bool flag=lock-&gt;child(key, true);
+</programlisting>
+      </informalexample>
+    </blockquote>
+
+    <para>
+      <methodname>parent</methodname>()
+      returns <literal>true</literal> if the lock's current node has
+      a parent node. <methodname>parent</methodname>() returns
+      <literal>false</literal> if the lock's current node is the hierarchy's
+      root node, with a null key, <literal>true</literal> otherwise, since
+      all other nodes must have a parent node.
+    </para>
+
+    <para>
+      <methodname>child</methodname>() takes a key element, and returns a flag
+      indicating whether the current node has an inferior, or a child node
+      for the given key; either a node with a value, or an intermediate node
+      without a value.
+      <methodname>children</methodname>() enumerates all such nodes that
+      exist.
+    </para>
+
+    <para>
+      The first argument of the two argument version of
+      <methodname>child</methodname>() is a list of key elements, a complete
+      key path. If the second argument is <literal>false</literal>,
+      <methodname>child</methodname>() returns <literal>true</literal>
+      only if the specified inferior node, to the lock's current node,
+      exists and has a value. If the second argument is
+      <literal>true</literal> <methodname>child</methodname>() returns
+      <literal>true</literal> if the specified inferior node exists, with a
+      value, or if there's any intermediate node with a value.
+    </para>
+
+    <blockquote>
+      <informalexample>
+	<programlisting>bool flag=lock-&gt;to_parent();
+
+bool flag=lock-&gt;to_child(element);
+
+bool flag=lock-&gt;to_child(key, true);
+</programlisting>
+      </informalexample>
+    </blockquote>
+
+    <para>
+      <methodname>to_parent</methodname>() and
+      <methodname>to_child</methodname>() are similar to
+      <methodname>parent</methodname>() and
+      <methodname>child</methodname>(), but they also change the lock's
+      current node if they return <literal>true</literal>.
+      They use the same criteria as 
+      <methodname>parent</methodname>() and
+      <methodname>child</methodname>(), for the return value, and the
+      lock's current position is unchanged with the
+      <literal>false</literal> return value.
+    </para>
+
+    <para>
+      For the two-argument version of
+      <methodname>to_child</methodname>(), if the second parameter is
+      <literal>true</literal>, the lock gets repositioned to the specified
+      inferior child node, if it has a value, or to its closest intermediate
+      node with a value, if <methodname>to_child</methodname>() returns
+      <literal>true</literal>.
+    </para>
+  </section>
+  <para>
+    Here's a typical output from running the above example program. The
+    key elements are <classname>int</classname>s, and the example program
+    contructs them from a dot-delimited string, forming a tree-like
+    hierarchy where, for example, <quote>1.1</quote> and
+    <quote>1.2</quote> keys would be inferior, child elements of
+    <quote>1</quote>. Note that the value for <quote>1</quote> does not have
+    to exist in the hierarchical container, in order for its inferior elements
+    to exist:
+  </para>
+
+  <section id="hierwritelock">
+    <title>Writer locks</title>
+
+    <blockquote>
+      <informalexample>
+	<programlisting>
+hierclass::base::writerlock lock=h-&gt;create_writelock();</programlisting>
+      </informalexample>
+    </blockquote>
+
+    <para>
+      A writer lock implements all methods that
+      a <link linkend="hierreadlock">reader lock</link> does, and is
+      type-convertible to a reader lock. The sole exception is that the
+      writer lock's
+      <methodname>clone</methodname>() throws an exception (this applies
+      to the writer lock that gets accessed as a reader lock, too).
+    </para>
+
+    <para>
+      Only one writer lock can exist at a time,
+      <methodname>create_writelock</methodname>() waits until no other
+      reader or writer locks exist, before it returns. This is why
+      its  <methodname>clone</methodname>() throws an exception, since
+      another lock cannot exist until the writer lock itself goes away.
+    </para>
+
+    <blockquote>
+      <informalexample>
+	<programlisting>
+bool flag=lock-&gt;insert([]
+                      {
+                          return valueRef::create();
+                      }, key,
+                      []
+                      (valueRef &amp;&amp;existing)
+                      {
+                          return false;
+                      });</programlisting>
+      </informalexample>
+    </blockquote>
+
+    <para>
+      <methodname>insert</methodname>() adds or replaces a value in the
+      hierarchical container. The second parameter is a hierarchical key
+      relative to the writer lock's current node.
+      <methodname>create_writelock</methodname>(), like
+      <methodname>create_readlock</methodname>(), constructs a lock initially
+      referring to the hierarchy's root node, in which case the key specifies
+      the absolute container key.
+      However, the writer lock implements all of reader lock's
+      <methodname>to_child</methodname>() and
+      <methodname>to_parent</methodname>() methods, to reposition the writer
+      lock to any existing key in the container. The key parameter to
+      <methodname>insert</methodname>() gets interpreted relative to the
+      writer lock's current node position. An empty list refers to the
+      writer lock's current position.
+    </para>
+
+    <para>
+      The first parameter to <methodname>insert</methodname>() is a lambda or
+      a functor that returns the new value for the container, an
+      &ref; value.
+      <methodname>insert</methodname>() calls it to obtain the value to
+      install for the referenced key.
+      If the referenced key already has a value, the third parameter determines
+      whether the existing value gets replaced, or not.
+    </para>
+
+    <para>
+      The third parameter to <methodname>insert</methodname>() is
+      also a lambda or a functor. It receives the key's existing value,
+      as an rvalue reference. Returning
+      <literal>true</literal> replaces the existing value in the container.
+      The first lambda/functor gets called to obtain the new value for the key.
+      Returning
+      <literal>false</literal> does not replace the existing value in the
+      container.
+    </para>
+
+    <para>
+      The first lamba/functor parameter to
+      <methodname>insert</methodname>() does not get invoked if there's
+      already an existing value for the referenced key, and the third
+      lambda/functor parameter returns <literal>false</literal>.
+    </para>
+
+    <blockquote>
+      <informalexample>
+	<programlisting>
+bool flag=lock-&gt;erase(key);
+
+bool flag=lock-&gt;prune(key);
+
+bool flag=lock-&gt;prune_if(key, []
+                              (valueRef &amp;&amp;value, const key &amp;name)
+                              {
+                                  return true;
+                              });</programlisting>
+      </informalexample>
+    </blockquote>
+
+    <para>
+      <methodname>erase</methodname>() removes an existing key from the
+      container.
+      <varname>key</varname> specifies a hierarchical key, relative to the
+      writer lock's current node (an empty list for the current node).
+      <methodname>erase</methodname>() returns
+      <literal>false</literal> if the referenced key did not have a value
+      in the container. If the key had a value, 
+      <methodname>erase</methodname>() returns <methodname>true</methodname>
+      after changing the writer node's current position to the removed key's
+      closest parent node that has a value, or to the container's
+      root node.
+    </para>
+
+    <para>
+      <methodname>erase</methodname>() removes only the referenced key's value,
+      and does not remove the values for any existing
+      inferior child nodes (the referenced key becomes an intermediate node).
+      <methodname>prune</methodname>() removes all inferior nodes of the
+      referenced key, but does not erase the value for the referenced key.
+      If the referenced key exists, when
+      <methodname>prune</methodname>() returns the writer lock's current node
+      becomes the referenced key, otherwise it current node becomes the
+      closest parent with a value (or the root node).
+    </para>
+
+    <para>
+      <methodname>prune_if</methodname>() calls the lambda/functor before
+      pruning each individual inferior node, with two parameters: the value
+      itself, and its full container key.
+      If the lamba/functor returns 
+      <methodname>true</methodname> the value gets removed, otherwise it
+      does not get removed from the container.
+    </para>
+
+    <para>
+      <methodname>prune</methodname>() is equivalent to
+      <methodname>prune_if</methodname>() with the functor always returning
+      <methodname>true</methodname>.
+    </para>
+
+    <blockquote>
+      <informalexample>
+	<programlisting>
+bool flag=lock-&gt;erase();
+
+bool flag=lock-&gt;prune();</programlisting>
+      </informalexample>
+    </blockquote>
+
+    <para>
+      This is equivalent to specifying a key that's an empty list: the
+      erasure/prune for the writer lock's current node.
+    </para>
+  </section>
+
+  <section id="hiershortcuts">
+    <title>Shortcuts</title>
+
+    <para>
+      The following methods in the hierarchical container object are
+      equivalent to instantiating the appropriate lock object, and performing
+      the requested action.
+    </para>
+
+    <blockquote>
+      <informalexample>
+	<programlisting>
+bool flag=h-&gt;insert([]
+                   {
+                       return valueRef::create();
+                   }, key,
+                   []
+                   (valueRef &amp;&amp;existing)
+                   {
+                       return false;
+                   });</programlisting>
+      </informalexample>
+    </blockquote>
+
+    <para>
+      This is equivalent to creating a new write lock, positioned at the
+      container's root node, then invoking its
+      <methodname>insert</methodname>() method to install a new value for
+      the specified key.
+    </para>
+
+    <blockquote>
+      <informalexample>
+	<programlisting>
+hierclass::base::readlock lock=h-&gt;search(key);</programlisting>
+      </informalexample>
+    </blockquote>
+
+    <para>
+      This is equivalent to creating a new reader lock, positioned at the
+      container's root node, then invoking its
+      <methodname>to_child</methodname>() method with the second value
+      set to <literal>true</literal>, positioning the reader lock
+      to the given key, or its closest parent, with a value. Or the root
+      node, if the specified key does not have a value, and none of its
+      parent keys have a value.
+    </para>
+
+    <blockquote>
+      <informalexample>
+	<programlisting>
+bool flag=h-&gt;erase(key);
+
+bool flag=h-&gt;prune(key);
+
+bool flag=h-&gt;prune_if(key, []
+                           (valueRef &amp;&amp;value, const key &amp;name)
+                           {
+                               return true;
+                           });</programlisting>
+      </informalexample>
+    </blockquote>
+
+    <para>
+      This is equivalent to creating a new writer lock, positioned at the
+      container's root node, then invoking the lock's corresponding method.
+    </para>
+  </section>
+
+  <section id="hieriter">
+    <title>Key iterators</title>
+
+    <blockquote>
+      <informalexample>
+	<programlisting>
+hierclass::base::iterator b=h-&gt;begin(), e=h-&gt;end();
+
+const std::list&lt;keyClass&gt; &amp;name=*b;
+
+hierclass::base::readlock lock=b.clone();</programlisting>
+      </informalexample>
+    </blockquote>
+
+    <para>
+      <methodname>begin</methodname>() acquires a reader lock on the
+      container, then return a beginning value for an input iterator over a
+      sequence
+      of keys that have values in the container.
+      <methodname>end</methodname>() returns the ending iterator value.
+      <methodname>end</methodname>() does not acquire a reader lock.
+      A non ending-valued iterator releases its read lock when it reaches
+      the ending iterator value.
+    </para>
+
+    <para>
+      When the container is empty,
+      <methodname>begin</methodname>() acquires a reader lock, releases it,
+      then returns the ending iterator value.
+    </para>
+
+    <para>
+      A non-ending iterator also implements <methodname>clone</methodname>(),
+      which clones a reader lock, positioned at the node referenced by
+      the iterator's current key value.
+    </para>
+  </section>
+
+  <section id="hiersample">
+    <title>Output of the example program</title>
+
+    <para>
+      Here's sample output from the example program given
+      <link linkend="hier">at the beginning of this chapter</link>:
+    </para>
+
+    <informalexample>
+      <computeroutput>
+	<literallayout>
+$ ./classhier
+&gt; add 1.1
+Title: Languages
+&gt; add 1.1.1
+Title: Compiled
+&gt; add 1.1.1.1         # Creates a couple of entries in the hierarchy
+Title: C
+&gt; add 1.1.1.1         # The third lambda parameter to insert() returned false
+Title: C++               # and added an entry to the existing node, not replacing it.
+&gt; add 1.1.2
+Title: Interpreted
+&gt; add 1.1.2.1
+Title: Javascript
+&gt; get 1.1.2.2
+Found: 1.1.2
+   Interpreted
+&gt; get 1.1.2.1
+Found: 1.1.2.1
+   Javascript
+&gt; get 1.1.2.1.1       # This node does not exist, found its closest parent.
+Found: 1.1.2.1
+   Javascript
+&gt; del 1.1.1.2.1
+Not found
+&gt; list
+    1.1
+    1.1.1
+    1.1.1.1
+    1.1.2
+    1.1.2.1
+&gt; del 1.1.2.1
+Found: 1.1.2.1
+   Javascript
+Delete? y
+Removed
+&gt; list
+    1.1
+    1.1.1
+    1.1.1.1
+    1.1.2
+&gt; del 1.1.1
+Found: 1.1.1
+   Compiled
+Delete? y
+Removed
+&gt; list             # Note that the intermediate node, 1.1.1. does not have
+    1.1               # to exist.
+    1.1.1.1
+    1.1.2
+&gt; get 1.1.1
+Found: 1.1            # Found closest parent node.
+   Languages
+&gt; get 1.1.1.1
+Found: 1.1.1.1
+   C
+   C++
+&gt;</literallayout>
+      </computeroutput>
+    </informalexample>
+  </section>
+</chapter>
+<!--
+Local Variables:
+mode: sgml
+sgml-parent-document: ("book.xml" "book" "chapter")
+End:
+-->

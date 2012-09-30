@@ -29,6 +29,7 @@
 /testgetprop
 /testgetpwgr
 /testglob
+/testhier
 /testhttpclientimpl
 /testhttpmessageimpl
 /testhttpresponseimpl

@@ -94,6 +94,7 @@ libcxx_la_SOURCES=\
 	grp.C			\
 	headersbase.C		\
 	headersimpl.C		\
+	hier.C			\
 	hms.C			\
 	http_accept_header.C	\
 	http_cgiimpl.C		\
@@ -240,6 +241,7 @@ noinst_PROGRAMS=\
 	testgetprop                   \
 	testgetpwgr                   \
 	testglob                      \
+	testhier                      \
 	testhttpclientimpl            \
 	testhttpmessageimpl           \
 	testhttpresponseimpl          \
@@ -560,6 +562,10 @@ testforkexec_SOURCES=testforkexec.C
 testforkexec_LDADD=libcxx.la
 testforkexec_LDFLAGS=$(TESTLINKTYPE)
 
+testhier_SOURCES=testhier.C
+testhier_LDADD=libcxx.la
+testhier_LDFLAGS=$(TESTLINKTYPE)
+
 propertiescli.h : propertiescli.h.tmp
 	perl -p -e 's/^#include.*//;s/\b@LIBCXX_NAMESPACE@::/LIBCXX_NAMESPACE::/g' <propertiescli.h.tmp >propertiescli.h.tmp2
 	mv propertiescli.h.tmp2 propertiescli.h
@@ -727,6 +733,7 @@ check-am: $(noinst_PROGRAMS) $(noinst_DATA)
 	./testjoin
 	./testpidinfo
 	./testforkexec
+	./testhier
 
 $(XTEST_MO_DIR)/$(XTEST_MO_FILE): testmessages.po
 	mkdir -p $(XTEST_MO_DIR)
