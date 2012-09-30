@@ -29,7 +29,11 @@ static void testhttpresponseimpl()
 			throw EXCEPTION("Did not parse the full message");
 	} catch (LIBCXX_NAMESPACE::http::response_exception &e)
 	{
-		std::cout << e << std::endl;
+		std::cout << "Expected exception: ";
+
+		e.toString(std::ostreambuf_iterator<char>(std::cout));
+
+		std::cout << e.body() << std::flush;
 		return;
 	}
 

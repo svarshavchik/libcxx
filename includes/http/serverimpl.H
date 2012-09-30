@@ -239,7 +239,7 @@ protected:
 		  //! The exception
 		  const response_exception &exception)
 	{
-		responseimpl resp(exception);
+		responseimpl resp=exception;
 
 		if (req.responseHasMessageBody(resp))
 		{
@@ -313,7 +313,7 @@ private:
 			register_response(resp, req);
 			sender_t::send(resp, req);
 			flush_message_send();
-		} catch (exception &e)
+		} catch (const exception &e)
 		{
 			end_message_send();
 			throw;
@@ -348,7 +348,7 @@ private:
 			register_response(resp, req);
 			sender_t::send(resp, req, beg_iter, end_iter, never);
 			flush_message_send();
-		} catch (exception &e)
+		} catch (const exception &e)
 		{
 			end_message_send();
 			throw;
@@ -432,7 +432,7 @@ public:
 
 				if (!response_sent)
 					responseimpl::throw_internal_server_error();
-			} catch (response_exception &e)
+			} catch (const response_exception &e)
 			{
 				report_exception(req, e);
 			}
@@ -496,7 +496,9 @@ protected:
 		if (response_sent
 		    || e.getStatusCode() == 408) // Propagate timeout exceptions
 			throw e;
-		send(req, e);
+
+		response_exception cpy(e);
+		send(req, cpy);
 	}
 
 private:

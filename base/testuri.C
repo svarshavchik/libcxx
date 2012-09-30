@@ -4,10 +4,11 @@
 */
 
 #include "libcxx_config.h"
-#include "uriimpl.H"
-#include "getlinecrlf.H"
-#include "chrcasecmp.H"
-#include "headersimpl.H"
+#include "x/uriimpl.H"
+#include "x/getlinecrlf.H"
+#include "x/chrcasecmp.H"
+#include "x/headersimpl.H"
+#include "x/http/exception.H"
 #include <set>
 #include <iostream>
 #include <sstream>
@@ -260,6 +261,111 @@ static void testheadersimpl()
 	}
 }
 
+template<typename Functor>
+void testtokenizer(Functor &&functor)
+{
+	try
+	{
+		functor();
+	} catch (const LIBCXX_NAMESPACE::http::response_exception &e)
+	{
+		std::stringstream s;
+
+		e.toString(std::ostreambuf_iterator<char>(s));
+
+		std::string line;
+
+		while (!std::getline(s, line).eof())
+		{
+			if (line.substr(0, 5) == "Date:")
+				continue;
+			std::cout << line << std::endl;
+		}
+
+		std::cout << e.body() << std::endl << std::flush;
+	}
+}
+
+void testtokenizer()
+{
+	testtokenizer([]
+		      {
+			      LIBCXX_NAMESPACE::http::responseimpl
+				      ::throw_unauthorized(LIBCXX_NAMESPACE
+							   ::http::auth
+							   ::basic,
+							   "simplerealm",
+							   "mode",
+							   "test");
+		      });
+
+	testtokenizer([]
+		      {
+			      LIBCXX_NAMESPACE::http::responseimpl
+				      ::throw_unauthorized(LIBCXX_NAMESPACE
+							   ::http::auth
+							   ::basic,
+							   "simplerealm2",
+							   "mode2",
+							   "test2",
+							   LIBCXX_NAMESPACE
+							   ::http::auth
+							   ::basic,
+							   "simplerealm3");
+		      });
+
+	testtokenizer([]
+		      {
+			      LIBCXX_NAMESPACE::http::responseimpl
+				      ::throw_proxy_authentication_required
+				      (LIBCXX_NAMESPACE
+				       ::http::auth
+				       ::basic,
+				       "simplerealm4");
+		      });
+
+	testtokenizer([]
+		      {
+			      LIBCXX_NAMESPACE::http::responseimpl
+				      ::scheme_parameters_t params;
+
+			      params.insert(std::make_pair("realm",
+							   "prepackaged realm5"));
+
+			      LIBCXX_NAMESPACE::http::responseimpl
+				      ::throw_unauthorized(LIBCXX_NAMESPACE
+							   ::http::auth
+							   ::basic,
+							   params);
+		      });
+
+	testtokenizer([]
+		      {
+			      LIBCXX_NAMESPACE::http::responseimpl
+				      ::scheme_parameters_t params;
+
+			      params.insert(std::make_pair("realm",
+							   "prepackaged realm6"));
+
+			      LIBCXX_NAMESPACE::http::responseimpl
+				      ::throw_unauthorized(LIBCXX_NAMESPACE
+							   ::http::auth
+							   ::basic,
+							   params,
+							   LIBCXX_NAMESPACE
+							   ::http::auth
+							   ::basic,
+							   "realm7",
+							   "param7",
+							   "value7",
+							   LIBCXX_NAMESPACE
+							   ::http::auth
+							   ::basic,
+							   "realm8");
+		      });
+
+}
+
 int main(int argc, char **argv)
 {
 	try {
@@ -322,6 +428,7 @@ int main(int argc, char **argv)
 		testchrcasecmp();
 		testheadersimpl<LIBCXX_NAMESPACE::headersbase::crlf_endl>();
 		testheadersimpl<LIBCXX_NAMESPACE::headersbase::lf_endl>();
+		testtokenizer();
 	} catch (LIBCXX_NAMESPACE::exception &e)
 	{
 		std::cerr << e << std::endl;

@@ -115,9 +115,6 @@ public:
 	responseimpl(int statuscodeArg, const char *reasonphraseArg,
 		     httpver_t httpverArg=http11);
 
-	//! Construct headers from an exception object
-	responseimpl(const response_exception &exception);
-
 	//! Destructor
 	~responseimpl() noexcept;
 
@@ -244,6 +241,34 @@ private:
 	static const char msg_505[];
 	//! This message could not be parsed
 	void bad_message() __attribute__((noreturn));
+
+	//! Common template for throw_unauthorized_exception() and proxy_authentication_required
+
+	//! Constructs an exception, from its variadic parameters, and throws
+	//! it.
+	//! \internal
+
+	template<typename ...Args>
+	static void throwAuthenticateException(int code,
+					       const char *msg,
+					       const char *header,
+					       auth first_scheme,
+					       Args && ...args)
+		__attribute__((noreturn));
+
+	//! Common template for throw_unauthorized_exception() and proxy_authentication_required
+
+	//! \overload
+	//! \internal
+	template<typename ...Args>
+	static void throwAuthenticateException(int code,
+					       const char *msg,
+					       const char *header,
+					       httpver_t httpverArg,
+					       auth first_scheme,
+					       Args && ...args)
+		__attribute__((noreturn));
+
 public:
 
 	//! Throw an HTTP error %exception
@@ -264,9 +289,12 @@ public:
 	}
 
 	//! Throw an HTTP-related %exception
-	static void throw_unauthorized() __attribute__((noreturn))
+	template<typename ...Args>
+	static void throw_unauthorized(Args && ...args)
 	{
-		throwResponseException(401, msg_401); 
+		throwAuthenticateException(www_authenticate_code, msg_401,
+					   www_authenticate,
+					   std::forward<Args>(args)...); 
 	}
 
 	//! Throw an HTTP-related %exception
@@ -300,9 +328,12 @@ public:
 	}
 
 	//! Throw an HTTP-related %exception
-	static void throw_proxy_authentication_required() __attribute__((noreturn))
+	template<typename ...Args>
+	static void throw_proxy_authentication_required(Args && ...args)
 	{
-		throwResponseException(407, msg_407); 
+		throwAuthenticateException(proxy_authenticate_code, msg_407,
+					   proxy_authenticate,
+					   std::forward<Args>(args)...); 
 	}
 
 	//! Throw an HTTP-related %exception

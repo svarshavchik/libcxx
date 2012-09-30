@@ -63,14 +63,6 @@ responseimpl::responseimpl(int statuscodeArg,
 	setCurrentDate();
 }
 
-responseimpl::responseimpl(const response_exception &exception)
-	: httpver(http11), statuscode(exception.getStatusCode()),
-	  reasonphrase(exception.getReasonPhrase())
-{
-	setCurrentDate();
-	append("Content-Type: text/html");
-}
-
 void responseimpl::bad_message()
 {
 	responseimpl::throw_internal_server_error();
@@ -228,7 +220,7 @@ std::string responseimpl::authschemeparser::operator()(void)
 		}
 		else
 		{
-			// If this is not the first word word, well, if there's
+			// If this is not the first word, well, if there's
 			// a space somewhere before the =, this must be the
 			// first parameter of the next authentication scheme.
 			p=std::find(b, e, '=');
