@@ -1,0 +1,137 @@
+<!--
+
+Copyright 2012 Double Precision, Inc.
+See COPYING for distribution information.
+
+-->
+
+<chapter id="strtok">
+  <title>A tokenizer helper template</title>
+
+  <para>
+    The
+    <ulink url="&link-x--tokenizer;"><classname>&ns;::tokenizer</classname></ulink>
+    template takes one parameter, a class that defines a static
+    <literal>constexpr</literal>
+    <function>is_token</function>() method, like this:
+  </para>
+
+  <blockquote>
+    <informalexample>
+      <programlisting>
+#include &lt;&ns;/tokens.H&gt;
+
+class is_alphabetic {
+
+public:
+
+    static constexpr bool is_token(char c)
+    {
+        return (c &gt;= 'A' &amp;&amp; c &lt;= 'Z') ||
+               (c &gt;= 'a' &amp;&amp; c &lt;= 'z');
+    }
+};
+
+typedef &ns;::tokenizer&lt;is_alphabetic&gt; alphabetic_tokens_t;
+
+</programlisting>
+    </informalexample>
+  </blockquote>
+
+  <para>
+    <classname>&ns;::tokenizer</classname> implements common algorithms
+    for constructing and dealing with grammars and protocols that employ
+    elements that consist of characters that are a part of the defined token
+    class. In the following descriptions, <quote>token class</quote> is the
+    set of characters for which the above <literal>constexpr</literal>
+    <function>is_token</function>() function returns
+    <literal>true</literal>.
+  </para>
+
+  <variablelist>
+    <varlistentry>
+      <term><classname>bool</classname> <varname>flag</varname>=<function><classname>&ns;::tokenizer&lt;<replaceable>token_class_t</replaceable>&gt;</classname>::is_token(<varname>b</varname>, <varname>e</varname>)</function>;</term>
+      <listitem>
+	<para>
+	  <varname>b</varname> and <varname>e</varname> are iterators that
+	  define an input sequence. This <function>is_token</function>()
+	  returns <literal>true</literal> if all characters in the input
+	  sequence are in the character token class. 
+	</para>
+      </listitem>
+    </varlistentry>
+    <varlistentry>
+      <term><classname>bool</classname> <varname>flag</varname>=<function><classname>&ns;::tokenizer&lt;<replaceable>token_class_t</replaceable>&gt;</classname>::is_token(<varname>c</varname>)</function>;</term>
+      <listitem>
+	<para>
+	  This is equivalent to
+	  <quote><classname>bool</classname> <varname>flag</varname>=<function><classname>&ns;::tokenizer&lt;<replaceable>token_class_t</replaceable>&gt;</classname>::is_token(std::begin(<varname>c</varname>), std::end(<varname>c</varname>))</function>;</quote>. 
+	</para>
+      </listitem>
+    </varlistentry>
+
+    <varlistentry>
+      <term><classname>output_iter_t </classname> <varname>o</varname>=<function><classname>&ns;::tokenizer&lt;<replaceable>token_class_t</replaceable>&gt;</classname>::emit_token_or_quoted_word(<varname>p</varname>, <varname>b</varname>, <varname>e</varname>)</function>;</term>
+      <listitem>
+	<para>
+	  <varname>b</varname> and <varname>e</varname> must be, at a minimum,
+	  forward iterators. The first parameter,
+	  <varname>p</varname> is an output iterator.
+	  If <quote>is_token(b, e)</quote>, then the sequence defined
+	  by the forward iterators is copied into the output iterator.
+	  Otherwise the sequence that gets copied into the output iterator
+	  consists of a double quote, &lt;<literal>&#34;</literal>&gt;,
+	  the forward iterator-defined sequence,
+	  and another double quote, with any double quote
+	  and backslash, &lt;<literal>\</literal>&gt;, characters
+	  contained in the
+	  forward iterator-defined sequence prefixed by a backslash.
+	</para>
+
+	<para>
+	  In all cases, <function>emit_token_or_quoted_word</function>() returns
+	  the final value of the output iterator.
+	  An exception gets thrown if the forward iterator sequence contains
+	  <literal>\r</literal>, <literal>\n</literal>, or <literal>\0</literal>
+	  characters, which cannot be in the
+	  <classname><replaceable>token_class_t</replaceable></classname>.
+	</para>
+      </listitem>
+    </varlistentry>
+
+    <varlistentry>
+      <term><classname>output_iter_t </classname> <varname>o</varname>=<function><classname>&ns;::tokenizer&lt;<replaceable>token_class_t</replaceable>&gt;</classname>::emit_token_or_quoted_word(<varname>p</varname>, <varname>c</varname>)</function>;</term>
+      <listitem>
+	<para>
+	  This is equivalent to
+	  <quote><classname>output_iter_t </classname> <varname>o</varname>=<function><classname>&ns;::tokenizer&lt;<replaceable>token_class_t</replaceable>&gt;</classname>::emit_token_or_quoted_word(<varname>p</varname>, std::begin(<varname>c</varname>), std::end(<varname>c</varname>))</function>;</quote>
+	</para>
+      </listitem>
+    </varlistentry>
+  </variablelist>
+
+  <para>
+    <filename>&ns;/tokens.H</filename>
+    defines the following classes that are suitable to be the template
+    parameter to <classname>&ns;::tokenizer</classname>:
+  </para>
+
+  <variablelist>
+    <varlistentry>
+      <term><classname>is_http_token</classname></term>
+      <listitem>
+	<para>
+	  The characters that belong to the <quote>token</quote>
+	  element defined in section 2.2 of <acronym>RFC</acronym> 2616.
+	</para>
+      </listitem>
+    </varlistentry>
+  </variablelist>
+</chapter>
+
+<!--
+Local Variables:
+mode: sgml
+sgml-parent-document: ("book.xml" "part" "chapter")
+End:
+-->

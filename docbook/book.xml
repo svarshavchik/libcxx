@@ -46,6 +46,7 @@
 <!ENTITY httportmap SYSTEM "httportmap.xml">
 <!ENTITY miscstringability SYSTEM "miscstringability.xml">
 <!ENTITY miscstrtok SYSTEM "miscstrtok.xml">
+<!ENTITY misctokenizer SYSTEM "misctokenizer.xml">
 <!ENTITY miscwordexp SYSTEM "miscwordexp.xml">
 <!ENTITY misctimespec SYSTEM "misctimespec.xml">
 <!ENTITY miscfmtsize SYSTEM "miscfmtsize.xml">
@@ -138,6 +139,7 @@ See COPYING for distribution information.
 
     &miscstringability;
     &miscstrtok;
+    &misctokenizer;
     &miscwordexp;
     &misctimespec;
     &miscfmtsize;

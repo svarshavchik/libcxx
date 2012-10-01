@@ -486,6 +486,10 @@ public:
 			*iter++ = *p;
 		return iter;
 	}
+
+	//! Throw an exception, invalid character in token.
+
+	static void invalid_char_in_token() __attribute__((noreturn));
 };
 
 

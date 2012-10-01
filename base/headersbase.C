@@ -4,7 +4,8 @@
 */
 
 #include "libcxx_config.h"
-#include "headersbase.H"
+#include "x/headersbase.H"
+#include "x/messages.H"
 #include "gettext_in.h"
 #include <cstring>
 #include <algorithm>
@@ -20,12 +21,17 @@ const char headersbase::lf_endl::eol_str[]="\n";
 
 void headersbase::parse_endofstream()
 {
-	throw EXCEPTION("End of stream while parsing headers");
+	throw EXCEPTION(libmsg(_txt("End of stream while parsing headers")));
 }
 
 void headersbase::parse_toomanyheaders()
 {
-	throw EXCEPTION("Number of headers exceeds maximum allowed");
+	throw EXCEPTION(libmsg(_txt("Number of headers exceeds maximum allowed")));
+}
+
+void headersbase::invalid_char_in_token()
+{
+	throw EXCEPTION(libmsg(_txt("Invalid character in token")));
 }
 
 headersbase::headersbase() noexcept

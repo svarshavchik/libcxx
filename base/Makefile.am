@@ -170,6 +170,7 @@ libcxx_la_SOURCES=\
 	timerobj_internal.H	\
 	timertaskentry_internal.H \
 	timertaskobj.C		\
+	tokens.C		\
 	tzfileobj.C		\
 	tz_internal.H		\
 	uriimpl.C		\
