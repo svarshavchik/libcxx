@@ -9,6 +9,7 @@
 #include "x/chrcasecmp.H"
 #include "x/headersimpl.H"
 #include "x/http/exception.H"
+#include "x/base64.H"
 #include <set>
 #include <iostream>
 #include <sstream>
@@ -364,6 +365,12 @@ void testtokenizer()
 							   "realm8");
 		      });
 
+	std::cout << "Valid base64 encode: ";
+	std::string up="user:password";
+
+	LIBCXX_NAMESPACE::base64<>::encode(up.begin(), up.end(),
+					   std::ostreambuf_iterator<char>
+					   (std::cout));
 }
 
 int main(int argc, char **argv)
