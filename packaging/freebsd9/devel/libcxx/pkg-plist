@@ -148,6 +148,9 @@ include/x/gnutls/x509_privkeyobj.H
 include/x/grp.H
 include/x/headersbase.H
 include/x/headersimpl.H
+include/x/hier.H
+include/x/hierfwd.H
+include/x/hierobj.H
 include/x/hms.H
 include/x/hmsfwd.H
 include/x/http/accept_header.H
@@ -155,6 +158,15 @@ include/x/http/bodycallback.H
 include/x/http/bodycallbackobj.H
 include/x/http/cgiimpl.H
 include/x/http/cgiimpl_t.H
+include/x/http/clientauth.H
+include/x/http/clientauthcache.H
+include/x/http/clientauthcachefwd.H
+include/x/http/clientauthcacheobj.H
+include/x/http/clientauthfwd.H
+include/x/http/clientauthimpl.H
+include/x/http/clientauthimplfwd.H
+include/x/http/clientauthimplobj.H
+include/x/http/clientauthobj.H
 include/x/http/clientimpl.H
 include/x/http/clientimpl_t.H
 include/x/http/clientimpl_to.H
@@ -372,6 +384,10 @@ include/x/timerfd_def.h
 include/x/timerfdfwd.H
 include/x/timerfdobj.H
 include/x/timespec.H
+include/x/tokens.H
+include/x/tokens_to.H
+include/x/tokens_to2.H
+include/x/tokens_to3.H
 include/x/tostring.H
 include/x/tuple_param_pack.H
 include/x/tzfile.H
