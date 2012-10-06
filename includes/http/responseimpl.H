@@ -12,6 +12,7 @@
 #include <exception>
 #include <algorithm>
 #include <sstream>
+#include <cstring>
 #include <map>
 #include <x/namespace.h>
 
@@ -61,6 +62,9 @@ class responseimpl : public messageimpl {
 public:
 	//! The container for authentication challenge scheme's parameters
 
+	//! Note that on the server side, \ref response_exception puts
+	//! quoted parameter values into scheme_parameters_t. This is because
+	//! some parameters, according to RFC 2617, must always be quoted.
 	typedef std::multimap<std::string, std::string,
 			      chrcasecmp::str_less> scheme_parameters_t;
 
@@ -242,6 +246,31 @@ public:
 
 	//! The proxy-authenticate code
 	static const int proxy_authenticate_code=407;
+
+	//! A parameter in an authentication challenge
+
+	struct auth_param {
+
+		//! Parameter name
+		const char *name;
+
+		//! Whether the parameter value must be always quoted
+		bool always_quoted;
+
+		//! Associate container operator
+
+		bool operator<(const auth_param &o) const
+		{
+			return strcmp(name, o.name) < 0;
+		}
+
+		//! Quote the value, accordingly
+		std::string quote_value(const std::string &value) const;
+	};
+
+	//! Known authentication parameters
+
+	static const auth_param auth_realm; // Authentication realm
 
 	//! Throw an HTTP error %exception
 

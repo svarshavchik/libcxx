@@ -246,18 +246,7 @@ public:
 		if (is_token(b, e))
 			return std::copy(b, e, out);
 
-		*out++='"';
-
-		while (b != e)
-		{
-			if (*b == '\r' || *b == '\n' || *b == 0)
-				headersbase::invalid_char_in_token();
-			if (*b == '\\' || *b == '"')
-				*out++='\\';
-			*out++=*b++;
-		}
-		*out++='"';
-		return out;
+                return headersbase::emit_quoted_string(out, b, e);
 	}
 
 	//! Emit either an atom or a quoted word, into an output iterator

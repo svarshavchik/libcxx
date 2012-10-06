@@ -61,8 +61,7 @@ void response_exception::addChallenge(const char *header,
 		i=std::copy(param.first.begin(), param.first.end(),
 			    std::copy(sep, sep+strlen(sep), i));
 		*i++='=';
-		i=tokenizer<is_http_token>
-			::emit_token_or_quoted_word(i, param.second);
+		i=std::copy(param.second.begin(), param.second.end(), i);
 		sep=", ";
 	}
 	append(header, o.str());

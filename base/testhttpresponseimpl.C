@@ -78,15 +78,15 @@ void verifychallenge(const std::string &challenge, const std::string &expected)
 void testchallenges()
 {
 	verifychallenge("HTTP/1.0 401 Not Authorized\r\n"
-			"WWW-Authenticate: basic realm=\"Secret\", password=rosebud\r\n\r\n",
-			"basic\nSecret\npassword=rosebud\n");
+			"WWW-Authenticate: Basic realm=\"Secret\", password=rosebud\r\n\r\n",
+			"Basic\nSecret\npassword=rosebud\n");
 
 	verifychallenge("HTTP/1.0 407 Not Authorized\r\n"
-			"Proxy-Authenticate: basic realm=\"Secret\", password=rosebud, Digest realm=first, password=opensesame\r\n"
-			"Proxy-Authenticate: basic realm=\"second\", password=abracadabra\r\n\r\n",
-			"basic\nSecret\npassword=rosebud\n"
-			"digest\nfirst\npassword=opensesame\n"
-			"basic\nsecond\npassword=abracadabra\n");
+			"Proxy-Authenticate: Basic realm=\"Secret\", password=rosebud, Digest realm=first, password=opensesame\r\n"
+			"Proxy-Authenticate: Basic realm=\"second\", password=abracadabra\r\n\r\n",
+			"Basic\nSecret\npassword=rosebud\n"
+			"Digest\nfirst\npassword=opensesame\n"
+			"Basic\nsecond\npassword=abracadabra\n");
 }
 
 int main(int argc, char **argv)

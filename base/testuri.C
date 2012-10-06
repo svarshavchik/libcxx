@@ -296,7 +296,7 @@ void testtokenizer()
 							   ::http::auth
 							   ::basic,
 							   "simplerealm",
-							   "mode",
+							   LIBCXX_NAMESPACE::http::responseimpl::auth_param({"mode", false}),
 							   "test");
 		      });
 
@@ -307,7 +307,7 @@ void testtokenizer()
 							   ::http::auth
 							   ::basic,
 							   "simplerealm2",
-							   "mode2",
+							   LIBCXX_NAMESPACE::http::responseimpl::auth_param({"mode2", false}),
 							   "test2",
 							   LIBCXX_NAMESPACE
 							   ::http::auth
@@ -331,7 +331,7 @@ void testtokenizer()
 				      ::scheme_parameters_t params;
 
 			      params.insert(std::make_pair("realm",
-							   "prepackaged realm5"));
+							   "\"prepackaged realm5\""));
 
 			      LIBCXX_NAMESPACE::http::responseimpl
 				      ::throw_unauthorized(LIBCXX_NAMESPACE
@@ -346,7 +346,7 @@ void testtokenizer()
 				      ::scheme_parameters_t params;
 
 			      params.insert(std::make_pair("realm",
-							   "prepackaged realm6"));
+							   "\"prepackaged realm6\""));
 
 			      LIBCXX_NAMESPACE::http::responseimpl
 				      ::throw_unauthorized(LIBCXX_NAMESPACE
@@ -357,7 +357,7 @@ void testtokenizer()
 							   ::http::auth
 							   ::basic,
 							   "realm7",
-							   "param7",
+							   LIBCXX_NAMESPACE::http::responseimpl::auth_param({"param7", false}),
 							   "value7",
 							   LIBCXX_NAMESPACE
 							   ::http::auth

@@ -575,6 +575,32 @@ public:
 	//! Throw an exception, invalid character in token.
 
 	static void invalid_char_in_token() __attribute__((noreturn));
+
+	//! Emit a quoted word into an output iterator
+
+	template<typename output_iter, typename input_iter>
+	static output_iter emit_quoted_string(//! Output iterator
+					      output_iter out,
+
+					      //! Beginning iterator
+					      input_iter b,
+
+					      //! Ending iterator
+					      input_iter e)
+	{
+		*out++='"';
+
+		while (b != e)
+		{
+			if (*b == '\r' || *b == '\n' || *b == 0)
+				headersbase::invalid_char_in_token();
+			if (*b == '\\' || *b == '"')
+				*out++='\\';
+			*out++=*b++;
+		}
+		*out++='"';
+		return out;
+	}
 };
 
 

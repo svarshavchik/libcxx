@@ -54,9 +54,8 @@ class response_exception : public exception, public responseimpl {
 	{
 		scheme_parameters_t next_params;
 
-		next_params.insert(std::make_pair("realm", realm));
-
 		collectChallenge(header, next_scheme, next_params,
+				 responseimpl::auth_realm, realm,
 				 std::forward<Args>(args)...);
 	}
 
@@ -75,11 +74,13 @@ class response_exception : public exception, public responseimpl {
 	void collectChallenge(const char *header,
 			      auth current_scheme,
 			      scheme_parameters_t &current_params,
-			      const std::string &name,
+			      const responseimpl::auth_param &name,
 			      const std::string &value,
 			      Args && ...args)
 	{
-		current_params.insert(std::make_pair(name, value));
+		current_params.insert(std::make_pair(std::string(name.name),
+						     name.quote_value(value)));
+
 		collectChallenge(header, current_scheme, current_params,
 				 std::forward<Args>(args)...);
 	}
