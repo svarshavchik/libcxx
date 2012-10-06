@@ -60,6 +60,7 @@
 <!ENTITY gnutls_keys SYSTEM "gnutls_keys.xml">
 <!ENTITY gnutls_certs SYSTEM "gnutls_certs.xml">
 <!ENTITY gnutls_sessions SYSTEM "gnutls_sessions.xml">
+<!ENTITY gcrypt_md SYSTEM "gcrypt_md.xml">
 <!ENTITY freebsd SYSTEM "freebsd.xml">
 <!ENTITY install SYSTEM "install.xml">
 <!ENTITY manproperties SYSTEM "manproperties.xml">
@@ -77,7 +78,7 @@
 <!ENTITY stl "<acronym>STL</acronym>">
 <!ENTITY freebsdver "FreeBSD 9">
 <!ENTITY freebsdverdir "<filename>packaging/freebsd9/devel/libcxx</filename>">
-
+<!ENTITY gcrypt "<application>Libgcrypt</application>">
 <!ENTITY automakeintro SYSTEM "automakeintro.inc.xml">
 <!ENTITY automakelibxinit SYSTEM "automakelibxinit.inc.xml">
 
@@ -182,6 +183,22 @@ See COPYING for distribution information.
     &gnutls_certs;
     &gnutls_sessions;
 
+  </part>
+
+  <part id="gcrypt">
+    <title>Libgcrypt classes</title>
+
+    <partintro>
+      <para>
+	The following classes and templates integrate
+	<ulink url="http://www.gnupg.org/documentation/manuals/gcrypt/index.html">&gcrypt;</ulink>
+	cryptographic primitives into &app;'s class hierarchy.
+	These classes are also obtained by linking with
+	<option>-lcxxtls</option> option.
+      </para>
+    </partintro>
+
+    &gcrypt_md;
   </part>
 
   <part id="http">

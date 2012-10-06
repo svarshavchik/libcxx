@@ -1,0 +1,170 @@
+<!--
+
+Copyright 2012 Double Precision, Inc.
+See COPYING for distribution information.
+
+-->
+
+<chapter id="gcrypt_md">
+  <title>Message digests/hashes</title>
+
+  <para>
+    <ulink url="&link-typedef-x--gcrypt-md;"><classname>&ns;::gcrypt::md</classname></ulink>
+    provides access to message digest or hash algorithms, such as MD5.
+    Methods and functions that use message digests generally message
+    digests specified by their
+    &gcrypt; identifiers, like <literal>GCRY_MD_MD5</literal> or by name, like
+    <quote>md5</quote>.
+  </para>
+
+  <blockquote>
+    <informalexample>
+      <programlisting>
+#include &lt;&ns;/gcrypt/md.H&gt;
+#include &lt;&ns;/join.H&gt;
+
+std::set&lt;std::string&gt; algos;
+
+&ns;::gcrypt::md::base::enumerate(algos);
+
+std::cout &lt;&lt; join(algos, ", ") &lt;&lt; std::endl;</programlisting>
+    </informalexample>
+  </blockquote>
+
+  <para>
+    <function>enumerate</function>() returns the names of all message digest
+    algorithms implemented in &gcrypt;.
+    The
+    <ulink url="&link-x--gcrypt--mdBase;"><function>name</function>() and
+    <function>number</function>() functions</ulink>
+    convert message digest names to
+    their assigned identifiers.
+  </para>
+
+  <blockquote>
+    <informalexample>
+      <programlisting>
+auto md=&ns;::gcrypt::md::create("md5");
+
+md->write(&amp;buffer[0], buffer.size());
+
+std::vector&lt;unsigned char&gt; digest;
+
+md->digest(digest);</programlisting>
+    </informalexample>
+  </blockquote>
+
+  <para>
+    <classname>&ns;::gcrypt::md</classname>'s methods are generally equivalent
+    to their <literal>gcry_md</literal> namesakes in &gcrypt;. The
+    notable differences are:
+  </para>
+
+  <itemizedlist>
+    <listitem>
+      <para>
+	The reference-counted object's constructor creates the internal
+	&gcrypt; handle for the message digest, and the destructor
+	destroys it.
+	Passing another <classname>&ns;::gcrypt::md</classname>
+	to the constructor ends up duplicating the message digest handle
+	using <function>gcry_md_copy</function>():
+      </para>
+
+      <blockquote>
+	<informalexample>
+	  <programlisting>
+auto md1=&ns;::gcrypt::md::create("md5");
+
+// ...
+
+auto md2=&ns;::gcrypt::md::create(md);</programlisting>
+	</informalexample>
+      </blockquote>
+    </listitem>
+
+    <listitem>
+      <para>
+	Errors are reported by throwing
+	<link linkend="exceptions">exceptions</link>.
+      </para>
+    </listitem>
+  </itemizedlist>
+
+  <para>
+    An overloaded <methodname>digest</methodname>() returns the digest in a
+    constructed
+    <link linkend="vector">reference-counted vector</link>:
+  </para>
+
+  <blockquote>
+    <informalexample>
+      <programlisting>
+#include &lt;&ns;/vector.H&gt;
+
+&ns;::vector&lt;unsigned char&gt; digest=md-&gt;digest();</programlisting>
+    </informalexample>
+  </blockquote>
+
+  <para>
+    <methodname>hexdigest</methodname>() converts the raw, binary, digest
+    into a hexadecimal string, using lowercase letters:
+  </para>
+
+  <blockquote>
+    <informalexample>
+      <programlisting>
+#include &lt;&ns;/vector.H&gt;
+
+std::string h=md->hexdigest();</programlisting>
+    </informalexample>
+  </blockquote>
+
+  <para>
+    A more C++-ish way to calculate a digest is by using iterators.
+  </para>
+
+  <blockquote>
+    <informalexample>
+      <programlisting>
+&ns;::gcrypt::md::base::iterator md5("md5");
+
+*md5++='a';
+*md5++='b';
+*md5++='c';
+
+auto digest=md5.digest();
+
+std::string hexdigest=md5.hexdigest();</programlisting>
+    </informalexample>
+  </blockquote>
+
+  <para>
+    <ulink url="&link-x--gcrypt--mdBase--iterator;"><classname>&ns;::gcrypt::md::base::iterator</classname></ulink>
+    is an output iterator.
+    Iterating over an octet stream feeds it as the input for
+    the message digest hash.
+  </para>
+
+  <blockquote>
+    <informalexample>
+      <programlisting>
+std::vector&lt;char&gt; container;
+
+// ...
+
+auto digest=std::copy(container.begin(), container.end(),
+    &ns;::gcrypt::md::base::iterator("md5")).digest();</programlisting>
+    </informalexample>
+  </blockquote>
+
+  <para>
+    This example calculates an MD5 digest for a container, in one shot.
+  </para>
+</chapter>
+<!--
+Local Variables:
+mode: sgml
+sgml-parent-document: ("book.xml" "book" "chapter")
+End:
+-->

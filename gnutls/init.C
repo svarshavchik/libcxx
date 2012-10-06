@@ -4,9 +4,10 @@
 */
 
 #include "libcxx_config.h"
-#include "gnutls/init.H"
-#include "gnutls/exceptions.H"
-#include "property_value.H"
+#include "x/gnutls/init.H"
+#include "x/gnutls/exceptions.H"
+#include "x/gcrypt/errors.H"
+#include "x/property_value.H"
 #include "x/logger.H"
 
 #include <gcrypt.h>
@@ -132,6 +133,12 @@ void gnutls::chkerr_throw(int errcode,
 	if (init::logerrors.getValue())
 		LOG_ERROR(funcname << ": " << gnutls_strerror(errcode));
 	throw errexception(errcode, funcname);
+}
+
+void gcrypt::chkerr_throw(gcry_error_t code)
+{
+	throw EXCEPTION(std::string(gcry_strsource(code)) + ": "
+			+ gcry_strerror(code));
 }
 
 void gnutls::init::set_random_seed_file(std::string filename) noexcept

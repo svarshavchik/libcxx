@@ -3,6 +3,7 @@
 /libcxxtls.la
 /testhttpclientimpl
 /testhttpserverimpl
+/testmd
 /testpkparams
 /testsession
 /testuseragent_shared

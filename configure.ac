@@ -595,6 +595,7 @@ AC_CONFIG_FILES([Doxyfile po/Makefile.in
 		 Makefile
 		 includes/Makefile
 		 includes/http/Makefile
+		 includes/gcrypt/Makefile
 		 includes/gnutls/Makefile
 		 includes/param/Makefile
 		 includes/threads/Makefile

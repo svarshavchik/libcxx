@@ -49,6 +49,7 @@ libcxxtls_la_SOURCES=\
 	fdtlsserverimpl.C		\
 	fdtlsserverobj.C		\
 	init.C				\
+	mdobj.C				\
 	pkparamsobj.C			\
 	privkeyobj.C			\
 	pubkeyobj.C			\
@@ -66,9 +67,16 @@ libcxxtls_la_SOURCES=\
 libcxxtls_la_LIBADD=../base/libcxx.la
 libcxxtls_la_LDFLAGS=-version-info 1 $(GNUTLS_LIBS) $(GCRYPT_LIBS) -lpthread
 
-noinst_PROGRAMS=testx509privkey testx509cert testsession testpkparams \
-	testhttpclientimpl testhttpserverimpl \
-	testuseragent_static testuseragent_shared
+noinst_PROGRAMS=\
+	testhttpclientimpl				\
+	testhttpserverimpl				\
+	testmd						\
+	testpkparams					\
+	testsession					\
+	testuseragent_shared				\
+	testuseragent_static				\
+	testx509cert					\
+	testx509privkey
 
 check-am: testx509privkey testx509cert testsession
 	./testx509privkey
@@ -84,6 +92,7 @@ check-am: testx509privkey testx509cert testsession
 	./testuseragent_static --set-property x::gnutls::tlsparamsdir=`pwd`/tlsparamsdir.tst
 	./testuseragent_shared --set-property x::gnutls::tlsparamsdir=`pwd`/tlsparamsdir.tst
 	rm -rf testrsa[123].key testrsa*.crt dhparams.dat rsaparams.dat tlsparamsdir.tst
+	./testmd
 
 bin_PROGRAMS=tlsparamsgen
 sbin_SCRIPTS=tlsparamsgen.sh
@@ -118,6 +127,9 @@ testuseragent_static_LDFLAGS=-static
 
 testuseragent_shared_SOURCES=testuseragent.C
 testuseragent_shared_LDADD=../base/libcxx.la libcxxtls.la
+
+testmd_SOURCES=testmd.C
+testmd_LDADD=../base/libcxx.la libcxxtls.la
 
 $(call OPTIONS_GEN,tlsparamsgen.h,$(srcdir)/tlsparamsgen.xml)
 
