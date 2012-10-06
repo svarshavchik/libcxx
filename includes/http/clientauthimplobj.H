@@ -83,7 +83,45 @@ public:
 					  std::list< std::list<std::string>
 					  > &hier) LIBCXX_HIDDEN=0;
 
+	//! Add this authenticator's headers to a request, in advance
+
+	//! Returns a non-null reference if this authenticator should be
+	//! added to the headers of the initial request. Cached basic
+	//! authenticator returns itself. Cached digest authenticator
+	//! constructs a reference to a clientauthimpl whose add_header(),
+	//! if necessary, inserts the headers with an updated cnonce header.
+	//!
+	//! A null reference pointer gets returned in the event that this
+	//! authenticator should not be added to the initial request.
+
+	virtual clientauthimplptr new_request(//! The new request
+					      const requestimpl &req)
+	LIBCXX_HIDDEN=0;
+
+	//! Whether to try again in response to a server's challenge.
+
+	//! If a null reference gets returned, the existing authenticator
+	//! is considered to have failed, and it gets removed from
+	//! the clientauthcache.
+	//!
+	//! If a reference gets returned, it's considered to be a replacement
+	//! authenticator for the response to the server's challenge.
+	//!
+	//! Digest authenticator returns a non-null reference if the
+	//! server's challenge has the stale flag set. Otherwise, and in every
+	//! case for the basic authenticator, a null reference pointer gets
+	//! return.
+
+	virtual clientauthimplptr stale(//! The URI that sent the challenge
+					const uriimpl &request_uri,
+
+					//! The challenge's parameters.
+					const responseimpl::scheme_parameters_t
+					&req)
+		LIBCXX_HIDDEN=0;
+
 	class basic;
+	class digest;
 };
 
 #if 0

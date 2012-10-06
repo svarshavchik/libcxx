@@ -65,6 +65,17 @@ class LIBCXX_HIDDEN clientauthimplObj::basic : public clientauthimplObj {
 					 const protection_space_t *&space,
 					 std::list< std::list<std::string> >
 					 &hier);
+
+	//! Add this authenticator to a new request.
+
+	clientauthimplptr new_request(const requestimpl &req) override;
+
+	//! There's no such thing as a stale challenge, this request failed.
+
+	clientauthimplptr stale(const uriimpl &request_uri,
+				const responseimpl::scheme_parameters_t &req)
+		override;
+
 };
 
 #if 0

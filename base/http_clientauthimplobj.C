@@ -83,6 +83,18 @@ void clientauthimplObj::basic
 	}
 }
 
+clientauthimplptr clientauthimplObj::basic::new_request(const requestimpl &req)
+{
+	return clientauthimplptr(this);
+}
+
+clientauthimplptr
+clientauthimplObj::basic::stale(const uriimpl &request_uri,
+				const responseimpl::scheme_parameters_t &req)
+{
+	return clientauthimplptr();
+}
+
 clientauthimpl clientauthimplBase::create_basic(const uriimpl &uri,
 						const std::string &realm,
 						const std::string &userid,

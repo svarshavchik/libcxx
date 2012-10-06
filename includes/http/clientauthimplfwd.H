@@ -39,6 +39,12 @@ auth auth_fromstring(const std::string &s);
 
 typedef ref<clientauthimplObj, clientauthimplBase> clientauthimpl;
 
+//! A nullable reference pointer to aclient-side authorization module.
+
+//! \internal
+
+typedef ptr<clientauthimplObj, clientauthimplBase> clientauthimplptr;
+
 #if 0
 {
 	{

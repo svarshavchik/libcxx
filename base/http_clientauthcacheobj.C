@@ -137,10 +137,23 @@ void clientauthcacheObj::search_authorizations(const requestimpl &req,
 		{
 			auto entry=lock->entry();
 
-			auth->proxy_authorizations
-				.insert(std::make_pair(entry->realm, entry));
-			LOG_TRACE("Added proxy authorization for "
-				  << entry->realm);
+			auto new_entry=entry->new_request(req);
+
+			if (new_entry.null())
+			{
+				LOG_TRACE("Skipped proxy authorization for "
+					  << entry->realm);
+			}
+			else
+			{
+				LOG_TRACE("Added proxy authorization for "
+					  << new_entry->realm);
+
+
+				auth->proxy_authorizations
+					.insert(std::make_pair(new_entry->realm,
+							       new_entry));
+			}
 		}
 	}
 
@@ -180,13 +193,26 @@ void clientauthcacheObj::search_authorizations(const requestimpl &req,
 
 		auto entry=lock->entry();
 
-		auth->www_authorizations
-			.insert(std::make_pair(entry->realm, entry));
+		auto new_entry=entry->new_request(req);
 
-		LOG_TRACE("Added www authorization for "
-			  << join(lock->name(), "/")
-			  << ", realm: "
-			  << entry->realm);
+		if (new_entry.null())
+		{
+			LOG_TRACE("Skipped proxy authorization for "
+				  << join(lock->name(), "/")
+				  << ", realm: "
+				  << entry->realm);
+		}
+		else
+		{
+			auth->www_authorizations
+				.insert(std::make_pair(new_entry->realm,
+						       new_entry));
+
+			LOG_TRACE("Added www authorization for "
+				  << join(lock->name(), "/")
+				  << ", realm: "
+				  << entry->realm);
+		}
 	}
 }
 
@@ -259,6 +285,18 @@ bool clientauthcacheObj
 		{
 			const protection_space_t *space;
 			std::list<std::list<std::string> > hier;
+
+			auto updated=scheme->second->stale(uri, params);
+
+			if (!updated.null())
+			{
+				scheme->second=updated;
+
+				LOG_TRACE("Updated stale authorization for"
+					  " realm \""
+					  << scheme->second->realm << "\"");
+				return true;
+			}
 
 			LOG_TRACE("Removing failed authorization for realm \""
 				  << scheme->second->realm << "\"");
