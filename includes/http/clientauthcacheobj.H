@@ -45,22 +45,29 @@ public:
 	//! Destructor
 	~clientauthcacheObj() noexcept;
 
-	//! Install a manually-specific basic authorization scheme.
+	//! Install an authorization scheme based on a userid and a password.
 
-	void save_basic_authorization(//! Response for which authorization is provided
-				      const responseimpl &resp,
+	void save_user_password_authorization(//! Response for which authorization is provided
+					      const responseimpl &resp,
 
-				      //! Original request's URI
-				      const uriimpl &uri,
+					      //! Original request's URI
+					      const uriimpl &uri,
 
-				      //! Realm
-				      const std::string &realm,
+					      //! Authentication scheme
+					      auth scheme,
 
-				      //! Userid
-				      const std::string &userid,
+					      //! Realm
+					      const std::string &realm,
 
-				      //! Password
-				      const std::string &password);
+					      //! Challenge parameters
+					      const responseimpl
+					      ::scheme_parameters_t &params,
+
+					      //! Userid
+					      const std::string &userid,
+
+					      //! Password
+					      const std::string &password);
 
 	//! Install a manually-specific basic authorization scheme.
 

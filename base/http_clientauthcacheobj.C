@@ -11,8 +11,9 @@
 #include "x/chrcasecmp.H"
 #include "x/join.H"
 #include "x/tostring.H"
+#include "x/messages.H"
 #include "http_auth_internal.H"
-
+#include "gettext_in.h"
 #include <algorithm>
 
 LOG_CLASS_INIT(LIBCXX_NAMESPACE::http::clientauthcacheObj);
@@ -58,14 +59,39 @@ void clientauthcacheObj::decompose_path(const uriimpl &uri,
 	strtok_str(uri.getPath(), "/", path);
 }
 
-void clientauthcacheObj::save_basic_authorization(const responseimpl &resp,
-						  const uriimpl &uri,
-						  const std::string &realm,
-						  const std::string &userid,
-						  const std::string &password)
+void clientauthcacheObj
+::save_user_password_authorization(const responseimpl &resp,
+				   const uriimpl &uri,
+				   auth scheme,
+				   const std::string &realm,
+				   const responseimpl
+				   ::scheme_parameters_t &params,
+				   const std::string &userid,
+				   const std::string &password)
 {
-	save_authorization(resp, uri, clientauthimpl::base
-			   ::create_basic(uri, realm, userid, password));
+	switch (scheme) {
+	case auth::basic:
+		save_authorization(resp, uri, clientauthimpl::base
+				   ::create_basic(uri, realm, userid,
+						  password));
+		return;
+	case auth::digest:
+		{
+			// Weak symbol, must link with libcxxtls to get it.
+
+			auto impl=&clientauthimpl::base::create_digest;
+
+			if (!impl)
+			{
+				LOG_WARNING(libmsg(_txt("libcxxtls required for digest authentication")));
+				return;
+			}
+
+			auto auth=(*impl)(uri, realm, params, userid, password);
+			if (!auth.null())
+				save_authorization(resp, uri, auth);
+		}
+	}
 }
 
 void clientauthcacheObj::save_basic_authorization(const responseimpl &resp,

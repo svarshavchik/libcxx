@@ -7,6 +7,7 @@
 #include "http_clientauthobj.C"
 #include "http_clientauthcacheobj.C"
 #include "http_clientauthimplobj.C"
+#include "messages.C"
 #include "x/http/useragent.H"
 #include "x/join.H"
 #include "x/strtok.H"

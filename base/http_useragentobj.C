@@ -518,10 +518,11 @@ void useragentObj::set_authorization(const response &resp,
 				     const std::string &userid,
 				     const std::string &password)
 {
-	if (challenge.second.first == auth::basic)
-		authcache->save_basic_authorization(resp->message,
+	authcache->save_user_password_authorization(resp->message,
 						    resp->uri,
+						    challenge.second.first,
 						    challenge.first,
+						    challenge.second.second,
 						    userid,
 						    password);
 }
