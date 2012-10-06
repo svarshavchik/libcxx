@@ -196,10 +196,14 @@ void clientauthcacheObj::search_authorizations(const requestimpl &req,
 
 	const std::string authority=decompose_authority(req.getURI());
 
+	LOG_TRACE("Authority: " << authority);
 	auto lock=www_authorizations->create_readlock();
 
 	if (!lock->to_child(authority))
+	{
+		LOG_TRACE("Authority not found");
 		return; // Nothing at all for this authority.
+	}
 
 	std::set<std::string> realms=lock->children();
 
@@ -214,6 +218,8 @@ void clientauthcacheObj::search_authorizations(const requestimpl &req,
 
 		path.front()=realm;
 
+		LOG_TRACE("Checking path " << join(path, "/"));
+
 		if (!lock->to_child(path, true))
 			continue;
 
@@ -223,7 +229,7 @@ void clientauthcacheObj::search_authorizations(const requestimpl &req,
 
 		if (new_entry.null())
 		{
-			LOG_TRACE("Skipped proxy authorization for "
+			LOG_TRACE("Skipped www authorization for "
 				  << join(lock->name(), "/")
 				  << ", realm: "
 				  << entry->realm);
@@ -255,8 +261,15 @@ bool clientauthcacheObj
 		  << ", scheme " << auth_tostring(scheme)
 		  << ", realm " << realm);
 
-	do_fail_authorization(uri, resp, authorizations,
-			      auth::basic, "", params);
+	if (resp.www_authentication_required() && scheme == auth::basic)
+	{
+		// When we supply user:password in the URI, and we have a basic
+		// authorization failure, remove the default basic auth module
+
+		do_fail_authorization(uri, resp, authorizations,
+				      auth::basic, "", params);
+	}
+
 	bool rc=do_fail_authorization(uri, resp, authorizations,
 				      scheme, realm, params);
 
@@ -378,7 +391,8 @@ bool clientauthcacheObj
 	const protection_space_t *space;
 	std::list<std::string> realm_hier;
 
-	get_default_protection_space(uri, resp, realm, space, realm_hier);
+	get_default_protection_space(uri, resp, scheme,
+				     realm, space, realm_hier);
 
 	if (!space)
 		return false;
@@ -404,6 +418,7 @@ bool clientauthcacheObj
 void clientauthcacheObj
 ::get_default_protection_space(const uriimpl &uri,
 			       const responseimpl &resp,
+			       auth schema,
 			       const std::string &realm,
 			       const protection_space_t *&space,
 			       std::list<std::string> &realm_hier) const

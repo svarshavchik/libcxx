@@ -153,8 +153,7 @@ public:
 	//!
 	//! \internal
 
-	static std::string decompose_authority(const uriimpl &uri)
-		LIBCXX_HIDDEN;
+	static std::string decompose_authority(const uriimpl &uri);
 
 	//! Decompose the URI's path into a hierarchical key.
 
@@ -164,14 +163,13 @@ public:
 	//! \internal
 
 	static void decompose_path(const uriimpl &uri,
-				   std::list<std::string> &path)
-		LIBCXX_HIDDEN;
+				   std::list<std::string> &path);
 
-	//! Calculate the protection space for a URI.
+	//! Calculate the default protection space for a URI.
 
 	//! Populate the realm_hier parameter with the following:
 	//!
-	//! Proxy authorizations: [realm]
+	//! Proxy basic authorizations: [realm]
 	//! WWW authorizations: [authority]/[realm]/[uri path]
 	//!
 	//! Sets 'space' to proxy_authorization, www_authorization, or nullptr
@@ -183,13 +181,15 @@ public:
 					  const uriimpl &uri,
 					  //! Authorization challenge
 					  const responseimpl &resp,
+					  //! Authentication scheme
+					  auth scheme,
 					  //! Realm
 					  const std::string &realm,
 					  //! Governing protection space
 					  const protection_space_t *&space,
 					  //! Hierarchy in the protection space
 					  std::list<std::string> &realm_hier)
-		const LIBCXX_HIDDEN;
+		const;
 
 	//! Process a failed authorization
 

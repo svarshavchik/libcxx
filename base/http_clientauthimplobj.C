@@ -17,7 +17,7 @@ namespace LIBCXX_NAMESPACE {
 #endif
 
 clientauthimplObj::clientauthimplObj(auth schemeArg,
-			     const std::string &realmArg)
+				     const std::string &realmArg)
 	: scheme(schemeArg), realm(realmArg)
 {
 }
@@ -60,8 +60,8 @@ void clientauthimplObj::basic
 {
 	std::list<std::string> default_hier;
 
-	cache.get_default_protection_space(uri, resp, realm, space,
-					   default_hier);
+	cache.get_default_protection_space(uri, resp, auth::basic,
+					   realm, space, default_hier);
 
 	hier.push_back(default_hier);
 
