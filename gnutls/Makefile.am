@@ -48,6 +48,8 @@ libcxxtls_la_SOURCES=\
 	fdtlsclientobj.C		\
 	fdtlsserverimpl.C		\
 	fdtlsserverobj.C		\
+	http_auth_internal.C http_auth_internal.H \
+	http_serverauth.C		\
 	init.C				\
 	mdobj.C				\
 	pkparamsobj.C			\

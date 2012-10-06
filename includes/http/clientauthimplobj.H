@@ -40,10 +40,10 @@ public:
 
 	//! Constructor
 	clientauthimplObj(auth schemeArg,
-			  const std::string &realmArg) LIBCXX_HIDDEN;
+			  const std::string &realmArg);
 
 	//! Destructor
-	~clientauthimplObj() noexcept LIBCXX_HIDDEN;
+	~clientauthimplObj() noexcept;
 
 	//! Add authorization headers
 	virtual void add_header(//! Request to add headers to

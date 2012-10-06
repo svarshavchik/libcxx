@@ -115,10 +115,77 @@ static void testuseragent()
 		throw EXCEPTION("Hello world test failed");
 }
 
+static void showuri(const LIBCXX_NAMESPACE::uriimpl &uri)
+{
+	auto ua=LIBCXX_NAMESPACE::http::useragent::create();
+
+	bool has_challenge;
+
+	do
+	{
+		auto resp=ua->request(LIBCXX_NAMESPACE::http::GET, uri);
+
+		std::copy(resp->begin(), resp->end(),
+			  std::ostreambuf_iterator<char>(std::cout));
+
+		std::cout << std::flush;
+
+		has_challenge=false;
+
+		for (const auto &challenge:resp->challenges)
+		{
+			has_challenge=true;
+
+			std::cout << "Authentication required for "
+				  << challenge.first << ":" << std::endl
+				  << "Userid: " << std::flush;
+
+			std::string userid, password;
+
+			if (std::getline(std::cin, userid).eof())
+				return;
+
+			std::cout << "Password: " << std::flush;
+
+			if (std::getline(std::cin, password).eof())
+				return;
+
+			ua->set_authorization(resp, challenge,
+					      userid,
+					      password);
+		}
+
+		if (!has_challenge)
+		{
+			std::cout << "Again? " << std::flush;
+
+			std::string yn;
+
+			if (std::getline(std::cin, yn).eof())
+				return;
+
+			switch (*yn.c_str()) {
+			case 'y':
+			case 'Y':
+				has_challenge=true;
+				break;
+			}
+		}
+	} while (has_challenge);
+}
+
 int main(int argc, char **argv)
 {
 	try {
+		LIBCXX_NAMESPACE::option::string_value
+			uri(LIBCXX_NAMESPACE::option::string_value::create());
+
 		LIBCXX_NAMESPACE::option::list options(LIBCXX_NAMESPACE::option::list::create());
+
+		options->add(uri, 'u', L"uri",
+			     LIBCXX_NAMESPACE::option::list::base::hasvalue,
+			     L"uri",
+			     L"uri");
 
 		options->addDefaultOptions();
 
@@ -131,6 +198,13 @@ int main(int argc, char **argv)
 			exit(0);
 
 		LIBCXX_NAMESPACE::http::useragent::base::https_enable();
+
+		if (uri->isSet())
+		{
+			showuri(uri->value);
+			return 0;
+		}
+
 		testuseragent();
 	} catch (LIBCXX_NAMESPACE::exception &e) {
 		std::cout << e << std::endl;
@@ -138,4 +212,3 @@ int main(int argc, char **argv)
 	}
 	return 0;
 }
-
