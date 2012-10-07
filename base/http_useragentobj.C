@@ -496,6 +496,9 @@ useragentObj::idleconn useragentObj::findConn(const cache_key_t &key,
 		host=host.substr(0, p);
 	}
 
+	if (!host.empty() && *host.begin() == '[' && *--host.end() == ']')
+		host=host.substr(1, host.size()-2);
+
 	fd socket(({
 			netaddr addr(netaddr::create(host, port));
 
