@@ -58,29 +58,13 @@ void clientauthimplObj::basic
 		       const protection_space_t *&space,
 		       std::list< std::list<std::string> > &hier)
 {
-	std::list<std::string> default_hier;
+	std::list<std::string> by_realm, by_uri;
 
 	cache.get_default_protection_space(uri, resp, auth::basic,
-					   realm, space, default_hier);
+					   realm, space, by_realm, by_uri);
 
-	hier.push_back(default_hier);
-
-	if (space && resp.proxy_authentication_required())
-	{
-		// For proxy authorizations, we register an authorization
-		// in two places: [rootnode] and [rootnode]/realm.
-		//
-		// If a proxy uses a single realm for everything, we will
-		// supply the [rootnode] authorization by default, in
-		// advance.
-		//
-		// If a proxy uses multiple realms, we'll cache them all,
-		// and the last challenged authorization gets installed
-		// in [rootnode] and becomes the default authorization that's
-		// supplied in advance.
-
-		hier.push_back(std::list<std::string>());
-	}
+	hier.push_back(by_realm);
+	hier.push_back(by_uri);
 }
 
 clientauthimplptr clientauthimplObj::basic::new_request(const requestimpl &req)

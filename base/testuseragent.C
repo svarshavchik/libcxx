@@ -1045,7 +1045,8 @@ void testclientauth2()
 		std::string headers(resp->begin(), resp->end());
 
 		if (headers != "")
-			throw EXCEPTION("We sent an unexpected authorization");
+			throw EXCEPTION("We sent an unexpected authorization: "
+					+ headers);
 
 		std::cout << "The headers are gone for server 1" << std::endl;
 	}

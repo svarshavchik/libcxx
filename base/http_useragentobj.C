@@ -323,6 +323,28 @@ bool useragentObj::process_challenges(const clientauth &authorizations,
 				    // Message had a challenge
 				    authentication_required=true;
 
+
+
+				    if (resp->message
+					.www_authentication_required()
+					&& scheme == auth::basic)
+				    {
+					    // If we supplied user:password in
+					    // the URI, and we have a basic
+					    // authorization failure, remove the
+					    // default basic auth module that
+					    // was installed in do_request().
+
+					    this->authcache->
+						    fail_authorization(req.getURI(),
+								       resp->message,
+								       authorizations,
+								       scheme,
+								       "",
+								       params);
+				    }
+
+
 				    if (this->authcache->
 					fail_authorization(req.getURI(),
 							   resp->message,

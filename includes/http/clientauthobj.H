@@ -11,6 +11,7 @@
 #include <x/http/requestimpl.H>
 #include <x/http/clientauthfwd.H>
 #include <x/http/clientauthimplfwd.H>
+#include <x/logger.H>
 #include <string>
 #include <map>
 #include <x/namespace.h>
@@ -27,6 +28,8 @@ namespace LIBCXX_NAMESPACE {
 
 class clientauthObj : virtual public obj {
 
+	//! The logger
+	LOG_CLASS_SCOPE;
 public:
 	//! The internal map of proxy authorizations, by realm.
 	std::map<std::string, clientauthimpl > proxy_authorizations;

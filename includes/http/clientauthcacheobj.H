@@ -99,6 +99,9 @@ public:
 
 	//! This is done before sending the initial request, in order to save
 	//! a round trip if we know what authorizations are known, in advance.
+	//!
+	//! We search for uri[authority]/[path] which corresponds with what
+	//! get_default_protection_space() does.
 
 	void search_authorizations(//! The request about to be made.
 
@@ -165,12 +168,25 @@ public:
 	static void decompose_path(const uriimpl &uri,
 				   std::list<std::string> &path);
 
-	//! Calculate the default protection space for a URI.
+	//! Calculate protection spaces for a URI.
 
-	//! Populate the realm_hier parameter with the following:
+	//! Populate the by_realm parameter as follows:
 	//!
-	//! Proxy basic authorizations: [realm]
-	//! WWW authorizations: [authority]/[realm]/[uri path]
+	//! Scheme   Type     by_realm
+	//! ------   ----     --------
+	//! basic    proxy    realm/[realm]
+	//! basic    www      realm/[authority]/[realm]
+	//! *        proxy    realm/[realm]
+	//! *        www      realm/[authority]/[realm]
+	//!
+	//! Populate the by_uri parameter as follows:
+	//!
+	//! Scheme   Type     by_uri
+	//! ------   ----     --------
+	//! basic    proxy    uri
+	//! basic    www      uri/[authority]
+	//! *        proxy    uri/[authority]/[path]
+	//! *        www      uri/[authority]/[path]
 	//!
 	//! Sets 'space' to proxy_authorization, www_authorization, or nullptr
 	//! if resp is not an authentication challenge.
@@ -187,8 +203,11 @@ public:
 					  const std::string &realm,
 					  //! Governing protection space
 					  const protection_space_t *&space,
-					  //! Hierarchy in the protection space
-					  std::list<std::string> &realm_hier)
+					  //! Realm-based hierarchy in space
+					  std::list<std::string> &by_realm,
+
+					  //! URI-based hierarchy in space
+					  std::list<std::string> &by_uri)
 		const;
 
 	//! Process a failed authorization
@@ -226,14 +245,33 @@ public:
 	//!
 	bool fail_authorization(const uriimpl &uri,
 				const responseimpl &resp,
-				const clientauth &authorizations,
 				std::map<std::string, clientauthimpl>
 				&authorization_map,
 				auth scheme,
 				const std::string &realm,
 				const responseimpl::scheme_parameters_t
 				&params);
+private:
 
+	//! Common code for searching suitable proxy and www authorizations
+
+	//! Finishes the job started by search_authorization().
+	//! Appends uri's path to path, then searches a protection space for
+	//! the entire path.
+	void search_authorization_path(//! Original request
+				       const requestimpl &req,
+
+				       //! Root node of the protection space.
+				       const protection_space_t::base::readlock
+				       &lock,
+
+				       //! Authorizations get added to this map
+				       std::map<std::string, clientauthimpl>
+				       &auth_map,
+
+				       //! The initial prefix, uri & authority
+				       std::list<std::string> &path)
+		LIBCXX_HIDDEN;
 };
 
 #if 0

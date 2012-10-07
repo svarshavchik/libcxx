@@ -156,95 +156,68 @@ void clientauthcacheObj::search_authorizations(const requestimpl &req,
 	LOG_DEBUG("Searching proxy authorizations, uri: "
 		  << tostring(req.getURI()));
 
+	const std::string authority=decompose_authority(req.getURI());
+
 	{
 		auto lock=proxy_authorizations->create_readlock();
 
-		if (lock->exists())
-		{
-			auto entry=lock->entry();
+		std::list<std::string> path;
 
-			auto new_entry=entry->new_request(req);
+		path.push_back("uri");
+		path.push_back(authority);
 
-			if (new_entry.null())
-			{
-				LOG_TRACE("Skipped proxy authorization for "
-					  << entry->realm);
-			}
-			else
-			{
-				LOG_TRACE("Added proxy authorization for "
-					  << new_entry->realm);
-
-
-				auth->proxy_authorizations
-					.insert(std::make_pair(new_entry->realm,
-							       new_entry));
-			}
-		}
+		search_authorization_path(req, lock,
+					  auth->proxy_authorizations, path);
 	}
 
-	// Pick the default proxy authorization, if it exists
+	LOG_DEBUG("Searching www authorizations, uri: "
+		  << tostring(req.getURI()));
+
+	auto lock=www_authorizations->create_readlock();
 
 	std::list<std::string> path;
 
-	// Search www authorizations in [rootnode]/[authority]/[realm]
-	// parent.
+	path.push_back("uri");
+	path.push_back(authority);
 
-	path.push_back(""); // Placeholder for [realm].
+	search_authorization_path(req, lock,
+				  auth->www_authorizations, path);
+}
 
+void clientauthcacheObj
+::search_authorization_path(const requestimpl &req,
+			    const protection_space_t::base::readlock &lock,
+			    std::map<std::string, clientauthimpl> &auth_map,
+			    std::list<std::string> &path)
+{
 	decompose_path(req.getURI(), path);
 
-	const std::string authority=decompose_authority(req.getURI());
-
-	LOG_TRACE("Authority: " << authority);
-	auto lock=www_authorizations->create_readlock();
-
-	if (!lock->to_child(authority))
+	if (!lock->to_child(path, true))
 	{
-		LOG_TRACE("Authority not found");
-		return; // Nothing at all for this authority.
+		LOG_TRACE("Search path " << join(path, "/") << " not found");
+		return;
 	}
 
-	std::set<std::string> realms=lock->children();
+	auto entry=lock->entry();
 
-	for (const std::string &realm:realms)
+	auto new_entry=entry->new_request(req);
+
+	if (new_entry.null())
 	{
-		// Reposition to where we were.
+		LOG_TRACE("Skipped authorization for "
+			  << join(lock->name(), "/")
+			  << ", realm: "
+			  << entry->realm);
+	}
+	else
+	{
+		auth_map.insert(std::make_pair(new_entry->realm,
+					       new_entry));
 
-		if (!lock->to_parent())
-			;
-		if (!lock->to_child(authority))
-			return; // Shouldn't happen, of course.
-
-		path.front()=realm;
-
-		LOG_TRACE("Checking path " << join(path, "/"));
-
-		if (!lock->to_child(path, true))
-			continue;
-
-		auto entry=lock->entry();
-
-		auto new_entry=entry->new_request(req);
-
-		if (new_entry.null())
-		{
-			LOG_TRACE("Skipped www authorization for "
-				  << join(lock->name(), "/")
-				  << ", realm: "
-				  << entry->realm);
-		}
-		else
-		{
-			auth->www_authorizations
-				.insert(std::make_pair(new_entry->realm,
-						       new_entry));
-
-			LOG_TRACE("Added www authorization for "
-				  << join(lock->name(), "/")
-				  << ", realm: "
-				  << entry->realm);
-		}
+		LOG_TRACE("Added authorization for "
+			  << join(lock->name(), "/")
+			  << ", realm: "
+			  << entry->realm);
 	}
 }
 
@@ -260,15 +233,6 @@ bool clientauthcacheObj
 		  << resp.getStatusCode()
 		  << ", scheme " << auth_tostring(scheme)
 		  << ", realm " << realm);
-
-	if (resp.www_authentication_required() && scheme == auth::basic)
-	{
-		// When we supply user:password in the URI, and we have a basic
-		// authorization failure, remove the default basic auth module
-
-		do_fail_authorization(uri, resp, authorizations,
-				      auth::basic, "", params);
-	}
 
 	bool rc=do_fail_authorization(uri, resp, authorizations,
 				      scheme, realm, params);
@@ -287,7 +251,7 @@ bool clientauthcacheObj
 {
 	if (resp.proxy_authentication_required())
 	{
-		return fail_authorization(uri, resp, authorizations,
+		return fail_authorization(uri, resp,
 					  authorizations->proxy_authorizations,
 					  scheme,
 					  realm,
@@ -296,7 +260,7 @@ bool clientauthcacheObj
 
 	if (resp.www_authentication_required())
 	{
-		return fail_authorization(uri, resp, authorizations,
+		return fail_authorization(uri, resp,
 					  authorizations->www_authorizations,
 					  scheme,
 					  realm,
@@ -308,7 +272,6 @@ bool clientauthcacheObj
 bool clientauthcacheObj
 ::fail_authorization(const uriimpl &uri,
 		     const responseimpl &resp,
-		     const clientauth &authorizations,
 		     std::map<std::string, clientauthimpl> &authorization_map,
 		     auth scheme,
 		     const std::string &realm,
@@ -390,9 +353,10 @@ bool clientauthcacheObj
 
 	const protection_space_t *space;
 	std::list<std::string> realm_hier;
+	std::list<std::string> uri_hier;
 
 	get_default_protection_space(uri, resp, scheme,
-				     realm, space, realm_hier);
+				     realm, space, realm_hier, uri_hier);
 
 	if (!space)
 		return false;
@@ -421,31 +385,48 @@ void clientauthcacheObj
 			       auth schema,
 			       const std::string &realm,
 			       const protection_space_t *&space,
-			       std::list<std::string> &realm_hier) const
+			       std::list<std::string> &by_realm,
+			       std::list<std::string> &by_uri) const
 {
 	space=nullptr;
 
-	realm_hier.clear();
+	by_realm.clear();
+	by_uri.clear();
 
 	if (resp.proxy_authentication_required())
 	{
 		space=&proxy_authorizations;
+
+		by_realm.push_back("realm");
+		by_realm.push_back(realm);
+
+		by_uri.push_back("uri");
+		if (schema != auth::basic)
+		{
+			by_uri.push_back(decompose_authority(uri));
+			decompose_path(uri, by_uri);
+		}
 	}
-	else if (resp.www_authentication_required())
+
+	if (resp.www_authentication_required())
 	{
+		std::string authority=decompose_authority(uri);
+
 		// For www authorizations, we install in
 		// [rootnode]/[authority]/[realm].
 
 		space=&www_authorizations;
 
-		realm_hier.push_back(clientauthcacheObj
-				     ::decompose_authority(uri));
-	}
-	else return;
+		by_realm.push_back("realm");
+		by_realm.push_back(authority);
+		by_realm.push_back(realm);
 
-	// proxy: {rootnote]/realm
-	// www: [rootnode]/authority/realm
-	realm_hier.push_back(realm);
+		by_uri.push_back("uri");
+		by_uri.push_back(authority);
+
+		if (schema != auth::basic)
+			decompose_path(uri, by_uri);
+	}
 }
 
 #if 0
