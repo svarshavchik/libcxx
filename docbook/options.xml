@@ -1143,7 +1143,7 @@ $(call OPTIONS_GEN,cliopts.H,cliopts.xml)</programlisting>
     </para>
   </section>
 
-  <section>
+  <section id="optgenautomake">
     <title>Using <acronym>GNU</acronym> <application>make</application> macros with <application>automake</application></title>
 
     <para>

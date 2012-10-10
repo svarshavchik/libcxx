@@ -348,7 +348,7 @@ send(resp, req, "Location", "http://example.com", buffer);</programlisting>
   </section>
 
   <section id="httpserverauth">
-    <title>Authentication challenges</title>
+    <title>Implementing basic authentication</title>
 
     <blockquote>
       <informalexample>
@@ -364,7 +364,7 @@ void received(const &ns;::http::requestimpl &amp;req, bool hasbody)
                            auths.insert(auth);
                        });
 
-    if (auths.find("user:password") == auths.end())
+    if (auths.find("citizenkane:rosebud") == auths.end())
         &ns;::http::responseimpl::throw_unauthorized(&ns;::http::auth::basic, "Auth Realm");
 
     // ...
@@ -375,13 +375,21 @@ void received(const &ns;::http::requestimpl &amp;req, bool hasbody)
     <para>
       The <methodname>get_basic_auth</methodname>() method decodes any
       basic authentication scheme headers present in a request.
-      The first parameter is either
-      <varname>&ns;::http::requestimpl::www_authorization</varname> or
-      <varname>&ns;::http::requestimpl::proxy_authorization</varname>.
+      The first parameter should be
+      <varname>&ns;::http::requestimpl::www_authorization</varname> if
+      the application implements an ordinary <acronym>HTTP</acronym> server,
+      or
+      <varname>&ns;::http::requestimpl::proxy_authorization</varname> if the
+      application implements an <acronym>HTTP</acronym> proxy.
       The second parameter is a lambda or a functor that gets invoked
       with the decoded <quote>userid:password</quote> string. The functor may
       be called more than once if the request includes multiple basic
-      authorization headers.
+      authorization headers. Although this is allowed by RFC 2617, this is
+      rare in practice. There will usually be just one, but this approach
+      supports multiple challenges, and it's up to the application to figure out
+      what to do in that case. This example is happy if one of them
+      was the userid <quote>citizenkane</quote> and the password
+      <quote>rosebud</quote>.
     </para>
 
     <para>
@@ -389,11 +397,553 @@ void received(const &ns;::http::requestimpl &amp;req, bool hasbody)
       throws an exception that responds to the original request with an
       authentication challenge.
       <function>&ns;::http::responseimpl::throw_proxy_authentication_required</function>()
-      sends a proxy authentication challenge response.
-      In either case, the first parameter should be
-      <literal>&ns;::http::auth::basic</literal>; the second parameter is the
-      authentication realm label.
+      sends a proxy authentication challenge response. In all other
+      respects these two functions are the same.
     </para>
+
+    <para>
+      <function>&ns;::http::responseimpl::throw_unauthorized</function>()
+      and
+      <function>&ns;::http::responseimpl::throw_proxy_authentication_required</function>()
+      takes the following parameters:
+    </para>
+
+    <itemizedlist>
+      <listitem>
+	<para>
+	  An optional
+	  <ulink url="&link-enum-x--http-httpver-t;"><classname>&ns;::http::httpver_t</classname></ulink>
+	  that sets the response protocol version.
+	</para>
+      </listitem>
+
+      <listitem>
+	<para>
+	  One or more challenges.
+	  Currently, multiple challenges are sent as separate headers in the
+	  response. Although RFC 2617 allows combining multiple challenges
+	  into a single header, at press time this does not work with many
+	  buggy <acronym>HTTP</acronym> clients. This may change in the future.
+	</para>
+
+	<para>
+	  Each challenge consists of two parameters,
+	  an authentication scheme (<literal>&ns;::http::auth::basic</literal>
+	  or <literal>&ns;::http::auth::digest</literal>) a
+	  <classname>std::string</classname> authentication realm,
+	  followed by an optional list of scheme parameters: each one is a
+	  a tuple of a
+	  <ulink url="&link-x--http--responseimpl;"><classname>&ns;::http::responseimpl::auth_param</classname></ulink>
+	  and a <classname>std::string</classname>, the value of the parameter.
+	  An individual challenge can also be given as a
+	  <ulink url="&link-x--http--responseimpl;"><classname>&ns;::http::responseimpl::challenge_info</classname></ulink>
+	  object instance.
+	</para>
+
+	<para>
+	  Instead of a variadic challenge list,
+	  <function>&ns;::http::responseimpl::throw_unauthorized</function>()
+	  and
+	  <function>&ns;::http::responseimpl::throw_proxy_authentication_required</function>()
+	  also take a single parameter consisting of a (non-empty)
+	  <classname>std::list&lt;&ns;::http::responseimpl::challenge_info;&gt;</classname>.
+	</para>
+      </listitem>
+    </itemizedlist>
+
+    <para>
+      The above example shows the ordinary case of a boring basic authentication
+      scheme, just an <literal>&ns;::http::auth::basic</literal>, and some
+      arbitrary authentication realm label.
+      The <acronym>HTTP</acronym> client displays the realm label when
+      prompting for authentication.
+    </para>
+  </section>
+
+  <section id="httpserverauthdigest">
+    <title>Implementing digest authentication</title>
+
+    <para>
+      Applications should use the more secure digest authentication when
+      the server is accessible over a non-secure network. This requires
+      linking with <option>-lcxxtls</option>, and doing a little bit more work.
+    </para>
+
+    <para>
+      Here's a minimal example of using digest authentication. This example
+      accepts digest authentication for username <quote>citizenkane</quote>
+      and password <quote>rosebud</quote>:
+    </para>
+
+    <blockquote>
+      <title><ulink url="examples/http_authserver.C">examples/http_authserver.C</ulink></title>
+      <informalexample>
+	<programlisting><xi:include href="../examples/http_authserver.C" parse="text" xmlns:xi="http://www.w3.org/2001/XInclude" /></programlisting>
+      </informalexample>
+    </blockquote>
+
+    <section id="httpserverauthinstance">
+      <title>Creating a <classname>&ns;::http::serverauth</classname></title>
+
+      <para>
+	The same
+	<ulink url="&link-typedef-x--http-serverauth;"><classname>&ns;::http::serverauth</classname></ulink>
+	should be used by all server connection threads.
+	Its regular constructor takes two arguments, a realm label, and the
+	realm's protection space; this is a
+	<classname>std::set&lt;&ns;::uriimpl&gt;</classname>.
+      </para>
+
+      <para>
+	The realm label is a unique string that identifies the realm, and
+	is generally displayed by clients when they prompt for authentication.
+	More than one realm can be defined (different
+	<classname>&ns;::http::serverauth</classname>s), for different
+	<acronym>URI</acronym> hierarchies on the same server, and each one must
+	have a different label.
+      </para>
+
+      <para>
+	The protection space defines which <acronym>URI</acronym>s on the
+	server are subject to authentication; which <acronym>URI</acronym>
+	hierarchies are a part of the authentication realm.
+      </para>
+
+      <blockquote>
+	<informalexample>
+	  <programlisting>
+std::set&lt;&ns;::uriimpl&gt; protection_space;
+
+protection_space.insert("/private");
+protection_space.insert("/mail");
+
+auto auth=&ns;::http::serverauth::create("Mailbox", protection_space);
+</programlisting>
+	</informalexample>
+      </blockquote>
+
+      <para>
+	This specifies that the application requires authentication for any
+	<quote>/private/<replaceable>*</replaceable></quote>
+	<quote>/mail/<replaceable>*</replaceable></quote>
+	<acronym>URI</acronym>.
+	When the client accesses one of these for the first time, gets an
+	authentication challenge, and provides valid authorization, the
+	client will automatically supply authorization for all subsequent
+	requests for any <acronym>URI</acronym> that falls within
+	the given protection space.
+      </para>
+
+      <para>
+	In the event that the server is accessible through different
+	authorities, such as by <acronym>http</acronym> and
+	<acronym>https</acronym>, and the application uses the same realm
+	for each relative <acronym>URI</acronym> under each authority,
+	the protection space should include both the relative and all the
+	equivalent absolute <acronym>URI</acronym> aliases:
+      </para>
+
+      <blockquote>
+	<informalexample>
+	  <programlisting>
+std::set&lt;&ns;::uriimpl&gt; protection_space;
+
+protection_space.insert("/private");
+protection_space.insert("/mail");
+protection_space.insert("http://www.example.com/private");
+protection_space.insert("http://www.example.com/mail");
+protection_space.insert("https://www.example.com/private");
+protection_space.insert("https://www.example.com/mail");
+
+auto auth=&ns;::http::serverauth::create("Mailbox", protection_space);</programlisting>
+	</informalexample>
+      </blockquote>
+
+      <para>
+	In this example, the application server handles both
+	<quote>http://www.example</quote> and
+	<quote>https://www.example</quote> <acronym>URL</acronym>s, and
+	in either case <quote>/private</quote> and <quote>/mail</quote>
+	falls within the authentication-protected space.
+	After a client succesfully authenticates, the absolute
+	<acronym>URI</acronym>s give sufficient notice for the
+	client to automatically use the same authentication when it asks for
+	the other <acronym>URI</acronym>s.
+      </para>
+
+      <note>
+	<para>
+	  If, for example, the same server has an alias of
+	  <literal>example.com</literal>, those absolute
+	  <acronym>URI</acronym> should be included too.
+	</para>
+      </note>
+
+      <blockquote>
+	<informalexample>
+	  <programlisting>
+std::set&lt;&ns;::uriimpl&gt; protection_space;
+
+auto auth=&ns;::http::serverauth::create("Mailbox", "/private", "/mail",
+                                      "http://www.example.com",
+                                      "https://www.example.com");</programlisting>
+	</informalexample>
+      </blockquote>
+
+      <para>
+	This is an equivalent example that uses an alternative constructor
+	that takes a variadic list of <acronym>URI</acronym>s instead of
+	a <classname>std::set</classname>. The protection space is derived
+	from the variadic list as follows:
+      </para>
+
+      <itemizedlist>
+	<listitem>
+	  <para>
+	    <acronym>URI</acronym>s that do not specify an authority, relative
+	    to the authority root, are put into the protection space, as is.
+	  </para>
+	</listitem>
+
+	<listitem>
+	  <para>
+	    <acronym>URI</acronym>s with an authority get combined with
+	    each non-authority <acronym>URI</acronym>, and the result added
+	    to the protection space.
+	  </para>
+	</listitem>
+      </itemizedlist>
+
+      <para>
+	Here, 
+	<quote>http://www.example.com</quote> and
+        <quote>https://www.example.com</quote> get combined, individually,
+	with <quote>/private</quote> and <quote>/mail</quote>, and together
+	with them produce the final protection space.
+      </para>
+
+      <para>
+	This provides a convenient shortcut for defining the full protection
+	space, by reducing it to a list of
+	relative and absolute URIs, which
+	get combined in the correct way for common implementations of
+	<acronym>HTTP</acronym> authentication.
+      </para>
+
+      <para>
+	<classname>&ns;::http::serverauth</classname>'s methods are thread-safe,
+	but it contains the following members that are not protected by
+	thread safe access. They can be set immediately after constructing
+	a <classname>&ns;::http::serverauth</classname>,
+	but should not be modified after the application server starts
+	accepting connections.
+      </para>
+
+      <blockquote>
+	<informalexample>
+	  <programlisting>
+auth-&gt;algorithms.push_back(GCRY_MD_SHA1);</programlisting>
+	</informalexample>
+      </blockquote>
+
+      <para>
+	<varname>algorithms</varname> is a
+	<classname>std::list</classname> of
+	<classname>gcry_md_algos</classname>, the native hash method handle
+	from the underlying <application>libgcrypt</application> library.
+	The formal specification of digest authentication
+	include  only <literal>MD5</literal> as the
+	digest hash function.
+	Because of that,
+	<varname>algorithms</varname> gets initialized with
+	just a <literal>GCRY_MD_MD5</literal>. This default actually
+	come from the <literal>&ns;::http::serverauth::algorithms</literal>
+	<link linkend="properties">property</link>.
+      </para>
+
+      <para>
+	This is a list, and more than one algorithm can be added to it,
+	either by listing multiple algorithms,
+	separated by whitespaces or commas in the
+	<literal>&ns;::http::serverauth::algorithms</literal> property,
+	or by manually
+	adding to <varname>algorithms</varname>,
+	as in the example above. This results in listing all hash functions
+	in the server's authentication challenge.
+      </para>
+
+      <note id="rfc2617noncompliant">
+	<para>
+	  Unfortunately,
+	  testing showed that many clients have various bugs when the server's
+	  authentication challenge specifies multiple hash functions, of which
+	  the client understands only one. This should be used only in
+	  controlled situations, after testing for proper client support.
+	</para>
+
+	<para>
+	  The <link linkend="httpclientauth">user agent</link> client
+	  implements a digest challenge that uses any
+	  hash method that's supported by
+	  the <application>libgcrypt</application>.
+	  When there are multiple hash methods to choose from,
+	  the one with the largest bit size gets selected.
+	</para>
+      </note>
+
+      <blockquote>
+	<informalexample>
+	  <programlisting>
+auth-&gt;nonce_expiration=120;</programlisting>
+	</informalexample>
+      </blockquote>
+
+      <para>
+	This is how often each hash's
+	nonce, or <quote>salt</quote>, remains valid,
+	as a number of seconds. The default value is 60 seconds, set by the
+	<literal>&ns;::http::serverauth::nonce_expiration</literal> property.
+	This should be sufficient. The implementation of digest authentication
+	in &app; sends a new 
+	nonce in response to every authentication request, and all nonces
+	remain valid until they expire;
+	so as long as there's at least one request in a minute, the client
+	always supplies a valid nonce with its digest authentication request.
+      </para>
+
+      <para>
+	Even after the nonce expires, this only results in a minor delay, from
+	an extra round trip between the client and the server, as a new
+	nonce gets established.
+      </para>
+
+      <para>
+	It should only be necessary to adjust the expiration when working with
+	clients that are known to have problems reauthenticating, and retrying,
+	automatically
+	after an <acronym>HTTP</acronym> <literal>POST</literal> or a
+	<literal>PUT</literal> gets kicked back with a stale nonce; and when
+	this can happen due the application's specific nature or behavior.
+      </para>
+    </section>
+
+    <section id="httpserverauthcheck">
+      <title>Invoking <methodname>check_authentication</methodname>()</title>
+
+      <para>
+	In the
+	<link linkend="httpserverprocess"><methodname>received</methodname>()</link>
+	method, the first step when
+	the requested <acronym>URI</acronym> falls within the
+	realm's protection space is to
+	construct an <classname>&ns;::http::responseimpl</classname>
+	in anticipation of an successful authentication, then invoke
+	<classname>&ns;::http::serverauth</classname> instance's
+	<methodname>check_authentication</methodname>()
+	method with the following arguments:
+      </para>
+
+      <itemizedlist>
+	<listitem>
+	  <para>
+	    The request parameter to <methodname>received</methodname>().
+	  </para>
+	</listitem>
+
+	<listitem>
+	  <para>
+	    A reference to the <classname>&ns;::http::responseimpl</classname>.
+	  </para>
+	</listitem>
+
+	<listitem>
+	  <para>
+	    A reference to a <classname>std::string</classname> that gets
+	    set to the name of the authenticated user or login ID.
+	  </para>
+	</listitem>
+
+	<listitem>
+	  <para>
+	    A reference to a <classname>std::list&lt;&ns;::http::responseimpl::challenge_info&gt;</classname>.
+	    In the event that the authentication fails, this gets used to
+	    form the authentication challenge response to the client.
+	  </para>
+	</listitem>
+
+	<listitem>
+	  <para>
+	    A functor or a lambda, described below.
+	  </para>
+	</listitem>
+      </itemizedlist>
+
+      <para>
+	<methodname>check_authentication</methodname>()
+	returns an <classname>&ns;::http::auth</classname>.
+	A value of <literal>&ns;::http::auth::unknown</literal> indicates
+	a failed authentication, which should result in an authentication
+	challenge response. This is done by calling
+	<function>&ns;::http::responseimpl::throw_unauthorized</function>()
+	with the
+	<classname>std::list&lt;&ns;::http::responseimpl::challenge_info&gt;</classname>
+	parameter that
+	<methodname>check_authentication</methodname>()
+	initialized. This throws an exception that results in an
+	authentication challenge response.
+      </para>
+
+      <para>
+	Any other value from <methodname>check_authentication</methodname>()
+	indicates a succeeded authentication, and indicates the employed
+	authentication scheme, which would be
+	<literal>&ns;::http::auth::digest</literal>.
+	<methodname>check_authentication</methodname>() sets the
+	<varname>username</varname> to the authenticated user's identity,
+	and adds additional headers to the
+	<classname>&ns;::http::responseimpl</classname> parameter.
+	The application should use the
+	<classname>&ns;::http::responseimpl</classname> to form the response
+	to the request, using <methodname>send</methodname>(), as shown
+	in
+	<link linkend="httpserverauthdigest"><filename>http_authserver.C</filename></link>.
+      </para>
+
+      <para>
+	<methodname>check_authentication</methodname>() invokes its
+	functor/lambda parameter to validate the authentication request.
+	The functor/lambda does not get called if the request does not
+	carry an authorization header, in which case
+	<methodname>check_authentication</methodname>() returns
+	<literal>&ns;::http::auth::unknown</literal>.
+	The first parameter to the functor/lambda specifies the digest hash
+	function, as a native <application>libgcrypt</application> handle.
+	This is typically <literal>GCRY_MD_MD5</literal> for a standard digest
+	authentication. The second parameter is the authentication realm,
+	the same realm label that was passed to
+	<link linkend="httpserverauthinstance"><classname>&ns;::http::serverauth</classname></link>'s constructor.
+	The third parameter is the username in the authentication request.
+	The fourth parameter is a partial <acronym>URI</acronym>. This is not
+	the full <acronym>URI</acronym> from the request, but the parameter
+	from the authorization header, which would typically be the same
+	as the request <acronym>URI</acronym> without the authority part.
+	If the request went through an intermediate proxy, this may or may not
+	match the corresponding parts of the entire request. This parameter
+	is provided for informational purposes.
+      </para>
+
+      <para>
+	The functor/lambda should return the so-called <quote>A1 hash</quote>
+	for the specified username. This is an intermediate hash derived from
+	the authentication parameters. As shown in the
+	<link linkend="httpserverauthdigest"><filename>http_authserver.C</filename></link>
+	example, the hash gets computed by calling
+	<function>&ns;::http::serverauth::base::compute_a1</function>().
+	The parameters to
+	<function>&ns;::http::serverauth::base::compute_a1</function>() are:
+	the hash algorithm, the username, the password associated with the
+	username, and the authentication realm. If the username is not valid
+	and there is no associated password, an empty string gets returned
+	from the functor/lambda.
+	The example looks for username <quote>citizenkane</quote>, and
+	calculates the A1 hash for the password <quote>rosebud</quote>.
+      </para>
+
+      <para>
+	Note that a different hash gets calculated from
+	the same username and password in a different realm,
+	or with a non-standard hash function other than
+	<literal>GCRY_MD_MD5</literal>. It's possible to calculate the
+	A1 hashes in advance, for the supported realm and the hash method,
+	and destroy the actual passwords. Compromised A1 hashes result
+	in compromising only their realm, and will not compromise different
+	realms, even if their hashes are derived from the same usernames and
+	passwords.
+      </para>
+    </section>
+
+    <section id="httpserverauthproxy">
+      <title>Using both digest and basic authentication</title>
+
+      <para>
+	It's possible to use both digest and basic authentication together.
+	This makes it possible to support both older clients that only
+	implement basic authentication, and current <acronym>HTTP</acronym>
+	clients that support the better security of digest authentication.
+	This is done by passing a second lambda/functor to
+	<methodname>check_authentication</methodname>() or
+	<methodname>check_proxy_authentication</methodname>:
+      </para>
+
+      <blockquote>
+	<informalexample>
+	  <programlisting>
+auto scheme=serverauth->check_authentication
+            (req, resp, username, challenges,
+            []
+            (gcry_md_algos algorithm,
+             const std::string &amp;realm,
+             const std::string &amp;username,
+             const x::uriimpl &amp;uri)
+            {
+                if (username != "citizenkane")
+                    return std::string();
+
+                return x::http::serverauth::base::compute_a1(algorithm,
+                                                             username,
+                                                             "rosebud",
+                                                             realm);
+            },
+            []
+            (const std::string &amp;usercolonpassword)
+            {
+                return usercolonpassword == "citizenkane:rosebud";
+            });</programlisting>
+	</informalexample>
+      </blockquote>
+
+      <para>
+	The second lambda/functor gets called when the client responds with
+	a basic scheme authorization response. The lambda/functor receives
+	a single argument, the username and the password from the client's
+	request, separated by a colon.
+      </para>
+
+      <note>
+	<para>
+	  Testing showed that some clients were not able to properly handle
+	  mixed authentication challenges that include both basic and
+	  digest authentication scheme, when they are formatted strictly in
+	  accordance with RFC 2617.
+	</para>
+
+	<para>
+	  It was necessary to make some modifications, in order to
+	  work around this, and <link linkend="rfc2617noncompliant">other
+	    client bugs</link>.
+	  At this time, &app;'s implementation seems to work with the
+	  tested client, but sufficient client testing should be done
+	  before employing mixed basic and digest
+	  authentication schemes.
+	</para>
+      </note>
+    </section>
+
+    <section id="httpserverauthproxy">
+      <title>Proxy authentication</title>
+
+      <para>
+	When the application functions as a proxy, proxy authentication gets
+	implemented in the same way, except that
+	<methodname>check_proxy_authentication</methodname>() gets used instead
+	of
+	<methodname>check_authentication</methodname>(), and a failed
+	authentication gets reported by
+	<function>&ns;::http::responseimpl::throw_proxy_authentication_required</function>()
+	instead of
+	<function>&ns;::http::responseimpl::throw_unauthorized</function>().
+      </para>
+    </section>
   </section>
 </chapter>
 <!--

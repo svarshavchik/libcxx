@@ -234,15 +234,14 @@ See COPYING for distribution information.
 
 	  <listitem>
 	    <para>
-	      <acronym>HTTP</acronym> authentication not implemented at this
-	      time (although the appropriate headers can be manipulated and
-	      set manually, this doesn't really count).
+	      Basic and Digest <acronym>HTTP</acronym> schemes implemented.
+	      MD5-Sess algorithm is not implemented.
 	    </para>
 	  </listitem>
 
 	  <listitem>
 	    <para>
-	      Redirection and cookies not implemented at this time.
+	      Redirection and cookies not yet implemented.
 	    </para>
 	  </listitem>
 	</itemizedlist>

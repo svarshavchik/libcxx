@@ -634,8 +634,8 @@ std::copy(b, e, std::ostreambuf_iterator&lt;char&gt;(std::cout);</programlisting
       It's a <classname>std::map</classname>, keyed by the authentication
       realm. The following example displays the document returned by an
       <acronym>HTTP</acronym> <literal>GET</literal> request. An authentication
-      challenge from the server, prompts for a userid and a password, then
-      the request is repeated.
+      challenge from the server prompts for a userid and a password, then
+      the request gets repeated.
     </para>
 
     <blockquote>
@@ -659,7 +659,8 @@ void showuri(const &ns;::http::useragent &amp;ua, const &ns;::uriimpl &amp;uri)
 		{
 			has_challenge=true;
 
-			std::cout &lt;&lt; "Authentication required for "
+			std::cout &lt;&lt; &ns;::http::auth_tostring(challenge.second->scheme)
+			          &lt;&lt; " authentication required for "
 				  &lt;&lt; challenge.first &lt;&lt; ":" &lt;&lt; std::endl
 				  &lt;&lt; "Userid: " &lt;&lt; std::flush;
 
@@ -673,7 +674,7 @@ void showuri(const &ns;::http::useragent &amp;ua, const &ns;::uriimpl &amp;uri)
 			if (std::getline(std::cin, password).eof())
 				return;
 
-			ua-&gt;set_authorization(resp, challenge,
+			ua-&gt;set_authorization(resp, challenge.second,
 					      userid,
 					      password);
 		}
@@ -683,18 +684,64 @@ void showuri(const &ns;::http::useragent &amp;ua, const &ns;::uriimpl &amp;uri)
     </blockquote>
 
     <para>
-      An <acronym>HTTP</acronym> server or intermediate proxy can
-      return multiple challenges for different authentication realms.
-      The response object declares the <varname>challenges</varname>
-      member as a container whose type is
+      <acronym>RFC 2617</acronym> allows
+      an <acronym>HTTP</acronym> server or a proxy to
+      return multiple challenges for different authentication realms,
+      but in practice there will usually be only one.
+      The <varname>challenges</varname> member in the response object
+      is a container whose type is
       <classname>&ns;::http::useragent::base::challenges_t</classname>.
       This is a <literal>typedef</literal> for a
-      <classname>std::map</classname>, keyed by the authentication realm.
+      <classname>std::map</classname>, keyed by the authentication realm
+      (but, as just mentioned, it will nearly always have a single challenge).
       <methodname>set_authorization</methodname>() takes the following
-      parameters: the server's response, the entry in the
+      parameters: the server's response, the value in the
       <varname>challenges</varname> container, and the authorization
       credentials. This takes effect for the following requests that use
-      the same user agent object, so this example simply tries again.
+      the same user agent object, and this example simply tries again.
+    </para>
+
+    <para>
+      The value in the <varname>challenges</varname> map is 
+      an opaque reference-counted object that gets passed to
+      <methodname>set_authorization</methodname>(). It specifies the
+      challenge for which the given credentials apply.
+      The object's <varname>scheme</varname> has the following values:
+    </para>
+
+    <variablelist>
+      <varlistentry>
+	<term><literal>&ns;::http::auth::basic</literal></term>
+	<listitem>
+	  <para>
+	    The basic authorization scheme that sends the userid and the
+	    password to the server, without encryption.
+	  </para>
+	</listitem>
+      </varlistentry>
+
+      <varlistentry>
+	<term><literal>&ns;::http::auth::digest</literal></term>
+	<listitem>
+	  <para>
+	    A more secure digest authorization scheme. The application
+	    must link with <option>-lcxxtls</option> to enable support for
+	    digest authorization, and invoke
+	    <function>&ns;::http::useragent::base::https_enable</function>()
+	    (only required for static linking, ordinary dynamic linking
+	    with <option>-lcxxtls</option> is sufficient).
+	  </para>
+	</listitem>
+      </varlistentry>
+    </variablelist>
+
+    <para>
+      The selection of the authorization scheme depends on the server's
+      capabilities. The digest authorization scheme gets selected if the
+      server supports both the basic and the digest authorization.
+      An application can check the authorization scheme, and refuse to
+      use the basic authorization scheme with a non-<literal>https</literal>
+      <acronym>URL</acronym>.
     </para>
 
     <note>
@@ -703,7 +750,7 @@ void showuri(const &ns;::http::useragent &amp;ua, const &ns;::uriimpl &amp;uri)
 	and automatically responds to additional challenges from the same
 	authentication realm. If the server rejects the authorization and
 	reissues a challenge, the cached authentication gets removed, and
-	the user agent returns the response object with the challenge.
+	the user agent returns the response object with the new challenge.
       </para>
     </note>
 
@@ -720,15 +767,16 @@ void showuri(const &ns;::http::useragent &amp;ua, const &ns;::uriimpl &amp;uri)
 	scope and get destroyed before the user agent object can reuse its
 	persistent <acronym>HTTP</acronym> connection, with the same server
 	or proxy. Otherwise, the user agent object has to create another
-	conection. The above example purposefully structures its processing
+	connection. The above example intentionally structures its processing
 	loop so that the original response object gets discarded, before
 	looping around and creating another response object.
       </para>
     </note>
 
     <para>
-      Anticipating a server challenge, the userid and the password values
-      can be given directly in the <acronym>URI</acronym>:
+      The userid and the password for basic authorization
+      can also be given directly in an <literal>https</literal>
+      <acronym>URI</acronym>:
     </para>
 
     <blockquote>
@@ -739,14 +787,29 @@ auto resp=ua-&gt;request(&ns;::http::GET, "https://user:password@example.com/");
     </blockquote>
 
     <para>
-      When an authentication requirement is known in advance, giving the
+      When the authentication requirement is known in advance, giving the
       credentials in the <acronym>URI</acronym> allows the inclusion of this
       authorization in the initial request, saving a formal challenge.
       Although the user agent object does not have the
       authentication realm, the authorization credentials are blindly sent
       in the request, and the user agent object caches them as the default
       authorization for all future requests to the same server.
+      This works with basic authorization scheme only. Digest authorization
+      responses require receiving a challenge, first, to obtain the realm
+      and the nonce key.
     </para>
+
+    <note>
+      <para>
+	Specifying the userid and the password in an unencrypted
+	<literal>http</literal> <acronym>URI</acronym> also works.
+	However, explicit userids and passwords
+	are sent as a basic, unhashed, authorization requests,
+	and without <literal>https</literal> the userid and the password
+	gets sent completely unencrypted. This is advisable only for internal
+	applications, and should not be used on public networks.
+      </para>
+    </note>
 
     <note>
       <para>
