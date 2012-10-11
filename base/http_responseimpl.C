@@ -187,6 +187,8 @@ void responseimpl::parse_start_line()
 
 const char responseimpl::www_authenticate[]="WWW-Authenticate";
 const char responseimpl::proxy_authenticate[]="Proxy-Authenticate";
+const char responseimpl::authentication_info[]="Authentication-Info";
+const char responseimpl::proxy_authentication_info[]="Proxy-Authentication-Info";
 
 LOG_FUNC_SCOPE_DECL(LIBCXX_NAMESPACE::http::responseimpl, respLogger);
 
@@ -268,6 +270,51 @@ void responseimpl::challenges(std::string::const_iterator b,
 				}, b, e);
 
 	current.add(list);
+}
+
+bool responseimpl::get_authentication_info(const char *header,
+					   scheme_parameters_t &params) const
+{
+	LOG_FUNC_SCOPE(respLogger);
+
+	params.clear();
+
+	bool found_header=false;
+	bool toomany=false;
+
+	process(header,
+		[&]
+		(std::string::const_iterator b,
+		 std::string::const_iterator e)
+		{
+			if (found_header)
+			{
+				toomany=true;
+				return;
+			}
+			found_header=true;
+
+			parse_structured_header
+				([]
+				 (char c)
+				 {
+					 return c == ',';
+				 },
+				 [&]
+				 (bool dummy, const std::string &word)
+				 {
+					 params.insert(name_and_value(word));
+				 },
+				 b, e);
+		});
+
+	if (toomany)
+	{
+		LOG_WARNING("Multiple " << header << " headers received");
+		return false;
+	}
+
+	return found_header;
 }
 
 template std::istreambuf_iterator<char>

@@ -16,6 +16,8 @@
 #include "x/singleton.H"
 #include "gettext_in.h"
 
+LOG_CLASS_INIT(LIBCXX_NAMESPACE::http::useragentObj);
+
 namespace LIBCXX_NAMESPACE {
 	namespace http {
 #if 0
@@ -306,6 +308,13 @@ bool useragentObj::process_challenges(const clientauth &authorizations,
 				      const requestimpl &req,
 				      const response &resp)
 {
+	process_authentication_info(resp, req,
+				    responseimpl::authentication_info,
+				    authorizations->www_authorizations);
+	process_authentication_info(resp, req,
+				    responseimpl::proxy_authentication_info,
+				    authorizations->proxy_authorizations);
+
 	// If the response was a challenge, see if we can fill it from
 	// the authentication cache.
 
@@ -381,6 +390,32 @@ bool useragentObj::process_challenges(const clientauth &authorizations,
 
 	return false;
 	// No authentication challenges, nothing was filled from the cache
+}
+
+void useragentObj::process_authentication_info(const response &resp,
+					       const requestimpl &req,
+					       const char *header,
+					       std::map<std::string,
+					       clientauthimpl> &authorizations)
+{
+	// Before doing anything, process the Authentication-Info header,
+	// if one is present
+
+	responseimpl::scheme_parameters_t params;
+
+	if (!resp->message.get_authentication_info(header, params))
+		return;
+
+	auto b=authorizations.begin(),
+		e=authorizations.end(),
+		p=b;
+
+	if (b != e && ++b == e)
+		p->second->authentication_info(req, params);
+	else
+	{
+		LOG_WARNING(libmsg(_txt("Cannot process the Authentication-Info header")));
+	}
 }
 
 void useragentObj::recycle(const cache_key_t &key,

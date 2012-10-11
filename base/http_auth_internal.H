@@ -76,6 +76,11 @@ class LIBCXX_HIDDEN clientauthimplObj::basic : public clientauthimplObj {
 				const responseimpl::scheme_parameters_t &req)
 		override;
 
+	//! Ignored, not applicable
+
+	void authentication_info(const requestimpl &req,
+				 const responseimpl::scheme_parameters_t &info)
+		override;
 };
 
 #if 0

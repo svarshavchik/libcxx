@@ -241,6 +241,12 @@ public:
 	//! The "Proxy-Authenticate" header.
 	static const char proxy_authenticate[];
 
+	//! The authentication-info header
+	static const char authentication_info[];
+
+	//! The proxy-authentication-info header
+	static const char proxy_authentication_info[];
+
 	//! The www-authenticate code
 	static const int www_authenticate_code=401;
 
@@ -518,6 +524,17 @@ public:
 							      c.params);
 				     });
 	}
+
+	//! Parse the Authentication-Info header into scheme_parameters_t
+
+	//! Returns true if the header is present.
+
+	bool get_authentication_info(//! Either authentication_info or proxy_authentication_info
+				     const char *header,
+
+				     //! params gets cleared, then populated
+				     //! with the parsed header contents
+				     scheme_parameters_t &params) const;
 
 	//! Parse an HTTP/1.1 response message out of some input sequence
 

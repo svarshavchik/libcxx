@@ -96,7 +96,7 @@ public:
 
 	virtual clientauthimplptr new_request(//! The new request
 					      const requestimpl &req)
-	LIBCXX_HIDDEN=0;
+		LIBCXX_HIDDEN=0;
 
 	//! Whether to try again in response to a server's challenge.
 
@@ -118,6 +118,16 @@ public:
 					//! The challenge's parameters.
 					const responseimpl::scheme_parameters_t
 					&req)
+		LIBCXX_HIDDEN=0;
+
+	//! Process the received authentication-info header
+
+	virtual void authentication_info(//! The original request
+					 const requestimpl &req,
+
+					 //! The authentication-info header in the response
+					 const responseimpl::scheme_parameters_t
+					 &info)
 		LIBCXX_HIDDEN=0;
 
 	class basic;

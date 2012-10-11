@@ -19,6 +19,7 @@
 #include <x/weakmultimap.H>
 #include <x/gnutls/credentials_certificatefwd.H>
 #include <x/sipobj.H>
+#include <x/logger.H>
 
 #include <list>
 #include <map>
@@ -87,6 +88,10 @@ public:
 //! Thread safe.
 //!
 class useragentObj : virtual public obj {
+
+	//! The internal logger object
+
+	LOG_CLASS_SCOPE;
 
 	class idleconnObj;
 
@@ -785,6 +790,17 @@ private:
 	bool process_challenges(const clientauth &authorizations,
 				const requestimpl &req,
 				const response &resp)
+		LIBCXX_INTERNAL;
+
+	//! Check the Authentication-Info and Proxy-Authentication-Info headers
+
+	//! \internal
+
+	void process_authentication_info(const response &resp,
+					 const requestimpl &req,
+					 const char *header,
+					 std::map<std::string,
+					 clientauthimpl> &authorizations)
 		LIBCXX_INTERNAL;
 
 	//! Find a connection for the given destination
