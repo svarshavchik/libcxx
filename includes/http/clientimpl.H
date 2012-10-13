@@ -480,8 +480,8 @@ protected:
 
 		this->setPeerHttpVersion(resp.getVersion());
 
-		pipelined=req.getVersion() == http10 ||
-			resp.getVersion() == http10 ||
+		pipelined=req.getVersion() == httpver_t::http10 ||
+			resp.getVersion() == httpver_t::http10 ||
 			req.connection_closed() || resp.connection_closed()
 			? false:true;
 	}

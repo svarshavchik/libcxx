@@ -484,7 +484,7 @@ void httpserverimpl::received(const LIBCXX_NAMESPACE::http::requestimpl &req,
 	{
 		LIBCXX_NAMESPACE::http::responseimpl resp(200, "Ok");
 
-		resp.setVersion(LIBCXX_NAMESPACE::http::http10);
+		resp.setVersion(LIBCXX_NAMESPACE::http::httpver_t::http10);
 
 		// Cheap way to get input iterators for an HTTP/1.0 response.
 

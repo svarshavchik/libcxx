@@ -553,7 +553,7 @@ protected:
 private:
 	//! Peer's known HTTP version support
 
-	int peerhttpver;
+	httpver_t peerhttpver;
 
 public:
 	friend class write_message_scope;
@@ -561,7 +561,7 @@ public:
 	//! Constructor
 	senderimpl(//! Output sequence for HTTP messages and bodyes
 		   output_iter iterArg=output_iter())
-		: iter(iterArg), peerhttpver(http10)
+		: iter(iterArg), peerhttpver(httpver_t::http10)
 	{
 	}
 
@@ -575,12 +575,12 @@ public:
 	void install(output_iter iterArg)
 	{
 		iter=iterArg;
-		peerhttpver=http10;
+		peerhttpver=httpver_t::http10;
 	}
 
 	//! Set peer's HTTP version
 
-	void setPeerHttpVersion(int level)
+	void setPeerHttpVersion(httpver_t level)
 	{
 		peerhttpver=level;
 	}
@@ -589,7 +589,7 @@ public:
 
 	void setPeerHttp11()
 	{
-		setPeerHttpVersion(http11);
+		setPeerHttpVersion(httpver_t::http11);
 	}
 
 	//! Return the current value of the output iterator
@@ -621,7 +621,7 @@ public:
 	//! "Content-Length:" header and the message body
 	//! is written directly to the output sequence.
 	//!
-	//! Otherwise, for \c http11 requests, a chunked
+	//! Otherwise, for \c httpver_t::http11 requests, a chunked
 	//! sequence gets encodes the message body.
 	//! For \c http10 request, the input sequence gets
 	//! written into a temporary file. The temporary
@@ -652,8 +652,8 @@ public:
 
 		write_message_scope writing(*this);
 
-		if (req.getVersion() == http10 ||
-		    peerhttpver == http10)
+		if (req.getVersion() == httpver_t::http10 ||
+		    peerhttpver == httpver_t::http10)
 		{
 			iter=senderimpl_encode::http10_request_encoding
 				<typename std::iterator_traits<input_iter>
@@ -698,10 +698,10 @@ public:
 	//! exact byte count sets the "Content-Length:" header and the
 	//! message body gets written directly to the output sequence.
 	//!
-	//! Otherwise, for \c http11 responses, a chunked
+	//! Otherwise, for \c httpver_t::http11 responses, a chunked
 	//! sequence encodes the message body.
 	//!
-	//! For \c http10 versions, since the connection is
+	//! For \c httpver_t::http10 versions, since the connection is
 	//! going to be closed, the body gets simply copied
 	//! to the output sequence, and we expect the caller
 	//! to proceed and close the connection when we're
@@ -732,8 +732,8 @@ public:
 	{
 		write_message_scope writing(*this);
 
-		if (resp.getVersion() == http10 ||
-		    peerhttpver == http10)
+		if (resp.getVersion() == httpver_t::http10 ||
+		    peerhttpver == httpver_t::http10)
 		{
 			iter=senderimpl_encode::http10_response_encoding
 				<typename std::iterator_traits<input_iter>

@@ -41,7 +41,7 @@ const char requestimpl::proxy_authorization[] = "Proxy-Authorization";
 
 
 requestimpl::requestimpl() noexcept : proxyFormat(false),
-				     method(GET), httpver(http11)
+				     method(GET), httpver(httpver_t::http11)
 				     
 {
 }
@@ -49,7 +49,7 @@ requestimpl::requestimpl() noexcept : proxyFormat(false),
 requestimpl::requestimpl(const cgiimpl &cgi)
 	: messageimpl(cgi.headers), proxyFormat(false),
 	  method(cgi.method),
-	  uri(cgi.getURI(cgi.uri_query)), httpver(http11)
+	  uri(cgi.getURI(cgi.uri_query)), httpver(httpver_t::http11)
 {
 	erase("Host");
 }
@@ -88,7 +88,7 @@ bool requestimpl::parse_method_str(std::string::const_iterator p,
 void requestimpl::parse_start_line()
 {
 	uri=uriimpl();
-	httpver=httpnone;
+	httpver=httpver_t::httpnone;
 
 	std::string::const_iterator b(start_line.begin()),
 		e(start_line.end()), p;
@@ -129,7 +129,7 @@ void requestimpl::parse_start_line()
 		if (++hosthdr.first != hosthdr.second)
 			bad_message();
 	}
-	else if (httpver == http11 && auth.hostport.size() == 0)
+	else if (httpver == httpver_t::http11 && auth.hostport.size() == 0)
 		bad_message(); // Host header required for HTTP/1.1 messages
 
 	if (uri.getScheme().size() == 0)

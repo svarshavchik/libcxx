@@ -111,7 +111,7 @@ public:
 		    const uriimpl &uriArg,
 		    Args_t && ...args)
 		: proxyFormat(false), method(methodArg),
-		  uri(uriArg), httpver(http11)
+		  uri(uriArg), httpver(httpver_t::http11)
 	{
 		uri.fixSchemePort();
 		init_request_params(std::forward<Args_t>(args)...);
@@ -177,7 +177,7 @@ public:
 
 	//! Retrieve the HTTP version
 
-	int getVersion() const noexcept
+	httpver_t getVersion() const noexcept
 	{
 		return httpver;
 	}

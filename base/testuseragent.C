@@ -340,7 +340,7 @@ static void testhttp10req(const savebody &body)
 	LIBCXX_NAMESPACE::http::requestimpl req(LIBCXX_NAMESPACE::http::GET,
 					      serveraddr);
 
-	req.setVersion(LIBCXX_NAMESPACE::http::http10);
+	req.setVersion(LIBCXX_NAMESPACE::http::httpver_t::http10);
 
 	std::cout << "Sending a test request" << std::endl;
 

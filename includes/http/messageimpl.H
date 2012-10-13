@@ -116,11 +116,11 @@ iter_type messageimpl::httpver_parse(iter_type b,
 
 	if (minor == 0)
 	{
-		httpver=http10;
+		httpver=httpver_t::http10;
 	}
 	else
 	{
-		httpver=http11;
+		httpver=httpver_t::http11;
 	}
 	return p;
 }
@@ -131,7 +131,7 @@ iter_type messageimpl::httpver_toString(iter_type iter, httpver_t httpver)
 {
 	for (const char *p="HTTP/1."; *p; p++)
 		*iter++= *p;
-	*iter++ = httpver == http10 ? '0':'1';
+	*iter++ = httpver == httpver_t::http10 ? '0':'1';
 
 	return iter;
 }

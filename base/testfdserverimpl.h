@@ -80,7 +80,7 @@ public:
 
 		LIBCXX_NAMESPACE::http::responseimpl resp;
 
-		resp.setVersion(LIBCXX_NAMESPACE::http::http11);
+		resp.setVersion(LIBCXX_NAMESPACE::http::httpver_t::http11);
 		resp.setStatusCode(200);
 
 		std::list<char> dummy;
@@ -114,7 +114,7 @@ void testhttp10() throw(LIBCXX_NAMESPACE::exception)
 
 		LIBCXX_NAMESPACE::http::requestimpl req;
 
-		req.setVersion(LIBCXX_NAMESPACE::http::http10);
+		req.setVersion(LIBCXX_NAMESPACE::http::httpver_t::http10);
 		req.setURI("http://example.com");
 
 		LIBCXX_NAMESPACE::http::responseimpl resp;
@@ -131,7 +131,7 @@ void testhttp10() throw(LIBCXX_NAMESPACE::exception)
 		}
 
 		req=LIBCXX_NAMESPACE::http::requestimpl();
-		req.setVersion(LIBCXX_NAMESPACE::http::http10);
+		req.setVersion(LIBCXX_NAMESPACE::http::httpver_t::http10);
 		req.setURI("http://example.com");
 	
 		if (cl.send(req, resp))
@@ -165,7 +165,7 @@ void testhttp11() throw(LIBCXX_NAMESPACE::exception)
 		{
 			LIBCXX_NAMESPACE::http::requestimpl req;
 
-			req.setVersion(LIBCXX_NAMESPACE::http::http11);
+			req.setVersion(LIBCXX_NAMESPACE::http::httpver_t::http11);
 			req.setURI("http://example.com");
 
 			if (i)
@@ -188,7 +188,7 @@ void testhttp11() throw(LIBCXX_NAMESPACE::exception)
 		LIBCXX_NAMESPACE::http::requestimpl req;
 		LIBCXX_NAMESPACE::http::responseimpl resp;
 
-		req.setVersion(LIBCXX_NAMESPACE::http::http11);
+		req.setVersion(LIBCXX_NAMESPACE::http::httpver_t::http11);
 		req.setURI("http://example.com");
 
 		if (cl.send(req, resp))
@@ -231,7 +231,7 @@ void testhttpsendmsgerror() throw(LIBCXX_NAMESPACE::exception)
 
 	LIBCXX_NAMESPACE::http::requestimpl req;
 
-	req.setVersion(LIBCXX_NAMESPACE::http::http11);
+	req.setVersion(LIBCXX_NAMESPACE::http::httpver_t::http11);
 	req.setURI("http://example.com");
 	LIBCXX_NAMESPACE::http::responseimpl resp;
 
@@ -315,7 +315,7 @@ void testhttpresponsemsgerror() throw(LIBCXX_NAMESPACE::exception)
 
 	LIBCXX_NAMESPACE::http::requestimpl req;
 
-	req.setVersion(LIBCXX_NAMESPACE::http::http11);
+	req.setVersion(LIBCXX_NAMESPACE::http::httpver_t::http11);
 	req.setURI("http://example.com");
 
 	LIBCXX_NAMESPACE::http::responseimpl resp;

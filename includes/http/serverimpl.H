@@ -155,9 +155,9 @@ private:
 			responseimpl::throw_internal_server_error();
 
 		response_sent=true;
-		connection_closed=resp.getVersion() == http10 ||
+		connection_closed=resp.getVersion() == httpver_t::http10 ||
 			resp.connection_closed() ||
-			req.getVersion() == http10 ||
+			req.getVersion() == httpver_t::http10 ||
 			req.connection_closed();
 
 		if (connection_closed && !resp.connection_closed())
@@ -393,7 +393,7 @@ public:
 			try {
 				bool got_100_continue=false;
 
-				if (req.getVersion() == http11)
+				if (req.getVersion() == httpver_t::http11)
 				{
 					messageimpl::keywordseti_t expectations;
 

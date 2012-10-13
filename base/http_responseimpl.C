@@ -70,7 +70,7 @@ std::string responseimpl::auth_param::quote_value(const std::string &value) cons
 	return o.str();
 }
 
-responseimpl::responseimpl() noexcept : httpver(http11)
+responseimpl::responseimpl() noexcept : httpver(httpver_t::http11)
 {
 	setStatusCode(200);
 	setReasonPhrase("Ok");
@@ -153,7 +153,7 @@ void responseimpl::setReasonPhrase(const std::string &reasonphraseArg)
 
 void responseimpl::parse_start_line()
 {
-	httpver=httpnone;
+	httpver=httpver_t::httpnone;
 	statuscode=0;
 	reasonphrase.clear();
 

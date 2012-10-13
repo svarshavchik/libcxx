@@ -73,11 +73,11 @@ public:
 
 	//! Common constructor
 	responseimpl(int statuscodeArg, const std::string &reasonphraseArg,
-		     httpver_t httpverArg=http11);
+		     httpver_t httpverArg=httpver_t::http11);
 
 	//! Common constructor
 	responseimpl(int statuscodeArg, const char *reasonphraseArg,
-		     httpver_t httpverArg=http11);
+		     httpver_t httpverArg=httpver_t::http11);
 
 	//! Destructor
 	~responseimpl() noexcept;

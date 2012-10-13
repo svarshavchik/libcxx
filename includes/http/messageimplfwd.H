@@ -25,7 +25,7 @@ namespace LIBCXX_NAMESPACE {
 
 //! HTTP version
 
-typedef enum {
+typedef enum class {
 	httpnone=-1,
 	http11,
 	http10,

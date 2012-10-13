@@ -113,7 +113,7 @@ public:
 	//! Constructor
 	response_exception(int statuscodeArg,
 			   const std::string &reasonphraseArg,
-			   httpver_t httpverArg=http11);
+			   httpver_t httpverArg=httpver_t::http11);
 
 	//! Destructor
 	~response_exception() noexcept;
