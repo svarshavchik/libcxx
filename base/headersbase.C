@@ -107,138 +107,60 @@ headersbase &headersbase::operator=(const headersbase &o)
 	return *this;
 }
 
-headersbase::tokenhdrparser::tokenhdrparser(const std::string &headername,
-					    const headersbase &headers)
-
+char headersbase::comma_or_semicolon(char c)
 {
-	std::pair<const_iterator,
-		  const_iterator> values(headers.equal_range(headername));
-
-	hdr_start=values.first;
-	hdr_end=values.second;
-	newhdr();
+	return c == ',' || c == ';' ? c:0;
 }
 
-headersbase::tokenhdrparser::~tokenhdrparser() noexcept
+std::pair<std::string, std::string>
+headersbase::name_and_value(//! The parameter
+			    const std::string &word)
 {
-}
+	std::pair<std::string, std::string> ret;
 
-void headersbase::tokenhdrparser::newhdr()
-{
-	while (hdr_start != hdr_end)
+	size_t p=word.find('=');
+
+	if (p == std::string::npos)
 	{
-		val_start = hdr_start->second.begin();
-		val_end = hdr_start->second.end();
-
-		if (val_start != val_end)
-			break;
-		++hdr_start;
+		ret.first=word;
 	}
-}
-
-char headersbase::tokenhdrparser::operator()()
-{
-	while (hdr_start != hdr_end)
+	else
 	{
-		// Skip leading spaces and spurious separators
+		size_t q=p;
 
-		switch (*val_start) {
-		case ',':
-		case ';':
-		case ' ':
-		case '\t':
-		case '\r':
-		case '\n':
-			if (++val_start == val_end)
-			{
-				++hdr_start;
-				newhdr();
-			}
-			continue;
-		default:
-			break;
-		}
-		break;
-	}
-
-	if (hdr_start == hdr_end)
-		return 0;
-
-	value="";
-	// Collect value until , or ; is seen outside of any
-	// quotes.
-	bool inquote=false;
-
-	while (val_start != val_end &&
-	       (inquote || (*val_start != ',' && *val_start != ';')))
-	{
-		if (*val_start == '"')
+		while (q > 0)
 		{
-			inquote=!inquote;
-			++val_start;
-			continue;
-		}
-
-		std::string::const_iterator p=val_start;
-
-		// If a space outside of a quote, scan ahead
-		// and skip all the spaces.
-
-		if (!inquote)
-		{
-			while (p != val_end &&
-			       (*p == ' '
-				|| *p == '\t'
-				|| *p == '\r'
-				|| *p == '\n'))
-				++p;
-
-			// If the next nonspace
-			// character is a terminator, stop,
-			// thus skipping the trailing
-			// whitespace.
-
-			if (p == val_end || *p == ','
-			    || *p == ';')
-			{
-				val_start=p;
+			switch (word[q-1]) {
+			case ' ':
+			case '\r':
+			case '\n':
+			case '\t':
+				--q;
+				continue;
+			default:
 				break;
 			}
-
-			if (p != val_start) // skipped some spc
-				--p;
+			break;
 		}
-		else
+		ret.first=word.substr(0, q);
+
+		while (++p < word.size())
 		{
-			if (inquote && *p == '\\')
-			{
-				if (++p == val_end)
-					break;
+			switch (word[q-1]) {
+			case ' ':
+			case '\r':
+			case '\n':
+			case '\t':
+				continue;
+			default:
+				break;
 			}
-			val_start=p;
+			break;
 		}
-
-		++p;
-
-		while (val_start != p)
-		{
-			char c=*val_start++;
-
-			if (c == '\t' || c == '\n' || c == '\r')
-				c=' ';
-
-			value.push_back(c);
-		}
+		ret.second=word.substr(p);
 	}
 
-	if (val_start == val_end)
-	{
-		++hdr_start;
-		newhdr();
-		return ',';
-	}
-
-	return *val_start;
+	return ret;
 }
 
 template

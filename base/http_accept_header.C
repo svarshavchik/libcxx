@@ -50,7 +50,7 @@ accept_header::parser::parser(accept_header &hArg) noexcept
 }
 
 void accept_header::parser::operator()(const std::string &name,
-			char terminator)
+				       char terminator)
 {
 	(this->*next_func)(name, terminator);
 }
@@ -197,7 +197,25 @@ accept_header &accept_header::operator=(const headersbase &req)
 
 	parser p(*this);
 
-	req.parsetokenheader(name, p);
+	req.process
+		(name,
+		 [&]
+		 (std::string::const_iterator b,
+		  std::string::const_iterator e)
+		 {
+			 headersbase::parse_structured_header
+				 (headersbase::comma_or_semicolon,
+				  [&p]
+				  (char sep,
+				   const std::string &str)
+				  {
+					  if (sep == 0)
+						  sep=',';
+
+					  p(str, sep);
+				  }, b, e);
+		 });
+
 	return *this;
 }
 

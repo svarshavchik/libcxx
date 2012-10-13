@@ -111,7 +111,20 @@ content_type_header &content_type_header::operator=(const headersbase &req)
 
 	parser p(*this);
 
-	req.parsetokenheader(name, p);
+	req.process(name,
+		    [&]
+		    (std::string::const_iterator b,
+		     std::string::const_iterator e)
+		    {
+			    req.parse_structured_header(headersbase::
+							comma_or_semicolon,
+							[&]
+							(char ignore,
+							 const std::string &w)
+							{
+								p(w, ignore);
+							}, b, e);
+		    });
 	return *this;
 }
 

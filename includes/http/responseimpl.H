@@ -64,47 +64,6 @@ public:
 	typedef std::multimap<std::string, std::string,
 			      chrcasecmp::str_less> scheme_parameters_t;
 
-private:
-	//! Internal class used by challenges()
-
-	//! \internal
-	//!
-	class authschemeparser : private tokenhdrparser {
-
-		//! Most recent word returned by tokenhdrparser
-		std::string current_word;
-
-		//! Most recent returned value from tokenhdrparser::operator().
-		char current_char;
-
-	public:
-		//! Constructor
-		authschemeparser(//! Name of header to parse
-				 const char *headername,
-
-				 //! Headers
-				 const headersbase &headers);
-
-		//! Destructor
-		~authschemeparser() noexcept;
-
-		//! Parsed scheme parameters.
-		scheme_parameters_t scheme_parameters;
-
-		//! The extracted realm
-		std::string realm;
-
-		//! Parse the next authentication scheme.
-
-		//! \return the next authentication scheme's name. auth::unknown
-		//! indicates no more authentication scheme. The
-		//! authentication parameters are placed into scheme_parameters.
-
-		auth operator()(void);
-	};
-
-public:
-
 	//! Default constructor
 	responseimpl() noexcept;
 
@@ -457,6 +416,42 @@ public:
 		return statuscode == proxy_authenticate_code;
 	}
 
+	//! List value populated by process_challenge_header()
+
+	struct challenge_info {
+
+		//! Authentication scheme
+		auth scheme;
+
+		//! Authentication realm
+		std::string realm;
+
+		//! Additional scheme parameters
+		scheme_parameters_t params;
+
+		//! Constructor
+		challenge_info();
+
+		//! Add to a list
+
+		void add(std::list<challenge_info> &list);
+	};
+
+	//! Parse a challenge header
+
+	//! Fills the list with parsed authentication scheme. Unknown
+	//! scheme are quietly ignored.
+
+	static void
+	challenges(//! Header value beginning iterator
+		   std::string::const_iterator b,
+
+		   //! Header value ending iterator
+		   std::string::const_iterator e,
+
+		   //! Populated list
+		   std::list<challenge_info> &list);
+
 	//! Extract authentication challenges from this response
 
 	//! If www_authentication_required() or proxy_authentication_required(),
@@ -466,7 +461,7 @@ public:
 	//! the authentication realm, and a scheme_parameters_t, containing
 	//! the authentication scheme's parameters.
 	//!
-	//! An unknown scheme is given as auth::unknown.
+	//! The callback does not get invoked for unknown schemes.
 
 	template<typename callback_type>
 	void challenges(callback_type &&callback) const
@@ -479,17 +474,20 @@ public:
 			p=proxy_authenticate;
 		else return;
 
-		authschemeparser parser(p, *this);
+		headersbase::process(p,
+				     [&]
+				     (std::string::const_iterator b,
+				      std::string::const_iterator e)
+				     {
+					     std::list<challenge_info> list;
 
-		auto scheme=parser();
+					     challenges(b, e, list);
 
-		while (scheme != auth::unknown)
-		{
-			callback(scheme, parser.realm,
-				 parser.scheme_parameters);
-
-			scheme=parser();
-		}
+					     for (const auto &c:list)
+						     callback(c.scheme,
+							      c.realm,
+							      c.params);
+				     });
 	}
 
 	//! Parse an HTTP/1.1 response message out of some input sequence

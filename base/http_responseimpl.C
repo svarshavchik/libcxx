@@ -164,107 +164,86 @@ void responseimpl::parse_start_line()
 const char responseimpl::www_authenticate[]="WWW-Authenticate";
 const char responseimpl::proxy_authenticate[]="Proxy-Authenticate";
 
-responseimpl::authschemeparser::authschemeparser(const char *headername,
-						 const headersbase &headers)
-	: tokenhdrparser(headername, headers)
-{
-	// Peek ahead to the first word.
-	current_char=tokenhdrparser::operator()();
-	current_word=value;
-}
-
-responseimpl::authschemeparser::~authschemeparser() noexcept
-{
-}
-
 LOG_FUNC_SCOPE_DECL(LIBCXX_NAMESPACE::http::responseimpl, respLogger);
 
-auth responseimpl::authschemeparser::operator()(void)
+responseimpl::challenge_info::challenge_info()
+	: scheme(auth::unknown)
+{
+}
+
+void responseimpl::challenge_info::add(std::list<challenge_info> &list)
 {
 	LOG_FUNC_SCOPE(respLogger);
 
- again:
+	if (scheme == auth::unknown)
+		return;
 
-	scheme_parameters.clear();
-	realm.clear();
+	auto realm_iters=params.equal_range("realm");
 
-	std::string scheme;
-	bool first=true;
-
-	while (current_char)
+	if (realm_iters.first == realm_iters.second)
 	{
-		std::string::iterator b=current_word.begin(),
-			e=current_word.end();
-
-		std::string::iterator p;
-
-		if (first)
-		{
-			first=false;
-
-			// The challenge should start with
-			// 'scheme firstparameter=value,'
-			//
-			// tokenhdrparser stops scanning when it seens a comma,
-			// and not a space. So, we find the space ourselves,
-			// and extra the scheme's name from it.
-
-			p=std::find(b, e, ' ');
-
-			scheme=std::string(b, p); // Here it is.
-
-			while (p < e && *p == ' ')
-				++p;
-			b=p;
-
-			// Set up the iterator to take the first scheme
-			// parameter.
-			p=std::find(b, e, '=');
-		}
-		else
-		{
-			// If this is not the first word, well, if there's
-			// a space somewhere before the =, this must be the
-			// first parameter of the next authentication scheme.
-			p=std::find(b, e, '=');
-
-			if (std::find(b, p, ' ') < p)
-				break;
-		}
-
-		std::string key=std::string(b, p);
-
-		if (p < e) ++p;
-
-		scheme_parameters.insert(std::make_pair(key,
-							std::string(p, e)));
-
-		// Move to the next word.
-		current_char=tokenhdrparser::operator()();
-		current_word=value;
+		LOG_WARNING("Authentication scheme realm not found");
+		return;
 	}
 
-	if (scheme.empty())
-		return auth::unknown;
+	realm=realm_iters.first->second;
+	params.erase(realm_iters.first, realm_iters.second);
 
-	// Extract the realm parameter.
+	list.push_back(*this);
+}
 
-	auto realm_param=scheme_parameters.equal_range("realm");
+void responseimpl::challenges(std::string::const_iterator b,
+			      std::string::const_iterator e,
+			      std::list<challenge_info> &list)
+{
+	LOG_FUNC_SCOPE(respLogger);
 
-	if (realm_param.first != realm_param.second)
-		realm=realm_param.first->second;
+	challenge_info current;
 
-	scheme_parameters.erase(realm_param.first, realm_param.second);
+	LOG_DEBUG("Processing authentication challenge header");
 
-	auto scheme_val=auth_fromstring(scheme);
+	parse_structured_header([]
+				(char c)
+				{
+					return c == ',' ||
+						c == ' ' ||
+						c == '\r' ||
+						c == '\n' ||
+						c == '\t';
+				},
+				[&]
+				(bool ignore,
+				 const std::string &word)
+				{
+					// RFC 2617 requires = for auth-param
+					// If there's no =, this must be
+					// an auth-scheme.
 
-	if (scheme_val == auth::unknown)
-	{
-		LOG_WARNING("Unknown HTTP authentication scheme: \""
-			    << scheme << "\"");
-		goto again;
-	}
-	return scheme_val;
+					if (word.find('=') != std::string::npos)
+					{
+						LOG_DEBUG("Parameter: "
+							  << word);
+
+						current.params.insert
+							(name_and_value(word));
+						return;
+					}
+
+					current.add(list);
+
+					current=challenge_info();
+
+					if ((current.scheme=
+					     auth_fromstring(word))
+					    == auth::unknown)
+					{
+						LOG_WARNING("Unknown HTTP authentication scheme: \""
+							    << word << "\"");
+					}
+
+				}, b, e);
+
+	current.add(list);
 }
 
 template std::istreambuf_iterator<char>

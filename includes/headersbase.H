@@ -372,98 +372,183 @@ protected:
 
 	//! Number of headers exceeds maximum.
 	static void parse_toomanyheaders() __attribute__((noreturn));
-protected:
-
-	//! Internal class used by parsetokenheader
-
-	//! Iterates over all headers of the given name, returning a sequence
-	//! of words that are terminated by commas or semicolons. For these
-	//! purposes, each header line is considered to be terminated with a
-	//! comma.
-	//!
-	//! Quoted content is unquoted. Whitespace is homogenized to ' '.
-	//!
-	class tokenhdrparser {
-
-		//! Current header iterator
-		const_iterator hdr_start;
-
-		//! Ending header iterator
-		const_iterator hdr_end;
-
-		//! Current header value iterator
-		std::string::const_iterator val_start;
-
-		//! Ending header value iterator
-		std::string::const_iterator val_end;
-
-		//! Advance iterators to the next header
-		void newhdr();
-
-	public:
-		//! Constructor
-		tokenhdrparser(//! Name of header to parse
-			       const std::string &headername,
-
-			       //! Headers
-			       const headersbase &headers);
-
-		//! Destructor
-		~tokenhdrparser() noexcept;
-
-		//! Parsed value
-		std::string value;
-
-		//! Parse the next value
-
-		//! \return 0 - no more values, else the terminator character,
-		//! ',' or ';'
-
-		char operator()(void);
-
-	};
 
 public:
 
-	//! Parse a header that contains a list of parameter tokens
+	//! Parse a structured header
 
-	//! parsetokenheader() extracts token from a header that specifies
-	//! some sort of parameter sequences.
-	//!
-	//! The template parameter is an object that implements
-	//! operator()(const std::string &, char).
-	//!
-	//! The header is broken up into a sequence of tokens, separated by
-	//! ',' and ';' characters. This function basically gobbles up
-	//! characters in a header until it sees a ',' and ';' character.
-	//!
-	//! parsetokenheader() invokes the callback(token, char)
-	//! passing the parsed token. The second parameter is a char,
-	//! indicating whether the token was terminated by ';' or ','.
-	//! The last token in the header is considered to be terminated by the
-	//! ',' character. If the header occurs multiple times, the header
-	//! occurences are combined using the ',' character, and the last token
-	//! in each occurence of the header is processed accordingly.
-	//!
-	//! The callback function receives the parsed token value as the
-	//! the first parameter. Quoted
-	//! values have the surrounding quotes stripped, and backslashes
-	//! removed from escaped characters in quoted values.
-	//! Leading and trailing whitespace is stripped.
+	//! Common algorithm used to parse the contents of a header
+	//! structure as comma or semicolon-delimited words,
+	//! with quoted content.
 
-	template<typename callback_type>
-	void parsetokenheader(const std::string &headername,
-			      callback_type &&callback)
-		const
+	template<typename isDelimiterCharFunctor,
+		 typename parameterFunctor,
+		 typename headerIterator>
+	static void
+	parse_structured_header(//! Functor: takes a char, returns true if char is a delimiter (typically ',' or ';').
+				isDelimiterCharFunctor &&isDelimiter,
+
+				//! Callback, first parameter is the return value from isDelimiter, second value is the parsed word.
+
+				parameterFunctor &&parameter,
+
+				//! Header value, beginning iterator
+				headerIterator beginIter,
+
+				//! Header value, ending iterator
+				headerIterator endIter)
 	{
-		tokenhdrparser parser(headername, *this);
+		std::string value;
 
-		char value;
+		// Mini-state machine.
+		enum { notcollecting, collecting, skippedspaces, inquote
+		} state=notcollecting;
 
-		while ((value=parser()) != 0)
-			callback(parser.value, value);
+		for ( ; beginIter != endIter; ++beginIter)
+		{
+			if (state == collecting || state == skippedspaces)
+			{
+				auto flag=isDelimiter(*beginIter);
+
+				if (flag)
+				{
+					// End of one word, begni the next one.
+
+					parameter(flag, value);
+					state=notcollecting;
+					value.clear();
+					continue;
+				}
+			}
+
+			switch (*beginIter) {
+			case ' ':
+			case '\t':
+			case '\r':
+			case '\n':
+				if (state == collecting ||
+				    state == skippedspaces)
+				{
+					// Outside of quotes, replace
+					// a whitespace sequence with a single
+					// space.
+
+					state=skippedspaces;
+					continue;
+				}
+				if (state == notcollecting)
+					continue;
+				break;
+			case '"':
+				if (state == skippedspaces)
+					value.push_back(' ');
+				if (state == inquote)
+				{
+					state=collecting;
+				}
+				else
+				{
+					state=inquote;
+				}
+				continue;
+			}
+
+			if (state == skippedspaces)
+				value.push_back(' ');
+
+			if (state != inquote)
+				state=collecting;
+			value.push_back(*beginIter);
+		}
+
+		if (state == collecting || state == inquote)
+			parameter(0, value);
 	}
 
+	//! Something to pass for the first functor to parse_structured_header.
+
+	//! Recognizes commas and colons as separators, returns them, or returns
+	//! 0.
+
+	static char comma_or_semicolon(char);
+
+	//! Specialization for std::string::iterator
+
+	//! Reduces code bloat, by using std::string::const_iterator
+
+	template<typename isDelimiterCharFunctor,
+		 typename parameterFunctor>
+	void parse_structured_header(//! Functor: takes a char, returns true if char is a delimiter (typically ',' or ';').
+
+				     isDelimiterCharFunctor &&isDelimiter,
+
+				     //! Callback, first parameter is the return value from isDelimiter, second value is the parsed word.
+
+				     parameterFunctor &&parameter,
+
+				     //! Header value, beginning iterator
+				     std::string::iterator beginIter,
+
+				     //! Header value, ending iterator
+				     std::string::iterator endIter)
+	{
+		parse_structured_header(std::string::const_iterator(beginIter),
+					std::string::const_iterator(endIter),
+					std::forward<isDelimiterCharFunctor>
+					(isDelimiter),
+					std::forward<parameterFunctor>
+					(parameter));
+	}
+
+	//! Parse a structured header
+
+	template<typename isDelimiterCharFunctor,
+		 typename parameterFunctor,
+		 typename container>
+	static void
+	parse_structured_header(//! Functor: takes a char, returns true if char is a delimiter (typically ',' or ';').
+
+				isDelimiterCharFunctor &&isDelimiter,
+
+				//! Callback, first parameter is the return value from isDelimiter, second value is the parsed word.
+
+				parameterFunctor &&parameter,
+
+				//! Container
+				const container &c)
+	{
+		parse_structured_header(std::begin(c), std::end(c),
+					std::forward<isDelimiterCharFunctor>
+					(isDelimiter),
+					std::forward<parameterFunctor>
+					(parameter));
+	}
+
+	//! Parse a word into parameter=value
+
+	//! Breaks a word at the first '=' sign, returns std::pair<name,value>.
+	//! If there's no equal sign, the value is an empty string.
+
+	static std::pair<std::string, std::string>
+	name_and_value(//! The parameter
+		       const std::string &word);
+
+	//! Iterate over all instances of the given header, and do something.
+
+	template<typename functorType>
+	void process(//! Header's name
+		     const std::string &headername,
+
+		     //! Processing functor
+		     functorType &&functor) const
+	{
+		for (auto values=this->equal_range(headername);
+		     values.first != values.second; ++values.first)
+		{
+			functor(values.first->second.begin(),
+				values.first->second.end());
+		}
+	}
 
 	//! Write the headers to an output sequence
 
@@ -502,8 +587,6 @@ headersbase::toString<std::ostreambuf_iterator<char>
 	const;
 
 #endif
-
-
 
 
 #if 0

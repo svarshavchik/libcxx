@@ -58,10 +58,10 @@ public:
 	std::string value;
 
 	void operator()(const std::string &token, char terminator)
-
 	{
 		value += token;
-		value.push_back(terminator);
+		if (terminator)
+			value.push_back(terminator);
 		value.push_back('\n');
 	}
 };
@@ -71,7 +71,7 @@ static void testparsetokenheader()
 	std::string lmsg=
 		"get /images http/1.1\r\n"
 		"Host: localhost\r\n"
-		"Accept: */* ; q=0.100; qvalue=\"quoted \\\" value\" , text/*; q=\"0.200\"\r\n"
+		"Accept: */* ; q=0.100; qvalue=\"quoted, value\" , text/*; q=\"0.200\"\r\n"
 		"accept: text/csv; headers=4 ; rows=6\r\n"
 		"\r\n";
 
@@ -85,17 +85,31 @@ static void testparsetokenheader()
 
 	testparsetokenheadercb cb;
 
-	msg.parsetokenheader("accept", cb);
+	msg.process("accept",
+		    [&]
+		    (std::string::const_iterator b,
+		     std::string::const_iterator e)
+		    {
+			    LIBCXX_NAMESPACE::
+				    headersbase::parse_structured_header
+				    (LIBCXX_NAMESPACE::headersbase
+				     ::comma_or_semicolon,
+				     [&]
+				     (char sep, const std::string &w)
+				     {
+					     cb(w, sep);
+				     }, b, e);
+		    });
 
 	if (cb.value !=
 	    "*/*;\n"
 	    "q=0.100;\n"
-	    "qvalue=quoted \" value,\n"
+	    "qvalue=quoted, value,\n"
 	    "text/*;\n"
-	    "q=0.200,\n"
+	    "q=0.200\n"
 	    "text/csv;\n"
 	    "headers=4;\n"
-	    "rows=6,\n")
+	    "rows=6\n")
 		throw EXCEPTION("parsetokenheader() sanity check failed: " +
 				cb.value);
 }
@@ -249,7 +263,7 @@ static void testacceptheader()
 
 	h.toString(std::ostreambuf_iterator<char>(o));
 
-	if (o.str() != "text/plain; charset=us-ascii; q=1.000, text/plain; q=0.900, text/plain; version=\"12[]\"; q=0.500, text/plain; version=\"\\\\\"; q=0.003")
+	if (o.str() != "text/plain; charset=us-ascii; q=1.000, text/plain; q=0.900, text/plain; version=\"12[]\"; q=0.500, text/plain; version=\"\\\\\\\\\"; q=0.003")
 		throw EXCEPTION("Unexpected accept_header.toString result: " + o.str());
 }
 
