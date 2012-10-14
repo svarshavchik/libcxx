@@ -169,6 +169,7 @@ headersbase::toString<std::ostreambuf_iterator<char>
 		      >(std::ostreambuf_iterator<char>, const char *)
 	const;
 
+template std::string headersbase::quoted_string(const std::string &);
 
 #if 0
 {

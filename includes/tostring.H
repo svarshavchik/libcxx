@@ -22,10 +22,17 @@ namespace LIBCXX_NAMESPACE {
 //! saving the result into a std::string.
 template<typename class_type>
 inline std::string tostring(const class_type &cl,
-			    const const_locale &localeRef=locale::base::global())
-
+			    const const_locale &localeRef)
 {
 	return value_string<class_type>::toString(cl, localeRef);
+}
+
+//! Convert some object into a string using the current global locale
+
+template<typename class_type>
+inline std::string tostring(const class_type &cl)
+{
+	return tostring(cl,locale::base::global());
 }
 
 //! Specialization for a native character string.
@@ -88,10 +95,17 @@ inline std::string tostring(const wchar_t (&cl)[n],
 //! method saving the result into a std::string.
 template<typename class_type>
 inline std::wstring towstring(const class_type &cl,
-			      const const_locale &localeRef=locale::base::global())
-
+			      const const_locale &localeRef)
 {
 	return value_string<class_type>::toWideString(cl, localeRef);
+}
+
+//! Convert some object into a wide string using the current global locale
+
+template<typename class_type>
+inline std::wstring towstring(const class_type &cl)
+{
+	return towstring(cl, locale::base::global());
 }
 
 //! Specialization for a native character string.

@@ -51,23 +51,10 @@ const responseimpl::auth_param responseimpl::auth_realm={"realm", true};
 
 std::string responseimpl::auth_param::quote_value(const std::string &value) const
 {
-	std::ostringstream o;
-
-	if (always_quoted)
-	{
-		headersbase
-			::emit_quoted_string(std::ostreambuf_iterator<char>(o),
-					     value.begin(), value.end());
-	}
-	else
-	{
-		tokenizer<is_http_token>
-			::emit_token_or_quoted_word(std::ostreambuf_iterator
-						    <char>(o),
-						    value.begin(), value.end());
-	}
-
-	return o.str();
+	return always_quoted ?
+		headersbase::quoted_string(value.begin(), value.end())
+		: tokenizer<is_http_token>::
+		token_or_quoted_word(value.begin(), value.end());
 }
 
 responseimpl::responseimpl() noexcept : httpver(httpver_t::http11)

@@ -601,6 +601,39 @@ public:
 		*out++='"';
 		return out;
 	}
+
+	//! Return a string with a quoted word.
+
+	template<typename input_iter>
+	static std::basic_string<typename
+				 std::iterator_traits<input_iter>::value_type>
+	quoted_string(//! Beginning iterator
+		      input_iter b,
+
+		      //! Ending iterator
+		      input_iter e)
+	{
+		typedef typename std::iterator_traits<input_iter>::value_type
+			char_type;
+		typedef std::basic_string<char_type> string_type;
+
+		string_type s;
+
+		emit_quoted_string(std::back_insert_iterator<string_type>(s),
+				   b, e);
+
+		return s;
+	}
+
+	//! Return a string with a quoted word.
+
+	template<typename container_type>
+	static auto quoted_string(//! Container
+			   const container_type &container)
+		-> decltype(quoted_string(container.begin(), container.end()))
+	{
+		return quoted_string(container.begin(), container.end());
+	}
 };
 
 
@@ -611,6 +644,8 @@ std::ostreambuf_iterator<char>
 headersbase::toString<std::ostreambuf_iterator<char>
 		      >(std::ostreambuf_iterator<char>, const char *)
 	const;
+
+extern template std::string headersbase::quoted_string(const std::string &);
 
 #endif
 

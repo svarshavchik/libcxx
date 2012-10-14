@@ -263,6 +263,40 @@ public:
 						 std::begin(container),
 						 std::end(container));
 	}
+
+	//! Return a string with a quoted word.
+
+	template<typename input_iter>
+	static std::basic_string<typename
+				 std::iterator_traits<input_iter>::value_type>
+	token_or_quoted_word(//! Beginning iterator
+			     input_iter b,
+
+			     //! Ending iterator
+			     input_iter e)
+	{
+		typedef typename std::iterator_traits<input_iter>::value_type
+			char_type;
+		typedef std::basic_string<char_type> string_type;
+
+		string_type s;
+
+		emit_token_or_quoted_word(std::back_insert_iterator<string_type>
+					  (s), b, e);
+		return s;
+	}
+
+	//! Return a string with a quoted word.
+
+	template<typename container_type>
+	auto token_or_quoted_word(//! Container
+				  const container_type &container)
+		-> decltype(token_or_quoted_word(container.begin(),
+						 container.end()))
+	{
+		return token_or_quoted_word(container.begin(),
+					    container.end());
+	}
 };
 
 template<typename token_class> constexpr bool tokenizer<token_class>::token_map[256];
