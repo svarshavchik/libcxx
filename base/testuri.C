@@ -413,6 +413,58 @@ int main(int argc, char **argv)
 		testhostport("HTTP://host");
 		testhostport("http://user:pw@host:8000");
 
+		{
+			static const struct {
+				const char *a;
+				const char *b;
+				bool isparent;
+			} parent_test[]={
+				{ "/foo", "/foo", true},
+				{ "/foo", "/foo/bar", true},
+				{ "/foo/bar", "/foo", false},
+
+				{ "/foo", "http://example.com/foo", true},
+				{ "/foo", "http://example.com/foo/bar", true},
+				{ "/foo/bar", "http://example.com/foo", false},
+
+				{ "/foo", "http://example.com/foo", true},
+				{ "/foo", "http://example.com/foo/bar", true},
+				{ "/foo/bar", "http://example.com/foo", false},
+
+				{ "http://example.com/foo", "http://example.com/foo", true},
+				{ "http://example.com/foo", "http://example.com/foo/bar", true},
+				{ "http://example.com/foo/bar", "http://example.com/foo", false},
+
+				{ "http://example.com/foo", "/foo", false},
+				{ "http://example.com/foo", "/foo/bar", false},
+				{ "http://example.com/foo/bar", "/foo", false},
+
+				{ "http://example.com/foo", "http://domain.com/foo", false},
+				{ "http://example.com/foo", "http://domain.com/foo/bar", false},
+				{ "http://example.com/foo/bar", "http://domain.com/foo", false},
+
+				{ "http://example.com/foo", "https://example.com/foo", false},
+				{ "http://example.com/foo", "https://example.com/foo/bar", false},
+				{ "http://example.com/foo/bar", "https://example.com/foo", false},
+			};
+
+			for (const auto &t:parent_test)
+			{
+				if ((LIBCXX_NAMESPACE::uriimpl(t.a)
+				     << LIBCXX_NAMESPACE::uriimpl(t.b))
+				    != t.isparent)
+				{
+					throw EXCEPTION(std::string(t.a)
+							<< " << "
+							<< t.b
+							<< " should be "
+							<< LIBCXX_NAMESPACE
+							::tostring(t.isparent)
+							<< ", but it's not");
+				}
+			}
+		}
+
 		testadd();
 
 		{

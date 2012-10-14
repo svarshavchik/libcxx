@@ -757,6 +757,18 @@ public:
 		return compare(o) >= 0;
 	}
 
+	//! Return \c true if this URI encloses another URI.
+
+	//! Returns \c true if this URI does not have a query or a fragment;
+	//! if it does not have a userinfo; if it does not have a scheme or
+	//! the scheme is equal to the other URI's scheme; if it does not have
+	//! an authority or if the authority is equal to the other URI's
+	//! authority; and if the path is either equal to the other URI's path,
+	//! or if the concatenation of the path and "/" is a prefix of the
+	//! other URI's path.
+
+	bool operator<<(const uriimpl &o) const;
+
 private:
 	//! The schema part of a URI.
 	std::string scheme;

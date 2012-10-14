@@ -295,6 +295,17 @@ int uriimpl::compare(const uriimpl &o) const noexcept
 	return n;
 }
 
+bool uriimpl::operator<<(const uriimpl &o) const
+{
+	return ((!scheme.size() || chrcasecmp::compare(scheme, o.scheme) == 0)
+		&&
+		(!authority || authority.compare(o.authority) == 0)
+		&& !authority.has_userinfo
+		&& query.size() == 0 && fragment.size() == 0 &&
+		(path == o.path ||
+		 path + "/" == o.path.substr(0, path.size()+1)));
+}
+
 template void uriimpl::parse(std::string::const_iterator,
 			     std::string::const_iterator);
 
