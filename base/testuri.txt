@@ -108,14 +108,13 @@ userinfo: user:pw
 hostport: host:80
 HTTP/1.1 401 Unauthorized
 Content-Type: text/html
-WWW-Authenticate: Basic mode=test, realm="simplerealm"
+WWW-Authenticate: Basic realm="simplerealm", mode=test
 
 <html><head><title>Unauthorized</title></head><body><h1>Unauthorized</h1></body></html>
 
 HTTP/1.1 401 Unauthorized
 Content-Type: text/html
-WWW-Authenticate: Basic mode2=test2, realm="simplerealm2"
-WWW-Authenticate: Basic realm="simplerealm3"
+WWW-Authenticate: Basic realm="simplerealm2", mode2=test2, Basic realm="simplerealm3"
 
 <html><head><title>Unauthorized</title></head><body><h1>Unauthorized</h1></body></html>
 
@@ -133,9 +132,13 @@ WWW-Authenticate: Basic realm="prepackaged realm5"
 
 HTTP/1.1 401 Unauthorized
 Content-Type: text/html
-WWW-Authenticate: Basic realm="prepackaged realm6"
-WWW-Authenticate: Basic param7=value7, realm="realm7"
-WWW-Authenticate: Basic realm="realm8"
+WWW-Authenticate: Basic realm="prepackaged realm6", Basic realm="realm7", param7=value7, Basic realm="realm8"
+
+<html><head><title>Unauthorized</title></head><body><h1>Unauthorized</h1></body></html>
+
+HTTP/1.1 401 Unauthorized
+Content-Type: text/html
+WWW-Authenticate: Basic realm="7", qop=auth, Digest realm="7", qop=auth-int
 
 <html><head><title>Unauthorized</title></head><body><h1>Unauthorized</h1></body></html>
 

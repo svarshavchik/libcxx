@@ -9,6 +9,7 @@
 #include "x/http/clientauthimpl.H"
 #include "x/xml/escape.H"
 #include "x/tokens.H"
+#include "x/join.H"
 #include "gettext_in.h"
 #include <sstream>
 #include <cstring>
@@ -44,28 +45,39 @@ std::string response_exception::body() const
 		"<body><h1>" + reasonstresc + "</h1></body></html>\n";
 }
 
-void response_exception::addChallenge(const char *header,
-				      auth scheme,
-				      const scheme_parameters_t &params)
+void response_exception::addChallenge(std::list<std::string> &wordlist,
+				      const responseimpl::challenge_info
+				      &challenge)
 {
-	std::ostringstream o;
+	wordlist.push_back(auth_tostring(challenge.scheme) + " "
+			   + responseimpl::auth_realm.name + "="
+			   + responseimpl::auth_realm.quote_value(challenge
+								  .realm));
 
-	o << auth_tostring(scheme);
-
-	const char *sep=" ";
-
-	std::ostreambuf_iterator<char> i(o);
-
-	for (const auto &param:params)
-	{
-		i=std::copy(param.first.begin(), param.first.end(),
-			    std::copy(sep, sep+strlen(sep), i));
-		*i++='=';
-		i=std::copy(param.second.begin(), param.second.end(), i);
-		sep=", ";
-	}
-	append(header, o.str());
+	for (const auto &param:challenge.params)
+		wordlist.push_back(param.first + "=" + param.second);
 }
+
+void response_exception::build_version_set(const char *header,
+					   const std::list<responseimpl::
+					   challenge_info> &challenges)
+{
+	std::list<std::string> word_list;
+
+	for (const auto &challenge:challenges)
+	{
+		addChallenge(word_list, challenge);
+	}
+
+	emit(header, word_list);
+}
+
+void response_exception::emit(const char *header,
+			      const std::list<std::string> &word_list)
+{
+	append(header, join(word_list, ", "));
+}
+
 
 #if 0
 {

@@ -197,6 +197,14 @@ responseimpl::challenge_info::challenge_info()
 {
 }
 
+responseimpl::challenge_info::challenge_info(auth schemeArg,
+					     const std::string &realmArg,
+					     const scheme_parameters_t
+					     &paramsArg)
+	: scheme(schemeArg), realm(realmArg), params(paramsArg)
+{
+}
+
 void responseimpl::challenge_info::add(std::list<challenge_info> &list)
 {
 	LOG_FUNC_SCOPE(respLogger);

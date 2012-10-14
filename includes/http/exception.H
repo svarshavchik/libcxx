@@ -26,83 +26,93 @@ namespace LIBCXX_NAMESPACE {
 
 class response_exception : public exception, public responseimpl {
 
-	//! End of variadic challenge parameters.
+	//! No more challanges
 
-	void buildChallenges(const char *header)
+	void buildChallenges(std::list<std::string> &word_list)
 	{
-	}
-
-	//! The next challenge is already prepackaged
-
-	template<typename ...Args>
-	void buildChallenges(const char *header,
-			     auth next_scheme,
-			     const scheme_parameters_t &next_params,
-			     Args && ...args)
-	{
-		addChallenge(header, next_scheme, next_params);
-		buildChallenges(header, std::forward<Args>(args)...);
 	}
 
 	//! Start collecting the next challenge from the variadic parameters.
 
 	template<typename ...Args>
-	void buildChallenges(const char *header,
+	void buildChallenges(std::list<std::string> &word_list,
 			     auth next_scheme,
 			     const std::string &realm,
 			     Args && ...args)
 	{
-		scheme_parameters_t next_params;
+		responseimpl::challenge_info challenge;
 
-		collectChallenge(header, next_scheme, next_params,
-				 responseimpl::auth_realm, realm,
+		challenge.scheme=next_scheme;
+		challenge.realm=realm;
+
+		collectChallenge(word_list, challenge,
 				 std::forward<Args>(args)...);
 	}
 
-	//! End of the last challenge
-
-	void collectChallenge(const char *header,
-			      auth current_scheme,
-			      scheme_parameters_t &current_params)
-	{
-		addChallenge(header, current_scheme, current_params);
-	}
-
-	//! Still collecting the parameters for the next challenge.
+	//! The next challenge is already prepared for us.
 
 	template<typename ...Args>
-	void collectChallenge(const char *header,
-			      auth current_scheme,
-			      scheme_parameters_t &current_params,
-			      const responseimpl::auth_param &name,
+	void buildChallenges(std::list<std::string> &word_list,
+			     const responseimpl::challenge_info &nextChallenge,
+			     Args && ...args)
+	{
+		addChallenge(word_list, nextChallenge);
+		buildChallenges(word_list, std::forward<Args>(args)...);
+	}
+
+	//! Another parameter for the current challenge.
+
+	template<typename ...Args>
+	void collectChallenge(std::list<std::string> &word_list,
+			      responseimpl::challenge_info &challenge,
+			      const responseimpl::auth_param &param,
 			      const std::string &value,
 			      Args && ...args)
 	{
-		current_params.insert(std::make_pair(std::string(name.name),
-						     name.quote_value(value)));
+		challenge.params
+			.insert(std::make_pair(param.name, param.quote_value(value)));
 
-		collectChallenge(header, current_scheme, current_params,
+		collectChallenge(word_list, challenge,
 				 std::forward<Args>(args)...);
 	}
 
-	//! Reached current challenge, there's more.
+	//! End of current challenge, start of next one.
 
 	template<typename ...Args>
-	void collectChallenge(const char *header,
-			      auth current_scheme,
-			      scheme_parameters_t &current_params,
-			      auth next_scheme,
+	void collectChallenge(std::list<std::string> &word_list,
+			      responseimpl::challenge_info &challenge,
+			      auth nextArg,
 			      Args && ...args)
 	{
-		addChallenge(header, current_scheme, current_params);
-		buildChallenges(header, next_scheme,
-				std::forward<Args>(args)...);
+		addChallenge(word_list, challenge);
+		buildChallenges(word_list, nextArg,
+				 std::forward<Args>(args)...);
+	}
+
+	//! End of current challenge, start of next one.
+
+	template<typename ...Args>
+	void collectChallenge(std::list<std::string> &word_list,
+			      responseimpl::challenge_info &challenge,
+			      const responseimpl::challenge_info &nextArg,
+			      Args && ...args)
+	{
+		addChallenge(word_list, challenge);
+		buildChallenges(word_list, nextArg,
+				 std::forward<Args>(args)...);
+	}
+
+	//! Last challenge
+
+	void collectChallenge(std::list<std::string> &word_list,
+			      responseimpl::challenge_info &challenge)
+	{
+		addChallenge(word_list, challenge);
 	}
 
 	//! Save a complete challenge, collected from variadic parameters.
-	void addChallenge(const char *header,
-			  auth scheme,
-			  const scheme_parameters_t &params);
+	void addChallenge(std::list<std::string> &word_list,
+			  const responseimpl::challenge_info &challenge);
 public:
 
 	using exception::operator->;
@@ -121,18 +131,100 @@ public:
 	//! Return the HTML body for this exception
 
 	std::string body() const;
+
+private:
+
+	//! Finish constructing the rest of the object, used by responseimpl
+
+	//! \internal
+	template<typename ...Args>
+	void build(const char *header,
+		   httpver_t httpverArg,
+		   Args && ...args)
+	{
+		setVersion(httpverArg);
+		build_version_set(header, std::forward<Args>(args)...);
+	}
+
+	//! Finish constructing the rest of the object, used by responseimpl
+
+	//! \internal
+
+	template<typename ...Args>
+	void build(const char *header,
+		   auth first_scheme,
+		   Args && ...args)
+	{
+		build_version_set(header, first_scheme,
+				  std::forward<Args>(args)...);
+	}
+
+	//! Finish constructing the rest of the object, used by responseimpl
+
+	//! \internal
+
+	void build(const char *header,
+		   const std::list<responseimpl::challenge_info> &challenges)
+	{
+		build_version_set(header, challenges);
+	}
+
+	//! Finish constructing the rest of the object, used by responseimpl
+
+	//! \internal
+
+	template<typename ...Args>
+	void build_version_set(const char *header,
+			       auth firstArg,
+			       Args && ...args)
+	{
+		std::list<std::string> word_list;
+
+		buildChallenges(word_list, firstArg,
+				std::forward<Args>(args)...);
+		emit(header, word_list);
+	}
+
+	//! Finish constructing the rest of the object, used by responseimpl
+
+	//! \internal
+
+	template<typename ...Args>
+	void build_version_set(const char *header,
+			       const responseimpl::challenge_info &firstArg,
+			       Args && ...args)
+	{
+		std::list<std::string> word_list;
+
+		buildChallenges(word_list, firstArg,
+				std::forward<Args>(args)...);
+		emit(header, word_list);
+	}
+
+
+	//! Finish constructing the rest of the object, used by responseimpl
+
+	//! \internal
+	void build_version_set(const char *header,
+			       const std::list<responseimpl::challenge_info>
+			       &challenges);
+
+	//! Finished collecting the parameters, emit the header
+
+	void emit(const char *header,
+		  const std::list<std::string> &word_list);
+
 };
 
 template<typename ...Args>
 void responseimpl::throwAuthenticateException(int code,
 					      const char *msg,
 					      const char *header,
-					      auth first_scheme,
 					      Args && ...args)
 {
 	response_exception resp(code, msg);
 
-	resp.buildChallenges(header, first_scheme, std::forward<Args>(args)...);
+	resp.build(header, std::forward<Args>(args)...);
 
 	throw resp;
 }

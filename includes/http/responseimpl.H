@@ -216,20 +216,6 @@ private:
 	static void throwAuthenticateException(int code,
 					       const char *msg,
 					       const char *header,
-					       auth first_scheme,
-					       Args && ...args)
-		__attribute__((noreturn));
-
-	//! Common template for throw_unauthorized_exception() and proxy_authentication_required
-
-	//! \overload
-	//! \internal
-	template<typename ...Args>
-	static void throwAuthenticateException(int code,
-					       const char *msg,
-					       const char *header,
-					       httpver_t httpverArg,
-					       auth first_scheme,
 					       Args && ...args)
 		__attribute__((noreturn));
 
@@ -467,7 +453,21 @@ public:
 		//! Constructor
 		challenge_info();
 
-		//! Add to a list
+		//! Constructor
+		challenge_info(auth schemeArg,
+			       const std::string &realmArg,
+			       const scheme_parameters_t &paramsArg);
+
+		//! Add a parsed challenge to a list of challenges.
+
+		//! This is for challenges(), which parses the challenge
+		//! header into here. All the parameters get parsed into
+		//! params. add() verifies that there is a "realm"
+		//! parameter, which gets removed from params and placed into
+		//! realm, before this gets added to the list. If there was
+		//! a parsing error, scheme is unknown. If either the realm
+		//! is missing, or the scheme is unknown, this challenge_info
+		//! does not get added to the list.
 
 		void add(std::list<challenge_info> &list);
 	};

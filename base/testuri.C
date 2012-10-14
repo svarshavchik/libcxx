@@ -304,6 +304,9 @@ void testtokenizer()
 		      {
 			      LIBCXX_NAMESPACE::http::responseimpl
 				      ::throw_unauthorized(LIBCXX_NAMESPACE
+							   ::http::httpver_t
+							   ::http11,
+							   LIBCXX_NAMESPACE
 							   ::http::auth
 							   ::basic,
 							   "simplerealm2",
@@ -328,31 +331,19 @@ void testtokenizer()
 	testtokenizer([]
 		      {
 			      LIBCXX_NAMESPACE::http::responseimpl
-				      ::scheme_parameters_t params;
-
-			      params.insert(std::make_pair("realm",
-							   "\"prepackaged realm5\""));
-
-			      LIBCXX_NAMESPACE::http::responseimpl
 				      ::throw_unauthorized(LIBCXX_NAMESPACE
 							   ::http::auth
 							   ::basic,
-							   params);
+							   "prepackaged realm5");
 		      });
 
 	testtokenizer([]
 		      {
 			      LIBCXX_NAMESPACE::http::responseimpl
-				      ::scheme_parameters_t params;
-
-			      params.insert(std::make_pair("realm",
-							   "\"prepackaged realm6\""));
-
-			      LIBCXX_NAMESPACE::http::responseimpl
 				      ::throw_unauthorized(LIBCXX_NAMESPACE
 							   ::http::auth
 							   ::basic,
-							   params,
+							   "prepackaged realm6",
 							   LIBCXX_NAMESPACE
 							   ::http::auth
 							   ::basic,
@@ -363,6 +354,27 @@ void testtokenizer()
 							   ::http::auth
 							   ::basic,
 							   "realm8");
+		      });
+
+	testtokenizer([]
+		      {
+			      std::list<LIBCXX_NAMESPACE::http::
+					responseimpl::challenge_info> list;
+
+			      list.push_back(LIBCXX_NAMESPACE::http::
+					     responseimpl::challenge_info
+					     (LIBCXX_NAMESPACE
+					      ::http::auth::basic,
+					      "7", {{"qop", "auth"}}));
+
+			      list.push_back(LIBCXX_NAMESPACE::http::
+					     responseimpl::challenge_info
+					     (LIBCXX_NAMESPACE
+					      ::http::auth::digest,
+					      "7", {{"qop", "auth-int"}}));
+
+			      LIBCXX_NAMESPACE::http::responseimpl
+				      ::throw_unauthorized(list);
 		      });
 
 	std::cout << "Valid base64 encode: ";
