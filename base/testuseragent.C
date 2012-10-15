@@ -907,7 +907,7 @@ void testclientauth1()
 
 		auto first=resp->challenges.begin();
 
-		ua->set_authorization(resp, *first,
+		ua->set_authorization(resp, first->second,
 				      "user",
 				      "password");
 	}
@@ -1127,7 +1127,8 @@ static void showuri(const LIBCXX_NAMESPACE::uriimpl &uri)
 		{
 			has_challenge=true;
 
-			std::cout << "Authentication required for "
+			std::cout << LIBCXX_NAMESPACE::http::auth_tostring(challenge.second->scheme)
+				  << " authentication required for "
 				  << challenge.first << ":" << std::endl
 				  << "Userid: " << std::flush;
 
@@ -1141,7 +1142,7 @@ static void showuri(const LIBCXX_NAMESPACE::uriimpl &uri)
 			if (std::getline(std::cin, password).eof())
 				return;
 
-			ua->set_authorization(resp, challenge,
+			ua->set_authorization(resp, challenge.second,
 					      userid,
 					      password);
 		}

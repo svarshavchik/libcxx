@@ -629,8 +629,12 @@ public:
 
 	template<typename container_type>
 	static auto quoted_string(//! Container
-			   const container_type &container)
+				  const container_type &container)
+
+#ifndef DOXYGEN
+	// Confusion
 		-> decltype(quoted_string(container.begin(), container.end()))
+#endif
 	{
 		return quoted_string(container.begin(), container.end());
 	}

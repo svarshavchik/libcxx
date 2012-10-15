@@ -11,6 +11,7 @@
 #include <x/http/clientauthimplfwd.H>
 #include <x/http/clientauthcachefwd.H>
 #include <x/http/formfwd.H>
+#include <x/gcrypt/md.H>
 #include <x/epoll.H>
 #include <x/ptr.H>
 #include <x/obj.H>
@@ -385,13 +386,68 @@ public:
 	//! Default destructor
 	~useragentObj() noexcept;
 
-	//! Base class for references and pointers to a reqponse object.
-
-	//! The base class provides defines the typedef for the response content
-	//! iterators.
 
 	class responseBase;
 	class responseObj;
+	class challengeObj;
+
+	//! A reference to an authentication challenge factory
+
+	typedef ref<challengeObj> challenge;
+
+	//! A nullable pointer reference to an authentication challenge factory
+
+	typedef ptr<challengeObj> challengeptr;
+
+	//! An authentication handle factory object
+
+	class challengeObj : virtual public obj {
+
+	public:
+		//! The authentication scheme
+		const auth scheme;
+
+		//! The relative strength of the authentication scheme
+		const int strength;
+
+		//! Constructor
+
+		challengeObj(auth schemeArg,
+			     int strengthArg);
+
+		//! Destructor
+		~challengeObj() noexcept=0;
+
+		//! Construct an authentication handler for the given userid and password
+
+		virtual clientauthimpl create(const std::string &username,
+					      const std::string &password)=0;
+
+		//! Construct an authentication handler with a precomputed A1 hash
+
+		//! This is implemented by the digest authentication scheme only
+		virtual clientauthimpl create_hash(const std::string &username,
+						   const std::string &a1_hash)
+		=0;
+
+		//! Return the digest algorith.
+		//! This is implemented by the digest authentication scheme only
+
+		virtual gcry_md_algos algorithm()=0;
+
+		class basicObj;
+		class digestObj;
+
+		//! Create a digest challenge factory
+
+		//! Implemented in libcxxtls
+		//!
+		static challengeptr
+		create_digest(const uriimpl &request_uri,
+			      const std::string &realm,
+			      const responseimpl::scheme_parameters_t &params)
+			__attribute__((weak));
+	};
 
 	//! A reference to a response to an HTTP request.
 	typedef ref<responseObj, responseBase> response;
@@ -458,14 +514,10 @@ public:
 
 		//! A container for the new authentication challenges
 
-		//! Map key is the authentication realm. The value is a pair
-		//! consisting of an authentication scheme, and scheme
-		//! parameters
+		//! Map key is the authentication realm. The value is a
+		//! a factory for the authentication implementation.
 
-		typedef std::map<std::string,
-				 std::pair<auth,
-					   responseimpl::scheme_parameters_t>
-				 > challenges_t;
+		typedef std::map<std::string, challenge> challenges_t;
 
 		//! New authentication challenges
 
@@ -586,17 +638,28 @@ public:
 	void set_authorization(//! Failed response
 			       const response &response,
 
-			       //! An entry in responseObj::challenges
-
-			       const std::pair<std::string,
-			       std::pair<auth,
-			       responseimpl::scheme_parameters_t> > &challenge,
+			       //! The challenge
+			       const challenge &factory,
 
 			       //! Userid
 			       const std::string &userid,
 
 			       //! Password
 			       const std::string &password);
+
+	//! Set the authorization in response to a Digest scheme challenge, using a precomputed A1 hash
+
+	void set_digest_authorization(//! Original response
+				      const response &resp,
+
+				      //! The digest challenge
+				      const challenge &factory,
+
+				      //! The userid
+				      const std::string &userid,
+
+				      //! The precomputed 'A1' hash
+				      const std::string &a1_hash);
 
 private:
 

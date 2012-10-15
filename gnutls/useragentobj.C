@@ -53,19 +53,65 @@ void http::useragentBase::https_enable() noexcept
 	(void)&http::useragentObj::init_https_socket;
 }
 
-LOG_FUNC_SCOPE_DECL(LIBCXX_NAMESPACE::http::clientauthimpl::base::create_digest,
+LOG_FUNC_SCOPE_DECL(LIBCXX_NAMESPACE::http::useragentObj::challengeObj::create_digest,
 		    createDigestLog);
 
-http::clientauthimplptr http::clientauthimplBase
-::create_digest(const uriimpl &uri,
+class LIBCXX_HIDDEN http::useragentObj::challengeObj::digestObj
+	: public challengeObj {
+
+ public:
+	std::string realm;
+	std::set<uriimpl> protection_space;
+	gcry_md_algos algorithm_number;
+	responseimpl::scheme_parameters_t params;
+
+	digestObj(const std::string &realmArg,
+		  const std::set<uriimpl> &protection_spaceArg,
+		  gcry_md_algos algorithmArg,
+		  const responseimpl::scheme_parameters_t &paramsArg)
+		: challengeObj(auth::digest,
+			       gcry_md_get_algo_dlen(algorithmArg)),
+		realm(realmArg),
+		protection_space(protection_spaceArg),
+		algorithm_number(algorithmArg),
+		params(paramsArg)
+		{
+		}
+	~digestObj() noexcept
+	{
+	}
+
+	clientauthimpl create(const std::string &username,
+			      const std::string &password) override
+	{
+		return ref<clientauthimplObj::digest>
+			::create(realm, protection_space, params,
+				 algorithm_number, username, password);
+	}
+
+	clientauthimpl create_hash(const std::string &username,
+				   const std::string &a1_hash) override
+	{
+		return ref<clientauthimplObj::digest>
+			::create(realm, protection_space, params,
+				 username, algorithm_number, a1_hash);
+	}
+
+	gcry_md_algos algorithm()
+	{
+		return algorithm_number;
+	}
+};
+
+http::useragent::base::challengeptr http::useragentObj::challengeObj
+::create_digest(const uriimpl &request_uri,
 		const std::string &realm,
-		const responseimpl::scheme_parameters_t &params,
-		const std::string &userid,
-		const std::string &password)
+		const responseimpl::scheme_parameters_t &params)
 {
 	LOG_FUNC_SCOPE(createDigestLog);
 
 	std::set<uriimpl> protection_space;
+	gcry_md_algos algorithm;
 
 	for (auto domains=params.equal_range("domain");
 	     domains.first != domains.second; ++domains.first)
@@ -76,7 +122,10 @@ http::clientauthimplptr http::clientauthimplBase
 
 		for (const std::string &domain:uris)
 		{
-			protection_space.insert(uri + domain);
+			// This resolves any relative URIs in the domain
+			// parameter. An absolute domain overrides request_uri
+			// completely.
+			protection_space.insert(request_uri + domain);
 		}
 	}
 
@@ -84,10 +133,8 @@ http::clientauthimplptr http::clientauthimplBase
 	{
 		LOG_WARNING(libmsg()->get(_txt("Domain parameter missing from digest authentication challenge")));
 
-		return http::clientauthimplptr();
+		return challengeptr();
 	}
-
-	gcry_md_algos algorithm;
 
 	std::string algorithm_name="md5";
 
@@ -105,7 +152,7 @@ http::clientauthimplptr http::clientauthimplBase
 		o << e;
 
 		LOG_WARNING(o.str());
-		return http::clientauthimplptr();
+		return challengeptr();
 	}
 
 	LOG_DEBUG("Installing " + gcrypt::md::base::name(algorithm)
@@ -121,11 +168,9 @@ http::clientauthimplptr http::clientauthimplBase
 				  join(uris, ", ");
 			  }));
 
-	return ref<http::clientauthimplObj::digest>
-		::create(realm, protection_space, params, algorithm,
-			 userid, password);
+	return ref<http::useragentObj::challengeObj::digestObj>
+		::create(realm, protection_space, algorithm, params);
 }
-
 
 #if 0
 {

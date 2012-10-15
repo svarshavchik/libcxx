@@ -173,6 +173,24 @@ clientauthimplObj::digest
 	lock->parse(scheme_params);
 }
 
+clientauthimplObj::digest
+::digest(const std::string &realmArg,
+	 const std::set<uriimpl> &domainsArg,
+	 const responseimpl::scheme_parameters_t &scheme_params,
+	 const std::string &useridArg,
+	 gcry_md_algos algorithmArg,
+	 const std::string &a1Arg)
+	: clientauthimplObj(auth::digest, realmArg), algorithm(algorithmArg),
+	  userid(useridArg),
+	  a1(a1Arg),
+	  domains(domainsArg)
+{
+	params_t::lock lock(params);
+
+	lock->parse(scheme_params);
+}
+
+
 clientauthimplObj::digest::~digest() noexcept
 {
 }
@@ -295,6 +313,9 @@ void clientauthimplObj::digest::req::add_header(requestimpl &req,
 
 	std::string digest_uri=req.getURI().getPath();
 
+	if (digest_uri.empty())
+		digest_uri="/";
+
 	response.insert(std::make_pair("uri",
 				       std::make_pair(true,
 						      digest_uri)));
@@ -343,14 +364,7 @@ void clientauthimplObj::digest::req::add_header(requestimpl &req,
 								      "auth"))
 					);
 
-			std::ostringstream nonce_count_str;
-
-			nonce_count_str << std::hex
-					<< std::setw(8)
-					<< std::setfill('0')
-					<< lock->nonce_count;
-
-			nc=nonce_count_str.str();
+			nc=nonce_count_to_hex(lock->nonce_count);
 
 			response.insert(std::make_pair("nc",
 						       std::make_pair(false,
@@ -433,7 +447,12 @@ void clientauthimplObj::digest::req
 		if (rsp_auth == info.end())
 			return;
 
-		std::string a2=":" + req.getURI().getPath();
+		std::string digest_uri=req.getURI().getPath();
+
+		if (digest_uri.empty())
+			digest_uri="/";
+
+		std::string a2=":" + digest_uri;
 
 		auto iter=info.find("nc");
 
@@ -475,10 +494,18 @@ void clientauthimplObj::digest::req
 
 // ----------------------------------------------------------------------------
 
+LOG_FUNC_SCOPE_DECL(LIBCXX_NAMESPACE::http::digest, digestLog);
+
 static std::string compute_digest(gcry_md_algos algorithm,
 				  const std::string &h,
 				  const std::string &a2)
 {
+	LOG_FUNC_SCOPE(digestLog);
+
+	LOG_TRACE("Computing " << gcrypt::md::base::name(algorithm)
+		  << ", digest for \"" << h << "\" with A2=\""
+		  << a2 << "\"" << std::endl);
+
 	std::string v = h + gcrypt::md::base::hexdigest(a2.begin(),
 							a2.end(),
 							algorithm);
@@ -507,6 +534,18 @@ std::string compute_rfc2069_digest(gcry_md_algos algorithm,
 				   const std::string &a2)
 {
 	return compute_digest(algorithm, a1 + ":" + nonce + ":", a2);
+}
+
+std::string nonce_count_to_hex(uint32_t nonce_count)
+{
+	std::ostringstream nonce_count_str;
+
+	nonce_count_str << std::hex
+			<< std::setw(8)
+			<< std::setfill('0')
+			<< nonce_count;
+
+	return nonce_count_str.str();
 }
 
 #if 0

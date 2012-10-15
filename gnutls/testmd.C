@@ -36,7 +36,14 @@ void enumerate()
 
 	gcrypt::md::base::enumerate(algos);
 
-	std::cout << join(algos, ", ") << std::endl;
+	for (const auto &algo:algos)
+	{
+		std::cout << algo
+			  << ": "
+			  << gcry_md_get_algo_dlen(gcrypt::md::base
+						   ::number(algo))
+			  << std::endl;
+	}
 }
 
 int main(int argc, char **argv)

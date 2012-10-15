@@ -74,6 +74,7 @@ noinst_PROGRAMS=\
 	testhttpserverimpl				\
 	testmd						\
 	testpkparams					\
+	testserverauth					\
 	testsession					\
 	testuseragent_shared				\
 	testuseragent_static				\
@@ -95,6 +96,7 @@ check-am: testx509privkey testx509cert testsession
 	./testuseragent_shared --set-property x::gnutls::tlsparamsdir=`pwd`/tlsparamsdir.tst
 	rm -rf testrsa[123].key testrsa*.crt dhparams.dat rsaparams.dat tlsparamsdir.tst
 	./testmd
+	./testserverauth
 
 bin_PROGRAMS=tlsparamsgen
 sbin_SCRIPTS=tlsparamsgen.sh
@@ -129,6 +131,10 @@ testuseragent_static_LDFLAGS=-static
 
 testuseragent_shared_SOURCES=testuseragent.C
 testuseragent_shared_LDADD=../base/libcxx.la libcxxtls.la
+
+testserverauth_SOURCES=testserverauth.C
+testserverauth_LDADD=../base/libcxx.la libcxxtls.la
+testserverauth_LDFLAGS=$(LINKTYPE)
 
 testmd_SOURCES=testmd.C
 testmd_LDADD=../base/libcxx.la libcxxtls.la

@@ -8,6 +8,7 @@
 
 #include <x/http/clientauthimplfwd.H>
 #include <x/http/clientauthimplobj.H>
+#include <x/gcrypt/md.H>
 #include <x/uriimpl.H>
 #include <x/namespace.h>
 
@@ -59,27 +60,6 @@ public:
 					   //! Preformatted "userid:password" string.
 					   const std::string &useridcolonpassword)
 		LIBCXX_HIDDEN;
-
-	//! Create an implementation of a Digest authorization scheme
-
-	//! \internal
-	//!
-	static clientauthimplptr create_digest(//! URI being authorized
-					       const uriimpl &uri,
-
-					       //! Digest realm
-					       const std::string &realm,
-
-					       //! Scheme parameters
-					       const responseimpl
-					       ::scheme_parameters_t &params,
-
-					       //! Authorized userid
-					       const std::string &userid,
-
-					       //! Authorized password
-					       const std::string &password)
-		__attribute__((weak));
 };
 
 #if 0

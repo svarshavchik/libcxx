@@ -45,40 +45,6 @@ std::string response_exception::body() const
 		"<body><h1>" + reasonstresc + "</h1></body></html>\n";
 }
 
-void response_exception::addChallenge(std::list<std::string> &wordlist,
-				      const responseimpl::challenge_info
-				      &challenge)
-{
-	wordlist.push_back(auth_tostring(challenge.scheme) + " "
-			   + responseimpl::auth_realm.name + "="
-			   + responseimpl::auth_realm.quote_value(challenge
-								  .realm));
-
-	for (const auto &param:challenge.params)
-		wordlist.push_back(param.first + "=" + param.second);
-}
-
-void response_exception::build_version_set(const char *header,
-					   const std::list<responseimpl::
-					   challenge_info> &challenges)
-{
-	std::list<std::string> word_list;
-
-	for (const auto &challenge:challenges)
-	{
-		addChallenge(word_list, challenge);
-	}
-
-	emit(header, word_list);
-}
-
-void response_exception::emit(const char *header,
-			      const std::list<std::string> &word_list)
-{
-	append(header, join(word_list, ", "));
-}
-
-
 #if 0
 {
 	{

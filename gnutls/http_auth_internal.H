@@ -102,7 +102,7 @@ class LIBCXX_HIDDEN clientauthimplObj::digest : public clientauthimplObj {
 		bool qop_auth_int;
 
 		//! nonce counter, set to 0 by parse().
-		unsigned nonce_count;
+		uint32_t nonce_count;
 
 		//! Constructor
 		digest_params_t();
@@ -136,6 +136,14 @@ class LIBCXX_HIDDEN clientauthimplObj::digest : public clientauthimplObj {
 	       gcry_md_algos algorithmArg,
 	       const std::string &useridArg,
 	       const std::string &passwordArg);
+
+	//! Constructor
+	digest(const std::string &realm,
+	       const std::set<uriimpl> &domainsArg,
+	       const responseimpl::scheme_parameters_t &params,
+	       const std::string &useridArg,
+	       gcry_md_algos algorithmArg,
+	       const std::string &a1Arg);
 	~digest() noexcept;
 
 	//! Add my header to a request
@@ -167,6 +175,10 @@ class LIBCXX_HIDDEN clientauthimplObj::digest : public clientauthimplObj {
 
 	class req;
 };
+
+//! Convert a nonce count to 8LHEX
+
+std::string nonce_count_to_hex(uint32_t nonce_count) LIBCXX_INTERNAL;
 
 #if 0
 {

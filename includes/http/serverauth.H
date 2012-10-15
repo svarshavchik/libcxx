@@ -7,6 +7,7 @@
 #define x_http_serverauth_H
 
 #include <x/http/serverauthfwd.H>
+#include <x/http/serverauthobj.H>
 #include <x/gcrypt/md.H>
 #include <x/ptr.H>
 #include <x/ref.H>
@@ -24,11 +25,11 @@ namespace LIBCXX_NAMESPACE {
 
 //! Refer to this class as \c INSERT_LIBX_NAMESPACE::http::serverauth::base
 
-class serverauthBase {
+class serverauthBase : public ptrrefBase {
 
 public:
 
-	//! Compute the "A1" hash used by RFC 2617 digest authentication
+	//! Compute the "A1" hash used by RFC 2617 digest authentication from a plaintext password.
 
 	//! Returns the hash, as a hexadecimal string.
 

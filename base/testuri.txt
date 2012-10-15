@@ -138,7 +138,8 @@ WWW-Authenticate: Basic realm="prepackaged realm6", Basic realm="realm7", param7
 
 HTTP/1.1 401 Unauthorized
 Content-Type: text/html
-WWW-Authenticate: Basic realm="7", qop=auth, Digest realm="7", qop=auth-int
+WWW-Authenticate: Basic realm="7", qop=auth
+WWW-Authenticate: Digest realm="7", qop=auth-int
 
 <html><head><title>Unauthorized</title></head><body><h1>Unauthorized</h1></body></html>
 

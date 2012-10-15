@@ -9,6 +9,7 @@
 #include "x/http/form.H"
 #include "x/http/content_type_header.H"
 #include "x/http/clientauth.H"
+#include "x/http/clientauthimpl.H"
 #include "x/http/clientauthcache.H"
 #include "x/messages.H"
 #include "x/netaddr.H"
@@ -304,6 +305,37 @@ useragentObj::do_request_with_auth(const fd *terminate_fd,
 	}
 }
 
+class LIBCXX_HIDDEN useragentObj::challengeObj::basicObj : public challengeObj {
+
+ public:
+
+	uriimpl uri;
+	std::string realm;
+
+	basicObj(const uriimpl &uriArg,
+		 const std::string &realmArg) : challengeObj(auth::basic, 0),
+		uri(uriArg), realm(realmArg) {}
+	~basicObj() noexcept {}
+
+	clientauthimpl create(const std::string &username,
+			      const std::string &password) override
+	{
+		return clientauthimpl::base::create_basic(uri, realm,
+							  username, password);
+	}
+
+	clientauthimpl create_hash(const std::string &username,
+				   const std::string &a1_hash) override
+	{
+		throw EXCEPTION("create_hash() invoked for a basic authentication factory object");
+	}
+
+	gcry_md_algos algorithm() override
+	{
+		throw EXCEPTION("algorithm() invoked for a basic authentication factory object");
+	}
+};
+
 bool useragentObj::process_challenges(const clientauth &authorizations,
 				      const requestimpl &req,
 				      const response &resp)
@@ -319,7 +351,6 @@ bool useragentObj::process_challenges(const clientauth &authorizations,
 	// the authentication cache.
 
 	bool authentication_required=false;
-	bool try_again_flag=true;
 
 	resp->challenges.clear();
 
@@ -331,8 +362,6 @@ bool useragentObj::process_challenges(const clientauth &authorizations,
 			    {
 				    // Message had a challenge
 				    authentication_required=true;
-
-
 
 				    if (resp->message
 					.www_authentication_required()
@@ -363,33 +392,52 @@ bool useragentObj::process_challenges(const clientauth &authorizations,
 							   params))
 					    return;
 
+				    challengeptr p;
+
+				    switch (scheme) {
+				    case auth::basic:
+					    p=ref<challengeObj::basicObj>
+						    ::create(req.getURI(),
+							     realm);
+					    break;
+				    case auth::digest:
+
+					    auto func=&challengeObj
+						    ::create_digest;
+					    if (func)
+						    p=func(req.getURI(),
+							   realm, params);
+				    }
+				    
+				    if (p.null())
+					    return;
+
+				    challenge c(p);
+
 				    // We did not find
 				    // a cached authentication
-
-				    try_again_flag=false;
 
 				    auto iter=resp->challenges.find(realm);
 
 				    if (iter != resp->challenges.end())
 				    {
-					    if (iter->second.first > scheme)
+					    if (iter->second->strength >
+						c->strength)
 						    return;
 					    // Already saved a better method.
 
-					    resp->challenges.erase(iter);
+					    iter->second=c;
+					    return; // Found a better one.
 				    }
 
 				    resp->challenges
-					    .insert(std::make_pair
-						    (realm, std::make_pair
-						     (scheme, params)));
+					    .insert(std::make_pair(realm, c));
 			    });
 
-	if (authentication_required)
-		return try_again_flag;
+	if (authentication_required && resp->challenges.empty())
+		return true; // All challenges were filled from the cache.
 
 	return false;
-	// No authentication challenges, nothing was filled from the cache
 }
 
 void useragentObj::process_authentication_info(const response &resp,
@@ -570,21 +618,34 @@ useragentObj::idleconn useragentObj::init_http_socket(clientopts_t opts,
 	return newclient;
 }
 
+// ----------------------------------------------------------------
+
+useragentObj::challengeObj::challengeObj(auth schemeArg,
+					 int strengthArg)
+	: scheme(schemeArg), strength(strengthArg)
+{
+}
+
+useragentObj::challengeObj::~challengeObj() noexcept
+{
+}
+
 void useragentObj::set_authorization(const response &resp,
-				     const std::pair<std::string,
-				     std::pair<auth,
-				     responseimpl::scheme_parameters_t> >
-				     &challenge,
+				     const challenge &factory,
 				     const std::string &userid,
 				     const std::string &password)
 {
-	authcache->save_user_password_authorization(resp->message,
-						    resp->uri,
-						    challenge.second.first,
-						    challenge.first,
-						    challenge.second.second,
-						    userid,
-						    password);
+	authcache->save_authorization(resp->message, resp->uri,
+				      factory->create(userid, password));
+}
+
+void useragentObj::set_digest_authorization(const response &resp,
+					    const challenge &factory,
+					    const std::string &userid,
+					    const std::string &a1_hash)
+{
+	authcache->save_authorization(resp->message, resp->uri,
+				      factory->create_hash(userid, a1_hash));
 }
 
 #if 0

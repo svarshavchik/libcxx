@@ -9,6 +9,7 @@
 #include "x/http/exception.H"
 #include "x/logger.H"
 #include "x/tokens.H"
+#include "x/join.H"
 #include "gettext_in.h"
 
 #include <sstream>
@@ -310,6 +311,40 @@ bool responseimpl::get_authentication_info(const char *header,
 	}
 
 	return found_header;
+}
+
+void responseimpl::add_auth_challenge(std::list<std::string> &wordlist,
+				      const responseimpl::challenge_info
+				      &challenge)
+{
+	wordlist.push_back(auth_tostring(challenge.scheme) + " "
+			   + responseimpl::auth_realm.name + "="
+			   + responseimpl::auth_realm.quote_value(challenge
+								  .realm));
+
+	for (const auto &param:challenge.params)
+		wordlist.push_back(param.first + "=" + param.second);
+}
+
+void responseimpl::add_auth_set(const char *header,
+				const std::list<responseimpl::
+				challenge_info> &challenges)
+{
+	// https://bugzilla.mozilla.org/show_bug.cgi?id=281851#c31
+
+	for (const auto &challenge:challenges)
+	{
+		std::list<std::string> word_list;
+
+		add_auth_challenge(word_list, challenge);
+		save_auth_header(header, word_list);
+	}
+}
+
+void responseimpl::save_auth_header(const char *header,
+				    const std::list<std::string> &word_list)
+{
+	append(header, join(word_list, ", "));
 }
 
 template std::istreambuf_iterator<char>

@@ -26,6 +26,12 @@ namespace LIBCXX_NAMESPACE {
 class useragentBase : public ptrrefBase {
 
 public:
+	//! A challenge factory
+	typedef useragentObj::challenge challenge;
+
+	//! A nullable pointer reference to a challenge factory
+	typedef useragentObj::challengeptr challengeptr;
+
 	//! A reference to a response object.
 
 	//! useragent's request() returns this reference to a

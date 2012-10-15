@@ -10,6 +10,7 @@
 #include <x/http/responseimpl.H>
 #include <x/http/clientauthfwd.H>
 #include <x/http/clientauthimplobj.H>
+#include <x/gcrypt/md.H>
 #include <x/logger.H>
 #include <string>
 #include <map>
@@ -44,30 +45,6 @@ public:
 
 	//! Destructor
 	~clientauthcacheObj() noexcept;
-
-	//! Install an authorization scheme based on a userid and a password.
-
-	void save_user_password_authorization(//! Response for which authorization is provided
-					      const responseimpl &resp,
-
-					      //! Original request's URI
-					      const uriimpl &uri,
-
-					      //! Authentication scheme
-					      auth scheme,
-
-					      //! Realm
-					      const std::string &realm,
-
-					      //! Challenge parameters
-					      const responseimpl
-					      ::scheme_parameters_t &params,
-
-					      //! Userid
-					      const std::string &userid,
-
-					      //! Password
-					      const std::string &password);
 
 	//! Install a manually-specific basic authorization scheme.
 

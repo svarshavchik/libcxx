@@ -150,7 +150,7 @@ static void showuri(const LIBCXX_NAMESPACE::uriimpl &uri)
 			if (std::getline(std::cin, password).eof())
 				return;
 
-			ua->set_authorization(resp, challenge,
+			ua->set_authorization(resp, challenge.second,
 					      userid,
 					      password);
 		}

@@ -206,19 +206,6 @@ private:
 	//! This message could not be parsed
 	void bad_message() __attribute__((noreturn));
 
-	//! Common template for throw_unauthorized_exception() and proxy_authentication_required
-
-	//! Constructs an exception, from its variadic parameters, and throws
-	//! it.
-	//! \internal
-
-	template<typename ...Args>
-	static void throwAuthenticateException(int code,
-					       const char *msg,
-					       const char *header,
-					       Args && ...args)
-		__attribute__((noreturn));
-
 public:
 
 	//! The "WWW-Authenticate" header.
@@ -282,13 +269,10 @@ public:
 	}
 
 	//! Throw an HTTP-related %exception
+
 	template<typename ...Args>
 	static void throw_unauthorized(Args && ...args)
-	{
-		throwAuthenticateException(www_authenticate_code, msg_401,
-					   www_authenticate,
-					   std::forward<Args>(args)...); 
-	}
+		__attribute__((noreturn));
 
 	//! Throw an HTTP-related %exception
 	static void throw_payment_required() __attribute__((noreturn))
@@ -321,13 +305,10 @@ public:
 	}
 
 	//! Throw an HTTP-related %exception
+
 	template<typename ...Args>
 	static void throw_proxy_authentication_required(Args && ...args)
-	{
-		throwAuthenticateException(proxy_authenticate_code, msg_407,
-					   proxy_authenticate,
-					   std::forward<Args>(args)...); 
-	}
+		__attribute__((noreturn));
 
 	//! Throw an HTTP-related %exception
 	static void throw_request_timeout() __attribute__((noreturn))
@@ -585,11 +566,234 @@ public:
 
 		return messageimpl::toString(iter);
 	}
+
+	//! Add a WWW-Authenticate header
+
+	template<typename ...Args>
+	void add_authenticate(Args && ...args)
+	{
+		add_authorization(www_authenticate,
+				  std::forward<Args>(args)...); 
+	}
+
+	//! Add a Proxy-Authenticate header
+
+	template<typename ...Args>
+	void add_proxy_authenticate(Args && ...args)
+	{
+		add_authorization(proxy_authenticate,
+				  std::forward<Args>(args)...); 
+	}
+
 private:
 	//! Parse the start line.
 
 	//! \internal
 	void parse_start_line();
+
+	//! Construct a WWW-Authenticate or a Proxy-Authenticate header
+
+	//! \internal
+
+	template<typename ...Args>
+	void add_authorization(const char *header,
+			       httpver_t httpverArg,
+			       Args && ...args)
+	{
+		setVersion(httpverArg);
+		add_authorization_params(header,
+					 std::forward<Args>(args)...);
+	}
+
+	//! Construct a WWW-Authenticate or a Proxy-Authenticate header
+
+	//! \internal
+
+	template<typename ...Args>
+	void add_authorization(const char *header,
+			       auth first_scheme,
+			       Args && ...args)
+	{
+		add_authorization_params(header, first_scheme,
+					 std::forward<Args>(args)...);
+	}
+
+	//! Construct a WWW-Authenticate or a Proxy-Authenticate header
+
+	//! \internal
+
+	void add_authorization(const char *header,
+			       const std::list<responseimpl::challenge_info>
+			       &challenges)
+	{
+		add_authorization_params(header, challenges);
+	}
+
+	//! Construct a WWW-Authenticate or a Proxy-Authenticate header
+
+	//! Skipped the optional httpver_t parameter.
+	//!
+	//! \internal
+
+	template<typename ...Args>
+	void add_authorization_params(const char *header,
+				      auth first_scheme,
+				      Args && ...args)
+	{
+		add_auth_set(header, first_scheme,
+			     std::forward<Args>(args)...);
+	}
+
+	//! Construct a WWW-Authenticate or a Proxy-Authenticate header
+
+	//! Skipped the optional httpver_t parameter.
+	//!
+	//! \internal
+
+	void add_authorization_params(const char *header,
+				      const std::list<responseimpl
+				      ::challenge_info> &challenges)
+	{
+		add_auth_set(header, challenges);
+	}
+
+	//! Finish constructing a WWW-Authenticate or Proxy-Authenticate header
+
+	//! \internal
+
+	template<typename ...Args>
+	void add_auth_set(const char *header,
+			  auth firstArg,
+			  Args && ...args)
+	{
+		std::list<std::string> word_list;
+
+		build_auth_challenge(word_list, firstArg,
+				std::forward<Args>(args)...);
+		save_auth_header(header, word_list);
+	}
+
+	//! Finish constructing a WWW-Authenticate or Proxy-Authenticate header
+
+	//! \internal
+
+	template<typename ...Args>
+	void add_auth_set(const char *header,
+			  const responseimpl::challenge_info &firstArg,
+			  Args && ...args)
+	{
+		std::list<std::string> word_list;
+
+		build_auth_challenge(word_list, firstArg,
+				     std::forward<Args>(args)...);
+		save_auth_header(header, word_list);
+	}
+
+
+	//! Finish constructing a WWW-Authenticate or Proxy-Authenticate header
+
+	//! \internal
+
+	void add_auth_set(const char *header,
+			  const std::list<responseimpl::challenge_info>
+			  &challenges);
+
+	//! Finished collecting authentication parameters, emit the header
+
+	void save_auth_header(const char *header,
+			      const std::list<std::string> &word_list);
+
+	//! Formatting of authentication challenges
+
+	//! No more challanges follow.
+	//!
+	void build_auth_challenge(std::list<std::string> &word_list)
+	{
+	}
+
+	//! Start collecting the next challenge from the variadic parameters.
+
+	template<typename ...Args>
+	void build_auth_challenge(std::list<std::string> &word_list,
+				  auth next_scheme,
+				  const std::string &realm,
+				  Args && ...args)
+	{
+		responseimpl::challenge_info challenge;
+
+		challenge.scheme=next_scheme;
+		challenge.realm=realm;
+
+		collect_auth_challenge(word_list, challenge,
+				 std::forward<Args>(args)...);
+	}
+
+	//! The next challenge is already prepared for us.
+
+	template<typename ...Args>
+	void build_auth_challenge(std::list<std::string> &word_list,
+				  const responseimpl::challenge_info
+				  &nextChallenge,
+				  Args && ...args)
+	{
+		add_auth_challenge(word_list, nextChallenge);
+		build_auth_challenge(word_list, std::forward<Args>(args)...);
+	}
+
+	//! Another parameter for the current challenge.
+
+	template<typename ...Args>
+	void collect_auth_challenge(std::list<std::string> &word_list,
+				    responseimpl::challenge_info &challenge,
+				    const responseimpl::auth_param &param,
+				    const std::string &value,
+				    Args && ...args)
+	{
+		challenge.params
+			.insert(std::make_pair(param.name, param.quote_value(value)));
+
+		collect_auth_challenge(word_list, challenge,
+				 std::forward<Args>(args)...);
+	}
+
+	//! End of current challenge, start of next one.
+
+	template<typename ...Args>
+	void collect_auth_challenge(std::list<std::string> &word_list,
+				    responseimpl::challenge_info &challenge,
+				    auth nextArg,
+				    Args && ...args)
+	{
+		add_auth_challenge(word_list, challenge);
+		build_auth_challenge(word_list, nextArg,
+				 std::forward<Args>(args)...);
+	}
+
+	//! End of current challenge, start of next one.
+
+	template<typename ...Args>
+	void collect_auth_challenge(std::list<std::string> &word_list,
+				    responseimpl::challenge_info &challenge,
+				    const responseimpl::challenge_info &nextArg,
+				    Args && ...args)
+	{
+		add_auth_challenge(word_list, challenge);
+		build_auth_challenge(word_list, nextArg,
+				 std::forward<Args>(args)...);
+	}
+
+	//! Last challenge
+
+	void collect_auth_challenge(std::list<std::string> &word_list,
+				    responseimpl::challenge_info &challenge)
+	{
+		add_auth_challenge(word_list, challenge);
+	}
+
+	//! Save a complete challenge, collected from variadic parameters.
+	void add_auth_challenge(std::list<std::string> &word_list,
+				const responseimpl::challenge_info &challenge);
+
 };
 
 #ifndef DOXYGEN

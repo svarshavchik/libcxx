@@ -5,6 +5,7 @@
 /testhttpserverimpl
 /testmd
 /testpkparams
+/testserverauth
 /testsession
 /testuseragent_shared
 /testuseragent_static

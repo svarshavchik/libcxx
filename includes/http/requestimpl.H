@@ -335,6 +335,7 @@ private:
 				     size_t plen,
 				     const char *str) noexcept;
 
+public:
 	//! Parse basic authentication header
 
 	//! Returns \c true if the first word in this header is "basic"
@@ -348,7 +349,6 @@ private:
 				  //! base64-decoded stuff goes here
 				  std::string &basic_auth);
 
-public:
 	//! Convert a method_t to a string
 
 	static const char *methodstr(method_t) noexcept;

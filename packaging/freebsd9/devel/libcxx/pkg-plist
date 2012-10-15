@@ -102,6 +102,10 @@ include/x/filestat.H
 include/x/filestatobj.H
 include/x/fmtsize.H
 include/x/forkexec.H
+include/x/gcrypt/errors.H
+include/x/gcrypt/md.H
+include/x/gcrypt/mdfwd.H
+include/x/gcrypt/mdobj.H
 include/x/getlinecrlf.H
 include/x/glob.H
 include/x/globlocale.H
@@ -201,6 +205,9 @@ include/x/http/responseimpl.H
 include/x/http/senderimpl.H
 include/x/http/senderimpl_t.H
 include/x/http/senderimpl_to.H
+include/x/http/serverauth.H
+include/x/http/serverauthfwd.H
+include/x/http/serverauthobj.H
 include/x/http/serverimpl.H
 include/x/http/serverimpl_t.H
 include/x/http/serverimpl_to.H

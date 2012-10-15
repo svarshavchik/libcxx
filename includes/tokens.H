@@ -291,8 +291,12 @@ public:
 	template<typename container_type>
 	auto token_or_quoted_word(//! Container
 				  const container_type &container)
+#ifndef DOXYGEN
+	// temporary confusion
+
 		-> decltype(token_or_quoted_word(container.begin(),
 						 container.end()))
+#endif
 	{
 		return token_or_quoted_word(container.begin(),
 					    container.end());
