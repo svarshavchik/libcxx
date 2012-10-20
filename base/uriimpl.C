@@ -357,6 +357,11 @@ void uriimpl::setPath(const std::string &value)
 	path=value;
 }
 
+http::form::parameters uriimpl::getForm() const
+{
+	return http::form::parameters::create(getQuery());
+}
+
 void uriimpl::setQuery(const std::string &value)
 {
 	for (std::string::const_iterator b(value.begin()), e(value.end());

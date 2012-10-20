@@ -526,6 +526,9 @@ public:
 		return query;
 	}
 
+	//! Return the URI's query part as form parameters
+	http::form::parameters getForm() const;
+
 	//! Return the URI's fragment part
 
 	const std::string &getFragment() const noexcept

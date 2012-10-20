@@ -18,6 +18,8 @@ See COPYING for distribution information.
   <blockquote>
     <informalexample>
       <programlisting>
+#include &lt;&ns;/uriimpl.H&gt;
+
 &ns;::uriimpl u("http://uid:pw@host/path?query#fragment");
 
 std::cout &lt;&lt; "scheme: " &lt;&lt; u.getScheme() &lt;&lt; std::endl
@@ -158,5 +160,28 @@ absuri.toString(std::back_insert_iterator&lt;std::string&gt;(str));
     host component of the authority is case insensitive. This comparison
     operation has no knowledge of scheme-specific semantics, so all other parts
     of a <acronym>URI</acronym> are considered case sensitive.
+  </para>
+
+  <blockquote>
+    <informalexample>
+      <programlisting>
+#include &lt;&ns;/uriimpl.H&gt;
+#include &lt;&ns;/http/form.H&gt;
+
+&ns;::uriimpl u("http://host/path?parameter=value");
+
+auto form=u.getForm();
+
+for (const auto &amp;param: *form)
+{
+    std::cout &lt;&lt; param.first &lt;&lt; "=" &lt;&lt; param.second &lt;&lt; std::endl;
+}</programlisting>
+    </informalexample>
+  </blockquote>
+
+  <para>
+    <methodname>getForm</methodname>() invokes
+    <methodname>getQuery</methodname>() and returns a
+    <link linkend="httpform"><classname>&ns;::http::form::parameters</classname></link>.
   </para>
 </chapter>
