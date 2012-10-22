@@ -83,6 +83,13 @@ public:
 	{
 		return str();
 	}
+
+	//! Rethrow this exception
+
+	//! Subclasses can override, and rethrow the correct reference to the
+	//! 'true' exception objects.
+
+	virtual void rethrow() __attribute__((noreturn));
 };
 
 #if 0

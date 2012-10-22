@@ -33,6 +33,11 @@ exception::exception(exceptionObj *obj) noexcept : ref<exceptionObj>(obj)
 {
 }
 
+exception::exception(const ref<exceptionObj> &refp) noexcept
+: ref<exceptionObj>(refp)
+{
+}
+
 exception::~exception() noexcept
 {
 }
@@ -55,17 +60,32 @@ void exception::done()
 	(*this)->log();
 }
 
-sysexception_base::sysexception_base() : errcode(errno)
+sysexceptionObj::sysexceptionObj(int errcodeArg) : errcode(errcodeArg)
 {
+}
+
+sysexceptionObj::~sysexceptionObj() noexcept
+{
+}
+
+void sysexceptionObj::rethrow()
+{
+	throw sysexception(this);
 }
 
 sysexception::sysexception()
+	: exception(ref<sysexceptionObj>::create(0))
 {
-	errcode=0; // Reset it.
 }
 
 sysexception::sysexception(const char *file, int line)
-	: exception(file, line)
+	: exception(ref<sysexceptionObj>::create(errno))
+{
+	(*this)->fileline(file, line);
+}
+
+sysexception::sysexception(sysexceptionObj *obj)
+	: exception(obj)
 {
 }
 
@@ -73,8 +93,15 @@ sysexception::~sysexception() noexcept
 {
 }
 
+int sysexception::getErrorCode() const noexcept
+{
+	return dynamic_cast<sysexceptionObj &>(**this).errcode;
+}
+
 void sysexception::done()
 {
+	int errcode=getErrorCode();
+
 	if (errcode == EAGAIN || errcode == EWOULDBLOCK)
 	{
 		(*this)->save();

@@ -244,8 +244,8 @@ bool gnutls::sessionObj::handshake(bool force,
 		credentials::callbackptr
 			cb(certificateCred->certificateCallback);
 
-		if (!cb.null() && cb->saved_exception.getErrorCode())
-			throw cb->saved_exception;
+		if (!cb.null() && cb->captured_exception)
+			cb->saved_exception->rethrow();
 	}
 
 	if (err != GNUTLS_E_SUCCESS)

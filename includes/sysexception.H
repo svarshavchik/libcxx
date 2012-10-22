@@ -21,15 +21,26 @@ namespace LIBCXX_NAMESPACE {
 };
 #endif
 
-//! Base class for sysexception that's constructed first and captures errno
+//! Subclass of exceptionObj
 
-struct sysexception_base {
+class sysexceptionObj : public exceptionObj {
 
+public:
 	//! The captured value of errno.
 
 	int errcode;
 
-	sysexception_base() LIBCXX_HIDDEN;
+	//! Constructor
+
+	sysexceptionObj(int errcodeArg);
+
+	//! Destructor
+
+	~sysexceptionObj() noexcept;
+
+	//! Rethrow a \ref sysexception "sysexception".
+
+	void rethrow() override;
 };
 
 //! A system exception.
@@ -42,7 +53,7 @@ struct sysexception_base {
 //! This object is normally not constructed directly, but indirectly
 //! via SYSEXCEPTION.
 
-class sysexception : public sysexception_base, public exception {
+class sysexception : public exception {
 
 public:
 	using exception::operator *;
@@ -61,11 +72,11 @@ public:
 	//! The default destructor.
 	~sysexception() noexcept;
 
+	//! Internal contructor
+	sysexception(sysexceptionObj *obj);
+
 	//! Return the error code -- the value of errno.
-	int getErrorCode() const noexcept
-	{
-		return errcode;
-	}
+	int getErrorCode() const noexcept;
 
 	//! A new exception under construction, pretending to be a std::ostream.
 

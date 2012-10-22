@@ -28,6 +28,7 @@ gnutls::credentials::callbackObj::keycertObj
 }
 
 gnutls::credentials::callbackObj::callbackObj() noexcept
+: captured_exception(false)
 {
 }
 
@@ -112,21 +113,24 @@ int gnutls::credentials::callbackObj::callback(gnutls_session_t sess,
 			st->key.x509=privkey;
 			st->deinit_all=1;
 		}
+
 	} catch (const sysexception &e)
 	{
 		if (!cb.null())
-			cb->saved_exception=e;
+		{
+			auto &cbref= *cb;
+
+			cbref.saved_exception=e;
+			cbref.captured_exception=true;
+		}
 	} catch (const exception &e)
 	{
 		if (!cb.null())
 		{
-			errno=GNUTLS_E_INTERNAL_ERROR;
+			auto &cbref= *cb;
 
-			sysexception ee;
-
-			ee->str(*e);
-
-			cb->saved_exception=ee;
+			cbref.saved_exception=e;
+			cbref.captured_exception=true;
 		}
 		return -1;
 	}

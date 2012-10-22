@@ -127,9 +127,11 @@ private:
 	//!
 	static gnutls_x509_crt_t *init_certs(std::list<x509::crt> &)
  LIBCXX_INTERNAL;
-	//! Captured exception
 
-	sysexception saved_exception;
+	//! Captured exception, to be rethrown
+
+	exception saved_exception;
+	bool captured_exception;
 };
 
 #if 0

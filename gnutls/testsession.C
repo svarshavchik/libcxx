@@ -165,7 +165,7 @@ void serverThread::run(const LIBCXX_NAMESPACE::fd &fd)
 		int direction;
 
 		sess->handshake(direction);
-	} catch (LIBCXX_NAMESPACE::exception &e)
+	} catch (const LIBCXX_NAMESPACE::exception &e)
 	{
 		std::cerr << "server handshake failed: " << e << std::endl;
 		throw;

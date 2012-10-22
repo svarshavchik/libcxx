@@ -72,6 +72,9 @@ public:
 
 	exception(exceptionObj *obj) noexcept;
 
+	//! Internal constructor
+	exception(const ref<exceptionObj> &refp) noexcept;
+
 	//! Inherited from std::exception
 
 	const char *what() const noexcept;

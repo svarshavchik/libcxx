@@ -240,6 +240,11 @@ void exceptionObj::log() noexcept
 	LOG_TRACE( backtrace );
 }
 
+void exceptionObj::rethrow()
+{
+	throw exception(this);
+}
+
 #if 0
 {
 #endif
