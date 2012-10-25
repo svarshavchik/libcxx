@@ -26,7 +26,8 @@ OutputIterator join(InputIterator beg_iter,
 	while (beg_iter != end_iter)
 	{
 		if (need_separator)
-			out_iter=std::copy(separator.begin(), separator.end(),
+			out_iter=std::copy(std::begin(separator),
+					   std::end(separator),
 					   out_iter);
 		need_separator=true;
 
@@ -86,7 +87,8 @@ OutputIterator join(const Container &container,
 		    const sep_type &separator,
 		    OutputIterator out_iter)
 {
-	return join(container.begin(), container.end(), separator, out_iter);
+	return join(std::begin(container),
+		    std::end(container), separator, out_iter);
 }
 
 template<typename InputIterator, typename sep_type>
@@ -140,7 +142,7 @@ typename Container::value_type join(const Container &container,
 
 	string_t string;
 
-	join(container.begin(), container.end(), separator,
+	join(std::begin(container), std::end(container), separator,
 	     std::back_insert_iterator<string_t>(string));
 
 	return string;

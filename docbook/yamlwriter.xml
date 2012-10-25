@@ -1,0 +1,612 @@
+<!--
+
+Copyright 2012 Double Precision, Inc.
+See COPYING for distribution information.
+
+-->
+
+<chapter id="yamlwriter">
+  <title>Writing <acronym>YAML</acronym> documents</title>
+
+  <para>
+    Writing a <acronym>YAML</acronym> document consists of instantiating
+    <link linkend="refobj">reference-counted objects</link> that represent
+    the mapping, sequences, scalars, and alias references that form a
+    <acronym>YAML</acronym> document. Each one of these objects are paired
+    with a functor or a lambda, that gets invoked to create the values
+    for its corresponding object.
+  </para>
+
+  <para>
+    The object that represents the <acronym>YAML</acronym> document's top
+    level node gets returned by a lambda or a functor that's attached to a
+    <classname>&ns;::yaml::newdocumentnode</classname>.
+  </para>
+
+  <section id="yamlnewdocumentnode">
+    <title><classname>&ns;::yaml::newdocumentnode</classname>s</title>
+
+    <blockquote>
+       <informalexample>
+	 <programlisting>
+&ns;::yaml::newnode list_of_highest_points_to_yaml();
+
+// ...
+
+&ns;::yaml::newdocumentnode highest_points=x::yaml::make_newdocumentnode
+    ([]
+    {
+        return list_of_highest_points_to_yaml();
+    });</programlisting>
+       </informalexample>
+    </blockquote>
+
+    <para>
+      <ulink url="&link-typedef-x--yaml-newdocumentnode;"><classname>&ns;::yaml::newdocumentnode</classname></ulink>
+      is an object that represents a new <acronym>YAML</acronym>
+      document that gets written to an output iterator.
+    </para>
+
+    <para>
+      Each <classname>&ns;::yaml::newdocumentnode</classname> gets created
+      by <function>&ns;::yaml::make_newdocumentnode</function>,
+      whose parameter is a
+      lambda or a functor. The functions described in the next section
+      invoke the lambda or the functor to retrieve
+      the object that represents the
+      document's top level node, a sequence or mapping.
+      The top level's lambda/functor consequently constructs the values that go
+      into the sequence or
+      mapping, and their corresponding lambda/functors
+      then construct the corresponding
+      objects, and so on, until the entire document gets formed.
+    </para>
+
+    <blockquote>
+       <informalexample>
+	 <programlisting>
+highest_point-&gt;start_implicit=false;</programlisting>
+       </informalexample>
+    </blockquote>
+
+    <para>
+      The reference-counted object referenced by a
+      <classname>&ns;::yaml::newdocumentnode</classname> has several
+      members.
+    </para>
+
+    <variablelist>
+      <varlistentry>
+	<term>
+	  <varname>start_implicit</varname> (<literal>true</literal> by default)
+	</term>
+	<listitem>
+	  <para>
+	    Specifies whether the document's start indicator is implicit.
+	  </para>
+	</listitem>
+      </varlistentry>
+    </variablelist>
+
+    <variablelist>
+      <varlistentry>
+	<term>
+	  <varname>end_implicit</varname> (<literal>true</literal> by default)
+	</term>
+	<listitem>
+	  <para>
+	    Specifies whether the document's end indicator is implicit.
+	  </para>
+	</listitem>
+      </varlistentry>
+    </variablelist>
+
+    <variablelist>
+      <varlistentry>
+	<term>
+	  <varname>tags</varname>
+	</term>
+	<listitem>
+	  <para>
+	    This is a <classname>std::map&lt;std::string, std::string&gt;</classname>
+	    that maps <acronym>YAML</acronym>
+	    tags to prefixes.
+	  </para>
+	</listitem>
+      </varlistentry>
+    </variablelist>
+  </section>
+
+  <section id="yamlwriternewnode">
+    <title>Writing <classname>&ns;::yaml::newnode</classname>s</title>
+
+    <para>
+      Each object that forms a <acronym>YAML</acronym> is a
+      <ulink url="&link-typedef-x--yaml-newnode;"><classname>&ns;::yaml::newnode</classname></ulink>,
+      which is a reference to a
+      <link linkend="refobj">reference-counted object</link>
+      that represents a
+      <link linkend="yamlwritesequence">sequence</link>, a
+      <link linkend="yamlwritemapping">mapping</link>, a
+      <link linkend="yamlwritescalar">scalar</link> value, or an
+      <link linkend="yamlwritealias">alias</link> reference.
+    </para>
+
+    <blockquote>
+      <informalexample>
+	<programlisting>
+#include &lt;&ns;/yaml/writer.H&gt;
+#include &lt;&ns;/yaml/newdocumentnode.H&gt;
+
+std::vector&lt;&ns;::yaml::newdocumentnode&gt; documents;
+
+&ns;::yaml::newnode list_of_highest_points_to_yaml();
+
+// ...
+
+documents.push_back(x::yaml::make_newdocumentnode
+    ([]
+    {
+        return list_of_highest_points_to_yaml();
+    }));
+
+    &ns;::yaml::writer
+        ::write(documents, std::ostreambuf_iterator&lt;char&gt;(std::cout));</programlisting>
+      </informalexample>
+    </blockquote>
+
+    <para>
+      Several overloaded
+      <ulink url="&link-x--yaml--writer;"><function>writer::write</function></ulink>()
+      functions take either a container or an input sequence of
+      <classname>&ns;::yaml::newdocumentnode</classname>s,
+      defined by a beginning or an ending iterator, and an output iterator over
+      <classname>char</classname>s. There's also
+      a <function>write_one_document</function>() that takes a single
+      <classname>&ns;::yaml::newdocumentnode</classname> in place of a container
+      or an input sequence.
+    </para>
+
+    <para>
+      These functions invoke each
+      <classname>&ns;::yaml::newdocumentnode</classname>'s lambda/functor
+      to get the document's top level sequence/mapping node, and write each
+      <acronym>YAML</acronym> document, starting with
+      the top level node, and invoking a functor associated with each node
+      object. All the lambdas and functors get invoked in order, and the
+      reference-counted objects they return go out of scope, and get destroyed,
+      after their <acronym>YAML</acronym> structure gets written out, and
+      they are no longer needed. This approach avoids the need to create the
+      structure of the entire <acronym>YAML</acronym> document in memory, before writing it out.
+    </para>
+
+    <para>
+      The <acronym>YAML</acronym> document or documents get written to the
+      output iterator, and
+      the <function>write</function>() functions return the value of the
+      output iterator after writing the documents, if it's needed.
+      They also take an optional parameter that sets non-default output
+      <ulink url="&link-x--yaml--writer--options;">options</ulink>:
+    </para>
+
+    <blockquote>
+      <informalexample>
+	<programlisting>
+#include &lt;&ns;/yaml/writer.H&gt;
+#include &lt;&ns;/yaml/newdocumentnode.H&gt;
+
+auto doc=x::yaml::make_newdocumentnode
+    ([]
+    {
+        return list_of_highest_points_to_yaml();
+    });
+
+    &ns;::yaml::writer
+        ::write_one_document(&ns;::yaml::writer::options().setindent(2), doc,
+                             std::ostreambuf_iterator&lt;char&gt;(std::cout));</programlisting>
+    </informalexample>
+  </blockquote>
+
+    <para>
+      This example writes one document to <classname>std::cout</classname>
+      using an indentation level of two spaces.
+    </para>
+  </section>
+
+  <section id="yamlwritesequence">
+    <title>Writing a sequence</title>
+
+    <blockquote>
+      <informalexample>
+	<programlisting>
+&ns;::yaml::newnode seq=&ns;::yaml::newsequence&lt;&gt;::create
+    ([]
+    (x::yaml::newsequence&lt;&gt; &amp;info)
+    {
+        info.container.push_back(&ns;::yaml::newscalarnode::create("apple"));
+        info.container.push_back(&ns;::yaml::newscalarnode::create("fruit"));
+        info.container.push_back(&ns;::yaml::newscalarnode::create("banana"));
+    });</programlisting>
+      </informalexample>
+    </blockquote>
+
+    <para>
+      <ulink url="&link-function-x--yaml--newsequence-create;"><function>&ns;::yaml::newsequence&lt;<replaceable>container_type</replaceable>&gt;::create</function></ulink>()
+      constructs a
+      <link linkend="yamlwriternewnode"><classname>&ns;::yaml::newnode</classname></link>
+      that writes a sequence in a <acronym>YAML</acronym> document.
+    </para>
+
+    <para>
+      The <replaceable>container_type</replaceable> template parameter defines
+      the class for a temporary container where the sequence gets constructed,
+      before it gets written. If not specified, it defaults to a
+      <classname>std::list&lt;<link linkend="yamlwriternewnode">&ns;::yaml::const_newnode</link>&gt;</classname>.
+      Any container class can be used as long as it has a default
+      constructor, and iterates over
+      <classname>&ns;::yaml::newnode</classname>s or
+      <classname>&ns;::yaml::const_newnode</classname>s.
+    </para>
+
+    <para>
+      <function>create</function>() takes a lambda or a functor for a
+      parameter, which gets called to define the sequence.
+      The lambda functor takes one parameter, an instance of
+      <classname>&ns;::yaml::newsequence&lt;<replaceable>container_type</replaceable>&gt;</classname> that's passed by reference, with the following
+      members:
+    </para>
+
+    <variablelist>
+      <varlistentry>
+	<term><varname>container</varname></term>
+	<listitem>
+	  <para>
+	    The <classname><replaceable>container_type</replaceable></classname>
+	    template parameter, the container created by its default
+	    constructor. The lambda/functor should construct the
+	    sequence's values, as
+	    <link linkend="yamlwriternewnode"><classname>&ns;::yaml::newnode</classname></link>s,
+	    and put them into the <varname>container</varname>.
+	  </para>
+	</listitem>
+      </varlistentry>
+
+      <varlistentry>
+	<term><varname>anchor</varname></term>
+	<listitem>
+	  <para>
+	    An optional anchor for an
+	    <link linkend="yamlwritealias">alias</link> reference to this
+	    node.
+	  </para>
+	</listitem>
+      </varlistentry>
+
+      <varlistentry>
+	<term><varname>tag</varname></term>
+	<listitem>
+	  <para>
+	    An optional <acronym>YAML</acronym> tag handle for this sequence
+	    node.
+	    This handle must be included in the
+	    <classname>&ns;::yaml::newdocumentnode</classname>'s
+	    <link linkend="yamlnewdocumentnode"><varname>tags</varname></link>
+	    map.
+	  </para>
+	</listitem>
+      </varlistentry>
+
+      <varlistentry>
+	<term><varname>style</varname></term>
+	<listitem>
+	  <para>
+	    One of
+	    <literal>YAML_ANY_MAPPING_STYLE</literal> (default),
+	    <literal>YAML_BLOCK_MAPPING_STYLE</literal>, or
+	    <literal>YAML_FLOW_MAPPING_STYLE</literal>.
+	  </para>
+	</listitem>
+      </varlistentry>
+
+      <varlistentry>
+	<term><varname>implicit</varname></term>
+	<listitem>
+	  <para>
+	    Defaulting to <literal>true</literal> this specifies that
+	    this node's <acronym>YAML</acronym> tag is optional.
+	  </para>
+	</listitem>
+      </varlistentry>
+    </variablelist>
+  </section>
+
+  <section id="yamlwritemapping">
+    <title>Writing a mapping</title>
+
+    <blockquote>
+      <informalexample>
+	<programlisting>
+struct highest_point {
+    std::string continent;
+    std::string name;
+    std::string country;
+};
+
+x::yaml::newnode highest_point_to_yaml(const highest_point &amp;hp)
+{
+    return &ns;::yaml::newmapping&lt;&gt;::create
+        ([hp]
+        (x::yaml::newmapping&lt;&gt; &amp;info)
+        {
+            info.container.push_back(
+                std::make_pair(&ns;::yaml::newscalarnode::create("continent"),
+                               &ns;::yaml::newscalarnode::create(hp.continent)));
+            info.container.push_back(
+                std::make_pair(&ns;::yaml::newscalarnode::create("name"),
+                               &ns;::yaml::newscalarnode::create(hp.name)));
+            info.container.push_back(
+                std::make_pair(&ns;::yaml::newscalarnode::create("country"),
+                               &ns;::yaml::newscalarnode::create(hp.country)));
+        });
+}</programlisting>
+      </informalexample>
+    </blockquote>
+
+    <para>
+      <ulink url="&link-function-x--yaml--newmapping-create;"><function>&ns;::yaml::newmapping&lt;<replaceable>container_type</replaceable>&gt;::create</function></ulink>()
+      constructs a
+      <link linkend="yamlwriternewnode"><classname>&ns;::yaml::newnode</classname></link>
+      that writes a mapping in a <acronym>YAML</acronym> document.
+    </para>
+
+    <para>
+      The <replaceable>container_type</replaceable> template parameter defines
+      the class for a temporary container where the mapping gets constructed,
+      before it gets written. If not specified, it defaults to a
+      <classname>std::pair</classname>
+      of <link linkend="yamlwriternewnode"><classname>&ns;::yaml::const_newnode</classname></link>s.
+      Any container class can be used as long as it has a default
+      constructor, and iterates over a <classname>std::pair</classname> of
+      <classname>&ns;::yaml::newnode</classname>s or
+      <classname>&ns;::yaml::const_newnode</classname>s.
+    </para>
+
+    <para>
+      <function>create</function>() takes a lambda or a functor for a
+      parameter, which gets called to define the mapping.
+      The lambda functor takes one parameter, an instance of
+      <classname>&ns;::yaml::newmapping&lt;<replaceable>container_type</replaceable>&gt;</classname> that's passed by reference, with the following
+      members:
+    </para>
+
+    <variablelist>
+      <varlistentry>
+	<term><varname>container</varname></term>
+	<listitem>
+	  <para>
+	    The <classname><replaceable>container_type</replaceable></classname>
+	    template parameter, the container created by its default
+	    constructor. The lambda/functor should construct the
+	    mapping's values, as appropriate <classname>std::pair</classname>s,
+	    and put them into the <varname>container</varname>.
+	  </para>
+	</listitem>
+      </varlistentry>
+
+      <varlistentry>
+	<term><varname>anchor</varname></term>
+	<listitem>
+	  <para>
+	    An optional anchor for an
+	    <link linkend="yamlwritealias">alias</link> reference to this
+	    node.
+	  </para>
+	</listitem>
+      </varlistentry>
+
+      <varlistentry>
+	<term><varname>tag</varname></term>
+	<listitem>
+	  <para>
+	    An optional <acronym>YAML</acronym> tag handle for this mapping
+	    node.
+	    This handle must be included in the
+	    <classname>&ns;::yaml::newdocumentnode</classname>'s
+	    <link linkend="yamlnewdocumentnode"><varname>tags</varname></link>
+	    map.
+	  </para>
+	</listitem>
+      </varlistentry>
+
+      <varlistentry>
+	<term><varname>style</varname></term>
+	<listitem>
+	  <para>
+	    One of
+	    <literal>YAML_ANY_MAPPING_STYLE</literal> (default),
+	    <literal>YAML_BLOCK_MAPPING_STYLE</literal>, or
+	    <literal>YAML_FLOW_MAPPING_STYLE</literal>.
+	  </para>
+	</listitem>
+      </varlistentry>
+
+      <varlistentry>
+	<term><varname>implicit</varname></term>
+	<listitem>
+	  <para>
+	    Defaulting to <literal>true</literal> this specifies that
+	    this node's <acronym>YAML</acronym> tag is optional.
+	  </para>
+	</listitem>
+      </varlistentry>
+    </variablelist>
+
+    <note>
+      <para>
+	Do not proceed to the next section until it's understood why,
+	in the example above, the lambda captures the record by value.
+      </para>
+    </note>
+  </section>
+
+  <section id="yamlwritescalar">
+    <title>Writing a scalar value</title>
+
+    <blockquote>
+      <informalexample>
+	<programlisting>
+auto scalar=&ns;::newscalarnode::create("Albuquerque");
+
+scalar-&gt;anchor="left_turn_location";</programlisting>
+      </informalexample>
+    </blockquote>
+      
+    <para>
+      <ulink url="&link-typedef-x--yaml-newscalarnode;"><classname>&ns;::yaml::newscalarnode</classname></ulink>
+      is a
+      <link linkend="yamlwriternewnode"><classname>&ns;::yaml::newnode</classname></link>
+      that writes a scalar value in a <acronym>YAML</acronym>.
+      The only required parameter is the scalar's value.
+      <link linkend="yaml"><application>LibYAML</application></link>
+      document requires the value to use the <literal>UTF-8</literal>
+      codeset. Other, optional parameters to the constructor are:
+    </para>
+
+    <itemizedlist>
+      <listitem>
+	<para>
+	  An optional <acronym>YAML</acronym> tag handle for this scalar node.
+	  This handle must be included in the
+	  <classname>&ns;::yaml::newdocumentnode</classname>'s
+	  <link linkend="yamlnewdocumentnode"><varname>tags</varname></link>
+	  map.
+	</para>
+      </listitem>
+ 
+      <listitem>
+	<para>
+	  <literal>YAML_ANY_SCALAR_STYLE</literal> (the default),
+	  or any one of other <classname>yaml_scalar_style_t</classname>
+	  values implemented by
+	  <link linkend="yaml"><application>LibYAML</application></link>.
+	</para>
+      </listitem>
+
+      <listitem>
+	<para>
+	  A flag (<literal>true</literal> by default), that specifies whether
+	  the flag may be omitted for the plain formatting style.
+	</para>
+      </listitem>
+
+      <listitem>
+	<para>
+	  A flag (<literal>true</literal> by default), that specifies whether
+	  the flag may be omitted for any non-plain formatting style.
+	</para>
+      </listitem>
+    </itemizedlist>
+
+    <para>
+      There is no parameter for the optional
+      anchor for any subsequent
+      <link linkend="yamlwritealias">alias references</link> to this scalar
+      object. The anchor needs to be set manually, after constructing the scalar
+      object, as shown in the example above.
+    </para>
+  </section>
+
+  <section id="yamlwritealias">
+    <title>Writing an alias reference</title>
+
+    <blockquote>
+      <informalexample>
+	<programlisting>
+auto scalar=&ns;::newaliasnode::create("left_turn_location");</programlisting>
+      </informalexample>
+    </blockquote>
+
+    <para>
+      <ulink url="&link-typedef-x--yaml-newaliasnode;"><classname>&ns;::yaml::newaliasnode</classname></ulink>
+      is a
+      <link linkend="yamlwriternewnode"><classname>&ns;::yaml::newnode</classname></link>
+      that writes a reference to an anchor, of the same name.
+      A node that's already written to the <acronym>YAML</acronym> document,
+      a mapping node, a sequence node, or even
+      a <link linkend="yamlwritescalar">scalar node</link> must have a
+      matching anchor.
+    </para>
+
+    <para>
+      At this time, &app; does not verify that the alias reference is valid.
+      It is up to the application to make sure that the alias reference is
+      valid, otherwise parsing the <acronym>YAML</acronym> document will result
+      in a thrown exception.
+    </para>
+  </section>
+
+  <section id="yamlwriteexample">
+    <title>Example of writing a <acronym>YAML</acronym> document</title>
+
+    <blockquote>
+      <title><ulink url="examples/yaml/writer.C">examples/yaml/writer.C</ulink></title>
+      <informalexample>
+	<programlisting><xi:include href="../examples/yaml/writer.C" parse="text" xmlns:xi="http://www.w3.org/2001/XInclude" /></programlisting>
+      </informalexample>
+    </blockquote>
+
+    <para>
+      <function>writeyaml</function>() constructs a single
+      <classname>&ns;::yaml::newdocumentnode</classname> node, and
+      <function>write_one_document</function>() invokes the node's
+      lambda to return the
+      document's top level
+      <link linkend="yamlwriternewnode"><classname>&ns;::yaml::newnode</classname></link>,
+      and writes it to <literal>std::cout</literal>.
+    </para>
+
+    <para>
+      <function>list_of_highest_points_to_yaml</function>() returns
+      a <link linkend="yamlwritesequence">sequence</link> node as the
+      top level <classname>&ns;::yaml::newnode</classname>.
+      Its lambda iterates over the <varname>continent_list</varname> array,
+      and calls
+      <function>highest_point_to_yaml</function>() to instantiate a
+      <classname>&ns;::yaml::newnode</classname> for the corresponding array
+      element, and adds it to the sequence's container.
+    </para>
+
+    <para>
+      <function>highest_point_to_yaml</function>() constructs a
+      a <link linkend="yamlwritemapping">mapping</link> node with a lambda
+      that captures its <classname>highest_point</classname> by value,
+      safe and sound. When called to write the mapping, the contents of the
+      mapping are constructed, as
+      <link linkend="yamlwritescalar">scalar</link> values.
+    </para>
+
+    <para>
+      This example produces the following output:
+    </para>
+
+    <informalexample>
+      <computeroutput>
+	<literallayout>$ g++ -std=c++0x -fno-omit-frame-pointer -o writer writer.C -lcxxyaml -lcxx 
+$ ./writer
+- {continent: Africa, highest_point: Mount Kilimanjaro, country: Tanzania}
+- {continent: Antarctica, highest_point: Vinson Massif, country: Antarctica}
+- {continent: Asia, highest_point: Mount Everest, country: China/Nepal}
+- {continent: Australia, highest_point: Puncak Jaya, country: 'Papua, Indonesia'}
+- {continent: Europe, highest_point: Mount Elbrus, country: Russia}
+- {continent: North America, highest_point: Mount McKinley, country: United States}
+- {continent: South America, highest_point: Aconcagua, country: Argentina}</literallayout>
+      </computeroutput>
+    </informalexample>
+  </section>
+</chapter>
+<!--
+Local Variables:
+mode: sgml
+sgml-parent-document: ("book.xml" "part" "chapter")
+End:
+-->

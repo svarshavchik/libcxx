@@ -21,6 +21,7 @@ See COPYING for distribution information.
 	<application>ca_root_nss</application>,
 	<application>pcre</application>,
 	<application>libxslt</application>,
+	<application>libyaml</application>,
 	<application>gnutls</application>,
 	<application>libgcrypt</application>,
 	<application>gettext</application>,

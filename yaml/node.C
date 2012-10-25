@@ -1,0 +1,34 @@
+/*
+** Copyright 2012 Double Precision, Inc.
+** See COPYING for distribution information.
+*/
+
+#include "libcxx_config.h"
+#include "x/yaml/nodeobj.H"
+#include "x/yaml/docnode.H"
+#include "x/ref.H"
+#include "x/ptr.H"
+
+namespace LIBCXX_NAMESPACE {
+	namespace yaml {
+#if 0
+	}
+};
+#endif
+
+nodeObj::nodeObj(yaml_node_type_t nodetypeArg,
+		 const std::string &tagArg) : nodetype(nodetypeArg),
+					      tag(tagArg)
+{
+}
+
+nodeObj::~nodeObj() noexcept
+{
+}
+
+#if 0
+{
+	{
+#endif
+	};
+};

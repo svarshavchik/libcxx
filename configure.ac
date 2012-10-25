@@ -16,7 +16,7 @@ AM_GNU_GETTEXT([external])
 AM_GNU_GETTEXT_VERSION([0.18.1])
 AC_LANG(C++)
 
-XGETTEXT_EXTRA_OPTIONS="--keyword=_txt --keyword=_txtw --keyword=_txtn:1,2 --keyword=_txtnw:1,2 \`cd \$(top_srcdir); echo gnutls/*.C base/*.C\`"
+XGETTEXT_EXTRA_OPTIONS="--keyword=_txt --keyword=_txtw --keyword=_txtn:1,2 --keyword=_txtnw:1,2 \`cd \$(top_srcdir); echo gnutls/*.C base/*.C yaml/*.C\`"
 
 # Checks for libraries.
 
@@ -582,6 +582,28 @@ fi
 
 AC_DEFINE_UNQUOTED(LIBCXX_CACERTS,"$cacerts",[Default trusted CA certificate file])
 
+save_CPPFLAGS="$CPPFLAGS"
+save_LIBS="$LIBS"
+if test "$YAMLLIBS" = ""
+then
+	YAMLLIBS="-lyaml"
+fi
+
+CPPFLAGS="$YAMLCPPFLAGS $CPPFLAGS"
+LIBS="$YAMLLIBS $LIBS"
+
+AC_TRY_LINK([
+#include <yaml.h>
+], [
+   yaml_get_version(0, 0, 0);
+], [ : ], AC_MSG_ERROR([Test link with LibYAML failed. Please install the LibYAML library and its development package. See config.log for more details about this error.]))
+
+CPPFLAGS="$save_CPPFLAGS"
+LIBS="$save_LIBS"
+
+AC_SUBST(YAMLLIBS)
+AC_SUBST(YAMLCPPFLAGS)
+
 AC_SUBST(LIBCXX_NAMESPACE,x)
 
 test "x$prefix" = xNONE && prefix=$ac_default_prefix
@@ -600,6 +622,7 @@ AC_CONFIG_FILES([Doxyfile po/Makefile.in
 		 includes/param/Makefile
 		 includes/threads/Makefile
 		 includes/xml/Makefile
+		 includes/yaml/Makefile
 		 includes/epoll_def.h
 		 includes/namespace.h
 		 includes/libcxx.mk
@@ -626,6 +649,7 @@ AC_CONFIG_FILES([Doxyfile po/Makefile.in
                  base/Makefile
 		 gnutls/Makefile
 		 gnutls/tlsparamsgen.sh
+		 yaml/Makefile
 		 benchmarks/Makefile
 		 httportmap/httportmap
 		 httportmap/Makefile

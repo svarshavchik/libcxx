@@ -1,0 +1,544 @@
+<!--
+
+Copyright 2012 Double Precision, Inc.
+See COPYING for distribution information.
+
+-->
+
+<chapter id="yamlparser">
+  <title>Parsing <acronym>YAML</acronym> documents</title>
+
+  <blockquote>
+    <informalexample>
+      <programlisting>
+#include &lt;&ns;/yaml/parser.H&gt;
+#include &lt;&ns;/yaml/document.H&gt;
+#include &lt;&ns;/yaml/node.H&gt;
+
+std::ifstream i("file.yml");
+
+&ns;::yaml::parser p=
+    &ns;::yaml::parser::create(std::istreambuf_iterator&lt;char&gt;(i),
+                            std::istreambuf_iterator&lt;char&gt;());
+
+if (p-&gt;documents.size() != 1)
+    throw EXCEPTION("file.yml did not contain a single YAML document");
+
+&ns;::yaml::document doc=p-&gt;documents.front();
+
+&ns;::yaml::node n=p-&gt;root();</programlisting>
+    </informalexample>
+  </blockquote>
+
+  <para>
+    <ulink url="&link-typedef-x--yaml-parser;"><classname>&ns;::yaml::parser</classname></ulink>
+    and
+    <ulink url="&link-typedef-x--yaml-document;"><classname>&ns;::yaml::document</classname></ulink>
+    are references to <link linkend="refobj">reference-counted</link> objects
+    that represent one or more parsed <acronym>YAML</acronym> documents.
+  </para>
+
+  <para>
+    <classname>&ns;::yaml::parser</classname>'s constructor takes a pair
+    of iterators that define an input sequence of characters that comprise
+    one or more <acronym>YAML</acronym> documents. The constructor iterates
+    over the input sequence, and parses it into a
+    <classname>std::list&lt;&ns;::yaml::document&gt;</classname>, the
+    <varname>documents</varname> member of the constructed object.
+  </para>
+
+  <para>
+    The above example uses input stream iterators to parse
+    <acronym>YAML</acronym> document(s) from a file, but any
+    <classname>char</classname> input iterator works. An
+    <link linkend="exceptions">exception gets thrown</link>
+    if there was a parsing error and a <acronym>YAML</acronym> document
+    was ill-formed, or if the iterators themselves threw an exception.
+    Note that if the iterators report failures by means other than throwing
+    an exception, this will have to checked out of band, unless the resulting
+    <acronym>YAML</acronym> document ended up being ill-formed, and
+    <classname>&ns;::yaml::parser</classname> itself threw an exception for
+    that reason.
+  </para>
+
+  <note>
+    <para>
+      <methodname>create</methodname>() loads all the documents into memory,
+      although they are stored in <application>LibYAML</application>'s
+      internal structures, which are quite modest in size (and the
+      reference-counted objects and templates described below get constructed
+      on demand). To enforce an upper limit on the size of loaded
+      <acronym>YAML</acronym> documents, use an iterator that throws an
+      exception after the number of read characters exceeds the limit,
+      something along the lines of
+      <link linkend="httpformlimitediter"><classname>&ns;::http::form::limited_iter</classname></link>.
+    </para>
+  </note>
+
+  <para>
+    The contents of a <acronym>YAML</acronym> documents are presented as
+    a hierarchical tree of nodes.
+    The document object's <methodname>root</methodname>() returns the root
+    node of the document.
+  </para>
+
+  <para id="yamlnodebaseclass">
+    <ulink url="&link-typedef-x--yaml-node;"><classname>&ns;::yaml::node</classname></ulink>
+    is a reference to an instance of
+    <ulink url="&link-x--yaml--nodeObj;"><classname>&ns;::yaml::nodeObj</classname></ulink>, which a superclass of several possible kinds of
+    <acronym>YAML</acronym>, with two members:
+    <varname>tag</varname>, the node's <acronym>YAML</acronym> tag, and
+    <varname>nodetype</varname> that specifies what kind of a node it is:
+  </para>
+
+  <variablelist>
+    <varlistentry>
+      <term><literal>YAML_SCALAR_NODE</literal></term>
+      <listitem>
+	<para>
+	  This <classname>&ns;::yaml::node</classname> is convertible to a
+	  <link linkend="yamlscalar"><classname>&ns;::yaml::scalarnode</classname></link>.
+	</para>
+      </listitem>
+    </varlistentry>
+
+    <varlistentry>
+      <term><literal>YAML_SEQUENCE_NODE</literal></term>
+      <listitem>
+	<para>
+	  This <classname>&ns;::yaml::node</classname> is convertible to a
+	  <link linkend="yamlsequence"><classname>&ns;::yaml::sequencenode</classname></link>.
+
+	</para>
+      </listitem>
+    </varlistentry>
+
+    <varlistentry>
+      <term><literal>YAML_MAPPING_NODE</literal></term>
+      <listitem>
+	<para>
+	  This <classname>&ns;::yaml::node</classname> is convertible to a
+	  <link linkend="yamlmapping"><classname>&ns;::yaml::mappingnode</classname></link>.
+	</para>
+      </listitem>
+    </varlistentry>
+
+    <varlistentry>
+      <term><literal>YAML_NO_NODE</literal></term>
+      <listitem>
+	<para>
+	  An unknown node. This is a stub that gets returned for the root node
+	  of an empty <acronym>YAML</acronym> document.
+	</para>
+      </listitem>
+    </varlistentry>
+  </variablelist>
+
+  <para>
+    When the root node type's is known, coerce the expected reference type:
+  </para>
+
+  <blockquote>
+    <informalexample>
+      <programlisting>
+&ns;::yaml::mappingnode n=p-&gt;root();</programlisting>
+    </informalexample>
+  </blockquote>
+
+  <para>
+    If the document's root node turns out to be something else, the
+    conversion cannot be made, and an
+    <link linkend="refcast">exception gets thrown</link>. It's presumed that
+    this is within the scope that catches <acronym>YAML</acronym> parsing
+    exceptions, and can be treated the same way.
+  </para>
+
+  <section id="yamlscalar">
+    <title>Parsing scalars</title>
+
+    <blockquote>
+      <informalexample>
+	<programlisting>
+#include &lt;&ns;/yaml/scalarnode.H&gt;
+
+switch (n->nodetype) {
+
+// ...
+case YAML_SCALAR_NODE:
+    handle_scalar(&ns;::yaml::scalarnode(n));
+    break;
+
+// ...
+};
+
+// ...
+
+void handle_scalar(const &ns;::yaml::scalarnode &amp;scalar)
+{
+    std::cout &lt;&lt;scalar-&gt;value &lt;&lt; std::endl;
+}</programlisting>
+      </informalexample>
+    </blockquote>
+
+    <para>
+      The <varname>value</varname> member of a scalar node object gives the
+      value of the scalar.
+    </para>
+  </section>
+
+  <section id="yamlsequence">
+    <title>Parsing sequences</title>
+
+    <blockquote>
+      <informalexample>
+	<programlisting>
+#include &lt;&ns;/yaml/sequencenode.H&gt;
+
+switch (n-&gt;nodetype) {
+
+// ...
+case YAML_SEQUENCE_NODE:
+    handle_sequence(&ns;::yaml::sequencenode(n));
+    break;
+
+// ...
+};
+
+// ...
+
+void handle_sequence(const &ns;::yaml::sequencenode &amp;seq)
+{
+    size_t n=seq-&gt;size();
+
+    std::cout &lt;&lt; n &lt;&lt; " elements" &lt;&lt; std::endl;
+    for (size_t i=0; i&lt;n; ++i)
+        dump(&ns;::yaml::scalarnode(seq-&gt;get(i)));
+}</programlisting>
+      </informalexample>
+    </blockquote>
+
+    <para>
+      <ulink url="&link-typedef-x--yaml-sequencenode;"><classname>&ns;::yaml::sequencenode</classname></ulink>
+      refers to a
+      <link linkend="yamlnodebaseclass">subclass of
+	<classname>&ns;::yaml::nodeObj</classname></link> that
+      represents a sequence in a <acronym>YAML</acronym> document. Its
+      <methodname>size</methodname>() method gives the number of values
+      in the sequence.
+      <methodname>get</methodname>() returns a
+      <classname>&ns;::yaml::node</classname>, which can be converted to
+      another
+      <link linkend="yamlscalar"><classname>&ns;::yaml::scalarnode</classname></link>,
+      <link linkend="yamlsequence"><classname>&ns;::yaml::sequencenode</classname></link>, or an
+      <link linkend="yamlmapping"><classname>&ns;::yaml::mappingnode</classname></link>,
+      according to its <varname>nodetype</varname>.
+    </para>
+
+    <blockquote>
+      <informalexample>
+	<programlisting>
+void handle_sequence(const &ns;::yaml::sequencenode &amp;seq)
+{
+    for (&ns;::yaml::scalarnode scalar: *seq)
+    {
+        dump(scalar);
+    }
+}</programlisting>
+      </informalexample>
+    </blockquote>
+
+    <para>
+      The referenced sequence object implements a
+      <methodname>begin</methodname>() and an
+      <methodname>end</methodname>() that return
+      <ulink url="&link-x--yaml--sequencenodeObj--iterator;"><classname>&ns;::yaml::sequencenode::base::iterator</classname></ulink>s over
+      <classname>&ns;::yaml::node</classname> values in the sequence.
+      This example iterates over a sequence that's expected to consist
+      entirely of
+      <link linkend="yamlscalar"><classname>&ns;::yaml::scalarnode</classname></link>
+      values, so the range iteration value gets coerced accordingly.
+      An <link linkend="refcast">exception gets thrown</link> in the event
+      of a type conversion failure if the sequence contains a different node
+      type.
+    </para>
+
+    <blockquote>
+      <informalexample>
+	<programlisting>
+void handle_sequence(const &ns;::yaml::sequencenode &amp;seq)
+{
+    seq-&gt;for_each([],
+        (&ns;::yaml::scalarnode &amp;&amp;n)
+        {
+            dump(n);
+        });
+}</programlisting>
+      </informalexample>
+    </blockquote>
+
+    <para>
+      The <methodname>for_each</methodname>() method produces slightly
+      more efficient code that iterates over the sequence, and invokes the
+      functor or the lambda argument passing each node in the sequence by
+      rvalue.
+    </para>
+
+    <note>
+      <para>
+	Sequences do not have to be mono-typed. The same sequence may contain
+	a mixture of
+	<link linkend="yamlscalar"><classname>&ns;::yaml::scalarnode</classname></link>s
+	and
+	<link linkend="yamlsequence"><classname>&ns;::yaml::sequencenode</classname></link>s,
+	for example. In this case, the range iteration or the
+	<methodname>for_each</methodname>() should take a
+	<classname>&ns;::yaml::node</classname> rvalue,
+	then proceed based on its
+	<link linkend="yamlnodebaseclass"><varname>nodetype</varname></link>.
+      </para>
+    </note>
+  </section>
+
+  <section id="yamlmapping">
+    <title>Parsing mappings</title>
+
+    <blockquote>
+      <informalexample>
+	<programlisting>
+#include &lt;&ns;/yaml/mappingnode.H&gt;
+
+switch (n->nodetype) {
+
+// ...
+case YAML_MAPPING_NODE:
+    handle_mapping(&ns;::yaml::mappingnode(n));
+    break;
+
+// ...
+};
+
+// ...
+
+void handle_mapping(const &ns;::yaml::mappingnode &amp;n)
+{
+    size_t n=map-&gt;size();
+    std::cout &lt;&lt; n &lt;&lt; " elements" &lt;&lt; std::endl;
+    for (size_t i=0; i&lt;n; ++i)
+    {
+        std::pair&lt;&ns;::yaml::scalarnode, &ns;::yaml::scalarnode&gt; value=map-&gt;get(i);
+        std::cout &lt;&lt; value.first &lt;&lt; "=" &lt;&lt; value.second &lt;&lt; std::endl;
+    }
+}</programlisting>
+      </informalexample>
+    </blockquote>
+
+    <para>
+      <ulink url="&link-typedef-x--yaml-mappingnode;"><classname>&ns;::yaml::mappingnode</classname></ulink>
+      refers to a
+      <link linkend="yamlnodebaseclass">subclass of
+	<classname>&ns;::yaml::nodeObj</classname></link> that
+      represents a mapping in a <acronym>YAML</acronym> document. Its
+      <methodname>size</methodname>() method gives the number of values
+      in the mapping.
+      <methodname>get</methodname>() returns a
+      <classname>std::pair&lt;&ns;::yaml::node,&ns;::yaml::node&gt;</classname>
+      giving the key and the value of a single mapping.
+      Individually, the key or the value can be converted to
+      another
+      <link linkend="yamlscalar"><classname>&ns;::yaml::scalarnode</classname></link>,
+      <link linkend="yamlsequence"><classname>&ns;::yaml::sequencenode</classname></link>, or an
+      <link linkend="yamlmapping"><classname>&ns;::yaml::mappingnode</classname></link>,
+      according to their <varname>nodetype</varname>s.
+    </para>
+
+    <blockquote>
+      <informalexample>
+	<programlisting>
+void dump(const &ns;::yaml::mappingnode &amp;map)
+{
+    for (std::pair&lt;&ns;::yaml::scalarnode, &ns;::yaml::scalarnode&gt; value: *map)
+    {
+        std::cout &lt;&lt; value.first &lt;&lt; "=" &lt;&lt; value.second &lt;&lt; std::endl;
+    }
+}</programlisting>
+      </informalexample>
+    </blockquote>
+
+    <para>
+      The referenced mapping object implements a
+      <methodname>begin</methodname>() and an
+      <methodname>end</methodname>() that return
+      <ulink url="&link-x--yaml--mappingnodeObj--iterator;"><classname>&ns;::yaml::mappingnode::base::iterator</classname></ulink>s over
+      <classname>std::pair&lt;&ns;::yaml::node,&ns;::yaml::node&gt;</classname>s
+      in the mapping.
+      This example iterates over a mapping whose keys and values are expected
+      to consist
+      entirely of
+      <link linkend="yamlscalar"><classname>&ns;::yaml::scalarnode</classname></link>s,
+      so the range iteration value gets coerced accordingly.
+      An <link linkend="refcast">exception gets thrown</link> in the event
+      of a type conversion failure if the mapping contains a different node
+      for a key or a value.
+    </para>
+
+    <blockquote>
+      <informalexample>
+	<programlisting>
+void dump(const INSERT_LIBX_NAMESPACE::yaml::mappingnode &amp;map)
+{
+    seq-&gt;for_each([]
+         (&ns;::yaml::scalarnode &amp;&amp;key, &ns;::yaml::scalarnode &amp;&amp;value)
+         {
+             std::cout &lt;&lt; value.first &lt;&lt; "=" &lt;&lt; value.second &lt;&lt; std::endl;
+         });
+}</programlisting>
+      </informalexample>
+    </blockquote>
+
+    <para>
+      The <methodname>for_each</methodname>() method produces slightly
+      more efficient code that iterates over the mapping, and invokes the
+      functor or the lambda argument passing the key and the value of
+      each individual mapping by rvalue.
+    </para>
+
+    <note>
+      <para>
+	Mappings do not have to be mono-typed. The same mapping may contain
+	a mixture of
+	<link linkend="yamlscalar"><classname>&ns;::yaml::scalarnode</classname></link>s
+	and
+	<link linkend="yamlsequence"><classname>&ns;::yaml::sequencenode</classname></link>s,
+	for example, for its keys and values.
+	In this case, the range iteration or the
+	<methodname>for_each</methodname>() should take a
+	<classname>&ns;::yaml::node</classname> rvalue,
+	then proceed based on its
+	<link linkend="yamlnodebaseclass"><varname>nodetype</varname></link>.
+      </para>
+    </note>
+  </section>
+
+  <section id="yamaliases">
+    <title>Parsing aliases (not)</title>
+
+    <para>
+      Aliases in the <acronym>YAML</acronym> are processed and replaced with
+      the aliased anchor when the document gets parsed.
+    </para>
+
+    <informalexample>
+      <computeroutput>
+	<literallayout>maps:
+    seq1: &amp;alias1
+    - scalar1
+    - scalar2
+    seq2: *alias1</literallayout>
+      </computeroutput>
+    </informalexample>
+
+    <para>
+      Parsing this document results in a
+      <ulink url="&link-typedef-x--yaml-document;"><classname>&ns;::yaml::document</classname></ulink>
+      whose <methodname>root</methodname>() returns a
+      <link linkend="yamlmapping"><classname>&ns;::yaml::mappingnode</classname></link>
+      with one mapping. Its key is a
+      <link linkend="yamlscalar"><classname>&ns;::yaml::scalarnode</classname></link>
+      <quote>maps</quote>, and its value is another
+      <classname>&ns;::yaml::mappingnode</classname>
+      with two mappings.
+    </para>
+
+    <para>
+      The first of the two mappings has a
+      <classname>&ns;::yaml::scalarnode</classname> key of <quote>seq1</quote>,
+      and the value of a
+      <link linkend="yamlsequence"><classname>&ns;::yaml::sequencenode</classname></link>
+      containing two
+      <classname>&ns;::yaml::scalarnode</classname>s of
+      <quote>scalar1</quote>
+      and
+      <quote>scalar2</quote>.
+      The second mapping's
+      <classname>&ns;::yaml::scalarnode</classname> key is <quote>seq2</quote>,
+      and the value is the same
+      <classname>&ns;::yaml::sequencenode</classname>.
+      Each alias, in the <acronym>YAML</acronym> document gets replaced by
+      its anchor node. The resulting document should be processed without
+      making any particular considerations for aliases.
+    </para>
+
+    <note>
+      <para>
+	It's possible to create circular references using aliases, like this:
+      </para>
+
+      <informalexample>
+	<computeroutput>
+	  <literallayout>yaml:
+    name1: &amp;alias1
+        key1: value1
+        key2: *alias1</literallayout>
+	</computeroutput>
+      </informalexample>
+
+      <para>
+	Retrieving the value of the <quote>key2</quote> mapping comes back
+	with the value of the <quote>name1</quote> mapping, the same mapping
+	with the alias reference.
+      </para>
+
+      <para>
+	This gets handled by the underlying
+	<link linkend="yaml"><application>LibYAML</application> parser</link>,
+	and due to the nature of <application>LibYAML</application>'s internal
+	structures this does not create an internal circular reference or
+	a memory leak. Provided, of course, that
+	a <link linkend="circularrefs">circular reference or a memory
+	  leak</link> does not get created indirectly as a result of processing
+	the recursive alias.
+      </para>
+    </note>
+  </section>
+
+  <section id="yamlparserexample">
+    <title>Example of parsing a <acronym>YAML</acronym> document</title>
+
+    <blockquote>
+      <title><ulink url="examples/yaml/parser.C">examples/yaml/parser.C</ulink></title>
+      <informalexample>
+	<programlisting><xi:include href="../examples/yaml/parser.C" parse="text" xmlns:xi="http://www.w3.org/2001/XInclude" /></programlisting>
+      </informalexample>
+    </blockquote>
+
+    <para>
+      This example parses the <acronym>YAML</acronym> document from
+      <xref linkend="yamlwriteexample" />.
+    </para>
+
+    <informalexample>
+      <computeroutput>
+	<literallayout>$ ./writer | ./parser
+In Africa, the highest point is Mount Kilimanjaro, located in Tanzania
+In Antarctica, the highest point is Vinson Massif, located in Antarctica
+In Asia, the highest point is Mount Everest, located in China/Nepal
+In Australia, the highest point is Puncak Jaya, located in Papua, Indonesia
+In Europe, the highest point is Mount Elbrus, located in Russia
+In North America, the highest point is Mount McKinley, located in United States
+In South America, the highest point is Aconcagua, located in Argentina</literallayout>
+      </computeroutput>
+    </informalexample>
+
+    <para>
+      When implementing <acronym>YAML</acronym> parsers, mind the
+      common pitfall when using <link linkend="createrange">range iteration
+	on reference-counted objects</link>.
+    </para>
+  </section>
+</chapter>
+<!--
+Local Variables:
+mode: sgml
+sgml-parent-document: ("book.xml" "part" "chapter")
+End:
+-->

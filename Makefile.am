@@ -4,15 +4,17 @@
 #
 
 AUTOMAKE_OPTIONS=foreign dist-bzip2 -Wno-portability
-SUBDIRS= po includes base gnutls httportmap packaging/fedora
+SUBDIRS= po includes base yaml gnutls httportmap packaging/fedora
 DIST_SUBDIRS= $(SUBDIRS) benchmarks
 DISTCHECK_CONFIGURE_FLAGS=--with-pkgconfigdir='$$(prefix)/local/pkgconf'
 man_MANS = properties.1 maillogs.1 httportmapd.8
 EXTRA_DIST=config.rpath DoxygenLayout.xml $(man_MANS) \
-	$(wildcard examples/*.C) \
-	examples/managedsingleton/configure.ac \
-	examples/managedsingleton/Makefile.am \
-	examples/managedsingleton/managedsingleton.C
+	$(patsubst $(srcdir)/%,%, \
+           $(wildcard $(srcdir)/examples/*.C) \
+	   $(wildcard $(srcdir)/examples/*/configure.ac) \
+	   $(wildcard $(srcdir)/examples/*/Makefile.am) \
+	   $(wildcard $(srcdir)/examples/*/*.C) \
+        )
 
 DOCS_SRC = $(shell find includes -name '*.H' -print)
 

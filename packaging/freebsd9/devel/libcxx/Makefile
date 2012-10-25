@@ -15,7 +15,8 @@ LIB_DEPENDS=		pcre:${PORTSDIR}/devel/pcre \
 			gcrypt:${PORTSDIR}/security/libgcrypt \
 			unwind:${PORTSDIR}/devel/libunwind \
 			intl:${PORTSDIR}/devel/gettext \
-			iconv:${PORTSDIR}/converters/libiconv
+			iconv:${PORTSDIR}/converters/libiconv \
+			yaml:${PORTSDIR}/textproc/libyaml
 
 BUILD_DEPENDS=		${LOCALBASE}/share/certs/ca-root-nss.crt:${PORTSDIR}/security/ca_root_nss \
 			${LOCALBASE}/bin/xsltproc:${PORTSDIR}/textproc/libxslt

@@ -56,6 +56,8 @@
 <!ENTITY miscdf SYSTEM "miscdf.xml">
 <!ENTITY miscpostponed SYSTEM "miscpostponed.xml">
 <!ENTITY xml_escape SYSTEM "xml_escape.xml">
+<!ENTITY yamlparser SYSTEM "yamlparser.xml">
+<!ENTITY yamlwriter SYSTEM "yamlwriter.xml">
 <!ENTITY gnutls_datum SYSTEM "gnutls_datum.xml">
 <!ENTITY gnutls_keys SYSTEM "gnutls_keys.xml">
 <!ENTITY gnutls_certs SYSTEM "gnutls_certs.xml">
@@ -165,13 +167,49 @@ See COPYING for distribution information.
     &xml_escape;
   </part>
 
+  <part id="yaml">
+    <title>Writing and parsing <acronym>YAML</acronym> documents</title>
+
+    <partintro>
+      <para>
+	The following classes and templates are obtained by linking with
+	<option>-lcxxyaml</option>. These classes and templates are divided
+	into two major, and mostly independent, areas:
+      </para>
+
+      <itemizedlist>
+	<listitem>
+	  <para>
+	    Writing <acronym>YAML</acronym> documents.
+	  </para>
+	</listitem>
+
+	<listitem>
+	  <para>
+	    Parsing <acronym>YAML</acronym> documents.
+	  </para>
+	</listitem>
+      </itemizedlist>
+
+      <para>
+	&app; uses
+	<ulink url="http://pyyaml.org/wiki/LibYAML"><application>LibYAML</application></ulink>
+	to actually parse and write <acronym>YAML</acronym> documents,
+	exposing a small amount of its <acronym>API</acronym>, namely some
+	constants and enumerations.
+      </para>
+    </partintro>
+    &yamlwriter;
+    &yamlparser;
+  </part>
+
   <part id="gnutls">
     <title>GnuTLS classes</title>
 
     <partintro>
       <para>
-	The following GnuTLS classes are obtained by linking with the
-	<option>-lcxxtls</option> option.
+	The following GnuTLS classes are obtained by linking with
+	<option>-lcxxtls</option>.
 	If you're impatient, you can skip ahead and browse some sample code
 	that implements TLS in <xref linkend="httpuseragent" />
 	and <xref linkend="httpserver" />.

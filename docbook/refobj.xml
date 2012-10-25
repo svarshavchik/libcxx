@@ -412,7 +412,7 @@ if (!b.null())
       referenced class.
     </para>
 
-    <para>
+    <para id="refcast">
       An &reforptr; to one class is convertible to an &reforptr; to another
       class, if the classes are related. A <function>dynamic_cast</function>
       converts the underlying pointer. An exception gets thrown if
@@ -802,6 +802,13 @@ for (auto iter=range.begin(); auto != range.end(); ++iter)
 	  the reference-counted object, it gets destroyed.
 	  Meanwhile, the rvalue reference, to the destroyed object remains,
 	  producing ill-formed results.
+	</para>
+
+	<para>
+	  Rule of thumb to follow: when using the <literal>*</literal> operator
+	  to dereference a reference-counted object for a container-based
+	  range operation, the <literal>*</literal> operator should operate
+	  on an lvalue, and never an rvalue.
 	</para>
       </note>
     </section>

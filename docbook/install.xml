@@ -131,7 +131,8 @@ See COPYING for distribution information.
 	<para>
 	  <application>pcre</application>,
 	  <application>libxslt</application>,
-	  <application>gnutls</application>, and
+	  <application>gnutls</application>,
+	  <application>libyaml</application> and
 	  <application>libgcrypt</application>.
 	</para>
       </listitem>

@@ -19,6 +19,7 @@ BuildRequires: gnutls-devel
 BuildRequires: %{__perl}
 BuildRequires: libxslt
 BuildRequires: pcre-devel
+BuildRequires: libyaml-devel
 Requires(post): /bin/systemctl
 Requires(preun): /bin/systemctl
 

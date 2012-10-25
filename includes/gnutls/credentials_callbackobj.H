@@ -131,6 +131,9 @@ private:
 	//! Captured exception, to be rethrown
 
 	exception saved_exception;
+
+	//! Whether an exception was captured in the callback from gnutls
+
 	bool captured_exception;
 };
 
