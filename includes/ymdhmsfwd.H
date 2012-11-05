@@ -184,9 +184,14 @@ public:
 
 	//! Instantiate from a string
 
-	//! The string is parsed expecting it to be formatted as
-	//! "%a, %d %b %Y %H:%M:%S %z". An exception gets thrown if it cannot
-	//! be parsed
+	//! The string is expected to be formatted using any of the three formts
+	//! specified in section 3.3 of RFC 2616, namely:
+	//!
+	//! - "%a, %d %b %Y %H:%M:%S %z".
+	//! - "$A, %d-%b-%Y %H:%M:%S %z".
+	//! - "%a %b %d %H:%M:%S %Y".
+	//!
+	//! An exception gets thrown if the string cannot be parsed, as such.
 
 	template<typename char_type>
 	ymdhms(//! Formatted string
@@ -325,8 +330,14 @@ public:
 
 //! Convert a string to a time_t
 
-//! The string is expected to be formatted as
-//! "%a, %d %b %Y %H:%M:%S %z". An exception gets thrown if it cannot
+//! The string is expected to be formatted using any of the three formts
+//! specified in section 3.3 of RFC 2616, namely:
+//!
+//! - "%a, %d %b %Y %H:%M:%S %z".
+//! - "$A, %d-%b-%Y %H:%M:%S %z".
+//! - "%a %b %d %H:%M:%S %Y".
+//!
+//! An exception gets thrown if the string cannot be parsed, as such.
 
 template<typename iter_type>
 time_t ymdhms::to_time_t(iter_type b, iter_type e,
@@ -372,8 +383,13 @@ time_t ymdhms::to_time_t(iter_type b, iter_type e,
 				++b;
 			}
 
-			if (b != e && *b == ':')
-				++b;
+			if (b != e)
+			{
+				if (*b == ':')
+					++b;   // Handle %H:%M:%S
+				else if (*b == '-')
+					++b;   // Handle the %d in %d-%b-%Y
+			}
 
 			if (plusminus)
 				tz=((n % 100) + (n / 100) * 60)
@@ -390,6 +406,12 @@ time_t ymdhms::to_time_t(iter_type b, iter_type e,
 			if (ct.is(*b, std::ctype_base::space))
 				break;
 
+			if (*b == '-')
+			{
+				// Handle the %b in %d-%b-%Y
+				++b;
+				break;
+			}
 			ss << *b;
 			++b;
 		}
@@ -413,8 +435,32 @@ time_t ymdhms::to_time_t(iter_type b, iter_type e,
 	if (numbers.size() != 5 || month == 0)
 		ymdhms::cannot_parse_time();
 
-	return (time_t)ymdhms( ymd(numbers[1], month, numbers[0]),
-			       hms(numbers[2], numbers[3], numbers[4]),
+	auto year=numbers[1];
+	auto day=numbers[0];
+
+	auto hour=numbers[2];
+	auto minute=numbers[3];
+	auto second=numbers[4];
+
+	if (second > 1900)
+	{
+		// "%a %b %d %H:%M:%S %Y".
+
+		auto year_save=second;
+
+		second=minute;
+		minute=hour;
+		hour=year;
+		year=year_save;
+	}
+
+	if (year < 50)
+		year += 2000;
+	if (year < 100)
+		year += 1900;
+
+	return (time_t)ymdhms( ymd(year, month, day),
+			       hms(hour, minute, second),
 			       tzfile::base::utc())
 		- tz;
 }

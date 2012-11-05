@@ -6,7 +6,7 @@
 #include "libcxx_config.h"
 #include "ymd.H"
 #include "hms.H"
-#include "tostring.H"
+#include "ymdhms.H"
 #include "tostring.H"
 
 #include <iostream>
@@ -358,6 +358,22 @@ int main(int argc, char **argv)
 		    LIBCXX_NAMESPACE::ymd(LIBCXX_NAMESPACE::ymd
 					::iso8601(2010, 1, 1)))
 			throw EXCEPTION("YYYY-W-D is not parsed properly");
+
+		std::cout << (std::string)LIBCXX_NAMESPACE
+			::ymdhms(std::string("Fri, 03 Aug 2012 19:30:31 GMT"),
+				 LIBCXX_NAMESPACE::tzfile::base::utc())
+			  << std::endl;
+
+		std::cout << (std::string)LIBCXX_NAMESPACE
+			::ymdhms(std::string("Friday, 03-Aug-12 19:30:31 GMT"),
+				 LIBCXX_NAMESPACE::tzfile::base::utc())
+			  << std::endl;
+
+		std::cout << (std::string)LIBCXX_NAMESPACE
+			::ymdhms(std::string("Fri Aug 3 19:30:31 2012"),
+				 LIBCXX_NAMESPACE::tzfile::base::utc())
+			  << std::endl;
+
 	} catch (LIBCXX_NAMESPACE::exception &e)
 	{
 		std::cout << e << std::endl;
