@@ -9,6 +9,7 @@
 #include <x/http/messageimplfwd.H>
 #include <x/chrcasecmp.H>
 #include <x/http/clientauthimplfwd.H>
+#include <x/ymdhmsfwd.H>
 #include <exception>
 #include <algorithm>
 #include <sstream>
@@ -124,6 +125,9 @@ public:
 
 	//! Set current date
 	void setCurrentDate();
+
+	//! Get the server's current date
+	ymdhms getCurrentDate() const;
 
 	//! Set all the non-caching headers.
 

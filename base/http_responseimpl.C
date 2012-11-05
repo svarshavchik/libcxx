@@ -10,6 +10,7 @@
 #include "x/logger.H"
 #include "x/tokens.H"
 #include "x/join.H"
+#include "x/ymdhms.H"
 #include "gettext_in.h"
 
 #include <sstream>
@@ -113,6 +114,25 @@ void responseimpl::setCurrentDate()
 		.toString(locale::create("C"),
 			  "%a, %d %b %Y %H:%M:%S GMT")
 		);
+}
+
+ymdhms responseimpl::getCurrentDate() const
+{
+	auto date=equal_range("Date");
+
+	try {
+		if (date.first != date.second)
+			return ymdhms(std::string(date.first->second.begin(),
+						  date.first->second.end()),
+				      tzfile::base::utc(),
+				      locale::create("C"));
+	} catch (...)
+	{
+	}
+
+	// If no header, if there was a parsing error
+
+	return ymdhms();
 }
 
 void responseimpl::setNoCache()

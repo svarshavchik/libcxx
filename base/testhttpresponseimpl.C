@@ -89,11 +89,34 @@ void testchallenges()
 			"Basic\nsecond\npassword=abracadabra\n");
 }
 
+void testsetcurrentdate()
+{
+	LIBCXX_NAMESPACE::http::responseimpl resp;
+
+	resp.getCurrentDate();
+
+	resp.setCurrentDate();
+
+	time_t now=LIBCXX_NAMESPACE::ymdhms();
+
+	time_t now2=resp.getCurrentDate();
+
+	if (now2 < now-30 || now2 > now+30)
+		throw EXCEPTION("Something wrong with getCurrentDate");
+
+	sleep(2);
+
+	if ((time_t)resp.getCurrentDate() != now2)
+		throw EXCEPTION("Something wrong with getCurrentDate (2)");
+
+}
+
 int main(int argc, char **argv)
 {
 	try {
 		testhttpresponseimpl();
 		testchallenges();
+		testsetcurrentdate();
 	} catch (LIBCXX_NAMESPACE::exception &e)
 	{
 		std::cerr << e << std::endl;
