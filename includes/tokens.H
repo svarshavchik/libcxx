@@ -289,17 +289,17 @@ public:
 	//! Return a string with a quoted word.
 
 	template<typename container_type>
-	auto token_or_quoted_word(//! Container
-				  const container_type &container)
+	static auto token_or_quoted_word(//! Container
+					 const container_type &container)
 #ifndef DOXYGEN
 	// temporary confusion
 
-		-> decltype(token_or_quoted_word(container.begin(),
-						 container.end()))
+		-> decltype(token_or_quoted_word(std::begin(container),
+						 std::end(container)))
 #endif
 	{
-		return token_or_quoted_word(container.begin(),
-					    container.end());
+		return token_or_quoted_word(std::begin(container),
+					    std::end(container));
 	}
 };
 

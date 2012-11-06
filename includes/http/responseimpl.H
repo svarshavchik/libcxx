@@ -25,6 +25,8 @@ namespace LIBCXX_NAMESPACE {
 };
 #endif
 
+class cookie;
+
 class response_exception;
 
 //! HTTP informational responses are in the 1xx range.
@@ -128,6 +130,13 @@ public:
 
 	//! Get the server's current date
 	ymdhms getCurrentDate() const;
+
+	//! Get cookies in the response
+	void getCookies(//! Any cookies are placed here
+			std::list<cookie> &cookies);
+
+	//! Add a cookie
+	void addCookie(const cookie &c);
 
 	//! Set all the non-caching headers.
 

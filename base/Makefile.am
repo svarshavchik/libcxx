@@ -104,6 +104,7 @@ libcxx_la_SOURCES=\
 	http_clientauthobj.C	\
 	http_clientimpl.C	\
 	http_content_type_header.C \
+	http_cookie.C           \
 	http_exception.C	\
 	http_fdclientimpl.C	\
 	http_fdclientobj.C	\

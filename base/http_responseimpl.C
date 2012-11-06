@@ -7,15 +7,21 @@
 #include "x/ymdhms.H"
 #include "x/http/responseimpl.H"
 #include "x/http/exception.H"
+#include "x/http/cookie.H"
 #include "x/logger.H"
 #include "x/tokens.H"
 #include "x/join.H"
 #include "x/ymdhms.H"
+#include "x/tzfile.H"
+#include "x/locale.H"
+#include "x/uriimpl.H"
+#include "x/tokens.H"
 #include "gettext_in.h"
 
 #include <sstream>
 #include <functional>
 #include <cctype>
+#include <algorithm>
 
 namespace LIBCXX_NAMESPACE {
 	namespace http {
@@ -365,6 +371,158 @@ void responseimpl::save_auth_header(const char *header,
 				    const std::list<std::string> &word_list)
 {
 	append(header, join(word_list, ", "));
+}
+
+LOG_FUNC_SCOPE_DECL(LIBCXX_NAMESPACE::http::getCookies, cookiesLogger);
+
+static const char set_cookie[]="Set-Cookie";
+
+void responseimpl::getCookies(std::list<cookie> &cookies)
+{
+	LOG_FUNC_SCOPE(cookiesLogger);
+
+	auto current_date=getCurrentDate();
+
+	for (auto cookie_headers=equal_range(set_cookie);
+	     cookie_headers.first != cookie_headers.second;
+	     ++cookie_headers.first)
+	{
+		try {
+			cookie c;
+			bool first=true;
+			time_t expires_given=0;
+			int max_age=0;
+
+			headersbase::parse_structured_header
+				([](char c)
+				 {
+					 return c == ';';
+				 },
+				 [&c, &first, &expires_given, &max_age, &logger]
+				 (bool ignore, const std::string &word)
+				 {
+					 auto b=word.begin();
+					 auto e=word.end();
+					 auto p=std::find(b, e, '=');
+
+					 std::string name_str(b, p);
+					 if (p != e)
+						 ++p;
+
+					 std::string value_str(p, e);
+
+					 if (first)
+					 {
+						 first=false;
+
+						 c.name=name_str;
+						 c.value=value_str;
+						 return;
+					 }
+
+					 std::transform(name_str.begin(),
+							name_str.end(),
+							name_str.begin(),
+							chrcasecmp::tolower);
+
+					 if (name_str == "max-age")
+					 {
+						 std::istringstream
+							 i(value_str);
+
+						 i >> max_age;
+						 return;
+					 }
+
+					 if (name_str == "domain")
+					 {
+						 c.domain=value_str;
+						 return;
+					 }
+
+					 if (name_str == "path")
+					 {
+						 c.path=value_str;
+						 return;
+					 }
+
+					 if (name_str == "secure")
+					 {
+						 c.secure=true;
+						 return;
+					 }
+
+					 if (name_str == "httponly")
+					 {
+						 c.httponly=true;
+						 return;
+					 }
+
+					 if (name_str != "expires")
+						 return;
+
+					 try {
+						 expires_given=
+							 ymdhms(value_str,
+								tzfile::base
+								::utc(),
+								locale
+								::create("C"));
+					 } catch (const exception &e)
+					 {
+						 LOG_WARNING(e);
+						 LOG_TRACE(e->backtrace);
+					 }
+					 return;
+				 }, cookie_headers.first->second.begin(),
+				 cookie_headers.first->second.end());
+
+			if (max_age > 0)
+			{
+				c.expiration=max_age+current_date;
+			}
+			else if (expires_given)
+			{
+				c.expiration=expires_given;
+			}
+			cookies.push_back(c);			
+		} catch (const exception &e)
+		{
+			LOG_WARNING(e);
+			LOG_TRACE(e->backtrace);
+		}
+	}
+}
+
+void responseimpl::addCookie(const cookie &c)
+{
+	std::ostringstream o;
+
+	o << c.name << "="
+	  << tokenizer<is_http_token>::token_or_quoted_word(c.value);
+
+	if (c.expiration != (time_t)-1)
+		o << "; Expires="
+		  << tokenizer<is_http_token>
+			::token_or_quoted_word((std::string)
+					       strftime(c.expiration,
+							tzfile::base::utc(),
+							locale::create("C"))
+					       ("%a, %d %b %Y %H:%M:%S GMT"));
+
+	if (!c.domain.empty())
+		o << "; Domain=" << c.domain;
+
+	if (!c.path.empty())
+		o << "; Path=" << c.path;
+
+	if (c.secure)
+		o << "; Secure";
+
+	if (c.httponly)
+		o << "; HttpOnly";
+
+	append(set_cookie, o.str());
 }
 
 template std::istreambuf_iterator<char>
