@@ -105,6 +105,9 @@ libcxx_la_SOURCES=\
 	http_clientimpl.C	\
 	http_content_type_header.C \
 	http_cookie.C           \
+	http_cookiejarobj.C     \
+	http_cookiemrulist.C    \
+	http_domaincookies.C http_domaincookies.H \
 	http_exception.C	\
 	http_fdclientimpl.C	\
 	http_fdclientobj.C	\
@@ -113,11 +116,13 @@ libcxx_la_SOURCES=\
 	http_fdserverimpl.C	\
 	http_form.C		\
 	http_messageimpl.C	\
+	http_pathcookies.C http_pathcookies.H \
 	http_receiverimpl.C	\
 	http_requestimpl.C	\
 	http_responseimpl.C	\
 	http_senderimpl.C	\
 	http_serverimpl.C	\
+	http_storedcookie.C http_storedcookie.H \
 	http_useragentobj.C	\
 	httportmap.C		\
 	iconviofilter.C		\

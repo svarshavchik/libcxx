@@ -9,7 +9,12 @@
 #include "x/chrcasecmp.H"
 #include "x/strtok.H"
 #include "x/join.H"
+#include "x/tzfile.H"
+#include "x/locale.H"
+#include "x/ymdhms.H"
+#include "x/strftime.H"
 #include <algorithm>
+#include <type_traits>
 
 namespace LIBCXX_NAMESPACE {
 	namespace http {
@@ -126,6 +131,48 @@ std::string cookie::getValidatedDomain(const uriimpl &request_uri) const
 		return "";
 
 	return domain_str;
+}
+
+std::string cookie::expires_as_string() const
+{
+	auto utc=tzfile::base::utc();
+
+	ymdhms time(ymd::max(), hms(23, 59, 59), utc);
+
+	try {
+		time=ymdhms(expiration, utc);
+	} catch (...)
+	{
+	}
+
+	return strftime(time, locale::create("C"))
+		("%a, %d %b %Y %H:%M:%S GMT");
+}
+
+time_t cookie::expires_from_str(const std::string &value_str)
+{
+	auto expires=ymdhms(value_str,tzfile::base::utc(),
+			    locale::create("C"));
+
+	auto epoch=ymdhms((time_t)0, tzfile::base::utc());
+
+	if ((ymd)expires < (ymd)epoch)
+		expires=epoch;
+
+	// If we can't make the
+	// conversion, assume overflow
+	// and take the epoch end.
+	
+	time_t expires_given=
+		((std::make_unsigned<time_t>::type)-1) >> 1;
+
+	try {
+		expires_given=expires;
+	} catch (...)
+	{
+	}
+
+	return expires_given;
 }
 
 #if 0

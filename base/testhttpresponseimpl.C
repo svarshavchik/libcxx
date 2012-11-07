@@ -13,7 +13,10 @@
 #include "x/headersimpl.H"
 #include "x/ymdhms.H"
 #include "x/options.H"
+#include "x/http/cookiejar.H"
+#include "x/property_properties.H"
 #include <set>
+#include <map>
 #include <iostream>
 #include <sstream>
 #include <iterator>
@@ -213,6 +216,12 @@ void testgetcookies()
 		 "Date: Sun, 04 Nov 2012 12:00:00 GMT\r\n"
 		 "\r\n",
 		 "test10name2=value2,,.example.com,/foo,0,0|"},
+
+		{"HTTP/1.0 200 Ok\r\n"
+		 "Set-Cookie: test11=\"value\xA0\"; domain=example.com; path=/foo/\r\n"
+		 "Date: Sun, 04 Nov 2012 12:00:00 GMT\r\n"
+		 "\r\n",
+		 ""},
 	};
 
 	for (const auto &test:tests)
@@ -266,6 +275,346 @@ void testgetcookies()
 	}
 }
 
+void testallcookiestest(const LIBCXX_NAMESPACE::http::cookiejar &jar,
+
+			const LIBCXX_NAMESPACE::uriimpl &uri,
+			const std::string &set_cookie,
+
+			const LIBCXX_NAMESPACE::uriimpl &request_uri,
+			const std::string &expected_cookies,
+			bool for_http=true)
+{
+	LIBCXX_NAMESPACE::http::responseimpl resp;
+
+	std::string str("HTTP/1.0 200 Ok\r\nSet-Cookie: "
+			+ set_cookie + "\r\n\r\n");
+
+	resp.parse(str.begin(), str.end(), 10000);
+
+	jar->store(uri, resp);
+
+	std::list<std::pair<std::string, std::string> > cookies;
+
+	jar->find(request_uri, cookies, for_http);
+
+	std::ostringstream o;
+
+	for (const auto &cookie:cookies)
+	{
+		o << cookie.first << "=" << cookie.second << "|";
+	}
+
+	if (o.str() != expected_cookies)
+		throw EXCEPTION("Expected " + expected_cookies +
+				", but got " + o.str());
+}
+
+void testallcookiestest(const LIBCXX_NAMESPACE::uriimpl &uri,
+			const std::string &set_cookie,
+
+			const LIBCXX_NAMESPACE::uriimpl &request_uri,
+			const std::string &expected_cookies,
+			bool for_http=true)
+{
+	testallcookiestest(LIBCXX_NAMESPACE::http::cookiejar::create(),
+			   uri, set_cookie, request_uri, expected_cookies,
+			   for_http);
+}
+
+void testallcookies()
+{
+	// Path
+
+	testallcookiestest("http://subdomain.example.com/subdir/path",
+			   "test1=value1",
+			   "http://subdomain.example.com/subdir/path",
+			   "test1=value1|");
+
+	testallcookiestest("http://subdomain.example.com/subdir/path",
+			   "test2=value2",
+			   "http://subdomain.example.com/subdir/path/subpath",
+			   "test2=value2|");
+
+	testallcookiestest("http://subdomain.example.com/subdir/path",
+			   "test3=value3",
+			   "http://subdomain.example.com/subdir",
+			   "test3=value3|");
+	testallcookiestest("http://subdomain.example.com/subdir/path",
+			   "test4=value4",
+			   "http://subdomain.example.com/subdir/",
+			   "test4=value4|");
+	testallcookiestest("http://subdomain.example.com/subdir/path",
+			   "test5=value5",
+			   "http://subdomain.example.com/",
+			   "");
+
+	// Origin server only
+
+	testallcookiestest("http://subdomain.example.com/subdir/path",
+			   "test6=value6",
+			   "http://deeper.subdomain.example.com/subdir/path",
+			   "");
+
+	testallcookiestest("http://Subdomain.example.com/subdir/path",
+			   "test7=value7; domain=subdomain.example.com",
+			   "http://subdomain.Example.com/subdir/path",
+			   "test7=value7|");
+
+	testallcookiestest("http://subdomain.example.com/subdir/path",
+			   "test8=value8; domain=subdomain.example.Com",
+			   "http://deeper.subdomain.example.com/subdir/path",
+			   "test8=value8|");
+
+	testallcookiestest("http://subdomain.example.com/subdir/path",
+			   "test9=value9; domain=subdomain.example.com",
+			   "http://example.com/subdir/path",
+			   "");
+
+	// Ignore leading period
+
+	testallcookiestest("http://Subdomain.example.com/subdir/path",
+			   "test10=value10; domain=.subdomain.example.com",
+			   "http://subdomain.Example.com/subdir/path",
+			   "test10=value10|");
+
+	testallcookiestest("http://subdomain.example.com/subdir/path",
+			   "test11=value11; domain=.subdomain.example.Com",
+			   "http://deeper.subdomain.example.com/subdir/path",
+			   "test11=value11|");
+
+	testallcookiestest("http://subdomain.example.com/subdir/path",
+			   "test12=value12; domain=.subdomain.example.com",
+			   "http://example.com/subdir/path",
+			   "");
+
+	// Replacement
+
+	{
+		auto jar=LIBCXX_NAMESPACE::http::cookiejar::create();
+
+		testallcookiestest(jar, "http://example.com/subdir/path",
+				   "test12=value12; domain=.example.com",
+				   "http://example.com/subdir/path",
+				   "test12=value12|");
+
+		testallcookiestest(jar, "http://example.com/subdir/path",
+				   "test12=value12b; domain=.example.com",
+				   "http://example.com/subdir/path",
+				   "test12=value12b|");
+
+		// #13 should appear in the list first, since it's path is
+		// longest.
+
+		testallcookiestest(jar, "http://example.com/subdir/path/sub",
+				   "test13=value13; domain=.example.com",
+				   "http://example.com/subdir/path/sub",
+				   "test13=value13|test12=value12b|");
+	}
+
+	// Test path attribute
+
+	testallcookiestest("http://subdomain.example.com/",
+			   "test14=value14; domain=.subdomain.example.com; path=/subdir",
+			   "http://subdomain.example.com/",
+			   "");
+
+	testallcookiestest("http://subdomain.example.com/",
+			   "test15=value15; domain=.subdomain.example.com; path=/subdir",
+			   "http://subdomain.example.com/subdir",
+			   "test15=value15|");
+
+	// Testing secure
+
+	testallcookiestest("http://subdomain.example.com/",
+			   "test16=value16; domain=.subdomain.example.com; secure",
+			   "http://subdomain.example.com/",
+			   "");
+
+	testallcookiestest("http://subdomain.example.com/",
+			   "test17=value17; domain=.subdomain.example.com; secure",
+			   "HTTPS://subdomain.example.com/",
+			   "test17=value17|");
+
+	// Testing httponly
+
+	testallcookiestest("http://subdomain.example.com/",
+			   "test18=value18; domain=.subdomain.example.com; httponly",
+			   "http://subdomain.example.com/",
+			   "", false);
+
+	testallcookiestest("http://subdomain.example.com/",
+			   "test19=value19; domain=.subdomain.example.com; httponly",
+			   "http://subdomain.example.com/",
+			   "test19=value19|");
+
+	// Testing expiration
+
+	auto yesterday=
+		LIBCXX_NAMESPACE::ymdhms(time(NULL)-24 * 60 * 60,
+					 LIBCXX_NAMESPACE::tzfile::base::utc());
+
+	auto tomorrow=
+		LIBCXX_NAMESPACE::ymdhms(time(NULL)+24 * 60 * 60,
+					 LIBCXX_NAMESPACE::tzfile::base::utc());
+
+	testallcookiestest("http://subdomain.example.com/",
+			   "test20=value20; domain=.subdomain.example.com; "
+			   "Expires=\""
+			   + yesterday.toString(LIBCXX_NAMESPACE::locale
+						::create("C"),
+						"%a, %d %b %Y %H:%M:%S GMT")
+			   + "\"",
+			   "http://subdomain.example.com/",
+			   "");
+
+	testallcookiestest("http://subdomain.example.com/",
+			   "test22=value22; domain=.subdomain.example.com; "
+			   "Expires=\""
+			   + tomorrow.toString(LIBCXX_NAMESPACE::locale
+					       ::create("C"),
+					       "%a, %d %b %Y %H:%M:%S GMT")
+			   + "\"",
+			   "http://subdomain.example.com/",
+			   "test22=value22|");
+}
+
+void dostorecookiejar(const LIBCXX_NAMESPACE::http::cookiejar &jar,
+		      const std::string &uri,
+		      const std::string &cookie)
+{
+	LIBCXX_NAMESPACE::http::responseimpl resp;
+
+	std::string str="HTTP/1.0 200 Ok\r\n"
+		"Set-Cookie: " + cookie + "\r\n\r\n";
+
+	resp.parse(str.begin(), str.end(), 10000);
+
+	jar->store(uri, resp);
+}
+
+void storecookiejar(const LIBCXX_NAMESPACE::http::cookiejar &jar)
+{
+}
+
+template<typename ...Args>
+void storecookiejar(const LIBCXX_NAMESPACE::http::cookiejar &jar,
+		    const std::string &uri,
+		    const std::string &cookie,
+		    Args && ...args)
+{
+	dostorecookiejar(jar, uri, cookie);
+	storecookiejar(jar, std::forward<Args>(args)...);
+}
+
+void checkcookiejar(const LIBCXX_NAMESPACE::http::cookiejar &jar,
+		    const std::string &expected)
+{
+	std::map<std::string, std::string> cookies;
+
+	for (auto b=jar->begin(), e=jar->end(); b != e; )
+	{
+		auto c= *b++;
+
+		cookies[c.name]=c.value;
+	}
+
+	std::ostringstream o;
+
+	for (const auto &cookie:cookies)
+	{
+		o << cookie.first << "=" << cookie.second << "|";
+	}
+
+	std::string s=o.str();
+
+	if (s != expected)
+		throw EXCEPTION("testcookieiter: expected " + expected
+				+ ", but got " + s);
+}
+
+void testcookieiter()
+{
+	auto jar=LIBCXX_NAMESPACE::http::cookiejar::create();
+
+	checkcookiejar(jar, "");
+
+	storecookiejar(jar,
+		       "http://subdomain.example.com",
+		       "name1=value1; path=\"/subdir\"; domain=.example.com",
+		       "http://subdomain.example.com",
+		       "name2=value2; path=\"/subdir\"; domain=.example.com",
+		       "http://subdomain.example.com",
+		       "name3=value3; path=\"/images/local/subdir\"; domain=.example.com",
+		       "http://domain.com/images/subdir",
+		       "name4=value4; domain=.domain.com");
+
+	checkcookiejar(jar, "name1=value1|name2=value2|name3=value3|name4=value4|");
+
+	storecookiejar(jar,
+		       "http://subdomain.example.com",
+		       "name0=value0; path=\"/subdir\"; domain=.example.com; expires=\"01 Jan 1960 00:00:00 GMT");
+
+	checkcookiejar(jar, "name1=value1|name2=value2|name3=value3|name4=value4|");
+
+	storecookiejar(jar,
+		       "http://domain.com/images/subdir",
+		       "name4=value4; domain=.domain.com; expires=\"01 Jan 1960 00:00:00 GMT");
+	checkcookiejar(jar, "name1=value1|name2=value2|name3=value3|");
+		       
+}
+
+void testcookielimits()
+{
+	LIBCXX_NAMESPACE::property::load_property
+		(LIBCXX_NAMESPACE_WSTR "::http::cookiejar::max", L"3",
+		 true, true);
+
+	LIBCXX_NAMESPACE::property::load_property
+		(LIBCXX_NAMESPACE_WSTR "::http::cookiejar::domainmax", L"2",
+		 true, true);
+
+	LIBCXX_NAMESPACE::property::load_property
+		(LIBCXX_NAMESPACE_WSTR "::http::cookiejar::cookiebytesmax",
+		 L"50", true, true);
+
+
+	auto jar=LIBCXX_NAMESPACE::http::cookiejar::create();
+
+	storecookiejar(jar,
+		       "http://subdomain.example.com",
+		       "limit2big=01234567890123456789012345678901234567890123456789; path=\"/subdir\"; domain=.example.com");
+	// Cookie too large
+	checkcookiejar(jar, "");
+
+	// Max two cookies per domain
+	storecookiejar(jar,
+		       "http://subdomain.example.com",
+		       "limit1=value1; path=\"/subdir/subdir2\"; domain=.example.com",
+		       "http://subdomain.example.com",
+		       "limit2=value2; path=\"/subdir\"; domain=.example.com",
+		       "http://subdomain.example.com",
+		       "limit3=value3; path=\"/subdir\"; domain=.example.com");
+	checkcookiejar(jar, "limit2=value2|limit3=value3|");
+
+	// Cookie in another domain
+	storecookiejar(jar,
+		       "http://subdomain1.domain.com",
+		       "limit4=value4; path=\"/subdir\"; domain=.subdomain1.domain.com");
+	checkcookiejar(jar, "limit2=value2|limit3=value3|limit4=value4|");
+
+	// Max 3 cookies in a jar
+	storecookiejar(jar,
+		       "http://subdomain1.domain.com",
+		       "limit5=value5; path=\"/subdir\"; domain=.subdomain1.domain.com");
+
+	checkcookiejar(jar, "limit3=value3|limit4=value4|limit5=value5|");
+
+	storecookiejar(jar,
+		       "http://subdomain2.domain.com",
+		       "limit6=value6; path=\"/subdir\"; domain=.subdomain2.domain.com");
+	checkcookiejar(jar, "limit4=value4|limit5=value5|limit6=value6|");
+}
+
 int main(int argc, char **argv)
 {
 	try {
@@ -299,6 +648,9 @@ int main(int argc, char **argv)
 		testhttpresponseimpl();
 		testchallenges();
 		testgetcookies();
+		testallcookies();
+		testcookieiter();
+		testcookielimits();
 		testsetcurrentdate();
 	} catch (LIBCXX_NAMESPACE::exception &e)
 	{

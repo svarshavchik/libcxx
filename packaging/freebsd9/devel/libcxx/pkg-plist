@@ -176,6 +176,11 @@ include/x/http/clientimpl_t.H
 include/x/http/clientimpl_to.H
 include/x/http/clientopts_t.H
 include/x/http/content_type_header.H
+include/x/http/cookie.H
+include/x/http/cookiejar.H
+include/x/http/cookiejarfwd.H
+include/x/http/cookiejarobj.H
+include/x/http/cookiemrulist.H
 include/x/http/discardoutput.H
 include/x/http/exception.H
 include/x/http/fdclient.H

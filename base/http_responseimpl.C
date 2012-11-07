@@ -11,17 +11,18 @@
 #include "x/logger.H"
 #include "x/tokens.H"
 #include "x/join.H"
-#include "x/ymdhms.H"
 #include "x/tzfile.H"
 #include "x/locale.H"
 #include "x/uriimpl.H"
 #include "x/tokens.H"
+#include "x/tostring.H"
 #include "gettext_in.h"
 
 #include <sstream>
 #include <functional>
 #include <cctype>
 #include <algorithm>
+#include <type_traits>
 
 namespace LIBCXX_NAMESPACE {
 	namespace http {
@@ -377,20 +378,33 @@ LOG_FUNC_SCOPE_DECL(LIBCXX_NAMESPACE::http::getCookies, cookiesLogger);
 
 static const char set_cookie[]="Set-Cookie";
 
-void responseimpl::getCookies(std::list<cookie> &cookies)
+void responseimpl::getCookies(std::list<cookie> &cookies) const
 {
 	LOG_FUNC_SCOPE(cookiesLogger);
 
 	auto current_date=getCurrentDate();
+
+	auto utf8=locale::base::utf8();
 
 	for (auto cookie_headers=equal_range(set_cookie);
 	     cookie_headers.first != cookie_headers.second;
 	     ++cookie_headers.first)
 	{
 		try {
+			(void)towstring(std::string(cookie_headers.first
+						    ->second.begin(),
+						    cookie_headers.first
+						    ->second.end()), utf8);
+		} catch (...)
+		{
+			LOG_WARNING("Set-Cookie: header cannot be parsed as a UTF-8 string");
+			continue;
+		}
+
+		try {
 			cookie c;
 			bool first=true;
-			time_t expires_given=0;
+			time_t expires_given=(time_t)-1;
 			int max_age=0;
 
 			headersbase::parse_structured_header
@@ -462,12 +476,9 @@ void responseimpl::getCookies(std::list<cookie> &cookies)
 						 return;
 
 					 try {
-						 expires_given=
-							 ymdhms(value_str,
-								tzfile::base
-								::utc(),
-								locale
-								::create("C"));
+						 expires_given=cookie
+							 ::expires_from_str
+							 (value_str);
 					 } catch (const exception &e)
 					 {
 						 LOG_WARNING(e);
@@ -481,7 +492,7 @@ void responseimpl::getCookies(std::list<cookie> &cookies)
 			{
 				c.expiration=max_age+current_date;
 			}
-			else if (expires_given)
+			else if (expires_given != (time_t)-1)
 			{
 				c.expiration=expires_given;
 			}
@@ -504,11 +515,7 @@ void responseimpl::addCookie(const cookie &c)
 	if (c.expiration != (time_t)-1)
 		o << "; Expires="
 		  << tokenizer<is_http_token>
-			::token_or_quoted_word((std::string)
-					       strftime(c.expiration,
-							tzfile::base::utc(),
-							locale::create("C"))
-					       ("%a, %d %b %Y %H:%M:%S GMT"));
+			::token_or_quoted_word(c.expires_as_string());
 
 	if (!c.domain.empty())
 		o << "; Domain=" << c.domain;

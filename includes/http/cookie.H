@@ -39,6 +39,24 @@ public:
 
 	time_t expiration;
 
+	//! Whether the cookie expires
+
+	bool has_expiration() const
+	{
+		return expiration != (time_t)-1;
+	}
+
+	//! Convert the expiration to a string, in HTTP date+time GMT format
+
+	std::string expires_as_string() const;
+
+	//! The opposite conversion.
+
+	//! Times before epoch are converted to (time_t)0. Times past the
+	//! epoch are converted to the largest possible time_t.
+
+	static time_t expires_from_str(const std::string &value_str);
+
 	//! Given domain, in lowercase.
 
 	//! Begins with a dot, if attribute present in the cookie, otherwise

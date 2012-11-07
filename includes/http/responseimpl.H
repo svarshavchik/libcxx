@@ -133,7 +133,7 @@ public:
 
 	//! Get cookies in the response
 	void getCookies(//! Any cookies are placed here
-			std::list<cookie> &cookies);
+			std::list<cookie> &cookies) const;
 
 	//! Add a cookie
 	void addCookie(const cookie &c);
