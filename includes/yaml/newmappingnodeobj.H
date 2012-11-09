@@ -22,7 +22,7 @@ namespace LIBCXX_NAMESPACE {
 
 //! A mapping new node in a new yaml document.
 
-template<typename container_type, typename functor_type>
+template<typename functor_type>
 class newmappingnodeObj : public newnodeObj {
 
 	//! The functor which returns the map to write
@@ -53,19 +53,9 @@ private:
 
 	void write(writerObj &obj) const override
 	{
-		newmapping<container_type> info;
+		newmapping info(obj);
 
 		functor(info);
-
-		obj.write_mapping_start(info.anchor, info.tag,
-				       info.implicit, info.style);
-
-		for (const auto & n:info.container)
-		{
-			const_newnode(n.first)->write(obj);
-			const_newnode(n.second)->write(obj);
-		}
-		obj.write_mapping_end();
 	}
 };
 

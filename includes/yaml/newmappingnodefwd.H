@@ -17,12 +17,9 @@ namespace LIBCXX_NAMESPACE {
 }
 #endif
 
-template<typename container_type=std::list<std::pair<const_newnode,
-						     const_newnode> > >
-struct newmapping;
+class newmapping;
 
-template<typename container_type, typename functor_type>
-class newmappingnodeObj;
+template<typename functor_type> class newmappingnodeObj;
 
 #if 0
 {

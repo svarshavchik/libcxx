@@ -32,38 +32,39 @@ const highest_point continent_list[]={
 
 x::yaml::newnode highest_point_to_yaml(const highest_point &hp)
 {
-	// x::yaml::newmapping<>::create constructs an x::yaml::newnode that
+	// x::yaml::newmapping::create constructs an x::yaml::newnode that
 	// invokes a functor that creates a mapping, when writing the
 	// document. Note that hp is captured by value, so that the
 	// highest_point argument, that's passed by reference, is safely
 	// tucked away in the lambda.
 
-	return x::yaml::newmapping<>::create
+	return x::yaml::newmapping::create
 		([hp]
-		 (x::yaml::newmapping<> &info)
+		 (x::yaml::newmapping &info)
 		 {
+			 std::list<std::pair<x::yaml::newnode,
+					     x::yaml::newnode> > list;
+
 			 // Fill the container with the mapping.
 
-			 info.container
-				 .push_back(std::make_pair
-					    (x::yaml::newscalarnode::create
-					     ("continent"),
-					     x::yaml::newscalarnode::create
-					     (hp.continent)));
-			 info.container
-				 .push_back(std::make_pair
-					    (x::yaml::newscalarnode::create
-					     ("highest_point"),
-					     x::yaml::newscalarnode::create
-					     (hp.name)));
-			 info.container
-				 .push_back(std::make_pair
-					    (x::yaml::newscalarnode::create
-					     ("country"),
-					     x::yaml::newscalarnode::create
-					     (hp.country)));
+			 list.push_back(std::make_pair
+					(x::yaml::newscalarnode::create
+					 ("continent"),
+					 x::yaml::newscalarnode::create
+					 (hp.continent)));
+			 list.push_back(std::make_pair
+					(x::yaml::newscalarnode::create
+					 ("highest_point"),
+					 x::yaml::newscalarnode::create
+					 (hp.name)));
+			 list.push_back(std::make_pair
+					(x::yaml::newscalarnode::create
+					 ("country"),
+					 x::yaml::newscalarnode::create
+					 (hp.country)));
 
 			 info.style=YAML_FLOW_MAPPING_STYLE;
+			 info(list.begin(), list.end());
 		 });
 }
 
@@ -73,18 +74,20 @@ x::yaml::newnode list_of_highest_points_to_yaml()
 	// invokes the given functor to create a sequence, when writing the
 	// document.
 
-	return x::yaml::newsequence<>::create
+	return x::yaml::newsequence::create
 		([]
-		 (x::yaml::newsequence<> &info)
+		 (x::yaml::newsequence &info)
 		 {
 			 // Iterate over the array. Use highest_point_to_yaml()
 			 // to construct a node for each element in the array.
 
+			 std::list<x::yaml::newnode> list;
+
 			 for (const highest_point &hp:continent_list)
 			 {
-				 info.container
-					 .push_back(highest_point_to_yaml(hp));
+				 list.push_back(highest_point_to_yaml(hp));
 			 }
+			 info(list.begin(), list.end());
 		 });
 }
 

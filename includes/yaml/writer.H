@@ -95,6 +95,7 @@ public:
 	options &setwidth(int opt)
 	{
 		width=opt;
+		return *this;
 	}
 
 	//! Constructor

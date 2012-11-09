@@ -16,6 +16,7 @@
 #include <x/ptr.H>
 
 #include <iterator>
+#include <cstddef>
 
 namespace LIBCXX_NAMESPACE {
 
@@ -41,7 +42,7 @@ public:
 template<typename functor_type>
 void sequencenodeObj::for_each(functor_type &&functor)
 {
-	for (size_t i=0; ; ++i)
+	for (std::ptrdiff_t i=0; ; ++i)
 	{
 		yaml_node_item_t item=({
 				documentObj::readlock_t

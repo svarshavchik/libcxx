@@ -51,12 +51,8 @@ public:
 	friend class writer;
 	friend class newscalarnodeObj;
 	friend class newaliasnodeObj;
-
-	template<typename container_type, typename functor_type>
-	friend class newsequencenodeObj;
-
-	template<typename container_type, typename functor_type>
-	friend class newmappingnodeObj;
+	friend class newsequence;
+	friend class newmapping;
 
 private:
 	//! Emit a document

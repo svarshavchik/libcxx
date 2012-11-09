@@ -44,8 +44,8 @@ node sequencenodeObj::get(size_t i) const
 
 			auto ptr=n->getNode(lock);
 
-			if (i >= ptr->data.sequence.items.top -
-			    ptr->data.sequence.items.start)
+			if ((size_t)(i >= ptr->data.sequence.items.top -
+				     ptr->data.sequence.items.start))
 				throw EXCEPTION(_("YAML sequence index out of range"));
 
 			ptr->data.sequence.items.start[i];

@@ -219,58 +219,36 @@ auto doc=x::yaml::make_newdocumentnode
     <blockquote>
       <informalexample>
 	<programlisting>
-&ns;::yaml::newnode seq=&ns;::yaml::newsequence&lt;&gt;::create
+&ns;::yaml::newnode seq=&ns;::yaml::newsequence::create
     ([]
-    (x::yaml::newsequence&lt;&gt; &amp;info)
+    (x::yaml::newsequence &amp;info)
     {
-        info.container.push_back(&ns;::yaml::newscalarnode::create("apple"));
-        info.container.push_back(&ns;::yaml::newscalarnode::create("fruit"));
-        info.container.push_back(&ns;::yaml::newscalarnode::create("banana"));
+        std::list&lt;&ns;::yaml::newnode&gt; list;
+
+        list.push_back(&ns;::yaml::newscalarnode::create("apple"));
+        list.push_back(&ns;::yaml::newscalarnode::create("fruit"));
+        list.push_back(&ns;::yaml::newscalarnode::create("banana"));
+        info(list.begin(), list.end());
     });</programlisting>
       </informalexample>
     </blockquote>
 
     <para>
-      <ulink url="&link-function-x--yaml--newsequence-create;"><function>&ns;::yaml::newsequence&lt;<replaceable>container_type</replaceable>&gt;::create</function></ulink>()
+      <ulink url="&link-x--yaml--newsequence;"><function>&ns;::yaml::newsequence::create</function></ulink>()
       constructs a
       <link linkend="yamlwriternewnode"><classname>&ns;::yaml::newnode</classname></link>
       that writes a sequence in a <acronym>YAML</acronym> document.
     </para>
 
     <para>
-      The <replaceable>container_type</replaceable> template parameter defines
-      the class for a temporary container where the sequence gets constructed,
-      before it gets written. If not specified, it defaults to a
-      <classname>std::list&lt;<link linkend="yamlwriternewnode">&ns;::yaml::const_newnode</link>&gt;</classname>.
-      Any container class can be used as long as it has a default
-      constructor, and iterates over
-      <classname>&ns;::yaml::newnode</classname>s or
-      <classname>&ns;::yaml::const_newnode</classname>s.
-    </para>
-
-    <para>
       <function>create</function>() takes a lambda or a functor for a
       parameter, which gets called to define the sequence.
       The lambda functor takes one parameter, an instance of
-      <classname>&ns;::yaml::newsequence&lt;<replaceable>container_type</replaceable>&gt;</classname> that's passed by reference, with the following
-      members:
+      <classname>&ns;::yaml::newsequence</classname> that's passed by reference,
+      with the following members:
     </para>
 
     <variablelist>
-      <varlistentry>
-	<term><varname>container</varname></term>
-	<listitem>
-	  <para>
-	    The <classname><replaceable>container_type</replaceable></classname>
-	    template parameter, the container created by its default
-	    constructor. The lambda/functor should construct the
-	    sequence's values, as
-	    <link linkend="yamlwriternewnode"><classname>&ns;::yaml::newnode</classname></link>s,
-	    and put them into the <varname>container</varname>.
-	  </para>
-	</listitem>
-      </varlistentry>
-
       <varlistentry>
 	<term><varname>anchor</varname></term>
 	<listitem>
@@ -318,6 +296,19 @@ auto doc=x::yaml::make_newdocumentnode
 	</listitem>
       </varlistentry>
     </variablelist>
+
+    <para>
+      The lambda/functor can modify these members from their default values
+      before invoking the object's <function>()</function> operator, which
+      takes two parameters, a beginning and an ending iterator.
+      The above example creates a temporary list of
+      <link linkend="yamlwriternewnode"><classname>&ns;::yaml::newnode</classname></link>s
+      but the iterators can be of any type that define an input sequence
+      over <classname>&ns;::yaml::newnode</classname>s or
+      <classname>&ns;::yaml::const_newnode</classname>; this sequence defines
+      the <acronym>YAML</acronym> sequence that gets written to the new
+      document.
+    </para>
   </section>
 
   <section id="yamlwritemapping">
@@ -334,65 +325,43 @@ struct highest_point {
 
 x::yaml::newnode highest_point_to_yaml(const highest_point &amp;hp)
 {
-    return &ns;::yaml::newmapping&lt;&gt;::create
+    return &ns;::yaml::newmapping::create
         ([hp]
-        (x::yaml::newmapping&lt;&gt; &amp;info)
+        (x::yaml::newmapping &amp;info)
         {
-            info.container.push_back(
+            std::list&lt;std::pair&lt;&ns;::yaml::newnode, &ns;::yaml::newnode&gt;&gt; list;
+
+            list.push_back(
                 std::make_pair(&ns;::yaml::newscalarnode::create("continent"),
                                &ns;::yaml::newscalarnode::create(hp.continent)));
-            info.container.push_back(
+            list.push_back(
                 std::make_pair(&ns;::yaml::newscalarnode::create("name"),
                                &ns;::yaml::newscalarnode::create(hp.name)));
-            info.container.push_back(
+            list.push_back(
                 std::make_pair(&ns;::yaml::newscalarnode::create("country"),
                                &ns;::yaml::newscalarnode::create(hp.country)));
+            info(list.begin(), list.end());
         });
 }</programlisting>
       </informalexample>
     </blockquote>
 
     <para>
-      <ulink url="&link-function-x--yaml--newmapping-create;"><function>&ns;::yaml::newmapping&lt;<replaceable>container_type</replaceable>&gt;::create</function></ulink>()
+      <ulink url="&link-x--yaml--newmapping;"><function>&ns;::yaml::newmapping::create</function></ulink>()
       constructs a
       <link linkend="yamlwriternewnode"><classname>&ns;::yaml::newnode</classname></link>
       that writes a mapping in a <acronym>YAML</acronym> document.
     </para>
 
     <para>
-      The <replaceable>container_type</replaceable> template parameter defines
-      the class for a temporary container where the mapping gets constructed,
-      before it gets written. If not specified, it defaults to a
-      <classname>std::pair</classname>
-      of <link linkend="yamlwriternewnode"><classname>&ns;::yaml::const_newnode</classname></link>s.
-      Any container class can be used as long as it has a default
-      constructor, and iterates over a <classname>std::pair</classname> of
-      <classname>&ns;::yaml::newnode</classname>s or
-      <classname>&ns;::yaml::const_newnode</classname>s.
-    </para>
-
-    <para>
       <function>create</function>() takes a lambda or a functor for a
       parameter, which gets called to define the mapping.
       The lambda functor takes one parameter, an instance of
-      <classname>&ns;::yaml::newmapping&lt;<replaceable>container_type</replaceable>&gt;</classname> that's passed by reference, with the following
-      members:
+      <classname>&ns;::yaml::newmapping</classname> that's passed by reference,
+      with the following members:
     </para>
 
     <variablelist>
-      <varlistentry>
-	<term><varname>container</varname></term>
-	<listitem>
-	  <para>
-	    The <classname><replaceable>container_type</replaceable></classname>
-	    template parameter, the container created by its default
-	    constructor. The lambda/functor should construct the
-	    mapping's values, as appropriate <classname>std::pair</classname>s,
-	    and put them into the <varname>container</varname>.
-	  </para>
-	</listitem>
-      </varlistentry>
-
       <varlistentry>
 	<term><varname>anchor</varname></term>
 	<listitem>
@@ -441,12 +410,46 @@ x::yaml::newnode highest_point_to_yaml(const highest_point &amp;hp)
       </varlistentry>
     </variablelist>
 
+    <para>
+      The lambda/functor can modify these members from their default values
+      before invoking the object's <function>()</function> operator, which
+      takes two parameters, a beginning and an ending iterator.
+      The above example creates a temporary list containing
+      <classname>std::pair</classname>s
+      <link linkend="yamlwriternewnode"><classname>&ns;::yaml::newnode</classname></link>s
+      but the iterators can be of any type that define an input sequence
+      over a <classname>std::pair</classname> of
+      <classname>&ns;::yaml::newnode</classname>s or
+      <classname>&ns;::yaml::const_newnode</classname>; this input
+      sequence defines
+      the <acronym>YAML</acronym> mapping that gets written to the new
+      document.
+    </para>
+
     <note>
       <para>
 	Do not proceed to the next section until it's understood why,
 	in the example above, the lambda captures the record by value.
       </para>
+
+      <para>
+	Answer: the above example constructs an object that calls the lambda
+	to write the <acronym>YAML</acronym> document. The lambda does not get
+	invoked by <function>highest_point_to_yaml</function>(), it only
+	constructs the object with the lambda, which gets invoked when the
+	document actually gets written.
+      </para>
+
+      <para>
+	The record gets captured by value, so that at the time that the
+	<acronym>YAML</acronym> document gets written, the record is in scope,
+	and is valid. If it can be assured that the parameter
+	to <function>highest_point_to_yaml</function>() will remain in scope,
+	then it can be captured by reference, but in practice the safe thing
+	to do is to capture it by value.
+      </para>
     </note>
+
   </section>
 
   <section id="yamlwritescalar">

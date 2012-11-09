@@ -46,8 +46,8 @@ std::pair<node, node> mappingnodeObj::get(size_t i) const
 
 			auto ptr=n->getNode(lock);
 
-			if (i >= ptr->data.mapping.pairs.top -
-			    ptr->data.mapping.pairs.start)
+			if (i >= (size_t)(ptr->data.mapping.pairs.top -
+					  ptr->data.mapping.pairs.start))
 				throw EXCEPTION(_("YAML mapping index out of range"));
 
 			ptr->data.mapping.pairs.start[i];

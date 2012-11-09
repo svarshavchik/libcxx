@@ -36,10 +36,8 @@ public:
 	~newnodeObj() noexcept;
 
 	friend class writerObj;
-	template<typename container_type, typename functor_type>
-	friend class newsequencenodeObj;
-	template<typename container_type, typename functor_type>
-	friend class newmappingnodeObj;
+	friend class newsequence;
+	friend class newmapping;
 	template<typename container_type>
 	friend class newnode_functorObj;
 

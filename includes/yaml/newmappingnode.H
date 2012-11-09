@@ -23,33 +23,22 @@ namespace LIBCXX_NAMESPACE {
 
 //! A mapping in a new YAML document written by writer::write().
 
-//! The template parameter specifies the container type that holds a
-//! \c std::pair
-//! of \ref newnode "nodes". The default container type is
-//! std::list<std::pair<const_newnode, const_newnode> >, but any container that
-//! iterates over \c std::pair of
-//! \ref const_newnode "const_newnode"s or
-//! \ref newnode "newnode"s can be specified.
-//!
-//! create() constructs a \ref newnode "node" that writes a YAML mapping.
-//!
 //! \code
-//! return INSERT_LIBX_NAMESPACE::yaml::newmapping<>::create([]
-//!     (INSERT_LIBX_NAMESPACE::yaml::newmapping<> &info)
+//! return INSERT_LIBX_NAMESPACE::yaml::newmapping::create([]
+//!     (INSERT_LIBX_NAMESPACE::yaml::newmapping &info)
 //!     {
 //!         info.anchor="capitals";
-//!         info.container.push_back(std::make_pair(INSERT_LIBX_NAMESPACE::yaml::newscalarnode::create("New Jersey"), INSERT_LIBX_NAMESPACE::yaml::newscalarnode::create("Trenton")));
-//!         info.container.push_back(std::make_pair(INSERT_LIBX_NAMESPACE::yaml::newscalarnode::create("New York"), INSERT_LIBX_NAMESPACE::yaml::newscalarnode::create("Albany")));
+//!         std::list<std::pair<INSERT_LIBX_NAMESPACE::yaml::newnode,
+//!                             INSERT_LIBX_NAMESPACE::yaml::newnode>> list;
+//!
+//!         list.push_back(std::make_pair(INSERT_LIBX_NAMESPACE::yaml::newscalarnode::create("New Jersey"), INSERT_LIBX_NAMESPACE::yaml::newscalarnode::create("Trenton")));
+//!         list.push_back(std::make_pair(INSERT_LIBX_NAMESPACE::yaml::newscalarnode::create("New York"), INSERT_LIBX_NAMESPACE::yaml::newscalarnode::create("Albany")));
 //!      });
 //! \endcode
 //!
 //! create() takes a functor as an argument. The functor
 //! receives an instance of the \ref newmapping "newmapping" type,
 //! by reference. This object has the following members:
-//!
-//! - \ref newmapping::container "container": the container type specified
-//! by the template parameter (which defaults to
-//! \c std::list<std::pair<const_newnode,const_newnode>> ).
 //!
 //! - \ref newmapping::anchor "anchor": an optional anchor for an alias
 //! reference to this mapping node.
@@ -61,16 +50,30 @@ namespace LIBCXX_NAMESPACE {
 //! - \ref newmapping::implicit "implicit": whether the implicit tag can
 //! be ommited.
 //!
-//! The functor should fill the
-//! \ref container "container" with the mapping, and optionally set the
-//! other class members. The functor gets called to construct the new mapping,
+//! The functor optionally sets these class members, then invokes the %c ()
+//! operator. The functor gets called to construct the new mapping,
 //! for the new YAML document.
+//!
+//! The %c () operator takes a beginning and an ending iterator
+//! of an input sequence over a \c std::pair of \ref newnode "node"s
+//! or \ref const_newnode "const_newnode"s, which define the contents
+//! of the mapping the YAML document. Each \c std::pair represents a
+//! single mapping entry.
 
-template<typename container_type>
-struct newmapping {
+class newmapping {
 
-	//! The container for the mapping.
-	container_type container;
+	//! The writer object
+	writerObj &obj;
+
+	//! Constructor invoked by newsequencenodeObj
+
+	newmapping(writerObj &objArg) : obj(objArg),
+					style(YAML_ANY_MAPPING_STYLE),
+					implicit(true)
+	{
+	}
+public:
+	template<typename functor_type> friend class newmappingnodeObj;
 
 	//! Node's anchor, if set.
 
@@ -86,22 +89,34 @@ struct newmapping {
 	//! If the tag may be omitted.
 	bool implicit;
 
-	//! Constructor
-
-	newmapping() : style(YAML_ANY_MAPPING_STYLE),
-		       implicit(true)
-	{
-	}
-
 	//! Construct a mapping node in a new YAML document.
 
 	template<typename functor_type>
 	static newnode create(functor_type &&functor)
 	{
-		return ref<newmappingnodeObj<container_type,
-					     typename std::remove_reference
+		return ref<newmappingnodeObj<typename std::remove_reference
 					     <functor_type>::type> >
 			::create(functor);
+	}
+
+	//! Invoked by the functor callback to emit a mapping.
+
+	template<typename iter_type>
+	void operator()(//! Beginning iterator
+			iter_type beg_iter,
+
+			//! Ending iterator
+			iter_type end_iter)
+	{
+		obj.write_mapping_start(anchor, tag, implicit, style);
+
+		while (beg_iter != end_iter)
+		{
+			const_newnode(beg_iter->first)->write(obj);
+			const_newnode(beg_iter->second)->write(obj);
+			++beg_iter;
+		}
+		obj.write_mapping_end();
 	}
 };
 

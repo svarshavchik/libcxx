@@ -15,6 +15,8 @@
 #include <x/ref.H>
 #include <x/ptr.H>
 
+#include <cstddef>
+
 namespace LIBCXX_NAMESPACE {
 
 	namespace yaml {
@@ -39,7 +41,7 @@ public:
 template<typename functor_type>
 void mappingnodeObj::for_each(functor_type &&functor)
 {
-	for (size_t i=0; ; ++i)
+	for (std::ptrdiff_t i=0; ; ++i)
 	{
 		yaml_node_pair_t pair=({
 				documentObj::readlock_t

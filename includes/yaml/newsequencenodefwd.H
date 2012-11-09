@@ -17,10 +17,8 @@ namespace LIBCXX_NAMESPACE {
 }
 #endif
 
-template<typename container_type=std::list<const_newnode> > struct newsequence;
-
-template<typename container_type, typename functor_type>
-class newsequencenodeObj;
+class newsequence;
+template<typename functor_type> class newsequencenodeObj;
 
 #if 0
 {

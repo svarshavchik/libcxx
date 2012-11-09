@@ -20,8 +20,8 @@
 #include <iostream>
 #include <cstdlib>
 
-typedef LIBCXX_NAMESPACE::yaml::newmapping<> map_t;
-typedef LIBCXX_NAMESPACE::yaml::newsequence<> seq_t;
+typedef LIBCXX_NAMESPACE::yaml::newmapping map_t;
+typedef LIBCXX_NAMESPACE::yaml::newsequence seq_t;
 typedef LIBCXX_NAMESPACE::yaml::newscalarnode scalar_t;
 typedef LIBCXX_NAMESPACE::yaml::newaliasnode alias_t;
 
@@ -32,8 +32,12 @@ static LIBCXX_NAMESPACE::yaml::newnode create_seq1()
 		 (seq_t &info)
 		 {
 			 info.anchor="alias1";
-			 info.container.push_back(scalar_t::create("scalar1"));
-			 info.container.push_back(scalar_t::create("scalar2"));
+
+			 std::list<scalar_t> scalar_list;
+			 scalar_list.push_back(scalar_t::create("scalar1"));
+			 scalar_list.push_back(scalar_t::create("scalar2"));
+
+			 info(scalar_list.begin(), scalar_list.end());
 		 });
 }
 
@@ -46,13 +50,18 @@ static LIBCXX_NAMESPACE::yaml::newnode create_map1()
 		 {
 			 auto newseq1=create_seq1();
 
-			 info.container.push_back(std::make_pair
-						  (scalar_t::create("seq1"),
-						   newseq1));
+			 std::list<std::pair<LIBCXX_NAMESPACE::yaml::newnode,
+					     LIBCXX_NAMESPACE::yaml::newnode>
+				   > scalar_map;
 
-			 info.container.push_back(std::make_pair
-						  (scalar_t::create("seq2"),
-						   alias_t::create("alias1")));
+			 scalar_map.push_back(std::make_pair
+					      (scalar_t::create("seq1"),
+					       newseq1));
+
+			 scalar_map.push_back(std::make_pair
+					      (scalar_t::create("seq2"),
+					       alias_t::create("alias1")));
+			 info(scalar_map.begin(), scalar_map.end());
 		 });
 }
 
@@ -65,11 +74,10 @@ void testwriter()
 				 ([]
 				  (map_t &info)
 				  {
-					  info.container
-						  .push_back(std::make_pair
-							     (scalar_t
-							      ::create("maps"),
-							      create_map1()));
+					  auto entry=std::make_pair
+						  (scalar_t::create("maps"),
+						   create_map1());
+					  info(&entry, &entry+1);
 				  });
 		 });
 
@@ -136,11 +144,17 @@ void testwriter2()
 		(LIBCXX_NAMESPACE::yaml::make_newdocumentnode
 		 ([]
 		  {
-			  return LIBCXX_NAMESPACE::yaml::newmapping<>::create
+			  return LIBCXX_NAMESPACE::yaml::newmapping::create
 				  ([]
-				   (LIBCXX_NAMESPACE::yaml::newmapping<> &info)
+				   (LIBCXX_NAMESPACE::yaml::newmapping &info)
 				   {
-					   info.container.push_back
+					   std::list<std::pair<LIBCXX_NAMESPACE
+							       ::yaml::newnode,
+							       LIBCXX_NAMESPACE
+							       ::yaml::newnode>
+						     > scalar_map;
+
+					   scalar_map.push_back
 						   (std::make_pair
 						    (LIBCXX_NAMESPACE
 						     ::yaml::newscalarnode
@@ -149,7 +163,7 @@ void testwriter2()
 						     ::yaml::newscalarnode
 						     ::create("apple")
 						     ));
-					   info.container.push_back
+					   scalar_map.push_back
 						   (std::make_pair
 						    (LIBCXX_NAMESPACE
 						     ::yaml::newscalarnode
@@ -158,6 +172,8 @@ void testwriter2()
 						     ::yaml::newscalarnode
 						     ::create("carrot")
 						     ));
+					   info(scalar_map.begin(),
+						scalar_map.end());
 				   });
 		  }),
 

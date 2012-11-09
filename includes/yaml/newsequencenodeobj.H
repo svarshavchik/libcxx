@@ -23,7 +23,7 @@ namespace LIBCXX_NAMESPACE {
 
 //! A sequence new node in a new yaml document, constructed by make_newsequencenode().
 
-template<typename container_type, typename functor_type>
+template<typename functor_type>
 class newsequencenodeObj : public newnodeObj {
 
 	//! The functor which returns the sequence to write
@@ -52,18 +52,9 @@ private:
 	//! \internal
 	void write(writerObj &obj) const override
 	{
-		newsequence<container_type> info;
+		newsequence info(obj);
 
 		functor(info);
-
-		obj.write_sequence_start(info.anchor, info.tag,
-					info.implicit, info.style);
-
-		for (const_newnode n:info.container)
-		{
-			n->write(obj);
-		}
-		obj.write_sequence_end();
 	}
 };
 
