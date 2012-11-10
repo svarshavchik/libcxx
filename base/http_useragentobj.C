@@ -402,11 +402,17 @@ bool useragentObj::process_challenges(const clientauth &authorizations,
 					    break;
 				    case auth::digest:
 
-					    auto func=&challengeObj
-						    ::create_digest;
-					    if (func)
-						    p=func(req.getURI(),
-							   realm, params);
+					    {
+						    auto func=&challengeObj
+							    ::create_digest;
+						    if (func)
+							    p=func(req.getURI(),
+								   realm,
+								   params);
+					    }
+					    break;
+				    default:
+					    break;
 				    }
 				    
 				    if (p.null())

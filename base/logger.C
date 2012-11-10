@@ -1623,7 +1623,8 @@ void logger::operator()(const std::string &s, short loglevel) const noexcept
 			// logger was initialized
 
 			std::string m=s+"\n";
-			(void)write(2, m.c_str(), m.size());
+			if (write(2, m.c_str(), m.size()) < 0)
+				; // Ignored, too bad.
 			return;
 		}
 	}

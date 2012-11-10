@@ -278,6 +278,7 @@ clientauthimplptr clientauthimplObj::digest::req
 {
 	// Shouldn't end up here, this should end up getting called
 	// on the original digest object's instance.
+	return clientauthimplptr();
 }
 
 clientauthimplptr clientauthimplObj::digest::req

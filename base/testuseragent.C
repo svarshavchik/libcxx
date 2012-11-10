@@ -24,7 +24,7 @@ static int fake_connect_fd= -1;
 	{						\
 		int pipefd[2];				\
 							\
-		::pipe(pipefd);				\
+		if (::pipe(pipefd) < 0) abort();	\
 		::close(filedesc);			\
 		filedesc=pipefd[1];			\
 		nonblock(true);				\

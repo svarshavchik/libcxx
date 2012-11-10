@@ -286,6 +286,8 @@ private:
 						    realm, username,
 						    info.uri),
 					      info);
+		default:
+			break;
 		}
 		build_challenges(challenges);
 		return auth::unknown;

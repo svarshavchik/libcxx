@@ -120,6 +120,8 @@ std::string auth_tostring(auth a)
 	case http::auth::digest:
 		p="Digest";
 		break;
+	default:
+		break;
 	}
 	return p;
 }

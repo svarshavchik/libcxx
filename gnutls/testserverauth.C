@@ -50,6 +50,8 @@ std::string dotestauthorization(const char *header)
 			+ (info.qop_auth.size() ?
 			   "," + LIBCXX_NAMESPACE::tostring(info.nonce_count) +
 			   "," + info.cnonce:"");
+	default:
+		break;
 	}
 
 	return "UNKNOWN";

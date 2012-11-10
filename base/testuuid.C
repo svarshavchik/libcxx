@@ -76,7 +76,7 @@ static void testbase64()
 		if (!res.second)
 			throw EXCEPTION("Decoding failed");
 
-		if (res.first-buf2 != l
+		if ((size_t)(res.first-buf2) != (size_t)l
 		    || !std::equal(buf, buf+l, buf2))
 			throw EXCEPTION("did not decode to the same size");
 
@@ -96,8 +96,6 @@ static void testbase642()
 
 	*enciter++='A';
 	enciter.eof();
-
-	o_iter value=enciter.eof();
 
 	if (o.str().size() != 2)
 		throw EXCEPTION("Padless base64 encoding wasn't two chars: "
