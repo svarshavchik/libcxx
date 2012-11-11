@@ -483,6 +483,136 @@ if (resp-&gt;has_content())
     </para>
   </section>
 
+  <section id="httpuseragentcookies">
+    <title>Cookies</title>
+
+    <para>
+      The <link linkend="httpuseragent">user agent object</link> handles
+      cookies automatically, accepting cookies from the server, and including
+      cookies in subsequent requests.
+      The following <link linkend="properties">properties</link> limit
+      the size of the user agent's cookie jar.
+    </para>
+
+    <variablelist>
+      <varlistentry>
+	<term><literal>&ns;::http::cookiejar::cookiebytesmax</literal></term>
+	<listitem>
+	  <para>
+	    Maximum combined size of the cookie's name and value (default
+	    is 4096 bytes).
+	  </para>
+	</listitem>
+      </varlistentry>
+      <varlistentry>
+	<term><literal>&ns;::http::cookiejar::domainmax</literal></term>
+	<listitem>
+	  <para>
+	    Maximum number of cookies accepted for the same domain (default
+	    is a maximum of 50 cookies per domain).
+	  </para>
+	</listitem>
+      </varlistentry>
+      <varlistentry>
+	<term><literal>&ns;::http::cookiejar::max</literal></term>
+	<listitem>
+	  <para>
+	    Maximum number of cookies in the cookie jar, from all domains
+	    (the default maximum is 3000 cookies from all domains).
+	  </para>
+	</listitem>
+      </varlistentry>
+    </variablelist>
+
+    <para>
+      The cookie jar belongs to each user agent object. Once the user agent
+      object goes out of scope and gets destroyed, all the cookies get lost
+      (unless they are saved and loaded, as described below). Each user agent
+      object has its own individual cookie jar.
+    </para>
+
+    <formalpara>
+      <title>Saving and loading cookie jars</title>
+
+      <para>
+	<blockquote>
+	  <informalexample>
+	    <programlisting>
+#include &lt;&ns;/http/cookiejar.H&gt;
+
+&ns;::http::useragent ua(&ns;::http::useragent::create());
+
+try {
+    ua-&gt;jar()-&gt;load("cookies.txt");
+} catch (const &ns;::exception &amp;e)
+{
+}
+// ...
+
+ua-&gt;jar()-&gt;save("cookies.txt");</programlisting>
+	  </informalexample>
+	</blockquote>
+
+	<methodname>jar</methodname>() returns the user agent's cookie jar.
+	It's not a particularly interesting object, except for its
+	<methodname>save</methodname>() and <methodname>load</methodname>()
+	methods. Note that <methodname>save</methodname>() saves only
+	persistent, unexpired cookies. Session cookies, and expired cookies,
+	do not get saved.
+      </para>
+    </formalpara>
+
+    <note>
+      <para>
+	<methodname>save</methodname>() and <methodname>load</methodname>()
+	use the <acronym>YAML</acronym> file format, and it's necessary to
+	<link linkend="yaml">link with the <acronym>YAML</acronym></link>
+	library to use these methods.
+      </para>
+    </note>
+
+    <para>
+      It is possible to iterate over the contents of the cookie jar:
+    </para>
+
+    <blockquote>
+      <informalexample>
+	<programlisting>
+auto jar=ua->jar();
+
+for (&ns;::http::cookie cookie:*jar)
+{
+   // ...
+}</programlisting>
+      </informalexample>
+    </blockquote>
+
+    <para>
+      The cookie jar object implements <methodname>begin</methodname>() and
+      <methodname>end</methodname>() that return a
+      <classname>&ns;::http::cookiejar::base::iterator</classname>, that's
+      suitable for range iteration. Note that the <literal>*</literal>()
+      operator returns an rvalue.
+    </para>
+
+    <note>
+      <para>
+	The iterators may iterate cookies that were recently expired. An
+	expired cookie does not get automatically removed from the cookie jar,
+	however it no longer gets sent to the server, and it won't get
+	<methodname>save</methodname>()d, either.
+      </para>
+    </note>
+
+    <note>
+      <para>
+	iterators hold a read lock on the cookie jar object, as long as they
+	remain in scope. This will prevent the cookie jar's user agent object
+	from processing <acronym>HTTP</acronym> requests. Other threads will
+	block, until the iterators go out of scope and get destroyed.
+      </para>
+    </note>
+  </section>
   <section id="httpform">
     <title><acronym>HTTP</acronym> forms</title>
 

@@ -303,16 +303,16 @@ send(req, "text/plain; charset=utf-8", buffer);</programlisting>
 	    <programlisting>
 &ns;::http::responseimpl resp(307, "Temporarily redirected");
 
-send(resp, req, "Location", "http://example.com", buffer);</programlisting>
+resp.append("Location", "http://example.com");
+
+send(resp, req, buffer);</programlisting>
 	  </informalexample>
 	</blockquote>
 
 	<note>
 	  <para>
 	    The response object gets passed by reference, and may be modified
-	    during sending. The above example explicitly adds the
-	    <quote>Location</quote> header to the response object.
-	    Additionally, <methodname>send</methodname>() typically adds
+	    during sending. <methodname>send</methodname>() typically adds
 	    headers such as <quote>Content-Length</quote>, or
 	    <quote>Transfer-Encoding</quote>, depending on the response.
 	  </para>
@@ -321,30 +321,89 @@ send(resp, req, "Location", "http://example.com", buffer);</programlisting>
     </itemizedlist>
 
     <para>
-      The latter two versions of <methodname>send</methodname>() accept
-      additional parameters, as shown in the previous example:
+      The latter two versions of <methodname>send</methodname>() sends
+      content of the response, specified either as a container, or
+      as a beginning iterator and an ending iterator. The
+      response to a <literal>HEAD</literal> should be prepared as if
+      it was to a <literal>GET</literal> or a <literal>POST</literal>.
+      <methodname>send</methodname>() sets the <acronym>HTTP</acronym>
+      protocol headers based on the container or the iterators, but
+      will not actually send the content.
+    </para>
+  </section>
+
+  <section id="httpservercookie">
+    <title>Sending cookies to the client</title>
+
+    <para>
+      Use the complete form of <function>send</function>(), that takes a
+      <ulink url="&link-x--http--responseimpl;"><classname>&ns;::http::responseimpl</classname></ulink>,
+      to send cookies to the client.
     </para>
 
-    <itemizedlist>
-      <listitem>
-	<para>
-	  A list of header names and values, specified as strings.
-	  They get added to the response message.
-	</para>
-      </listitem>
+    <blockquote>
+      <informalexample>
+	<programlisting>
+void received(const &ns;::http::requestimpl &amp;req, bool hasbody)
+{
+    // ...
 
-      <listitem>
-	<para>
-	  The content of the response, specified either as a container, or
-	  as a beginning iterator and an ending iterator. The
-	  response to a <literal>HEAD</literal> should be prepared as if
-	  it was to a <literal>GET</literal> or a <literal>POST</literal>.
-	  <methodname>send</methodname>() sets the <acronym>HTTP</acronym>
-	  protocol headers based on the container or the iterators, but
-	  will not actually send the content.
-	</para>
-      </listitem>
-    </itemizedlist>
+    &ns;::http::responseimpl resp;
+
+    resp.append(&ns;::http::content_type_header::name,
+        "text/plain; charset=\"utf-8\"");
+
+    resp.addCookie(&ns;::http::cookie("loggedin", "yes")
+                   .setDomain(".example.com")
+                   .setPath("/")
+                   .setExpiresIn(24 * 60 * 60));
+
+    send(resp, req, buffer);
+}</programlisting>
+      </informalexample>
+    </blockquote>
+
+    <para>
+      <methodname>addCookie</methodname>() adds a <quote>Set-Cookie</quote>
+      header, based on the contents of the given
+      <ulink url="&link-x--http--cookie;"><classname>&ns;::http::cookie</classname></ulink>.
+      Its constructor takes the cookie's name and value, and additional
+      method set various cookie properties, such as the cookie's scope and
+      expiration.
+    </para>
+
+    <note>
+      <para>
+	Cookie names and values must follow the constraints on the names and
+	values of cookies. Cookie names must generally be alphanumeric,
+	cookie values must consists of <literal>US-ASCII</literal> characters
+	excepting control character, quotes, commas, semicolons, and
+	backslashes.
+      </para>
+    </note>
+
+    <para>
+      <ulink url="&link-x--http--requestimpl;"><classname>&ns;::http::requestimpl</classname></ulink>'s
+      <methodname>getCookies</methodname>() method retrieves any cookies
+      sent in the client's request:
+    </para>
+      
+    <blockquote>
+      <informalexample>
+	<programlisting>
+void received(const &ns;::http::requestimpl &amp;req, bool hasbody)
+{
+    std::map&lt;std::string, std::string&gt; cookies;
+
+    req.getCookies(cookies);
+// ...</programlisting>
+      </informalexample>
+    </blockquote>
+
+    <para>
+      <methodname>getCookies</methodname>() loads the given map with the
+      contents of any cookies in the request.
+    </para>
   </section>
 
   <section id="httpserverauth">

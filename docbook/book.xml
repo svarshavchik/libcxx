@@ -266,7 +266,7 @@ See COPYING for distribution information.
 	    <para>
 	      A high-level <acronym>HTTP</acronym> user agent implementation,
 	      with persistent <acronym>HTTP</acronym> connections, if
-	      supported by the <acronym>HTTP</acronym> server.
+	      supported by the <acronym>HTTP</acronym> server, and a cookie jar.
 	    </para>
 	  </listitem>
 
@@ -279,7 +279,7 @@ See COPYING for distribution information.
 
 	  <listitem>
 	    <para>
-	      Redirection and cookies not yet implemented.
+	      Automatic redirection not yet implemented.
 	    </para>
 	  </listitem>
 	</itemizedlist>
