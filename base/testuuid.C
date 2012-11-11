@@ -95,11 +95,13 @@ static void testbase642()
 	auto enciter=base64_t::encoder<o_iter>(o_iter(o), 0);
 
 	*enciter++='A';
+	enciter.eof();
 
 	o_iter value=enciter.eof();
 
 	if (o.str().size() != 2)
-		throw EXCEPTION("Padless base64 encoding wasn't two chars");
+		throw EXCEPTION("Padless base64 encoding wasn't two chars: "
+				+ o.str());
 
 	char buf[2];
 
