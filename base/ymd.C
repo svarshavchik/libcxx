@@ -61,6 +61,11 @@ ymd::~ymd() noexcept
 {
 }
 
+ymd ymd::max()
+{
+	return ymd(EPOCHEND, 12, 31);
+}
+
 ymd::ymd(uint16_t yearArg, uint8_t monthArg, uint8_t dayArg)
 
 {

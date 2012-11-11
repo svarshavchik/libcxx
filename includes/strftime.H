@@ -19,10 +19,10 @@ namespace LIBCXX_NAMESPACE {
 
 template<typename char_type>
 basic_strftime_base<char_type>::basic_strftime_base(const const_locale &lArg)
-: l(lArg),
-			  ios(NULL),
-			  facetRef(l->get_facet< basic_strftime_ref_t >()),
-			  facetRefImpl(facetRef->getFacetConstRef())
+	: l(lArg),
+	  ios(NULL),
+	  facetRef(l->get_facet< basic_strftime_ref_t >()),
+	  facetRefImpl(facetRef->getFacetConstRef())
 {
 	ios.clear();
 }
@@ -35,8 +35,7 @@ basic_strftime_base<char_type>::~basic_strftime_base() noexcept
 template<typename char_type>
 basic_strftime<char_type>::basic_strftime(const const_tzfile &tzArg,
 					  const const_locale &lArg)
-: basic_strftime_base<char_type>(lArg),
-			  tz(tzArg)
+	: basic_strftime_base<char_type>(lArg), tz(tzArg)
 {
 	operator()(time(0), tzArg);
 }
@@ -44,8 +43,8 @@ basic_strftime<char_type>::basic_strftime(const const_tzfile &tzArg,
 template<typename char_type>
 basic_strftime<char_type>::basic_strftime(const ymdhms &datetime,
 					  const const_locale &lArg)
-: basic_strftime_base<char_type>(lArg),
-			  tz(datetime.getTimezone())
+	: basic_strftime_base<char_type>(lArg),
+	  tz(datetime.getTimezone())
 {
 	operator()(datetime);
 }
@@ -54,7 +53,7 @@ template<typename char_type>
 basic_strftime<char_type>::basic_strftime(const ymd &dateValue,
 					  const const_locale &lArg,
 					  const const_tzfile &tzArg)
-: basic_strftime_base<char_type>(lArg), tz(tzArg)
+	: basic_strftime_base<char_type>(lArg), tz(tzArg)
 {
 	operator()(dateValue, tzArg);
 }
@@ -62,8 +61,8 @@ basic_strftime<char_type>::basic_strftime(const ymd &dateValue,
 template<typename char_type>
 basic_strftime<char_type>::basic_strftime(const hms &time,
 					  const const_locale &lArg)
-: basic_strftime_base<char_type>(lArg),
-			  tz(tzfile::base::local())
+	: basic_strftime_base<char_type>(lArg),
+	  tz(tzfile::base::local())
 {
 	operator()(time);
 }
@@ -72,7 +71,7 @@ template<typename char_type>
 basic_strftime<char_type>::basic_strftime(time_t t,
 					  const const_tzfile &tzArg,
 					  const const_locale &lArg)
-: basic_strftime_base<char_type>(lArg), tz(tzArg)
+	: basic_strftime_base<char_type>(lArg), tz(tzArg)
 {
 	operator()(t, tzArg);
 }
@@ -80,8 +79,8 @@ basic_strftime<char_type>::basic_strftime(time_t t,
 template<typename char_type>
 basic_strftime<char_type>::basic_strftime(const struct tm *tmArg,
 					  const const_locale &lArg)
-: basic_strftime_base<char_type>(lArg),
-			  tz(tzfile::base::local())
+	: basic_strftime_base<char_type>(lArg),
+	  tz(tzfile::base::local())
 {
 	operator()(tmArg);
 }

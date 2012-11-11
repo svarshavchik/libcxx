@@ -348,8 +348,11 @@ public:
 
 	//! Initialize the date to a given date
 
-	ymd(uint16_t year, uint8_t month, uint8_t day)
-;
+	ymd(uint16_t year, uint8_t month, uint8_t day);
+
+	//! Return the largest date
+
+	static ymd max();
 
 	//! Compute the date's day of the week.
 
