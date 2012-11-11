@@ -212,6 +212,28 @@ bool requestimpl::is_basic_auth(std::string::const_iterator b,
 	return true;
 }
 
+void requestimpl::getCookies(std::map<std::string, std::string> &cookies) const
+{
+	for (auto header=equal_range("Cookie");
+	     header.first != header.second; ++header.first)
+	{
+		parse_structured_header([]
+					(char c)
+					{
+						return c == ';';
+					},
+					[this, &cookies]
+					(bool dummy,
+					 const std::string namevalue)
+					{
+						cookies.insert(name_and_value
+							       (namevalue));
+					},
+					header.first->second.begin(),
+					header.first->second.end());
+	}
+}
+
 template std::istreambuf_iterator<char>
 requestimpl::parse(std::istreambuf_iterator<char>,
 		   std::istreambuf_iterator<char>, size_t);

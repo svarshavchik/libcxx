@@ -10,6 +10,7 @@
 #include <x/http/clientauthfwd.H>
 #include <x/http/clientauthimplfwd.H>
 #include <x/http/clientauthcachefwd.H>
+#include <x/http/cookiejarfwd.H>
 #include <x/http/formfwd.H>
 #include <x/gcrypt/md.H>
 #include <x/epoll.H>
@@ -18,7 +19,6 @@
 #include <x/fdfwd.H>
 #include <x/property_properties.H>
 #include <x/weakmultimap.H>
-#include <x/gnutls/credentials_certificatefwd.H>
 #include <x/sipobj.H>
 #include <x/logger.H>
 
@@ -332,6 +332,10 @@ class useragentObj : virtual public obj {
 	//! Internal authentication cache
 
 	clientauthcache authcache;
+
+	//! Internal cookie jar
+
+	cookiejar cookies;
 
 public:
 
@@ -901,6 +905,11 @@ private:
 				   const fd &socket,
 				   const fdptr &terminator)
 		__attribute__((weak));
+
+public:
+	//! Return this user agent's cookie jar
+
+	cookiejar jar() const;
 };
 
 #if 0

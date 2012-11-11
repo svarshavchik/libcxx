@@ -175,6 +175,47 @@ time_t cookie::expires_from_str(const std::string &value_str)
 	return expires_given;
 }
 
+cookie &cookie::setDomain(const std::string &domain)
+{
+	std::string prefix;
+
+	if (domain.substr(0, 1) != ".")
+		prefix=".";
+
+	this->domain=prefix+domain;
+	return *this;
+}
+
+cookie &cookie::setPath(const std::string &path)
+{
+	this->path=path;
+	return *this;
+}
+
+cookie &cookie::setExpiresIn(time_t expiration)
+{
+	this->expiration=time(NULL)+expiration;
+	return *this;
+}
+
+cookie &cookie::setCancel()
+{
+	this->expiration=0;
+	return *this;
+}
+
+cookie &cookie::setSecure(bool flag)
+{
+	secure=flag;
+	return *this;
+}
+
+cookie &cookie::setHttpOnly(bool flag)
+{
+	httponly=flag;
+	return *this;
+}
+
 #if 0
 {
 	{

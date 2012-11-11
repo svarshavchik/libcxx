@@ -11,6 +11,7 @@
 #include "x/http/clientauth.H"
 #include "x/http/clientauthimpl.H"
 #include "x/http/clientauthcache.H"
+#include "x/http/cookiejar.H"
 #include "x/messages.H"
 #include "x/netaddr.H"
 #include "x/fdtimeoutconfig.H"
@@ -133,7 +134,8 @@ useragentObj::useragentObj(clientopts_t optsArg,
 	: opts(optsArg),
 	  connectionlist_maxsize(connectionlist_maxsizeArg),
 	  hostconnectionlist_maxsize(hostconnectionlist_maxsizeArg),
-	  authcache(clientauthcache::create())
+	  authcache(clientauthcache::create()),
+	  cookies(cookiejar::create())
 {
 }
 
@@ -273,11 +275,39 @@ useragentObj::response useragentObj::do_request(const fd *terminate_fd,
 	return resp;
 }
 
+cookiejar useragentObj::jar() const
+{
+	return cookies;
+}
+
 useragentObj::response
 useragentObj::do_request_with_auth(const fd *terminate_fd,
 				   requestimpl &req,
 				   request_sans_body &impl)
 {
+	// Add the Cookie header.
+
+	{
+		std::list<std::pair<std::string, std::string> > tray;
+
+		cookies->find(req.getURI(), tray);
+
+		if (!tray.empty())
+		{
+			std::ostringstream o;
+			const char *sep="";
+
+			for (const auto &cookie:tray)
+			{
+				o << sep << cookie.first << "="
+				  << cookie.second;
+				sep="; ";
+			}
+
+			req.append("Cookie", o.str());
+		}
+	}
+
 	cache_key_t key(req.getURI());
 
 	while (1)
@@ -340,6 +370,10 @@ bool useragentObj::process_challenges(const clientauth &authorizations,
 				      const requestimpl &req,
 				      const response &resp)
 {
+	// While we're at it, store any new cookies, here.
+
+	cookies->store(req.getURI(), resp->message);
+
 	process_authentication_info(resp, req,
 				    responseimpl::authentication_info,
 				    authorizations->www_authorizations);

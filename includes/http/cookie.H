@@ -86,8 +86,44 @@ public:
 	//! Destructor
 	~cookie() noexcept;
 
+	//! Set cookie domain
+
+	//! Used by a server when it creates a cookie.
+
+	cookie &setDomain(//! For compatibility, "." always gets prepended to the domain
+			  const std::string &domain);
+
+	//! Set cookie path
+
+	//! Used by a server when it creates a cookie.
+	cookie &setPath(const std::string &path);
+
+	//! Set cookie expiration
+
+	//! Used by a server when it creates a cookie.
+	cookie &setExpiresIn(//! Cookie expires in this many seconds
+			     time_t expiration);
+
+	//! Cancel a cookie
+
+	//! This sets this cookie's expiration time to be in the past. When
+	//! sent to a server, this effectively cancels the cookies.
+	cookie &setCancel();
+
+	//! Set the secure cookie flag.
+
+	//! Used by a server when it creates a cookie.
+	cookie &setSecure(bool flag=true);
+
+	//! Set the http only flag
+
+	//! Used by a server when it creates a cookie.
+	cookie &setHttpOnly(bool flag=true);
+
 	//! Check path attribute of the cookie per section 4.1.2.4 of RFC 6265
 
+	//! \internal
+	//!
 	//! If no path attribute was specified, returns the default path
 	//! derived from request_uri.
 	//!
@@ -103,6 +139,8 @@ public:
 
 	//! Check domain attribute of the cookie per section 4.1.2.3 of RFC 6265
 
+	//! \internal
+	//!
 	//! If no domain attribute was specified, returns the default domain
 	//! derived from request_uri.
 	//!

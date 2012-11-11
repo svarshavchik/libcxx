@@ -7,6 +7,8 @@
 #include "x/http/useragent.H"
 #include "x/http/fdserver.H"
 #include "x/http/form.H"
+#include "x/http/cookie.H"
+#include "x/http/cookiejar.H"
 #include "x/fdlistener.H"
 #include "x/eventdestroynotify.H"
 #include "x/netaddr.H"
@@ -1149,6 +1151,136 @@ static void showuri(const LIBCXX_NAMESPACE::uriimpl &uri)
 	} while (has_challenge);
 }
 
+class testcookies_serverObj : public LIBCXX_NAMESPACE::http::fdserverimpl,
+			      virtual public LIBCXX_NAMESPACE::obj {
+
+public:
+
+	testcookies_serverObj() {}
+	~testcookies_serverObj() noexcept
+	{
+	}
+
+	void received(const LIBCXX_NAMESPACE::http::requestimpl &req,
+		      bool bodyflag)
+	{
+		auto val=getform(req, bodyflag);
+
+		std::map<std::string, std::string> cookies;
+
+		req.getCookies(cookies);
+
+		std::ostringstream o;
+
+		for (const auto &cookie:cookies)
+		{
+			o << cookie.first << "=" << cookie.second << std::endl;
+		}
+
+		LIBCXX_NAMESPACE::http::responseimpl resp;
+
+		resp.append(LIBCXX_NAMESPACE::http::content_type_header::name,
+			    "text/plain; charset=\"utf-8\"");
+
+		std::string cancel;
+
+		{
+			auto values=val.first->equal_range("cancel");
+
+			while (values.first != values.second)
+			{
+				cancel += values.first->second;
+				++values.first;
+			}
+		}
+
+		if (cancel == "name1")
+			resp.addCookie(LIBCXX_NAMESPACE::http::cookie("name1",
+								      "value1")
+				       .setDomain("localhost")
+				       .setPath("/")
+				       .setCancel());
+		else
+			resp.addCookie(LIBCXX_NAMESPACE::http::cookie("name1",
+								      "value1")
+				       .setDomain("localhost")
+				       .setPath("/")
+				       .setHttpOnly()
+				       .setExpiresIn(24 * 60 * 60));
+
+		resp.addCookie(LIBCXX_NAMESPACE::http::cookie("name2", "value2")
+			       .setDomain("localhost")
+			       .setPath("/")
+			       .setSecure()
+			       .setExpiresIn(24 * 60 * 60));
+ 
+		resp.addCookie(LIBCXX_NAMESPACE::http::cookie("name3", "value3")
+			       .setDomain("localhost")
+			       .setPath("/")
+			       .setCancel());
+
+		send(resp, req, o.str());
+	}
+
+	LIBCXX_NAMESPACE::ref<testcookies_serverObj> create()
+	{
+		return LIBCXX_NAMESPACE::ref<testcookies_serverObj>::create();
+	}
+
+};
+
+void testcookies()
+{
+	LIBCXX_NAMESPACE::fdlistenerptr listener;
+	auto server=LIBCXX_NAMESPACE::ref<testcookies_serverObj>::create();
+	std::string serveraddr=createlistener(listener, server);
+
+	std::cout << "Started a listener on " << serveraddr << std::endl;
+
+	LIBCXX_NAMESPACE::http::useragent ua(LIBCXX_NAMESPACE::http::useragent
+					   ::create());
+
+	// We should get a regular cookie, a secure cookie, and a cancel cookie.
+
+	{
+		auto resp=ua->request(LIBCXX_NAMESPACE::http::GET, serveraddr);
+
+		std::copy(resp->begin(),
+			  resp->end(),
+			  resp->message.toString(std::ostreambuf_iterator
+						 <char>(std::cout)));
+	}
+
+	// This should send the regular cookie, skip the secure cookie.
+	{
+		auto resp=ua->request(LIBCXX_NAMESPACE::http::GET,
+				      serveraddr + "?cancel=name1");
+
+		std::string s(resp->begin(), resp->end());
+		std::copy(s.begin(),
+			  s.end(),
+			  resp->message.toString(std::ostreambuf_iterator
+						 <char>(std::cout)));
+
+		if (s != "name1=value1\n")
+			throw EXCEPTION("Did not send back the regular cookie");
+	}
+
+	std::string cookies;
+
+	auto jar=ua->jar();
+
+	// Cancelled name1, should still have name2 in the jar.
+
+	for (const auto &cookie:*jar)
+	{
+		cookies += cookie.name;
+	}
+
+	if (cookies != "name2")
+		throw EXCEPTION("Did not have just name2 in the cookie jar");
+}
+
 int main(int argc, char **argv)
 {
 	try {
@@ -1258,7 +1390,7 @@ int main(int argc, char **argv)
 		testclientauth2();
 		std::cout << "testclientauth3" << std::endl;
 		testclientauth3();
-
+		testcookies();
 	} catch (LIBCXX_NAMESPACE::exception &e)
 	{
 		std::cerr << e << std::endl;

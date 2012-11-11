@@ -9,6 +9,8 @@
 #include <x/http/messageimpl.H>
 #include <x/namespace.h>
 
+#include <map>
+
 namespace LIBCXX_NAMESPACE {
 
 	namespace http {
@@ -181,6 +183,11 @@ public:
 	{
 		return httpver;
 	}
+
+	//! Return any cookies the client sent.
+
+	void getCookies(//! Any cookies are placed here
+			std::map<std::string, std::string> &cookies) const;
 
 	//! Set the request message type
 
