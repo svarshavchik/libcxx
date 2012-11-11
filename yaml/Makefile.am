@@ -23,7 +23,7 @@ lib_LTLIBRARIES=libcxxyaml.la
 libcxxyaml_la_LIBADD=../base/libcxx.la $(YAMLLIBS)
 libcxxyaml_la_LDFLAGS=-version-info 1 $(LINKTYPE)
 
-noinst_PROGRAMS=testwriter testparser
+noinst_PROGRAMS=testwriter testparser testcookiejar
 
 testwriter_SOURCES=testwriter.C
 testwriter_LDADD=../base/libcxx.la libcxxyaml.la
@@ -33,14 +33,19 @@ testparser_SOURCES=testparser.C
 testparser_LDADD=../base/libcxx.la libcxxyaml.la
 testparser_LDFLAGS=$(LINKTYPE)
 
+testcookiejar_SOURCES=testcookiejar.C
+testcookiejar_LDADD=../base/libcxx.la libcxxyaml.la
+testcookiejar_LDFLAGS=$(LINKTYPE)
 
 check-am: $(noinst_PROGRAMS)
 	./testparser
 	./testwriter
+	./testcookiejar
 
 libcxxyaml_la_SOURCES=\
 	documentobj.C                                                   \
 	docnode.C                                                       \
+	http_cookiejar.C						\
 	mappingnode.C							\
 	newaliasnode.C							\
 	newdocumentnode.C						\

@@ -1,5 +1,6 @@
 /gettext_in.h
 /*.la
+/testcookiejar
 /testparser
 /testwriter
 /x
