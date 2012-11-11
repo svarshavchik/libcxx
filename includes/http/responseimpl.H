@@ -824,4 +824,7 @@ responseimpl::toString(std::ostreambuf_iterator<char>) const;
 #endif
 	}
 }
+
+#include <x/http/messageimpl.H>
+
 #endif
