@@ -43,7 +43,15 @@ property::value<size_t> useragentObj::maxconn
 (LIBCXX_NAMESPACE_WSTR L"::http::useragent::pool::maxconn", 20),
 	useragentObj::maxhostconn
 	(LIBCXX_NAMESPACE_WSTR
-	 L"::http::useragent::pool::maxhostconn", 4);
+	 L"::http::useragent::pool::maxhostconn", 4),
+	useragentObj::maxredirects
+	(LIBCXX_NAMESPACE_WSTR
+	 L"::http::useragent::maxredirects", 20);
+
+property::value<std::string>
+useragentObj::user_agent_header(LIBCXX_NAMESPACE_WSTR
+				L"::http::useragent",
+				PACKAGE_NAME "/" PACKAGE_VERSION);
 
 useragentObj::sip::sip() : epollfd(epoll::create()),
 			   connectionlist_size(0),
@@ -210,6 +218,91 @@ useragentObj::response useragentObj::do_request(const fd *terminate_fd,
 						requestimpl &req,
 						request_sans_body &impl)
 {
+	bool initial=true;
+	method_t meth=req.getMethod();
+
+	uriimpl redirected_uri;
+
+	for (size_t i=0; ; ++i)
+	{
+		auto response=initial ?
+			do_request_redirected(terminate_fd, req, impl)
+			: ({
+					requestimpl next(GET, redirected_uri);
+					request_sans_body no_body;
+
+					meth=GET;
+
+					do_request_redirected(terminate_fd,
+							      next,
+							      no_body);
+				});
+
+		initial=false;
+
+		if (i >= maxredirects.getValue())
+			return response; // Too many redirections
+
+		LOG_DEBUG("Processing redirect " + tostring(i+1));
+
+		// Check for redirects that we should handle
+		// See RFC 2616.
+
+		switch (response->message.getStatusCode()) {
+		case 301:
+		case 302:
+		case 307:
+			if (meth != HEAD && meth != GET)
+				return response;
+			break;
+		case 303:
+			break;
+		default:
+			return response;
+		}
+
+		// If there's no location header, we cannot redirect
+
+		auto location=response->message.equal_range("Location");
+
+		if (location.first == location.second)
+			return response;
+
+		try {
+			redirected_uri=response->uri +
+				uriimpl(std::string(location.first->
+						    second.begin(),
+						    location.first->
+						    second.end()));
+		} catch (...) {
+
+			// Probably a bad URI
+
+			return response;
+		}
+
+		LOG_TRACE("Processing redirect: "
+			  + std::string(response->begin(), response->end()));
+
+		response->discardbody();
+	}
+}
+
+useragentObj::response
+	useragentObj::do_request_redirected(const fd *terminate_fd,
+					    requestimpl &req,
+					    request_sans_body &impl)
+{
+	// Append a User-Agent header, unless there's already one
+
+	{
+		auto h=req.equal_range("User-Agent");
+
+		if (h.first == h.second)
+			req.append("User-Agent",
+				   user_agent_header.getValue());
+	}
+
 	uriimpl &uri=req.getURI();
 
 	// If the URI has user_info, install it as a default basic
@@ -308,6 +401,15 @@ useragentObj::do_request_with_auth(const fd *terminate_fd,
 		}
 	}
 
+	LOG_DEBUG("Sending request to " + tostring(req.getURI()));
+	LOG_TRACE( ({
+				std::ostringstream o;
+
+				req.toString(std::ostreambuf_iterator<char>(o));
+
+				o.str();
+			}));
+
 	cache_key_t key(req.getURI());
 
 	while (1)
@@ -320,6 +422,16 @@ useragentObj::do_request_with_auth(const fd *terminate_fd,
 
 		if (!impl(c, req, resp->message))
 			continue;
+
+		LOG_TRACE( ({
+					std::ostringstream o;
+
+					resp->message.toString
+						(std::ostreambuf_iterator
+						 <char>(o));
+
+					o.str();
+				}));
 
 		if (req.responseHasMessageBody(resp->message))
 		{

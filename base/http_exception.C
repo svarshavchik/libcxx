@@ -30,6 +30,7 @@ response_exception::response_exception(int statuscodeArg,
 
 	setCurrentDate();
 	append("Content-Type: text/html");
+	setCannedBodyStr();
 	done();
 }
 
@@ -37,12 +38,18 @@ response_exception::~response_exception() noexcept
 {
 }
 
-std::string response_exception::body() const
+void response_exception::setCannedBodyStr()
+{
+	setCannedBodyStr("");
+}
+
+void response_exception::setCannedBodyStr(const std::string &extra)
 {
 	std::string reasonstresc=xml::escapestr(getReasonPhrase());
 
-	return "<html><head><title>" + reasonstresc + "</title></head>"
-		"<body><h1>" + reasonstresc + "</h1></body></html>\n";
+	body="<html><head><title>" + reasonstresc + "</title></head>"
+		"<body><h1>" + reasonstresc + "</h1>" + extra +
+		"</body></html>\n";
 }
 
 #if 0

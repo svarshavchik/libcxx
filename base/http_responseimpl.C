@@ -16,6 +16,7 @@
 #include "x/uriimpl.H"
 #include "x/tokens.H"
 #include "x/tostring.H"
+#include "x/xml/escape.H"
 #include "gettext_in.h"
 
 #include <sstream>
@@ -112,6 +113,25 @@ void responseimpl::throwResponseException(int err_code, const std::string &msg)
 
 {
 	throw response_exception(err_code, msg);
+}
+
+
+void responseimpl::throw_redirect(const uriimpl &uri, int status_code)
+{
+	std::string uri_str=tostring(uri);
+
+	std::string msg="Moved";
+
+	response_exception resp(status_code, msg);
+
+	resp.append("Location", uri_str);
+
+	uri_str=xml::escapestr(uri_str, true);
+
+	resp.setCannedBodyStr( "<p>Moved to <a href=\""
+			       + uri_str
+			       + "\">" + uri_str + "</a></p>");
+	throw resp;
 }
 
 void responseimpl::setCurrentDate()

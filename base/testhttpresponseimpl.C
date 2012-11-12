@@ -39,7 +39,7 @@ static void testhttpresponseimpl()
 
 		e.toString(std::ostreambuf_iterator<char>(std::cout));
 
-		std::cout << e.body() << std::flush;
+		std::cout << e.body << std::flush;
 		return;
 	}
 

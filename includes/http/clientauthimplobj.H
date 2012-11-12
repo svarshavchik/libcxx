@@ -7,6 +7,7 @@
 #define http_clientauthimplobj_H
 
 #include <x/http/requestimpl.H>
+#include <x/http/responseimpl.H>
 #include <x/http/clientauthimplfwd.H>
 #include <x/hier.H>
 #include <x/obj.H>

@@ -39,9 +39,17 @@ public:
 	//! Destructor
 	~response_exception() noexcept;
 
-	//! Return the HTML body for this exception
+	//! The /small/ body.
 
-	std::string body() const;
+	std::string body;
+
+	//! Create a canned body string
+
+	void setCannedBodyStr();
+
+	//! Create a canned body string, with a little bit more stuff.
+
+	void setCannedBodyStr(const std::string &extra);
 };
 
 template<typename ...Args>

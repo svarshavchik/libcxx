@@ -283,7 +283,7 @@ void testtokenizer(Functor &&functor)
 			std::cout << line << std::endl;
 		}
 
-		std::cout << e.body() << std::endl << std::flush;
+		std::cout << e.body << std::endl << std::flush;
 	}
 }
 

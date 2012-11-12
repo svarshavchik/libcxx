@@ -243,7 +243,7 @@ protected:
 
 		if (req.responseHasMessageBody(resp))
 		{
-			std::string contents=exception.body();
+			std::string contents=exception.body;
 
 			this->send(resp, req, contents.begin(), contents.end());
 		}

@@ -1083,6 +1083,9 @@ void testclientauth3()
 			throw EXCEPTION("Did not get the expected proxy auth challenge");
 		}
 
+		// First, the message object is tostringed, which returns
+		// the output iterator, to which the body gets copied.
+
 		std::copy(resp->begin(),
 			  resp->end(),
 			  resp->message.toString(std::ostreambuf_iterator<char>
@@ -1281,6 +1284,84 @@ void testcookies()
 		throw EXCEPTION("Did not have just name2 in the cookie jar");
 }
 
+class testredirect_serverObj : public LIBCXX_NAMESPACE::http::fdserverimpl,
+			      virtual public LIBCXX_NAMESPACE::obj {
+
+public:
+
+	size_t counter;
+
+	testredirect_serverObj() : counter(0) {}
+	~testredirect_serverObj() noexcept
+	{
+	}
+
+	void received(const LIBCXX_NAMESPACE::http::requestimpl &req,
+		      bool bodyflag)
+	{
+		std::string p=req.getURI().getPath();
+
+		if (p == "/path1")
+		{
+			p="/path2";
+		}
+		else if (p == "/path2")
+		{
+			std::string ok="Ok\n";
+
+			send(req, "text/plain; charset=utf-8", ok);
+			return;
+		}
+		else if (p == "/infinite")
+			;
+		else
+		{
+			p="/path1";
+		}
+
+		auto uri=req.getURI();
+
+		uri.setPath(p);
+		LIBCXX_NAMESPACE::http::responseimpl::throw_redirect(uri);
+	}
+
+	LIBCXX_NAMESPACE::ref<testredirect_serverObj> create()
+	{
+		++counter;
+		return LIBCXX_NAMESPACE::ref<testredirect_serverObj>::create();
+	}
+
+};
+
+void testredirect()
+{
+	LIBCXX_NAMESPACE::fdlistenerptr listener;
+	auto server=LIBCXX_NAMESPACE::ref<testredirect_serverObj>::create();
+	std::string serveraddr=createlistener(listener, server);
+
+	std::cout << "Started a listener on " << serveraddr << std::endl;
+
+	LIBCXX_NAMESPACE::http::useragent ua(LIBCXX_NAMESPACE::http::useragent
+					   ::create());
+
+	auto resp=ua->request(LIBCXX_NAMESPACE::http::GET, serveraddr);
+
+	if (std::string(resp->begin(), resp->end()) != "Ok\n")
+		throw EXCEPTION("Redirect failed");
+
+	if (server->counter != 1)
+		throw EXCEPTION("There were more than one server thread spawned for the redirect test");
+
+	alarm(10);
+	resp=ua->request(LIBCXX_NAMESPACE::http::GET,
+			 serveraddr + "/infinite");
+	alarm(0);
+	std::copy(resp->begin(),
+		  resp->end(),
+		  resp->message.toString(std::ostreambuf_iterator<char>
+					 (std::cout)));
+}
+
 int main(int argc, char **argv)
 {
 	try {
@@ -1391,6 +1472,7 @@ int main(int argc, char **argv)
 		std::cout << "testclientauth3" << std::endl;
 		testclientauth3();
 		testcookies();
+		testredirect();
 	} catch (LIBCXX_NAMESPACE::exception &e)
 	{
 		std::cerr << e << std::endl;

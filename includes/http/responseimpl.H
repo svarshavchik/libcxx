@@ -19,6 +19,8 @@
 
 namespace LIBCXX_NAMESPACE {
 
+	class uriimpl;
+
 	namespace http {
 #if 0
 	};
@@ -26,7 +28,6 @@ namespace LIBCXX_NAMESPACE {
 #endif
 
 class cookie;
-
 class response_exception;
 
 //! HTTP informational responses are in the 1xx range.
@@ -274,6 +275,14 @@ public:
 	static void throwResponseException(int err_code, const std::string &msg)
 		__attribute__((noreturn));
 
+	//! Throw a redirect
+
+	static void throw_redirect(//! Redirect to this URI
+				   const uriimpl &uri,
+
+				   //! Use this redirect code
+				   int status_code=303)
+		__attribute__((noreturn));
 
 	//! Throw an HTTP-related %exception
 	static void throw_bad_request() __attribute__((noreturn))

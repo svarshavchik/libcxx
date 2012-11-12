@@ -346,6 +346,13 @@ public:
 	//! Maximum number of persistent connections to the same host cached by useragent
 	static property::value<size_t> maxhostconn;
 
+	//! Maximum number of redirections
+
+	static property::value<size_t> maxredirects;
+
+	//! My user agent header
+
+	static property::value<std::string> user_agent_header;
 
 	friend class useragentBase;
 
@@ -841,6 +848,13 @@ private:
 	response do_request(const fd *terminate_fd,
 			    requestimpl &req,
 			    request_sans_body &impl);
+
+	//! Implement the request
+
+	response do_request_redirected(const fd *terminate_fd,
+				       requestimpl &req,
+				       request_sans_body &impl)
+		LIBCXX_INTERNAL;
 
 	//! Implement the request
 

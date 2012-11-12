@@ -6,7 +6,8 @@
 #ifndef x_http_requestimpl_H
 #define x_http_requestimpl_H
 
-#include <x/http/messageimpl.H>
+#include <x/http/messageimplfwd.H>
+#include <x/uriimpl.H>
 #include <x/namespace.h>
 
 #include <map>
