@@ -44,6 +44,7 @@
 /testlogrotate
 /testmcguffinref
 /testmessages
+/testmimenewlineiter
 /testmsgdispatcher
 /testmsgdispatcher.testclass1.all.H
 /testmsgdispatcher.testclass2.decl.H

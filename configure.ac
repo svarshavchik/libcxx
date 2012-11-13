@@ -622,6 +622,7 @@ AC_CONFIG_FILES([Doxyfile po/Makefile.in
 		 includes/http/Makefile
 		 includes/gcrypt/Makefile
 		 includes/gnutls/Makefile
+		 includes/mime/Makefile
 		 includes/param/Makefile
 		 includes/threads/Makefile
 		 includes/xml/Makefile

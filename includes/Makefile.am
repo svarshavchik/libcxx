@@ -3,7 +3,7 @@
 # See COPYING for distribution information.
 #
 
-SUBDIRS = http gcrypt gnutls threads yaml xml sys param
+SUBDIRS = http gcrypt gnutls mime threads yaml xml sys param
 
 headerdir=$(includedir)/x
 
