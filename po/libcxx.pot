@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: libcxx 0.1\n"
 "Report-Msgid-Bugs-To: mrsam@courier-mta.com\n"
-"POT-Creation-Date: 2012-10-21 11:23-0400\n"
+"POT-Creation-Date: 2012-11-12 08:53-0500\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -257,13 +257,13 @@ msgid_plural "seconds"
 msgstr[0] ""
 msgstr[1] ""
 
-#: base/hms.C:246 base/ymd.C:387
+#: base/hms.C:246 base/ymd.C:392
 msgid "day"
 msgid_plural "days"
 msgstr[0] ""
 msgstr[1] ""
 
-#: base/hms.C:247 base/ymd.C:388
+#: base/hms.C:247 base/ymd.C:393
 msgid "week"
 msgid_plural "weeks"
 msgstr[0] ""
@@ -323,11 +323,11 @@ msgstr ""
 msgid "Internal error: invalid HTTP message state"
 msgstr ""
 
-#: base/http_responseimpl.C:127
+#: base/http_responseimpl.C:174
 msgid "Invalid status code"
 msgstr ""
 
-#: base/http_responseimpl.C:137
+#: base/http_responseimpl.C:184
 msgid "Invalid character in reason phrase"
 msgstr ""
 
@@ -343,11 +343,11 @@ msgid ""
 "one"
 msgstr ""
 
-#: base/http_useragentobj.C:465
+#: base/http_useragentobj.C:617
 msgid "Cannot process the Authentication-Info header"
 msgstr ""
 
-#: base/http_useragentobj.C:567
+#: base/http_useragentobj.C:719
 msgid "Unknown protocol: %1"
 msgstr ""
 
@@ -564,55 +564,55 @@ msgstr ""
 msgid "Date parsing failed"
 msgstr ""
 
-#: base/ymd.C:77
+#: base/ymd.C:82
 msgid "Invalid date"
 msgstr ""
 
-#: base/ymd.C:96 base/ymd.C:169
+#: base/ymd.C:101 base/ymd.C:174
 msgid "Date overflow"
 msgstr ""
 
-#: base/ymd.C:363 base/ymd.C:377
+#: base/ymd.C:368 base/ymd.C:382
 msgid "Date interval overflow"
 msgstr ""
 
-#: base/ymd.C:389
+#: base/ymd.C:394
 msgid "month"
 msgid_plural "months"
 msgstr[0] ""
 msgstr[1] ""
 
-#: base/ymd.C:390
+#: base/ymd.C:395
 msgid "year"
 msgid_plural "years"
 msgstr[0] ""
 msgstr[1] ""
 
-#: base/ymd.C:417
+#: base/ymd.C:422
 msgid "%1% year"
 msgid_plural "%1% years"
 msgstr[0] ""
 msgstr[1] ""
 
-#: base/ymd.C:425
+#: base/ymd.C:430
 msgid "%1% month"
 msgid_plural "%1% months"
 msgstr[0] ""
 msgstr[1] ""
 
-#: base/ymd.C:433
+#: base/ymd.C:438
 msgid "%1% week"
 msgid_plural "%1% weeks"
 msgstr[0] ""
 msgstr[1] ""
 
-#: base/ymd.C:441
+#: base/ymd.C:446
 msgid "%1% day"
 msgid_plural "%1% days"
 msgstr[0] ""
 msgstr[1] ""
 
-#: base/ymd.C:500
+#: base/ymd.C:505
 msgid "Invalid ISO 8601 date"
 msgstr ""
 
@@ -622,4 +622,72 @@ msgstr ""
 
 #: base/ymdhms.C:122
 msgid "Cannot parse time value"
+msgstr ""
+
+#: yaml/documentobj.C:68
+msgid "Internal error: invalid YAML node number"
+msgstr ""
+
+#: yaml/mappingnode.C:51
+msgid "YAML mapping index out of range"
+msgstr ""
+
+#: yaml/parserobj.C:40
+msgid "yaml_parser_initialize failed"
+msgstr ""
+
+#: yaml/sequencenode.C:49
+msgid "YAML sequence index out of range"
+msgstr ""
+
+#: yaml/writer.C:40
+msgid "yaml_emitter_emit(%1%) failed: %2%"
+msgstr ""
+
+#: yaml/writer.C:50
+msgid "yaml_emitter_initialize failed"
+msgstr ""
+
+#: yaml/writer.C:68
+msgid "yaml_stream_start_event_initialize() failed"
+msgstr ""
+
+#: yaml/writer.C:79
+msgid "yaml_stream_end_event_initialize() failed"
+msgstr ""
+
+#: yaml/writer.C:85
+msgid "yaml_emitter_flush() failed"
+msgstr ""
+
+#: yaml/writer.C:130
+msgid "yaml_document_start_event_initialize failed"
+msgstr ""
+
+#: yaml/writer.C:143
+msgid "yaml_document_end_event_initialize failed"
+msgstr ""
+
+#: yaml/writer.C:170
+msgid "yaml_scalar_event_initialize failed"
+msgstr ""
+
+#: yaml/writer.C:183
+msgid "yaml_alias_event_initialize failed"
+msgstr ""
+
+#: yaml/writer.C:208
+msgid "yaml_sequence_start_event_initialize failed"
+msgstr ""
+
+#: yaml/writer.C:220
+msgid "yaml_sequence_end_event_initialize failed"
+msgstr ""
+
+#: yaml/writer.C:246
+msgid "yaml_mapping_start_event_initialize failed"
+msgstr ""
+
+#: yaml/writer.C:258
+msgid "yaml_mapping_end_event_initialize failed"
 msgstr ""

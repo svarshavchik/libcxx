@@ -229,7 +229,8 @@ mksigtab.h: mksigtab
 
 libcxx_la_LIBADD=-lpthread -lrt -lpcre @LIBEXTRAPATH@ @LIBUNWIND@ @LINKLIBICONV@ @LINKLIBINTL@
 
-libcxx_la_LDFLAGS=-version-info 1
+libcxx_la_LDFLAGS=-version-info @VERSION_INFO@
+
 noinst_PROGRAMS=\
 	mkgrdjd                       \
 	mksiglist                     \

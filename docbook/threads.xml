@@ -95,7 +95,7 @@ typedef std::list&lt;&ns;::ref&lt;msgObj&gt; &gt; messages_t;
 
 // A lock on the messages queue
 
-typedef mpcobj&lt;messages_t&gt;::lock lock_t;
+typedef &ns;::mpcobj&lt;messages_t&gt;::lock lock_t;
 
 // ...
 
@@ -237,7 +237,7 @@ std::lock_guard&lt;&ns;::rwmutex::wmutex&gt; lock(rw.w);
 
       <para>
 	This is because, in order to prevent starvation, an attempt to acquire
-	a write mutex blocks any future read mutex acquisition, even if there
+	a write mutex blocks any future read mutex acquisitions, even if there
 	are existing read mutex owners. If a thread owns a read mutex, and
 	there's a waiting write mutex attempt, an attempt to acquire a second
 	read mutex blocks, and because the same thread also has an existing
@@ -278,7 +278,8 @@ std::lock_guard&lt;&ns;::rwmutex::wmutex&gt; lock(rw.w);
       The debug class is slow, it should only be used as a
       temporary debugging measure, to nail down bad locking.
       Once a bad lock gets detected, a backtrace gets dumped to standard error,
-      and an exception gets thrown, for good measure.
+      and an <link linkend="exceptions">exception gets thrown</link>,
+      for good measure.
     </para>
   </section> 
 

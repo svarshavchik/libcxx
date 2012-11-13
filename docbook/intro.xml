@@ -82,11 +82,6 @@ See COPYING for distribution information.
       &stasher;. After generic classes and templates in
       &stasher; exceeded the size and scope of all other classes and templates,
       they were separated into a standalone library, &app;.
-      This explains some minor gaps in
-      the class coverage. For example, at this time the
-      <acronym>HTTP</acronym> classes do not implement <acronym>HTTP</acronym>
-      authentication, since &stasher;'s code
-      did not need it.
     </para>
 
     <para>

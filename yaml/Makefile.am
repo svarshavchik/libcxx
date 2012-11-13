@@ -21,7 +21,7 @@ gettext_in.h:
 
 lib_LTLIBRARIES=libcxxyaml.la
 libcxxyaml_la_LIBADD=../base/libcxx.la $(YAMLLIBS)
-libcxxyaml_la_LDFLAGS=-version-info 1 $(LINKTYPE)
+libcxxyaml_la_LDFLAGS=-version-info @VERSION_INFO@ $(LINKTYPE)
 
 noinst_PROGRAMS=testwriter testparser testcookiejar
 

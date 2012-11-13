@@ -67,7 +67,7 @@ libcxxtls_la_SOURCES=\
 	x509_privkeyobj.C
 
 libcxxtls_la_LIBADD=../base/libcxx.la
-libcxxtls_la_LDFLAGS=-version-info 1 $(GNUTLS_LIBS) $(GCRYPT_LIBS) -lpthread
+libcxxtls_la_LDFLAGS=-version-info @VERSION_INFO@ $(GNUTLS_LIBS) $(GCRYPT_LIBS) -lpthread
 
 noinst_PROGRAMS=\
 	testhttpclientimpl				\

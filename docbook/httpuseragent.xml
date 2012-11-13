@@ -403,6 +403,16 @@ if (resp-&gt;has_content())
     <itemizedlist>
       <listitem>
 	<para>
+	  The <varname>uri</varname> class member gives the
+	  <acronym>URI</acronym> of the returned response. This is usually
+	  the same as the request's <acronym>URI</acronym>, but may be different
+	  when the server responded with a redirection. The user agent object
+	  automatically handles redirects, where appropriate.
+	</para>
+      </listitem>
+
+      <listitem>
+	<para>
 	  The <varname>message</varname> class member is a
 	  <ulink url="&link-x--http--responseimpl;"><classname>&ns;::http::responseimpl</classname></ulink>
 	  class instance with the headers of the

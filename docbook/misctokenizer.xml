@@ -5,7 +5,7 @@ See COPYING for distribution information.
 
 -->
 
-<chapter id="strtok">
+<chapter id="misctokenizer">
   <title>A tokenizer helper template</title>
 
   <para>
