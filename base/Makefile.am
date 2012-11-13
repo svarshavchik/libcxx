@@ -16,6 +16,7 @@ EXTRA_DIST=\
 	testfactory.tst \
 	testfmtsize.txt \
 	testgetprop.tst \
+	testhttpclientauth.txt \
 	testhttpmessageimpl.txt \
 	testinpseq.tst \
 	testlocale.txt \
