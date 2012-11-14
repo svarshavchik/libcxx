@@ -1,0 +1,167 @@
+/*
+** Copyright 2012 Double Precision, Inc.
+** See COPYING for distribution information.
+*/ 
+#ifndef x_mime_bodystartiter_H
+#define x_mime_bodystartiter_H
+
+#include <x/namespace.h>
+#include <x/mime/newlineiter.H>
+
+namespace LIBCXX_NAMESPACE {
+
+	//! Classes and templates for parsing MIME-formatted messages.
+
+	namespace mime {
+#if 0
+	}
+}
+#endif
+
+//! Implement a reference-counted iterator that finds the start of a message body.
+
+//! \see bodystart_iter
+//!
+
+template<typename output_iter_type>
+class bodystart_iterObj : virtual public obj {
+
+	//! Whether the previous element was newline_end
+
+	bool was_newlineend;
+
+	//! Next newline_end will start a body
+
+	bool will_body_start;
+
+	//! Whether body_start was seen
+
+	bool seen_body_start;
+
+public:
+	//! My iterator traits
+
+	typedef std::iterator<std::output_iterator_tag, void,
+			      void, void, void> iterator_traits;
+
+	//! Underlying output iterator over ints.
+
+	output_iter_type iter;
+
+	//! Constructor
+	bodystart_iterObj(const output_iter_type &iterArg)
+		: was_newlineend(true), // Make-believe
+		  will_body_start(false),
+		  seen_body_start(false),
+		  iter(iterArg)
+	{
+	}
+
+	//! Move constructor
+	bodystart_iterObj(output_iter_type && iterArg)
+		: was_newlineend(true), // Make-believe
+		  will_body_start(false),
+		  seen_body_start(false),
+		  iter(std::move(iterArg))
+	{
+	}
+
+	//! Iterator operator
+
+	bodystart_iterObj<output_iter_type> &operator*() { return *this; }
+
+	//! Iterator operator
+
+	bodystart_iterObj<output_iter_type> &operator++() { return *this; }
+
+	//! Iterator operator
+
+	bodystart_iterObj<output_iter_type> *before_postoper()
+	{
+		return this;
+	}
+
+	//! Iterator operator
+
+	void operator=(int c)
+	{
+		if (c == eof)
+		{
+			// If the output sequence didn't end with a body_start,
+			// add one.
+
+			if (!seen_body_start)
+				*iter++=body_start;
+			seen_body_start=true;
+			*iter++=c;
+			return;
+		}
+
+		if (!seen_body_start)
+		{
+			if (c == newline_start && was_newlineend)
+				will_body_start=true;
+			was_newlineend=false;
+			if (c == newline_end)
+			{
+				was_newlineend=true;
+
+				if (will_body_start)
+				{
+					seen_body_start=true;
+					*iter++=c;
+					*iter++=body_start;
+					return;
+				}
+			}
+		}
+		*iter++=c;
+		return;
+	}
+};
+
+//! A reference-counter output iterator that finds the start of a message body.
+
+//! This is a \ref refiterator "reference-counted iterator" that implements
+//! an output iterator.
+//! This output iterator typically receives the output from newlineiter, and
+//! the template parameter is an output
+//! iterator that takes ints. The constructor takes the instance of the
+//! template parameter.
+//!
+//! The ints that this iterator receives get passed through to the underlying
+//! int operator. Additionally, the first time two newline sequences are seen
+//! in a row, the second newline sequences gets followed by \c body_start.
+//!
+//! An eof element checks if a body has been seen, if not \c body_start gets
+//! emitted.
+//!
+//! This is a template alias for a
+//! \ref refiterator "refiterator" to a
+//! \ref bodystart_iterObj "bodystart_iterObj".
+
+template<typename output_iter>
+#ifdef DOXYGEN
+class bodystart_iter {}; // TODO
+#else
+using bodystart_iter=refiterator<bodystart_iterObj<output_iter> >;
+#endif
+
+//! A nullable pointer reference to a \ref bodystart_iterObj "bodystart_iterObj".
+
+//! \see bodystart_iter
+
+template<typename output_iter>
+#ifdef DOXYGEN
+class bodystart_iterptr {}; // TODO
+#else
+using bodystart_iterptr=ptriterator<bodystart_iterObj<output_iter> >;
+#endif
+
+#if 0
+{
+	{
+#endif
+	}
+}
+#endif

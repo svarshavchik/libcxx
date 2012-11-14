@@ -269,6 +269,7 @@ noinst_PROGRAMS=\
 	testlogrotate                 \
 	testmcguffinref               \
 	testmessages                  \
+	testmimebodystartiter         \
 	testmimenewlineiter           \
 	testmsgdispatcher             \
 	testnetif                     \
@@ -599,6 +600,10 @@ testmimenewlineiter_SOURCES=testmimenewlineiter.C
 testmimenewlineiter_LDADD=libcxx.la
 testmimenewlineiter_LDFLAGS=$(TESTLINKTYPE)
 
+testmimebodystartiter_SOURCES=testmimebodystartiter.C
+testmimebodystartiter_LDADD=libcxx.la
+testmimebodystartiter_LDFLAGS=$(TESTLINKTYPE)
+
 propertiescli.h : propertiescli.h.tmp
 	perl -p -e 's/^#include.*//;s/\b@LIBCXX_NAMESPACE@::/LIBCXX_NAMESPACE::/g' <propertiescli.h.tmp >propertiescli.h.tmp2
 	mv propertiescli.h.tmp2 propertiescli.h
@@ -773,6 +778,7 @@ check-am: $(noinst_PROGRAMS) $(noinst_DATA)
 	./testforkexec
 	./testhier
 	./testmimenewlineiter
+	./testmimebodystartiter
 
 $(XTEST_MO_DIR)/$(XTEST_MO_FILE): testmessages.po
 	mkdir -p $(XTEST_MO_DIR)
