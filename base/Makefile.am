@@ -134,6 +134,8 @@ libcxx_la_SOURCES=\
 	localscope.C		\
 	logger.C		\
 	messages.C		\
+	mime_headercollector.C	\
+	mime_headeriter.C	\
 	msgdispatcher.C		\
 	mutexobj.C		\
 	mutexpool.C		\
@@ -270,6 +272,7 @@ noinst_PROGRAMS=\
 	testmcguffinref               \
 	testmessages                  \
 	testmimebodystartiter         \
+	testmimeheadercollector       \
 	testmimenewlineiter           \
 	testmsgdispatcher             \
 	testnetif                     \
@@ -604,6 +607,10 @@ testmimebodystartiter_SOURCES=testmimebodystartiter.C
 testmimebodystartiter_LDADD=libcxx.la
 testmimebodystartiter_LDFLAGS=$(TESTLINKTYPE)
 
+testmimeheadercollector_SOURCES=testmimeheadercollector.C
+testmimeheadercollector_LDADD=libcxx.la
+testmimeheadercollector_LDFLAGS=$(TESTLINKTYPE)
+
 propertiescli.h : propertiescli.h.tmp
 	perl -p -e 's/^#include.*//;s/\b@LIBCXX_NAMESPACE@::/LIBCXX_NAMESPACE::/g' <propertiescli.h.tmp >propertiescli.h.tmp2
 	mv propertiescli.h.tmp2 propertiescli.h
@@ -779,6 +786,7 @@ check-am: $(noinst_PROGRAMS) $(noinst_DATA)
 	./testhier
 	./testmimenewlineiter
 	./testmimebodystartiter
+	./testmimeheadercollector
 
 $(XTEST_MO_DIR)/$(XTEST_MO_FILE): testmessages.po
 	mkdir -p $(XTEST_MO_DIR)

@@ -45,6 +45,7 @@
 /testmcguffinref
 /testmessages
 /testmimebodystartiter
+/testmimeheadercollector
 /testmimenewlineiter
 /testmsgdispatcher
 /testmsgdispatcher.testclass1.all.H
