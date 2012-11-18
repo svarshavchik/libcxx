@@ -1,0 +1,166 @@
+<!--
+
+Copyright 2012 Double Precision, Inc.
+See COPYING for distribution information.
+
+-->
+
+
+<chapter id="base64">
+  <title>Quoted-printable encoding and decoding</title>
+
+  <blockquote>
+    <informalexample>
+      <programlisting>
+#include &lt;&ns;/qp.H&gt;
+
+std::string s;
+
+typedef std::back_insert_iterator&lt;std::string&gt; ins_iter_t;
+
+std::string input_string;
+
+ins_iter_t iter=std::copy(input_string.begin(), input_string.end(),
+                          &ns;::qp_encoder&lt;ins_iter_t&gt;(ins_iter_t(s))).eof();</programlisting>
+    </informalexample>
+  </blockquote>
+
+  <para>
+    The
+    <ulink url="&link-x--qp-encoder;"><classname>&ns;::qp_encoder</classname></ulink>
+    template class defines an output iterator that encodes its output
+    sequence using quoted-printable encoding, as described in section 6.7 of
+    RFC 4648, and writes the encoded output sequence to another output
+    iterator, the <quote>underlying</quote> output iterator.
+  </para>
+
+  <para>
+    The template parameter is the underlying iterator class, and the
+    constructor takes an underlying iterator class instance.
+    After iterating over the sequence, <methodname>eof</methodname>() must
+    get called to flush any remaining unencoded sequence
+    <classname>&ns;::qp_encoder</classname> does not often buffer anything,
+    and generally encodes everything on the fly; but there are some edge
+    conditions where a character gets buffered internally.
+    <methodname>eof</methodname>() returns the new value of the underlying
+    output iterator.
+  </para>
+
+  <para>
+    <classname>&ns;::qp_encoder</classname>'s constructor
+    has three optional parameters:
+  </para>
+
+  <itemizedlist>
+    <listitem>
+      <para>
+	The line width. By default, <classname>&ns;::qp_encoder</classname>
+	inserts a soft line break every 76 characters. Set the line width
+	to 0, in order to disable soft line breaks.
+      </para>
+    </listitem>
+
+    <listitem>
+      <para>
+	A <classname>bool</classname> flag, that defaults to
+	<literal>false</literal>. Set the flag to <literal>true</literal> to
+	use <literal>CRLF</literal> sequence for a newline, instead of a
+	<literal>LF</literal>. This takes effect for both the output
+	sequence that <classname>&ns;::qp_encoder</classname> receives, and
+	the output sequence iterated by the underlying output iterator.
+      </para>
+
+      <note>
+	<para>
+	  The flag gets effectively ignored when soft line breaks get disabled
+	  by setting the line width to 0. This results in all
+	  <literal>CR</literal> and <literal>LF</literal> characters getting
+	  encoded, together with all other control characters.
+	</para>
+      </note>
+    </listitem>
+
+    <listitem>
+      <para>
+	An instance of a traits class, that optionally specifies which
+	characters should be encoded in addition to the control characters
+	and the non-ASCII characters:
+      </para>
+    </listitem>
+  </itemizedlist>
+
+  <blockquote>
+    <informalexample>
+      <programlisting>
+class extra_encoded {
+
+public:
+
+    static bool encode(char c) { return c == '\'' || c == 34; }
+};
+
+typedef std::back_insert_iterator&lt;std::string&gt; ins_iter_t;
+
+typedef &ns;::qp_encoder&lt;ins_iter_t, extra_encoded&gt; encoder_t;</programlisting>
+    </informalexample>
+  </blockquote>
+
+  <para>
+    <classname>&ns;::qp_encoder</classname>'s second optional template
+    parameter is a class with an <function>encode</function>() function,
+    which returns <literal>true</literal> for any characters, in addition
+    to control characters and non-ASCII characters that are always encoded.
+    This is used in environments where additional characters must be encoded
+    for syntax-related reasons. This example results in apostrophes and
+    quote characters also getting encoded.
+  </para>
+
+  <para>
+    <function>encode</function>() can be a function or a class member.
+    An instance of the traits class gets passed as the last optional
+    parameter to <classname>&ns;::qp_encoder</classname>'s constructor,
+    defaulting to the default constructor for the traits class.
+  </para>
+
+  <blockquote>
+    <informalexample>
+      <programlisting>
+std::string encoded;
+
+std::string orig;
+
+typedef std::back_insert_iterator&lt;std::string&gt; ins_iter_t;
+
+typedef &ns;::qp_decoder&lt;ins_iter_t&gt; decoder_t;
+
+ins_iter_t iter=std::copy(encoded.begin(), encoded.end(),
+                          decoder_t(ins_iter_t(orig))).eof();</programlisting>
+    </informalexample>
+  </blockquote>
+
+  <para>
+    The
+    <ulink url="&link-x--qp-decoder;"><classname>&ns;::qp_decoder</classname></ulink>
+    template class defines an output iterator that performs the opposite
+    quoted-printable decoding,
+    and writes the decoded output sequence to the
+    underlying output iterator.
+  </para>
+
+  <para>
+    The template parameter is the underlying iterator class, and the
+    constructor takes an underlying iterator class instance.
+    After iterating over the sequence, <methodname>eof</methodname>() returns
+    the new value of the underlying output iterator.
+    <classname>&ns;::qp_decoder</classname> does not buffer anything, so
+    <methodname>eof</methodname>() has no real effect other than
+    returning the new value of the underlying output iterator.
+  </para>
+</chapter>
+
+<!--
+Local Variables:
+mode: sgml
+sgml-parent-document: ("book.xml" "book" "chapter")
+End:
+-->

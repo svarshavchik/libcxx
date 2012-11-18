@@ -279,6 +279,7 @@ noinst_PROGRAMS=\
 	testpidinfo                   \
 	testpostponedcall	      \
 	testprop                      \
+	testqp                        \
 	testrefiterator               \
 	testrun                       \
 	testrunsingleton	      \
@@ -319,6 +320,10 @@ testobj_LDFLAGS=$(TESTLINKTYPE)
 testrefiterator_SOURCES=testrefiterator.C
 testrefiterator_LDADD=libcxx.la
 testrefiterator_LDFLAGS=$(TESTLINKTYPE)
+
+testqp_SOURCES=testqp.C
+testqp_LDADD=libcxx.la
+testqp_LDFLAGS=$(TESTLINKTYPE)
 
 testfutime_SOURCES=testfutime.C
 testfutime_LDADD=libcxx.la
@@ -625,6 +630,7 @@ check-am: $(noinst_PROGRAMS) $(noinst_DATA)
 	diff $(srcdir)/testobj.tst test.obj.tmp
 	rm test.obj.tmp
 	./testrefiterator
+	./testqp
 	./testrun
 	./testrunsingleton
 	./testdestroycallbackwait4
