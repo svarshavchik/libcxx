@@ -1,0 +1,357 @@
+<!--
+
+Copyright 2012 Double Precision, Inc.
+See COPYING for distribution information.
+
+-->
+
+<chapter id="refiterator">
+  <title>Implementing iterators with reference-counted objects</title>
+
+  <para>
+    C++ iterators are frequently copied and movied around, and can benefit
+    from a reference-counted approach, where only a reference count gets
+    updated, instead of having to copy a large object here and there.
+  </para>
+
+  <blockquote>
+    <informalexample>
+      <programlisting>
+#include &lt;&ns;/refiterator.H&gt;
+#include &lt;&ns;/ref.H&gt;
+#include &lt;&ns;/ptr.H&gt;
+#include &lt;&ns;/obj.H&gt;
+
+class customiteratorObj : virtual public &ns;::obj {
+
+// ...
+
+};
+
+typedef &ns;::refiterator&lt;customiteratorObj&gt; customiterator;
+
+auto iter=customiterator::create( /* arguments... */ );
+      </programlisting>
+    </informalexample>
+  </blockquote>
+
+  <para>
+    <ulink url="&link-x--refiterator;"><classname>&ns;::refiterator</classname></ulink>
+    defines a subclass of <link linkend="ref"><classname>&ns;::ref</classname></link>
+    that implements iterator operator facades which invoke the corresponding
+    methods from the referenced object. The template, like
+    <classname>&ns;:ref</classname>, takes an optional second parameter that
+    specifies a <link linkend="custombase">custom</link>
+    <link linkend="create">base class</link>.
+  </para>
+
+  <para>
+    <classname>&ns;::ptriterator</classname>,
+    <classname>&ns;::const_refiterator</classname>, and
+    <classname>&ns;::const_ptriterator</classname> round out the
+    rest of the customary <link linkend="obj">naming convention for
+      references and pointers to a reference-counted object</link>.
+  </para>
+
+  <note>
+    <para>
+      The remainder of this chapter refers to
+      <classname>&ns;:refiterator</classname>. This description
+      equally applies to
+      <classname>&ns;::ptriterator</classname> and the others, subject to
+      the inherent differenced between the underlying &ref; and &ptr;
+      semantics.
+    </para>      
+    <para>
+      At this time, the reference-counted iterator template implements supports
+      only input and output iterators.
+    </para>
+  </note>
+
+  <blockquote>
+    <informalexample>
+      <programlisting>
+auto iter=&ns;::make_refiterator(&ns;::ref&lt;dummyOutputIterObj&gt;::create());</programlisting>
+    </informalexample>
+  </blockquote>
+
+  <para>
+    The <function>make_refiterator</function>() convenience function takes
+    a &ref; parameter, and constructs an
+    <classname>&ns;::refiterator</classname> from it.
+  </para>
+
+  <section id="refiteratorex">
+    <title>Implementing a reference-counted object-based iterator</title>
+
+    <blockquote>
+      <informalexample>
+	<programlisting>
+class dummyOutputIterObj : virtual public &ns;::obj {
+public:
+
+    typedef std::iterator&lt;std::output_iterator_tag, void, void, void,
+                  void&gt; iterator_traits;
+
+    std::string buffer;
+
+public:
+    dummyOutputIterObj() {}
+    ~dummyOutputIterObj() noexcept {}
+
+    void operator++() {}
+
+    &ns;::ref&lt;dummyOutputIterObj&gt; before_postoper()
+    {
+        return &ns;::ref&lt;dummyOutputIterObj&gt;(this);
+    }
+
+    dummyOutputIterObj &amp;operator*()
+    {
+        return *this;
+    }
+
+    void operator=(char c)
+    {
+        buffer.push_back(c);
+    }
+
+    dummyOutputIterObj *operator-&gt;()
+    {
+        return this;
+    }
+};
+
+// ...
+
+auto iter=&ns;::refiterator&lt;dummyOutputIterObj&gt;::create();
+
+std::string s="foobar";
+
+iter=std::copy(s.begin(), s.end(), iter);
+
+*iter++='r';</programlisting>
+      </informalexample>
+    </blockquote>
+
+    <para>
+      Like with &ref;s and &ptr;s, <function>create</function>() constructs
+      a reference or a pointer to a new reference-counted object.
+      <classname>&ns;::refiterator</classname> implements the
+      <function>*</function>(), <function>++</function>(), and
+      <function>-&gt;</function>() operators that are required from an
+      iterator implementation. They get implemented by invoking the following
+      methods and members of the referenced object:
+    </para>
+
+    <variablelist>
+      <varlistentry>
+	<term><literal>typedef std::iterator&lt;...&gt; iterator_traits</literal></term>
+	<listitem>
+	  <para>
+	    The object must declare <varname>iterator_traits</varname> to
+	    describe what kind of an iterator it implements.
+	    <classname>&ns;::refiterator</classname> inherits from it.
+	  </para>
+	</listitem>
+      </varlistentry>
+
+      <varlistentry>
+	<term><methodname>*</methodname> and <methodname>-&gt;</methodname></term>
+	<listitem>
+	  <para>
+	    <classname>&ns;::refiterator</classname>'s
+	    <methodname>*</methodname> and
+	    <methodname>-&gt;</methodname> methods invoke
+	    the corresponding method from the object, and return whatever the
+	    invoked method returns. The <methodname>*</methodname> operator is
+	    required, and <methodname>-&gt;</methodname> is optional.
+	  </para>
+
+	  <para>
+	    As usual, it's expected that an output iterator's
+	    <methodname>*</methodname>() returns something that implements
+	    <methodname>=</methodname>() that adds a new element to the
+	    output sequence. The usual approach is to return a native
+	    reference to the same object, and have the class implement
+	    the <methodname>=</methodname> operator.
+	    Unlike a regular iterator's operator,
+	    here it does not need to return a native reference to its own
+	    instance, since it's the <classname>&ns;::refiterator</classname>'s
+	    <methodname>*</methodname> that actually gets invoked, and
+	    it returns a native reference to itself.
+	  </para>
+
+	  <para>
+	    For input iterators, the required <methodname>*</methodname>
+	    and the optional <methodname>-&gt;</methodname> operators
+	    need to return something that's convertible to the current
+	    value referenced by the input iterator.
+	  </para>
+	</listitem>
+      </varlistentry>
+      <varlistentry>
+	<term><methodname>++</methodname>()</term>
+	<listitem>
+
+	  <para>
+	    <classname>&ns;::refiterator</classname>'s
+	    <methodname>++</methodname> method invokes the referenced
+	    object's
+	    <methodname>++</methodname> operator, but returns a reference to
+	    itself, and the return value from the object's
+	    <methodname>++</methodname> operator gets ignored.
+	  </para>
+
+	  <para>
+	    The object's <methodname>++</methodname> operator's semantics
+	    should implement the prefix version of the operator.
+	  </para>
+	</listitem>
+      </varlistentry>
+      <varlistentry>
+	<term><methodname>before_postoper</methodname>()</term>
+	<listitem>
+	  <para>
+	    <classname>&ns;::refiterator</classname>'s postfix version of
+	    <methodname>++</methodname> method invokes
+	    <methodname>before_postoper</methodname>(), and passes through
+	    whatever value it returns; but before returning, the
+	    object's <methodname>++</methodname>() gets invoked.
+	    So, the sequence of events is:
+	  </para>
+
+	  <itemizedlist>
+	    <listitem>
+	      <para>
+		<classname>&ns;::refiterator</classname>'s postfix
+		<methodname>++</methodname> gets invoked.
+	      </para>
+	    </listitem>
+
+	    <listitem>
+	      <para>
+		The object's <methodname>before_postoper</methodname>()
+		gets invoked.
+	      </para>
+	    </listitem>
+
+	    <listitem>
+	      <para>
+		The object's <methodname>++</methodname>() operator
+		gets invoked.
+	      </para>
+	    </listitem>
+
+	    <listitem>
+	      <para>
+		The return value from 
+		<methodname>before_postoper</methodname>() becomes the
+		return value of
+		<classname>&ns;::refiterator</classname>'s
+		postfix <methodname>++</methodname>() operator.
+	      </para>
+	    </listitem>
+	  </itemizedlist>
+
+	  <para>
+	    It follows that the return value from
+	    <methodname>before_postoper</methodname> is expected to
+	    be dereferenced by <methodname>*</methodname>(), in the context
+	    of an input or an output iterator.
+	  </para>
+	</listitem>
+      </varlistentry>
+    </variablelist>
+  </section>
+
+  <section id="refiteratorget">
+    <title>Accessing the underlying &ref; and &ptr;</title>
+
+  <blockquote>
+    <informalexample>
+      <programlisting>
+typedef &ns;::refiterator&lt;customiteratorObj&gt; customiterator;
+
+// ...
+
+customiterator iter=customiterator::create();
+
+// ...
+
+iter.get()->method();</programlisting>
+    </informalexample>
+  </blockquote>
+
+
+
+    <para>
+      An <classname>&ns;::refiterator</classname> overrides the
+      <literal>*</literal>() and <literal>-&gt;</literal>() operators to
+      implement them as iterator operators; essentially hiding
+      the underlying reference-counted object, replacing it with
+      an iterated-over sequence. If needed,
+      <methodname>get</methodname>() returns the underlying
+      &ref; or a &ptr;, to access the underlying reference-counted object.
+    </para>
+  </section>
+
+  <section id="outputrefiterator">
+    <title>Base class for reference-counted output iterators</title>
+
+    <blockquote>
+      <informalexample>
+	<programlisting>
+class receiverObj : public &ns;::outputrefiteratorObj&lt;int&gt; {
+
+// ...
+    void operator=(int c) override;
+};
+
+outputrefiterator&lt;int&gt; iter=&ns;::refiterator&lt;receiverObj&gt;::create();
+	</programlisting>
+      </informalexample>
+    </blockquote>
+
+    <para>
+      <ulink url="&link-x--outputrefiteratorObj;"><classname>&ns;::outputrefiteratorObj</classname></ulink>
+      defines shims for an output iterator over the class given as a template
+      parameter. <classname>&ns;::outputrefiteratorObj</classname> defines
+      the <function>operator++</function>() and <function>operator*</function>()
+      shims, and a virtual <function>operator=</function>() which gets
+      defined in a subclass.
+    </para>
+
+    <para>
+      <ulink url="&link-x--outputrefiterator;"><classname>&ns;::outputrefiterator&lt;<replaceable>T</replaceable>&gt;</classname></ulink>
+      defines a reference-counted iterator to an
+      <classname>&ns;::outputrefiteratorObj&lt;<replaceable>T</replaceable>&gt;</classname>.
+      There's also an
+      <ulink url="&link-x--outputrefiteratorptr;"><classname>&ns;::outputrefiteratorptr&lt;<replaceable>T</replaceable>&gt;</classname></ulink>;
+      as well as
+      <ulink url="&link-x--const-outputrefiteratorptr;"><classname>&ns;::const_outputrefiterator&lt;<replaceable>T</replaceable>&gt;</classname></ulink>
+      and
+      <ulink url="&link-x--const-outputrefiteratorptr;"><classname>&ns;::const_outputrefiteratorptr&lt;<replaceable>T</replaceable>&gt;</classname></ulink>
+      (marginally useful, since
+      <classname>&ns;::outputrefiteratorObj&lt;<replaceable>T</replaceable>&gt;</classname>
+      does not have any <literal>const</literal> methods).
+    </para>
+
+    <para>
+      This allows non template-based implementations based on
+      <classname>&ns;::outputrefiterator&lt;<replaceable>T</replaceable>&gt;</classname>
+      to operate on any reference-counted output iterator implemented by a
+      <classname>&ns;::outputrefiteratorObj&lt;<replaceable>T</replaceable>&gt;</classname>
+      subclass, with the trade-off of less-optimized code that uses
+      virtual function calls, in place of potential optimizations involving
+      iterating of the assignment operator.
+    </para>
+  </section>
+</chapter>
+
+<!--
+Local Variables:
+mode: sgml
+sgml-parent-document: ("book.xml" "book" "chapter")
+End:
+-->

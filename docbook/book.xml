@@ -13,6 +13,7 @@
 <!ENTITY core SYSTEM "core.xml">
 <!ENTITY exceptions SYSTEM "exceptions.xml">
 <!ENTITY refobj SYSTEM "refobj.xml">
+<!ENTITY refiterator SYSTEM "refiterator.xml">
 <!ENTITY fd SYSTEM "fd.xml">
 <!ENTITY signals SYSTEM "signals.xml">
 <!ENTITY glob SYSTEM "glob.xml">
@@ -105,6 +106,7 @@ See COPYING for distribution information.
     &core;
     &exceptions;
     &refobj;
+    &refiterator;
     &properties;
     &logger;
     &fd;

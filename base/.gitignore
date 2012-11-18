@@ -59,6 +59,7 @@
 /testpidinfo
 /testpostponedcall
 /testprop
+/testrefiterator
 /testrun
 /testrunsingleton
 /testrwmutex

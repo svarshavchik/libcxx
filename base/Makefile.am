@@ -279,6 +279,7 @@ noinst_PROGRAMS=\
 	testpidinfo                   \
 	testpostponedcall	      \
 	testprop                      \
+	testrefiterator               \
 	testrun                       \
 	testrunsingleton	      \
 	testrwmutex                   \
@@ -314,6 +315,10 @@ mksigtab.o: mksiglist.h
 testobj_SOURCES=testobj.C
 testobj_LDADD=libcxx.la
 testobj_LDFLAGS=$(TESTLINKTYPE)
+
+testrefiterator_SOURCES=testrefiterator.C
+testrefiterator_LDADD=libcxx.la
+testrefiterator_LDFLAGS=$(TESTLINKTYPE)
 
 testfutime_SOURCES=testfutime.C
 testfutime_LDADD=libcxx.la
@@ -619,6 +624,7 @@ check-am: $(noinst_PROGRAMS) $(noinst_DATA)
 	./testobj 2>test.obj.tmp >&2
 	diff $(srcdir)/testobj.tst test.obj.tmp
 	rm test.obj.tmp
+	./testrefiterator
 	./testrun
 	./testrunsingleton
 	./testdestroycallbackwait4
