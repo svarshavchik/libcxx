@@ -146,6 +146,31 @@ static void testerrconv(size_t ibufs, size_t obufs,
 	}
 }
 
+static void testiconv_ucs4()
+{
+	std::u32string u32=
+		LIBCXX_NAMESPACE::iconviofilter::to_u32string("\xC2\xA0",
+							      "UTF-8");
+
+	if (u32.size() != 1 || u32[0] != 0xA0)
+		throw EXCEPTION("ucs4 iconviofilter fail");
+
+	if (LIBCXX_NAMESPACE::iconviofilter::from_u32string(u32,
+							    "UTF-8")
+	    != "\xC2\xA0")
+		throw EXCEPTION("ucs4 iconviofilter fail");
+
+	std::string large(512, '\xA0');
+
+	if (LIBCXX_NAMESPACE::iconviofilter::from_u32string
+	    (LIBCXX_NAMESPACE::iconviofilter::to_u32string(large,
+							   "ISO-8859-1"),
+	     "ISO-8859-1") != large)
+		throw EXCEPTION("Large ucs4 iconviofilter failed");
+
+
+}
+
 int main(int argc, char **argv)
 {
 	try {
@@ -225,6 +250,8 @@ int main(int argc, char **argv)
 			testerrconv(1, 1, reinterpret_cast<const char *>(ucs4i),
 				    sizeof(ucs4i)-1, ucs4, utf8, funcname);;
 		}
+
+		testiconv_ucs4();
 	} catch (LIBCXX_NAMESPACE::exception &e)
 	{
 		std::cerr << e << std::endl;

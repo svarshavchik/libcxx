@@ -16,9 +16,19 @@ namespace LIBCXX_NAMESPACE {
 };
 #endif
 
+#if __BYTE_ORDER == __BIG_ENDIAN
+const char iconviofilter::ucs4[]="UCS-4BE";
+#else
+#if __BYTE_ORDER == __LITTLE_ENDIAN
+const char iconviofilter::ucs4[]="UCS-4LE";
+#else
+#error No more endians
+#endif
+#endif
+
 iconviofilter::iconviofilter(const std::string &fromchset,
 			     const std::string &tochset)
-	: x_outbuf_ptr(0)
+	: h((iconv_t)-1), x_outbuf_ptr(0)
 {
 	if ((h=iconv_open(tochset.c_str(), fromchset.c_str())) == (iconv_t)-1)
 		throw SYSEXCEPTION(gettextmsg(libmsg(_txt("iconv(%1% to %2%)")),
@@ -27,6 +37,8 @@ iconviofilter::iconviofilter(const std::string &fromchset,
 
 iconviofilter::~iconviofilter() noexcept
 {
+	if (h != (iconv_t)-1)
+		iconv_close(h);
 }
 
 void iconviofilter::filter()
@@ -199,6 +211,71 @@ bool iconviofilter::filter_handle_e2big(const char *&inp,
 
 	LOG_TRACE("Conversion error");
 	return false;
+}
+
+static void char32_t_better_be_4_bytes(char p[sizeof(char32_t) == 4 ? 1:-1]);
+
+std::u32string iconviofilter::to_u32string(const std::string &string,
+					   const std::string &charset)
+{
+	std::u32string u32string;
+
+	iconviofilter to_ucs4(charset, iconviofilter::ucs4);
+
+	to_ucs4.next_in=string.c_str();
+	to_ucs4.avail_in=string.size();
+
+	size_t taken, next_taken=0;
+
+	do
+	{
+		taken=next_taken;
+
+		u32string.resize(((taken ? taken*2:256)+3)/4);
+
+		to_ucs4.next_out=reinterpret_cast<char *>(&u32string[0])+taken;
+		to_ucs4.avail_out=u32string.size()*4-taken;
+
+		to_ucs4.filter();
+
+		next_taken=to_ucs4.next_out-
+			reinterpret_cast<char *>(&u32string[0]);
+	} while (taken != next_taken);
+
+	u32string.resize(next_taken / 4);
+
+	return u32string;
+}
+
+std::string iconviofilter::from_u32string(const std::u32string &u32string,
+					  const std::string &charset)
+{
+	std::string string;
+
+	iconviofilter from_ucs4(iconviofilter::ucs4, charset);
+
+	from_ucs4.next_in=reinterpret_cast<const char *>(u32string.c_str());
+	from_ucs4.avail_in=u32string.size()*sizeof(char32_t);
+
+	size_t taken, next_taken=0;
+
+	do
+	{
+		taken=next_taken;
+
+		string.resize(taken ? taken*2:256);
+		from_ucs4.next_out=reinterpret_cast<char *>(&string[0])+taken;
+		from_ucs4.avail_out=string.size()-taken;
+
+		from_ucs4.filter();
+
+		next_taken=from_ucs4.next_out-
+			reinterpret_cast<char *>(&string[0]);
+	} while (taken != next_taken);
+
+	string.resize(next_taken);
+
+	return string;
 }
 
 #if 0
