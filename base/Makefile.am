@@ -274,6 +274,7 @@ noinst_PROGRAMS=\
 	testmimebodystartiter         \
 	testmimeheadercollector       \
 	testmimenewlineiter           \
+	testmimesectioniter           \
 	testmsgdispatcher             \
 	testnetif                     \
 	testobj                       \
@@ -611,6 +612,10 @@ testmimeheadercollector_SOURCES=testmimeheadercollector.C
 testmimeheadercollector_LDADD=libcxx.la
 testmimeheadercollector_LDFLAGS=$(TESTLINKTYPE)
 
+testmimesectioniter_SOURCES=testmimesectioniter.C
+testmimesectioniter_LDADD=libcxx.la
+testmimesectioniter_LDFLAGS=$(TESTLINKTYPE)
+
 propertiescli.h : propertiescli.h.tmp
 	perl -p -e 's/^#include.*//;s/\b@LIBCXX_NAMESPACE@::/LIBCXX_NAMESPACE::/g' <propertiescli.h.tmp >propertiescli.h.tmp2
 	mv propertiescli.h.tmp2 propertiescli.h
@@ -787,6 +792,7 @@ check-am: $(noinst_PROGRAMS) $(noinst_DATA)
 	./testmimenewlineiter
 	./testmimebodystartiter
 	./testmimeheadercollector
+	./testmimesectioniter
 
 $(XTEST_MO_DIR)/$(XTEST_MO_FILE): testmessages.po
 	mkdir -p $(XTEST_MO_DIR)

@@ -45,6 +45,12 @@ static const int header_fold_start=0x0107;
 //! End of multiline header fold
 static const int header_fold_end=0x0108;
 
+//! Start of MIME section inside a multipart section
+static const int section_start=0x0109;
+
+//! End of MIME section inside a multipart section
+static const int section_end=0x010A;
+
 #if 0
 {
 	{
