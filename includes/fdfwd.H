@@ -240,7 +240,7 @@ namespace serialization {
 
 	template<>
 	void default_traits::classcreate<fdptr>(fdptr &ptr);
-};
+}
 
 #if 0
 {

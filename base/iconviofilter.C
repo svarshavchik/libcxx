@@ -213,7 +213,7 @@ bool iconviofilter::filter_handle_e2big(const char *&inp,
 	return false;
 }
 
-static void char32_t_better_be_4_bytes(char p[sizeof(char32_t) == 4 ? 1:-1]);
+extern void char32_t_better_be_4_bytes(char p[sizeof(char32_t) == 4 ? 1:-1]);
 
 std::u32string iconviofilter::to_u32string(const std::string &string,
 					   const std::string &charset)
