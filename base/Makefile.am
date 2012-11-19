@@ -136,6 +136,7 @@ libcxx_la_SOURCES=\
 	messages.C		\
 	mime_headercollector.C	\
 	mime_headeriter.C	\
+	mime_rfc2047.C          \
 	msgdispatcher.C		\
 	mutexobj.C		\
 	mutexpool.C		\
@@ -274,6 +275,7 @@ noinst_PROGRAMS=\
 	testmimebodystartiter         \
 	testmimeheadercollector       \
 	testmimenewlineiter           \
+	testmimerfc2047               \
 	testmimesectioniter           \
 	testmsgdispatcher             \
 	testnetif                     \
@@ -616,6 +618,10 @@ testmimesectioniter_SOURCES=testmimesectioniter.C
 testmimesectioniter_LDADD=libcxx.la
 testmimesectioniter_LDFLAGS=$(TESTLINKTYPE)
 
+testmimerfc2047_SOURCES=testmimerfc2047.C
+testmimerfc2047_LDADD=libcxx.la
+testmimerfc2047_LDFLAGS=$(TESTLINKTYPE)
+
 propertiescli.h : propertiescli.h.tmp
 	perl -p -e 's/^#include.*//;s/\b@LIBCXX_NAMESPACE@::/LIBCXX_NAMESPACE::/g' <propertiescli.h.tmp >propertiescli.h.tmp2
 	mv propertiescli.h.tmp2 propertiescli.h
@@ -793,6 +799,7 @@ check-am: $(noinst_PROGRAMS) $(noinst_DATA)
 	./testmimebodystartiter
 	./testmimeheadercollector
 	./testmimesectioniter
+	./testmimerfc2047
 
 $(XTEST_MO_DIR)/$(XTEST_MO_FILE): testmessages.po
 	mkdir -p $(XTEST_MO_DIR)

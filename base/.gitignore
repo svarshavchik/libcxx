@@ -47,6 +47,7 @@
 /testmimebodystartiter
 /testmimeheadercollector
 /testmimenewlineiter
+/testmimerfc2047
 /testmimesectioniter
 /testmsgdispatcher
 /testmsgdispatcher.testclass1.all.H
