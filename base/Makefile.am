@@ -134,6 +134,7 @@ libcxx_la_SOURCES=\
 	localscope.C		\
 	logger.C		\
 	messages.C		\
+	mime_contentheadercollector.C \
 	mime_headercollector.C	\
 	mime_headeriter.C	\
 	mime_rfc2047.C          \

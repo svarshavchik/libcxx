@@ -5,6 +5,7 @@
 
 #include "libcxx_config.h"
 #include "x/options.H"
+#include "x/mime/contentheadercollector.H"
 #include "x/mime/headercollector.H"
 #include "x/mime/headeriter.H"
 #include "x/exception.H"
@@ -66,6 +67,58 @@ void testheadercollector()
 
 }
 
+void contentheader_collector_test(const std::string &headers,
+				  const std::string &expected,
+				  bool mime_10_required)
+{
+	auto collector=LIBCXX_NAMESPACE::mime::contentheader_collector
+		::create(mime_10_required);
+
+	typedef LIBCXX_NAMESPACE::mime::header_iter<decltype(collector)>
+		header_iter_t;
+
+	typedef LIBCXX_NAMESPACE::mime::bodystart_iter<header_iter_t>
+		bodystart_iter_t;
+
+	typedef LIBCXX_NAMESPACE::mime::newline_iter<bodystart_iter_t>
+		newline_iter_t;
+
+	*std::copy(headers.begin(),
+		   headers.end(),
+		   newline_iter_t::create(bodystart_iter_t::create(header_iter_t::create(collector))))
+		=LIBCXX_NAMESPACE::mime::eof;
+
+	std::ostringstream o;
+
+	for (const auto &h:collector.get()->content_headers)
+		o << h.first << '=' << h.second << '|';
+
+	std::string s=o.str();
+
+	if (s != expected)
+		throw EXCEPTION("Ended up with " + s + " but expected " +
+				expected);
+}
+
+void testcontentheadercollector()
+{
+	contentheader_collector_test("Mime-Version: 1.0\n"
+				     "Content-Type: text/plain; test=1\n"
+				     "Irrelevant: header\n"
+				     "\n",
+				     "Content-Type=text/plain; test=1|",
+				     true);
+	contentheader_collector_test("Content-Type: text/plain; test=2\n"
+				     "\n",
+				     "",
+				     true);
+	contentheader_collector_test("Content-Type: text/plain; test=3\n"
+				     "\n",
+				     "Content-Type=text/plain; test=3|",
+				     false);
+}
+
+
 int main(int argc, char **argv)
 {
 	try {
@@ -93,6 +146,7 @@ int main(int argc, char **argv)
 			exit(1);
 		}
 		testheadercollector();
+		testcontentheadercollector();
 	} catch (LIBCXX_NAMESPACE::exception &e)
 	{
 		std::cerr << e << std::endl;
