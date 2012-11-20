@@ -133,8 +133,6 @@ static std::string dumpauth(const LIBCXX_NAMESPACE::http::clientauth &auth)
 
 	static const char * const names[]={"P","A"};
 
-	const char *sep="";
-
 	for (size_t i=0; i<2; i++)
 		for (const auto &a: *auths[i])
 		{
