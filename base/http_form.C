@@ -72,12 +72,12 @@ const char *parametersObj::word_iter::curchar() noexcept
 
 	switch (escape) {
 	case do_escape:
-		if (*ptr == ' ')
-			return "+";
+		// Do not encode only unreserved characters, RFC 3986.
 
 		if ((*ptr >= '0' && *ptr <= '9') ||
 		    (*ptr >= 'A' && *ptr <= 'Z') ||
-		    (*ptr >= 'a' && *ptr <= 'z'))
+		    (*ptr >= 'a' && *ptr <= 'z') ||
+		    (*ptr == '-' || *ptr == '_' || *ptr == '.' || *ptr == '~'))
 			return ptr;
 		return "%";
 	case escape_next1:
