@@ -138,6 +138,7 @@ libcxx_la_SOURCES=\
 	mime_headercollector.C	\
 	mime_headeriter.C	\
 	mime_rfc2047.C          \
+	mime_sectiondecoder.C	\
 	msgdispatcher.C		\
 	mutexobj.C		\
 	mutexpool.C		\

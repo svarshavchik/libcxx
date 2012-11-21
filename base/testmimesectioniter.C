@@ -6,6 +6,7 @@
 #include "libcxx_config.h"
 #include "x/options.H"
 #include "x/mime/sectioniter.H"
+#include "x/mime/sectiondecoder.H"
 #include "x/exception.H"
 #include <iostream>
 #include <algorithm>
@@ -146,6 +147,33 @@ void testmimesectioniter()
 	}
 }
 
+typedef std::back_insert_iterator<std::string> ins_iter;
+
+typedef LIBCXX_NAMESPACE::mime::section_decoder decoder_iter;
+
+typedef LIBCXX_NAMESPACE::mime::newline_iter<decoder_iter> newline_iter;
+
+void decode(const std::string &string, const std::string &te,
+	    const std::string &expected)
+{
+	std::string s;
+
+	std::copy(string.begin(),
+		  string.end(),
+		  newline_iter::create(decoder_iter::create(te, ins_iter(s))));
+
+	if (s != expected)
+		throw EXCEPTION("Expected: [" + expected + "]\n"
+				"Got:      [" + s + "]");
+}
+
+void testmimesectiondecoder()
+{
+	decode("Hello world\n", "8bit", "Hello world\n");
+	decode("Hello=20world\n", "Quoted-Printable", "Hello world\n");
+	decode("SGVsbG8gd29ybGQK", "base64", "Hello world\n");
+}
+
 int main(int argc, char **argv)
 {
 	try {
@@ -173,6 +201,7 @@ int main(int argc, char **argv)
 			exit(1);
 		}
 		testmimesectioniter();
+		testmimesectiondecoder();
 	} catch (LIBCXX_NAMESPACE::exception &e)
 	{
 		std::cerr << e << std::endl;
