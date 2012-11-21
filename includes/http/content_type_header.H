@@ -51,7 +51,8 @@ public:
 	//! Keyed by case-insensitive attribute name,
 	//! value is the attribute value
 
-	typedef std::multiset<parameter_t> parameters_t;
+	typedef std::multimap<std::string, parameter_t, chrcasecmp::str_less
+			      > parameters_t;
 
 	//! Media parameters
 	parameters_t parameters;

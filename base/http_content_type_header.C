@@ -87,7 +87,7 @@ void content_type_header::parser::parse_param(const std::string &name,
 		newparam.name=newparam.name.substr(0, p);
 	}
 
-	h.parameters.insert(newparam);
+	h.parameters.insert(std::make_pair(newparam.name, newparam));
 }
 
 content_type_header::content_type_header() noexcept
