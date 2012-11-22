@@ -74,7 +74,10 @@ void iconviofilter::filter()
 	if (leftover)
 	{
 		if (avail_in == 0)
+		{
+			x_inbuf.clear();
 			throw EXCEPTION(_("iconv: invalid character sequence"));
+		}
 
 		size_t consume=avail_in;
 
