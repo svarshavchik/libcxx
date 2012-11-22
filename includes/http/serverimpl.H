@@ -267,13 +267,11 @@ protected:
 		//! Whether request body has been supplied
 		bool hasbody)
 	{
-		bool flag;
-
 		form::parameters params=form::parameters
 			::create(static_cast<receiver_t &>(*this), req,
-				 hasbody, flag);
+				 hasbody);
 
-		return std::make_pair(params, flag);
+		return std::make_pair(params, params->consumed());
 	}
 private:
 

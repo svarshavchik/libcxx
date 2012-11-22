@@ -41,6 +41,10 @@ extern const char hex[];
 
 class parametersObj : public map_t, virtual public obj {
 
+	//! When constructing from an HTTP request, whether POST was consumed
+
+	bool consumedFlag;
+
 public:
 	//! Default constructor
 
@@ -51,7 +55,7 @@ public:
 	template<typename... Args_t>
 	parametersObj(const std::string &paramname,
 		      const std::string &paramvalue,
-		      Args_t &&...args)
+		      Args_t &&...args) : consumedFlag(false)
 	{
 		init_from_string_list(paramname, paramvalue,
 				      std::forward<Args_t>(args)...);
@@ -64,7 +68,7 @@ public:
 	//! Construct from a container
 
 	template<typename container_type>
-	parametersObj(const container_type &container)
+	parametersObj(const container_type &container) : consumedFlag(false)
 	{
 		decode_params(container.begin(), container.end());
 	}
@@ -191,34 +195,17 @@ public:
 		      const requestimpl &req,
 
 		      //! Whether there's content in the request
-		      bool hasbody,
-
-		      //! Return parameter set to true if we consumed the request's POST content
-		      bool &consumedPostContent)
-
+		      bool hasbody) : consumedFlag(false)
 	{
-		consumedPostContent=process_received_request(receiver,
-							     req, hasbody);
+		consumedFlag=process_received_request(receiver,
+						      req, hasbody);
 	}
 
-	//! Construct from form parameters from a received HTTP request
+	//! Get the consumed flags
 
-	//! \overload
-	template<typename input_iter>
-	parametersObj(//! HTTP message receiver
-		      receiverimpl<requestimpl, input_iter> &receiver,
-
-		      //! HTTP request received
-		      const requestimpl &req,
-
-		      //! Whether there's content in the request
-		      bool hasbody)
-
-	{
-		process_received_request(receiver, req, hasbody);
-	}
-
+	bool consumed() const { return consumedFlag; }
 private:
+
 
 	//! Retrieve form parameters from a received HTTP message.
 

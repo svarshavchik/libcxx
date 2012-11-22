@@ -30,12 +30,6 @@ parametersObj::parametersObj(receiverimpl<requestimpl,
 			     const requestimpl &req, bool);
 
 LIBCXX_TEMPLATE_DECL template
-parametersObj::parametersObj(receiverimpl<requestimpl,
-			     std::istreambuf_iterator<char> > &,
-			     const requestimpl &req, bool,
-			     bool &);
-
-LIBCXX_TEMPLATE_DECL template
 bool parametersObj::process_received_request(receiverimpl<requestimpl,
 					     std::istreambuf_iterator<char> > &,
 					     const requestimpl &req, bool);

@@ -41,7 +41,7 @@ size_t getformmaxsize()
 
 const char hex[]="0123456789ABCDEFabcdef";
 
-parametersObj::parametersObj()
+parametersObj::parametersObj() : consumedFlag(false)
 {
 }
 
@@ -50,6 +50,7 @@ parametersObj::~parametersObj() noexcept
 }
 
 parametersObj::parametersObj(const std::string &query_string)
+	: consumedFlag(false)
 {
 	decode_params(query_string.begin(), query_string.end());
 }
