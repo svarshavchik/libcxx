@@ -86,7 +86,7 @@ public:
 	//! Implement the decoding.
 	void operator=(int c) override
 	{
-		if ((unsigned char)c == c)
+		if (nontoken(c))
 			*iter++=(char)c;
 	}
 };

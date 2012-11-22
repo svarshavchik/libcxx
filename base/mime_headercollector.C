@@ -76,7 +76,7 @@ void header_collectorObj::wait_contents_end(int c)
 		return;
 	}
 
-	if ((unsigned char)c != c)
+	if (!nontoken(c))
 		return; // What's this?
 
 	if (header_iterbase::space(c))

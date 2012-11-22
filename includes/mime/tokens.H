@@ -15,6 +15,10 @@ namespace LIBCXX_NAMESPACE {
 }
 #endif
 
+//! A nontoken character
+
+inline bool nontoken(int c) { return c == (unsigned char)c; }
+
 //! EOF token
 static const int eof= -1;
 
