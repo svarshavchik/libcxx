@@ -9,9 +9,12 @@
 #include <x/obj.H>
 #include <x/ptr.H>
 #include <x/fditer.H>
+#include <x/refiterator.H>
 #include <x/http/formfwd.H>
 #include <x/http/requestimpl.H>
+#include <x/http/responseimpl.H>
 #include <x/http/receiverimpl.H>
+#include <x/mime/tokens.H>
 #include <x/mime/structured_content_header.H>
 #include <x/namespace.h>
 
@@ -135,6 +138,156 @@ private:
 		init_from_string_list(std::forward<Args_t>(args)...);
 	}
 
+	//! Base class for the interface to the file receiver lambda/functor
+
+	class filereceiverObj : virtual public obj {
+
+	public:
+
+		//! Constructor
+		filereceiverObj();
+
+		//! Destructor
+		~filereceiverObj() noexcept;
+
+		//! Write the next chunk
+
+		virtual void write(const std::vector<char> &chunk)=0;
+
+		//! Finished
+		virtual void close()=0;
+	};
+
+	//! Functor adapter for filereceiverObj
+
+	template<typename write_functor_type, typename close_functor_type>
+	class filereceiverImplObj : public filereceiverObj {
+
+		//! The write functor
+		write_functor_type write_functor;
+
+		//! The close functor
+		close_functor_type close_functor;
+
+	public:
+
+		//! Constructor
+		template<typename writeArgType, typename closeArgType>
+		filereceiverImplObj(writeArgType &&write,
+				    closeArgType &&close)
+			: write_functor(std::forward<writeArgType>(write)),
+			  close_functor(std::forward<closeArgType>(close))
+		{
+		}
+
+		//! Destructor
+
+		filereceiverImplObj();
+
+		void write(const std::vector<char> &chunk) override
+		{
+			write_functor(chunk);
+		}
+
+		void close() override
+		{
+			close_functor();
+		}
+	};
+
+public:
+
+	//! Next file receiver gets stored here.
+
+	class filereceiver {
+
+	public:
+		//! No copy constructor
+		filereceiver(const filereceiver &)=delete;
+
+		//! Constructor
+		filereceiver();
+
+		//! Destructor
+		~filereceiver() noexcept;
+
+		//! Constructed receiver object.
+
+		ptr<filereceiverObj> receiverptr;
+
+		//! Get the next file receiver
+
+		template<typename write_functor_type,
+			 typename close_functor_type>
+		void receive(write_functor_type &&write_functor,
+			     close_functor_type &&close_functor)
+		{
+			receiverptr=ref<filereceiverImplObj
+					<typename
+					 std::decay<write_functor_type>::type,
+					 typename
+					 std::decay<close_functor_type>::type>>
+				::create(std::forward<write_functor_type>
+					 (write_functor),
+					 std::forward<close_functor_type>
+					 (close_functor));
+		}
+	};
+
+private:
+
+	//! A factory for file receiver.
+
+	struct filereceiverfactorybase {
+
+		//! Get the next receiver
+
+		//! The default implementation returns a null pointer, which
+		//! results in a thrown 404 exception.
+
+		virtual ptr<filereceiverObj>
+		next(//! Full headers
+		     const headersbase &headers,
+
+		     //! Field name, converted to UTF-8
+		     const std::string &name_utf8,
+
+		     //! Filename, converted to UTF-8
+		     const std::string &filename_utf8) const
+		{
+			return ptr<filereceiverObj>();
+		}
+	};
+
+	//! Functor adapter for the file receiver factory
+
+	template<typename functor_type>
+	class filereceiverfactory : public filereceiverfactorybase {
+
+		//! The functor that constructs a new receiver.
+		functor_type functor;
+
+	public:
+
+		//! Constructor
+		template<typename functorArgType>
+		filereceiverfactory(functorArgType &&functorArg)
+			: functor(std::forward<functorArgType>(functorArg)) {}
+
+		//! Invoke the functor, return its receiver object.
+		ptr<filereceiverObj> next(const headersbase &headers,
+					  const std::string &name_utf8,
+					  const std::string &filename_utf8)
+			const override
+		{
+			filereceiver receiver;
+
+			functor(headers, name_utf8, filename_utf8, receiver);
+
+			return receiver.receiverptr;
+		}
+	};
+
 public:
 	//! Decode CGI form parameters
 
@@ -202,7 +355,10 @@ public:
 		}
 	}
 
-	//! Construct from form parameters from a received HTTP request
+	//! Construct from form parameters from a received HTTP request.
+
+	//! If the request is a form upload, a 404 exception gets thrown.
+	//!
 
 	template<typename input_iter>
 	parametersObj(//! HTTP message receiver
@@ -214,8 +370,42 @@ public:
 		      //! Whether there's content in the request
 		      bool hasbody) : consumedFlag(false)
 	{
-		consumedFlag=process_received_request(receiver,
-						      req, hasbody);
+		consumedFlag=
+			process_received_request(receiver,
+						 req, hasbody,
+						 filereceiverfactorybase(),
+						 "UTF-8");
+	}
+
+	//! Construct from form parameters from a received HTTP request
+
+	//! The additional parameter specifies a factory for receiving uploaded
+	//! files.
+
+	template<typename input_iter, typename factory_type>
+	parametersObj(//! HTTP message receiver
+		      receiverimpl<requestimpl, input_iter> &receiver,
+
+		      //! HTTP request received
+		      const requestimpl &req,
+
+		      //! Whether there's content in the request
+		      bool hasbody,
+
+		      //! The factory for upload receivers
+		      factory_type &&factory,
+
+		      //! Upload form's encoding
+		      const std::string &form_encoding
+		      ) : consumedFlag(false)
+	{
+		typedef typename std::decay<factory_type>::type functor_t;
+
+
+		consumedFlag=process_received_request
+			(receiver, req, hasbody,
+			 filereceiverfactory<functor_t>(factory),
+			 form_encoding);
 	}
 
 	//! Get the consumed flags
@@ -223,6 +413,20 @@ public:
 	bool consumed() const { return consumedFlag; }
 private:
 
+	class rfc2388Obj;
+
+	//! Create an iterator for parsing multipart/form-data content.
+
+	//! There's a subclass with all the gory details. We, thankfully,
+	//! hide it from public view.
+	//!
+	//! \internal
+
+	static outputrefiterator<int>
+	create_multipart_formdata_iterator(const std::string &boundary,
+					   const filereceiverfactorybase &fac,
+					   parametersObj &me,
+					   const std::string &form_encoding);
 
 	//! Retrieve form parameters from a received HTTP message.
 
@@ -234,12 +438,18 @@ private:
 				      const requestimpl &req,
 
 				      //! Whether there's content in the request
-				      bool hasbody)
+				      bool hasbody,
+
+				      //! The file receiver factory
+				      const filereceiverfactorybase &factory,
+
+				      //! Form's original encoding
+				      const std::string &form_encoding)
 	{
 
 		const std::string &s=req.getURI().getQuery();
 
-		decode_params(s.begin(), s.end());
+		decode_params(s.begin(), s.end()); // GET
 
 		if (!hasbody)
 			return false;
@@ -258,6 +468,26 @@ private:
 				      limited_iter<decode_iter_t>
 				      (receiver.end(), 0));
 			return true;
+		}
+
+		if (ct == mime::structured_content_header::multipart_form_data)
+		{
+			std::string boundary=ct.boundary();
+
+			if (!boundary.empty())
+			{
+				auto iter=create_multipart_formdata_iterator
+					(boundary, factory, *this,
+					 form_encoding);
+
+				for (unsigned char c:receiver)
+				{
+					*iter=c;
+				}
+
+				*iter=mime::eof;
+				return true;
+			}
 		}
 		return false;
 	}
@@ -321,7 +551,7 @@ public:
 	encode_iter encode_end() const;
 };
 
-//! Refer to this class as \c form::parameters::base or \c form::parametersptr::base
+//! Refer to this class as \c INSERT_LIBX_NAMESPACE::form::parameters::base or \c INSERT_LIBX_NAMESPACE::form::parametersptr::base
 
 class parametersBase : public ptrrefBase {
 
@@ -331,9 +561,21 @@ public:
 
 	typedef parametersObj::encode_iter encode_iter;
 
-	//! Exception: parameters too large
+	//! Convenience typedef
 
-	static void parameters_too_large() __attribute__((noreturn));
+	//! This is the parameter that's passed by reference to the lambda
+	//! or the functor when receiving uploaded files from a form.
+	//! The lambda/functor gets a two parameter, a const headersbase,
+	//! with the headers of the uploaded file, and a native reference to
+	//! the filereceiver object.
+	//!
+	//! The lambda/functor invokes filereceiver.receive(write, close),
+	//! with write and close being two functor. write() receives a
+	//! const std::vector<char> &, the next chunk of the received file
+	//! (it gets called multiple times until the entire file is received),
+	//! followed by close().
+
+	typedef parametersObj::filereceiver filereceiver;
 
 };
 
@@ -507,7 +749,7 @@ public:
 	limited_iter<iter_type> &operator++()
 	{
 		if (left == 0)
-			parametersBase::parameters_too_large();
+			responseimpl::throw_request_entity_too_large();
 		--left;
 		++iter;
 		return *this;

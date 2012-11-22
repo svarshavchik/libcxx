@@ -32,5 +32,8 @@ parametersObj::parametersObj(receiverimpl<requestimpl,
 LIBCXX_TEMPLATE_DECL template
 bool parametersObj::process_received_request(receiverimpl<requestimpl,
 					     std::istreambuf_iterator<char> > &,
-					     const requestimpl &req, bool);
+					     const requestimpl &req, bool,
+					     const filereceiverfactorybase &,
+					     const std::string &);
 #endif
+

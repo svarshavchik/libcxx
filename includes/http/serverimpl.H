@@ -273,6 +273,34 @@ protected:
 
 		return std::make_pair(params, params->consumed());
 	}
+
+	//! Parse form parameters from a received request
+
+	//! \overload
+
+	template<typename factory_type>
+	std::pair<form::parameters, bool>
+	getform(//! The current received request
+		const requestimpl &req,
+
+		//! Whether request body has been supplied
+		bool hasbody,
+
+		//! Factory for receiving files
+		factory_type &&factoryArg,
+
+		//! Form's encoding
+		const std::string &form_encoding)
+	{
+		form::parameters params=form::parameters
+			::create(static_cast<receiver_t &>(*this), req,
+				 hasbody,
+				 std::forward<factory_type>(factoryArg),
+				 form_encoding);
+
+		return std::make_pair(params, params->consumed());
+	}
+
 private:
 
 	//! Collect any extra headers for the response

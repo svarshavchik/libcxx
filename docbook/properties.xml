@@ -18,7 +18,7 @@ See COPYING for distribution information.
   <blockquote>
     <informalexample>
       <programlisting>
-#include &lt;&ns;::/property_value.H&gt;
+#include &lt;&ns;/property_value.H&gt;
 
 static property::value&lt;int&gt; window_width(L"main::window::width", 400);
 

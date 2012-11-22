@@ -6,6 +6,8 @@
 #include "libcxx_config.h"
 #include "x/mime/structured_content_header.H"
 #include "x/mime/rfc2047.H"
+#include "x/http/form.H"
+#include "x/iconviofilter.H"
 #include "chrcasecmp.H"
 #include <algorithm>
 #include "gettext_in.h"
@@ -200,14 +202,101 @@ std::string structured_content_header::decode_utf8(const std::string &name,
 {
 	std::string value;
 
-	auto param=parameters.find(name);
+	// Just scan the parameters for RFC 2231-encoded parameter
+	// fragments.
 
-	if (param != parameters.end())
+	std::map<int, std::string> rfc2231_strings;
+
+	std::string rfc2231_prefix=name + "*";
+
+	for (const auto &param:parameters)
 	{
-		value=mime::from_rfc2047_as_utf8(param->second.value,
-						 native_charset);
+		if (param.second.name.substr(0, rfc2231_prefix.size())
+		    != rfc2231_prefix)
+			continue;
+
+		bool encoded=true;
+		int n=0;
+			
+		std::string suffix=
+			param.second.name.substr(rfc2231_prefix.size());
+
+		if (!suffix.empty()) // Else: just name*
+		{
+			// <n> or <n>*
+
+			if (suffix.find('*') == std::string::npos)
+				encoded=false; // Not an encoded one.
+
+			if ((std::istringstream(suffix) >> n).fail())
+				continue; // Garbage
+		}
+
+		std::string value=param.second.value;
+
+		if (encoded)
+		{
+			std::ostringstream o;
+
+			for (std::string::iterator b=value.begin(),
+				     e=value.end(); b != e; )
+			{
+				if (*b != '%')
+				{
+					o << *b++;
+					continue;
+				}
+				auto res=http::form::decode_nybble(++b,
+								   e);
+
+				b=res.first;
+				o << (char)res.second;
+			}
+			value=o.str();
+		}
+		rfc2231_strings[n]=value;
 	}
 
+	// If no RFC 2231 strings were found, look for a plain parameter.
+
+	if (rfc2231_strings.empty())
+	{
+		auto param=parameters.find(name);
+
+		if (param != parameters.end())
+			value=mime::from_rfc2047_as_utf8(param->second.value,
+							 native_charset);
+	}
+	else
+	{
+		// Continue with the RFC 2231 decoding.
+
+		std::string s;
+
+		for (const auto &string:rfc2231_strings)
+		{
+			s += string.second;
+		}
+
+		std::string::iterator b=s.begin(), e=s.end(),
+			p=std::find(b, e, '\'');
+
+		std::string charset(b, p);
+
+		if (p != e) ++p;
+
+		b=std::find(p, e, '\'');
+
+		std::string language(p, b); // TODO
+
+		if (b != e) ++b;
+
+		value=iconviofilter::from_u32string
+			(iconviofilter::to_u32string(std::string(b, e),
+						     charset),
+			 "UTF-8");
+	}
+			
 	return value;
 }
 

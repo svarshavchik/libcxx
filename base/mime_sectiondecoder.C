@@ -17,14 +17,6 @@ namespace LIBCXX_NAMESPACE {
 };
 #endif
 
-section_decoderObj::section_decoderObj()
-{
-}
-
-section_decoderObj::~section_decoderObj() noexcept
-{
-}
-
 bool section_decoderBase::is_quoted_printable(const std::string &te)
 {
 	return chrcasecmp::str_equal_to()(te, "quoted-printable");

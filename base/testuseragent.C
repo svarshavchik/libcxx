@@ -13,6 +13,7 @@
 #include "x/eventdestroynotify.H"
 #include "x/netaddr.H"
 #include "x/options.H"
+#include "x/property_properties.H"
 #include <sstream>
 #include <iostream>
 #include <algorithm>
@@ -657,7 +658,39 @@ public:
 	void received(const LIBCXX_NAMESPACE::http::requestimpl &req,
 		      bool bodyflag)
 	{
-		auto val=getform(req, bodyflag);
+		std::vector<std::string> files;
+
+		std::string form_charset="UTF-8";
+
+		auto p=req.find("form-charset");
+
+		if (p != req.end())
+			form_charset=p->second.value();
+
+		auto val=getform(req, bodyflag,
+				 [&files]
+				 (const LIBCXX_NAMESPACE::headersbase &headers,
+				  const std::string &name,
+				  const std::string &filename,
+				  LIBCXX_NAMESPACE::http::form::parameters::base
+				  ::filereceiver &receiver)
+				 {
+					 files.push_back(name + ","
+							 + filename + ":");
+
+					 receiver.receive
+					 ([&]
+					  (const std::vector<char> &chunk)
+			{
+				std::string &s=files.back();
+
+				s.insert(s.end(), chunk.begin(), chunk.end());
+			},
+					  [&]
+			{
+				files.back().push_back('~');
+			});
+				 }, form_charset);
 
 		std::stringstream o;
 
@@ -693,6 +726,11 @@ public:
 		{
 			o << parameter.first << ": " << parameter.second
 			  << std::endl;
+		}
+
+		for (const std::string &file:files)
+		{
+			o << "FILE:[" << file << "]" << std::endl;
 		}
 
 		send(req, "text/plain",
@@ -759,6 +797,178 @@ void formpost()
 	if (got != expected)
 		throw EXCEPTION("Got: [" + got + "], but expected ["
 				+ expected + "]");
+
+	std::string formdata("--xxxboundary\r\n"
+			     "Content-Type: text/plain; charset=iso-8859-1\r\n"
+			     "Content-Disposition: form-data; name=\"=?ISO-8859-1?Q?field1=A0?=\"\r\n"
+			     "Content-Transfer-Encoding: quoted-printable\r\n"
+			     "\r\n"
+			     "Hello=A0world!\r\n"
+			     "\r\n"
+			     "--xxxboundary\r\n"
+			     "Content-Type: multipart/mixed; boundary=\"yyy\"\r\n"
+			     "\r\n"
+			     "\r\n"
+			     "--yyy\r\n"
+			     "Content-Type: application/octet-stream\r\n"
+			     "Content-Transfer-Encoding: quoted-printable\r\n"
+			     "Content-Disposition: form-data; name=\"=?ISO-8859-1?Q?file=A01?=\"; filename=file1\r\n"
+			     "\r\n"
+			     "Hello=20world!\r\n"
+			     "\r\n"
+			     "--yyy\r\n"
+			     "Content-Type: application/octet-stream\r\n"
+			     "Content-Disposition: form-data; name=\"file 2\"; filename=file2\r\n"
+			     "\r\n"
+			     "Ipso Lorem\r\n"
+			     "--yyy--\r\n"
+			     "--xxxboundary--\r\n");
+
+	resp=ua->request(LIBCXX_NAMESPACE::http::POST,
+			 serveraddr,
+			 "Content-Type", "multipart/form-data; boundary=xxxboundary",
+			 std::make_pair(formdata.begin(), formdata.end()));
+
+	got=std::string(resp->begin(), resp->end());
+
+	if (got != "POST / HTTP/1.1\n"
+	    "field1\xc2\xa0: Hello\xc2\xa0world!\r\n"
+	    "\n"
+	    "FILE:[file\xc2\xa0" "1,file1:Hello world!\r\n~]\n"
+	    "FILE:[file 2,file2:Ipso Lorem~]\n")
+		throw EXCEPTION("Multipart parsing failed: " + got);
+
+	formdata="\r\n"
+		"--xxxboundary\r\n"
+		"Content-Type: application/octet-stream\r\n"
+		"Content-Transfer-Encoding: quoted-printable\r\n"
+		"Content-Disposition: form-data; name=file3; filename=\"file3\xA0\"\r\n"
+		"\r\n"
+		"Hello=20world!\r\n"
+		"--xxxboundary--\r\n";
+
+	resp=ua->request(LIBCXX_NAMESPACE::http::POST,
+			 serveraddr,
+			 "Content-Type", "multipart/form-data; boundary=xxxboundary",
+			 "Form-Charset", "ISO-8859-1",
+			 std::make_pair(formdata.begin(), formdata.end()));
+
+	got=std::string(resp->begin(), resp->end());
+
+	if (got != "POST / HTTP/1.1\n"
+	    "FILE:[file3,file3\xc2\xa0:Hello world!~]\n")
+		throw EXCEPTION("Multipart parsing failed: " + got);
+
+	formdata="\r\n"
+		"--xxxboundary\r\n"
+		"Content-Type: application/octet-stream\r\n"
+		"Content-Transfer-Encoding: quoted-printable\r\n"
+		"Content-Disposition: form-data; name=file4; filename*=\"iso-8859-1'en-us'file4%A0\"\r\n"
+		"\r\n"
+		"Hello=20world!\r\n"
+		"--xxxboundary--\r\n";
+
+	resp=ua->request(LIBCXX_NAMESPACE::http::POST,
+			 serveraddr,
+			 "Content-Type", "multipart/form-data; boundary=xxxboundary",
+			 std::make_pair(formdata.begin(), formdata.end()));
+
+	got=std::string(resp->begin(), resp->end());
+
+	if (got != "POST / HTTP/1.1\n"
+	    "FILE:[file4,file4\xc2\xa0:Hello world!~]\n")
+		throw EXCEPTION("Multipart parsing failed: " + got);
+
+	formdata="\r\n"
+		"--xxxboundary\r\n"
+		"Content-Type: application/octet-stream\r\n"
+		"Content-Transfer-Encoding: quoted-printable\r\n"
+		"Content-Disposition: form-data; name=file5; filename*1*=\"%A0\"; filename*0=\"iso-8859-1'en-us'file5\"\r\n"
+		"\r\n"
+		"Hello=20world!\r\n"
+		"--xxxboundary--\r\n";
+
+	resp=ua->request(LIBCXX_NAMESPACE::http::POST,
+			 serveraddr,
+			 "Content-Type", "multipart/form-data; boundary=xxxboundary",
+			 std::make_pair(formdata.begin(), formdata.end()));
+
+	got=std::string(resp->begin(), resp->end());
+
+	if (got != "POST / HTTP/1.1\n"
+	    "FILE:[file5,file5\xc2\xa0:Hello world!~]\n")
+		throw EXCEPTION("Multipart parsing failed: " + got);
+
+	LIBCXX_NAMESPACE::property::load_property
+		(LIBCXX_NAMESPACE_WSTR "::http::form::maxsize", L"1000",
+		 true, true);
+
+	resp=ua->request(LIBCXX_NAMESPACE::http::POST,
+			 serveraddr,
+			 LIBCXX_NAMESPACE::http::form::parameters
+			 ::create("param1", "value1"));
+
+	for (char dummy: *resp)
+		(void)dummy;
+
+	if (resp->message.getStatusCode() != 200)
+		throw EXCEPTION("Form limit test 1 failed");
+
+	resp=ua->request(LIBCXX_NAMESPACE::http::POST,
+			 serveraddr,
+			 LIBCXX_NAMESPACE::http::form::parameters
+			 ::create("param1", std::string(1000, 'x')));
+
+	for (char dummy: *resp)
+		(void)dummy;
+
+	if (resp->message.getStatusCode() != 413)
+		throw EXCEPTION("Form limit test 2 failed");
+
+	formdata="--xxxboundary\r\n"
+		"Content-Type: text/plain; charset=iso-8859-1\r\n"
+		"Content-Disposition: form-data; name=\"field\"\r\n"
+		"\r\n"
+		"Hello world!\r\n"
+		"\r\n"
+		"--xxxboundary\r\n";
+
+	resp=ua->request(LIBCXX_NAMESPACE::http::POST,
+			 serveraddr,
+			 "Content-Type", "multipart/form-data; boundary=xxxboundary",
+			 std::make_pair(formdata.begin(), formdata.end()));
+
+
+	for (char dummy: *resp)
+		(void)dummy;
+
+	if (resp->message.getStatusCode() != 200)
+		throw EXCEPTION("Form limit test 3 failed");
+
+	formdata="--xxxboundary\r\n"
+		"Content-Type: text/plain; charset=iso-8859-1\r\n"
+		"Content-Disposition: form-data; name=\"field\"\r\n"
+		"\r\n"
+		"Hello world!\r\n"
+		+ std::string(1000, 'x') + "\r\n"
+		"\r\n"
+		"--xxxboundary\r\n";
+
+	resp=ua->request(LIBCXX_NAMESPACE::http::POST,
+			 serveraddr,
+			 "Content-Type", "multipart/form-data; boundary=xxxboundary",
+			 std::make_pair(formdata.begin(), formdata.end()));
+
+
+	for (char dummy: *resp)
+		(void)dummy;
+
+	if (resp->message.getStatusCode() != 413)
+		throw EXCEPTION("Form limit test 4 failed");
+
+	LIBCXX_NAMESPACE::property::load_property
+		(LIBCXX_NAMESPACE_WSTR "::http::form::maxsize", L"10000000",
+		 true, true);
 
 	std::cout << "Stopping listener" << std::endl;
 

@@ -31,7 +31,9 @@ namespace LIBCXX_NAMESPACE {
 };
 #endif
 
-//! The type of a map that holds form parameters
+//! The type of a map that holds form parameters.
+
+//! By fiat, the character set is UTF-8.
 
 typedef std::multimap<std::string, std::string> map_t;
 

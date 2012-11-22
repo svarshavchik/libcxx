@@ -30,7 +30,7 @@ void contentheader_collectorObj::operator=(int c)
 	header_collectorObj::operator=(c);
 
 	if ((c == body_start || c == eof) && !mime_version_seen)
-		content_headers.clear();
+		content_headers=content_headers_t();
 }
 
 void contentheader_collectorObj::header()
@@ -51,7 +51,8 @@ void contentheader_collectorObj::header()
 	}
 
 	if (name_lc.substr(0, 8) == "content-")
-		content_headers.insert(std::make_pair(name, contents));
+		content_headers.new_header(name + ":" + contents);
+	// At least we folded it.
 }
 
 #if 0

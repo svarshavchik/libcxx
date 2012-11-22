@@ -469,9 +469,7 @@ decode_next_word(std::string::const_iterator b,
 }
 
 void from_rfc2047(const std::string &string,
-
 		  const std::string &native_charset,
-
 		  std::vector<std::pair<std::string, std::u32string> > &res)
 {
 	bool previous_word_was_decoded=false;

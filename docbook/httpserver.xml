@@ -216,15 +216,25 @@ void received(const &ns;::http::requestimpl &amp;req, bool hasbody)
     </para>
 
     <para>
+      This <methodname>getform</methodname>() example does not process file
+      uploads, they will throw an exception that results in a
+      <quote>404 not found</quote> response. See
+      <xref linkend="httpserveruploads" /> for a version of
+      <methodname>getform</methodname>() that handles file
+      uploads.
+    </para>
+
+    <para>
       Most applications will want to check <quote>req.getMethod()</quote> to
       obtain the type of the request (<literal>&ns;::http::GET</literal>,
       <literal>&ns;::http::POST</literal>,
       <literal>&ns;::http::HEAD</literal>, and others), first, before
       processing response.
-      The headers of the <acronym>HTTP</acronym> request in
-      <varname>req</varname> may be examined, they are generally as they
-      were received from the client, except that, for convenience, the
-      <quote>Host</quote> header, if present, is removed and placed into the
+      The headers of the <acronym>HTTP</acronym> request are in
+      <varname>req</varname>. They are generally as they
+      were received from the client. For convenience, the
+      <quote>Host</quote> header, if present, is removed and incorporated
+      into the
       <acronym>URI</acronym> returned by <methodname>getURI</methodname>().
     </para>
 
@@ -332,6 +342,134 @@ send(resp, req, buffer);</programlisting>
     </para>
   </section>
 
+  <section id="httpserveruploads">
+    <title>Processing file uploads</title>
+
+    <para>
+      <ulink url="examples/http_server_upload.C">examples/http_server_upload.C</ulink>
+      is an example of using a
+      <link linkend="httpserverprocess">version of
+      <methodname>getform</methodname>()</link> that handles file upload
+      (<literal>&lt;input type="file"&gt;</literal> elements inside
+      a <literal>&lt;form enctype="multipart/form-data"&gt;</literal>.
+    </para>
+
+    <blockquote>
+      <informalexample>
+	<programlisting>
+std::pair&lt;x::http::form::parameters, bool&gt;
+    form=this->getform(req, hasbody,
+        []
+        (const x::headersbase &amp;headers,
+         const std::string &amp;name_utf8,
+         const std::string &amp;filename_utf8,
+         x::http::form::parameters::base::filereceiver &amp;recv)
+        {
+
+        // ...
+
+            recv.receive(
+                []
+                (const std::vector&lt;char&gt; &amp;chunk)
+                {
+                    // ...
+                },
+                []
+                {
+                    // ...
+                });
+        }, "UTF-8");</programlisting>
+      </informalexample>
+    </blockquote>
+
+    <para>
+      Passing two additional arguments to <methodname>getform</methodname>()
+      enables processing of file uploads, in addition to
+      <methodname>getform</methodname>() returning the processed form
+      parameters, as usual. If the form submission did not does not include
+      file uploads, <methodname>getform</methodname>() processes the form
+      as usual.
+    </para>
+
+    <para>
+      The first additional parameter is a functor. The second parameter
+      specifies the
+      character of the form on the original page. The functor gets invoked
+      for each file uploaded through the form. The functor gets invoked
+      more than once if the form uploaded multiple files.
+    </para>
+
+    <para>
+      The functor receives four parameters:
+    </para>
+
+    <itemizedlist>
+      <listitem>
+	<para>
+	  The
+	  <ulink url="link-x--headersbase;"><classname>&ns;::headersbase</classname></ulink>
+	  parameter provides
+	  the complete <acronym>MIME</acronym> headers of the uploaded
+	  file.
+	</para>
+      </listitem>
+      <listitem>
+	<para>
+	  The name of the file upload field, and the filename of the uploaded
+	  file, converted to <literal>UTF-8</literal>.
+	</para>
+      </listitem>
+      <listitem>
+	<para>
+	  The fourth parameter is a native reference to a
+          <classname>x::http::form::parameters::base::filereceiver</classname>
+	  object, that has a <methodname>receive</methodname>() method that
+	  the functor must invoke. A <quote>404 not found</quote> exception
+	  gets thrown if the functor returns without invoking
+	  <methodname>receive</methodname>().
+	</para>
+      </listitem>
+    </itemizedlist>
+
+    <para>
+      The functor/lambda invokes <methodname>receive</methodname>() passing
+      two more functors or lambdas.
+      The first <quote>write</quote> functor gets invoked repeatedly with
+      <classname>std::vector&lt;char&gt;</classname>s that have the
+      contents of the uploaded file. The contents of the uploaded file get
+      processed in small chunks, and the write functor gets invoked
+      repeatedly until the entire contents of the uploaded file get passed.
+      The second <quote>close</quote> functor gets invoked after the last
+      call to the write functor, with the uploaded file's last chunk.
+      If the uploaded file was empty, the close functor gets invoked without
+      any preceding call to the write functor.
+    </para>
+
+    <note>
+      <para>
+	The write and the close functors do not actually get invoked by
+	<methodname>receive</methodname>(), but after the parent functor/lambda
+	returns.
+      </para>
+
+      <para>
+	The write functor is responsible for enforcing its own
+	<link linkend="httpserverlimits">limits on the maximum size of the
+	  file upload</link>. Calling
+	<function>&ns;::http::responseimpl::throw_request_entity_too_large</function>()
+	throws an exception that results in an <acronym>HTTP</acronym> 413
+	error response to the client.
+      </para>
+    </note>
+
+    <para>
+      A form with multiple file uploads results in multiple calls to
+      <methodname>getform</methodname>()'s functor. Each call invokes
+      <methodname>receive</methodname>(), passing the write and the close
+      functor for each file (which may be different for each file in the
+      form) that subsequently get invoked to process the upload.
+    </para>
+  </section>
   <section id="httpservercookie">
     <title>Sending cookies to the client</title>
 
@@ -1003,6 +1141,65 @@ auto scheme=serverauth->check_authentication
 	<function>&ns;::http::responseimpl::throw_unauthorized</function>().
       </para>
     </section>
+
+  </section>
+  <section id="httpserverlimits">
+    <title>Maximum request size limits</title>
+
+    <para>
+      The following <link linkend="properties">application properties</link>
+      enforce maximum limits on the size of processed message.
+    </para>
+
+    <variablelist>
+      <varlistentry>
+	<term><literal>&ns;::http::server::headers::limit</literal></term>
+	<listitem>
+	  <para>
+	    Maximum number of headers in a request (default is 1024
+	    headers).
+	  </para>
+	</listitem>
+      </varlistentry>
+      <varlistentry>
+	<term><literal>&ns;::http::server::headers::maxsize</literal></term>
+	<listitem>
+	  <para>
+	    Maximum total size of the headers in a request (default is
+	    one megabyte).
+	  </para>
+	</listitem>
+      </varlistentry>
+      <varlistentry>
+	<term><literal>&ns;::http::form::maxsize</literal></term>
+	<listitem>
+	  <para>
+	    Maximum size of a form submitted via an <acronym>HTTP</acronym>
+	    <literal>POST</literal> and processed by
+	    <link linkend="httpserverprocess">getform</link>().
+	    The default is ten megabytes, which is the total encoded size
+	    of the form; which will be slightly larger than the raw data
+	    encoded in the form.
+	  </para>
+
+	  <para>
+	    The size of <link linkend="httpserveruploads">file
+	      uploads</link> does not count toward this limit. The
+	    write functor for uploaded files is responsible for enforcing
+	    its own size limits. However, the rest of the form that includes
+	    file uploads is subject to this limit.
+	  </para>
+
+	  <note>
+	    <para>
+	      <literal>&lt;form enctype="multipart/form-data"&gt;</literal>s
+	      that submit file uploads usually have a larger encoding overhead
+	      then non-uploading regular froms.
+	    </para>
+	  </note>
+	</listitem>
+      </varlistentry>
+    </variablelist>
   </section>
 </chapter>
 <!--

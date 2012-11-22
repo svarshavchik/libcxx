@@ -11,6 +11,7 @@
 #include <x/obj.H>
 #include <x/chrcasecmp.H>
 #include <x/mime/headercollector.H>
+#include <x/headersbase.H>
 #include <string>
 #include <iterator>
 #include <map>
@@ -39,12 +40,15 @@ class contentheader_collectorObj : public header_collectorObj {
 
 public:
 
-	//! The container used for content_headers
+	//! The Content- headers.
 
-	typedef std::multimap<std::string, std::string,
-			      chrcasecmp::str_less> content_headers_t;
+	//! We've folded them together, so I guess we'll just have to
+	//! reconstitute them.
 
-	//! The Content- headers
+	struct content_headers_t : public headersbase {
+
+		using headersbase::new_header;
+	};
 
 	//! This is valid only after processing a \c body_start
 
