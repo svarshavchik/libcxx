@@ -7,16 +7,14 @@
 #define x_http_parameters_H
 
 #include <string>
-#include <set>
 #include <algorithm>
-#include <x/exception.H>
 #include <x/chrcasecmp.H>
-#include <x/http/messageimpl.H>
+#include <x/http/messageimplfwd.H>
 #include <x/namespace.h>
 
 namespace LIBCXX_NAMESPACE {
 
-	namespace http {
+	namespace mime {
 
 #if 0
 	};
@@ -57,7 +55,7 @@ struct parameter_t {
 		*iter++='=';
 
 		if (std::find_if(value.begin(), value.end(),
-				 std::not1(is_token())) == value.end())
+				 std::not1(http::is_token())) == value.end())
 			iter=std::copy(value.begin(), value.end(), iter);
 		else
 		{

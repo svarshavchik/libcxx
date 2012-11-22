@@ -6,7 +6,7 @@
 #include "libcxx_config.h"
 #include "http/cgiimpl.H"
 #include "http/form.H"
-#include "http/content_type_header.H"
+#include "mime/structured_content_header.H"
 #include "sockaddr.H"
 #include "fd.H"
 
@@ -105,9 +105,11 @@ cgiimpl::cgiimpl(bool proxymode)
 
 	if (method == POST && !proxymode)
 	{
-		content_type_header ct(headers);
+		mime::structured_content_header
+			ct(headers,
+			   mime::structured_content_header::content_type);
 
-		if (ct == content_type_header
+		if (ct == mime::structured_content_header
 		    ::application_x_www_form_urlencoded)
 		{
 			parameters->decode_params(form::limited_iter<iterator>

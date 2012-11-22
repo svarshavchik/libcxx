@@ -15,7 +15,7 @@
 #include <x/exception.H>
 #include <x/chrcasecmp.H>
 #include <x/http/messageimpl.H>
-#include <x/http/parameter.H>
+#include <x/mime/parameter.H>
 #include <x/namespace.h>
 
 namespace LIBCXX_NAMESPACE {
@@ -49,7 +49,7 @@ public:
 	//! Keyed by case-insensitive attribute name,
 	//! value is the attribute value
 
-	typedef std::multiset<parameter_t> parameters_t;
+	typedef std::multiset<mime::parameter_t> parameters_t;
 
 	//! A media candidate
 

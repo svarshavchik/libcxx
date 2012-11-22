@@ -12,7 +12,7 @@
 #include <x/http/formfwd.H>
 #include <x/http/requestimpl.H>
 #include <x/http/receiverimpl.H>
-#include <x/http/content_type_header.H>
+#include <x/mime/structured_content_header.H>
 #include <x/namespace.h>
 
 #include <iterator>
@@ -237,13 +237,18 @@ private:
 
 		decode_params(s.begin(), s.end());
 
-		if (hasbody &&
-		    content_type_header(req) ==
-		    content_type_header::application_x_www_form_urlencoded)
-		{
-			typedef typename receiverimpl<requestimpl, input_iter>
-				::iterator decode_iter_t;
+		if (!hasbody)
+			return false;
 
+		mime::structured_content_header
+			ct(req, mime::structured_content_header::content_type);
+
+		typedef typename receiverimpl<requestimpl, input_iter>
+			::iterator decode_iter_t;
+
+		if (ct == mime::structured_content_header
+		    ::application_x_www_form_urlencoded)
+		{
 			decode_params(limited_iter<decode_iter_t>
 				      (receiver.begin(), getformmaxsize()),
 				      limited_iter<decode_iter_t>

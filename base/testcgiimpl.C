@@ -4,9 +4,9 @@
 */
 
 #include "libcxx_config.h"
-#include "http/cgiimpl.H"
-#include "http/content_type_header.H"
-#include "options.H"
+#include "x/http/cgiimpl.H"
+#include "x/mime/structured_content_header.H"
+#include "x/options.H"
 
 #include <sstream>
 
@@ -72,7 +72,8 @@ static void testcgiimpl(std::list<std::string> &args)
 
 	if (cgi.hasData())
 	{
-		LIBCXX_NAMESPACE::http::content_type_header(cgi.headers)
+		LIBCXX_NAMESPACE::mime::structured_content_header(cgi.headers,
+								  LIBCXX_NAMESPACE::mime::structured_content_header::content_type)
 			.toString(std::ostreambuf_iterator<char>(std::cout));
 
 		std::cout << " data:" << std::endl;

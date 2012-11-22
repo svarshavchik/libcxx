@@ -91,7 +91,9 @@ void contentheader_collector_test(const std::string &headers,
 	std::ostringstream o;
 
 	for (const auto &h:collector.get()->content_headers)
-		o << h.first << '=' << h.second << '|';
+	{
+		o << h.first << '=' << h.second.value() << '|';
+	}
 
 	std::string s=o.str();
 

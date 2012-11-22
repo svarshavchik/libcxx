@@ -104,7 +104,6 @@ libcxx_la_SOURCES=\
 	http_clientauthcacheobj.C \
 	http_clientauthobj.C	\
 	http_clientimpl.C	\
-	http_content_type_header.C \
 	http_cookie.C           \
 	http_cookiejarobj.C     \
 	http_cookiemrulist.C    \
@@ -139,6 +138,7 @@ libcxx_la_SOURCES=\
 	mime_headeriter.C	\
 	mime_rfc2047.C          \
 	mime_sectiondecoder.C	\
+	mime_structured_content_header.C \
 	msgdispatcher.C		\
 	mutexobj.C		\
 	mutexpool.C		\

@@ -7,7 +7,7 @@
 #include "x/http/useragent.H"
 #include "x/http/bodycallback.H"
 #include "x/http/form.H"
-#include "x/http/content_type_header.H"
+#include "x/mime/structured_content_header.H"
 #include "x/http/clientauth.H"
 #include "x/http/clientauthimpl.H"
 #include "x/http/clientauthcache.H"
@@ -196,8 +196,8 @@ useragentObj::request_with_headers(const fd *terminate_fd,
 		return request_with_headers(terminate_fd, req);
 	}
 
-	req.replace(content_type_header::name,
-		    content_type_header::application_x_www_form_urlencoded);
+	req.replace(mime::structured_content_header::content_type,
+		    mime::structured_content_header::application_x_www_form_urlencoded);
 
 	return request_with_headers(terminate_fd, req,
 				    useragent::base::body(form->encode_begin(),

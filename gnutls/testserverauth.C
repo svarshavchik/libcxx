@@ -312,7 +312,8 @@ public:
 				::throw_unauthorized(challenges);
 		}
 
-		resp.append(LIBCXX_NAMESPACE::http::content_type_header::name,
+		resp.append(LIBCXX_NAMESPACE::mime::
+			    structured_content_header::content_type,
 			    "text/plain");
 
 		std::string content=getcontent(username);
@@ -923,8 +924,8 @@ public:
 			LIBCXX_NAMESPACE::http::responseimpl
 				::throw_unauthorized(challenges);
 
-		resp.append(LIBCXX_NAMESPACE::http::content_type_header::name,
-			    "text/plain");
+		resp.append(LIBCXX_NAMESPACE::mime::structured_content_header
+			    ::content_type, "text/plain");
 
 		std::string content=({
 				std::ostringstream o;

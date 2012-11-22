@@ -10,7 +10,7 @@
 #include <x/http/receiverimpl.H>
 #include <x/http/senderimpl.H>
 #include <x/http/exception.H>
-#include <x/http/content_type_header.H>
+#include <x/mime/structured_content_header.H>
 #include <x/http/form.H>
 #include <iterator>
 #include <x/namespace.h>
@@ -206,7 +206,7 @@ protected:
 	{
 		responseimpl resp;
 
-		get_send_headers(resp, content_type_header::name,
+		get_send_headers(resp, mime::structured_content_header::content_type,
 				 type, req, std::forward<Args_t>(args)...);
 	}
 
@@ -226,7 +226,7 @@ protected:
 	{
 		responseimpl resp(statusCode, reasonPhrase);
 
-		get_send_headers(resp, content_type_header::name,
+		get_send_headers(resp, mime::structured_content_header::content_type,
 				 "text/plain; charset=\"utf-8\"", req,
 				 reasonPhrase.begin(), reasonPhrase.end());
 	}

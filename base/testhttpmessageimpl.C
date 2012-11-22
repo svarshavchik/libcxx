@@ -10,8 +10,8 @@
 #include "http/senderimpl.H"
 #include "http/receiverimpl.H"
 #include "http/accept_header.H"
-#include "http/content_type_header.H"
 #include "http/exception.H"
+#include "mime/structured_content_header.H"
 #include "strtok.H"
 #include <iostream>
 #include <iterator>
@@ -200,7 +200,7 @@ static void testacceptheader()
 					     b(params.begin()), e(params.end());
 				     b != e; ++b)
 				{
-					LIBCXX_NAMESPACE::http::parameter_t p;
+					LIBCXX_NAMESPACE::mime::parameter_t p;
 
 					p.name=b->substr(0, b->find('='));
 					p.value=b->substr(b->find('=')+1);
@@ -269,7 +269,7 @@ static void testacceptheader()
 
 static void testcontenttypeheader()
 {
-	LIBCXX_NAMESPACE::http::content_type_header
+	LIBCXX_NAMESPACE::mime::structured_content_header
 		hdr("Content-Type: text/plain;  charset=\"utf-8\"");
 
 	std::string s;

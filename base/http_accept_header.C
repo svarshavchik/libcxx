@@ -82,7 +82,7 @@ void accept_header::parser::parse_typesubtype(const std::string &name,
 void accept_header::parser::parse_media_params(const std::string &name,
 					       char terminator)
 {
-	parameter_t newparam;
+	mime::parameter_t newparam;
 
 	newparam.name=name;
 
@@ -158,7 +158,7 @@ void accept_header::parser::parse_accept_params(const std::string &name,
 						char terminator)
 
 {
-	parameter_t newparam;
+	mime::parameter_t newparam;
 
 	newparam.name=name;
 

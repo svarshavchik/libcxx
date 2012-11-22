@@ -837,7 +837,7 @@ public:
 			break;
 		}
 
-		resp.append(LIBCXX_NAMESPACE::http::content_type_header::name,
+		resp.append(LIBCXX_NAMESPACE::mime::structured_content_header::content_type,
 			    "text/plain");
 
 		send(resp, req,
@@ -1182,7 +1182,7 @@ public:
 
 		LIBCXX_NAMESPACE::http::responseimpl resp;
 
-		resp.append(LIBCXX_NAMESPACE::http::content_type_header::name,
+		resp.append(LIBCXX_NAMESPACE::mime::structured_content_header::content_type,
 			    "text/plain; charset=\"utf-8\"");
 
 		std::string cancel;

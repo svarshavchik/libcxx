@@ -38,8 +38,9 @@ namespace LIBCXX_NAMESPACE {
 //! hasData() indicates whether a this application was invoked to process
 //! an arbitrary object. It returns \c true if the request method is
 //! a POST or a PUT. Instantiate a
-//! \ref content_type_header "content_type_header" to retrieve its MIME
-//! type,, then use data_begin()
+//! \ref mime::structured_content_header "INSERT_LIBX_NAMESPACE::mime::structured_content_header"
+//! for the "Content-Type" header, to retrieve its MIME
+//! type, then use data_begin()
 //! and data_end() to retrieve the iterators over the object body bytestream.
 //!
 //! A cgiimpl object may be instantiated only once. Second and subsequent
