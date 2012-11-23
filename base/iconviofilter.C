@@ -230,8 +230,12 @@ std::u32string iconviofilter::to_u32string(const std::string &string,
 
 	size_t taken, next_taken=0;
 
+	bool error_reported=false;
+
 	do
 	{
+	again:
+
 		taken=next_taken;
 
 		u32string.resize(((taken ? taken*2:256)+3)/4);
@@ -239,14 +243,42 @@ std::u32string iconviofilter::to_u32string(const std::string &string,
 		to_ucs4.next_out=reinterpret_cast<char *>(&u32string[0])+taken;
 		to_ucs4.avail_out=u32string.size()*4-taken;
 
-		to_ucs4.filter();
+		try {
+			to_ucs4.filter();
+			error_reported=false;
+		} catch (const exception &e)
+		{
+			next_taken=to_ucs4.next_out-
+				reinterpret_cast<char *>(&u32string[0]);
+			u32string.resize(next_taken / 4);
+
+			if (!error_reported)
+			{
+				std::ostringstream ss;
+
+				ss << "[" << e << "]";
+
+				std::string s=ss.str();
+
+				std::copy(s.begin(), s.end(),
+					  std::back_insert_iterator<std::u32string>
+					  (u32string));
+				error_reported=true;
+			}
+			next_taken=u32string.size()*4;
+
+			if (!to_ucs4.avail_in)
+				break;
+			++to_ucs4.next_in;
+			--to_ucs4.avail_in;
+			goto again;
+		}
 
 		next_taken=to_ucs4.next_out-
 			reinterpret_cast<char *>(&u32string[0]);
 	} while (taken != next_taken);
 
 	u32string.resize(next_taken / 4);
-
 	return u32string;
 }
 
