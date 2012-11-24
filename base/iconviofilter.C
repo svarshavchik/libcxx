@@ -16,10 +16,10 @@ namespace LIBCXX_NAMESPACE {
 };
 #endif
 
-#if __BYTE_ORDER == __BIG_ENDIAN
+#if __BYTE_ORDER__ == __ORDER_BIG_ENDIAN__
 const char iconviofilter::ucs4[]="UCS-4BE";
 #else
-#if __BYTE_ORDER == __LITTLE_ENDIAN
+#if __BYTE_ORDER__ == __ORDER_LITTLE_ENDIAN__
 const char iconviofilter::ucs4[]="UCS-4LE";
 #else
 #error No more endians
