@@ -37,6 +37,48 @@ size_t getformmaxsize();
 
 extern const char hex[];
 
+//! Encountered a %-encoded nybble parsing an input sequence
+
+//! The next two characters are expected to be a hexadecimal nybble.
+
+template<typename iter_type>
+std::pair<iter_type, unsigned char> decode_nybble(//! Beginning iterator value
+						  iter_type b,
+
+						  //! Ending iterator value
+						  iter_type e)
+{
+	unsigned char c=0;
+
+	if (b != e)
+	{
+		const char *p=strchr(hex, *b++);
+
+		if (p)
+		{
+			if (p >= hex+16)
+				p -= 6;
+
+			c=(p-hex) << 4;
+
+			if (b != e)
+			{
+				p=strchr(hex, *b++);
+
+				if (p)
+				{
+					if (p >= hex+16)
+						p -= 6;
+
+					c += (p-hex);
+				}
+			}
+		}
+	}
+
+	return std::make_pair(b, c);
+}
+
 //! Parameters in an HTTP form.
 
 class parametersObj : public map_t, virtual public obj {
@@ -102,49 +144,24 @@ public:
 	static iter_type decode_octet(iter_type b, iter_type e,
 				      std::string &s)
 	{
-		{
-			char c=*b;
+		char c=*b;
 
-			if (c == '+')
-			{
-				s.push_back(' ');
-				return ++b;
-			}
-			if (c != '%')
-			{
-				s.push_back(c);
-				return ++b;
-			}
+		if (c == '+')
+		{
+			s.push_back(' ');
+			return ++b;
 		}
 
-		if (++b == e)
-			return b;
+		if (c != '%')
+		{
+			s.push_back(c);
+			return ++b;
+		}
 
-		unsigned char c;
+		auto ret=decode_nybble(++b, e);
 
-		const char *p=strchr(hex, *b++);
-
-		if (p == NULL)
-			return b;
-
-		if (p >= hex+16)
-			p -= 6;
-
-		c=(p-hex) << 4;
-
-		if (b == e)
-			return b;
-		p=strchr(hex, *b++);
-
-		if (p == NULL)
-			return b;
-
-		if (p >= hex+16)
-			p -= 6;
-
-		s.push_back(c + (p-hex));
-
-		return b;
+		s.push_back(ret.second);
+		return ret.first;
 	}
 
 	//! Used by useragent to decode authority part of the URL
