@@ -8,7 +8,7 @@
 #include "server.H"
 #include "x/pwd.H"
 #include "x/csv.H"
-#include "x/str2char.H"
+#include "x/joiniterator.H"
 #include "x/xml/escape.H"
 #include "x/http/cgiimpl.H"
 
@@ -572,8 +572,8 @@ void httpserverimpl::received(const LIBCXX_NAMESPACE::http::requestimpl &req,
 			  svclistiter::xml(),
 			  std::back_insert_iterator<buf_t>(buf));
 
-	send(resp, req,
-	     LIBCXX_NAMESPACE::str2char_input_iter<buf_t::iterator>(buf.begin(),
-								  buf.end()),
-	     LIBCXX_NAMESPACE::str2char_input_iter<buf_t::iterator>());
+	LIBCXX_NAMESPACE::joiniterator<buf_t::iterator>
+		buf_iter(buf.begin(), buf.end());
+
+	send(resp, req, buf_iter, buf_iter.end());
 }

@@ -240,6 +240,7 @@ include/x/join_to4.H
 include/x/join_to5.H
 include/x/join_to6.H
 include/x/joinfwd.H
+include/x/joiniterator.H
 include/x/locale.H
 include/x/localefwd.H
 include/x/localeobj.H
@@ -360,7 +361,6 @@ include/x/sockaddrfwd.H
 include/x/sockaddrobj.H
 include/x/stopexception.H
 include/x/stoppable.H
-include/x/str2char.H
 include/x/strftime.H
 include/x/strftimefwd.H
 include/x/strtok.H

@@ -4,8 +4,8 @@
 */
 
 #include "libcxx_config.h"
-#include "csv.H"
-#include "str2char.H"
+#include "x/csv.H"
+#include "x/joiniterator.H"
 
 #include <vector>
 #include <iostream>
@@ -84,15 +84,37 @@ static void testiter()
 
 	std::string res;
 
-	for (LIBCXX_NAMESPACE::str2char_input_iter<std::string *>
-		     b(&stringvec[0], &stringvec[3]),
-		     e(&stringvec[3]); b != e; ++b)
-	{
-		res.push_back(*b);
-	}
+	std::copy(LIBCXX_NAMESPACE::joiniterator<std::string *>
+		  (stringvec, stringvec+3),
+		  LIBCXX_NAMESPACE::joiniterator<std::string *>(),
+		  std::back_insert_iterator<std::string>(res));
 
 	if (res != "ab")
-		throw EXCEPTION("str2char_input_iter sanity check failed");
+		throw EXCEPTION("joiniterator sanity check failed");
+
+	res.clear();
+
+	std::copy(LIBCXX_NAMESPACE::joiniterator<std::string *>
+		  (stringvec, stringvec+3),
+		  LIBCXX_NAMESPACE::joiniterator<std::string *>
+		  (stringvec, stringvec+3).end(),
+		  std::back_insert_iterator<std::string>(res));
+
+	if (res != "ab")
+		throw EXCEPTION("joiniterator sanity check 2 failed");
+
+	res.clear();
+
+	typedef std::reverse_iterator<LIBCXX_NAMESPACE::joiniterator
+				      <std::string *> > rev_t;
+
+	std::copy(rev_t(LIBCXX_NAMESPACE::joiniterator<std::string *>
+			(stringvec, stringvec+3).end()),
+		  rev_t(LIBCXX_NAMESPACE::joiniterator<std::string *>
+			(stringvec, stringvec+3)),
+		  std::back_insert_iterator<std::string>(res));
+	if (res != "ba")
+		throw EXCEPTION("joiniterator sanity check 3 failed");
 }
 
 int main(int argc, char **argv)

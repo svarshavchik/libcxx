@@ -54,7 +54,7 @@
 <!ENTITY miscfmtsize SYSTEM "miscfmtsize.xml">
 <!ENTITY miscvector SYSTEM "miscvector.xml">
 <!ENTITY misccsv SYSTEM "misccsv.xml">
-<!ENTITY miscstrwchar SYSTEM "miscstrwchar.xml">
+<!ENTITY miscjoiniterator SYSTEM "miscjoiniterator.xml">
 <!ENTITY miscdf SYSTEM "miscdf.xml">
 <!ENTITY miscpostponed SYSTEM "miscpostponed.xml">
 <!ENTITY xml_escape SYSTEM "xml_escape.xml">
@@ -146,6 +146,7 @@ See COPYING for distribution information.
 
     &miscstringability;
     &miscstrtok;
+    &miscjoiniterator;
     &misctokenizer;
     &miscwordexp;
     &misctimespec;
@@ -153,7 +154,6 @@ See COPYING for distribution information.
     &miscvector;
     &miscpostponed;
     &misccsv;
-    &miscstrwchar;
     &miscdf;
   </part>
 

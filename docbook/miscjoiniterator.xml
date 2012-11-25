@@ -1,0 +1,83 @@
+<!--
+
+Copyright 2012 Double Precision, Inc.
+See COPYING for distribution information.
+
+-->
+
+<chapter id="joiniterator">
+  <title>A joining iterator</title>
+
+  <blockquote>
+    <informalexample>
+      <programlisting>
+#include &lt;&ns;/joiniterator.H&gt;
+
+std::list&lt;std::string&gt; stringlist;
+
+// ...
+
+std::string string;
+
+auto b=&ns;::joiniterator&lt;std::list&lt;string&gt;::const_iterator&gt;(stringlist.begin(), stringlist.end());
+
+sd::copy(b, b.end(), std::back_insert_iterator&lt;std::string&gt;(res));</programlisting>
+    </informalexample>
+  </blockquote>
+
+  <para>
+    This is an iterator-based alternative to
+    <link linkend="strtok"><function>join</function></link>().
+    The above example concatenates all the strings in the
+    <classname>std::list</classname> and places the result into the
+    <varname>string</varname>.
+  </para>
+
+  <para>
+    <ulink url="&link-x--joiniterator;"><classname>&ns;::joiniterator</classname></ulink>'s
+    template parameter is an iterator over other containers, and
+    <classname>&ns;::joiniterator</classname> defines an iterator over the
+    values in the containers, joined together. Advancing the
+    <classname>&ns;::joiniterator</classname> after the last value in the
+    first container instance puts the
+    <classname>&ns;::joiniterator</classname> on the first value in the
+    second container instance, and so on.
+    The container iterator class can be an input iterator, a forward iterator,
+    a bidirectional iterator, or a random access iterator. The resulting
+    <classname>&ns;::joiniterator</classname> gives the same iterator category,
+    except that a random access container iterator results in a bidirectional
+    <classname>&ns;::joiniterator</classname>
+  </para>
+
+  <para>
+    The constructor takes two parameters, the beginning and the ending
+    container iterator, and defines the beginning iterator for the joined
+    values of the underlying containers. <methodname>end</methodname>()
+    returns the value of the ending iterator for that sequence.
+    <classname>&ns;::joiniterator</classname>() also has a default constructor,
+    which produces a <quote>universal</quote> ending iterator value. This
+    value will work as the ending iterator value for any joined sequence over
+    a matching container value type; with the sole exception that the universal
+    ending iterator will not be a proper bidirectional ending iterator value,
+    it cannot be decremented. However, if proper bidirectional semantics are
+    not required, the default constructor can be used as a convenient ending
+    iterator value.
+  </para>
+
+  <note>
+    <para>
+      The template parameter that specifies the iterator over the containers
+      must have a category that's at least as much as the category of the
+      container values' iterator. If the containers' iterator is a bidirectional
+      iterator (or a random access iterator, which is supported as a
+      bidirectional iterator) then the template parameter must also be a
+      bidirectional iterator, for example.
+    </para>
+  </note>
+</chapter>
+<!--
+Local Variables:
+mode: sgml
+sgml-parent-document: ("book.xml" "part" "chapter")
+End:
+-->
