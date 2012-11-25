@@ -137,6 +137,24 @@ public:
 					   const std::string &charset,
 					   const std::string &language,
 					   size_t width=76);
+
+	//! Convenience function - append a parameter
+
+	//! Perform RFC 2047 encoding, if necessary.
+
+	structured_content_header &rfc2047(const std::string &name,
+					   const std::string &value,
+					   const std::string &charset);
+
+	//! Convenience function - append a parameter
+
+	//! Perform RFC 2047 encoding, if necessary.
+
+	structured_content_header &rfc2047(const std::string &name,
+					   const std::string &value,
+					   const std::string &charset,
+					   const std::string &language);
+
 private:
 	class LIBCXX_HIDDEN formatwords_cb;
 
@@ -168,8 +186,8 @@ public:
 
 	std::string mime_content_subtype() const;
 
-	//! Return the charset parameter, if not present return ISO-8859-1
-	std::string charset() const;
+	//! Return the charset parameter, if not present return the default.
+	std::string charset(const std::string &default_charset) const;
 
 	//! Return the boundary parameter.
 	std::string boundary() const;

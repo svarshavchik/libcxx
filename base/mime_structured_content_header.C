@@ -9,6 +9,8 @@
 #include "x/http/form.H"
 #include "x/iconviofilter.H"
 #include "x/tokens.H"
+#include "x/qp.H"
+#include "x/base64.H"
 #include "chrcasecmp.H"
 #include <algorithm>
 #include <map>
@@ -293,7 +295,7 @@ structured_content_header::rfc2231(const std::string &name,
 			 {
 				 return c < ' ' || c > 0x7F || c == '"' || c == '\\';
 			 }) == value.end() &&
-	    (width == 0 || name.size()+language.size()+5 /* est */ < width))
+	    (width == 0 || name.size()+value.size()+5 /* est */ < width))
 		return operator()(name, value);
 
 	std::string prefix=charset + "'" + language + "'";
@@ -344,6 +346,76 @@ structured_content_header::rfc2231(const std::string &name,
 		operator()(o.str(), p.second);
 	}
 	return *this;
+}
+
+structured_content_header &
+structured_content_header::rfc2047(const std::string &name,
+				   const std::string &value,
+				   const std::string &charset)
+{
+	return rfc2047(name, value, charset, "");
+}
+
+struct LIBCXX_HIDDEN structured_rfc2047_encode {
+
+	static bool encode(unsigned char c)
+	{
+		return c < ' ' || c > 0x7F || c == '"'
+			|| c == '\\' || c == '=' || c == '?';
+	}
+};
+
+structured_content_header &
+structured_content_header::rfc2047(const std::string &name,
+				   const std::string &value,
+				   const std::string &charset,
+				   const std::string &language)
+{
+	size_t nescapes;
+
+	nescapes=0;
+
+	for (char c:value)
+	{
+		if (structured_rfc2047_encode::encode(c))
+			++nescapes;
+	}
+
+	if (nescapes == 0)
+		return operator()(name, value); // No encoding necessary.
+
+	std::ostringstream o;
+
+	o << "=?" << charset;
+
+	if (language.size())
+		o << "*" << language;
+
+	size_t qp_size=value.size()+nescapes*2;
+	size_t b64_size=(value.size()+2)/3*4;
+
+	if (qp_size < b64_size)
+	{
+		o << "?Q?";
+
+		std::copy(value.begin(),
+			  value.end(),
+			  qp_encoder<std::ostreambuf_iterator<char>,
+			  structured_rfc2047_encode>
+			  (std::ostreambuf_iterator<char>(o), 0)).eof();
+	}
+	else
+	{
+		o << "?B?";
+
+		std::copy(value.begin(),
+			  value.end(),
+			  base64<>::encoder<std::ostreambuf_iterator<char>>
+			  (std::ostreambuf_iterator<char>(o), 0)).eof();
+	}
+	o << "?=";
+
+	return operator()(name, o.str());
 }
 
 void structured_content_header::format(formatwords_cb &callback) const
@@ -446,11 +518,11 @@ std::string structured_content_header::mime_content_subtype() const
 	return s;
 }
 
-std::string structured_content_header::charset() const
+std::string structured_content_header::charset(const std::string &def) const
 {
 	auto p=parameters.find("charset");
 
-	return p==parameters.end() ? "iso-8859-1":p->second.value;
+	return p==parameters.end() ? def:p->second.value;
 }
 
 std::string structured_content_header::boundary() const

@@ -45,6 +45,7 @@
 /testmcguffinref
 /testmessages
 /testmimebodystartiter
+/testmimeencoder
 /testmimeheadercollector
 /testmimenewlineiter
 /testmimerfc2047

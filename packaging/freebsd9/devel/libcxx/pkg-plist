@@ -253,6 +253,8 @@ include/x/messages.H
 include/x/messagesfwd.H
 include/x/mime/bodystartiter.H
 include/x/mime/contentheadercollector.H
+include/x/mime/encoder.H
+include/x/mime/encoderbase.H
 include/x/mime/headercollector.H
 include/x/mime/headeriter.H
 include/x/mime/newlineiter.H

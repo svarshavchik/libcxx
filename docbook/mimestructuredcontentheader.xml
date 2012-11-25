@@ -1,0 +1,206 @@
+<!--
+
+Copyright 2012 Double Precision, Inc.
+See COPYING for distribution information.
+
+-->
+
+
+<chapter id="mimestructuredcontentheader">
+  <title>Processing structured headers</title>
+
+  <blockquote>
+    <informalexample>
+      <programlisting>
+#include &lt;x/headersimpl.H&gt;
+#include &lt;x/mime/structured_content_header.H&gt;
+
+&ns;::headersimpl&lt;&ns;::headersbase::lf_endl&gt; headers;
+
+&ns;::mime::structured_content_header
+    content_disposition("attachment; x-source=file; filename=\"filename.txt\"");
+
+if (content_disposition == "attachment")
+{
+    ...
+}
+
+// ...
+
+std::string name;
+std::string filename;
+
+&ns;::mime::structured_content_header content_disposition("attachment")
+    ("x-source", "file")
+    .rfc2047("name", name, "UTF-8")
+    .rfc2231("filename", filename, "UTF-8");
+
+// ...
+
+&ns;::mime::parameters_t::iterator b=content_disposition.parameters.begin(),
+    e=content_disposition.parameters.begin();
+
+while (b != e)
+{
+    std::string name=b->first;
+
+    &ns;::mime::parameter_t parameter=b->second;
+
+    std::string value=parameter.value;
+
+    // ...
+}
+
+// ...
+
+content_disposition
+    .append(headers, &ns;::mime::structured_content_header::content_disposition);</programlisting>
+    </informalexample>
+  </blockquote>
+
+  <para>
+    <ulink url="&link-x--mime--structured-content-header;"><classname>&ns;::mime::structured_content_header</classname></ulink>
+    represents a structured &MIME; header, like <quote>Content-Type</quote> or
+    <quote>Content-Disposition</quote>.
+    It consists of a <varname>value</varname> member, giving the primary
+    value of the header, with the header parameters kept in a
+    <classname>parameters_t</classname> <varname>parameters</varname> member,
+    which is a case-insensitive keyed
+    <classname>std::multimap</classname>.
+  </para>
+
+  <para>
+    <classname>&ns;::mime::structured_content_header</classname>'s
+    non-default constructor takes the entire value of the header, or just
+    its primary value, and breaks it down into
+    the <varname>value</varname> and the <varname>parameters</varname>.
+    Alternatively, various methods construct build the header, piece by piece,
+    using <methodname>operator()</methodname> and
+    <methodname>rfc2231</methodname>() methods. They return a
+    <classname>&ns;::mime::structured_content_header &amp;</classname>
+    for convenience.
+  </para>
+
+  <para>
+    <methodname>operator()</methodname> adds a simple, unformatted parameter,
+    by name and value.
+    <methodname>rfc2047()</methodname> encodes a parameter that may potentially
+    have non-Latin characters, using the method specified in
+    <acronym>RFC</acronym> 2047.
+    <methodname>rfc2231()</methodname> encodes a parameter that may potentially
+    have non-Latin characters, using the method specified in
+    <acronym>RFC</acronym> 2231.
+    Both
+    <methodname>rfc2047()</methodname> and
+    <methodname>rfc2231()</methodname> take the following additional parameters,
+    in addition to the parameter's name and value:
+  </para>
+
+  <itemizedlist>
+    <listitem>
+      <para>
+	The value's character set.
+      </para>
+    </listitem>
+    <listitem>
+      <para>
+	An optional language specification, that defaults to <quote>EN</quote>.
+      </para>
+    </listitem>
+    <listitem>
+      <para>
+	<methodname>rfc2231()</methodname> also takes
+	an optional maximum targeted line width, that defaults to
+	76 characters.
+      </para>
+    </listitem>
+  </itemizedlist>
+
+  <para>
+    The value does not get encoded if it does not have to be, in which case
+    the results are the same as with <methodname>operator()</methodname>.
+    The value parameter's value gets encoded using the 
+    <acronym>RFC</acronym> 2047 or 2231 method, if the value contains any
+    characters that
+    require encoding (which includes any non-Latin characters).
+    With <methodname>rfc2231</methodname>(), if the value
+    does not have any characters that require encoding, but
+    <quote>name=value</quote> is near, or exceeds, the targeted line with,
+    it gets encoded as multiple <acronym>RFC</acronym> 2231 parameter
+    fragments. Specifying the target line with as 0 results in the parameter
+    getting encoded only if it contains any characters that require it,
+    essentially setting an unlimited maximum targeted line with.
+  </para>
+
+  <blockquote>
+    <informalexample>
+      <programlisting>
+&ns;::headersimpl&lt;&ns;::headersbase::lf_endl&gt; headers;
+
+&ns;::mime::structured_content_header
+    hdr(headers, &ns;::mime::structured_content_header::content_type);
+
+std::string type=hdr.mime_content_type();
+std::string subtype=hdr.mime_content_subtype();
+
+if (type == "text")
+{
+    std::string charset=hdr.charset("iso-8859-1");
+
+    // ...
+}
+
+std::string name=hdr.decode_utf8("name", "iso-8859-1");
+
+// ...
+
+hdr.append(headers, &ns;::mime::structured_content_header::content_disposition)</programlisting>
+    </informalexample>
+  </blockquote>
+
+  <para>
+    Passing an <classname>&ns;::headersimpl</classname> as the first parameter
+    to the constructor, and a name of a header for the second parameter,
+    constructs the <classname>&ns;::mime::structured_content_header</classname>
+    from the value of the header with the given name.
+    The  <classname>&ns;::mime::structured_content_header</classname> gets
+    initialized with an empty string if the
+     <classname>&ns;::headersimpl</classname> does not have this header.
+  </para>
+
+  <para>
+    The
+    <classname>&ns;::mime::structured_content_header</classname> class includes
+    definitions of some common header names and parameters, like
+    <literal>&ns;::mime::structured_content_header::content_type</literal>,
+    which is <quote>Content-Type</quote>.
+  </para>
+
+  <para>
+    Additional methods return values of most common parameters.
+    <methodname>mime_content_type</methodname>() and
+    <methodname>mime_content_subtype</methodname>() gives the &MIME; content
+    type and subtype. For <quote>text</quote> types,
+    <methodname>charset</methodname>() returns the value of the
+    <literal>charset</literal> parameter, its argument gives the default return
+    value if the header did not have a <literal>charset</literal> parameter.
+  </para>
+
+  <para>
+    <methodname>decode_utf8</methodname>() returns the value of an arbitrary
+    parameter, converted to the <literal>UTF-8</literal> character set.
+    <methodname>decode_utf8</methodname>() understands character set encoding
+    methods specified in RFC 2047 and RFC 2231.
+    <methodname>decode_utf8</methodname>() 's parameter gives the default
+    character set when it is unspecified by the parameter's value, resulting
+    in the conversion of the parameter's value from the given character
+    set to <literal>UTF-8</literal>.
+  </para>
+</chapter>
+
+<!--
+Local Variables:
+mode: sgml
+sgml-parent-document: ("book.xml" "part" "chapter")
+End:
+-->

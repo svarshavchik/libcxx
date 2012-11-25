@@ -1,0 +1,363 @@
+<!--
+
+Copyright 2012 Double Precision, Inc.
+See COPYING for distribution information.
+
+-->
+
+
+<chapter id="mimeencoder">
+  <title>Encoding &MIME; documents</title>
+
+  <para>
+    <ulink url="examples/mimeencoder.C"><filename>examples/mimeencoder.C</filename></ulink>
+    is an example of creating encoded &MIME; entities.
+    <filename>mimeencoder.C</filename> takes a list of filenames as parameters,
+    and creates a list of &MIME; entities, one entity
+    per file, with its contents; then
+    creates a multipart &MIME; entity consisting of all the
+    individual &MIME; entities.
+  </para>
+
+  <para>
+    &MIME; entities get constructed from a
+    <link linkend="headers"><classname>&ns;::headersimpl&lt;&ns;::headersbase::lf_endl&gt;</classname>
+      or a
+      <classname>&ns;::headersimpl&lt;&ns;::headersbase::crlf_endl&gt;</classname></link>
+    object, and additional parameters that define the content of the entity.
+    The selection of the <classname>&ns;::headersimpl</classname>
+    specialization determines whether &MIME; encoding uses
+    <literal>LF</literal> or <literal>CRLF</literal> newline sequence for
+    the encoded header and body portion of the &MIME; entity.
+  </para>
+
+  <blockquote>
+    <informalexample>
+      <programlisting>
+#include &lt;x/mime/structured_content_header.H&gt;
+#include &lt;x/mime/encoder.H&gt;
+
+std::string filename;
+
+&ns;::headersimpl&lt;&ns;::headersbase::lf_endl&gt; headers;
+
+&ns;::mime::structured_content_header content_type(&ns;::mime::filetype(&ns;::mime::from_file(filename));
+
+if (content_type.mime_content_type() == "text")
+    content_type("charset", &ns;::mime::filecharset(filename));
+
+content_type.append(headers, &ns;::mime::content_type);
+
+&ns;::mime::structured_content_header("attachment")
+    .rfc2231("filename", filename, "UTF-8")
+    .append(headers, x::mime::structured_content_header::content_disposition);
+
+&ns;::mime::encoder section=
+    &ns;::mime::make_section(headers, &ns;::mime::from_file(filename)));</programlisting>
+    </informalexample>
+  </blockquote>
+
+  <para>
+    Encoding a &MIME; entity begins by constructing
+    <link linkend="mimestructuredcontentheader">structured</link>
+    <quote>Content-Type</quote>, and, perhaps,
+    <quote>Content-Disposition</quote> &MIME; headers, with the
+    help of
+    <ulink url="&link-function-x--mime-filetype;"><function>&ns;::mime::filetype</function></ulink>() and
+    <ulink url="&link-function-x--mime-filecharset;"><function>&ns;::mime::filecharset</function></ulink>().
+  </para>
+
+  <para>
+    <function>&ns;::mime::filetype</function>() takes a filename argument,
+    and searches for a registered &MIME; type for that filename extension
+    in <filename>mime.types</filename>. If the extension is not found,
+    the &MIME; type gets heuristically derived from the contents of the file
+    using <application>libmagic</application>, a.k.a. the
+    <citerefentry><refentrytitle>file</refentrytitle><manvolnum>1</manvolnum></citerefentry>
+    command.
+    Alternatively, <function>&ns;::mime::filetype</function>() also takes
+    a <link linkend="fd">file descriptor</link> in place of a filename,
+    which does only the content file lookup.
+  </para>
+
+  <para>
+    For <literal>text</literal> &MIME; content, if the character set is not
+    known otherwise,
+    <function>&ns;::mime::filecharset</function>() also derives it
+    heuristically via <application>libmagic</application>.
+  </para>
+
+  <para>
+    <ulink url="&link-function-x--mime-make-section;"><function>&ns;::mime::make_section</function></ulink>()
+    takes a constructed header parameter, that
+    specifies a completed set of &MIME; headers, and
+    a container that specifies the raw, unencoded contents of the
+    &MIME; entity, and returns
+    a
+    <ulink url="&link-typedef-x--mime-encoder;"><classname>&ns;::mime::encoder</classname></ulink>.
+    This is a reference to a
+    <link linkend="refobj">reference-counted</link> object that represents
+    an encoded &MIME; entity.
+  </para>
+
+  <para>
+    <function>&ns;::mime::make_section</function>()'s second parameter
+    is any container that implements <methodname>begin</methodname>() and
+    <methodname>end</methodname>() that define the beginning and the
+    iterator for an input, forward, or a random access sequence of
+    <classname>char</classname>s that give the unencoded
+    contents of the &MIME; entity.
+  </para>
+
+  <para>
+    The container must be copy-constructible.
+    <ulink url="&link-function-x--mime-from-file;"><function>&ns;::mime::fromfile</function></ulink>()
+    supplies a suitable container that reads the contents of the
+    &MIME; section from a file, specified as a filename or
+    a <link linkend="fd">file descriptor object</link>.
+  </para>
+
+  <blockquote>
+    <informalexample>
+      <programlisting>
+std::copy(section-&gt;begin(), section-&gt;end(), std::ostreambuf_iterator&lt;char&gt;(std::cout));</programlisting>
+    </informalexample>
+  </blockquote>
+
+  <para>
+    <classname>&ns;::mime::encoder</classname>'s referenced object's
+    <methodname>begin</methodname>() and <methodname>end</methodname>() return
+    a <classname>&ns;::mime::encoder::base::iterator</classname>, defining
+    a beginning and an ending iterator for an input sequence of
+    <classname>char</classname>s containing the headers followed by the encoded
+    contents of the &MIME; section.
+  </para>
+
+  <para>
+    <function>&ns;::mime::make_section</function>() does
+    <emphasis>not</emphasis> read the
+    entire contents of the &MIME; entity and encodes it,
+    and gives back a <classname>&ns;::mime::encoder</classname> that returns
+    the iterators to the encoded sequence.
+    <function>&ns;::mime::make_section</function>() copies the headers parameter
+    and the container object itself, into the
+    the <classname>&ns;::mime::encoder</classname> object.
+    <methodname>begin</methodname>() and <methodname>end</methodname>()
+    call the container's
+    <methodname>begin</methodname>() and <methodname>end</methodname>(),
+    and encode the object on the fly (together with preceding
+    &MIME; headers).
+  </para>
+
+  <para>
+    In other words, a
+    <function>&ns;::mime::fromfile</function> referencing a ten megabyte file
+    does not load the entire contents of the file into memory. The file
+    gets opened by
+    <methodname>begin</methodname>() and <methodname>end</methodname>(),
+    and gets encoded on the fly.
+  </para>
+
+  <para>
+    A <function>&ns;::mime::fromfile</function> specifying a file
+    descriptor to a non-regular file, such as a pipe, results in
+    <function>&ns;::mime::fromfile</function> reading its entire contents
+    into a temporary file. Specifying a filename simply opens the file,
+    directly.
+  </para>
+
+  <section id="mimeencodercte">
+    <title>Content transfer encoding</title>
+
+    <blockquote>
+      <informalexample>
+	<programlisting>
+&ns;::mime::encoder section=
+	  &ns;::mime::make_section(headers, &ns;::mime::from_file(filename), false, 255));</programlisting>
+      </informalexample>
+    </blockquote>
+
+    <para>
+      <function>&ns;::mime::make_section</function>() selects the
+      transfer encoding heuristically, by reading the container and
+      selecting <literal>7bit</literal>, <literal>8bit</literal>,
+      <literal>quoted-printable</literal>, or <literal>base64</literal>.
+      <function>&ns;::mime::make_section</function>() takes two optional
+      parameters.
+    </para>
+
+    <itemizedlist>
+      <listitem>
+	<para>
+	  An optional <classname>bool</classname> parameter has a default value
+	  of <classname>false</classname>. Setting it to true
+	  disables <literal>8bit</literal>, and forces either
+	  <literal>quoted-printable</literal> or <literal>base64</literal>, if
+	  <literal>7bit</literal> does not work.
+	</para>
+      </listitem>
+
+      <listitem>
+	<para>
+	  A maximum size of each text line has a default value of
+	  76. Even if the &MIME; entity does not need
+	  <literal>quoted-printable</literal> or <literal>base64</literal>
+	  otherwise, they get used if the &MIME; entity contains lines that
+	  exceed the text line size parameter, and the parameter specifies
+	  the maximum size of the lines in the encoded content, as well.
+	</para>
+      </listitem>
+    </itemizedlist>
+
+    <blockquote>
+      <informalexample>
+	<programlisting>
+&ns;::mime::encoder section=
+	  &ns;::mime::make_base64_section(headers, &ns;::mime::from_file(filename)));
+
+&ns;::mime::encoder section=
+	  &ns;::mime::make_qp_section(headers, &ns;::mime::from_file(filename)));</programlisting>
+      </informalexample>
+    </blockquote>
+
+    <para>
+      <ulink url="&link-function-x--mime-make-base64-section;"><function>&ns;::mime::make_base64_section</function></ulink>()
+      and
+      <ulink url="&link-function-x--mime-make-qp-section;"><function>&ns;::mime::make_qp_section</function></ulink>()
+      explicitly construct a <literal>base64</literal> or a
+      <literal>quoted-printable</literal>-encoded &MIME; entity.
+      An optional parameter gives the maximum line size of the encoded entity,
+      defaulting to 76 characters per line.
+    </para>
+
+    <para>
+      <function>&ns;::mime::make_section</function>(),
+      <function>&ns;::mime::make_base64_section</function>(), and
+      <function>&ns;::mime::make_qp_section</function>()
+      supply the appropriate <quote>Content-Transfer-Encoding</quote>
+      header, and this header should not be present in the
+      <classname>&ns;::headersimpl</classname> parameter.
+      There's also a
+      <ulink url="&link-function-x--mime-make-plain-section;"><function>&ns;::mime::make_plain_section</function></ulink>()
+      that constructs a
+      <classname>&ns;::mime::encoder</classname> that does not perform
+      any &MIME; encoding, presuming that <literal>7bit</literal>
+      or <literal>8bit</literal> works for the &MIME; entity.
+      <function>&ns;::mime::make_plain_section</function>()
+      does not supply a <quote>Content-Transfer-Encoding</quote> header.
+      If required, it needs to be added to the headers parameter.
+    </para>
+
+    <blockquote>
+      <informalexample>
+	<programlisting>
+&ns;::headersimpl&lt;&ns;::headersbase::lf_endl&gt; headers;
+
+headers.append("Mime-Version", "1.0");
+headers.append("Subject", "test");
+
+auto section1=&ns;::mime::make_section(headers, std::string("Hello world!\n"));
+
+headers.clear();
+
+auto section2=&ns;::mime::make_message_rfc822_section(headers, section1);</programlisting>
+      </informalexample>
+    </blockquote>
+
+    <para>
+      <ulink url="&link-function-x--mime-make-message-rfc822-section;"><function>&ns;::mime::make_message_rfc822_section</function></ulink>()
+      takes a previously-created encoder of an entire message, and constructs
+      a message/rfc822 entity from it.
+      <function>&ns;::mime::make_message_rfc822_section</function>
+      adds
+      <quote>Content-Type: message/rfc822</quote> header to any headers
+      present in its <varname>headers</varname> parameter.
+    </para>
+  </section>
+
+  <section id="mimeencodermp">
+    <title>Constructing multipart &MIME; entities</title>
+
+    <blockquote>
+      <informalexample>
+	<programlisting>
+std::vector&lt;&ns;::mime::encoder&gt; sections;
+
+&ns;::headersimpl&lt;&ns;::headersbase::lf_endl&gt; headers;
+
+// ...
+&ns;::mime::encoder section=
+    &ns;::make_multipart_section(headers, "alternative",
+                              sections.begin(), sections.end());</programlisting>
+      </informalexample>
+    </blockquote>
+
+    <para>
+      <ulink url="&link-function-x--mime-make-multipart-section;"><function>&ns;::mime::make_multipart_section</function></ulink>()
+      contructs a multipart &MIME; section.
+      <function>&ns;::mime::make_multipart_section</function> supplies the
+      <quote>Content-Type: multipart/<replaceable>subtype</replaceable></quote>
+      to the headers provided by its first parameter, with
+      the second parameter specifying the <replaceable>subtype</replaceable>.
+      The third and the fourth parameters are beginning and ending iterator
+      over an input sequence of <classname>&ns;::mime::encoder</classname>s
+      of &MIME; entities that make up the multipart entity.
+    </para>
+
+    <para>
+      The fifth, optional, parameter specifies the targeted line width of
+      the constructed <quote>Content-Type</quote> header, and defaults
+      to 76 characters. If the constructed header is projected to exceed
+      this width (it usually is), it gets folded. Setting the fifth
+      optional parameter to 0 disables folding, and the constructed header
+      always consists of one line.
+    </para>
+  </section>
+
+  <section id="mimeencoderdo">
+    <title>Retrieving the encoded content</title>
+
+    <blockquote>
+      <informalexample>
+	<programlisting>
+std::copy(section-&gt;begin(), section-&gt;end(),
+          std::ostreambuf_iterator&lt;char&gt;(std::cout));</programlisting>
+      </informalexample>
+    </blockquote>
+
+    <para>
+      The object referenced by <classname>&ns;::mime::encoder</classname>
+      has <methodname>begin</methodname>() and <methodname>end</methodname>()
+      methods that return
+      <classname>&ns;::mime::encoder::base::iterator</classname>s
+      of an input sequence over <classname>char</classname> returning
+      a complete &MIME; entity, with the header and
+      the body portion.
+    </para>
+
+    <para>
+      A container given to
+      <function>&ns;::mime::make_section</function>()
+      that returns forward, bidirectional, or random access iterators results
+      in the <classname>&ns;::mime::encoder::base::iterator</classname>s
+      also meeting the requirements of forward iterators (but not bidirectional
+      or random) as well, however the
+      <classname>&ns;::mime::encoder::base::iterator</classname>'s official
+      iterator trait is still a <classname>std::input_iterator_tag</classname>.
+      Similarly,
+      a multipart &MIME; section can come from different &MIME; entities,
+      some of them built from input iterators, some of them not. If any
+      constituent &MIME; entity came from a container that produces input
+      iterators, the resulting multipart &MIME; section's iterators are
+      input iterators, otherwise they'll meet forward iterator requirements,
+      too.
+    </para>
+  </section>
+</chapter>
+
+<!--
+Local Variables:
+mode: sgml
+sgml-parent-document: ("book.xml" "part" "chapter")
+End:
+-->

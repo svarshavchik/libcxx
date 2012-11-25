@@ -83,10 +83,15 @@ public:
 			if (maxlimit && --maxlimit == 0)
 				parse_toomanyheaders();
 
-			if (!headerlist.empty() && isspace(*line.begin()))
+			switch (headerlist.empty() ? 0:*line.begin()) {
+			case ' ':
+			case '\t':
 				fold_header(line);
-			else
+				break;
+			default:
 				new_header(line);
+				break;
+			}
 		}
 		return beg_iter;
 	}

@@ -126,6 +126,24 @@ public:
 					    >::iterator_t traits_t;
 };
 
+//! A default factory for an ending iterator value
+
+//! Instantiates the ending iterator for the underlying sequence using its
+//! default constructor.
+
+template<typename iterator>
+class default_ending_iterator_factory {
+
+public:
+
+	//! Use the default constructor
+
+	inline static iterator ending_iterator()
+	{
+		return iterator();
+	}
+};
+
 //! A join iterator
 
 //! The template parameter is an iterator over a sequence of containers, and
@@ -133,7 +151,10 @@ public:
 //! sequence. The last value in each container is logically followed by the
 //! first value in the next container, in the sequence.
 
-template<typename container_iterator_type>
+template<typename container_iterator_type,
+	 typename ending_iterator_factory=default_ending_iterator_factory<
+		 typename join_container_container_iterator_type<
+			 container_iterator_type>::underlying_iter_t> >
 class joiniterator : public join_iterator_traits<container_iterator_type>::traits_t {
 
 	//! Beginning container iterator value
@@ -190,7 +211,9 @@ private:
 		     container_iterator_type cur)
 		: iterator_beg(beg), iterator_end(end),
 		  iterator_cur(cur),
-		  cur_beg(iterator()), cur_end(iterator()), cur_cur(iterator())
+		  cur_beg(ending_iterator_factory::ending_iterator()),
+		  cur_end(ending_iterator_factory::ending_iterator()),
+		  cur_cur(ending_iterator_factory::ending_iterator())
 	{
 		init_next();
 	}
@@ -198,11 +221,13 @@ public:
 
 	//! Return the value of the ending iterator for this sequence.
 
-	joiniterator<container_iterator_type> end() const
+	joiniterator<container_iterator_type, ending_iterator_factory> end() 
+		const
 	{
-		return joiniterator<container_iterator_type>(iterator_beg,
-						       iterator_end,
-						       iterator_end);
+		return joiniterator<container_iterator_type,
+				    ending_iterator_factory>(iterator_beg,
+							     iterator_end,
+							     iterator_end);
 	}
 
 	//! Destructor
@@ -224,7 +249,8 @@ public:
 
 	//! Iterator operator
 
-	joiniterator<container_iterator_type> &operator++()
+	joiniterator<container_iterator_type,
+		     ending_iterator_factory> &operator++()
 	{
 		if (iterator_cur == iterator_end)
 			null_ptr_deref();
@@ -239,7 +265,8 @@ public:
 
 	//! Iterator operator
 
-	joiniterator<container_iterator_type> &operator--()
+	joiniterator<container_iterator_type,
+		     ending_iterator_factory> &operator--()
 	{
 		while (iterator_cur == iterator_end || cur_cur == cur_beg)
 		{
@@ -258,23 +285,28 @@ public:
 	}
 
 	//! Iterator operator
-	joiniterator<container_iterator_type> operator++(int)
+	joiniterator<container_iterator_type,
+		     ending_iterator_factory> operator++(int)
 	{
-		joiniterator<container_iterator_type> cpy=*this;
+		joiniterator<container_iterator_type,
+			     ending_iterator_factory> cpy=*this;
 		operator++();
 		return cpy;
 	}
 
 	//! Iterator operator
-	joiniterator<container_iterator_type> operator--(int)
+	joiniterator<container_iterator_type,
+		     ending_iterator_factory> operator--(int)
 	{
-		joiniterator<container_iterator_type> cpy=*this;
+		joiniterator<container_iterator_type,
+			     ending_iterator_factory> cpy=*this;
 		operator--();
 		return cpy;
 	}
 
 	//! Iterator operator
-	bool operator==(const joiniterator<container_iterator_type> &o) const
+	bool operator==(const joiniterator<container_iterator_type,
+			ending_iterator_factory> &o) const
 	{
 		bool eof=is_end(), o_eof=o.is_end();
 
@@ -289,7 +321,8 @@ public:
 
 	//! Iterator operator
 
-	bool operator!=(const joiniterator<container_iterator_type> &o) const
+	bool operator!=(const joiniterator<container_iterator_type,
+			ending_iterator_factory> &o) const
 	{
 		return !operator==(o);
 	}

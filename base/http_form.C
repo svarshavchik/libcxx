@@ -594,7 +594,8 @@ void parametersObj::rfc2388Obj::sectionObj::operator=(int c)
 
 			formdataptr=value;
 			bodydecoder=mime::section_decoder::create
-				(h.content_headers, "UTF-8", value);
+				(h.content_headers, "ISO-8859-1",
+				 "UTF-8", value);
 		}
 		else
 		{

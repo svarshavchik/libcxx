@@ -41,6 +41,9 @@
 <!ENTITY uuid SYSTEM "uuid.xml">
 <!ENTITY base64 SYSTEM "base64.xml">
 <!ENTITY qp SYSTEM "qp.xml">
+<!ENTITY MIME "<acronym>MIME</acronym>">
+<!ENTITY mimestructuredcontentheader SYSTEM "mimestructuredcontentheader.xml">
+<!ENTITY mimeencoder SYSTEM "mimeencoder.xml">
 <!ENTITY pwdgrp SYSTEM "pwdgrp.xml">
 <!ENTITY uri SYSTEM "uri.xml">
 <!ENTITY headers SYSTEM "headers.xml">
@@ -243,6 +246,25 @@ See COPYING for distribution information.
     &gcrypt_md;
   </part>
 
+  <part id="mime">
+    <title>&MIME; classes and templates</title>
+
+    <partintro>
+      <para>
+	&MIME; classes and templates use the generic
+	<link linkend="headers"><classname>&ns;::headersimpl</classname></link>
+	template to construct a &MIME;-encoded document.
+	Instantiating either
+	<classname>&ns;::headersimpl&lt;&ns;::headersbase::lf_endl&gt;</classname>
+	or the
+	<classname>&ns;::headersimpl&lt;&ns;::headersbase::crlf_endl&gt;</classname>
+	controls whether the entire &MIME; entity gets created with
+	<literal>LF</literal> or <literal>CRLF</literal> newline sequence.
+      </para>
+    </partintro>
+    &mimestructuredcontentheader;
+    &mimeencoder;
+  </part>
   <part id="http">
 
     <title><acronym>HTTP</acronym> clients and servers</title>

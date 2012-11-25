@@ -134,6 +134,8 @@ libcxx_la_SOURCES=\
 	logger.C		\
 	messages.C		\
 	mime_contentheadercollector.C \
+	mime_encoder.C          \
+	mime_encoderbase.C      \
 	mime_headercollector.C	\
 	mime_headeriter.C	\
 	mime_rfc2047.C          \
@@ -234,7 +236,7 @@ mksigtab.h: mksigtab
 	./mksigtab >mksigtab.h.tmp
 	mv -f mksigtab.h.tmp mksigtab.h
 
-libcxx_la_LIBADD=-lpthread -lrt -lpcre @LIBEXTRAPATH@ @LIBUNWIND@ @LINKLIBICONV@ @LINKLIBINTL@
+libcxx_la_LIBADD=-lpthread -lrt -lpcre -lmagic @LIBEXTRAPATH@ @LIBUNWIND@ @LINKLIBICONV@ @LINKLIBINTL@
 
 libcxx_la_LDFLAGS=-version-info @VERSION_INFO@
 
@@ -276,6 +278,7 @@ noinst_PROGRAMS=\
 	testmcguffinref               \
 	testmessages                  \
 	testmimebodystartiter         \
+	testmimeencoder               \
 	testmimeheadercollector       \
 	testmimenewlineiter           \
 	testmimerfc2047               \
@@ -625,6 +628,10 @@ testmimerfc2047_SOURCES=testmimerfc2047.C
 testmimerfc2047_LDADD=libcxx.la
 testmimerfc2047_LDFLAGS=$(TESTLINKTYPE)
 
+testmimeencoder_SOURCES=testmimeencoder.C
+testmimeencoder_LDADD=libcxx.la
+testmimeencoder_LDFLAGS=$(TESTLINKTYPE)
+
 propertiescli.h : propertiescli.h.tmp
 	perl -p -e 's/^#include.*//;s/\b@LIBCXX_NAMESPACE@::/LIBCXX_NAMESPACE::/g' <propertiescli.h.tmp >propertiescli.h.tmp2
 	mv propertiescli.h.tmp2 propertiescli.h
@@ -803,6 +810,7 @@ check-am: $(noinst_PROGRAMS) $(noinst_DATA)
 	./testmimeheadercollector
 	./testmimesectioniter
 	./testmimerfc2047
+	./testmimeencoder
 
 $(XTEST_MO_DIR)/$(XTEST_MO_FILE): testmessages.po
 	mkdir -p $(XTEST_MO_DIR)

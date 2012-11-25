@@ -282,6 +282,9 @@ public:
 		static ref_type create(//! Headers
 				       const headersbase &headers,
 
+				       //! Default from character set
+				       const std::string &from,
+
 				       //! to character set
 				       const std::string &to,
 
@@ -297,7 +300,7 @@ public:
 				      structured_content_header
 				      (headers,
 				       structured_content_header
-				       ::content_type).charset(),
+				       ::content_type).charset(from),
 				      to);
 		}
 
