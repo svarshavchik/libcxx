@@ -127,6 +127,41 @@ void testinputrefiterator()
 		throw EXCEPTION("testinputrefiterator failed");
 }
 
+class dummyInputIterator2 : public LIBCXX_NAMESPACE::inputrefiteratorObj<char> {
+
+public:
+	mutable std::string s;
+
+	dummyInputIterator2(const std::string sArg) : s(sArg)
+	{
+	}
+
+	~dummyInputIterator2() noexcept
+	{
+	}
+
+	void fill() const
+	{
+		buffer.clear();
+		buffer.insert(buffer.end(), s.begin(), s.end());
+		s.clear();
+	}
+};
+
+void testinputrefiterator2()
+{
+	std::string s;
+
+	std::copy(LIBCXX_NAMESPACE::inputrefiterator<char>
+		  (LIBCXX_NAMESPACE::ref<dummyInputIterator2>
+		   ::create("foobar")),
+		  LIBCXX_NAMESPACE::inputrefiterator<char>::create(),
+		  std::back_insert_iterator<std::string>(s));
+
+	if (s != "foobar")
+		throw EXCEPTION("testinputrefiterator2 failed");
+}
+
 int main(int argc, char **argv)
 {
 	try {
@@ -155,6 +190,7 @@ int main(int argc, char **argv)
 		}
 		testoutputrefiterator();
 		testinputrefiterator();
+		testinputrefiterator2();
 	} catch (LIBCXX_NAMESPACE::exception &e)
 	{
 		std::cerr << e << std::endl;

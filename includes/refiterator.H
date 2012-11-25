@@ -6,7 +6,8 @@
 #ifndef x_refiterator_H
 #define x_refiterator_H
 
-#include <x/ptrfwd.H>
+#include <vector>
+#include <x/ref.H>
 #include <x/obj.H>
 #include <x/namespace.h>
 
@@ -155,15 +156,14 @@ public:
 		return *this;
 	}
 
-#if 0
 	//! The increment operator invokes referenced object's decrement().
 
 	refobjiterator<ref_type> &operator--()
 	{
-		get()->decrement();
+		get()->operator--();
 		return *this;
 	}
-#endif
+
 	//! Postfix increment.
 
 	//! This invokes the referenced object's before_postoper(), and its
@@ -360,6 +360,168 @@ class const_outputrefiteratorptr {}; // TODO
 #else
 using const_outputrefiteratorptr=const_ptriterator<outputrefiteratorObj<value_type>>;
 #endif
+
+//! A convenient base class for reference-based input iterator.
+
+//! When implementing an input iterator, subclass this, and implement
+//! just the fill() method.
+//!
+//! fill() should put the next input chunk into buffer, or leave buffer empty
+//! if there's no more input.
+//!
+//! \note
+//! fill() is constant, buffer and eof are mutable. This is done in order to
+//! implement the postfix ++ operator, as well as the comparison operator.
+
+template<typename value_type>
+class inputrefiteratorObj : virtual public obj {
+
+protected:
+
+	//! Next input chunk
+	mutable std::vector<value_type> buffer;
+
+private:
+	//! eof flag.
+	mutable bool eof;
+
+	//! Current position in the input chunk.
+	mutable size_t buffer_pos;
+
+	//! Must be implemented by the subclass, fill buffer with more input.
+
+	//! The default no-op implementation results in getting the ending
+	//! iterator value by instantiating this superclass directly.
+
+	virtual void fill() const
+	{
+	}
+
+public:
+
+	//! My iterator traits
+
+	typedef std::iterator<std::input_iterator_tag,
+			      value_type> iterator_traits;
+
+	//! Constructor
+	inputrefiteratorObj() : eof(false), buffer_pos(0) {}
+
+	//! Destructor
+	~inputrefiteratorObj() noexcept {}
+
+	//! Return the current value of the iterator.
+
+	inline const value_type &operator*() const
+	{
+		set();
+		if (eof)
+			null_ptr_deref();
+		return buffer[buffer_pos];
+	}
+
+	//! Iterator operator
+
+	inline void operator++()
+	{
+		set();
+		++buffer_pos;
+	}
+
+	//! Iterator operator
+
+	inline const value_type *before_postoper()
+	{
+		set();
+		const value_type *p=&buffer[buffer_pos];
+		++buffer_pos;
+		return p;
+	}
+
+	//! Iterator comparison operator
+
+	//! Returns true if this and the other iterator are ending iterators,
+	//! true in all other instances.
+
+	inline bool operator==(const inputrefiteratorObj<value_type> &o) const
+	{
+		set();
+		o.set();
+
+		return eof && o.eof;
+	}
+
+	//! Iterator comparison operator.
+
+	inline bool operator!=(const inputrefiteratorObj<value_type> &o) const
+	{
+		return !operator==(o);
+	}
+
+private:
+
+	//! Fill the input buffer, if necessary.
+
+	inline void set() const
+	{
+		if (!eof && buffer_pos >= buffer.size())
+		{
+			buffer_pos=0;
+			buffer.clear();
+			fill();
+
+			if (buffer.empty())
+				eof=true;
+		}
+	}
+};
+
+//! A referenced-counted input iterator.
+
+//! \see inputrefiteratorObj
+
+template<typename value_type>
+#ifdef DOXYGEN
+class inputrefiterator {}; // TODO
+#else
+using inputrefiterator=refiterator<inputrefiteratorObj<value_type>>;
+#endif
+
+//! A referenced-counted input iterator.
+
+//! \see inputrefiteratorObj
+
+template<typename value_type>
+#ifdef DOXYGEN
+class inputrefiteratorptr {}; // TODO
+#else
+using inputrefiteratorptr=ptriterator<inputrefiteratorObj<value_type>>;
+#endif
+
+//! A referenced-counted input iterator.
+
+//! \see inputrefiteratorObj
+
+template<typename value_type>
+#ifdef DOXYGEN
+class const_inputrefiterator {}; // TODO
+#else
+using const_inputrefiterator=const_refiterator<inputrefiteratorObj<value_type>>;
+#endif
+
+//! A referenced-counted input iterator.
+
+//! \see inputrefiteratorObj
+
+template<typename value_type>
+#ifdef DOXYGEN
+class const_inputrefiteratorptr {}; // TODO
+#else
+using const_inputrefiteratorptr=const_ptriterator<inputrefiteratorObj<value_type>>;
+#endif
+
+extern template class outputrefiteratorObj<char>;
+extern template class inputrefiteratorObj<char>;
 
 #if 0
 {

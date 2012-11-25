@@ -9,7 +9,7 @@ See COPYING for distribution information.
   <title>Implementing iterators with reference-counted objects</title>
 
   <para>
-    C++ iterators are frequently copied and movied around, and can benefit
+    C++ iterators are frequently copied and moved around, and can benefit
     from a reference-counted approach, where only a reference count gets
     updated, instead of having to copy a large object here and there.
   </para>

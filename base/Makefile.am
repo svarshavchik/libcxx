@@ -164,6 +164,7 @@ libcxx_la_SOURCES=\
 	properties.C		\
 	pwd.C			\
 	refcnt.C		\
+	refiterator.C           \
 	runthreadbaseobj.C	\
 	runthreadname.C		\
 	runthreadsingleton.C	\
