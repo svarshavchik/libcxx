@@ -558,7 +558,10 @@ public:
 
 			   //! The line terminator is overriden in http::cgiimpl
 
-			   const char *newline) const
+			   const char *newline,
+
+			   //! Set to true to omit the trailing blank line
+			   bool noseparator=false) const
 	{
 		for (const std::string &header:this->list())
 		{
@@ -567,8 +570,9 @@ public:
 			for (const char *p=newline; *p; p++)
 				*iter++ = *p;
 		}
-		for (const char *p=newline; *p; p++)
-			*iter++ = *p;
+		if (!noseparator)
+			for (const char *p=newline; *p; p++)
+				*iter++ = *p;
 		return iter;
 	}
 
@@ -646,7 +650,7 @@ public:
 extern template
 std::ostreambuf_iterator<char>
 headersbase::toString<std::ostreambuf_iterator<char>
-		      >(std::ostreambuf_iterator<char>, const char *)
+		      >(std::ostreambuf_iterator<char>, const char *, bool)
 	const;
 
 extern template std::string headersbase::quoted_string(const std::string &);

@@ -269,12 +269,8 @@ static void testacceptheader()
 
 static void testcontenttypeheader()
 {
-	LIBCXX_NAMESPACE::mime::structured_content_header
-		hdr("Content-Type: text/plain;  charset=\"utf-8\"");
-
-	std::string s;
-
-	hdr.toString(std::back_insert_iterator<std::string>(s));
+	std::string s=LIBCXX_NAMESPACE::mime::structured_content_header
+		("Content-Type: text/plain;  charset=\"utf-8\"");
 
 	if (s != "Content-Type: text/plain; charset=utf-8")
 		throw EXCEPTION("Unexpected content_type_header.toString result: " + s);

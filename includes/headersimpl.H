@@ -94,10 +94,14 @@ public:
 	//! Write the headers to an output sequence
 	template<typename iter_type>
 	iter_type toString(//! Output iterator
-			   iter_type iter)
+			   iter_type iter,
+
+			   //! Set to true to omit the trailing blank line
+			   bool noseparator=false)
 		const
 	{
-		return headersbase::toString(iter, endl_type::eol_str);
+		return headersbase::toString(iter, endl_type::eol_str,
+					     noseparator);
 	}
 
 	//! Manually append a line of text to the parsed headers.
@@ -228,7 +232,8 @@ headersimpl<headersbase::crlf_endl>::parse(std::istream &, size_t);
 extern template
 std::ostreambuf_iterator<char>
 headersimpl<headersbase::crlf_endl>::toString<std::ostreambuf_iterator<char>
-					      >(std::ostreambuf_iterator<char>)
+					      >(std::ostreambuf_iterator<char>,
+						bool)
 	const;
 
 extern template
@@ -245,7 +250,8 @@ headersimpl<headersbase::lf_endl>::parse(std::istream &, size_t);
 extern template
 std::ostreambuf_iterator<char>
 headersimpl<headersbase::lf_endl>::toString<std::ostreambuf_iterator<char>
-					    >(std::ostreambuf_iterator<char>)
+					    >(std::ostreambuf_iterator<char>,
+					      bool)
 	const;
 
 #endif

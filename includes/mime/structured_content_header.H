@@ -7,7 +7,7 @@
 #define x_mime_structured_content_header_H
 
 #include <x/mime/parameter.H>
-#include <x/headersbase.H>
+#include <x/headersimpl.H>
 #include <x/namespace.h>
 
 namespace LIBCXX_NAMESPACE {
@@ -49,6 +49,9 @@ public:
 	//! The \c multipart/form-data content type
 
 	static const char multipart_form_data[];
+
+	//! The \c message/rfc822 content type
+	static const char message_rfc822[];
 
 	//! First word, the value
 
@@ -103,24 +106,28 @@ public:
 		return !operator==(mimetype);
 	}
 
-	//! Convert the Accept: header value to a single string
+private:
+	class LIBCXX_HIDDEN formatwords_cb;
 
-	template<typename iter_type>
-	iter_type toString(//! Output iterator
-			   iter_type iter) const
-	{
-		iter=std::copy(value.begin(), value.end(), iter);
+	struct LIBCXX_HIDDEN format_cb_string;
+	template<typename header_type>
+	struct LIBCXX_HIDDEN format_words_wrap;
 
-		for (parameters_t::const_iterator
-			     b(parameters.begin()), e(parameters.end());
-		     b != e; ++b)
-		{
-			*iter++=';';
-			*iter++=' ';
-			iter=b->second.toString(iter);
-		}
-		return iter;
-	}
+	//! Format the structured header.
+
+	void format(formatwords_cb &callback) const;
+
+public:
+	//! Append to existing headers
+
+	template<typename header_type>
+	void append(headersimpl<header_type> &headers,
+		    const std::string &name,
+		    size_t maxwidth=76);
+
+	//! Format the header as a single string
+
+	operator std::string() const;
 
 	//! Return the MIME content type, in lowercase, default "text".
 

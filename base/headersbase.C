@@ -166,7 +166,7 @@ headersbase::name_and_value(//! The parameter
 template
 std::ostreambuf_iterator<char>
 headersbase::toString<std::ostreambuf_iterator<char>
-		      >(std::ostreambuf_iterator<char>, const char *)
+		      >(std::ostreambuf_iterator<char>, const char *, bool)
 	const;
 
 template std::string headersbase::quoted_string(const std::string &);

@@ -72,11 +72,10 @@ static void testcgiimpl(std::list<std::string> &args)
 
 	if (cgi.hasData())
 	{
-		LIBCXX_NAMESPACE::mime::structured_content_header(cgi.headers,
-								  LIBCXX_NAMESPACE::mime::structured_content_header::content_type)
-			.toString(std::ostreambuf_iterator<char>(std::cout));
-
-		std::cout << " data:" << std::endl;
+		std::cout << (std::string)LIBCXX_NAMESPACE::mime
+			::structured_content_header(cgi.headers,
+						    LIBCXX_NAMESPACE::mime::structured_content_header::content_type)
+			  << " data:" << std::endl;
 
 		std::copy(cgi.begin(), cgi.end(),
 			  std::ostreambuf_iterator<char>(std::cout));

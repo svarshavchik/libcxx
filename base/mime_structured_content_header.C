@@ -31,6 +31,9 @@ const char structured_content_header::application_x_www_form_urlencoded[]=
 const char structured_content_header::multipart_form_data[]=
 	"multipart/form-data";
 
+const char structured_content_header::message_rfc822[]=
+	"message/rfc822";
+
 class structured_content_header::parser {
 
 	structured_content_header &h;
@@ -89,6 +92,101 @@ void structured_content_header::parser::parse_param(const std::string &name,
 	h.parameters.insert(std::make_pair(newparam.name, newparam));
 }
 
+//! Callback used by format()
+
+//! \internal
+class LIBCXX_HIDDEN structured_content_header::formatwords_cb {
+
+public:
+	//! Return the next formatted word/parameter
+	virtual void operator()(const std::string &s)=0;
+};
+
+template<typename header_type>
+struct LIBCXX_HIDDEN structured_content_header::format_words_wrap :
+	public formatwords_cb {
+
+ public:
+
+	headersimpl<header_type> &headers;
+	std::string name;
+	bool first;
+	bool firstline;
+
+	size_t maxwidth;
+	size_t curwidth;
+
+	std::string h;
+
+	format_words_wrap(headersimpl<header_type> &headersArg,
+			  const std::string &nameArg,
+			  size_t maxwidthArg)
+		: headers(headersArg), name(nameArg), first(true),
+		firstline(true),
+		maxwidth(maxwidthArg), curwidth(nameArg.size()+2)
+	{
+	}
+
+	void operator()(const std::string &s)
+	{
+		if (!first && maxwidth && curwidth+s.size()+1 > maxwidth)
+			emit();
+
+		if (!first)
+		{
+			h += " ";
+			++curwidth;
+		}
+		first=false;
+		h += s;
+		curwidth += s.size();
+	}
+
+	void emit()
+	{
+		if (firstline)
+			headers.append(name, h);
+		else
+			headers.append(h);
+		firstline=false;
+
+		h="   ";
+		curwidth=3;
+	}
+};
+	
+template class LIBCXX_HIDDEN structured_content_header
+::format_words_wrap<headersbase::crlf_endl>;
+
+template class LIBCXX_HIDDEN structured_content_header
+::format_words_wrap<headersbase::lf_endl>;
+
+
+
+template<typename header_type>
+void structured_content_header::append(headersimpl<header_type> &headers,
+				       const std::string &name,
+				       size_t maxwidth)
+{
+	format_words_wrap<header_type> cb(headers, name, maxwidth);
+	format(cb);
+	cb.emit();
+}
+
+// Instantiate for the two cases
+
+template
+void structured_content_header::append(headersimpl<headersbase::crlf_endl>
+				       &headers,
+				       const std::string &name,
+				       size_t maxwidth);
+
+template
+void structured_content_header::append(headersimpl<headersbase::lf_endl>
+				       &headers,
+				       const std::string &name,
+				       size_t maxwidth);
+
 structured_content_header::structured_content_header() noexcept
 {
 }
@@ -145,6 +243,71 @@ bool structured_content_header::operator==(const std::string &mimetype) const
 
 {
 	return chrcasecmp::str_equal_to()(value, mimetype);
+}
+
+void structured_content_header::format(formatwords_cb &callback) const
+{
+	std::string word=value;
+
+	for (const auto &parameter:parameters)
+	{
+		word += ";";
+		callback(word);
+		word.clear();
+		parameter.second.toString(std::back_insert_iterator<std::string>
+					  (word));
+	}
+	callback(word);
+}
+
+//! Callback assembles the formatted value as a single string.
+
+struct LIBCXX_HIDDEN structured_content_header::format_cb_string
+	: public formatwords_cb {
+
+	//! Header value collected here.
+
+	std::ostringstream o;
+
+	//! Flag, first callback.
+	bool first;
+
+	//! Constructor
+	format_cb_string();
+
+	//! Destructor
+	~format_cb_string() noexcept;
+
+	//! Callback.
+	void operator()(const std::string &s);
+};
+
+structured_content_header::format_cb_string::format_cb_string()
+	: first(true)
+{
+}
+
+structured_content_header::format_cb_string::~format_cb_string() noexcept
+{
+}
+
+structured_content_header::operator std::string() const
+{
+	format_cb_string fcs;
+
+	format(fcs);
+
+	return fcs.o.str();
+}
+
+void structured_content_header::format_cb_string
+::operator()(const std::string &s)
+{
+	if (!first)
+		o << ' ';
+	first=false;
+
+	o << s;
 }
 
 std::string structured_content_header::mime_content_type() const

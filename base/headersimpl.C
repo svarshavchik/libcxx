@@ -51,7 +51,7 @@ headersbase::iterator headersimpl<endl_type>::append(const std::string &header)
 			endl_type::eol_str + strlen(endl_type::eol_str)) != e)
 		goto bad;
 
-	if (isspace(*b) && !headerlist.empty())
+	if ((*b == ' ' || *b == '\t' || *b == '\r') && !headerlist.empty())
 	{
 		fold_header(header);
 		return headermap.end();
@@ -107,7 +107,8 @@ headersimpl<headersbase::crlf_endl>::parse<std::istreambuf_iterator<char>
 template
 std::ostreambuf_iterator<char>
 headersimpl<headersbase::crlf_endl>::toString<std::ostreambuf_iterator<char>
-					      >(std::ostreambuf_iterator<char>)
+					      >(std::ostreambuf_iterator<char>,
+						bool)
 	const;
 
 template
@@ -128,7 +129,8 @@ headersimpl<headersbase::lf_endl>::parse(std::istream &, size_t);
 template
 std::ostreambuf_iterator<char>
 headersimpl<headersbase::lf_endl>::toString<std::ostreambuf_iterator<char>
-					    >(std::ostreambuf_iterator<char>)
+					    >(std::ostreambuf_iterator<char>,
+					      bool)
 	const;
 
 #if 0
