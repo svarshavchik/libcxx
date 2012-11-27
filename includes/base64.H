@@ -186,7 +186,7 @@ public:
 
 	template<typename out_iter_type>
 	class encoder : public std::iterator<std::output_iterator_tag,
-					     void, void, void, void> {
+				     void, void, void, void> {
 
 		//! Output iterator base64-encoded content gets written to
 		out_iter_type out;
@@ -266,14 +266,14 @@ public:
 			case 1:
 				//! See if we need to emit a newline, first.
 
-				if (linesize && (linecnt += 4) >= linesize)
+				if (linesize && linecnt >= linesize)
 				{
 					linecnt=0;
 					if (crlf)
 						*out++='\r';
 					*out++='\n';
 				}
-
+				linecnt += 4;
 				*out++=alphabet_t::alphabet[ (c >> 2) & 63];
 				break;
 			case 2:
@@ -331,7 +331,7 @@ public:
 				break;
 			}
 
-			if (linecnt)
+			if (linecnt && linesize)
 			{
 				//! newline after the last partial line.
 
