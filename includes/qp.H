@@ -310,7 +310,7 @@ public:
 	//! Move constructor
 	qp_decoder(//! The underlying iterator
 		   output_iter_type &&iterArg)
-		: iter(std::move(iterArg)), hex_chars(0)
+		: iter(std::move(iterArg)), hex_chars(0), value(0)
 	{
 	}
 
