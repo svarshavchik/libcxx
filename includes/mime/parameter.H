@@ -10,6 +10,7 @@
 #include <algorithm>
 #include <x/chrcasecmp.H>
 #include <x/http/messageimplfwd.H>
+#include <x/tokens.H>
 #include <x/namespace.h>
 
 namespace LIBCXX_NAMESPACE {
@@ -54,8 +55,7 @@ struct parameter_t {
 		iter=std::copy(name.begin(), name.end(), iter);
 		*iter++='=';
 
-		if (std::find_if(value.begin(), value.end(),
-				 std::not1(http::is_token())) == value.end())
+		if (tokenizer<is_http_token>::is_token(value))
 			iter=std::copy(value.begin(), value.end(), iter);
 		else
 		{

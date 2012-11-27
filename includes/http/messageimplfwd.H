@@ -31,25 +31,6 @@ typedef enum class {
 	http10,
 } httpver_t;
 
-//! Test for valid token characters
-
-//! Predicate function that returns \c true if the character is a valid
-//! token character.
-
-class is_token : public std::unary_function<char, bool> {
-
-public:
-	is_token() noexcept {}
-	~is_token() noexcept {}
-
-	//! Comparator
-	bool operator()(char ch) const noexcept
-	{
-		return (unsigned char)ch > ' ' &&
-			strchr("()<>@,;:\\\"/[]?={}", ch) == NULL;
-	}
-};
-
 //! An HTTP/1.1 message
 
 //! An HTTP message is, basically, a list of headers, so this is just a
