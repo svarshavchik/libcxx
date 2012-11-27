@@ -74,12 +74,12 @@ public:
 	//! Default destructor
 	~structured_content_header() noexcept;
 
+	//! Construct with just a value parameter
+	structured_content_header(const std::string &valueArg);
+
 	//! Construct from headers
 	structured_content_header(const headersbase &req,
 				  const std::string &name);
-
-	//! Construct from a string
-	structured_content_header(const std::string &);
 
 	//! Construct from a string
 	structured_content_header(const char *);
@@ -106,6 +106,37 @@ public:
 		return !operator==(mimetype);
 	}
 
+	//! Convenience function - append a parameter
+
+	structured_content_header &operator+=(const parameter_t &param);
+
+	//! Convenience function - append a parameter
+
+	structured_content_header &operator+=(parameter_t &&param);
+
+	//! Convenience function - append a parameter
+
+	structured_content_header &operator()(const std::string &name,
+					      const std::string &value);
+
+	//! Convenience function - append a parameter
+
+	//! Perform RFC 2231 encoding, if necessary.
+
+	structured_content_header &rfc2231(const std::string &name,
+					   const std::string &value,
+					   const std::string &charset,
+					   size_t width=76);
+
+	//! Convenience function - append a parameter
+
+	//! Perform RFC 2231 encoding, if necessary.
+
+	structured_content_header &rfc2231(const std::string &name,
+					   const std::string &value,
+					   const std::string &charset,
+					   const std::string &language,
+					   size_t width=76);
 private:
 	class LIBCXX_HIDDEN formatwords_cb;
 

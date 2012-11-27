@@ -8,8 +8,10 @@
 #include "x/mime/rfc2047.H"
 #include "x/http/form.H"
 #include "x/iconviofilter.H"
+#include "x/tokens.H"
 #include "chrcasecmp.H"
 #include <algorithm>
+#include <map>
 #include "gettext_in.h"
 
 namespace LIBCXX_NAMESPACE {
@@ -197,7 +199,6 @@ structured_content_header::~structured_content_header() noexcept
 
 structured_content_header::structured_content_header(const headersbase &req,
 						     const std::string &name)
-
 {
 	req.process(name,
 		    [this]
@@ -243,6 +244,106 @@ bool structured_content_header::operator==(const std::string &mimetype) const
 
 {
 	return chrcasecmp::str_equal_to()(value, mimetype);
+}
+
+structured_content_header &
+structured_content_header::operator+=(const parameter_t &param)
+{
+	parameters.insert(std::make_pair(param.name, param));
+	return *this;
+}
+
+structured_content_header &
+structured_content_header::operator+=(parameter_t &&param)
+{
+	parameters.insert(std::make_pair(param.name, std::move(param)));
+	return *this;
+}
+
+structured_content_header &
+structured_content_header::operator()(const std::string &name,
+				      const std::string &value)
+{
+	parameter_t param;
+
+	param.name=name;
+	param.value=value;
+	return operator+=(param);
+}
+
+structured_content_header &
+structured_content_header::rfc2231(const std::string &name,
+				   const std::string &value,
+				   const std::string &charset,
+				   size_t width)
+{
+	return rfc2231(name, value, charset, "EN", width);
+}
+
+structured_content_header &
+structured_content_header::rfc2231(const std::string &name,
+				   const std::string &value,
+				   const std::string &charset,
+				   const std::string &language,
+				   size_t width)
+{
+	if (std::find_if(value.begin(), value.end(),
+			 []
+			 (unsigned char c)
+			 {
+				 return c < ' ' || c > 0x7F || c == '"' || c == '\\';
+			 }) == value.end() &&
+	    (width == 0 || name.size()+language.size()+5 /* est */ < width))
+		return operator()(name, value);
+
+	std::string prefix=charset + "'" + language + "'";
+
+	size_t s=prefix.size()+name.size()+12; // Estimate
+	bool first=true;
+	size_t cnt=0;
+
+	std::map<int, std::string> newparams;
+
+	for (unsigned char c:value)
+	{
+		bool escape=c < ' ' || c > 0x7F || c == '"' || c == '\\';
+
+		size_t n=escape ? 3:1;
+
+		if (width && (!first && s+n > width))
+		{
+			newparams[cnt++]=prefix;
+			prefix.clear();
+			s=name.size()+12;
+		}
+
+		if (escape)
+		{
+			prefix += (char)'%';
+			prefix += http::form::hex[c / 16];
+			prefix += http::form::hex[c % 16];
+		}
+		else
+		{
+			prefix += (char)c;
+		}
+		s += n;
+		first=false;
+	}
+
+	if (cnt == 0)
+		return operator()(name + "*", prefix);
+
+	newparams[cnt]=prefix;
+
+	for (const auto &p:newparams)
+	{
+		std::ostringstream o;
+
+		o << name << "*" << p.first << "*";
+		operator()(o.str(), p.second);
+	}
+	return *this;
 }
 
 void structured_content_header::format(formatwords_cb &callback) const
