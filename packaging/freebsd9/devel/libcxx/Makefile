@@ -4,7 +4,7 @@
 # $FreeBSD$
 
 PORTNAME=		libcxx
-PORTVERSION=		0.2
+PORTVERSION=		0.2.1
 CATEGORIES=		devel
 
 MAINTAINER=		mrsam@courier-mta.com
@@ -30,7 +30,7 @@ USE_GMAKE=yes
 GNU_CONFIGURE=1
 USE_PKGCONFIG=both
 
-CONFIGURE_ARGS=		--sbindir=${PREFIX}/libexec/libcxx CPPFLAGS="-DDEFAULTSOCKET=\\\"${PREFIX}/var/httportmap\\\""
+CONFIGURE_ARGS=		--sbindir=${PREFIX}/libexec/libcxx CPPFLAGS="-DDEFAULTSOCKET=\\\"${PREFIX}/var/httportmap\\\"" --with-mime-types=${PREFIX}/share/libcxx/mime.types
 MAN1=			maillogs.1 properties.1
 MAN8=			httportmapd.8
 

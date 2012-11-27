@@ -582,6 +582,11 @@ fi
 
 AC_DEFINE_UNQUOTED(LIBCXX_CACERTS,"$cacerts",[Default trusted CA certificate file])
 
+mimetypes="/etc/mime.types"
+AC_ARG_WITH(mime-types,
+	[AS_HELP_STRING([--with-mime-types=file],[Override default location of /etc/mime.types])], [mimetypes="$withval"])
+AC_DEFINE_UNQUOTED(MIMETYPES,"$mimetypes",[Location of mime.types file])
+
 save_CPPFLAGS="$CPPFLAGS"
 save_LIBS="$LIBS"
 if test "$YAMLLIBS" = ""

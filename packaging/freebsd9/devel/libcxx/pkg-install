@@ -38,5 +38,16 @@ then
 				ln -s ${PKG_PREFIX}/share/libcxx/apache.conf $d/httportmap.conf
 			fi
 		done
+
+		for f in ${PKG_PREFIX}/etc/apache*/mime.types
+		do
+			if test -f "$f"
+			then
+				if test ! -e ${PKG_PREFIX}/share/libcxx/mime.types
+				then
+					ln -s "$f" ${PKG_PREFIX}/share/libcxx/mime.types
+				fi
+			fi
+		done
 	fi
 fi
