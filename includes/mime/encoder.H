@@ -182,6 +182,15 @@ public:
 					const char *extra_header_name,
 					const char *extra_header_value);
 
+	//! Assemble a multipart Content-Type: section
+
+	template<typename header_type>
+	static void
+	assemble_multipart_content_type(headersimpl<header_type> &headers,
+					const std::string &subtype,
+					const std::string &boundary,
+					size_t maxwidth);
+
 	//! Assemble a multipart MIME section
 
 	//! \internal
@@ -190,7 +199,10 @@ public:
 
 	template<typename header_type, typename iter_type>
 	static encoder
-	assemble_multipart_section(//! Additional headers.
+	assemble_multipart_section(//! Content-Type: header
+				   const headersimpl<header_type> &content_type,
+
+				   //! Additional headers.
 				   const headersimpl<header_type> &headers,
 
 				   //! Multipart subtype
@@ -215,25 +227,6 @@ public:
 				   //! Use this boundary delimiter string.
 				   const std::string &boundary)
 	{
-		headersimpl<header_type> content_type_header;
-
-		{
-			structured_content_header h;
-
-			h.value="multipart/"+subtype;
-
-			parameter_t param;
-
-			param.name="boundary";
-			param.value=boundary;
-
-			h.parameters.insert(std::make_pair(param.name, param));
-
-			h.append(content_type_header,
-				 structured_content_header::content_type,
-				 maxwidth);
-		}
-
 		auto e=encoder::create();
 
 		reserve_unless_input_iterator<typename
@@ -243,7 +236,7 @@ public:
 
 		boundary_type b=boundary_type::initial;
 
-		e->add_headers(headers, content_type_header);
+		e->add_headers(headers, content_type);
 
 		while (beg_iter != end_iter)
 		{
@@ -469,11 +462,20 @@ encoder make_multipart_section(//! Other multipart section headers
 			       //! so it always gets emitted as 1 line
 			       size_t maxwidth=76)
 {
-	return encoderObj::assemble_multipart_section(headers, subtype,
+	headersimpl<header_type> content_type_header;
+	std::string boundary=encoderObj::new_boundary();
+
+	encoderObj::assemble_multipart_content_type(content_type_header,
+						    subtype,
+						    boundary,
+						    maxwidth);
+
+	return encoderObj::assemble_multipart_section(content_type_header,
+						      headers, subtype,
 						      maxwidth,
 						      beg_iter,
 						      end_iter,
-						      encoderObj::new_boundary()
+						      boundary
 						      );
 }
 

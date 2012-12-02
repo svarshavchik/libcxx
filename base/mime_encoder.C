@@ -171,6 +171,28 @@ void encoderObj::add_headers(const headersimpl<header_type> &headers,
 	sections->push_back(create_plain_encoder(o.str()));
 }
 
+template<typename header_type> void encoderObj::
+assemble_multipart_content_type(headersimpl<header_type> &headers,
+				const std::string &subtype,
+				const std::string &boundary,
+				size_t maxwidth)
+{
+	structured_content_header h;
+
+	h.value="multipart/"+subtype;
+
+	parameter_t param;
+
+	param.name="boundary";
+	param.value=boundary;
+
+	h.parameters.insert(std::make_pair(param.name, param));
+
+	h.append(headers,
+		 structured_content_header::content_type,
+		 maxwidth);
+}
+
 void encoderObj::add_boundary(boundary_type type,
 			      const std::string &boundary,
 			      const char *newline_seq)
@@ -213,6 +235,22 @@ void encoderObj::add_headers(const headersimpl<headersbase::crlf_endl> &headers,
 template
 void encoderObj::add_headers(const headersimpl<headersbase::lf_endl> &headers,
 			     const headersimpl<headersbase::lf_endl> &extra);
+
+template void encoderObj
+::assemble_multipart_content_type<headersbase::crlf_endl
+				  >(headersimpl<headersbase::crlf_endl>
+				    &headers,
+				    const std::string &subtype,
+				    const std::string &boundary,
+				    size_t maxwidth);
+
+template void encoderObj
+::assemble_multipart_content_type<headersbase::lf_endl
+				  >(headersimpl<headersbase::lf_endl>
+				    &headers,
+				    const std::string &subtype,
+				    const std::string &boundary,
+				    size_t maxwidth);
 
 //////////////////////////////////////////////////////////////////////////////
 
