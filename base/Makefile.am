@@ -123,6 +123,7 @@ libcxx_la_SOURCES=\
 	http_senderimpl.C	\
 	http_serverimpl.C	\
 	http_storedcookie.C http_storedcookie.H \
+	http_upload.C           \
 	http_useragentobj.C	\
 	httportmap.C		\
 	iconviofilter.C		\

@@ -130,14 +130,14 @@ public:
 	//! Return the ending iterator for the encoded MIME object.
 	inputrefiterator<char> end() const override;
 
-private:
-
 	//! Add the header portion section of this MIME object.
 
 	//! \internal
 	template<typename header_type>
 	void add_headers(const headersimpl<header_type> &headers,
 			 const headersimpl<header_type> &extra_header);
+
+private:
 
 	//! Boundary marker type
 	//! \internal
@@ -197,16 +197,12 @@ public:
 	//! The contents are defined by an input sequence defined by a
 	//! beginnning and an ending iterator.
 
-	template<typename header_type, typename iter_type>
+	template<typename header_type,
+		 typename add_header_functor_type,
+		 typename iter_type>
 	static encoder
-	assemble_multipart_section(//! Content-Type: header
-				   const headersimpl<header_type> &content_type,
-
-				   //! Additional headers.
-				   const headersimpl<header_type> &headers,
-
-				   //! Multipart subtype
-				   const std::string &subtype,
+	assemble_multipart_section(//! Functor that adds any header section
+				   add_header_functor_type &&add_headers,
 
 				   //! Maximum width of Content-Type header
 				   size_t maxwidth,
@@ -236,7 +232,7 @@ public:
 
 		boundary_type b=boundary_type::initial;
 
-		e->add_headers(headers, content_type);
+		add_headers(e);
 
 		while (beg_iter != end_iter)
 		{
@@ -470,13 +466,17 @@ encoder make_multipart_section(//! Other multipart section headers
 						    boundary,
 						    maxwidth);
 
-	return encoderObj::assemble_multipart_section(content_type_header,
-						      headers, subtype,
-						      maxwidth,
-						      beg_iter,
-						      end_iter,
-						      boundary
-						      );
+	return encoderObj::assemble_multipart_section<header_type>
+		([&content_type_header, &headers]
+		 (const encoder &e)
+		 {
+			 e->add_headers(headers, content_type_header);
+		 },
+		 maxwidth,
+		 beg_iter,
+		 end_iter,
+		 boundary
+		 );
 }
 
 //! Contents of a MIME section come from a file

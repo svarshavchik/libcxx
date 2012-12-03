@@ -215,6 +215,9 @@ include/x/http/serverimpl.H
 include/x/http/serverimpl_t.H
 include/x/http/serverimpl_to.H
 include/x/http/serverimpl_to2.H
+include/x/http/upload.H
+include/x/http/uploadfwd.H
+include/x/http/uploadobj.H
 include/x/http/useragent.H
 include/x/http/useragentfwd.H
 include/x/http/useragentobj.H

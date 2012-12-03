@@ -349,7 +349,7 @@ send(resp, req, buffer);</programlisting>
       <ulink url="examples/http_server_upload.C">examples/http_server_upload.C</ulink>
       is an example of using a
       <link linkend="httpserverprocess">version of
-      <methodname>getform</methodname>()</link> that handles file upload
+      <methodname>getform</methodname>()</link> that handles file uploads
       (<literal>&lt;input type="file"&gt;</literal> elements inside
       a <literal>&lt;form enctype="multipart/form-data"&gt;</literal>.
     </para>
@@ -378,7 +378,7 @@ std::pair&lt;x::http::form::parameters, bool&gt;
                 {
                     // ...
                 });
-        }, "UTF-8");</programlisting>
+        }, "iso-8859-1");</programlisting>
       </informalexample>
     </blockquote>
 
@@ -393,8 +393,21 @@ std::pair&lt;x::http::form::parameters, bool&gt;
 
     <para>
       The first additional parameter is a functor. The second parameter
-      specifies the
-      character of the form on the original page. The functor gets invoked
+      specifies the character set of the field names and non-file upload
+      field values (<quote>iso-8859-1</quote> in this example).
+      RFC 2388 specifies that
+      <literal>multipart/form-data</literal> forms must explicitly indicate
+      each form field name's and value's character set. To properly support
+      older clients that may not specify the names' and values' character
+      set, this parameter needs to specify the form's original character.
+      The file upload version of <methodname>getform</methodname>() converts
+      all field names and values to <literal>UTF-8</literal> in all cases,
+      and this indicates the character set of field names and values that
+      do not explicitly specify it.
+    </para>
+
+    <para>
+      The functor specified by the first additional parameter gets invoked
       for each file uploaded through the form. The functor gets invoked
       more than once if the form uploaded multiple files.
     </para>
@@ -435,7 +448,7 @@ std::pair&lt;x::http::form::parameters, bool&gt;
       The functor/lambda invokes <methodname>receive</methodname>() passing
       two more functors or lambdas.
       The first <quote>write</quote> functor gets invoked repeatedly with
-      <classname>std::vector&lt;char&gt;</classname>s that have the
+      <classname>std::vector&lt;char&gt;</classname>s with the
       contents of the uploaded file. The contents of the uploaded file get
       processed in small chunks, and the write functor gets invoked
       repeatedly until the entire contents of the uploaded file get passed.

@@ -9,6 +9,7 @@
 #include "x/http/form.H"
 #include "x/http/cookie.H"
 #include "x/http/cookiejar.H"
+#include "x/http/upload.H"
 #include "x/fdlistener.H"
 #include "x/eventdestroynotify.H"
 #include "x/netaddr.H"
@@ -16,6 +17,7 @@
 #include "x/property_properties.H"
 #include <sstream>
 #include <iostream>
+#include <fstream>
 #include <algorithm>
 #include <functional>
 #include <sys/syscall.h>
@@ -969,6 +971,74 @@ void formpost()
 	LIBCXX_NAMESPACE::property::load_property
 		(LIBCXX_NAMESPACE_WSTR "::http::form::maxsize", L"10000000",
 		 true, true);
+
+	{
+		std::ofstream o("test1.txt");
+
+		o << "File #1" << std::flush;
+	}
+
+	resp=ua->request(LIBCXX_NAMESPACE::http::POST, serveraddr,
+			 LIBCXX_NAMESPACE::http::form::parameters
+			 ::create("subject","Your\xA0" "files"),
+			 "iso-8859-1",
+			 "file1", "test1.txt",
+			 "file\xA0" "2", LIBCXX_NAMESPACE::fd::base::open("test1.txt",
+								   O_RDONLY),
+			 "text/plain; charset=iso-8859-1",
+			 "test2.txt");
+
+	std::string s(resp->begin(), resp->end());
+
+	expected="POST / HTTP/1.1\n"
+		"subject: Your\xC2\xA0" "files\n"
+		"FILE:[file1,test1.txt:File #1~]\n"
+		"FILE:[file\xC2\xA0" "2,test2.txt:File #1~]\n";
+
+	if (s != expected)
+		throw EXCEPTION("Expected: " + expected + "\n"
+				"Got:      " + s);
+
+
+	auto upload=LIBCXX_NAMESPACE::http::upload::create();
+
+	upload->add("file1", "test1.txt");
+	upload->add("file\xA0" "2",
+		    LIBCXX_NAMESPACE::fd::base::open("test1.txt", O_RDONLY),
+		    "text/plain; charset=iso-8859-1",
+		    "test2.txt");
+
+	resp=ua->request(LIBCXX_NAMESPACE::http::POST, serveraddr,
+			 LIBCXX_NAMESPACE::http::form::parameters
+			 ::create("subject","Your\xA0" "files"),
+			 "iso-8859-1",
+			 upload);
+	s=std::string(resp->begin(), resp->end());
+
+	unlink("test1.txt");
+
+	if (s != expected)
+		throw EXCEPTION("Expected(2): " + expected + "\n"
+				"Got(2):      " + s);
+
+	std::string form="He's dead, Jim";
+
+	resp=ua->request(LIBCXX_NAMESPACE::http::POST, serveraddr,
+			 LIBCXX_NAMESPACE::http::form::parameters
+			 ::create("subject","Your files"),
+			 "iso-8859-1",
+			 "file6", std::make_pair(form.begin(), form.end()),
+			 "file6.txt", "text/plain");
+
+	s=std::string(resp->begin(), resp->end());
+
+	expected="POST / HTTP/1.1\n"
+		"subject: Your files\n"
+		"FILE:[file6,file6.txt:He's dead, Jim~]\n";
+
+	if (s != expected)
+		throw EXCEPTION("Expected(3): " + expected + "\n"
+				"Got(3):      " + s);
 
 	std::cout << "Stopping listener" << std::endl;
 

@@ -800,6 +800,128 @@ void useragentObj::set_digest_authorization(const response &resp,
 				      factory->create_hash(userid, a1_hash));
 }
 
+class LIBCXX_HIDDEN useragentObj::request_with_form_upload
+	: public request_sans_body {
+
+ public:
+	mime::encoder e;
+
+	request_with_form_upload(const mime::encoder &eArg) : e(eArg) {}
+	~request_with_form_upload() noexcept {}
+
+	bool operator()(fdclientimpl &client,
+			requestimpl &req,
+			responseimpl &resp) override
+	{
+		return client.send(req, e->begin(), e->end(), resp);
+	}
+};
+
+useragentObj::response
+useragentObj::request_with_uploads(const fd *terminate_fd,
+				   requestimpl &req,
+				   const form::const_parameters &form,
+				   std::list<mime::encoder> &form_uploads,
+				   const std::string &charset)
+{
+	// Take form parameters, and prepend them to the list of MIME
+	// uploads.
+
+	for (auto b=form->begin(), e=form->end(); b != e; )
+	{
+		--e;
+
+		headersimpl<headersbase::crlf_endl> headers;
+
+		mime::structured_content_header("text/plain")
+			("charset", charset)
+			.append(headers, mime::structured_content_header
+				::content_type, 0);
+		mime::structured_content_header("form-data")
+			.rfc2047("name", e->first, charset)
+			.append(headers,
+				mime::structured_content_header
+				::content_disposition, 0);
+		form_uploads.push_front(mime::make_plain_section(headers,
+								 e->second));
+	}
+
+	std::string boundary=mime::encoderObj::new_boundary();
+
+	mime::encoderObj::assemble_multipart_content_type(req, "form-data",
+							  boundary,
+							  0);
+
+	auto e=mime::encoderObj::assemble_multipart_section<headersbase
+							    ::crlf_endl>
+		([]
+		 (const mime::encoder &e)
+		 {
+		 },
+		 0,
+		 form_uploads.begin(),
+		 form_uploads.end(),
+		 boundary);
+
+	request_with_form_upload cb(e);
+
+	return do_request(terminate_fd, req, cb);
+}
+
+void useragentObj::add_file_upload(std::list<mime::encoder> &list,
+				   const std::string &charset,
+				   const std::string &name,
+				   const std::string &filename)
+{
+	headersimpl<headersbase::crlf_endl> headers;
+
+	std::string mimetype=mime::filetype(filename);
+
+	if (mimetype.substr(0, 5) == "text/")
+		mimetype=mime::structured_content_header(mimetype)
+			("charset", charset);
+
+	create_upload_headers(headers, charset, name, filename,
+			      mimetype);
+
+	list.push_back(mime::make_plain_section(headers,
+						mime::from_file(filename)));
+}
+
+void useragentObj::add_file_upload(std::list<mime::encoder> &list,
+				   const std::string &charset,
+				   const std::string &name,
+				   const fd &file,
+				   const std::string &mimetype,
+				   const std::string &filename)
+{
+	headersimpl<headersbase::crlf_endl> headers;
+
+	create_upload_headers(headers, charset, name, filename,
+			      mimetype);
+
+	list.push_back(mime::make_plain_section(headers,
+						mime::from_file(file)));
+}
+
+void useragentObj::create_upload_headers(headersimpl<headersbase::crlf_endl>
+					 &headers,
+					 const std::string &charset,
+					 const std::string &name,
+					 const std::string &filename,
+					 const std::string &mime_type)
+{
+	headers.append(mime::structured_content_header::content_type,
+		       mime_type);
+
+	mime::structured_content_header("form-data")
+		.rfc2047("name", name, charset)
+		.rfc2231("filename", filename, charset)
+		.append(headers,
+			mime::structured_content_header::content_disposition,
+			0);
+}
+
 #if 0
 {
 	{

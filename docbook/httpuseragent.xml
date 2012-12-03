@@ -277,7 +277,7 @@ auto resp=ua-&gt;request(&ns;::http::GET, "http://localhost",
       </listitem>
 
       <listitem>
-	<formalpara>
+	<formalpara id="httpuseragentformreq">
 	  <title>An <acronym>HTTP</acronym> form or content</title>
 
 	  <para>
@@ -358,6 +358,159 @@ auto resp=ua-&gt;request(&ns;::http::POST, "http://localhost/cgi-bin/upload.pl",
     </note>
   </section>
 
+  <section id="httpuseragentupload">
+    <title>Uploading files</title>
+
+    <blockquote>
+      <informalexample>
+	<programlisting>
+auto resp=ua-&gt;request(&ns;::http::POST, "http://localhost/cgi-bin/req.pl",
+	              &ns;::http::form::parameters::create("username",
+                                                        "alfred",
+                                                        "password",
+                                                        "rosebud"),
+                      "UTF-8",
+                      "file", "upload.txt");</programlisting>
+      </informalexample>
+    </blockquote>
+
+    <para>
+      A character set name parameter optionally follows the
+      <link linkend="httpuseragentformreq"><acronym>HTTP</acronym>
+	form</link> parameter.
+      This encodes the form as a <literal>multipart/form-data</literal>
+      &MIME; entity, which contains the all fields from the form parameter,
+      in addition to the file uploads specified after the character set
+      parameter.
+    </para>
+
+    <para>
+      <acronym>RFC</acronym> 2388 specifies that each field in
+      a <literal>multipart/form-data</literal> has a specified character
+      set. This comes from the character set parameter.
+      Older HTTP servers may expect and assume that the field values use
+      the same character set as the form that the form gets submitted from.
+      For maximum compatibility, always specify the same character set
+      as the form's.
+      The character set parameter also specifies the character set of the
+      field names and non-upload field values.
+      The list of files to upload with the form follows the character
+      set parameter. Each file can be specified in several ways:
+    </para>
+
+    <itemizedlist>
+      <listitem>
+	<para>
+	  Two parameters, a field name and a filename. The specified file
+	  gets uploaded as the field with the given name.
+	</para>
+      </listitem>
+
+      <listitem>
+	<para>
+	  A field name, a file descriptor, an explicit &MIME; type, and the
+	  filename:
+	</para>
+
+	<blockquote>
+	  <informalexample>
+	    <programlisting>
+auto resp=ua-&gt;request(&ns;::http::POST, "http://localhost/cgi-bin/req.pl",
+	              &ns;::http::form::parameters::create("username",
+                                                        "alfred",
+                                                        "password",
+                                                        "rosebud"),
+                      "UTF-8",
+                      "file", &ns;::fd::open("upload.txt"),
+                      "text/plain; charset=iso-8859-1",
+                      "dailyfile.txt");</programlisting>
+	  </informalexample>
+	</blockquote>
+
+	<para>
+	  The contents of the opened file descriptor get uploaded together
+	  with the form. The file's &MIME; type and filename are explicitly
+	  specified.
+	</para>
+      </listitem>
+
+      <listitem>
+	<para>
+	  A field name,
+	  a <classname>std::pair</classname> of iterators,
+	  an explicit &MIME; type, and the
+	  filename:
+	</para>
+
+	<blockquote>
+	  <informalexample>
+	    <programlisting>
+std::string contents;
+
+auto resp=ua-&gt;request(&ns;::http::POST, "http://localhost/cgi-bin/req.pl",
+	              &ns;::http::form::parameters::create("username",
+                                                        "alfred",
+                                                        "password",
+                                                        "rosebud"),
+                      "UTF-8",
+                      "file", std::make_pair(contents.begin(), contents.end()),
+                      "text/plain; charset=iso-8859-1",
+                      "dailyfile.txt");</programlisting>
+	  </informalexample>
+	</blockquote>
+
+	<para>
+	  The pair of iterators specify the beginning and the ending iterator
+	  value for the contents of the uploaded file.
+	  The iterators must be, at minimum, forward iterators. Input iterators
+	  cannot be used, and result in a compile-time error.
+	  The file's &MIME; type and filename are explicitly
+	  specified.
+	</para>
+      </listitem>
+
+      <listitem>
+	<para>
+	  An
+	  <ulink url="&link-typedef-x--http-upload;"><classname>&ns;::http::upload</classname></ulink>
+	  reference to a <link linkend="refobj">reference-counted object</link>.
+	  A list of files to upload gets prepared in advance, and stored in the
+	  <classname>&ns;::http::upload</classname>:
+	</para>
+
+	<blockquote>
+	  <informalexample>
+	    <programlisting>
+auto upload=&ns;::http::upload::create();
+
+upload-&gt;add("file1", "test1.txt");
+upload-&gt;add("file2", &ns;::fd::base::open("test1.txt", O_RDONLY),
+            "text/plain; charset=iso-8859-1",
+            "test2.txt");
+
+// ...
+
+auto resp=ua-&gt;request(&ns;::http::POST, "http://localhost/cgi-bin/req.pl",
+	              &ns;::http::form::parameters::create("username",
+                                                        "alfred",
+                                                        "password",
+                                                        "rosebud"),
+                      "UTF-8", upload);</programlisting>
+	  </informalexample>
+	</blockquote>
+
+	<para>
+	  Each call to <methodname>add</methodname>() records the
+	  file to be uploaded. <methodname>add</methodname>() takes any of the
+	  parameters that specify an individual file upload to
+	  <methodname>request</methodname>(), and passing the upload handle
+	  in <methodname>request</methodname>() uploads those files together
+	  with the form, as if they were specified directly in the
+	  <methodname>request</methodname>().
+	</para>
+      </listitem>
+    </itemizedlist>
+  </section>
   <section id="httpresponse">
     <title>Processing <acronym>HTTP</acronym> responses</title>
 
@@ -476,7 +629,7 @@ if (resp-&gt;has_content())
       After a <link linkend="httpresponse">response to an
 	<acronym>HTTP</acronym> request</link> is no longer needed, the
       <classname>&ns;::http::useragent::base::response</classname>, and any
-      ontent iterators need to go out of scope.
+      content iterators should go out of scope, so that they get destroyed.
       If the <acronym>HTTP</acronym> server supports persistent connections,
       the <link linkend="httpuseragent">user agent object</link> uses them
       for multiple requests.
@@ -486,9 +639,11 @@ if (resp-&gt;has_content())
       until its previous request is completed, and the response object and
       any iterators go out of scope.
       When the response object and all of its iterators go out of scope,
-      the destructors return the connection with the server to the
-      user agent object it came from, which makes
-      the connection available to future requests,
+      the destructors release their connection with the server.
+      This makes it
+      available to the
+      user agent object where it came from, which makes
+      that connection available to future requests,
       from the same thread or other threads.
     </para>
   </section>
@@ -535,6 +690,8 @@ if (resp-&gt;has_content())
     </variablelist>
 
     <para>
+      These limits come from
+      <ulink url="http://tools.ietf.org/html/rfc6265#section-6.1">RFC 6265</ulink>.
       The cookie jar belongs to each user agent object. Once the user agent
       object goes out of scope and gets destroyed, all the cookies get lost
       (unless they are saved and loaded, as described below). Each user agent
@@ -599,17 +756,20 @@ for (&ns;::http::cookie cookie:*jar)
 
     <para>
       The cookie jar object implements <methodname>begin</methodname>() and
-      <methodname>end</methodname>() that return a
-      <classname>&ns;::http::cookiejar::base::iterator</classname>, that's
-      suitable for range iteration. Note that the <literal>*</literal>()
+      <methodname>end</methodname>() that are suitable for range iteration.
+      They return a
+      <classname>&ns;::http::cookiejar::base::iterator</classname> that
+      dereferences an
+      <ulink url="&link-x--http--cookie;"><classname>&ns;::http::cookie</classname></ulink>.
+      Note that the iterator's <literal>*</literal>()
       operator returns an rvalue.
     </para>
 
     <note>
       <para>
-	The iterators may iterate cookies that were recently expired. An
+	The iterators can iterate over recently-expired cookies. An
 	expired cookie does not get automatically removed from the cookie jar,
-	however it no longer gets sent to the server, and it won't get
+	however it no longer gets sent to the server, and it does not get
 	<methodname>save</methodname>()d, either.
       </para>
     </note>
@@ -629,7 +789,9 @@ for (&ns;::http::cookie cookie:*jar)
     <para>
       <ulink url="&link-typedef-x--http--form-parameters;"><classname>&ns;::http::form::parameters</classname></ulink>
       is a reference to <link linkend="refobj">reference-counted object</link>
-      that represents parameters for a submitted form. It is,
+      that represents
+      parameters for a
+      <link linkend="httpuseragentformreq">submitted form</link>. It is,
       essentially, a
       <classname>std::multimap&lt;std::string, std::string&gt;</classname>,
       and can be treated as such:
@@ -639,9 +801,10 @@ for (&ns;::http::cookie cookie:*jar)
       <informalexample>
 	<programlisting>
 #include &lt;&ns;/http/form.H&gt;
+
 &ns;::http::form::parameters params(&ns;::http::form::parameters::create());
 
-params->insert(std::make_pair("password", "opensesame"));</programlisting>
+params-&lt;insert(std::make_pair("password", "opensesame"));</programlisting>
       </informalexample>
     </blockquote>
 
@@ -824,7 +987,7 @@ void showuri(const &ns;::http::useragent &amp;ua, const &ns;::uriimpl &amp;uri)
     </blockquote>
 
     <para>
-      <acronym>RFC 2617</acronym> allows
+      <acronym>RFC</acronym> 2617 allows
       an <acronym>HTTP</acronym> server or a proxy to
       return multiple challenges for different authentication realms,
       but in practice there will usually be only one.

@@ -12,6 +12,9 @@
 #include <x/http/clientauthcachefwd.H>
 #include <x/http/cookiejarfwd.H>
 #include <x/http/formfwd.H>
+#include <x/http/uploadfwd.H>
+#include <x/http/useragentfwd.H>
+#include <x/mime/encoder.H>
 #include <x/gcrypt/md.H>
 #include <x/epoll.H>
 #include <x/ptr.H>
@@ -672,6 +675,8 @@ public:
 				      //! The precomputed 'A1' hash
 				      const std::string &a1_hash);
 
+	friend class uploadObj;
+
 private:
 
 	//! A request with headers given in an explicit requestimpl object.
@@ -746,6 +751,168 @@ private:
 	response request_with_headers(const fd *terminate_fd,
 				      requestimpl &req,
 				      const form::const_parameters &form);
+
+	//! A request with form parameters and file uploads
+
+	template<typename ...Args>
+	response request_with_headers(const fd *terminate_fd,
+				      requestimpl &req,
+				      const form::const_parameters &form,
+				      const std::string &charset,
+				      Args && ...args)
+	{
+		std::list<mime::encoder> form_uploads;
+
+		request_form_uploads(form_uploads, charset,
+				     std::forward<Args>(args)...);
+
+		return request_with_uploads(terminate_fd, req,
+					    form, form_uploads, charset);
+	}
+
+	//! Process a request with form parameters and file uploads
+
+	response request_with_uploads(const fd *terminate_fd,
+				      requestimpl &req,
+				      const form::const_parameters &form,
+				      std::list<mime::encoder> &form_uploads,
+				      const std::string &charset);
+
+	//! No more file uploads
+	void request_form_uploads(std::list<mime::encoder> &list,
+				  const std::string &charset)
+	{
+	}
+
+	//! File upload
+
+	template<typename ...Args>
+	void request_form_uploads(std::list<mime::encoder> &list,
+				  const std::string &charset,
+				  const std::string &name,
+				  const std::string &filename,
+				  Args && ...args)
+	{
+		add_file_upload(list, charset, name, filename);
+		request_form_uploads(list, charset,
+				     std::forward<Args>(args)...);
+	}
+
+	//! File upload
+
+	template<typename ...Args>
+	void request_form_uploads(std::list<mime::encoder> &list,
+				  const std::string &charset,
+				  const std::string &name,
+				  const fd &file,
+				  const std::string &mimetype,
+				  const std::string &filename,
+				  Args && ...args)
+	{
+		add_file_upload(list, charset, name, file, mimetype, filename);
+		request_form_uploads(list, charset,
+				     std::forward<Args>(args)...);
+	}
+
+	template<typename ...Args>
+	void request_form_uploads(std::list<mime::encoder> &list,
+				  const std::string &charset,
+				  const upload &upload_list,
+				  Args && ...args);
+
+	//! File upload
+
+	template<typename ...Args, typename iter_type>
+	void request_form_uploads(std::list<mime::encoder> &list,
+				  const std::string &charset,
+				  const std::string &name,
+				  const std::pair<iter_type, iter_type> &iter,
+				  const std::string &filename,
+				  const std::string &mime_type,
+				  Args && ...args)
+	{
+		add_file_upload(list, charset, name, iter, filename, mime_type);
+		request_form_uploads(list, charset,
+				     std::forward<Args>(args)...);
+	}
+
+	//! Add an upload
+
+	template<typename container_type>
+	void add_upload(std::list<mime::encoder> &list,
+			const std::string &charset,
+			const std::string &name,
+			container_type &&container,
+			const std::string &filename,
+			const std::string &mime_type)
+	{
+		headersimpl<headersbase::crlf_endl> headers;
+
+		create_upload_headers(headers, charset,
+				      name, filename, mime_type);
+		list.push_back(mime::make_plain_section(headers, container));
+	}
+
+	//! Add a file upload
+
+	template<typename iter_type>
+	void add_file_upload(std::list<mime::encoder> &list,
+			     const std::string &charset,
+			     const std::string &name,
+			     const std::pair<iter_type, iter_type> &iter,
+			     const std::string &filename,
+			     const std::string &mime_type)
+	{
+		// A compiler error on the following line means that a pair of
+		// input or output iterators were passed to request().
+		//
+		// Output iterators are obviously wrong. Input iterators are,
+		// as documented, not allowed; at the minimum the iterators
+		// should be forward iterators.
+
+		extern char invalid_iterator_type[useragent_iterator_check<typename std::iterator_traits<iter_type>::iterator_category>::check_value]
+			__attribute__((unused));
+
+		struct container {
+			iter_type b;
+			iter_type e;
+
+			container(iter_type bArg,
+				  iter_type eArg) : b(bArg), e(eArg) {}
+
+			iter_type begin() const { return b; }
+			iter_type end() const { return e; }
+		};
+
+		add_upload(list, charset, name,
+			   container(iter.first, iter.second),
+			   filename, mime_type);
+
+	}
+
+	//! Add a file upload
+
+	void add_file_upload(std::list<mime::encoder> &list,
+			     const std::string &charset,
+			     const std::string &name,
+			     const std::string &filename);
+
+	//! Add a file upload
+
+	void add_file_upload(std::list<mime::encoder> &list,
+			     const std::string &charset,
+			     const std::string &name,
+			     const fd &file,
+			     const std::string &mimetype,
+			     const std::string &filename);
+
+	//! Create headers for the upload's MIME section
+
+	void create_upload_headers(headersimpl<headersbase::crlf_endl> &headers,
+				   const std::string &charset,
+				   const std::string &name,
+				   const std::string &filename,
+				   const std::string &mime_type);
 
 	//! A request without a body
 
@@ -835,6 +1002,8 @@ private:
 			return client.send(req, beg_iter, end_iter, resp);
 		}
 	};
+
+	class request_with_form_upload;
 
 	//! Implement the request
 
