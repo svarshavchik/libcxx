@@ -433,9 +433,9 @@ public:
 	inline const value_type *before_postoper()
 	{
 		set();
-		const value_type *p=&buffer[buffer_pos];
-		++buffer_pos;
-		return p;
+		if (eof)
+			null_ptr_deref();
+		return &buffer[buffer_pos];
 	}
 
 	//! Iterator comparison operator
