@@ -64,6 +64,7 @@ void testheadercollector()
 	header_collector_test("a5: b5\n", "a5=b5|");
 	header_collector_test("a6: b6", "a6=b6|");
 	header_collector_test("a7:\n   b7\n", "a7=b7|");
+	header_collector_test("a8:\n   \n\ntest\n", "a8=|");
 
 }
 

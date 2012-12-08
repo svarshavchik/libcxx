@@ -77,6 +77,12 @@ private:
 	//! The header name
 	void in_headername(int c) LIBCXX_HIDDEN;
 
+	//! Starting header contents
+	void in_starting_contents(int c) LIBCXX_HIDDEN;
+
+	//! Starting header contents
+	void in_starting_contents_newline(int c) LIBCXX_HIDDEN;
+
 	//! The header contents
 	void in_contents(int c) LIBCXX_HIDDEN;
 

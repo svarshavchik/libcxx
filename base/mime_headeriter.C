@@ -35,10 +35,11 @@ void header_iterbase::start_header(int c)
 {
 	if (c == body_start || c == eof)
 	{
+		SWITCH in_body;
+
 		if (in_header)
 			emit(header_contents_end);
 
-		SWITCH in_body;
 		emit(c);
 		return;
 	}
@@ -118,8 +119,8 @@ void header_iterbase::in_headerfold(int c)
 
 // * A newline emits header_name_end, header_content_start, and transitions
 //   to in_endofline.
-// * A colon emits header_name_end, the colon, header_name_start, and
-//   transitions to in_contents.
+// * A colon emits header_name_end, the colon, and transitions to
+//   in_starting_contents.
 
 void header_iterbase::in_headername(int c)
 {
@@ -134,13 +135,57 @@ void header_iterbase::in_headername(int c)
 
 	if (c == ':')
 	{
-		SWITCH in_contents;
+		SWITCH in_starting_contents;
 		emit(header_name_end);
 		emit(c);
-		emit(header_contents_start);
 		return;
 	}
 
+	emit(c);
+}
+
+// After the colon, flushing whitespace until the first space character.
+// Transactions to in_starting_contents_newline upon a newline_start.
+
+// Always transitions to in_contents, unless the character is a space.
+// If we transition to in_starting_contents_newline, then back here, it's
+// possible that we'll see a body_start or eof, if so, call start_header(),
+// to process it.
+
+void header_iterbase::in_starting_contents(int c)
+{
+	if (space(c))
+	{
+		emit(c);
+		return;
+	}
+
+	if (c == newline_start)
+	{
+		SWITCH in_starting_contents_newline;
+		emit(c);
+		return;
+	}
+
+	emit(header_contents_start);
+
+	if (c == body_start || c == eof)
+	{
+		start_header(c);
+		return;
+	}
+
+	SWITCH in_contents;
+	in_contents(c);
+}
+
+// Newline before the first non-space character in a header.
+// transaction back to in_starting_contents upon a newline_end.
+
+void header_iterbase::in_starting_contents_newline(int c)
+{
+	if (c == newline_end)
+		SWITCH in_starting_contents;
 	emit(c);
 }
 

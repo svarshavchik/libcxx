@@ -85,8 +85,7 @@ void header_collectorObj::wait_contents_end(int c)
 		return;
 	}
 
-	if (contents.size() > 0) // Drop leading spaces.
-		contents.append(spacecount, ' ');
+	contents.append(spacecount, ' ');
 	spacecount=0;
 	contents.push_back(c);
 }
