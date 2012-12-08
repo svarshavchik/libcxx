@@ -1,0 +1,333 @@
+<!--
+
+Copyright 2012 Double Precision, Inc.
+See COPYING for distribution information.
+
+-->
+
+<chapter id="mimeparser">
+  <title>Parsing &MIME; documents</title>
+
+  <para>
+    The templates and classes describe in this chapter implement an output
+    iterator-based approach to parsing &MIME; documents. A &MIME; parser
+    gets constructed by instantiating a sequence of template classes.
+    Each one of them is an output iterator over a sequence, a stream
+    of tokens, that modifies the stream and passes the modified stream
+    to the next output iterator.
+  </para>
+
+  <section id="mimeparsernewlineiter">
+    <title>Delimiting &MIME; newline sequences</title>
+
+    <para>
+      The initial output iterator,
+      <ulink url="&link-x--mime--newline-iter;"><classname>&ns;::mime::newline_iter</classname></ulink>,
+      instantiates an output iterator over <classname>char</classname> values.
+      Its template parameter is an output iterator class which iterates over
+      <classname>int</classname> values.
+      <classname>&ns;::mime::newline_iter</classname> takes the
+      <classname>char</classname> sequence it iterates over, and promotes each
+      character to an <classname>int</classname> between 0 and 255.
+      Additionally,
+      <classname>&ns;::mime::newline_iter</classname>
+      inserts an <literal>&ns;::mime::newline_start</literal> into the output
+      sequence before each newline sequence, and
+      <literal>&ns;::mime::newline_end</literal> after the newline sequence.
+    </para>
+
+    <note>
+      <para>
+	All other output iterators described in this chapter iterate over
+	an <classname>int</classname> value sequence, which consists of
+	the <classname>char</classname> values, from the original output
+	sequence that comprises the MIME document, and additional values
+	inserted by these output iterators.
+      </para>
+
+      <para>
+	Its important to note that
+	the original <classname>char</classname> output sequence does not
+	get modified, but gets supplemented by <classname>int</classname>
+	values that the output iterators insert into the output sequence,
+	like <literal>&ns;::mime::newline_start</literal> and
+	<literal>&ns;::mime::newline_end</literal>, which appear before and
+	after the <literal>LF</literal>
+	(<link linkend="mimenewlineitercrlf">or
+	  the <literal>CRLF</literal></link>)
+	value.
+	The <literal>LF</literal> (or the <literal>CRLF</literal> values)
+	remain in the output sequence where they were, but get bracketed by
+	<literal>&ns;::mime::newline_start</literal> and
+	<literal>&ns;::mime::newline_end</literal>.
+      </para>
+    </note>
+
+    <blockquote>
+      <title><ulink url="examples">examples/mime/newlineparser.C</ulink></title>
+      <informalexample>
+	<programlisting><xi:include href="../examples/mime/newlineparser.C" parse="text" xmlns:xi="http://www.w3.org/2001/XInclude" /></programlisting>
+      </informalexample>
+    </blockquote>
+
+    <para>
+      Instantiating a <classname>&ns;::mime::newline_iter</classname> results
+      in an output iterator, but <classname>&ns;::mime::newline_iter</classname>
+      gets instantiated by <function>create</function>() like a
+      <link linkend="create">reference-counted object</link>
+      (because, internally, it is).
+      The template parameter is an output iterator class over
+      <classname>int</classname>s, and the constructor
+      takes an instance of the template parameter class.
+    </para>
+
+    <para>
+      This example copies <classname>char</classname>s from
+      <literal>std::cin</literal> into the instantiated
+      <classname>&ns;::mime::newline_iter</classname>,
+      which outputs to a
+      <classname>std::back_insert_iterator&lt;std::vector&lt;int&gt;&gt;</classname>.
+    </para>
+
+    <para>
+      No formal means exist to notify an output iterator of an end to the
+      output sequence, other than its destruction, so the &MIME; parsing
+      iterators use this convention. The output iterator's
+      <methodname>get</methodname>() method returns a reference to the
+      underlying reference-counted method, with an
+      <methodname>eof</methodname>() that must be invoked in order to signal
+      the end of the output sequence.
+      All &MIME; parsing templates and classes require that
+      <classname>&ns;::mime::newline_iter</classname>'s
+      <methodname>eof</methodname>() must get invoked.
+    </para>
+
+    <para>
+      In addition to <methodname>eof</methodname>(), the
+      <varname>iter</varname> class member gives the current value of the
+      output iterator that
+      <classname>&ns;::mime::newline_iter</classname>'s constructor received,
+      via <methodname>create</methodname>().
+      Sample output from the above <filename>newlineparser.C</filename>
+      example:
+    </para>
+
+    <computeroutput>
+      <literallayout><![CDATA[
+$ cat newlineparser.txt
+Subject: test
+
+test
+$ ./newlineparser <newlineparser.txt
+Subject: test<256>
+<257><256>
+<257>test<256>
+<257><-1>]]>
+      </literallayout>
+    </computeroutput>
+
+    <para>
+      <classname>&ns;::mime::newline_iter</classname> promotes the
+      <classname>char</classname> sequence it iterates over to
+      <classname>int</classname> between 0 and 255.
+      <methodname>&ns;::mime::nontoken</methodname>() returns
+      <literal>true</literal> if the given value is in this range, and
+      <literal>false</literal> for additional tokens. As the sample output
+      shows, <literal>256</literal> and <literal>257</literal>
+      (corresponding to
+      <literal>&ns;::mime::newline_start</literal> and
+      <literal>&ns;::mime::newline_end</literal>) wrap each newline character.
+      <literal>-1</literal> is <literal>&ns;::mime::eof</literal> that gets
+      inserted by 
+      <classname>&ns;::mime::newline_iter</classname>'s
+      <methodname>eof</methodname>().
+    </para>
+
+    <para>
+      One important characteristic of
+      <classname>&ns;::mime::newline_iter</classname> is that when the
+      output sequence does not end with a newline,
+      <classname>&ns;::mime::newline_iter</classname> inserts
+      <literal>&ns;::mime::newline_start</literal> immediately followed by
+      <literal>&ns;::mime::newline_end</literal>, without a newline in between
+      (this gets triggered by <methodname>eof</methodname>()).
+      In all cases
+      <classname>&ns;::mime::newline_iter</classname> does not modify the
+      character part of the output sequence that gets forwarded to its
+      output iterator, but the output sequence always ends with a newline
+      sequence:
+    </para>
+
+    <computeroutput>
+      <literallayout><![CDATA[
+$ cat newlineparser.txt
+Subject: test
+
+test
+$ ./newlineparser <newlineparser.txt
+Subject: test<256>
+<257><256>
+<257>test<256><257><-1>]]>
+      </literallayout>
+    </computeroutput>
+
+    <para>
+      This is same as the previous example, except that the original
+      &MIME;-formatted message did not end with a newline.
+      <classname>&ns;::mime::newline_iter</classname> adds
+      <literal>&ns;::mime::newline_start</literal> (256) immediately followed by
+      <literal>&ns;::mime::newline_end</literal> (257), before the trailing
+      <literal>&ns;::mime::eof</literal>.
+    </para>
+
+    <section id="mimenewlineitercrlf">
+      <title>Parsing &MIME; documents that use <literal>CRLF</literal> newline sequences</title>
+
+      <blockquote>
+	<informalexample>
+	  <programlisting>
+&ns;::mime::newline_iter&lt;ins_iter_t&gt;::create(ins_iter_t(seq), true);</programlisting>
+	</informalexample>
+      </blockquote>
+
+      <para>
+	Setting the second optional parameter to 
+	<classname>&ns;::mime::newline_iter</classname>'s
+	<function>create</function>() to <literal>true</literal> instantiates
+	the output iterator that recognizes <literal>CRLF</literal> sequence as
+	the newline sequence instead of <literal>LF</literal>.
+      </para>
+      <para>
+	<classname>&ns;::mime::newline_iter</classname> inserts
+	<literal>&ns;::mime::newline_start</literal> and
+	<literal>&ns;::mime::newline_end</literal> before and after
+	each <literal>CRLF</literal> sequence. <literal>CR</literal> and
+	<literal>LF</literal> by themselves are left alone.
+      </para>
+    </section>
+
+    <section id="mimenewlineitersummary">
+      <title>Summary</title>
+
+      <para>
+	<classname>&ns;::mime::newline_iter</classname> iterates over a
+	<classname>char</classname>-valued output sequence that contains
+	a &MIME; document. Its template parameter parameter is an
+	output iterator class that iterates over
+	<classname>int</classname> values, and <function>create</function>()
+	takes an instance of the template class.
+      </para>
+
+      <para>
+	The iterator passed to <function>create</function>() iterates over
+	an <classname>int</classname> values that consists of the
+	<classname>char</classname> values that
+	<classname>&ns;::mime::newline_iter</classname> iterates over.
+	Additionally, each recognized newline sequence gets preceded by a
+	<literal>&ns;::mime::newline_start</literal> and followed by
+	<literal>&ns;::mime::newline_end</literal>.
+	This includes the implied newline at the end of the output sequence
+	that does not end with an explicit newline sequence.
+	Invoking <methodname>eof</methodname>() on
+	<classname>&ns;::mime::newline_iter</classname>'s output iterator
+	object insert the
+	<literal>&ns;::mime::eof</literal> into the output sequence.
+      </para>
+    </section>
+  </section>
+
+  <section id="mimeparserbodystartiter">
+    <title>Detecting start of a &MIME; document's body</title>
+
+    <para>
+      Most of the time,
+      <link linkend="mimeparsernewlineiter"><classname>&ns;::mime::newline_iter</classname></link>'s
+      output iterator is a
+      <ulink url="&link-x--mime--bodystart-iter;"><classname>&ns;::mime::bodystart_iter</classname></ulink>
+      which is an output iterator over a sequence of
+      <classname>int</classname>s.
+      <classname>&ns;::mime::bodystart_iter</classname>'s template parameter
+      is an output iterator class. It iterates over the same sequence as
+      <classname>&ns;::mime::bodystart_iter</classname> iterates over,
+      unchanged, except that the first time that
+      <classname>&ns;::mime::bodystart_iter</classname> iterates over two
+      <literal>&ns;::mime::newline_start</literal>/<literal>&ns;::mime::newline_end</literal>
+      tuples in a row,
+      <classname>&ns;::mime::bodystart_iter</classname> adds an
+      <literal>&ns;::mime::body_start</literal> value to the output sequence,
+      after the second tuple. This marks the start of a &MIME; document's
+      body, following the first empty line:
+    </para>
+
+    <blockquote>
+      <title><ulink url="examples">examples/mime/bodystart.C</ulink></title>
+      <informalexample>
+	<programlisting><xi:include href="../examples/mime/bodystart.C" parse="text" xmlns:xi="http://www.w3.org/2001/XInclude" /></programlisting>
+      </informalexample>
+    </blockquote>
+
+    <para>
+      Instantiating a <classname>&ns;::mime::bodystart_iter</classname> results
+      in an output iterator, but <classname>&ns;::mime::bodystart_iter</classname>
+      gets instantiated by <function>create</function>() like a
+      <link linkend="create">reference-counted object</link>
+      (because, internally, it is).
+      Like
+      <link linkend="mimeparsernewlineiter"><classname>&ns;::mime::newline_iter</classname></link>,
+      the output iterator's
+      <methodname>get</methodname>() method returns a reference to the
+      underlying reference-counted method, with an
+      <varname>iter</varname> class member giving the current value of the
+      underlying output iterator.
+      In this example, <classname>std::copy</classname> returns the new value
+      of the output iterator, <classname>newline_iter_t</classname>, a.k.a.
+      <classname>&ns;::mime::newline_iter&lt;bodystart_iter_t&gt;</classname>.
+      Its <literal>get()-&gt;iter</literal> returns its underlying
+      output iterator, <classname>bodystart_iter_t</classname>,
+      a.k.a.
+      <classname>&ns;::mime::bodystart_iter&lt;ins_iter_t&gt;</classname>,
+      and its own <literal>get()-&gt;iter</literal> returns the underlying
+      <classname>ins_iter_t</classname>. Sample output from this example:
+    </para>
+
+    <computeroutput>
+      <literallayout><![CDATA[
+$ cat bodystart.txt
+Subject: test
+
+test
+$ ./bodystart <bodystart.txt
+Subject: test<256>
+<257><256>
+<257><258>test<256>
+<257><-1>]]>
+      </literallayout>
+    </computeroutput>
+
+    <para>
+      <literal>&ns;::mime::body_start</literal>, or <literal>258</literal>
+      gets inserted into the output sequence after the second consecutive
+      newline sequence, marking the start the &MIME; section's body.
+      If two consecutive newline sequences do not appear in the sequence,
+      a <literal>&ns;::mime::body_start</literal>
+      still gets inserted into the
+      output sequence before the <literal>&ns;::mime::eof</literal>:
+    </para>
+
+    <computeroutput>
+      <literallayout><![CDATA[
+$ cat bodystart.txt
+Subject: test
+$ ./bodystart <bodystart.txt
+Subject: test<256>
+<257><258><-1>]]></literallayout>
+    </computeroutput>
+  </section>
+</chapter>
+
+<!--
+Local Variables:
+mode: sgml
+sgml-parent-document: ("book.xml" "part" "chapter")
+End:
+-->

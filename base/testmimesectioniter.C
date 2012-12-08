@@ -128,8 +128,9 @@ void testmimesectioniter()
 			   section_iter<std::back_insert_iterator
 			   <std::vector<int>>>
 			   ::create(std::back_insert_iterator
-			    <std::vector<int>>(result),
-			    test.boundary))=LIBCXX_NAMESPACE::mime::eof;
+				    <std::vector<int>>(result),
+				    test.boundary))++
+			=LIBCXX_NAMESPACE::mime::eof;
 
 		expected.push_back(LIBCXX_NAMESPACE::mime::eof);
 

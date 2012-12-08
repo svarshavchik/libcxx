@@ -44,6 +44,7 @@
 <!ENTITY MIME "<acronym>MIME</acronym>">
 <!ENTITY mimestructuredcontentheader SYSTEM "mimestructuredcontentheader.xml">
 <!ENTITY mimeencoder SYSTEM "mimeencoder.xml">
+<!ENTITY mimeparser SYSTEM "mimeparser.xml">
 <!ENTITY pwdgrp SYSTEM "pwdgrp.xml">
 <!ENTITY uri SYSTEM "uri.xml">
 <!ENTITY headers SYSTEM "headers.xml">
@@ -264,6 +265,7 @@ See COPYING for distribution information.
     </partintro>
     &mimestructuredcontentheader;
     &mimeencoder;
+    &mimeparser;
   </part>
   <part id="http">
 

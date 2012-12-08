@@ -83,31 +83,8 @@ public:
 
 	//! Iterator operator
 
-	void operator=(int ic)
+	void operator=(unsigned char c)
 	{
-		if (ic == eof)
-		{
-			// If the output sequence didn't end with a newline,
-			// emit one.
-
-			if (seen_cr)
-			{
-				*iter++='\r';
-				seen_cr=false;
-			}
-
-			if (!sol)
-			{
-				*iter++=newline_start;
-				*iter++=newline_end;
-				sol=true;
-			}
-			*iter++=eof;
-			return;
-		}
-
-		unsigned char c=ic;
-
 		sol=false;
 
 		if (crlf)
@@ -146,6 +123,28 @@ public:
 
 		*iter++=c;
 		return;
+	}
+
+	//! Emits \c INSERT_LIBX_NAMESPACE::mime::eof into the output sequence.
+
+	void eof()
+	{
+		// If the output sequence didn't end with a newline,
+		// emit one.
+
+		if (seen_cr)
+		{
+			*iter++='\r';
+			seen_cr=false;
+		}
+
+		if (!sol)
+		{
+			*iter++=newline_start;
+			*iter++=newline_end;
+			sol=true;
+		}
+		*iter++=mime::eof;
 	}
 };
 

@@ -124,7 +124,8 @@ public:
 
 //! This is a \ref refiterator "reference-counted iterator" that implements
 //! an output iterator.
-//! This output iterator typically receives the output from newlineiter, and
+//! This output iterator typically receives the output from
+//! \ref newline_iter "newline_iter", and
 //! the template parameter is an output
 //! iterator that takes ints. The constructor takes the instance of the
 //! template parameter.

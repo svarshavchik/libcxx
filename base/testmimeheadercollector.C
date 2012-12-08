@@ -36,10 +36,10 @@ void header_collector_test(const std::string &headers,
 	typedef LIBCXX_NAMESPACE::mime::newline_iter<bodystart_iter_t>
 		newline_iter_t;
 
-	*std::copy(headers.begin(),
-		   headers.end(),
-		   newline_iter_t::create(bodystart_iter_t::create(header_iter_t::create(collector))))
-		=LIBCXX_NAMESPACE::mime::eof;
+	std::copy(headers.begin(),
+		  headers.end(),
+		  newline_iter_t::create(bodystart_iter_t::create(header_iter_t::create(collector))))
+		.get()->eof();
 
 	std::ostringstream o;
 
@@ -83,10 +83,10 @@ void contentheader_collector_test(const std::string &headers,
 	typedef LIBCXX_NAMESPACE::mime::newline_iter<bodystart_iter_t>
 		newline_iter_t;
 
-	*std::copy(headers.begin(),
-		   headers.end(),
-		   newline_iter_t::create(bodystart_iter_t::create(header_iter_t::create(collector))))
-		=LIBCXX_NAMESPACE::mime::eof;
+	std::copy(headers.begin(),
+		  headers.end(),
+		  newline_iter_t::create(bodystart_iter_t::create(header_iter_t::create(collector))))
+		.get()->eof();
 
 	std::ostringstream o;
 

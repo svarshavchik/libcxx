@@ -81,11 +81,11 @@ void testmimeiter()
 		typedef LIBCXX_NAMESPACE::mime::newline_iter
 			<std::back_insert_iterator<std::vector<int>>> iter_t;
 
-		*std::copy(test.seq, test.seq+strlen(test.seq),
-			   iter_t::create(std::back_insert_iterator<
-					  std::vector<int>
-					  >(out), test.usecrlf))++
-			=LIBCXX_NAMESPACE::mime::eof;
+		std::copy(test.seq, test.seq+strlen(test.seq),
+			  iter_t::create(std::back_insert_iterator<
+					 std::vector<int>
+					 >(out), test.usecrlf))
+			.get()->eof();
 
 		std::vector<int> out2;
 
