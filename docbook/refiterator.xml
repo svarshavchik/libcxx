@@ -347,6 +347,93 @@ outputrefiterator&lt;int&gt; iter=&ns;::refiterator&lt;receiverObj&gt;::create()
       iterating of the assignment operator.
     </para>
   </section>
+
+  <section id="outputrefiteratortuple">
+    <title>Reference-counted output iterator tuples</title>
+
+    <blockquote>
+      <informalexample>
+	<programlisting>
+std::string foobar;
+
+std::string foobaz;
+
+std::string fooba="fooba";
+
+auto iter=std::copy(fooba.begin(),
+		    fooba.end(),
+		    &ns;::make_outputrefiterator&lt;char&gt;
+                    (std::back_insert_iterator&lt;std::string&gt;(foobar),
+                     std::back_insert_iterator&lt;std::string&gt;(foobaz)));
+
+auto tuple_iter=iter.get();
+
+std::back_insert_iterator&lt;std::string&gt;
+    a=std::get&lt;0&gt;(tuple_iter->iters);
+
+std::back_insert_iterator&lt;std::string&gt;
+    b=std::get&lt;1&gt;(tuple_iter->iters);
+
+*a++='r';
+*b++='z';</programlisting>
+      </informalexample>
+    </blockquote>
+
+    <para>
+      <function>&ns;::make_outputrefiterator&lt;<replaceable>type</replaceable>&gt;</function>()
+      takes a variadic list iterator over an output sequence of
+      <replaceable>type</replaceable> and instantiates a
+      subclass of
+      <link linkend="outputrefiterator"><classname>&ns;::outputrefiteratorObj&lt;<replaceable>type</replaceable>&gt;</classname></link>
+      returning a <classname>&ns;::outputrefiterator</classname> to the
+      subclass.
+    </para>
+
+    <para>
+      The
+      <classname>&ns;::outputrefiteratorObj&lt;<replaceable>type</replaceable>&gt;</classname>
+      subclass implements
+      <methodname>operator=</methodname>(<replaceable>type</replaceable>)
+      by iterating each iterator that was passed
+      to
+      <function>&ns;::make_outputrefiterator</function>() over the
+      value <replaceable>type</replaceable>.
+      In effect, this splits the output sequence into multiple output sequences,
+      one for each output iterator.
+    </para>
+
+    <para>
+      The above example sets <varname>foobar</varname> to
+      <quote>foobar</quote> and <varname>foobaz</varname> to
+      <quote>foobaz</quote>.
+      Two <classname>std::back_insert_iterator</classname>s get constructed
+      and passed to <function>&ns;::make_outputrefiterator</function>(), that
+      makes an output iterator to which the <quote>fooba</quote> part gets
+      copied to.
+    </para>
+
+    <para>
+      The reference-counted output iterator's <methodname>get</methodname>()
+      returns a
+      <link linkend="refiteratorget">reference to the underlying
+	reference-counted object</link>.
+      Its <varname>iters</varname> member is a <classname>std::tuple</classname>
+      containing the iterators that were passed to
+      <function>&ns;::make_outputrefiterator</function>().
+      The above example <function>std::get</function>()s the
+      <classname>std::back_insert_iterator</classname>s, then uses them
+      to add the final character to each string.
+    </para>
+
+    <note>
+      <para>
+	Using 
+	<function>&ns;::make_outputrefiterator</function>() with one output
+	iterator parameter is a convenient way to turn a large output
+	iterator into a reference-counted object.
+      </para>
+    </note>
+  </section>
 </chapter>
 
 <!--

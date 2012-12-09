@@ -9,6 +9,7 @@
 #include <vector>
 #include <x/ref.H>
 #include <x/obj.H>
+#include <x/tuple_param_pack.H>
 #include <x/namespace.h>
 
 namespace LIBCXX_NAMESPACE {
@@ -360,6 +361,96 @@ class const_outputrefiteratorptr {}; // TODO
 #else
 using const_outputrefiteratorptr=const_ptriterator<outputrefiteratorObj<value_type>>;
 #endif
+
+template<typename Arg> class outputref_tuple_unpack;
+
+//! A subclass of outputrefiteratorObj that forwards the output sequence to one or more output iterators
+
+//! \see make_outputrefiterator()
+
+template<typename value_type, typename ...TupleType>
+class outputrefiteratorTupleObj : public outputrefiteratorObj<value_type> {
+
+public:
+
+	//! The tuple containing all the output iterators
+	std::tuple<TupleType...> iters;
+
+	//! Constructor
+	template<typename ...Args>
+	outputrefiteratorTupleObj(Args && ...args)
+		: iters(std::forward<Args>(args)...)
+	{
+	}
+
+	//! Destructor
+
+	~outputrefiteratorTupleObj() noexcept
+	{
+	}
+
+	//! Forward a value to each underlying output iterator
+
+	template<typename Arg, typename ...Args>
+	static inline void invoke(const value_type &c,
+				  Arg &arg,
+				  Args && ...args)
+	{
+		*arg=c;
+		++*arg;
+		invoke(c, std::forward<Args>(args)...);
+	}
+
+	//! End of the output iterator forward
+	static inline void invoke(const value_type &c)
+	{
+	}
+
+	//! Forward a value in the output sequence
+
+	//! Iterates each one of the underlying iterators over the value
+
+	void operator=(value_type c) override
+	{
+		outputref_tuple_unpack<typename
+				       tuple_2_param_pack<sizeof...(TupleType)>
+				       ::type>::invoke(*this, c);
+	}
+};
+
+//! Helper class that forwards a value to iterators in a tuple.
+
+template<size_t ...n> class outputref_tuple_unpack<tuple_param_pack<n...> > {
+
+public:
+
+	//! Unpack the tuple into a parameter pack.
+
+	//! The first parameter is a outputrefiteratorTupleObj.
+	//! Invoke its %invoke(), converting its tuple into a parameter pack.
+
+	template<typename tupleobj_type, typename value_type>
+	static inline void invoke(tupleobj_type &me, const value_type &arg)
+	{
+		me.invoke(arg, std::get<n>(me.iters)...);
+	}
+};
+
+//! Construct an reference-counted output iterator forward
+
+//! Take a variadic list of output iterators. They get saved into a tuple.
+//! Return a refiterator to an output iterator that implements operator=()
+//! by forwarding the iterated value to each one of the saved output iterators.
+
+template<typename value_type, typename ...Args>
+inline refiterator< outputrefiteratorTupleObj<value_type, typename
+					      std::decay<Args>::type...> >
+make_outputrefiterator(Args && ...args)
+{
+	return refiterator< outputrefiteratorTupleObj<value_type, typename
+						      std::decay<Args>::type...>
+			    >::create(std::forward<Args>(args)...);
+}
 
 //! A convenient base class for reference-based input iterator.
 

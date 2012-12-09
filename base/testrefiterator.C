@@ -162,6 +162,34 @@ void testinputrefiterator2()
 		throw EXCEPTION("testinputrefiterator2 failed");
 }
 
+void testoutputrefiterator2()
+{
+	std::string foobar;
+
+	std::string foobaz;
+
+	std::string fooba="fooba";
+
+	auto iter=std::copy(fooba.begin(),
+			    fooba.end(),
+			    LIBCXX_NAMESPACE::make_outputrefiterator<char>
+			    (std::back_insert_iterator<std::string>(foobar),
+			     std::back_insert_iterator<std::string>(foobaz)));
+
+	auto tuple_iter=iter.get();
+
+	std::back_insert_iterator<std::string>
+		a=std::get<0>(tuple_iter->iters);
+	std::back_insert_iterator<std::string>
+		b=std::get<1>(tuple_iter->iters);
+
+	*a++='r';
+	*b++='z';
+
+	if (foobar != "foobar" || foobaz != "foobaz")
+		throw EXCEPTION("tuple output ref iterator test failed");
+}
+
 int main(int argc, char **argv)
 {
 	try {
@@ -191,6 +219,7 @@ int main(int argc, char **argv)
 		testoutputrefiterator();
 		testinputrefiterator();
 		testinputrefiterator2();
+		testoutputrefiterator2();
 	} catch (LIBCXX_NAMESPACE::exception &e)
 	{
 		std::cerr << e << std::endl;
