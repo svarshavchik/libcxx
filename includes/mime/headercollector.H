@@ -106,54 +106,16 @@ private:
 	void wait_folded_end(int c) LIBCXX_HIDDEN;
 };
 
+class header_collectorBase;
+
 //! Something that \ref header_iter "header_iter" can write to.
 
 //! Presents an output iterator for
 //! \ref header_iter "header_iter". Collects headers into
 //! something more useful.
 //!
-//! What happens with the headers is determined by its subclass, which
-//! implements the header() method.
-
-typedef refiterator<header_collectorObj> header_collector;
-
-//! A nullable pointer reference to a \ref header_collectorObj "header_collectorObj".
-
-//! \see header_collector
-
-typedef ptriterator<header_collectorObj> header_collectorptr;
-
-//! Subclass of header_collector that uses a functor/lambda
-
-template<typename func_type>
-class header_collector_implObj : public header_collectorObj {
-
-	//! Callback
-	func_type func;
-
-public:
-
-	//! Constructor
-	header_collector_implObj(const func_type &funcArg) : func(funcArg) {}
-
-	//! Move constructor
-	header_collector_implObj(func_type &&funcArg)
-		: func(std::move(funcArg)) {}
-
-	//! Callback
-
-	void header() override
-	{
-		func(name, name_lc, contents);
-	}
-};
-
-//! Convenience function for lambdas/functors.
-
-//! Construct a reference-counted \ref header_collector "header_collector"
-//! that invokes a functor or a lambda, for each parsed header.
-//!
-//! The functor/lambda receives three parameters:
+//! A custom subclass can be defined that imlpements header(). Alternatively,
+//! create() takes a functor or a lamda for each parsed header.
 //!
 //! - the \c std::string header name.
 //!
@@ -162,13 +124,72 @@ public:
 //! - the \c std::string header value, leading and trailing whitespace trimmed
 //! off, and each folded line replaced by a single space.
 
-template<typename func_type>
-header_collector make_header_collector(func_type &&functor)
-{
-	return ref<header_collector_implObj<typename
-					    std::decay<func_type>::type> >
-		::create(std::forward<func_type>(functor));
-}
+typedef refiterator<header_collectorObj, header_collectorBase> header_collector;
+
+//! A nullable pointer reference to a \ref header_collectorObj "header_collectorObj".
+
+//! \see header_collector
+
+typedef ptriterator<header_collectorObj,
+		    header_collectorBase> header_collectorptr;
+
+//! Base class for \ref header_collector "header_collector"
+
+//! The base class provides a custom create() method;
+
+class header_collectorBase {
+
+public:
+
+	
+	//! Subclass of header_collector that uses a functor/lambda
+
+	template<typename func_type>
+	class implObj : public header_collectorObj {
+
+		//! Callback
+		func_type func;
+
+	public:
+
+		//! Constructor
+		implObj(const func_type &funcArg)
+			: func(funcArg) {}
+
+		//! Move constructor
+		implObj(func_type &&funcArg)
+			: func(std::move(funcArg)) {}
+
+		//! Callback
+
+		void header() override
+		{
+			func(name, name_lc, contents);
+		}
+	};
+
+	//! A factory that provides a custom create() implementation
+
+	//! Create takes a functor/lambda, and instantiates a
+	//! implObj;
+
+	template<typename ref_type>
+	class objfactory {
+
+	public:
+
+		//! Custom create() implementation
+
+		template<typename func_type>
+		static ref_type create(func_type &&functor)
+		{
+			return ref<implObj<typename std::decay<func_type>
+					   ::type> >
+				::create(std::forward<func_type>(functor));
+		}
+	};
+
+};
 
 #if 0
 {

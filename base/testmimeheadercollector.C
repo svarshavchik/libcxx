@@ -18,7 +18,7 @@ void header_collector_test(const std::string &headers,
 {
 	std::map<std::string, std::string> collected_headers;
 
-	auto collector=LIBCXX_NAMESPACE::mime::make_header_collector
+	auto collector=LIBCXX_NAMESPACE::mime::header_collector::create
 		([&collected_headers]
 		 (const std::string &name,
 		  const std::string &name_lc,
