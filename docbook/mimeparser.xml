@@ -323,6 +323,170 @@ Subject: test<256>
 <257><258><-1>]]></literallayout>
     </computeroutput>
   </section>
+
+  <section id="mimeparserheaderiter">
+    <title>Header parser iterator</title>
+
+    <para>
+      The
+      <ulink url="&link-x--mime--header-iter;"><classname>&ns;::mime::header_iter</classname></ulink>
+      template instantiates an output iterator that takes the output sequence
+      from <link linkend="mimeparserbodystartiter"><classname>&ns;::mime::bodystart_iter</classname></link>.
+      The template parameter is another output iterator class, over an
+      <classname>int</classname> output sequence.
+      Instantiated by <function>create</function>(), the constructor takes
+      an instance of the output iterator class, which ends up iterating over
+      the output sequence that
+      <classname>&ns;::mime::header_iter</classname>
+      received, and
+      <classname>&ns;::mime::header_iter</classname>
+      adds additional values into the output sequence:
+    </para>
+
+    <itemizedlist>
+      <listitem>
+	<para>
+	  The name of each header gets preceded by an
+	  <literal>&ns;::mime::header_name_start</literal> and followed by an
+	  <literal>&ns;::mime::header_name_end</literal>.
+	</para>
+      </listitem>
+
+      <listitem>
+	<para>
+	  The contents of each header gets preceded by an
+	  <literal>&ns;::mime::header_contents_start</literal> and followed by
+	  an
+	  <literal>&ns;::mime::header_contents_end</literal>.
+
+	  <literal>&ns;::mime::header_name_start</literal> and 
+	  <literal>&ns;::mime::header_name_end</literal> are always followed by
+	  <literal>&ns;::mime::header_contents_start</literal> and
+	  <literal>&ns;::mime::header_contents_end</literal>, but
+	  <literal>&ns;::mime::header_contents_start</literal> does not
+	  immediately follow a
+	  <literal>&ns;::mime::header_name_end</literal>.
+	</para>
+
+	<para>
+	  The portion of the output sequence delimited by
+	  <literal>&ns;::mime::header_contents_start</literal> and
+	  <literal>&ns;::mime::header_contents_end</literal> excludes the
+	  colon and whitespace that separates the header name from its
+	  contents.
+	  <classname>&ns;::mime::header_iter</classname> does not
+	  remove values from the output sequence it receives, it only adds
+	  these additional values.
+	</para>
+      </listitem>
+
+      <listitem>
+	<para>
+	  For multiline header contents, the sequence delimited by an
+	  <literal>&ns;::mime::header_contents_start</literal> and an
+	  <literal>&ns;::mime::header_contents_end</literal> has
+	  additional
+	  <literal>&ns;::mime::header_fold_start</literal> and an
+	  <literal>&ns;::mime::header_fold_end</literal> values that
+	  delimiter the start and the end of the newline and leading spaces
+	  on the continued header line. For the purpose of parsing the
+	  headers contents, the output sequence between and including
+	  <literal>&ns;::mime::header_fold_start</literal> and
+	  <literal>&ns;::mime::header_fold_end</literal> is logically
+	  equivalent to a single space character (as already mentioned,
+	  <classname>&ns;::mime::header_iter</classname> does not
+	  remove values from the output sequence it receives, it only adds
+	  dditional values).
+	</para>
+      </listitem>
+
+      <listitem>
+	<para>
+	  After
+	  <classname>&ns;::mime::header_iter</classname> iterates over a
+	  <literal>&ns;::mime::body_start</literal>,
+	  the
+	  <classname>&ns;::mime::header_iter</classname> passes it, and the
+	  rest of the output sequence, with no further parsing or action.
+	</para>
+      </listitem>
+    </itemizedlist>
+
+    <blockquote>
+      <title><ulink url="examples">examples/mime/headeriter.C</ulink></title>
+      <informalexample>
+	<programlisting><xi:include href="../examples/mime/headeriter.C" parse="text" xmlns:xi="http://www.w3.org/2001/XInclude" /></programlisting>
+      </informalexample>
+    </blockquote>
+
+    <para>
+      This example constructs a simple output iterator that receives
+      the output sequence from a
+      <classname>&ns;::mime::header_iter</classname>, collects all headers
+      in a <classname>std::multimap</classname>, then shows them:
+    </para>
+
+    <computeroutput>
+      <literallayout><![CDATA[
+$ cat headeriter.txt
+Mime-Version: 1.0
+Subject: subject line
+   folded header
+
+test
+[mrsam@octopus libcxx]$ ./headeriter <headeriter.txt
+Header: Mime-Version, value: 1.0
+Header: Subject, value: subject line folded header]]></literallayout>
+    </computeroutput>
+
+    <section id="mimeheadercollector">
+      <title><classname>&ns;::mime::header_collector</classname></title>
+
+      <para>
+	<ulink url="&link-typedef-x--mime-header-collector;"><classname>&ns;::mime::header_collector</classname></ulink>
+	implements a basic output iterator that turns the output sequence
+	from a
+	<classname>&ns;::mime::header_iter</classname> into calls to a lambda
+	or a functor:
+      </para>
+
+      <blockquote>
+	<title><ulink url="examples">examples/mime/headercollector.C</ulink></title>
+	<informalexample>
+	  <programlisting><xi:include href="../examples/mime/headercollector.C" parse="text" xmlns:xi="http://www.w3.org/2001/XInclude" /></programlisting>
+	</informalexample>
+      </blockquote>
+
+      <para>
+	This produces the same results as the previous example, with two
+	small, but important, differences.
+      </para>
+
+      <itemizedlist>
+	<listitem>
+	  <para>
+	    <function>&ns;::mime::header_collector::create</function>()
+	    instantiates an output iterator over the sequence from
+	    <classname>&ns;::mime::header_iter</classname>, and calls the
+	    lambda or the functor that's passed to
+	    <function>create()</function>. The functor/lambda
+	    gets invoked with three parameters: the header name,
+	    the header name converted to lowercase, and the contents of
+	    the header.
+	  </para>
+	</listitem>
+	<listitem>
+	  <para>
+	    <classname>&ns;::mime::header_collector</classname>
+	    does not store the headers from the &MIME; object it iterates over
+	    into a container of any kind. The functor/lambda gets invoked
+	    as soon as the entire header name
+	    and contents get iterated over.
+	  </para>
+	</listitem>
+      </itemizedlist>
+    </section>
+  </section>
 </chapter>
 
 <!--
