@@ -24,7 +24,7 @@ namespace LIBCXX_NAMESPACE {
 //!
 
 template<typename output_iter_type>
-class bodystart_iterObj : virtual public obj {
+class bodystart_iterObj : public outputrefiteratorObj<int> {
 
 	//! Whether the previous element was newline_end
 
@@ -39,10 +39,6 @@ class bodystart_iterObj : virtual public obj {
 	bool seen_body_start;
 
 public:
-	//! My iterator traits
-
-	typedef std::iterator<std::output_iterator_tag, void,
-			      void, void, void> iterator_traits;
 
 	//! Underlying output iterator over ints.
 
@@ -68,22 +64,7 @@ public:
 
 	//! Iterator operator
 
-	bodystart_iterObj<output_iter_type> &operator*() { return *this; }
-
-	//! Iterator operator
-
-	bodystart_iterObj<output_iter_type> &operator++() { return *this; }
-
-	//! Iterator operator
-
-	bodystart_iterObj<output_iter_type> *before_postoper()
-	{
-		return this;
-	}
-
-	//! Iterator operator
-
-	void operator=(int c)
+	void operator=(int c) final override
 	{
 		if (c == eof)
 		{
