@@ -6,6 +6,7 @@
 #define x_mime_sectioniter_H
 
 #include <x/namespace.h>
+#include <x/refiterator.H>
 #include <x/mime/newlineiter.H>
 #include <vector>
 
@@ -25,7 +26,7 @@ namespace LIBCXX_NAMESPACE {
 //!
 
 template<typename output_iter_type>
-class section_iterObj : virtual public obj {
+class section_iterObj : public outputrefiteratorObj<int> {
 
 	//! The boundary delimiter, with the leading --.
 	std::string delimiter;
@@ -46,11 +47,6 @@ class section_iterObj : virtual public obj {
 	void (section_iterObj<output_iter_type>::*next)(int);
 
 public:
-	//! My iterator traits
-
-	typedef std::iterator<std::output_iterator_tag, void,
-			      void, void, void> iterator_traits;
-
 	//! Underlying output iterator over ints.
 
 	output_iter_type iter;
@@ -79,22 +75,7 @@ public:
 
 	//! Iterator operator
 
-	section_iterObj<output_iter_type> &operator*() { return *this; }
-
-	//! Iterator operator
-
-	section_iterObj<output_iter_type> &operator++() { return *this; }
-
-	//! Iterator operator
-
-	section_iterObj<output_iter_type> *before_postoper()
-	{
-		return this;
-	}
-
-	//! Iterator operator
-
-	void operator=(int c)
+	void operator=(int c) final override
 	{
 		(this->*next)(c);
 	}
@@ -149,6 +130,7 @@ private:
 			       std::copy(newline_before_delimiter.begin(),
 					 newline_before_delimiter.end(),
 					 iter));
+		delimiter_pos=0;
 	}
 
 	//! Found an EOF, make sure that we close the last section.
@@ -177,7 +159,6 @@ private:
 		}
 
 		newline_before_delimiter.clear();
-		delimiter_pos=0;
 		next=&section_iterObj<output_iter_type>::not_found_delimiter_newline;
 		not_found_delimiter_newline(c);
 	}
