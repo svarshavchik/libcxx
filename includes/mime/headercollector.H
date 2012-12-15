@@ -29,7 +29,7 @@ namespace LIBCXX_NAMESPACE {
 //! \see header_collector
 //!
 
-class header_collectorObj : virtual public obj {
+class header_collectorObj : public outputrefiteratorObj<int> {
 
 	//! Current state, current element handler.
 	
@@ -43,30 +43,11 @@ class header_collectorObj : virtual public obj {
 
 public:
 
-	//! My iterator traits
-
-	typedef std::iterator<std::output_iterator_tag, void,
-			      void, void, void> iterator_traits;
-
 	//! Constructor
 
 	header_collectorObj();
 
-	//! Iterator operator
-
-	header_collectorObj &operator*() { return *this; }
-
-	//! Iterator operator
-
-	header_collectorObj &operator++() { return *this; }
-
-	//! Iterator operator
-
-	header_collectorObj *before_postoper() { return this; }
-
-	//! Iterator operator
-
-	virtual void operator=(int c);
+	void operator=(int c) override;
 
 	//! The subclass implements this callback.
 
