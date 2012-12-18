@@ -298,15 +298,15 @@ public:
 
 	//! Iterator operator
 
-	outputrefiteratorObj &operator*() { return *this; }
+	outputrefiteratorObj<value_type> &operator*() { return *this; }
 
 	//! Iterator operator
 
-	outputrefiteratorObj &operator++() { return *this; }
+	outputrefiteratorObj<value_type> &operator++() { return *this; }
 
 	//! Iterator operator
 
-	outputrefiteratorObj *before_postoper()
+	outputrefiteratorObj<value_type> *before_postoper()
 	{
 		return this;
 	}
