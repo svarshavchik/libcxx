@@ -89,7 +89,7 @@ See COPYING for distribution information.
       <classname>std::back_insert_iterator&lt;std::vector&lt;int&gt;&gt;</classname>.
     </para>
 
-    <para>
+    <para id="mimegeteof">
       No formal means exist to notify an output iterator of an end to the
       output sequence, other than its destruction, so the &MIME; parsing
       iterators use this convention. The output iterator's
@@ -434,7 +434,7 @@ Subject: subject line
    folded header
 
 test
-[mrsam@octopus libcxx]$ ./headeriter <headeriter.txt
+$ ./headeriter <headeriter.txt
 Header: Mime-Version, value: 1.0
 Header: Subject, value: subject line folded header]]></literallayout>
     </computeroutput>
@@ -505,7 +505,7 @@ Header: Subject, value: subject line folded header]]></literallayout>
       is a reference to a
       <link linkend="create">reference-counted object</link>
       that provides metadata about an entire &MIME; document, or one entity in
-      a multipart &MIME; document. It gets constructed and used by templates
+      a compound &MIME; document. It gets constructed and used by templates
       and functions described later in this chapter.
     </para>
 
@@ -552,6 +552,665 @@ Header: Subject, value: subject line folded header]]></literallayout>
       See the <ulink url="&link-x--mime--sectioninfoObj;">class
 	reference</ulink> for more information.
     </para>
+  </section>
+
+  <section id="mimeentityparser">
+    <title>&MIME; entity parser</title>
+
+    <para>
+      After combining
+      <link linkend="mimeparsernewlineiter"><classname>&ns;::mime::newline_iter</classname></link>,
+      <link linkend="mimeparserbodystartiter"><classname>&ns;::mime::bodystart_iter</classname></link>,
+      and
+      <link linkend="mimeparserheaderiter"><classname>&ns;::mime::header_iter</classname></link>,
+      use the following iterators to form a complete parser for a
+      non-compound &MIME; section
+      (with some assistance from a
+      <link linkend="mimeheadercollector"><classname>&ns;::mime::header_collector</classname></link>):
+    </para>
+
+    <blockquote>
+      <informalexample>
+	<programlisting>
+#include &lt;&ns;/mime/sectiondecoder.H&gt;
+
+std::string content_transfer_encoding;
+
+&ns;::mime::section_decoder decoder=
+    &ns;::mime::section_decoder::create(content_transfer_encoding,
+                                     std::ostreambuf_iterator&lt;char&gt;(std::cout));
+	</programlisting>
+      </informalexample>
+    </blockquote>
+
+    <para>
+      The first parameter to
+      <ulink url="&link-typedef-x--mime-section-decoder;"><classname>&ns;::mime::section_decoder</classname></ulink>'s
+      <methodname>create</methodname>() is
+      the value of the &MIME; <quote>Content-Transfer-Encoding</quote>
+      header, like
+      <quote>quoted-printable</quote>, or
+      <quote>base64</quote> (all other values result in a non-transformative
+      decoder).
+      The second parameter is an output iterator over
+      <classname>char</classname>s.
+      <classname>&ns;::mime::section_decoder</classname>
+      is an output iterator over
+      <classname>int</classname>s from,
+      at a minimum, an
+      <classname>&ns;::mime::newline_iter</classname> that produces an
+      output sequence of <classname>int</classname>s, demarcated by newlines,
+      with a trailing <methodname>eof</methodname>().
+    </para>
+
+    <para>
+      The output iterator instance received by
+      <methodname>create</methodname>() gets iterated over
+      <classname>char</classname> that were decoded using the specified
+      transfer encoding.
+    </para>
+
+    <blockquote>
+      <informalexample>
+	<programlisting>
+std::string content_transfer_encoding;
+std::string charset;
+
+&ns;::mime::section_decoder decoder=
+    &ns;::mime::section_decoder::create(content_transfer_encoding,
+                                     std::ostreambuf_iterator&lt;char&gt;(std::cout),
+                                     charset, "UTF-8");
+	</programlisting>
+      </informalexample>
+    </blockquote>
+
+    <para>
+      <methodname>create</methodname>() takes two optional parameters.
+      For <literal>text</literal> &MIME; entities, the first optional
+      parameter is the &MIME; entity's character set, from the
+      <quote>Content-Type</quote> header. The second optional parameter
+      is the application's character set. In addition to decoding the
+      output sequence,
+      <classname>&ns;::mime::section_decoder</classname>
+      transcodes the <classname>char</classname>s from &MIME; entity's
+      character set to the application character set.
+    </para>
+
+    <blockquote>
+      <informalexample>
+	<programlisting>
+#include &lt;&ns;/mime/entityparser.H&gt;
+
+&ns;::outputrefiterator&lt;int&gt; processor=&ns;::mime::make_entity_parser(
+    &ns;::mime::header_collector::create(
+        []
+        (const std::string &amp;name,
+	 const std::string &amp;name_lc,
+	 const std::string &amp;value)
+        {
+            // ...
+        }),
+        []
+        {
+            return body_iterator();
+        }, &ns;::mime::sectioninfo::create());</programlisting>
+      </informalexample>
+    </blockquote>
+
+    <para>
+      <ulink url="&link-function-x--mime-make-entity-parser;"><function>&ns;::mime::make_entity_parser</function></ulink>()
+      combines
+      <link linkend="mimeparserbodystartiter"><classname>&ns;::mime::bodystart_iter</classname></link>,
+      <link linkend="mimeparserheaderiter"><classname>&ns;::mime::header_iter</classname></link>,
+      and a few other odds and ends. It instantiates
+      an output iterator that expects to be iterated over a single
+      &MIME; entity.
+      <function>&ns;::mime::make_entity_parser</function> returns
+      a template class for an output iterator that's convertable to an
+      <link linkend="outputrefiterator"><classname>&ns;::outputrefiterator&lt;int&gt;</classname></link>,
+      and which iterates over an output sequence of <classname>int</classname>
+      values produced by 
+      <link linkend="mimeparsernewlineiter"><classname>&ns;::mime::newline_iter</classname></link>.
+    </para>
+
+    <para>
+      <function>&ns;::mime::make_entity_parser</function>()
+      takes three parameters, and returns an output iterator
+      over <classname>int</classname>s.
+      The first parameter becomes an output iterator that
+      gets iterated over the header
+      portion of the &MIME; entity.
+      The iterator constructed by
+      <link linkend="mimeheadercollector"><classname>&ns;::mime::header_collector</classname></link>
+      is a popular choice for the header iterator, since
+      <function>&ns;::mime::make_entity_parser</function>() already constructs
+      an intermediate
+      <link linkend="mimeparserheaderiter"><classname>&ns;::mime::header_iter</classname></link>
+      anyway.
+    </para>
+
+    <para>
+      When 
+      <function>&ns;::mime::make_entity_parser</function>()'s iterator
+      iterates over an <literal>&ns;::mime::body_start</literal>, the
+      header iterator iterates over an <literal>&ns;::mime::eof</literal> value and
+      the second parameter
+      to
+      <function>&ns;::mime::make_entity_parser</function>() gets invoked.
+      The second parameter is a functor or a lambda that returns another
+      output iterator over <classname>int</classname>s, which ends up iterating
+      over the rest of the output sequence, after the
+      <literal>&ns;::mime::body_start</literal>.
+    </para>
+
+    <para>
+      <function>&ns;::mime::make_entity_parser</function>() encapsulaets
+      the typical control flow of collecting the headers of a &MIME; entity,
+      then figuring out how to parse the entity's body.
+      The standard approach is to have the header iterator collect the
+      &MIME; entity's headers, then have the functor/lambda figure out what
+      to do with this entity, and return an output iterator that implements
+      what's to be done.
+    </para>
+
+    <para>
+      The third and the final parameter is a
+      <link linkend="mimesectioninfo"><classname>&ns;::mime::sectioninfo</classname></link>.
+      The output iterator returned by
+      <function>&ns;::mime::make_entity_parser</function>() updates this
+      object as it iterates over its output sequence.
+    </para>
+
+    <note>
+      <para>
+	<function>&ns;::mime::make_entity_parser</function>() returns an
+	output iterator, and that's pretty much it. The show starts only after
+	it actually iterates over something that resembles a &MIME; entity.
+	This has a couple of implications.
+      </para>
+
+      <itemizedlist>
+	<listitem>
+	  <para>
+	    What both functors or lambdas capture, and whether by reference
+	    or by value, needs careful thought. The functors/lambdas do not
+	    get invoked by
+	    <function>&ns;::mime::make_entity_parser</function>(). They
+	    get invoked, as appropriate, when the resulting output iterator
+	    actually iterates over something. This usually means capturing by
+	    value, preferrably a reference to a reference-counted object.
+	  </para>
+	</listitem>
+
+	<listitem>
+	  <para>
+	    The values in the <classname>&ns;::mime::sectioninfo</classname>
+	    also get updated only when the show gets on the road.
+	    <function>&ns;::mime::make_entity_parser</function>() takes the
+	    <classname>&ns;::mime::sectioninfo</classname> object, and saves it
+	    as
+	    part of the returned output iterator, which updates the
+	    &MIME; entity metadata in the
+	    <classname>&ns;::mime::sectioninfo</classname> as the iterator
+	    iterates over the output sequence. The iterator's reference on the
+	    <classname>&ns;::mime::sectioninfo</classname> object gets released
+	    only after the output iterator goes out of scope and gets
+	    destroyed.
+	  </para>
+
+	  <para>
+	    The values in the
+	    <classname>&ns;::mime::sectioninfo</classname> may be used only
+	    after
+	    the output sequence iterates over the <literal>eof</literal> value.
+	  </para>
+	</listitem>
+      </itemizedlist>
+    </note>
+
+    <para id="mimebodydecoder">
+      The following example shows how to decode
+      a non-compound &MIME; entity.
+    </para>
+
+    <blockquote>
+      <title><ulink url="examples/mime/bodydecoder.C">examples/mime/bodydecoder.C</ulink></title>
+      <informalexample>
+	<programlisting><xi:include href="../examples/mime/bodydecoder.C" parse="text" xmlns:xi="http://www.w3.org/2001/XInclude" /></programlisting>
+      </informalexample>
+    </blockquote>
+
+    <para>
+      <filename>bodydecoder.C</filename> constructs a processor using a
+      header collector that only cares about the
+      <quote>Content-Transfer-Encoding</quote> and
+      <quote>Content-Type</quote> headers, using
+      a <ulink url="&namespace-x--chrcasecmp;">case-insensitive
+	string comparison</ulink>.
+      Proper parsing of these structured &MIME; headers requires an
+      <link linkend="mimestructuredcontentheader"><classname>&ns;::mime::structured_content_header</classname></link>,
+      even for the
+      <quote>Content-Transfer-Encoding</quote>. This makes sure that any
+      whitespace in the headers gets properly ignored.
+      Once the &MIME;'s body begins, the body iterator construction lambda
+      instantiates a
+      <classname>&ns;::mime::section_decoder</classname> that
+      outputs to a <classname>std::ostreambuf_iterator</classname> to
+      <literal>std::cout</literal>.
+      If <quote>Content-Type</quote> indicates that this is a
+      <literal>text</literal> &MIME; entity, it also gets transcoded to
+      <literal>UTF-8</literal>.
+    </para>
+    
+    <computeroutput>
+      <literallayout><![CDATA[
+$ cat bodydecoder.txt
+Subject: test
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: quoted-printable
+
+Hello=A0world!
+$ ./bodydecoder <bodydecoder.txt
+Hello]]>&nbsp;world!
+104 bytes in the header, 15 bytes in the body.
+4 lines in the header, 1 lines in the body.</literallayout>
+    </computeroutput>
+
+    <para>
+      <filename>bodydecoder.C</filename> reads a non-compound &MIME;
+      entity on standard input, and writes its decoded body to standard
+      output.
+    </para>
+
+    <para>
+      In this example, it's ok for the lambas
+      to capture the stack-scoped objects,
+      <varname>content_transfer_encoding</varname>,
+      <varname>content_type</varname>, and
+      <varname>charset</varname>, by reference. Everything gets iterated,
+      and everything goes out of scope and gets destroyed, before
+      <function>main</function>() returns.
+      In most situations, it will be somewhat difficult to capture much
+      by reference, and they'll capture everthing by value. Reference-counted
+      objects come in very handy, under these circumstances.
+    </para>
+
+    <note>
+      <para>
+	The blank line that separates the header from the body is considered to
+	be a part of the header portion of the &MIME; entity.
+      </para>
+    </note>
+  </section>
+
+  <section id="mimeentityparsercreate">
+    <title>Creating &MIME; entity parsers</title>
+
+    <para>
+      The functions described in this section implement high level &MIME;
+      parsing, by preparing the environment for
+      <link linkend="mimeentityparser"><function>&ns;::mime::make_entity_parser</function></link>()
+      using the appropriate context.
+    </para>
+
+    <para>
+      These functions employ a <quote>section processor factory</quote>.
+      This is a functor or a lambda that takes two parameters:
+      a reference to the <link linkend="mimesectioninfo">section information
+	object</link> and a <classname>bool</classname> flag.
+    </para>
+
+    <para>
+      The section processor factory is expected to call
+      <function>&ns;::mime::make_entity_parser</function>(), forwarding
+      the <classname>&ns;::mime::sectioninfo</classname> to it, without further
+      processing, and the section processor's return value is expected to be
+      the output iterator
+      that's returned by
+      <function>&ns;::mime::make_entity_parser</function>().
+    </para>
+
+    <note>
+      <para>
+	After the section processor factory returns, the output iterator
+	iterates over the contents of the &MIME; section.
+	At the time the factory gets invoked, the
+	<classname>&ns;::mime::sectioninfo</classname> is a freshly-constructed
+	object, and does not yet reflect the &MIME; section's actual metrics.
+      </para>
+
+      <para>
+	The <classname>&ns;::mime::sectioninfo</classname> object is complete
+	only after the output iterator finishes iterating over the &MIME;
+	section, including the trailing <literal>eof</literal>.
+	The section processor factory can save this
+	<classname>&ns;::mime::sectioninfo</classname>, which is
+	a reference to a <link linkend="refobj">reference-counted object</link>,
+	to be digested at a later time.
+      </para>
+    </note>
+
+    <para>
+      The <classname>bool</classname> flag is <literal>true</literal> when
+      the section processor factory gets invoked to produce an output iterator
+      for the top level &MIME; document section, or for the body of a
+      <literal>message/rfc822</literal>.
+      The section processor factory constructs an output iterator for
+      the header portion of the &MIME; entity, and invokes 
+      <function>&ns;::mime::make_entity_parser</function>(), passing it the
+      header iterator as the first parameter.
+      A <literal>true</literal>
+      <classname>bool</classname> indicates whether the header iterator
+      must find the <quote>Mime-Version: 1.0</quote> header, before recognizing
+      any other &MIME; header. Pedantically,
+      in absence of the <quote>Mime-Version: 1.0</quote> header, none of the
+      <quote>Content</quote> headers should be considered as &MIME; header,
+      and the message content should be treated as a non-&MIME;
+      <literal>text/plain</literal> message.
+    </para>
+
+    <para>
+      Otherwise, processor can safely assume that it's being invoked on behalf
+      of a subsection of a &MIME; document that specified the header, and
+      process all <quote>Content</quote> headers.
+    </para>
+
+    <para>
+      <ulink url="&link-function-x--mime-make-document-entity-parser;"><function>&ns;::mime::make_document_entity_parser</function>()</ulink>
+      constructs an output iterator over <literal>char</literal>s containing
+      an entire &MIME; document.
+      <function>&ns;::mime::make_document_entity_parser</function>()
+      constructs an
+      <link linkend="mimeparsernewlineiter"><classname>&ns;::mime::newline_iter</classname></link>
+      that invokes the section factory object passed as the first parameter
+      to <function>&ns;::mime::make_document_entity_parser</function>(), that
+      sets up the output iterator over the entire &MIME; document.
+    </para>
+
+    <para>
+      <function>&ns;::mime::make_document_entity_parser</function>()
+      has two optional parameters:
+    </para>
+
+    <itemizedlist>
+      <listitem>
+	<para>
+	  A <classname>bool</classname> parameter. The default
+	  value of <literal>false</literal> specifies that the &MIME;
+	  document uses the <literal>LF</literal> character as a newline
+	  sequence. Setting this parameter to <literal>true</literal> specifies
+	  that the &MIME; document uses the
+	  <literal>CRLF</literal> newline character sequence.
+	  This flag gets forwarded to
+	  <classname>&ns;::mime::newline_iter</classname>'s constructor.
+	</para>
+      </listitem>
+
+      <listitem>
+	<para>
+	  A <classname>bool</classname> parameter that's forwarded to the
+	  section factory processor. The default <literal>true</literal>
+	  value specifies that this is a traditional context where a &MIME;
+	  document must have a <quote>Mime-Version: 1.0</quote> header.
+	  A <literal>false</literal> value specifies a context where &MIME;
+	  messages rule the roost (like <acronym>HTTP</acronym> messages, for
+	  example).
+	</para>
+      </listitem>
+    </itemizedlist>
+
+    <para>
+      After iterating using the output iterator returned by
+      <function>&ns;::mime::make_document_entity_parser</function>(),
+      its
+      <link linkend="mimegeteof"><literal>get()-&gt;eof()</literal> method</link>
+      gets invoked to signal the end of the iteration.
+    </para>
+
+    <para>
+      <ulink url="examples/mime/bodydecoder2.C"><filename>examples/mime/bodydecoder2.C</filename></ulink>
+      is a modified version of
+      <link linkend="mimebodydecoder"><filename>bodydecoder.C</filename></link>
+      that uses
+      <function>&ns;::mime::make_document_entity_parser</function>()
+      instead of manually constructing an
+      <classname>&ns;::mime::newline_iter</classname> and invoking
+      <function>&ns;::mime::make_entity_parser</function> directly.
+    </para>
+  </section>
+
+  <section id="mimeentitycompoundparser">
+    <title>Creating compound &MIME; entity parsers</title>
+      
+    <para>
+      <link linkend="mimeentityparsercreate"><filename>bodydecoder.C</filename>
+	and
+      <filename>bodydecoder2.C</filename></link> lack the logic for handling
+      compound &MIME; entities.
+      <ulink url="&link-function-x--mime-make-multipart-parser;"><function>&ns;::mime::make_multipart_parser</function>()</ulink> and
+      <ulink url="&link-function-x--mime-make-message-rfc822-parser;"><function>&ns;::mime::make_message_rfc822_parser</function>()</ulink>
+      are section processor factories that wrap other
+      section processor factories
+      and return output iterators for parsing compound &MIME; sections.
+      They get invoked from either
+      the section processor factory that's passed to
+      <link linkend="mimeentityparsercreate"><function>&ns;::mime::make_document_entity_parser</function></link>,
+      or from another section processor factory that was previously
+      wrapped by one of these functions.
+      This results in an open-ended framework for recursively parsing
+      compound &MIME; documents:
+    </para>
+
+    <blockquote>
+      <title><ulink url="examples/mime/bodydecoder3.C">examples/mime/bodydecoder3.C</ulink></title>
+      <informalexample>
+	<programlisting><xi:include href="../examples/mime/bodydecoder3.C" parse="text" xmlns:xi="http://www.w3.org/2001/XInclude" /></programlisting>
+      </informalexample>
+    </blockquote>
+
+    <para>
+      <ulink url="&link-typedef-x--mime-contentheader-collector;"><classname>&ns;::mime::contentheader_collector</classname></ulink>
+      is an output iterator that's similar to
+      <link linkend="mimeheadercollector"><classname>&ns;::mimeheadercollector</classname></link>,
+      except that it collects all headers whose names start with
+      <quote>Content-</quote> into a
+      <link linkend="headers"><classname>&ns;::headersbase</classname></link>.
+    </para>
+
+    <para>
+      The output iterator's
+      <link linkend="mimegeteof"><methodname>get</methodname> method</link>
+      returns a reference to a reference-counted object with a
+      <varname>content_headers</varname> member, which is a
+      <classname>&ns;::headersbase</classname> container for the
+      <quote>Content-</quote> headers.
+      Additionally,
+      <classname>&ns;::mime::contentheader_collector</classname>'s
+      constructor takes a <classname>bool</classname> flag.
+      If true, the <quote>Mime-Version: 1.0</quote> header must be present,
+      otherwise no <quote>Content-</quote> headers get collected
+      (<varname>content_headers</varname> will be empty).
+    </para>
+
+    <para>
+      <quote>Mime-Version: 1.0</quote> can appear after the
+      <quote>Content-</quote> headers.
+      <classname>&ns;::mime::contentheader_collector</classname> collects all
+      <quote>Content-</quote> headers as it iterates over the header portion
+      of a &MIME; entity. At the end of the output sequence, the accumulated
+      headers in <varname>content_headers</varname> get
+      cleared if the <classname>bool</classname> flag
+      is true but <quote>Mime-Version: 1.0</quote> was absent:
+    </para>
+
+    <computeroutput>
+      <literallayout><![CDATA[
+$ cat bodydecoder.txt
+Subject: test
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: quoted-printable
+
+Hello=A0world!
+$ ./bodydecoder3 <bodydecoder.txt
+Hello=A0world!
+MIME section 1 starts at character offset 0
+  104 bytes in the header, 15 bytes in the body.
+  4 lines in the header, 1 lines in the body.
+]]></literallayout>
+    </computeroutput>
+
+    <para>
+      In the absence of the <quote>Mime-Version: 1.0</quote> header, this is
+      parsed as a non-&MIME; message, so the <literal>quoted-printable</literal>
+      transfer encoding is not used, producing <quote>Hello=A0world</quote> on
+      output.
+    </para>
+
+    <computeroutput>
+      <literallayout><![CDATA[
+$ cat bodydecoder2.txt
+Subject: test
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: quoted-printable
+Mime-Version: 1.0
+
+Hello=A0world!
+$ ./bodydecoder3 <bodydecoder2.txt
+Hello world!
+MIME section 1 starts at character offset 0
+  122 bytes in the header, 15 bytes in the body.
+  5 lines in the header, 1 lines in the body.
+]]></literallayout>
+    </computeroutput>
+
+    <para>
+      Now the &MIME; headers are in effect.
+    </para>
+
+    <para>
+      In <filename>bodydecoder3.C</filename> ,
+      <function>create_parser</function> is the session processor factory
+      functor/lambda that's passed to
+      <function>&ns;::mime::make_document_entity_parser</function>,
+      like
+      <filename>bodydecoder.C</filename> and
+      <filename>bodydecoder2.C</filename> (with a small wrapper that captures
+      the top level <classname>&ns;::mime::sectioninfo</classname> object.
+    </para>
+
+    <para>
+      <function>create_parser</function> constructs a new
+      <classname>&ns;::mime::contentheader_collector</classname> object,
+      and passes to <function>&ns;::mime::make_entity_parser</function>() as the
+      header iterator.
+    </para>
+
+    <para>
+      The body iterator factory captures the reference
+      to the <link linkend="refobj">reference-counted</link> object with the
+      <varname>content_headers</varname> by value, so that the object is still
+      in scope long after <function>create_parser</function>() returns, when
+      the header portion iteration concludes, at some time later.
+      The body iterator factory parameter given to
+      <function>&ns;::mime::make_entity_parser</function>() looks at the
+      collected headers.
+      <function>&ns;::mime::make_message_rfc822_parser</function>()
+      takes a section processor functor/lambda and the
+      <classname>&ns;::sectioninfo</classname> of a
+      <literal>message/rfc822</literal> &MIME; entity, that invokes the
+      section processor functor/lambda with a
+      <classname>&ns;::sectioninfo</classname> for the body of the
+      <literal>message/rfc822</literal> &MIME; entity.
+      <filename>bodydecoder3.C</filename> passes the same
+      <function>create_parser</function>() functor, effecting recursive
+      parsing of these &MIME; entities.
+    </para>
+
+    <para>
+      <function>&ns;::mime::make_multipart_parser</function>()
+      takes three parameters: a delimiter for a <literal>multipart</literal>
+      compound &MIME; entity, a session processor factory functor/lambda,
+      and <literal>multipart</literal>'s
+      <classname>&ns;::sectioninfo</classname>.
+      It returns an output iterator that invokes the functor/lamba for
+      every entity that the <literal>multipart</literal> entity contains.
+    </para>
+
+    <para>
+      For non-compound &MIME; entities, the body iterator factory returns a
+      <link linkend="mimeentityparser"><classname>&ns;::mime::section_decoder</classname></link>
+      to decode the non-compound entity, converting <literal>text</literal>
+      &MIME; entities to the <classname>UTF-8</classname> character set:
+    </para>
+
+    <computeroutput>
+      <literallayout><![CDATA[
+$ cat bodydecoder3.txt
+Subject: test
+Mime-Version: 1.0
+Content-Type: multipart/mixed; boundary="xxx"
+
+--xxx
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: quoted-printable
+
+Hello=A0
+--xxx
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: quoted-printable
+
+world!
+
+--xxx--
+./bodydecoder <bodydecoder3.txt
+Hello world!
+MIME section 1 starts at character offset 0
+  79 bytes in the header, 217 bytes in the body.
+  4 lines in the header, 12 lines in the body.
+
+MIME section 1.1 starts at character offset 85
+  90 bytes in the header, 8 bytes in the body.
+  3 lines in the header, 1 lines in the body.
+  No trailing newline
+
+MIME section 1.2 starts at character offset 190
+  90 bytes in the header, 7 bytes in the body.
+  3 lines in the header, 1 lines in the body.
+]]></literallayout>
+    </computeroutput>
+
+    <para>
+      <filename>bodydecoder3.C</filename> decodes each &MIME; entity in the
+      document, one at a time, concatenating their contents.
+      The first part of the <literal>multipart</literal> entity does not
+      end with a trailing newline, so the result of the concatenation is a
+      single line of text.
+    </para>
+
+    <para>
+      <ulink url="examples/mime/bodydecoder4.C">examples/mime/bodydecoder4.C</ulink>
+      is an alternative version of <filename>bodydecoder3.C</filename> that
+      uses
+      <ulink url="&link-function-x--mime-make-parser;"><function>&ns;::mime::make_parser</function></ulink>()
+      to replace the logic in the first half of
+      <function>parse_section</function>().
+      The first parameter to <function>&ns;::mime::make_parser</function>() is a
+      <classname>&ns;::mime::structured_content_header</classname> with the
+      the value of the <quote>Content-Type</quote> header.
+      The second parameter is the
+      <classname>&ns;::sectioninfo</classname> for the &MIME; section where
+      this <quote>Content-Type</quote> header came from.
+      If it's a compound &MIME; section,
+      <function>&ns;::mime::make_parser</function>() uses
+      <function>&ns;::mime::make_multipart_parser</function>() or
+      <function>&ns;::mime::make_message_rfc822_parser</function>() to take
+      care of it, with the section processor factory passed as the third
+      parameter.
+      The fourth parameter is a functor or a lambda that gets invoked if
+      the &MIME; section is not a compound section. It receives one argument,
+      the <classname>&ns;::sectioninfo</classname>.
+    </para>
+
   </section>
 </chapter>
 

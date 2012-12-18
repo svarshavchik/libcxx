@@ -186,6 +186,12 @@ public:
 
 	std::string mime_content_subtype() const;
 
+	//! Whether the MIME content type/subtype is message/rfc822
+	bool is_message_rfc822() const;
+
+	//! Whether the MIME content type is multipart
+	bool is_multipart() const;
+
 	//! Return the charset parameter, if not present return the default.
 	std::string charset(const std::string &default_charset) const;
 

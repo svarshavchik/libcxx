@@ -518,6 +518,22 @@ std::string structured_content_header::mime_content_subtype() const
 	return s;
 }
 
+bool structured_content_header::is_message_rfc822() const
+{
+	std::string s=value;
+
+	std::transform(s.begin(),
+		       s.end(),
+		       s.begin(),
+		       std::ptr_fun(chrcasecmp::tolower));
+	return s == message_rfc822;
+}
+
+bool structured_content_header::is_multipart() const
+{
+	return mime_content_type() == "multipart";
+}
+
 std::string structured_content_header::charset(const std::string &def) const
 {
 	auto p=parameters.find("charset");
