@@ -487,6 +487,72 @@ Header: Subject, value: subject line folded header]]></literallayout>
       </itemizedlist>
     </section>
   </section>
+
+  <section id="mimesectioninfo">
+    <title>&MIME; section information</title>
+
+    <blockquote>
+      <informalexample>
+	<programlisting>
+#include &lt;&ns;/mime/sectioninfo.H&gt;
+
+&ns;::mime::sectioninfo info=&ns;::mime::sectioninfo::create();</programlisting>
+      </informalexample>
+    </blockquote>
+
+    <para>
+      <ulink url="&link-typedef-x--mime-sectioninfo;"><classname>&ns;::mime::sectioninfo</classname></ulink>
+      is a reference to a
+      <link linkend="create">reference-counted object</link>
+      that provides metadata about an entire &MIME; document, or one entity in
+      a multipart &MIME; document. It gets constructed and used by templates
+      and functions described later in this chapter.
+    </para>
+
+    <para>
+      The metadata in this object consists of:
+    </para>
+
+    <itemizedlist>
+      <listitem>
+	<para>
+	  A <varname>children</varname> vector in a multipart &MIME; entity
+	  gives <classname>&ns;::mime::sectioninfo</classname>s for each
+	  subpart of a multipart entity.
+	  A <literal>message/rfc822</literal> &MIME; entity has a vector
+	  with one subpart, the &MIME; entity with the message.
+	</para>
+
+	<para>
+	  A <link linkend="weakptr">weak pointer</link> to this &MIME; entity's
+	  parent entity's <classname>&ns;::mime::sectioninfo</classname>.
+	  The top level &MIME; entity's parent entity weak pointer is null.
+	</para>
+      </listitem>
+
+      <listitem>
+	<para>
+	  The starting byte offset where this entity starts in the &MIME;
+	  document. The
+	  <classname>&ns;::mime::sectioninfo</classname> for the entire &MIME;
+	  document has a starting offset of 0.
+	</para>
+      </listitem>
+
+      <listitem>
+	<para>
+	  The number of octets in the header and the body portion of the
+	  &MIME; entity, and the number of lines in each; also whether the
+	  &MIME; entity does or does not have a trailing newline character.
+	</para>
+      </listitem>
+    </itemizedlist>
+
+    <para>
+      See the <ulink url="&link-x--mime--sectioninfoObj;">class
+	reference</ulink> for more information.
+    </para>
+  </section>
 </chapter>
 
 <!--

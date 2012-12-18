@@ -140,6 +140,7 @@ libcxx_la_SOURCES=\
 	mime_headercollector.C	\
 	mime_headeriter.C	\
 	mime_rfc2047.C          \
+	mime_sectioninfo.C      \
 	mime_sectiondecoder.C	\
 	mime_structured_content_header.C \
 	msgdispatcher.C		\
