@@ -16,6 +16,7 @@
 #include <x/http/receiverimpl.H>
 #include <x/mime/tokens.H>
 #include <x/mime/structured_content_header.H>
+#include <x/mime/newlineiter.H>
 #include <x/namespace.h>
 
 #include <iterator>
@@ -476,16 +477,19 @@ private:
 
 			if (!boundary.empty())
 			{
-				auto iter=create_multipart_formdata_iterator
-					(boundary, factory, *this,
-					 form_encoding);
+				auto iter=mime::newline_iter
+					<outputrefiterator<int>>
+					::create
+					(create_multipart_formdata_iterator
+					 (boundary, factory, *this,
+					  form_encoding), true);
 
-				for (unsigned char c:receiver)
+				for (char c:receiver)
 				{
 					*iter=c;
 				}
 
-				*iter=mime::eof;
+				iter.get()->eof();
 				return true;
 			}
 		}

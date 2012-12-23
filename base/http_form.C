@@ -15,6 +15,7 @@
 #include "x/mime/contentheadercollector.H"
 #include "x/mime/sectioniter.H"
 #include "x/mime/sectiondecoder.H"
+#include "x/mime/entityparser.H"
 #include "x/mime/rfc2047.H"
 #include "x/refiterator.H"
 #include "gettext_in.h"
@@ -208,36 +209,53 @@ parametersObj::filereceiverObj::~filereceiverObj() noexcept
 
 // Iterator over the contents of a multipart/form-data message.
 
-// Defines and constructs various smaller internal object to handle its
-// contents.
-class LIBCXX_HIDDEN parametersObj::rfc2388Obj
-	: public outputrefiteratorObj<int> {
+// create_multipart_formdata_iterator() saves the parameters it receives
+// in an instance of this object, then uses MIME entity parsing templates
+// to handle the form decoding, using a captured ref to this object.
+
+class LIBCXX_HIDDEN parametersObj::rfc2388Obj : virtual public obj {
 
  public:
 
-	// Output iterator collects form-data section's into a string.
+	// Parameters received by create_multipart_formdata_iterator()
+	const filereceiverfactorybase &factory;
+	parametersObj &params;
+	std::string form_encoding;
 
-	class LIBCXX_PUBLIC formdataObj : virtual public obj {
+	// Counts down maximum allowed form size
+	size_t formmaxsize;
+
+	// Output iterator that receives decoded field contents. Puts it into
+	// the form parameters object.
+
+	class LIBCXX_PUBLIC decodeParameterObj
+		: public outputrefiteratorObj<char> {
 
 	public:
-		typedef std::iterator<std::output_iterator_tag, void,
-				      void, void, void> iterator_traits;
+		ref<rfc2388Obj> me;
 
-		std::string value;
+		// Iterator to the inserted field value in parametersObj.
+		// Before we start decoding the value of this field, we
+		// insert our starting point, an empty string.
 
-		formdataObj() LIBCXX_HIDDEN {}
-		~formdataObj() noexcept LIBCXX_HIDDEN {}
+		parametersObj::iterator valueiter;
 
-		formdataObj &operator*() LIBCXX_HIDDEN { return *this; }
-		formdataObj &operator++() LIBCXX_HIDDEN { return *this; }
-		formdataObj *before_postoper() LIBCXX_HIDDEN
+		decodeParameterObj(const ref<rfc2388Obj> &meArg,
+				   const parametersObj::iterator &valueiterArg)
+			LIBCXX_HIDDEN : me(meArg), valueiter(valueiterArg)
 		{
-			return this;
 		}
 
-		void operator=(char c) LIBCXX_HIDDEN
+		~decodeParameterObj() noexcept LIBCXX_HIDDEN
 		{
-			value.push_back(c);
+		}
+
+		void operator=(char c) final override LIBCXX_HIDDEN
+		{
+			if (me->formmaxsize == 0)
+				responseimpl::throw_request_entity_too_large();
+			--me->formmaxsize;
+			valueiter->second.push_back(c);
 		}
 	};
 
@@ -256,8 +274,8 @@ class LIBCXX_HIDDEN parametersObj::rfc2388Obj
 		std::vector<char> buffer;
 		size_t buffer_size;
 
-		receiverObj(const ref<filereceiverObj> &recvArg)
-			LIBCXX_HIDDEN : recv(recvArg),
+		receiverObj(const ref<filereceiverObj> &recvArg) LIBCXX_HIDDEN
+			: recv(recvArg),
 			  buffer_size(fdbaseObj::get_buffer_size())
 		{
 			buffer.reserve(buffer_size);
@@ -291,352 +309,162 @@ class LIBCXX_HIDDEN parametersObj::rfc2388Obj
 		}
 	};
 
-	class decoderObj;
+	// A wrapper that invokes close() when the entire file contents
+	// are received. This is a wrapper for the instantiated section decoder.
 
-	class multipartMixedObj;
-
-	typedef refiterator<decoderObj> sectiondecoder_t;
-
-	typedef mime::section_iter<sectiondecoder_t> sectioniter_t;
-
-	typedef mime::section_iterptr<sectiondecoder_t> sectioniterptr_t;
-
-	// Output iterator processes a single multipart/form-data section.
-
-	// Collects its headers, then figures out what to do next.
-
-	class sectionObj : virtual public obj {
+	class receiverWrapperObj : public outputrefiteratorObj<int> {
 
 	public:
-		typedef std::iterator<std::output_iterator_tag, void,
-				      void, void, void> iterator_traits;
+		// The constructed receiver
 
-		// Counts down from getformmaxsize()
-		size_t formmaxsize;
+		ref<receiverObj> receiver;
 
-		// What it was in the constructor
-		size_t formmaxsize_orig;
+		// Declare the sectiondecoder that handles the actual decoding.
+		typedef decltype(mime::section_decoder::create
+				 (headersbase(),
+				  refiterator<receiverObj>(ptr<receiverObj>()))
+				 ) iter_t;
+		iter_t iter;
 
-		// Factory for creating file receivers
-		const filereceiverfactorybase &factory;
-
-		// Original parameter object that's being constructed
-		parametersObj &params;
-
-		// Form's original encoding
-		std::string form_encoding;
-
-		// Whether this is recursively constructed to deal with a
-		// multipart/mixed section.
-
-		bool in_multipart_mixed;
-
-		// Collector for the header portion of the section.
-		mime::contentheader_collector headers;
-
-		typedef mime::header_iter<mime::contentheader_collector
-					  > parser_t;
-		// Output iterator that feeds headers.
-		parser_t parser;
-
-		// Parsed field name, converted to UTF-8.
-		std::string form_name;
-
-		// Collector for a form-data field value, when reading the
-		// body section.
-		ptr<formdataObj> formdataptr;
-
-		// Content transfer decoder for the body section.
-		outputrefiteratorptr<int> bodydecoder;
-
-		// File receiver, when the section turns out to be an upload.
-		ptr<receiverObj> receiver;
-
-		// The recursively-constructed multipart/mixed section
-		ptr<multipartMixedObj> multipart_mixed;
-
-		// Flag, we should be receiving something.
-		bool in_body;
-
-		sectionObj(size_t formmaxsizeArg,
-			   const filereceiverfactorybase &factoryArg,
-			   parametersObj &paramsArg,
-			   bool in_multipart_mixedArg,
-			   const std::string &form_encodingArg)
-			: formmaxsize(formmaxsizeArg),
-			  formmaxsize_orig(formmaxsizeArg),
-			  factory(factoryArg),
-			  params(paramsArg),
-			  form_encoding(form_encodingArg),
-			  in_multipart_mixed(in_multipart_mixedArg),
-			  headers(mime::contentheader_collector::create(false)),
-			  parser(parser_t::create(headers)),
-			  in_body(false)
+		// Constructor
+		receiverWrapperObj(const ref<receiverObj> &receiverArg,
+				   iter_t && iterArg)
+			: receiver(receiverArg), iter(iterArg)
 		{
 		}
 
-		~sectionObj() noexcept {}
-
-		// Iterator operators
-		sectionObj &operator*() { return *this; }
-		sectionObj &operator++() { return *this; }
-		sectionObj *before_postoper()
-		{
-			return this;
-		}
-
-		void operator=(int c);
-	};
-
-	// "section_start" constructs a new section, then diverts the output
-	// stream to it, until "section_end".
-
-	class decoderObj : virtual public obj {
-
-	public:
-		typedef std::iterator<std::output_iterator_tag, void,
-				      void, void, void> iterator_traits;
-
-		const filereceiverfactorybase &factory;
-
-		parametersObj &params;
-		std::string form_encoding;
-
-		// Counts down from getformmaxsize()
-		size_t formmaxsize;
-
-		// Whether this is recursively constructed for a multipart/mixed
-		// section.
-		bool in_multipart_mixed;
-
-		// The headers for the current section
-		ptriterator<sectionObj> current_section_headers;
-
-		typedef mime::bodystart_iterptr< refiterator<sectionObj>
-						 > current_section_t;
-
-		//! The current section's body iterator
-		current_section_t current_section;
-
-		decoderObj(const filereceiverfactorybase &factoryArg,
-			   parametersObj &paramsArg,
-			   bool in_multipart_mixedArg,
-			   const std::string &form_encodingArg)
-			: factory(factoryArg), params(paramsArg),
-			  form_encoding(form_encodingArg),
-			  formmaxsize(getformmaxsize()),
-			  in_multipart_mixed(in_multipart_mixedArg)
+		~receiverWrapperObj() noexcept
 		{
 		}
 
-		~decoderObj() noexcept
+		// Pass through everything to sectiondecoder, but wake up when
+		// we see an eof.
+		void operator=(int c) final override
 		{
-		}
+			*iter=c;
 
-		decoderObj &operator*() { return *this; }
-		decoderObj &operator++() { return *this; }
-		decoderObj *before_postoper()
-		{
-			return this;
-		}
-
-		void operator=(int c)
-		{
-			if (c == mime::section_start)
-			{
-				auto s=refiterator<sectionObj>
-					::create(formmaxsize, factory, params,
-						 in_multipart_mixed,
-						 form_encoding);
-				current_section=current_section_t::create(s);
-				current_section_headers=s;
-				return;
-			}
-
-			if (!current_section.null())
-			{
-				if (c == mime::section_end)
-				{
-					*current_section++=mime::eof;
-
-					// Keep track of consumed quota
-					if (!current_section_headers.null())
-						formmaxsize=
-							current_section_headers
-							.get()->formmaxsize;
-					current_section=current_section_t();
-					current_section_headers=
-						ptriterator<sectionObj>();
-				}
-				else
-					*current_section++=c;
-				return;
-			}
+			if (c == mime::eof)
+				receiver->close();
 		}
 	};
 
-	typedef mime::newline_iter<sectioniter_t> newlineiter_t;
-
-	newlineiter_t newlineiter;
-
-	rfc2388Obj(const std::string &boundaryArg,
-		   const filereceiverfactorybase &factoryArg,
+	rfc2388Obj(const filereceiverfactorybase &factoryArg,
 		   parametersObj &paramsArg,
-		   const std::string &form_encoding)
-		: newlineiter(newlineiter_t::create
-			      (sectioniter_t::create
-			       (sectiondecoder_t::create(factoryArg,
-							 paramsArg, false,
-							 form_encoding),
-				boundaryArg),
-			       true // HTTP 1.1 uses CRLF!
-			       ))
+		   const std::string &form_encodingArg)
+		: factory(factoryArg),
+		params(paramsArg),
+		form_encoding(form_encodingArg),
+		formmaxsize(getformmaxsize())
 	{
 	}
 
-	~rfc2388Obj() noexcept {}
-
-	void operator=(int c) { *newlineiter++=c; }
-};
-
-class LIBCXX_HIDDEN parametersObj::rfc2388Obj::multipartMixedObj
-	: public outputrefiteratorObj<int> {
-
- public:
-
-	sectioniter_t iter;
-
-	ref<decoderObj> decoder;
-
-	multipartMixedObj(sectioniter_t &&iterArg,
-			  const ref<decoderObj> &decoderArg)
-		: iter(std::move(iterArg)), decoder(decoderArg)
+	~rfc2388Obj() noexcept
 	{
 	}
 
-	~multipartMixedObj() noexcept
+	// MIME section processor factory. Returns an output iterator that
+	// decodes the next MIME section in a multipart/form-data request.
+
+	static outputrefiterator<int>
+		get_parser(const ref<rfc2388Obj> &me,
+			   const mime::sectioninfo &info,
+			   bool flag)
 	{
+		auto header_iter=
+			x::mime::contentheader_collector::create(false);
+		auto headers=header_iter.get();
+
+		return x::mime::make_entity_parser
+			(header_iter,
+			 [me, headers, info]
+			 {
+				 return parse_section(headers->content_headers,
+						      me,
+						      info);
+			 }, info);
 	}
 
-	void operator=(int c) override
-		{
-			*iter++=c;
-		}
-};
+	// Collected the headers of the next MIME section. Now what?
 
-void parametersObj::rfc2388Obj::sectionObj::operator=(int c)
-{
-	// Limit the maximum size of headers, and form-data
-	// fields.
-
-	if (mime::nontoken(c) &&
-	    (!in_body || !formdataptr.null()) && --formmaxsize == 0)
-		responseimpl::throw_request_entity_too_large();
-
-	*parser++=c;
-
-	if (in_body)
-		*bodydecoder=c;
-
-	if (c == mime::body_start)
+	static outputrefiterator<int>
+		parse_section(const headersbase &headers,
+			      const ref<rfc2388Obj> &me,
+			      const mime::sectioninfo &info)
 	{
-		// Collected the headers, figure out what's
-		// next.
+		mime::structured_content_header
+			content_type(headers,
+				     mime::structured_content_header
+				     ::content_type);
 
-		auto &h=*headers.get();
+		// Handle multipart/mixed, as per RFC 2388.
+
+		// This is done by instantiating a MIME multipart parser that
+		// recursively invokes get_parser(), as the section processor
+		// factory.
+
+		if (content_type.is_multipart())
+			return mime::make_multipart_parser
+				(content_type.boundary(),
+				 [me]
+				 (const mime::sectioninfo &info, bool flag)
+				 {
+					 return rfc2388Obj::get_parser(me,
+								       info,
+								       flag);
+				 }, info);
 
 		mime::structured_content_header
-			ct(h.content_headers,
-			   mime::structured_content_header
-			   ::content_type);
-
-		mime::structured_content_header
-			cd(h.content_headers,
-			   mime::structured_content_header
-			   ::content_disposition);
-
-		std::string filename;
-
+			content_disposition(headers,
+					    mime::structured_content_header
+					    ::content_disposition);
 		// Get field name
-		form_name=cd.decode_utf8("name", form_encoding);
+		std::string form_name=
+			content_disposition.decode_utf8("name",
+							me->form_encoding);
 
-		// When NOT in a multipart/mixed section, the top level
-		// section, see if this is a multipart section (and assume
-		// that it's mixed). This blocks multipart inside another
-		// multipart.
+		if (form_name.size()+1 > me->formmaxsize)
+			responseimpl::throw_request_entity_too_large();
 
-		if (!in_multipart_mixed &&
-		    ct.mime_content_type() == "multipart")
+		me->formmaxsize-=form_name.size()+1;
+
+		std::string filename=
+			content_disposition.decode_utf8("filename",
+							me->form_encoding);
+
+		// If the filename field is not present, return an output
+		// iterator that captures the value of a non-file upload field.
+
+		if (filename.empty())
 		{
-			auto decoder=ref<decoderObj>::create(factory, params,
-							     true,
-							     form_encoding);
-
-			bodydecoder=multipart_mixed=
-				ref<multipartMixedObj>::create
-				(sectioniter_t::create
-				 (sectiondecoder_t(decoder),
-				  ct.boundary()), decoder);
+			return mime::section_decoder::create
+				(headers, "ISO-8859-1",
+				 "UTF-8",
+				 make_refiterator
+				 (ref<decodeParameterObj>
+				  ::create(me, me->params.insert(std::make_pair
+								 (form_name,
+								  "")))));
 		}
-		else if ((filename=cd.decode_utf8("filename",
-						  form_encoding)).empty())
-		{
-			// Credit for good behavior
-			formmaxsize=formmaxsize_orig;
 
-			formmaxsize -= form_name.size();
+		auto next_receiver=me->factory.next(headers,
+						    form_name,
+						    filename);
 
-			// Decode the MIME section to UTF-8,
-			// collect the field value.
+		// If no file receiver was provided,
+		// abort.
 
-			auto value=make_refiterator
-				(ref<formdataObj>::create());
+		if (next_receiver.null())
+			responseimpl::throw_not_found();
 
-			formdataptr=value;
-			bodydecoder=mime::section_decoder::create
-				(h.content_headers, "ISO-8859-1",
-				 "UTF-8", value);
-		}
-		else
-		{
-			// Receive this file.
+		// Save the receiver object, so we can invoke close()
+		auto receiver=ref<receiverObj>::create(next_receiver);
 
-			auto next_receiver=factory.next(h.content_headers,
-							form_name,
-							filename);
-
-			// If no file receiver was provided,
-			// abort.
-
-			if (next_receiver.null())
-				responseimpl::throw_not_found();
-
-			// Save the receiver object, so we can invoke close()
-			receiver=ref<receiverObj>::create(next_receiver);
-
-			bodydecoder=mime::section_decoder::create
-				(h.content_headers,
-				 refiterator<receiverObj>(receiver));
-		}
-		in_body=true;
-		return;
+		return ref<receiverWrapperObj>
+			::create(receiver, mime::section_decoder::create
+				 (headers,
+				  refiterator<receiverObj>(receiver)));
 	}
-
-	if (c == mime::eof)
-	{
-		// Finish the section.
-
-		if (!formdataptr.null())
-			params.insert(std::make_pair(form_name,
-						     formdataptr->value));
-		if (!receiver.null())
-			receiver->close();
-
-		if (!multipart_mixed.null())
-			// Keep on top of things...
-			formmaxsize=multipart_mixed->decoder->formmaxsize;
-	}
-}
+};
 
 outputrefiterator<int>
 parametersObj::
@@ -645,8 +473,16 @@ create_multipart_formdata_iterator(const std::string &boundary,
 				   parametersObj &me,
 				   const std::string &form_encoding)
 {
-	return ref<rfc2388Obj>::create(boundary, factoryArg, me,
-				       form_encoding);
+	auto args=ref<rfc2388Obj>::create(factoryArg, me,
+					  form_encoding);
+	return mime::make_multipart_parser
+		(boundary,
+		 [args]
+		 (const mime::sectioninfo &info, bool flag)
+		 {
+			 return rfc2388Obj::get_parser(args, info, flag);
+		 },
+		 mime::sectioninfo::create());
 }
 
 #if 0

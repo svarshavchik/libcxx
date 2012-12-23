@@ -838,7 +838,7 @@ void formpost()
 	    "\n"
 	    "FILE:[file\xc2\xa0" "1,file1:Hello world!\r\n~]\n"
 	    "FILE:[file 2,file2:Ipso Lorem~]\n")
-		throw EXCEPTION("Multipart parsing failed: " + got);
+		throw EXCEPTION("Multipart parsing failed (1): " + got);
 
 	formdata="\r\n"
 		"--xxxboundary\r\n"
@@ -859,7 +859,7 @@ void formpost()
 
 	if (got != "POST / HTTP/1.1\n"
 	    "FILE:[file3,file3\xc2\xa0:Hello world!~]\n")
-		throw EXCEPTION("Multipart parsing failed: " + got);
+		throw EXCEPTION("Multipart parsing failed (2): " + got);
 
 	formdata="\r\n"
 		"--xxxboundary\r\n"
@@ -879,7 +879,7 @@ void formpost()
 
 	if (got != "POST / HTTP/1.1\n"
 	    "FILE:[file4,file4\xc2\xa0:Hello world!~]\n")
-		throw EXCEPTION("Multipart parsing failed: " + got);
+		throw EXCEPTION("Multipart parsing failed (3): " + got);
 
 	formdata="\r\n"
 		"--xxxboundary\r\n"
@@ -899,7 +899,7 @@ void formpost()
 
 	if (got != "POST / HTTP/1.1\n"
 	    "FILE:[file5,file5\xc2\xa0:Hello world!~]\n")
-		throw EXCEPTION("Multipart parsing failed: " + got);
+		throw EXCEPTION("Multipart parsing failed (4): " + got);
 
 	LIBCXX_NAMESPACE::property::load_property
 		(LIBCXX_NAMESPACE_WSTR "::http::form::maxsize", L"1000",
