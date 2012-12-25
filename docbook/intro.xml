@@ -71,6 +71,12 @@ See COPYING for distribution information.
 	  <link linkend="gnutls">GnuTLS library classes</link>.
 	</para>
       </listitem>
+
+      <listitem>
+	<para>
+	  <link linkend="mime">&MIME; classes and templates</link>.
+	</para>
+      </listitem>
     </itemizedlist>
 
     <para>
