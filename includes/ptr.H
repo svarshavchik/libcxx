@@ -3,6 +3,13 @@
 ** See COPYING for distribution information.
 */
 
+/*! \file
+
+This file defines the \c ptr template, a nullable pointer to a reference-counted
+object.
+
+*/
+
 #ifndef x_ptr_H
 #define x_ptr_H
 
@@ -19,7 +26,7 @@ namespace LIBCXX_NAMESPACE {
 };
 #endif
 
-//! A pointer to a reference-counted constant object.
+//! A pointer to a reference-counted constant object. \anchor ptrAnchor
 
 //! This is a version of \ref ptr "ptr"
 //! that dereferences into a constant object.

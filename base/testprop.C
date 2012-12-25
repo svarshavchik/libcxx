@@ -4,13 +4,13 @@
 */
 
 #include "libcxx_config.h"
-#include "property_value.H"
-#include "property_list.H"
-#include "value_string.H"
-#include "ymd.H"
-#include "hms.H"
-#include "fmtsize.H"
-#include "exception.H"
+#include "x/property_value.H"
+#include "x/property_list.H"
+#include "x/value_string.H"
+#include "x/ymd.H"
+#include "x/hms.H"
+#include "x/fmtsize.H"
+#include "x/exception.H"
 
 #include <iostream>
 #include <sstream>
@@ -140,15 +140,6 @@ void test2()
 		throw EXCEPTION("test2 failed(6)");
 }
 
-void foo(char *p)
-{
-	std::string s;
-
-	LIBCXX_NAMESPACE::ymd n;
-
-	n.toString(p);
-}
-
 class mynotifycb : public LIBCXX_NAMESPACE::property::notifyObj {
 
 public:
@@ -200,9 +191,9 @@ void save_prop(const std::string &name,
 		=LIBCXX_NAMESPACE::property::propvalue(value.begin(),
 						     value.end());
 
-	LIBCXX_NAMESPACE::property::save_properties(props,
-						  std::ostreambuf_iterator<char>
-						  (ss));
+	LIBCXX_NAMESPACE::property
+		::save_properties<char>(props,
+					std::ostreambuf_iterator<char>(ss));
 
 	ss.seekg(0);
 

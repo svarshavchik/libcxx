@@ -61,7 +61,7 @@ namespace LIBCXX_NAMESPACE {
 //! getline().
 //!
 //! set_read_timeout() sets a timer. The second parameter is actually a
-//! \ref timespec "timespec". The timer, once set, remains in place until
+//! \ref timespecAnchor "timespec". The timer, once set, remains in place until
 //! it is cancelled, or goes off. If pubread()
 //! completes before the timer goes off, the next call to pubread() will still
 //! timeout and throw an %exception when the timer expires (or if it is
@@ -87,7 +87,7 @@ namespace LIBCXX_NAMESPACE {
 //! \endcode
 //!
 //! This example sets a ten second timeout (the second parameter is actually
-//! a \ref timespec "timespec"), however if 8192 bytes are read succesfully
+//! a \ref timespecAnchor "timespec"), however if 8192 bytes are read succesfully
 //! before the timer expires, it is automatically reset for another 8192
 //! bytes. The timer keeps getting reset as long as the requisite number of
 //! bytes are always read before it expires, and until it is explicitly
@@ -299,7 +299,7 @@ public:
 		       //! Element count
 
 		       size_t cnt)
- LIBCXX_HIDDEN;
+		LIBCXX_HIDDEN;
 
 	//! Implement the write timeout
 

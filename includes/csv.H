@@ -8,13 +8,13 @@
 
 #include <x/namespace.h>
 #include <x/exception.H>
-#include <x/iter_value.H>
 
 #include <algorithm>
 #include <iterator>
 #include <vector>
 #include <map>
 #include <iostream>
+#include <type_traits>
 
 namespace LIBCXX_NAMESPACE {
 
@@ -165,7 +165,7 @@ input_iterator fromcsv(//! The beginning \c char input iterator
 		       //! container by invoking its push_back() method.
 		       container_type &container)
 {
-	typedef typename iter_value_type<input_iterator>::value_t char_type;
+	typedef typename std::decay<decltype(*beg_iter)>::type char_type;
 
 	bool skip_comma=false;
 

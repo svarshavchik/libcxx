@@ -132,8 +132,12 @@ public:
 
 	header_iterObj<output_iter_type> *before_postoper() { return this; }
 
+#ifndef DOXYGEN
+		// TODO - doxygen fix
 	//! Iterator operator
 	using header_iterbase::operator=;
+
+#endif
 
 private:
 	//! Write to the output iterator

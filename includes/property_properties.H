@@ -314,7 +314,7 @@ void load_property(//! %Property name
 		   const const_locale &localeRef=const_locale::base::global())
 ;
 
-template<typename iter_type>
+template<typename char_type, typename iter_type>
 iter_type save_properties(//! Properties
 			  const std::map<propvalue, propvalue> &properties,
 

@@ -747,6 +747,8 @@ public:
 		return ifilter::underflow();
 	}
 
+	//! Forward setbuf() to both the ifilter and ofilter superclasses.
+
 	std::basic_streambuf<buf_type,
 			     buf_traits> *setbuf(typename
 						 buf_traits::char_type *s,

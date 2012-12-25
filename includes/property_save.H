@@ -9,7 +9,7 @@
 #include <x/namespace.h>
 #include <x/property_properties.H>
 #include <x/codecvtiter.H>
-#include <x/iter_value.H>
+#include <type_traits>
 #include <iterator>
 
 namespace LIBCXX_NAMESPACE {
@@ -163,7 +163,12 @@ iter_type save_properties_impl<propvalue::value_type>
 
 //! The properties are formatted and written into the specified output iterator,
 //! so that load_properties() can restore them, later.
-template<typename iter_type>
+//!
+//! The first mandatory template parameter must be either \c wchar_t or
+//! \c char which specifies whether the properties get written to a wide
+//! character stream, or converted to \c chars using the specified locale.
+
+template<typename char_type, typename iter_type>
 iter_type save_properties(//! Properties
 			  const std::map<propvalue, propvalue> &properties,
 
@@ -173,9 +178,7 @@ iter_type save_properties(//! Properties
 			  const const_locale &locale=
 			  locale::base::environment())
 {
-	typedef typename iter_value_type<iter_type>::value_t value_t;
-
-	return save_properties_impl<value_t>
+	return save_properties_impl<char_type>
 		::save_impl(properties, iter, locale);
 }
 

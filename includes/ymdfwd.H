@@ -13,7 +13,6 @@
 #include <x/facet.H>
 #include <x/ctype.H>
 #include <x/strftimefwd.H>
-#include <x/iter_value.H>
 #include <x/value_stringable.H>
 #include <stdint.h>
 
@@ -22,6 +21,7 @@
 #include <algorithm>
 #include <iterator>
 #include <ctime>
+#include <type_traits>
 
 namespace LIBCXX_NAMESPACE {
 #if 0
@@ -606,8 +606,9 @@ public:
 
 	ymd(const iso8601 &iso8601Date);
 
-	//! This class implements toString() and fromString()
-	static const stringable_t stringable=class_tostring;
+	//! This class implements toString(), fromString(), toWideString() and fromWideString().
+
+	static const stringable_t stringable=class_toboth;
 
 	//! Convert the date to a text string.
 
@@ -621,8 +622,7 @@ public:
 				//! Locale for the conversion
 				const const_locale &localeRef=locale::base::global(),
 				//! Start of the pattern
-				const typename iter_value_type<OutputIterator>
-				::value_t *pattern=0)
+				const char *pattern=0)
 		const;
 
 	//! Convert date to a text string.
@@ -637,9 +637,38 @@ public:
 				const const_locale &localeRef,
 
 				//! Formatting pattern
-				const std::basic_string<
-					typename iter_value_type<OutputIterator>::value_t>
-				&pattern)
+				const std::string &pattern)
+		const;
+
+	//! Convert the date to a text string.
+
+	//! The date is formatted according to the given \c strftime(3)
+	//! pattern. Only date-related formatting conversion in the formatting
+	//! string carry meaningful results.
+
+	template<typename OutputIterator>
+	OutputIterator toWideString(//! Output iterator
+				    OutputIterator iter,
+
+				    //! Locale for the conversion
+				    const const_locale &localeRef=locale::base::global(),
+				    //! Start of the pattern
+				    const wchar_t *pattern=0)
+		const;
+
+	//! Convert date to a text string.
+
+	//! \overload
+	//!
+	template<typename OutputIterator>
+	OutputIterator toWideString(//! Output iterator
+				    OutputIterator iter,
+
+				    //! Locale for the conversion
+				    const const_locale &localeRef,
+
+				    //! Formatting pattern
+				    const std::wstring &pattern)
 		const;
 
 	//! Convert date to a text string.
@@ -692,8 +721,7 @@ public:
 
 	public:
 		//! Constructor
-		parser(const const_locale &loc=locale::base::environment())
-;
+		parser(const const_locale &loc=locale::base::environment());
 
 		//! Destructor
 		~parser() noexcept;
@@ -793,9 +821,29 @@ public:
 			      const const_locale &localeArg
 			      =locale::base::global())
 	{
-		return parser<typename iter_value_type<InputIterator>::value_t>
-			(localeArg).parse(beg_iter, end_iter);
+		return parser<char>(localeArg).parse(beg_iter, end_iter);
 	}
+
+	//! Instantiate a new object from an input iterator
+
+	//! A string gets retrieved from the given beginning and ending
+	//! iterator. The string may be in any format that's recognized
+	//! by the \ref parser "parser object".
+
+	template<typename InputIterator>
+	static ymd fromWideString(//! Beginning iterator
+				  InputIterator beg_iter,
+
+				  //! Ending iterator
+				  InputIterator end_iter,
+
+				  //! The locale
+				  const const_locale &localeArg
+				  =locale::base::global())
+	{
+		return parser<wchar_t>(localeArg).parse(beg_iter, end_iter);
+	}
+
 	//! Serialization function
 		
 	template<typename iter_type>

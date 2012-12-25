@@ -10,7 +10,6 @@
 #include <x/strftime.H>
 #include <x/messagesfwd.H>
 #include <x/interval.H>
-#include <x/iter_value.H>
 
 namespace LIBCXX_NAMESPACE {
 #if 0
@@ -20,13 +19,10 @@ namespace LIBCXX_NAMESPACE {
 template<typename OutputIterator>
 OutputIterator ymd::toString(OutputIterator iter,
 			     const const_locale &localeRef,
-			     const typename iter_value_type<OutputIterator>
-			     ::value_t *pattern)
+			     const char *pattern)
 	const
 {
-	typedef typename iter_value_type<OutputIterator>::value_t CharT;
-
-	std::basic_string<CharT> dt(formatDate(pattern, localeRef));
+	std::string dt(formatDate(pattern, localeRef));
 
 	return std::copy(dt.begin(), dt.end(), iter);
 }
@@ -34,10 +30,27 @@ OutputIterator ymd::toString(OutputIterator iter,
 template<typename OutputIterator>
 OutputIterator ymd::toString(OutputIterator iter,
 			     const const_locale &localeRef,
-			     const std::basic_string<typename
-						     iter_value_type
-						     <OutputIterator>::value_t
-						     > &pattern)
+			     const std::string &pattern)
+	const
+{
+	return toString(iter, pattern.c_str(), localeRef);
+}
+
+template<typename OutputIterator>
+OutputIterator ymd::toWideString(OutputIterator iter,
+				 const const_locale &localeRef,
+				 const wchar_t *pattern)
+	const
+{
+	std::wstring dt(formatDate(pattern, localeRef));
+
+	return std::copy(dt.begin(), dt.end(), iter);
+}
+
+template<typename OutputIterator>
+OutputIterator ymd::toWideString(OutputIterator iter,
+				 const const_locale &localeRef,
+				 const std::wstring &pattern)
 	const
 {
 	return toString(iter, pattern.c_str(), localeRef);
@@ -73,12 +86,9 @@ ymd::operator std::basic_string<CharT>() const
 
 template<typename OutputIterator>
 OutputIterator ymd::interval::toString(OutputIterator iter,
-				       const const_locale &localeRef)
-	const
+				       const const_locale &localeRef) const
 {
-	typedef typename iter_value_type<OutputIterator>::value_t char_t;
-
-	std::basic_string<char_t> str(toString<char_t>(localeRef));
+	std::string str(toString<char>(localeRef));
 
 	return std::copy(str.begin(), str.end(), iter);
 }

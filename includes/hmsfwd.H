@@ -11,10 +11,10 @@
 #include <x/locale.H>
 #include <x/exception.H>
 #include <x/ymdfwd.H>
-#include <x/iter_value.H>
 #include <x/value_stringable.H>
 #include <string>
 #include <algorithm>
+#include <type_traits>
 #include <stdint.h>
 
 namespace LIBCXX_NAMESPACE {
@@ -254,7 +254,7 @@ public:
 
 	//! Convert to a strftime-formatted string
 
-	template<typename OutputIterator>
+	template<typename OutputIterator, typename char_type>
 	OutputIterator toString(//! Output iterator
 				OutputIterator iter,
 
@@ -262,13 +262,12 @@ public:
 				const const_locale &localeRef,
 
 				//! Pattern for the conversion
-				const typename iter_value_type<OutputIterator>
-				::value_t *pattern)
+				const char_type *pattern)
 		const;
 
 	//! Convert to a strftime-formatted string
 
-	template<typename OutputIterator>
+	template<typename OutputIterator, typename char_type>
 	OutputIterator toString(//! Output iterator
 				OutputIterator iter,
 
@@ -276,8 +275,7 @@ public:
 				const const_locale &localeRef,
 
 				//! Pattern for the conversion
-				const std::basic_string<typename
-				OutputIterator::char_type> &pattern)
+				const std::basic_string<char_type> &pattern)
 		const;
 
 	//! Create an interval from a string

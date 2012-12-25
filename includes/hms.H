@@ -43,25 +43,21 @@ std::basic_string<char_type> hms::hhmmss(const std::basic_string<char_type>
 	return hhmmss(pattern.c_str(), localeRef);
 }
 
-template<typename OutputIterator>
+template<typename OutputIterator, typename char_type>
 OutputIterator hms::toString(OutputIterator iter,
 			     const const_locale &localeRef,
-			     const typename
-			     iter_value_type<OutputIterator>::value_t
-			     *pattern)
-	const
+			     const char_type *pattern) const
 {
-	std::basic_string<typename iter_value_type<OutputIterator>::value_t>
+	std::basic_string<char_type>
 		str(this->hhmmss(pattern, localeRef));
 
 	return std::copy(str.begin(), str.end(), iter);
 }
 
-template<typename OutputIterator>
+template<typename OutputIterator, typename char_type>
 OutputIterator hms::toString(OutputIterator iter,
 			     const const_locale &localeRef,
-			     const std::basic_string<typename
-			     OutputIterator::char_type> &pattern)
+			     const std::basic_string<char_type> &pattern)
 	const
 {
 	return toString(iter, localeRef, pattern.c_str());

@@ -8,13 +8,13 @@
 
 #include <x/namespace.h>
 #include <x/exception.H>
-#include <x/iter_value.H>
 
 #include <string>
 #include <vector>
 #include <sstream>
 #include <iomanip>
 #include <iterator>
+#include <type_traits>
 
 #include <stdint.h>
 
@@ -49,7 +49,8 @@ OutputIterator escape(//! Beginning input iterator.
 {
 	while (beg_iter != end_iter)
 	{
-		typename iter_value_type<InputIterator>::value_t ch=*beg_iter++;
+		typename std::decay<decltype(*beg_iter++)>::type
+			ch=*beg_iter++;
 
 		if ( (sizeof(ch) > 1 && (ch & 0x7F) != ch) ||
 		     (escapeqac && (ch == '\'' || ch == '"' ||

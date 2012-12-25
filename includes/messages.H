@@ -389,6 +389,8 @@ template<typename traits_type,
 class basic_messagesObj<wchar_t, traits_type, alloc_type> :
 	public basic_messagescommonObj<wchar_t> {
 
+	//! The locale
+
 	const const_locale l;
 
 	//! The string type being returned

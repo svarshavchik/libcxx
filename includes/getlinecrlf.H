@@ -10,8 +10,9 @@
 #include <istream>
 #include <iterator>
 #include <x/namespace.h>
-#include <x/iter_value.H>
 #include <x/exception.H>
+
+#include <type_traits>
 
 namespace LIBCXX_NAMESPACE {
 #if 0
@@ -38,7 +39,7 @@ std::pair<iter_type, bool> getlinelf(//! Beginning input iterator
 				     container_type &cont)
 
 {
-	typedef typename iter_value_type<iter_type>::value_t char_type;
+	typedef typename std::decay<decltype(*beg_iter)>::type char_type;
 
 	const char_type lf('\n');
 
@@ -112,7 +113,7 @@ std::pair<iter_type, bool> getlinecrlf(//! Beginning input iterator
 				       container_type &cont)
 
 {
-	typedef typename iter_value_type<iter_type>::value_t char_type;
+	typedef typename std::decay<decltype(*beg_iter)>::type char_type;
 
 	const char_type cr('\r');
 	const char_type lf('\n');

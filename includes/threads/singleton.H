@@ -29,7 +29,7 @@ protected:
 	static void morethanone() __attribute__((noreturn));
 };
 
-//! threadsingleton is only defined if the template parameter is a \ref ptr "ptr".
+//! threadsingleton is only defined if the template parameter is a \ref ptrAnchor "ptr".
 
 //! The default class is undefined, and a specialization for a \c ptr
 //! contains the actual implementation.

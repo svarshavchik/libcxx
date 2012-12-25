@@ -58,7 +58,7 @@ class timerfdObj;
 //! set_periodically() makes the timer run repeatedly.
 //!
 //! The time interval value to set() or set_periodically() may also be a
-//! \ref timespec "timespec" object. This
+//! \ref timespecAnchor "timespec" object. This
 //! allows specifying time intervals that include fractions of seconds:
 //! \code
 //! tfd->set(0, timespec(0, 1, 2));
@@ -67,7 +67,7 @@ class timerfdObj;
 //! This arms the timer to expire once, in one half of a second.
 //!
 //! set() and set_periodically() also have an optional parameter, a pointer
-//! to a \ref timespec "timespec":
+//! to a \ref timespecAnchor "timespec":
 //! object:
 //! \code
 //!

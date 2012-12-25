@@ -93,8 +93,12 @@ public:
 		//! Destructor
 		~input_iter_t() noexcept;
 
+#ifndef DOXYGEN
+		// TODO - doxygen fix
+
 		using fdinputiter::operator==;
 		using fdinputiter::operator!=;
+#endif
 
 		//! Iterator operator
 		input_iter_t &operator++()

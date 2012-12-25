@@ -233,7 +233,6 @@ include/x/imbue.H
 include/x/interface.H
 include/x/interval.H
 include/x/is_float.H
-include/x/iter_value.H
 include/x/join.H
 include/x/join_t.H
 include/x/join_to.H

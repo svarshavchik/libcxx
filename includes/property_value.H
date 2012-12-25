@@ -42,6 +42,9 @@ namespace LIBCXX_NAMESPACE {
 //! An application may also load default %property values by invoking
 //! \ref property::load_properties "INSERT_LIBX_NAMESPACE::property::load_properties"().
 //!
+//! \ref save_properties "INSERT_LIBX_NAMESPACE::property::save_properties"()
+//! takes a properties object and saves it to an output iterator.
+//!
 //! \par Specifying properties
 //!
 //! In the properties file, the '#' character introduces a comment. The rest

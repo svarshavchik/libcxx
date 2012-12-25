@@ -7,7 +7,6 @@
 #define x_joinfwd_H
 
 #include <x/namespace.h>
-#include <x/iter_value.H>
 
 #include <algorithm>
 #include <iterator>
@@ -15,6 +14,7 @@
 #include <list>
 #include <vector>
 #include <set>
+#include <type_traits>
 
 namespace LIBCXX_NAMESPACE {
 
@@ -44,7 +44,7 @@ namespace LIBCXX_NAMESPACE {
 template<typename OutputIterator, typename InputIterator>
 OutputIterator join(InputIterator beg_iter,
 		    InputIterator end_iter,
-		    const typename iter_value_type<InputIterator>::value_t &separator,
+		    const typename std::decay<decltype(*beg_iter)>::type &separator,
 		    OutputIterator out_iter);
 
 //! The opposite of strtok(): combine strings together, with a separator
@@ -55,7 +55,7 @@ OutputIterator join(InputIterator beg_iter,
 template<typename OutputIterator, typename InputIterator>
 OutputIterator join(InputIterator beg_iter,
 		    InputIterator end_iter,
-		    const typename iter_value_type<InputIterator>::value_t
+		    const typename std::decay<decltype(*beg_iter)>::type
 		    ::value_type *separator,
 		    OutputIterator out_iter);
 
@@ -67,7 +67,7 @@ OutputIterator join(InputIterator beg_iter,
 template<typename OutputIterator, typename InputIterator, size_t n>
 OutputIterator join(InputIterator beg_iter,
 		    InputIterator end_iter,
-		    const typename iter_value_type<InputIterator>::value_t
+		    const typename std::decay<decltype(*beg_iter)>::type
 		    ::value_type separator[n],
 		    OutputIterator out_iter);
 
@@ -79,7 +79,7 @@ OutputIterator join(InputIterator beg_iter,
 template<typename OutputIterator, typename InputIterator, size_t n>
 OutputIterator join(InputIterator beg_iter,
 		    InputIterator end_iter,
-		    typename iter_value_type<InputIterator>::value_t
+		    typename std::decay<decltype(*beg_iter)>::type
 		    ::value_type separator[n],
 		    OutputIterator out_iter);
 
@@ -98,9 +98,10 @@ OutputIterator join(const Container &container,
 //! \overload
 //!
 template<typename InputIterator, typename sep_type>
-typename iter_value_type<InputIterator>::value_t join(InputIterator beg_iter,
-						      InputIterator end_iter,
-						      const sep_type &separator);
+auto join(InputIterator beg_iter,
+	  InputIterator end_iter,
+	  const sep_type &separator)
+	-> typename std::decay<decltype(*beg_iter)>::type;
 
 //! The opposite of strtok(): combine strings together, with a separator
 
@@ -108,9 +109,10 @@ typename iter_value_type<InputIterator>::value_t join(InputIterator beg_iter,
 //!
 
 template<typename InputIterator, size_t n>
-typename iter_value_type<InputIterator>::value_t join(InputIterator beg_iter,
-						      InputIterator end_iter,
-						      const typename iter_value_type<InputIterator>::value_t::value_type (&separator)[n]);
+auto join(InputIterator beg_iter,
+	  InputIterator end_iter,
+	  const typename std::decay<decltype(*beg_iter)>::type::value_type (&separator)[n])
+	-> typename std::decay<decltype(*beg_iter)>::type;
 
 //! The opposite of strtok(): combine strings together, with a separator
 
@@ -118,9 +120,10 @@ typename iter_value_type<InputIterator>::value_t join(InputIterator beg_iter,
 //!
 
 template<typename InputIterator, size_t n>
-typename iter_value_type<InputIterator>::value_t join(InputIterator beg_iter,
-						      InputIterator end_iter,
-						      typename iter_value_type<InputIterator>::value_t::value_type (&separator)[n]);
+auto join(InputIterator beg_iter,
+	  InputIterator end_iter,
+	  typename std::decay<decltype(*beg_iter)>::type::value_type (&separator)[n])
+	-> typename std::decay<decltype(*beg_iter)>::type;
 
 //! The opposite of strtok(): combine strings together, with a separator
 

@@ -309,6 +309,8 @@ public:
 
 	bool operator>=(const ymdhms &o) const;
 
+	//! Serialization function
+
 	template<typename iter_type>
 	void serialize(iter_type &i)
 	{
@@ -324,8 +326,6 @@ public:
 		if (!i.serializing)
 			*this=ymdhms(*this, *this, tzfile::create(name));
 	}
-
-
 };
 
 //! Convert a string to a time_t

@@ -3,6 +3,12 @@
 ** See COPYING for distribution information.
 */
 
+/*! \file
+
+This file defines timespec, a wrapper for \c struct \c %timespec that provides
+a few value-added conveniences.
+
+*/
 #ifndef x_timespec_H
 #define x_timespec_H
 
@@ -23,7 +29,7 @@ namespace LIBCXX_NAMESPACE {
 };
 #endif
 
-//! A wrapper for a \c struct \c %timespec
+//! A wrapper for a \c struct \c %timespec \anchor timespecAnchor
 
 //! The wrapper provides several convenient constructors for initializing
 //! the \c %timespec structure -  a time value with nanosecond precision.

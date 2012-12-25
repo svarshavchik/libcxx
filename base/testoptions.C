@@ -562,11 +562,13 @@ static void testoptions9()
 
 	std::wcout << std::endl << "Date: ";
 	
-	ymd_value->value.toString(o);
+	ymd_value->value.toWideString(o);
 
 	std::wcout << std::endl << "Interval: ";
 
-	ymd_interval_value->value.toString(o);
+	auto w=LIBCXX_NAMESPACE::towstring(ymd_interval_value->value);
+
+	std::copy(w.begin(), w.end(), o);
 
 	std::wcout << std::endl << "URI path: ";
 

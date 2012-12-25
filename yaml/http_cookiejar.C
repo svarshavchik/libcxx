@@ -121,6 +121,7 @@ public:
 	{
 		++cur_iter;
 		nextcookie();
+		return *this;
 	}
 
 	save_iterator operator++(int)

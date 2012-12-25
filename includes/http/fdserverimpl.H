@@ -140,6 +140,8 @@ class fdserverimpl : private fdimplbase,
 		body_timeout_cnt LIBCXX_HIDDEN;
 
 protected:
+	//! Convenience typedef
+
 	typedef superclass_t::iterator iterator;
 
 	using superclass_t::begin;
