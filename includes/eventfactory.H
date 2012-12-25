@@ -137,20 +137,13 @@ namespace LIBCXX_NAMESPACE {
 //! the event handler's callback method invoked by multiple threads at the
 //! same time, once for each individual event. The event handler's thread
 //! safety is its own responsibility.
-//!
-//! \note
-//! This is a template alias for a \ref ref "ref" to an eventfactoryObj.
 
 template<typename keyType, typename argType,
 	 class Compare = std::less<keyType>,
 	 class Allocator = std::allocator<std::pair<const keyType,
 						    ref<eventhandlerObj<argType> >
 						    > > >
-#ifdef DOXYGEN
-class eventfactory {}; // TODO
-#else
 using eventfactory=ref< eventfactoryObj<keyType, argType, Compare, Allocator> >;
-#endif
 
 //! A nullable pointer to an event factory
 
@@ -161,12 +154,9 @@ template<typename keyType, typename argType,
 	 class Allocator = std::allocator<std::pair<const keyType,
 						    ref<eventhandlerObj<argType> >
 						    > > >
-#ifdef DOXYGEN
-class eventfactoryptr {};
-#else
 using eventfactoryptr=ptr<eventfactoryObj<keyType, argType, Compare, Allocator>
 			   >;
-#endif
+
 #if 0
 {
 #endif

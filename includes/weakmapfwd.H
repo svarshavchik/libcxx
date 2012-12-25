@@ -137,21 +137,14 @@ class weakmapBase;
 //! some other thread might've dropped the last reference to the object, and
 //! it's removed from the weak map before find(), or one of the other methods,
 //! has a chance to retrieve the corresponding iterator.
-//!
-//! \note
-//! This is a template alias for a \ref ref "ref" to a weakmapObj.
 
 template<typename K, typename T,
 	 typename C=std::less<K>,
 	 typename Allocator=std::allocator<std::pair<const K, weakptr<ptr<T> > > > >
-#ifdef DOXYGEN
-class weakmap {}; // TODO
-#else
-using weakmap=ref<weakmapObj<K, ptr<T>, C, std::map<K, weakptr<ptr<T> >, C,
-						    Allocator>,
+using weakmap=ref<weakmapObj<K, ptr<T>, C,
+			     std::map<K, weakptr<ptr<T> >, C, Allocator>,
 			     Allocator>,
 		  weakmapBase<K, T, C, Allocator> >;
-#endif
 
 //! A nullable pointer reference to a reference-counted map weak container.
 
@@ -159,14 +152,10 @@ using weakmap=ref<weakmapObj<K, ptr<T>, C, std::map<K, weakptr<ptr<T> >, C,
 template<typename K, typename T,
 	 typename C=std::less<K>,
 	 typename Allocator=std::allocator<std::pair<const K, weakptr<ptr<T> > > > >
-#ifdef DOXYGEN
-class weakmapptr {}; // TODO
-#else
-using weakmapptr=ptr<weakmapObj<K, ptr<T>, C, std::map<K, weakptr<ptr<T> >, C,
-						       Allocator>,
+using weakmapptr=ptr<weakmapObj<K, ptr<T>, C,
+				std::map<K, weakptr<ptr<T> >, C, Allocator>,
 				Allocator>,
 		     weakmapBase<K, T, C, Allocator> >;
-#endif
 
 #if 0
 {

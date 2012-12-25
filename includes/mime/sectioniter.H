@@ -239,22 +239,14 @@ private:
 //! \ref section_iterObj "section_iterObj".
 
 template<typename output_iter>
-#ifdef DOXYGEN
-class section_iter {}; // TODO
-#else
 using section_iter=refiterator<section_iterObj<output_iter> >;
-#endif
 
 //! A nullable pointer reference to a \ref section_iterObj "section_iterObj".
 
 //! \see section_iter
 
 template<typename output_iter>
-#ifdef DOXYGEN
-class section_iterptr {}; // TODO
-#else
 using section_iterptr=ptriterator<section_iterObj<output_iter> >;
-#endif
 
 #if 0
 {

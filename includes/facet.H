@@ -166,20 +166,12 @@ namespace facets {
 
 	//! See also: \link ::strftime strftime\endlink, 
 	//! \link ::wstrftime wstrftime\endlink.
-	//!
-	//! \note
-	//! This is a template alias for a \ref ref "ref" to
-	//! a \ref facetObjs::time_put "facetObjs::time_put".
 
 	template<typename charT,
 		 typename OutputIterator=std::ostreambuf_iterator<charT> >
-#ifdef DOXYGEN
-	class time_put_facet {}; // TODO
-#else
 	using time_put_facet=ref<typename facetObjs::time_put<charT,
 							      OutputIterator>
 				 ::type_t>;
-#endif
 
 	//! A nullable reference pointer to a time_put facet.
 
@@ -187,24 +179,16 @@ namespace facets {
 
 	template<typename charT,
 		 typename OutputIterator=std::ostreambuf_iterator<charT> >
-#ifdef DOXYGEN
-	class time_put_facetptr {}; // TODO
-#else
 	using time_put_facetptr=ptr<typename facetObjs::time_put<charT,
 								 OutputIterator>
 				    ::type_t>;
-#endif
 	//! Define a wrapper for the \c std::time_get facet.
 
 	template<typename charT,
 		 typename InputIterator=std::istreambuf_iterator<charT> >
-#ifdef DOXYGEN
-	class time_get_facet {}; // TODO
-#else
 	using time_get_facet=ref<typename facetObjs::time_get<charT,
 							      InputIterator>
 				 ::type_t>;
-#endif
 
 	//! A nullable reference pointer to a time_get facet.
 
@@ -212,13 +196,9 @@ namespace facets {
 
 	template<typename charT,
 		 typename InputIterator=std::istreambuf_iterator<charT> >
-#ifdef DOXYGEN
-	class time_get_facetptr {}; // TODO
-#else
 	using time_get_facetptr=ptr<typename facetObjs::time_get<charT,
 								 InputIterator>
 				    ::type_t>;
-#endif
 }
 
 #if 0

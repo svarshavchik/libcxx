@@ -215,44 +215,28 @@ public:
 //! \see refobjiterator
 
 template<typename obj_type, typename baseType=ptrrefBase>
-#ifdef DOXYGEN
-class refiterator {}; // TODO
-#else
 using refiterator=refobjiterator<ref<obj_type, baseType>>;
-#endif
 
 //! A referenced-counted pointer that implements iterator requirements.
 
 //! \see refobjiterator
 
 template<typename obj_type, typename baseType=ptrrefBase>
-#ifdef DOXYGEN
-class ptriterator {}; // TODO
-#else
 using ptriterator=refobjiterator<ptr<obj_type, baseType>>;
-#endif
 
 //! A referenced-counted pointer that implements iterator requirements.
 
 //! \see refobjiterator
 
 template<typename obj_type, typename baseType=ptrrefBase>
-#ifdef DOXYGEN
-class const_refiterator {}; // TODO
-#else
 using const_refiterator=refobjiterator<const_ref<obj_type, baseType>>;
-#endif
 
 //! A referenced-counted pointer that implements iterator requirements.
 
 //! \see refobjiterator
 
 template<typename obj_type, typename baseType=ptrrefBase>
-#ifdef DOXYGEN
-class const_ptriterator {}; // TODO
-#else
 using const_ptriterator=refobjiterator<const_ptr<obj_type, baseType>>;
-#endif
 
 //! Construct an referenced-counted object that implements an iterator.
 
@@ -323,44 +307,28 @@ public:
 //! \see outputrefiteratorObj
 
 template<typename value_type>
-#ifdef DOXYGEN
-class outputrefiterator {}; // TODO
-#else
 using outputrefiterator=refiterator<outputrefiteratorObj<value_type>>;
-#endif
 
 //! A referenced-counted output iterator.
 
 //! \see outputrefiteratorObj
 
 template<typename value_type>
-#ifdef DOXYGEN
-class outputrefiteratorptr {}; // TODO
-#else
 using outputrefiteratorptr=ptriterator<outputrefiteratorObj<value_type>>;
-#endif
 
 //! A referenced-counted output iterator.
 
 //! \see outputrefiteratorObj
 
 template<typename value_type>
-#ifdef DOXYGEN
-class const_outputrefiterator {}; // TODO
-#else
 using const_outputrefiterator=const_refiterator<outputrefiteratorObj<value_type>>;
-#endif
 
 //! A referenced-counted output iterator.
 
 //! \see outputrefiteratorObj
 
 template<typename value_type>
-#ifdef DOXYGEN
-class const_outputrefiteratorptr {}; // TODO
-#else
 using const_outputrefiteratorptr=const_ptriterator<outputrefiteratorObj<value_type>>;
-#endif
 
 template<typename Arg> class outputref_tuple_unpack;
 
@@ -572,44 +540,28 @@ private:
 //! \see inputrefiteratorObj
 
 template<typename value_type>
-#ifdef DOXYGEN
-class inputrefiterator {}; // TODO
-#else
 using inputrefiterator=refiterator<inputrefiteratorObj<value_type>>;
-#endif
 
 //! A referenced-counted input iterator.
 
 //! \see inputrefiteratorObj
 
 template<typename value_type>
-#ifdef DOXYGEN
-class inputrefiteratorptr {}; // TODO
-#else
 using inputrefiteratorptr=ptriterator<inputrefiteratorObj<value_type>>;
-#endif
 
 //! A referenced-counted input iterator.
 
 //! \see inputrefiteratorObj
 
 template<typename value_type>
-#ifdef DOXYGEN
-class const_inputrefiterator {}; // TODO
-#else
 using const_inputrefiterator=const_refiterator<inputrefiteratorObj<value_type>>;
-#endif
 
 //! A referenced-counted input iterator.
 
 //! \see inputrefiteratorObj
 
 template<typename value_type>
-#ifdef DOXYGEN
-class const_inputrefiteratorptr {}; // TODO
-#else
 using const_inputrefiteratorptr=const_ptriterator<inputrefiteratorObj<value_type>>;
-#endif
 
 extern template class outputrefiteratorObj<char>;
 extern template class inputrefiteratorObj<char>;

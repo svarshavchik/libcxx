@@ -10,7 +10,7 @@ See COPYING for distribution information.
 
   <para>
     An
-    <ulink url="&link-x--eventfactory;">event factory</ulink> is a generic
+    <ulink url="&link-typedef-x-eventfactory;">event factory</ulink> is a generic
     thread-safe object for dispatching internal application events.
     Application events are identified by an event key, and have some
     associated event data.
@@ -113,8 +113,15 @@ myfactory-&gt;event("fileavailable", 4);</programlisting>
     All event handlers that are registered for the
     <quote>fileavailable</quote> event are invoked, receiving
     <literal>4</literal> as the event handler's argument.
-    <ulink url="&link-x--eventfactory;"><classname>&ns;::eventfactory</classname></ulink>
+    <ulink url="&link-typedef-x-eventfactory;"><classname>&ns;::eventfactory</classname></ulink>
     has several overloaded <methodname>event</methodname>() methods for reporting
     multiple events in several convenient ways.
   </para>
 </chapter>
+
+<!--
+Local Variables:
+mode: sgml
+sgml-parent-document: ("book.xml" "book" "chapter")
+End:
+-->

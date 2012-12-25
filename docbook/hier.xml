@@ -9,7 +9,7 @@ See COPYING for distribution information.
   <title>Hierarchical container template</title>
 
   <para>
-    The <ulink url="&link-x--hier;"><classname>&ns;::hier</classname></ulink>
+    The <ulink url="&link-typedef-x-hier;"><classname>&ns;::hier</classname></ulink>
     template implements a container that uses a hierarchical key.
     This means that, in general, a value's key in the container
     is a <classname>std::list&lt;<replaceable>T</replaceable>&gt;</classname>

@@ -102,48 +102,29 @@ template<typename hier_type, typename node_type> class hierObj;
 //! Operations on the container object are thread safe. Individual lock objects
 //! are not thread safe themselves; but different lock objects may be used
 //! by different threads, independently.
-//!     
-//! \note
-//! This is a template alias for a \ref ref "ref" to
-//! a \ref hierObj "hierObj".
 
 template<typename hier_type, typename ref_type>
-#ifdef DOXYGEN
-class hier {}; // TODO
-#else
 using hier=ref<hierObj<hier_type, ref_type>, hierBase<hier_type, ref_type> >;
-#endif
 
 //! A nullable pointer reference to a hierarchical container.
 
 //! \see hier
 template<typename hier_type, typename ref_type>
-#ifdef DOXYGEN
-class hierptr {}; // TODO
-#else
 using hierptr=ptr<hierObj<hier_type, ref_type>, hierBase<hier_type, ref_type> >;
-#endif
 
 //! A reference to a constant hierarchical container
 
 //! \see hier
 template<typename hier_type, typename ref_type>
-#ifdef DOXYGEN
-class const_hier {}; // TODO
-#else
 using const_hier=const_ref<hierObj<hier_type, ref_type>,
 			   hierBase<hier_type, ref_type> >;
-#endif
+
 //! A nullable pointer reference to a constant hierarchical container.
 
 //! \see hier
 template<typename hier_type, typename ref_type>
-#ifdef DOXYGEN
-class const_hierptr {}; // TODO
-#else
 using const_hierptr=const_ptr<hierObj<hier_type, ref_type>,
 			      hierBase<hier_type, ref_type> >;
-#endif
 
 #if 0
 {

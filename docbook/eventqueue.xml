@@ -10,7 +10,7 @@ See COPYING for distribution information.
 
   <para>
     The
-    <ulink url="&link-x--eventqueue;"><classname>&ns;::eventqueue</classname></ulink>
+    <ulink url="&link-typedef-x-eventqueue;"><classname>&ns;::eventqueue</classname></ulink>
     template implements a thread-safe queue of objects which uses
     an <link linkend="eventfd">event file descriptor</link> for signaling.
     Adding objects to the queue reports an event to the file descriptor.

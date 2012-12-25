@@ -45,49 +45,30 @@ template<typename workerThreadType> class workerpoolObj;
 //! terminate, and returns after all thread worker class instances have been
 //! destroyed. If a thread worker is in a middle of a run(), the destructor
 //! waits for it to finish.
-//!
-//! \note
-//! This is a template alias for a \ref ref "ref" to a workerpoolObj.
 
 template<typename workerThreadType=simpleWorkerThreadObj>
-#ifdef DOXYGEN
-class workerpool {}; // TODO
-#else
 using workerpool=ref<workerpoolObj<workerThreadType> >;
-#endif
 
 //! A nullable reference to a worker pool implementation.
 
 //! \see workerpool
 
 template<typename workerThreadType=simpleWorkerThreadObj>
-#ifdef DOXYGEN
-class workerpoolptr {}; // TODO
-#else
 using workerpoolptr=ptr<workerpoolObj<workerThreadType> >;
-#endif
 
 //! A reference to a constant worker pool implementation object.
 
 //! \see workerpool
 
 template<typename workerThreadType=simpleWorkerThreadObj>
-#ifdef DOXYGEN
-class const_workerpool {}; // TODO
-#else
 using const_workerpool=const_ref<workerpoolObj<workerThreadType> >;
-#endif
 
 //! A nullable pointer reference to a constant worker pool implementation object.
 
 //! \see workerpool
 
 template<typename workerThreadType=simpleWorkerThreadObj>
-#ifdef DOXYGEN
-class const_workerpoolptr {}; // TODO
-#else
 using const_workerpoolptr=const_ptr<workerpoolObj<workerThreadType> >;
-#endif
 
 #if 0
 {

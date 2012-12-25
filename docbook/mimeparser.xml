@@ -22,7 +22,7 @@ See COPYING for distribution information.
 
     <para>
       The initial output iterator,
-      <ulink url="&link-x--mime--newline-iter;"><classname>&ns;::mime::newline_iter</classname></ulink>,
+      <ulink url="&link-typedef-x--mime-newline-iter;"><classname>&ns;::mime::newline_iter</classname></ulink>,
       instantiates an output iterator over <classname>char</classname> values.
       Its template parameter is an output iterator class which iterates over
       <classname>int</classname> values.
@@ -243,7 +243,7 @@ Subject: test<256>
       Most of the time,
       <link linkend="mimeparsernewlineiter"><classname>&ns;::mime::newline_iter</classname></link>'s
       output iterator is a
-      <ulink url="&link-x--mime--bodystart-iter;"><classname>&ns;::mime::bodystart_iter</classname></ulink>
+      <ulink url="&link-typedef-x--mime-bodystart-iter;"><classname>&ns;::mime::bodystart_iter</classname></ulink>
       which is an output iterator over a sequence of
       <classname>int</classname>s.
       <classname>&ns;::mime::bodystart_iter</classname>'s template parameter
@@ -329,7 +329,7 @@ Subject: test<256>
 
     <para>
       The
-      <ulink url="&link-x--mime--header-iter;"><classname>&ns;::mime::header_iter</classname></ulink>
+      <ulink url="&link-typedef-x--mime-header-iter;"><classname>&ns;::mime::header_iter</classname></ulink>
       template instantiates an output iterator that takes the output sequence
       from <link linkend="mimeparserbodystartiter"><classname>&ns;::mime::bodystart_iter</classname></link>.
       The template parameter is another output iterator class, over an

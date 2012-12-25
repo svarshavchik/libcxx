@@ -117,28 +117,16 @@ public:
 //!
 //! An eof element checks if a body has been seen, if not \c body_start gets
 //! emitted.
-//!
-//! This is a template alias for a
-//! \ref refiterator "refiterator" to a
-//! \ref bodystart_iterObj "bodystart_iterObj".
 
 template<typename output_iter>
-#ifdef DOXYGEN
-class bodystart_iter {}; // TODO
-#else
 using bodystart_iter=refiterator<bodystart_iterObj<output_iter> >;
-#endif
 
 //! A nullable pointer reference to a \ref bodystart_iterObj "bodystart_iterObj".
 
 //! \see bodystart_iter
 
 template<typename output_iter>
-#ifdef DOXYGEN
-class bodystart_iterptr {}; // TODO
-#else
 using bodystart_iterptr=ptriterator<bodystart_iterObj<output_iter> >;
-#endif
 
 #if 0
 {

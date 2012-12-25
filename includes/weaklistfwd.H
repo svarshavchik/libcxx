@@ -88,17 +88,11 @@ template<typename T, typename Allocator> class weaklistBase;
 //! See \ref weakmap "INSERT_LIBX_NAMESPACE::weakmap" for a discussion of
 //! locking and other aspects of weak container iterators. The same locking
 //! properties apply to the weak list container, also.
-//!
-//! \note
-//! This is a template alias for a \ref ref "ref" to an weaklistObj.
 
 template<typename T,
 	 typename Allocator=std::allocator<weakptr<T > > >
-#ifdef DOXYGEN
-class weaklist {}; // TODO
-#else
-using weaklist=ref< weaklistObj< ptr<T>, Allocator>, weaklistBase<T, Allocator> >;
-#endif
+using weaklist=ref< weaklistObj< ptr<T>, Allocator>,
+		    weaklistBase<T, Allocator> >;
 
 //! A nullable pointer to a weak list
 
@@ -106,11 +100,8 @@ using weaklist=ref< weaklistObj< ptr<T>, Allocator>, weaklistBase<T, Allocator> 
 
 template<typename T,
 	 typename Allocator=std::allocator<weakptr<T > > >
-#ifdef DOXYGEN
-class weaklistptr {};
-#else
-using weaklistptr=ptr< weaklistObj< ptr<T>, Allocator>, weaklistBase<T, Allocator> >;
-#endif
+using weaklistptr=ptr< weaklistObj< ptr<T>, Allocator>,
+		       weaklistBase<T, Allocator> >;
 
 #if 0
 {

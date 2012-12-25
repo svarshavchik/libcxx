@@ -38,21 +38,14 @@ template<typename K, typename T,
 //! Except for the presence of duplicate keys, all other aspects of the
 //! weak multimap are the same. Note that a weak map's insert() always
 //! return true.
-//!
-//! \note
-//! This is a template alias for a \ref ref "ref" to a weakmapObj.
 
 template<typename K, typename T,
 	 typename C=std::less<K>,
 	 typename Allocator=std::allocator<std::pair<const K, weakptr<ptr<T> > > > >
-#ifdef DOXYGEN
-class weakmultimap {}; // TODO
-#else
 using weakmultimap=ref<weakmapObj<K, ptr<T>, C,
 				  std::multimap<K, weakptr<ptr<T> >,
 						C, Allocator>,
 		       Allocator>, weakmultimapBase<K, T, C, Allocator> >;
-#endif
 
 //! A nullable pointer reference to a reference-counted multimap weak container.
 
@@ -62,15 +55,11 @@ using weakmultimap=ref<weakmapObj<K, ptr<T>, C,
 template<typename K, typename T,
 	 typename C=std::less<K>,
 	 typename Allocator=std::allocator<std::pair<const K, weakptr<ptr<T> > > > >
-#ifdef DOXYGEN
-class weakmultimapptr {}; // TODO
-#else
 using weakmultimapptr=ptr<weakmapObj<K, ptr<T>, C,
 				     std::multimap<K, weakptr<ptr<T> >,
 						   C, Allocator>,
 				     Allocator>,
 			  weakmultimapBase<K, T, C, Allocator> >;
-#endif
 
 #if 0
 {

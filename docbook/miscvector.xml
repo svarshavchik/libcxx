@@ -19,7 +19,7 @@ See COPYING for distribution information.
 
   <para>
     The
-    <ulink url="&link-x--vector;"><classname>&ns;::vector</classname></ulink>
+    <ulink url="&link-typedef-x-vector;"><classname>&ns;::vector</classname></ulink>
     template class defines a reference-counted
     <classname>std::vector</classname>.
     In this example, <quote>*vecref</quote> is type convertible to a

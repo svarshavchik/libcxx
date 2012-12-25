@@ -10,7 +10,7 @@ See COPYING for distribution information.
 
   <para>
     The
-    <ulink url="&link-x--lockpool;"><classname>&ns;::lockpool</classname></ulink>
+    <ulink url="&link-typedef-x-lockpool;"><classname>&ns;::lockpool</classname></ulink>
     template implements a thread-safe locking mechanism that uses
     an <link linkend="eventfd">event file descriptor</link> for signaling.
     The template takes several parameters, with the type of the lock
@@ -148,7 +148,7 @@ while (!myLock-&gt;locked())
     </para>
     <para>
       See the
-      <ulink url="&link-x--lockpool;">reference documentation for
+      <ulink url="&link-typedef-x-lockpool;">reference documentation for
 	<classname>&ns;::lockpool</classname></ulink> for more information.
     </para>
   </section>
@@ -174,7 +174,7 @@ rwpool_t::lockentry rlock(rwlockpool->addLockSet(rwpool_t::writelock,
     </blockquote>
 
     <para>
-      <ulink url="&link-x--rwlockpool;"><classname>&ns;::rwlockpool</classname></ulink>
+      <ulink url="&link-typedef-x-rwlockpool;"><classname>&ns;::rwlockpool</classname></ulink>
       is a specialization of a <link linkend="lockpool">lock pool</link>
       that implements the semantics of
       <link linkend="rwmutex"><classname>&ns;::rwmutex</classname></link>.
@@ -217,7 +217,7 @@ blocklock_t::lockentry blocklock(mutexpool->addLockSet(true
     </blockquote>
 
     <para>
-      <ulink url="&link-x--mutexpool;"><classname>&ns;::mutexpool</classname></ulink>
+      <ulink url="&link-typedef-x-mutexpool;"><classname>&ns;::mutexpool</classname></ulink>
       is a specialization of a <link linkend="lockpool">lock pool</link>
       that implements the semantics of a <quote>mutually-exclusive</quote>
       lock.

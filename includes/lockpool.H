@@ -222,21 +222,14 @@ class lockpoolBase;
 //! - Defines the appropriate \c insert_lock() and \c delete_lock().
 //!
 //! See multilockpool for an example.
-//!
-//! \note
-//! This is a template alias for a \ref ref "ref" to an lockpoolObj.
 
 template<typename lockid_t, typename compare_t=std::less<lockid_t>,
 	 typename traits_t=lockpool_traits<lockid_t,
 					   std::set<lockid_t, compare_t> >,
 	 bool starve=true>
-#ifdef DOXYGEN
-class lockpool {}; // TODO
-#else
 using lockpool=ref<lockpoolObj<lockid_t, compare_t, traits_t, starve>,
 		   lockpoolBase<lockid_t, compare_t, traits_t, starve>
 		   >;
-#endif
 
 //! A nullable reference pointer to a lockpool object.
 
@@ -246,14 +239,9 @@ template<typename lockid_t, typename compare_t=std::less<lockid_t>,
 	 typename traits_t=lockpool_traits<lockid_t,
 					   std::set<lockid_t, compare_t> >,
 	 bool starve=true>
-#ifdef DOXYGEN
-class lockpoolptr {}; // TODO
-#else
 using lockpoolptr=ptr<lockpoolObj<lockid_t, compare_t, traits_t, starve>,
 		      lockpoolBase<lockid_t, compare_t, traits_t, starve>
 		      >;
-#endif
-
 
 //! Refer to this class as %lockpool<>::%base or %lockpoolptr<>::%base
 
@@ -470,28 +458,20 @@ template<bool starve> class rwlockpoolBase;
 //! This is a template alias for a \ref ref "ref" to an lockpoolObj.
 
 template<bool starve=false>
-#ifdef DOXYGEN
-class rwlockpool {}; // TODO
-#else
 using rwlockpool=ref<lockpoolObj<rwpool_traits::lock_t,
 				 std::less<rwpool_traits::lock_t>,
 				 rwpool_traits, starve>,
 		     rwlockpoolBase<starve> >;
-#endif
 
 //! A nullable reference pointer to a read/write lock pool.
 
 //! \see rwlockpool
 
 template<bool starve=false>
-#ifdef DOXYGEN
-class rwlockpoolptr {}; // TODO
-#else
 using rwlockpoolptr=ptr<lockpoolObj<rwpool_traits::lock_t,
 				    std::less<rwpool_traits::lock_t>,
 				    rwpool_traits, starve>,
 			rwlockpoolBase<starve> >;
-#endif
 
 //! \c rwlockpool<bool>::base and \c rwlockpoolptr<bool>::base
 
@@ -629,13 +609,9 @@ template<typename mutex_t,
 template<typename mutex_t=bool,
 	 typename compare_t=std::less<mutex_t>,
 	 bool starve=true>
-#ifdef DOXYGEN
-class mutexpool {}; // TODO
-#else
 using mutexpool=lockpool<mutex_t, compare_t,
 			 mutexpool_traits<mutex_t, compare_t, starve>,
 			 starve>;
-#endif
 
 //! A nullable reference pointer to a mutually-exclusive pool object.
 
@@ -644,13 +620,9 @@ using mutexpool=lockpool<mutex_t, compare_t,
 template<typename mutex_t=bool,
 	 typename compare_t=std::less<mutex_t>,
 	 bool starve=true>
-#ifdef DOXYGEN
-class mutexpoolptr {}; // TODO
-#else
 using mutexpoolptr=lockpoolptr<mutex_t, compare_t,
 			       mutexpool_traits<mutex_t, compare_t, starve>,
 			       starve>;
-#endif
 
 // Instantiate the templates in the library
 

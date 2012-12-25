@@ -35,49 +35,32 @@ template<class T, class Allocator=std::allocator<T> > class vectorObj;
 //! of scope
 //!
 //! \see ptr
-//!
-//! \note
-//! This is a template alias for a \ref ref "ref" to an vectorObj.
 
 template<class T, class Allocator=std::allocator<T> >
-#ifdef DOXYGEN
-class vector{}; // TODO
-#else
 using vector=ref<vectorObj<T, Allocator>, vectorBase<T, Allocator> >;
-#endif
 
 //! A nullable reference pointer to a reference-counted vector object.
 
 //! \see vector
 
 template<class T, class Allocator=std::allocator<T> >
-#ifdef DOXYGEN
-class vectorptr{}; // TODO
-#else
 using vectorptr=ptr<vectorObj<T, Allocator>, vectorBase<T, Allocator> >;
-#endif
 
 //! A reference to a constant reference-counted vector object.
 
 //! \see vector
 
 template<class T, class Allocator=std::allocator<T> >
-#ifdef DOXYGEN
-class const_vector{}; // TODO
-#else
-using const_vector=const_ref<vectorObj<T, Allocator>, vectorBase<T, Allocator> >;
-#endif
+using const_vector=const_ref<vectorObj<T, Allocator>,
+			     vectorBase<T, Allocator> >;
 
 //! A nullable reference pointer to a constant reference-counted vector object.
 
 //! \see vector
 
 template<class T, class Allocator=std::allocator<T> >
-#ifdef DOXYGEN
-class const_vectorptr{}; // TODO
-#else
-using const_vectorptr=const_ptr<vectorObj<T, Allocator>, vectorBase<T, Allocator> >;
-#endif
+using const_vectorptr=const_ptr<vectorObj<T, Allocator>,
+				vectorBase<T, Allocator> >;
 
 //! Refer to this class as \c vector<>::base or vectorptr<>::base
 

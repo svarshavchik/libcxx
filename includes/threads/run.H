@@ -188,49 +188,29 @@ auto run_async::run_thread(const ref<objClass, baseType> &p,
 
 //! The return value from an object's run() method.
 
-//!
-//! \note
-//! This is a template alias for a \ref ref "ref" to a run_async::runthreadObj.
-
 template<typename ret_type>
-#ifdef DOXYGEN
-class runthread {}; // TODO
-#else
 using runthread=ref< run_async::runthreadObj<ret_type> >;
-#endif
 
 //! A nullable pointer reference to a return value from an object's run().
 
 //! \see runthread
 
 template<typename ret_type>
-#ifdef DOXYGEN
-class runthreadptr {}; // TODO
-#else
 using runthreadptr=ptr< run_async::runthreadObj<ret_type> >;
-#endif
 
 //! A reference to a constant return value from an object's run().
 
 //! \see runthread
 
 template<typename ret_type>
-#ifdef DOXYGEN
-class const_runthread {}; // TODO
-#else
 using const_runthread=const_ref< run_async::runthreadObj<ret_type> >;
-#endif
 
 //! A nullable pointer reference to a constant return value from an object's run().
 
 //! \see runthread
 
 template<typename ret_type>
-#ifdef DOXYGEN
-class const_runthreadptr {}; // TODO
-#else
 using const_runthreadptr=const_ptr< run_async::runthreadObj<ret_type> >;
-#endif
 
 //! Invoke an object's %run() method in another thread.
 

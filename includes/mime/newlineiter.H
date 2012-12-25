@@ -167,28 +167,16 @@ public:
 //! \c newline_start immediately followed by \c newline_end.
 //! The \c eof element gets forwarded
 //! to the underlying iterator.
-//!
-//! This is a template alias for a
-//! \ref refiterator "refiterator" to a
-//! \ref newline_iterObj "newline_iterObj".
 
 template<typename output_iter>
-#ifdef DOXYGEN
-class newline_iter {}; // TODO
-#else
 using newline_iter=refiterator<newline_iterObj<output_iter> >;
-#endif
 
 //! A nullable pointer reference to a \ref newline_iterObj "newline_iterObj".
 
 //! \see newline_iter
 
 template<typename output_iter>
-#ifdef DOXYGEN
-class newline_iterptr {}; // TODO
-#else
 using newline_iterptr=ptriterator<newline_iterObj<output_iter> >;
-#endif
 
 #if 0
 {

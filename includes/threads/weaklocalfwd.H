@@ -21,42 +21,24 @@ class weakthreadlocalObj;
 
 //! \see makeweakthreadlocal
 //!
-//! \note
-//! This is a template alias for a \ref ref "ref" to a weakthreadlocalObj.
 
 template<typename objClass, typename baseType=ptrrefBase>
-#ifdef DOXYGEN
-class weakthreadlocal {}; // TODO
-#else
 using weakthreadlocal=ref<weakthreadlocalObj<objClass, baseType> >;
-#endif
 
 //! A nullable pointer reference to a weak local thread object.
 
 template<typename objClass, typename baseType=ptrrefBase>
-#ifdef DOXYGEN
-class weakthreadlocalptr {}; // TODO
-#else
 using weakthreadlocalptr=ptr<weakthreadlocalObj<objClass, baseType> >;
-#endif
 
 //! A constant reference to a weak local thread object.
 
 template<typename objClass, typename baseType=ptrrefBase>
-#ifdef DOXYGEN
-class const_weakthreadlocal {}; // TODO
-#else
 using const_weakthreadlocal=const_ref<weakthreadlocalObj<objClass, baseType> >;
-#endif
 
 //! A nullable pointer reference to a constant weak local thread object.
 
 template<typename objClass, typename baseType=ptrrefBase>
-#ifdef DOXYGEN
-class const_weakthreadlocalptr {}; // TODO
-#else
 using const_weakthreadlocalptr=const_ptr<weakthreadlocalObj<objClass, baseType> >;
-#endif
 
 //! A weak local thread object reference
 

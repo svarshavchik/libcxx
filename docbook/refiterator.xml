@@ -36,7 +36,7 @@ auto iter=customiterator::create( /* arguments... */ );
   </blockquote>
 
   <para>
-    <ulink url="&link-x--refiterator;"><classname>&ns;::refiterator</classname></ulink>
+    <ulink url="&link-typedef-x-refiterator;"><classname>&ns;::refiterator</classname></ulink>
     defines a subclass of <link linkend="ref"><classname>&ns;::ref</classname></link>
     that implements iterator operator facades which invoke the corresponding
     methods from the referenced object. The template, like
@@ -323,15 +323,15 @@ outputrefiterator&lt;int&gt; iter=&ns;::refiterator&lt;receiverObj&gt;::create()
     </para>
 
     <para>
-      <ulink url="&link-x--outputrefiterator;"><classname>&ns;::outputrefiterator&lt;<replaceable>T</replaceable>&gt;</classname></ulink>
+      <ulink url="&link-typedef-x-outputrefiterator;"><classname>&ns;::outputrefiterator&lt;<replaceable>T</replaceable>&gt;</classname></ulink>
       defines a reference-counted iterator to an
       <classname>&ns;::outputrefiteratorObj&lt;<replaceable>T</replaceable>&gt;</classname>.
       There's also an
-      <ulink url="&link-x--outputrefiteratorptr;"><classname>&ns;::outputrefiteratorptr&lt;<replaceable>T</replaceable>&gt;</classname></ulink>;
+      <ulink url="&link-typedef-x-outputrefiteratorptr;"><classname>&ns;::outputrefiteratorptr&lt;<replaceable>T</replaceable>&gt;</classname></ulink>;
       as well as
-      <ulink url="&link-x--const-outputrefiteratorptr;"><classname>&ns;::const_outputrefiterator&lt;<replaceable>T</replaceable>&gt;</classname></ulink>
+      <ulink url="&link-typedef-x-const-outputrefiteratorptr;"><classname>&ns;::const_outputrefiterator&lt;<replaceable>T</replaceable>&gt;</classname></ulink>
       and
-      <ulink url="&link-x--const-outputrefiteratorptr;"><classname>&ns;::const_outputrefiteratorptr&lt;<replaceable>T</replaceable>&gt;</classname></ulink>
+      <ulink url="&link-typedef-x-const-outputrefiteratorptr;"><classname>&ns;::const_outputrefiteratorptr&lt;<replaceable>T</replaceable>&gt;</classname></ulink>
       (marginally useful, since
       <classname>&ns;::outputrefiteratorObj&lt;<replaceable>T</replaceable>&gt;</classname>
       does not have any <literal>const</literal> methods).

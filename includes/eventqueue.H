@@ -49,27 +49,16 @@ namespace LIBCXX_NAMESPACE {
 //! be passed directly to the
 //! \link eventfactoryObj::registerHandler() registerHandler() \endlink
 //! method.
-//!
-//! \note
-//! This is a template alias for a \ref ref "ref" to an eventqueueObj.
 
 template<typename argType>
-#ifdef DOXYGEN
-class eventqueue {}; // TODO
-#else
 using eventqueue=ref< eventqueueObj<argType> >;
-#endif
 
 //! A nullable reference pointer to the queue object.
 
 //! \see eventqueue
 
 template<typename argType>
-#ifdef DOXYGEN
-class eventqueue {};
-#else
 using eventqueueptr=ptr< eventqueueObj<argType> >;
-#endif
 
 #if 0
 {

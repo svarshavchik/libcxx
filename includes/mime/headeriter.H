@@ -178,28 +178,16 @@ private:
 //! \note
 //! The logical contents of header_name_start/end and header_contents/start_end
 //! will include any leading and trailing spaces.
-//!
-//! This is a template alias for a
-//! \ref refiterator "refiterator" to a
-//! \ref header_iterObj "header_iterObj".
 
 template<typename output_iter>
-#ifdef DOXYGEN
-class header_iter {}; // TODO
-#else
 using header_iter=refiterator<header_iterObj<output_iter> >;
-#endif
 
 //! A nullable pointer reference to a \ref header_iterObj "header_iterObj".
 
 //! \see header_iter
 
 template<typename output_iter>
-#ifdef DOXYGEN
-class header_iterptr {}; // TODO
-#else
 using header_iterptr=ptriterator<header_iterObj<output_iter> >;
-#endif
 
 #if 0
 {

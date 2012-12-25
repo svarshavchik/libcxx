@@ -557,7 +557,7 @@ bool status=ret->get();</programlisting>
       The referenced object's <methodname>run</methodname>() gets invoked in a
       new execution thread, meanwhile <function>&ns;::run</function>()
       returns a
-      <ulink url="&link-x--runthread;"><classname>&ns;::runthread&lt;<replaceable>T</replaceable>&gt;</classname></ulink>.
+      <ulink url="&link-typedef-x-runthread;"><classname>&ns;::runthread&lt;<replaceable>T</replaceable>&gt;</classname></ulink>.
       The arguments to <methodname>run</methodname>() must be
       copy-constructible.
       <function>&ns;::run</function>() copies the arguments, and
@@ -591,7 +591,7 @@ bool status=ret->get();</programlisting>
 
       <para>
 	<function>&ns;::run</function>() returns a
-	<ulink url="&link-x--runthread;"><classname>&ns;::runthread&lt;<replaceable>T</replaceable>&gt;</classname></ulink>,
+	<ulink url="&link-typedef-x-runthread;"><classname>&ns;::runthread&lt;<replaceable>T</replaceable>&gt;</classname></ulink>,
 	where <replaceable>T</replaceable> is the type of the return value
 	from the thread object's <methodname>run</methodname>().
 	Its <methodname>terminated</methodname>() method
@@ -839,7 +839,7 @@ class myThreadObj : virtual public &ns;::obj, virtual public &ns;::runthreadsing
 	requirement to join the started thread before
 	<classname>std::thread</classname>'s destructor gets invoked.
 	<classname>std::thread</classname> is privately owned by a
-	<ulink url="&link-x--runthread;"><classname>&ns;::runthread&lt;<replaceable>T</replaceable>&gt;</classname></ulink>
+	<ulink url="&link-typedef-x-runthread;"><classname>&ns;::runthread&lt;<replaceable>T</replaceable>&gt;</classname></ulink>
 	that gets returned by <function>&ns;::run</function>().
 	Additionally, the started thread maintains its own reference on the
 	thread object, and the <classname>&ns;::runthread</classname>
@@ -1274,7 +1274,7 @@ c-&gt;method();</programlisting>
     </para>
 
     <para>
-      A <ulink url="&link-x--workerpool;"><classname>&ns;::workerpool</classname></ulink>
+      A <ulink url="&link-typedef-x-workerpool;"><classname>&ns;::workerpool</classname></ulink>
       is an object that has its own <methodname>run</methodname>() method
       that works generally the same way as <function>&ns;::run</function>(),
       however a number of threads get started in advance (actually, the first

@@ -2024,11 +2024,11 @@ public:
     </para>
 
     <para>
-      <ulink url="&link-x--weaklist;"><classname>&ns;::weaklist</classname></ulink>
+      <ulink url="&link-typedef-x-weaklist;"><classname>&ns;::weaklist</classname></ulink>
       is a template alias for <link linkend="ref">a reference</link> to
       a container with
       <classname>std::list</classname>-like properties.
-      <ulink url="&link-x--weaklistptr;"><classname>&ns;::weaklistptr</classname></ulink>
+      <ulink url="&link-typedef-x-weaklistptr;"><classname>&ns;::weaklistptr</classname></ulink>
       is the corresponding &ptr; template alias.
       The <classname>&ns;::weaklist</classname> accepts
       weak pointers:
@@ -2130,9 +2130,9 @@ for (weakwidgetlist::base::iterator b=currentWidgets->begin(),
     </para>
 
     <para>
-      <ulink url="&link-x--weakmap;"><classname>&ns;::weakmap</classname></ulink>
+      <ulink url="&link-typedef-x-weakmap;"><classname>&ns;::weakmap</classname></ulink>
       and
-      <ulink url="&link-x--weakmultimap;"><classname>&ns;::weakmultimap</classname></ulink>
+      <ulink url="&link-typedef-x-weakmultimap;"><classname>&ns;::weakmultimap</classname></ulink>
       define analogous containers with map-like properties:
     </para>
 
