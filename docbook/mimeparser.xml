@@ -929,7 +929,7 @@ Hello]]>&nbsp;world!
 
     <para>
       <function>&ns;::mime::make_document_entity_parser</function>()
-      has two optional parameters:
+      has three optional parameters:
     </para>
 
     <itemizedlist>
@@ -955,6 +955,16 @@ Hello]]>&nbsp;world!
 	  A <literal>false</literal> value specifies a context where &MIME;
 	  messages rule the roost (like <acronym>HTTP</acronym> messages, for
 	  example).
+	</para>
+      </listitem>
+
+      <listitem>
+	<para>
+	  The initial
+	  <link linkend="mimesectioninfo"><classname>&ns;::mime::sectioninfo</classname></link>
+	  object that gets passed to the section processor. The default
+	  value gets instantiated by default constructor
+	  (<literal>&ns;::mime::sectioninfo::create()</literal>)
 	</para>
       </listitem>
     </itemizedlist>
@@ -1162,7 +1172,7 @@ Content-Transfer-Encoding: quoted-printable
 world!
 
 --xxx--
-./bodydecoder <bodydecoder3.txt
+$ ./bodydecoder3 <bodydecoder3.txt
 Hello world!
 MIME section 1 starts at character offset 0
   79 bytes in the header, 217 bytes in the body.
@@ -1210,6 +1220,154 @@ MIME section 1.2 starts at character offset 190
       the &MIME; section is not a compound section. It receives one argument,
       the <classname>&ns;::sectioninfo</classname>.
     </para>
+  </section>
+
+  <section id="mimecustomsectioninfo">
+    <title>Custom &MIME; section information classes</title>
+
+    <para>
+      <link linkend="mimesectioninfo">&MIME; section information objects</link>
+      get instantiated by:
+    </para>
+
+    <itemizedlist>
+      <listitem>
+	<para>
+	  <link linkend="mimeentityparsercreate"><function>&ns;::mime::make_document_entity_parser</function>()</link>
+	</para>
+      </listitem>
+      <listitem>
+	<para>
+	  <link linkend="mimeentitycompoundparser"><function>&ns;::mime::make_multipart_parser</function>()
+	    and
+	    <function>&ns;::mime::make_message_rfc822_parser</function>()</link>.
+	  This also incldues the derived
+	  <function>&ns;::mime::make_parser</function>().
+	</para>
+      </listitem>
+    </itemizedlist>
+
+    <para>
+      <classname>&ns;::mime::sectioninfo</classname> is a reference to
+      a reference-counted
+      <ulink url="&link-x--mime--sectioninfoObj;"><classname>&ns;::mime::sectioninfoObj</classname></ulink>
+      object.
+      This object contains the size of the header and the body portion of the
+      &MIME; object, and a <classname>std::vector</classname> of
+      <classname>&ns;::mime::const_sectioninfo</classname> for the entities
+      in a multipart &MIME; entity (or the sole
+      <literal>message/rfc822</literal>).
+    </para>
+
+    <para>
+      It's possible to subclass
+      <classname>&ns;::mime::sectioninfoObj</classname> in order to store
+      additional custom metadata about each &MIME; section, and have the
+      entity parser functions take care of constructing all the section
+      information objects for all &MIME; entities in the document.
+      The requirements for a subclass of a
+      <classname>&ns;::mime::sectioninfoObj</classname> are:
+    </para>
+
+    <itemizedlist>
+      <listitem>
+	<para>
+	  A default constructor and a constructor for the subsection
+	  of a parent &MIME; entity.
+	</para>
+      </listitem>
+
+      <listitem>
+	<para>
+	  A <methodname>create_subsection</methodname>() method that returns
+	  an <link linkend="ref"><classname>&ns;::ref</classname></link> to
+	  a new instance of the subclass which was constructed by passing
+	  a <classname>&ns;::ref</classname>
+	  referencing the parent object, the
+	  one whose <methodname>create_subsection</methodname>() method
+	  got invoked, to the <classname>&ns;::mime::sectioninfoObj</classname>
+	  constructor for the new object's instance.
+	</para>
+      </listitem>
+    </itemizedlist>
+
+    <para>
+      A reference to the custom subclass gets passed to:
+    </para>
+
+    <itemizedlist>
+      <listitem>
+	<para>
+	  The last parameter to
+	  <link linkend="mimeentityparsercreate"><function>&ns;::mime::make_document_entity_parser</function>()</link>.
+	</para>
+      </listitem>
+
+      <listitem>
+	<para>
+	  In place of the <classname>&ns;::mime::sectioninfo</classname>
+	  parameter to<function>&ns;::mime::make_multipart_parser</function>(),
+	  <function>&ns;::mime::make_message_rfc822_parser</function>(),
+	  and <function>&ns;::mime::make_parser</function>().
+	</para>
+      </listitem>
+
+      <listitem>
+	<para>
+	  The section processor factory that gets passed to these
+	  entity parser creators receives a reference to the custom
+	  subclass in place of the
+	  <classname>&ns;::mime::sectioninfo</classname>.
+	  <function>&ns;::mime::make_document_entity_parser</function>()
+	  forwards the parameter it receives itself, and the others
+	  take care of invoking <methodname>create_subsection</methodname>().
+	</para>
+      </listitem>
+    </itemizedlist>
+
+    <para>
+      <ulink url="examples/mime/bodydecoder5.C">examples/mime/bodydecoder5.C</ulink>
+      is a modified version of <filename>bodydecoder3.C</filename> that
+      shows how to use a custom section information class that holds each
+      &MIME; entity's &MIME; type, that's added to the output of the
+      &MIME; document's structure:
+    </para>
+
+    <computeroutput>
+      <literallayout><![CDATA[
+$ cat bodydecoder3.txt
+Subject: test
+Mime-Version: 1.0
+Content-Type: multipart/mixed; boundary="xxx"
+
+--xxx
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: quoted-printable
+
+Hello=A0
+--xxx
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: quoted-printable
+
+world!
+
+--xxx--
+$ ./bodydecoder <bodydecoder3.txt
+Hello world!
+MIME section 1 (multipart/mixed) starts at character offset 0
+  79 bytes in the header, 217 bytes in the body.
+  4 lines in the header, 12 lines in the body.
+
+MIME section 1.1 (text/plain) starts at character offset 85
+  90 bytes in the header, 8 bytes in the body.
+  3 lines in the header, 1 lines in the body.
+  No trailing newline
+
+MIME section 1.2 (text/plain) starts at character offset 190
+  90 bytes in the header, 7 bytes in the body.
+  3 lines in the header, 1 lines in the body.
+]]></literallayout>
+    </computeroutput>
 
   </section>
 </chapter>

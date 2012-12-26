@@ -192,10 +192,11 @@ public:
 //! function.
 
 template<typename header_iterator_functor,
-	 typename start_body_functor>
+	 typename start_body_functor,
+	 typename sectioninfo_type>
 auto make_section_processor(header_iterator_functor &&header_iterator,
 			    start_body_functor &&start_body,
-			    const sectioninfo &info)
+			    const sectioninfo_type &info)
 	-> refobjiterator<ref<
 	section_processorObj<
 		typename std::decay<header_iterator_functor>::type,

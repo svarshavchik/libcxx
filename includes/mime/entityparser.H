@@ -52,10 +52,11 @@ namespace LIBCXX_NAMESPACE {
 //! make_entity_parser() iterates over an eof value.
 
 template<typename header_iterator_functor,
-	 typename start_body_functor>
+	 typename start_body_functor,
+	 typename sectioninfo_type>
 auto make_entity_parser(header_iterator_functor &&header_iterator,
 			start_body_functor &&start_body,
-			const sectioninfo &info)
+			const sectioninfo_type &info)
 	-> decltype( bodystart_iter<header_iter<
 		     decltype(make_section_processor
 			      (std::forward<header_iterator_functor>
@@ -137,20 +138,20 @@ auto make_entity_parser(header_iterator_functor &&header_iterator,
 //! \c MIME entity part, in a document that's been previously parsed, with the
 //! assistance of a previously created \ref sectioninfo "sectioninfo".
 
-template<typename section_processor_type>
+template<typename section_processor_type,
+	 typename sectioninfo_type=sectioninfo>
 auto make_document_entity_parser(section_processor_type &&processor,
 				 bool crlfArg=false,
-				 bool is_message_rfc822=true)
+				 bool is_message_rfc822=true,
+				 const sectioninfo_type &info=
+				 sectioninfo_type::create())
 	-> decltype(newline_iter
-		    <decltype(processor(sectioninfo::create(),
-					is_message_rfc822))>
-		    ::create(processor(sectioninfo::create(),
-				       is_message_rfc822), crlfArg))
+		    <decltype(processor(info, is_message_rfc822))>
+		    ::create(processor(info, is_message_rfc822), crlfArg))
 {
 	return newline_iter
-		<decltype(processor(sectioninfo::create(), is_message_rfc822))>
-		::create(processor(sectioninfo::create(), is_message_rfc822),
-			 crlfArg);
+		<decltype(processor(info, is_message_rfc822))>
+		::create(processor(info, is_message_rfc822), crlfArg);
 }
 
 //! Construct an output iterator for a \c message/rfc822 MIME section.
@@ -181,21 +182,17 @@ auto make_document_entity_parser(section_processor_type &&processor,
 //! \c message/rfc822 MIME subpart, and the \c message/rfc822 parameter flag
 //! of \c true.
 
-template<typename section_processor_type>
+template<typename section_processor_type,
+	 typename sectioninfo_type>
 auto make_message_rfc822_parser(section_processor_type && section_processor,
-				const sectioninfo &info)
-	-> decltype(section_processor(sectioninfo::create(), true))
+				const sectioninfo_type &info)
+	-> decltype(section_processor(info->create_subsection(), true))
 {
-	auto child=info->new_child();
+	auto child=info->create_subsection();
 
-	try {
-		return section_processor(child, true);
-	} catch (...)
-	{
-		// Destroy the child
-		info->children.pop_back();
-		throw;
-	}
+	auto new_processor=section_processor(child, true);
+	info->children.push_back(child);
+	return new_processor;
 }
 
 //! Helper class for make_multipart_parser()
@@ -205,7 +202,8 @@ auto make_message_rfc822_parser(section_processor_type && section_processor,
 //! make_multipart_parser(). An explicit template class makes it possible
 //! to decltype make_multipart_parser()'s return value.
 
-template<typename section_processor_type>
+template<typename section_processor_type,
+	 typename sectioninfo_type>
 class make_multipart_parser_struct {
 
 	//! The captured section processor factory functor/lambda
@@ -214,14 +212,14 @@ class make_multipart_parser_struct {
 
 	//! The captured multipart part's sectioninfo
 
-	sectioninfo parent;
+	sectioninfo_type parent;
 
 public:
 	//! Constructor
 
 	template<typename processorArgType>
 	make_multipart_parser_struct(processorArgType &&processorArg,
-				     const sectioninfo &parentArg)
+				     const sectioninfo_type &parentArg)
 		: processor(std::forward<processorArgType>(processorArg)),
 		  parent(parentArg)
 	{
@@ -236,16 +234,13 @@ public:
 
 	decltype(processor(parent, false)) operator()() const
 	{
-		auto child=parent->new_child();
+		auto child=parent->create_subsection();
 
-		try {
-			return processor(child, false);
-		} catch (...)
-		{
-			// Destroy the child
-			parent->children.pop_back();
-			throw;
-		}
+		auto new_processor=processor(child, false);
+
+		parent->children.push_back(child);
+
+		return new_processor;
 	}
 };
 
@@ -253,7 +248,8 @@ public:
 
 //! \internal
 
-template<typename functor_type>
+template<typename functor_type,
+	 typename sectioninfo_type>
 class make_multipart_parser_ret_type {
 
 public:
@@ -262,10 +258,16 @@ public:
 	typedef typename std::decay<functor_type>::type decayed_type;
 
 	//! Output iterator factory for make_multipart_processor()
-	typedef make_multipart_parser_struct<decayed_type> struct_type;
+	typedef make_multipart_parser_struct<decayed_type,
+					     sectioninfo_type> struct_type;
 
 	//! Supply the document argument to make_multipart_processor()
 	static functor_type &&dummy_parameter()
+		__attribute__((unused));
+
+	//! Supply the sectioninfo argument to make_multipart_processor()
+
+	static sectioninfo_type &dummy_sectioninfo()
 		__attribute__((unused));
 
 	//! Return type from make_multipart_processor.
@@ -274,7 +276,7 @@ public:
 	(make_multipart_processor("",
 				  struct_type(std::forward<functor_type>
 					      (dummy_parameter()),
-					      sectioninfo::create()))
+					      dummy_sectioninfo()))
 	 ) ret_type_t;
 };
 
@@ -314,17 +316,20 @@ public:
 //! gets invoked with a \ref sectioninfo "sectioninfo" for each subpart.
 //! The \c message/rfc822 parameter flag is \c false.
 
-template<typename section_processor_type>
+template<typename section_processor_type,
+	 typename sectioninfo_type>
 auto make_multipart_parser(const std::string &boundary,
 			   section_processor_type &&processor,
-			   const sectioninfo &parent)
-	-> typename make_multipart_parser_ret_type<section_processor_type>
+			   const sectioninfo_type &parent)
+	-> typename make_multipart_parser_ret_type<section_processor_type,
+						   sectioninfo_type>
 	::ret_type_t
 {
 	return make_multipart_processor(boundary,
 					make_multipart_parser_struct
 					<typename std::decay
-					<section_processor_type>::type>
+					<section_processor_type>::type,
+					sectioninfo_type>
 					(std::forward
 					 <section_processor_type>
 					 (processor), parent));
@@ -362,9 +367,10 @@ auto make_multipart_parser(const std::string &boundary,
 //! body processor factory.
 
 template<typename section_processor_type,
-	 typename body_processor_type>
+	 typename body_processor_type,
+	 typename sectioninfo_type>
 outputrefiterator<int> make_parser(const structured_content_header &hdr,
-				   const sectioninfo &info,
+				   const sectioninfo_type &info,
 				   section_processor_type && section_processor,
 				   body_processor_type && body_processor)
 {

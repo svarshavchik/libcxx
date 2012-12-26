@@ -22,15 +22,20 @@ sectioninfoObj::sectioninfoObj()
 {
 }
 
-sectioninfo sectioninfoObj::new_child()
+sectioninfo sectioninfoObj::create_subsection()
 {
-	sectioninfo c=sectioninfo::create();
+	return sectioninfo::create(sectioninfo(this));
+}
 
-	c->starting_pos=starting_pos + header_char_cnt + body_char_cnt;
-	c->index=children.size();
-	c->parent=sectioninfo(this);
-	children.push_back(c);
-	return c;
+sectioninfoObj::sectioninfoObj(const sectioninfo &parentArg)
+	: sectioninfoObj()
+{
+	parent=parentArg;
+
+	starting_pos=parentArg->starting_pos + parentArg->header_char_cnt +
+		parentArg->body_char_cnt;
+
+	index=parentArg->children.size();
 }
 
 sectioninfoObj::~sectioninfoObj() noexcept

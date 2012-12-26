@@ -93,11 +93,24 @@ public:
 	//! Constructor
 	sectioninfoObj();
 
+	//! Constructor for a subsection of an existing section
+	sectioninfoObj(const sectioninfo &parent);
+
 	//! Destructor
 	~sectioninfoObj() noexcept;
 
-	//! Attach a new child section
-	sectioninfo new_child();
+	//! Create a new sectioninfo for a subsection of a multipart section.
+
+	//! create_subsection() is just a call to sectioninfo::create(). A
+	//! custom subclass of sectioninfoObj can override it to do something
+	//! else, but the instance constructed by subsection should use the
+	//! subsection constructor.
+	//!
+	//! create_subsection() should instantiate a new ref only. If the
+	//! section processor does not throw an exception, the new subsection
+	//! gets pushed to the \ref children "children" vector.
+
+	sectioninfo create_subsection();
 
 	//! Return this section's "index name"
 
