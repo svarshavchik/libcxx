@@ -33,7 +33,7 @@ header_iterbase::header_iterbase() : state(&header_iterbase::start_header),
 
 void header_iterbase::start_header(int c)
 {
-	if (c == body_start || c == eof)
+	if (c == separator_line_start || c == body_start || c == eof)
 	{
 		SWITCH in_body;
 
@@ -169,7 +169,7 @@ void header_iterbase::in_starting_contents(int c)
 
 	emit(header_contents_start);
 
-	if (c == body_start || c == eof)
+	if (c == separator_line_start || c == body_start || c == eof)
 	{
 		start_header(c);
 		return;

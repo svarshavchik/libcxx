@@ -25,17 +25,19 @@
 
 #define BODYSTART LIBCXX_NAMESPACE::mime::body_start
 
+#define SEPARATOR LIBCXX_NAMESPACE::mime::separator_line_start
+
 void testmimeiter()
 {
 	static struct {
 		const std::vector<int> test_seq;
 	} tests[] = {
 		{
-			{'a', NEWLINE, 'b', NEWLINE, NEWLINE, BODYSTART, 'c', NEWLINE, NEWLINE },
+			{'a', NEWLINE, 'b', NEWLINE, SEPARATOR, NEWLINE, BODYSTART, 'c', NEWLINE, NEWLINE },
 		},
 
 		{
-			{NEWLINE, BODYSTART, 'c', NEWLINE, NEWLINE },
+			{SEPARATOR, NEWLINE, BODYSTART, 'c', NEWLINE, NEWLINE },
 		},
 
 		{
@@ -63,7 +65,7 @@ void testmimeiter()
 
 		for (int n:expected)
 		{
-			if (n != LIBCXX_NAMESPACE::mime::body_start)
+			if (n != BODYSTART && n != SEPARATOR)
 				*test_iter++=n;
 		}
 
@@ -72,7 +74,8 @@ void testmimeiter()
 						std::ostringstream o;
 
 						o << "Test " << test_num
-						  << "failed" << std::endl;
+						  << " failed" << std::endl;
+
 						o.str();
 					}));
 	}

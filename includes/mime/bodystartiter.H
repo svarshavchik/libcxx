@@ -81,7 +81,10 @@ public:
 		if (!seen_body_start)
 		{
 			if (c == newline_start && was_newlineend)
+			{
+				*iter++=separator_line_start;
 				will_body_start=true;
+			}
 			was_newlineend=false;
 			if (c == newline_end)
 			{
@@ -113,10 +116,12 @@ public:
 //!
 //! The ints that this iterator receives get passed through to the underlying
 //! int operator. Additionally, the first time two newline sequences are seen
-//! in a row, the second newline sequences gets followed by \c body_start.
+//! in a row, the second newline sequence gets preceded by a
+//! \c separator_line_start value, and followed by a \c body_start value.
 //!
 //! An eof element checks if a body has been seen, if not \c body_start gets
-//! emitted.
+//! emitted. However \c separator_line_start does not get emitted in that
+//! situation.
 
 template<typename output_iter>
 using bodystart_iter=refiterator<bodystart_iterObj<output_iter> >;

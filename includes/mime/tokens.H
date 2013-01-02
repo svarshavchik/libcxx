@@ -55,6 +55,9 @@ static const int section_start=0x0109;
 //! End of MIME section inside a multipart section
 static const int section_end=0x010A;
 
+//! Start of a blank line that separates header from body
+static const int separator_line_start=0x010B;
+
 #if 0
 {
 	{
