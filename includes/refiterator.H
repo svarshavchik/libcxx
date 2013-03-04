@@ -80,16 +80,18 @@ struct invoke_arrow_operator<true> {
 //! Adapter for \ref ref "INSERT_LIBX_NAMESPACE::ref"s and \ref ptr "INSERT_LIBX_NAMESPACE::ptr"s that turns them into iterators
 
 //! \c refobjiterator<T> creates a subclass of \c T, which must be a
-//! \c INSERT_LIBX_NAMESPACE::ref 
-//! \c INSERT_LIBX_NAMESPACE::ptr which implements iterator operators.
+//! \c INSERT_LIBX_NAMESPACE::ref, or a
+//! \c INSERT_LIBX_NAMESPACE::ptr, which implements iterator operators.
 //! In general, the iterator operators get forwarded to the referenced class,
 //! however there are some differences. See the documentation for the
 //! individual iterators.
 //!
 //! \note
-//! The \c * operator is redefined as an iterator operator. Use get() for
-//! convenience to get a native reference to the underlying reference or a
-//! pointer, to get the reference/pointer \c * operator. The -> operator
+//! The \c * operator is redefined as an iterator operator. Use get(), for
+//! convenience, to get a native reference to the underlying
+//! \c INSERT_LIBX_NAMESPACE::ref or a
+//! \c INSERT_LIBX_NAMESPACE::ptr.
+//! The -> operator
 //! is also redefined in the same way.
 
 template<typename ref_type>
