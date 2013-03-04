@@ -208,7 +208,11 @@ netaddrObj::get_results(int extra_flags) const
 		hints.ai_socktype=type_hint;
 		hints.ai_protocol=protocol_hint;
 
-		int rc=getaddrinfo(node_cptr, service_cptr, &hints, &res);
+#ifndef LIBCXX_DEBUG_GETADDRINFO
+#define LIBCXX_DEBUG_GETADDRINFO(x) (x)
+#endif
+
+		int rc=getaddrinfo(LIBCXX_DEBUG_GETADDRINFO(node_cptr), service_cptr, &hints, &res);
 
 		if (rc)
 			throw EXCEPTION(gai_strerror(rc));

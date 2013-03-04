@@ -36,6 +36,7 @@
 /testhttpresponseimpl
 /testhttpserverimpl
 /testiconviofilter
+/testidn
 /testinpseq
 /testjoin
 /testlocale
@@ -83,6 +84,7 @@
 /testtzfile
 /testuri
 /testuseragent
+/testuseragentidn
 /testuuid
 /testweak
 /testweak2

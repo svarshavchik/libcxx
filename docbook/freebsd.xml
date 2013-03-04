@@ -25,7 +25,8 @@ See COPYING for distribution information.
 	<application>gnutls</application>,
 	<application>libgcrypt</application>,
 	<application>gettext</application>,
-	<application>libunwind</application>, and
+	<application>libunwind</application>,
+	<application>libidn</application> and
 	<application>libiconv</application> packages need to be installed to
 	build &app;, in addition to
 	<application>gcc47</application>

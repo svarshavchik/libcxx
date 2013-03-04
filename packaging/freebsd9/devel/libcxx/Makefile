@@ -16,6 +16,7 @@ LIB_DEPENDS=		pcre:${PORTSDIR}/devel/pcre \
 			unwind:${PORTSDIR}/devel/libunwind \
 			intl:${PORTSDIR}/devel/gettext \
 			iconv:${PORTSDIR}/converters/libiconv \
+			idn:${PORTSDIR}/dns/libidn \
 			yaml:${PORTSDIR}/textproc/libyaml
 
 BUILD_DEPENDS=		${LOCALBASE}/share/certs/ca-root-nss.crt:${PORTSDIR}/security/ca_root_nss \

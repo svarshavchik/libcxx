@@ -16,6 +16,7 @@
 #include <x/exception.H>
 #include <x/locale.H>
 #include <x/value_stringable.H>
+#include <x/idn.H>
 #include <x/namespace.h>
 
 namespace LIBCXX_NAMESPACE {
@@ -77,15 +78,35 @@ public:
 		//! Construct from an authority string
 		authority_t(const std::string &authorityStr);
 
+		//! Construct from an authority string
+		authority_t(const std::string &authorityStr,
+			    const const_locale &locale,
+			    int flags=0);
+
 		//! Construct from a string defined by a beginning and ending input iterator
 
 		template<typename iter_type>
 		authority_t(iter_type beg_iter,
-			    iter_type end_iter)
+			    iter_type end_iter,
+			    const const_locale &locale,
+			    int flags=0)
 			: has_userinfo(false)
 		{
-			if (parse(beg_iter, end_iter) != end_iter)
+			if (parse(beg_iter, end_iter, locale, flags)
+			    != end_iter)
 				invalid_authority();
+		}
+
+		//! Construct from a string defined by a beginning and ending input iterator
+
+		//! An international domain name gets converted using the
+		//! system environment locale
+		template<typename iter_type>
+		authority_t(iter_type beg_iter,
+			    iter_type end_iter)
+			: authority_t(beg_iter, end_iter,
+				      locale::base::environment())
+		{
 		}
 
 		//! Destructor
@@ -117,7 +138,9 @@ public:
 
 		template<typename iter_type>
 		iter_type parse(iter_type beg_iter,
-				iter_type end_iter)
+				iter_type end_iter,
+				const const_locale &locale,
+				int flags)
 		{
 			clear();
 
@@ -126,7 +149,8 @@ public:
 
 			if (*beg_iter != '[')
 			{
-				beg_iter=parse_nonipliteral(beg_iter, end_iter);
+				beg_iter=parse_nonipliteral(beg_iter, end_iter,
+							    locale, flags);
 
 				if (beg_iter == end_iter || *beg_iter != '@')
 				{
@@ -165,26 +189,32 @@ public:
 					if (c != ':' && strchr(gen_delims, c))
 						invalid_authority();
 
+					if (c & 0x80)
+						invalid_authority();
+					// Do not allow non-ASCII chars.
 					++beg_iter;
 				}
 
 				++beg_iter;
 				if (beg_iter != end_iter && *beg_iter == ':')
 				{
-					do
+					hostport.push_back(*beg_iter++);
+
+					while (beg_iter != end_iter &&
+					       strchr(gen_delims, *beg_iter)
+					       == NULL)
 					{
 						hostport.push_back(*beg_iter);
 						++beg_iter;
-					} while (beg_iter != end_iter &&
-						 strchr(gen_delims, *beg_iter)
-						 == NULL);
+					} 
 
 					validate_port();
 				}
 				return beg_iter;
 			}
 
-			beg_iter=parse_nonipliteral(beg_iter, end_iter);
+			beg_iter=parse_nonipliteral(beg_iter, end_iter,
+						    locale, flags);
 
 			validate_port();
 
@@ -204,23 +234,49 @@ public:
 
 		template<typename iter_type>
 		iter_type parse_nonipliteral(iter_type beg_iter,
-					     iter_type end_iter)
-
+					     iter_type end_iter,
+					     const const_locale &localeArg,
+					     int flags)
 		{
-			hostport.clear();
+			std::string s;
 
 			char c;
 
-			while (beg_iter != end_iter &&
-			       ((c=*beg_iter) == ':' ||
-				strchr(gen_delims, c) == NULL))
-			{
-				hostport.push_back(c);
-				++beg_iter;
-			}
+                        while (beg_iter != end_iter &&
+                               ((c=*beg_iter) == ':' ||
+                                strchr(gen_delims, c) == NULL))
+                        {
+                                s.push_back(c);
+                                ++beg_iter;
+                        }
+
+			auto lastcolon=s.rfind(':');
+
+			if (lastcolon == std::string::npos)
+				lastcolon=s.size();
+
+			hostport=idn::to_ascii(s.substr(0, lastcolon),
+					       localeArg, flags)
+				+ s.substr(lastcolon);
 
 			return beg_iter;
 		}
+
+		//! Called by toString() to emit userinfo.
+
+		template<typename OutputIterator>
+		OutputIterator emitUserinfo(//! The output iterator
+					    OutputIterator iter) const
+		{
+			if (has_userinfo)
+			{
+				iter=std::copy(userinfo.begin(), userinfo.end(),
+					       iter);
+				*iter++ = '@';
+			}
+			return iter;
+		}
+
 	public:
 		//! Convert this authority to a string representation
 
@@ -232,12 +288,7 @@ public:
 					OutputIterator iter)
 			const
 		{
-			if (has_userinfo)
-			{
-				iter=std::copy(userinfo.begin(), userinfo.end(),
-					       iter);
-				*iter++ = '@';
-			}
+			iter=emitUserinfo(iter);
 
 			return std::copy(hostport.begin(), hostport.end(),
 					 iter);
@@ -246,17 +297,33 @@ public:
 		//! Convert this URI to a string representation
 
 		//! \overload
-		//! Compatibility with value_string.
+		//! Compatibility with value_string. Converts ACE domain
+		//! name to the current locale.
 		
 		template<typename OutputIterator>
 		OutputIterator toString(//! The output iterator
 					OutputIterator iter,
 
 					//! The locale
-					const const_locale &localeRef)
+					const const_locale &localeRef,
+
+					//! libidn flags
+					int flags=0)
 			const
 		{
-			return toString(iter);
+			auto b=hostport.begin(), e=hostport.end();
+
+			if (b == e || *b == '[')
+				return toString(iter); // IP literal
+
+			auto p=std::find(b, e, ':');
+
+			iter=emitUserinfo(iter);
+			auto s=idn::from_ascii(std::string(b, p),
+					       localeRef, flags);
+			iter=std::copy(s.begin(), s.end(), iter);
+
+			return std::copy(p, e, iter);
 		}
 
 		//! Convert this URI to a string representation
@@ -327,9 +394,16 @@ public:
 		InputIterator beg_iter,
 
 		//! Ending iterator
-		InputIterator end_iter)
+		InputIterator end_iter,
+
+		//! Locale used to parse an international domain name, if given
+
+		const const_locale &locale=locale::base::environment(),
+
+		//! Flags for libidn
+		int flags=0)
 	{
-		parse(beg_iter, end_iter);
+		parse(beg_iter, end_iter, locale, flags);
 	}
 
 private:
@@ -351,7 +425,9 @@ public:
 
 	template<typename InputIterator>
 	void parse(InputIterator beg_iter,
-		   InputIterator end_iter)
+		   InputIterator end_iter,
+		   const const_locale &localeArg,
+		   int flags)
 	{
 		scheme.clear();
 		authority.clear();
@@ -400,7 +476,9 @@ public:
 					++beg_iter;
 
 					beg_iter=authority.parse(beg_iter,
-								 end_iter);
+								 end_iter,
+								 localeArg,
+								 flags);
 
 					if (beg_iter == end_iter)
 						return;
@@ -473,6 +551,9 @@ public:
 
 	uriimpl(const char *urlString);
 
+	uriimpl(const std::string &urlString,
+		const const_locale &locale,
+		int flags=0);
 	//! Destructor
 
 	~uriimpl() noexcept;
@@ -604,7 +685,15 @@ public:
 				OutputIterator iter,
 
 				//! Flag - omit scheme and authority
-				bool noSchemeAuth=false) const
+				bool noSchemeAuth=false,
+
+				//! The locale version of toString() sets this.
+
+				//! Convert hostname portion to this locale, if not nullptr
+				const const_locale *localeArg=nullptr,
+
+				//! Flags for libidn
+				int flags=0) const
 	{
 		bool has_path=false;
 
@@ -624,7 +713,10 @@ public:
 				*iter++ = '/';
 				*iter++ = '/';
 
-				iter=authority.toString(iter);
+				iter=localeArg ?
+					authority.toString(iter, *localeArg,
+							   flags)
+					: authority.toString(iter);
 				has_path=true;
 			}
 		}
@@ -668,8 +760,19 @@ public:
 				bool noSchemeAuth=false)
 		const
 	{
-		return toString(iter, noSchemeAuth);
+		return toString(iter, noSchemeAuth, nullptr, 0);
 	}
+
+	//! Convert this URI to a string representation, possibly using an i18n domain name
+
+	//! \overload
+	//! If the domain portion of this URI is an ASCII-encoded domain
+	//! name, convert it to the encoding used by the given locale
+	std::string toStringi18n(const const_locale &localeRef, int flags=0)
+		const;
+
+	//! \overload
+	//! Compatibility with value_string.
 
 	//! The fromString() method
 
@@ -682,11 +785,14 @@ public:
 				  //! The ending iterator
 				  InputIterator end_iter,
 
-				  //! Ignored
-				  const const_locale &localeArg)
+				  //! Locale for international domain names
+				  const const_locale &localeArg,
+
+				  //! Flags for libidn
+				  int flags=0)
 
 	{
-		return uriimpl(beg_iter, end_iter);
+		return uriimpl(beg_iter, end_iter, localeArg, flags);
 	}
 
 	//! Comparison operator
@@ -793,10 +899,12 @@ private:
 
 #ifndef DOXYGEN
 extern template void uriimpl::parse(std::string::const_iterator,
-				    std::string::const_iterator);
+				    std::string::const_iterator,
+				    const const_locale &, int);
 
 extern template std::ostreambuf_iterator<char>
-uriimpl::toString(std::ostreambuf_iterator<char>, bool)
+uriimpl::toString(std::ostreambuf_iterator<char>, bool,
+		  const const_locale *, int)
 	const;
 
 extern template std::ostreambuf_iterator<char>
@@ -808,9 +916,18 @@ uriimpl::authority_t::authority_t(std::string::const_iterator,
 				  std::string::const_iterator);
 
 extern template
+uriimpl::authority_t::authority_t(std::string::const_iterator,
+				  std::string::const_iterator,
+				  const const_locale &, int);
+extern template
 std::string::const_iterator
 uriimpl::authority_t::parse(std::string::const_iterator,
-			    std::string::const_iterator);
+			    std::string::const_iterator,
+			    const const_locale &, int);
+
+extern template std::ostreambuf_iterator<char>
+uriimpl::authority_t::emitUserinfo(std::ostreambuf_iterator<char>)
+	const;
 
 extern template std::ostreambuf_iterator<char>
 uriimpl::authority_t::toString(std::ostreambuf_iterator<char>)
@@ -818,7 +935,7 @@ uriimpl::authority_t::toString(std::ostreambuf_iterator<char>)
 
 extern template std::ostreambuf_iterator<char>
 uriimpl::authority_t::toString(std::ostreambuf_iterator<char>,
-			       const const_locale &)
+			       const const_locale &, int)
 	const;
 
 #endif

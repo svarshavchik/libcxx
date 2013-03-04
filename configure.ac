@@ -380,6 +380,23 @@ LIBS="$save_LIBS"
 AC_SUBST(LINKLIBICONV)
 AC_DEFINE_UNQUOTED(ICONV_INBUF_ARG,$iconv_in_type,[type of third argument to iconv()])
 
+LIBS="$save_LIBS -lidn"
+
+AC_TRY_LINK([
+#include <idna.h>
+],[
+	const uint32_t *input=0;
+	uint32_t *output;
+	char *coutput;
+
+	idna_to_unicode_4z4z(input, &output, 0);
+	idna_to_ascii_4z(input, &coutput, 0);
+	return 0;
+],[LIBIDN=-lidn],AC_MSG_ERROR([Could not find or link with libidn]))
+
+AC_SUBST(LIBIDN)
+LIBS="$save_LIBS"
+
 save_LIBS="$LIBS"
 AC_TRY_LINK([
 #include <libintl.h>
@@ -618,6 +635,7 @@ test "x$prefix" = xNONE && prefix=$ac_default_prefix
 test "x$exec_prefix" = xNONE && exec_prefix='${prefix}'
 eval "prefix=\"$prefix\""
 eval "exec_prefix=\"$exec_prefix\""
+eval "sbindir=\"$sbindir\""
 eval "httportmapd=\"$sbindir/httportmapd\""
 
 AC_SUBST(httportmapd)

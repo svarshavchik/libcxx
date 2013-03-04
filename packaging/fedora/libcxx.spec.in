@@ -21,6 +21,7 @@ BuildRequires: libxslt
 BuildRequires: pcre-devel
 BuildRequires: libyaml-devel
 BuildRequires: file-devel
+BuildRequires: libidn-devel
 Requires(post): /bin/systemctl
 Requires(preun): /bin/systemctl
 

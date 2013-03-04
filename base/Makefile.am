@@ -127,6 +127,7 @@ libcxx_la_SOURCES=\
 	http_useragentobj.C	\
 	httportmap.C		\
 	iconviofilter.C		\
+	idn.C			\
 	interval.C		\
 	join.C			\
 	kqueuenb_internal.h	\
@@ -238,7 +239,7 @@ mksigtab.h: mksigtab
 	./mksigtab >mksigtab.h.tmp
 	mv -f mksigtab.h.tmp mksigtab.h
 
-libcxx_la_LIBADD=-lpthread -lrt -lpcre -lmagic @LIBEXTRAPATH@ @LIBUNWIND@ @LINKLIBICONV@ @LINKLIBINTL@
+libcxx_la_LIBADD=-lpthread -lrt -lpcre -lmagic @LIBEXTRAPATH@ @LIBUNWIND@ @LINKLIBICONV@ @LINKLIBINTL@ @LIBIDN@
 
 libcxx_la_LDFLAGS=-version-info @VERSION_INFO@
 
@@ -271,6 +272,7 @@ noinst_PROGRAMS=\
 	testhttpresponseimpl          \
 	testhttpserverimpl            \
 	testiconviofilter             \
+	testidn			      \
 	testinpseq                    \
 	testjoin                      \
 	testlocale                    \
@@ -313,6 +315,7 @@ noinst_PROGRAMS=\
 	testtzfile                    \
 	testuri                       \
 	testuseragent                 \
+	testuseragentidn	      \
 	testuuid                      \
 	testweak                      \
 	testweak2                     \
@@ -509,6 +512,10 @@ testuseragent_SOURCES=testuseragent.C
 testuseragent_LDADD=libcxx.la
 testuseragent_LDFLAGS=-static
 
+testuseragentidn_SOURCES=testuseragentidn.C
+testuseragentidn_LDADD=libcxx.la
+testuseragentidn_LDFLAGS=-static
+
 teststoppable_SOURCES=teststoppable.C
 teststoppable_LDADD=libcxx.la
 teststoppable_LDFLAGS=$(TESTLINKTYPE)
@@ -633,6 +640,10 @@ testmimerfc2047_LDFLAGS=$(TESTLINKTYPE)
 testmimeencoder_SOURCES=testmimeencoder.C
 testmimeencoder_LDADD=libcxx.la
 testmimeencoder_LDFLAGS=$(TESTLINKTYPE)
+
+testidn_SOURCES=testidn.C
+testidn_LDADD=libcxx.la
+testidn_LDFLAGS=$(TESTLINKTYPE)
 
 propertiescli.h : propertiescli.h.tmp
 	perl -p -e 's/^#include.*//;s/\b@LIBCXX_NAMESPACE@::/LIBCXX_NAMESPACE::/g' <propertiescli.h.tmp >propertiescli.h.tmp2
@@ -813,6 +824,8 @@ check-am: $(noinst_PROGRAMS) $(noinst_DATA)
 	./testmimesectioniter
 	./testmimerfc2047
 	./testmimeencoder
+	./testidn
+	./testuseragentidn
 
 $(XTEST_MO_DIR)/$(XTEST_MO_FILE): testmessages.po
 	mkdir -p $(XTEST_MO_DIR)

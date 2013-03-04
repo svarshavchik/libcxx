@@ -39,9 +39,16 @@ uriimpl::authority_t::authority_t() noexcept : has_userinfo(false)
 }
 
 uriimpl::authority_t::authority_t(const std::string &authorityStr)
- : has_userinfo(false)
+	: authority_t(authorityStr, locale::base::environment(), 0)
 {
-	if (parse(authorityStr.begin(), authorityStr.end())
+}
+
+uriimpl::authority_t::authority_t(const std::string &authorityStr,
+				  const const_locale &localeArg,
+				  int flags)
+	: has_userinfo(false)
+{
+	if (parse(authorityStr.begin(), authorityStr.end(), localeArg, flags)
 	    != authorityStr.end())
 		invalid_authority();
 }
@@ -87,22 +94,33 @@ void uriimpl::authority_t::validate_port()
 	if (++p == hostport.size())
 		invalid_authority();
 
-	for (std::string::const_iterator
-		     b(hostport.begin()+p),
-		     e(hostport.end()); b != e; ++b)
-	{
-		if (strchr("0123456789", *b) == NULL)
-			invalid_authority();
-	}
+	if (std::find_if(hostport.begin()+p, hostport.end(),
+			 []
+			 (char c)
+			 {
+				 return c < '0' || c > '9';
+				 // Not a numeric port
+			 }) != hostport.end())
+		invalid_authority();
 }
 
 template
 uriimpl::authority_t::authority_t(std::string::const_iterator,
 				  std::string::const_iterator);
 
+template
+uriimpl::authority_t::authority_t(std::string::const_iterator,
+				  std::string::const_iterator,
+				  const const_locale &, int);
+
 template std::string::const_iterator
 uriimpl::authority_t::parse(std::string::const_iterator,
-			    std::string::const_iterator);
+			    std::string::const_iterator,
+			    const const_locale &, int);
+
+template std::ostreambuf_iterator<char>
+uriimpl::authority_t::emitUserinfo(std::ostreambuf_iterator<char>)
+	const;
 
 template std::ostreambuf_iterator<char>
 uriimpl::authority_t::toString(std::ostreambuf_iterator<char>)
@@ -110,7 +128,7 @@ uriimpl::authority_t::toString(std::ostreambuf_iterator<char>)
 
 template std::ostreambuf_iterator<char>
 uriimpl::authority_t::toString(std::ostreambuf_iterator<char>,
-			       const const_locale &)
+			       const const_locale &, int)
 	const;
 
 
@@ -120,17 +138,20 @@ uriimpl::uriimpl() noexcept
 }
 
 uriimpl::uriimpl(const std::string &urlString)
+	: uriimpl(urlString, locale::base::environment(), 0)
 {
-	parse(urlString.begin(), urlString.end());
 }
 
-uriimpl::uriimpl(const char *urlString)
+uriimpl::uriimpl(const std::string &urlString,
+		 const const_locale &locale,
+		 int flags)
 {
-	std::string str(urlString);
-
-	parse(str.begin(), str.end());
+	parse(urlString.begin(), urlString.end(), locale, flags);
 }
 
+uriimpl::uriimpl(const char *urlString) : uriimpl(std::string(urlString))
+{
+}
 
 uriimpl::~uriimpl() noexcept
 {
@@ -307,15 +328,27 @@ bool uriimpl::operator<<(const uriimpl &o) const
 }
 
 template void uriimpl::parse(std::string::const_iterator,
-			     std::string::const_iterator);
+			     std::string::const_iterator,
+			     const const_locale &, int);
 
 template std::ostreambuf_iterator<char>
-uriimpl::toString(std::ostreambuf_iterator<char>, bool)
+uriimpl::toString(std::ostreambuf_iterator<char>, bool,
+		  const const_locale *, int)
 	const;
 
 template std::ostreambuf_iterator<char>
 uriimpl::toString(std::ostreambuf_iterator<char>, const const_locale &, bool)
 	const;
+
+std::string uriimpl::toStringi18n(const const_locale &localeRef, int flags)
+	const
+{
+	std::ostringstream o;
+
+	toString(std::ostreambuf_iterator<char>(o), false, &localeRef, flags);
+
+	return o.str();
+}
 
 void uriimpl::setScheme(const std::string &value)
 {

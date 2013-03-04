@@ -129,11 +129,12 @@ See COPYING for distribution information.
 
       <listitem>
 	<para>
-	  <application>pcre</application>,
-	  <application>libxslt</application>,
 	  <application>gnutls</application>,
+	  <application>libgcrypt</application>,
+	  <application>libidn</application>,
+	  <application>libxslt</application>,
 	  <application>libyaml</application> and
-	  <application>libgcrypt</application>.
+	  <application>pcre</application>.
 	</para>
       </listitem>
 

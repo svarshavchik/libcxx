@@ -558,10 +558,27 @@ if (resp-&gt;has_content())
 	<para>
 	  The <varname>uri</varname> class member gives the
 	  <acronym>URI</acronym> of the returned response. This is usually
-	  the same as the request's <acronym>URI</acronym>, but may be different
-	  when the server responded with a redirection. The user agent object
-	  automatically handles redirects, where appropriate.
+	  the same as the request's <acronym>URI</acronym>, but it may
+	  be different in several situations:
 	</para>
+
+	<itemizedlist>
+	  <listitem>
+	    <para>
+	      The server address in the
+	      <varname>uri</varname> uses
+	      ASCII compatible encoding for international domain names.
+	    </para>
+	  </listitem>
+	  <listitem>
+	    <para>
+	      Redirection: the user agent object
+	      automatically handles redirects, with the
+	      <varname>uri</varname> showing the redirected
+	      <acronym>URI</acronym>
+	    </para>
+	  </listitem>
+	</itemizedlist>
       </listitem>
 
       <listitem>
