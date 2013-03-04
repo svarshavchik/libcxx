@@ -3,5 +3,11 @@ SetHandler cgi-script
 Options +ExecCGI
 </Location>
 
+<Directory @sbindir@>
+  <Files "httportmapd">
+    Require all granted
+  </Files>
+</Directory>
+
 RewriteEngine on
 RewriteRule /portmap @httportmapd@
