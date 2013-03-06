@@ -194,8 +194,18 @@ auto resp=ua-&gt;request(timeoutfd, &ns;::http::GET, "https://localhost");</prog
 
 	<para>
 	  The <classname>&ns;::uriimpl</classname> is
-	  constructable from a literal string.
+	  constructable from a literal string. To use
+	  <link linkend="uriidn">international domain
+	  names</link>, it is necessary to construct it explicitly:
 	</para>
+
+	<blockquote>
+	  <informalexample>
+	    <programlisting>
+auto resp=ua-&gt;request(timeoutfd, &ns;::http::GET,
+                      &ns;::uriimpl("http://&#x43f;&#x440;&#x438;&#x432;&#x435;&#x442;.example.com", &ns;::locale::base::utf8()));</programlisting>
+	  </informalexample>
+	</blockquote>
       </listitem>
 
       <listitem>

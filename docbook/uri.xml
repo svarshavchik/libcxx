@@ -1,6 +1,6 @@
 <!--
 
-Copyright 2012 Double Precision, Inc.
+Copyright 2012-2013 Double Precision, Inc.
 See COPYING for distribution information.
 
 -->
@@ -184,4 +184,83 @@ for (const auto &amp;param: *form)
     <methodname>getQuery</methodname>() and returns a
     <link linkend="httpform"><classname>&ns;::http::form::parameters</classname></link>.
   </para>
+
+  <section id="uriidn">
+    <title>Using international domain names</title>
+
+    <blockquote>
+      <informalexample>
+	<programlisting>
+#include &lt;&ns;/uriimpl.H&gt;
+#include &lt;&ns;/locale.H&gt;
+
+&ns;::uriimpl u("http://&#x43f;&#x440;&#x438;&#x432;&#x435;&#x442;.example.com/path", &ns;::locale::base::utf8());
+
+std::cout &lt;&lt; u.getHostPort().first &lt;&lt; std::endl;</programlisting>
+      </informalexample>
+    </blockquote>
+
+    <para>
+      <acronym>URI</acronym>s that use international domain names get
+      constructed
+      with a second parameter to <classname>&ns;::uriimpl</classname>'s
+      constructor. The second parameter specifies the locale whose character
+      set encodes the international domain name.
+      There's an optional third parameter that specifies
+      <application>LibIDN</application> conversion flags:
+      <literal>IDNA_ALLOW_UNASSIGNED</literal>, and
+      <literal>IDNA_USE_STD3_ASCII_RULES</literal>.
+    </para>
+
+    <para>
+      The international domain name is stored as its
+      <acronym>ASCII</acronym>-compatible
+      encoding, so the above example
+      produces <quote>xn--b1agh1afp.domain.com</quote> on standard output.
+    </para>
+
+    <blockquote>
+      <informalexample>
+	<programlisting>
+std::string uri_utf8=u.toStringi18n(&ns;::locale::base::utf8());</programlisting>
+      </informalexample>
+    </blockquote>
+
+    <para>
+      <methodname>toStringi18n</methodname>() returns the
+      <acronym>URI</acronym> as a string. An international domain name in the
+      <acronym>URI</acronym> gets converted from its
+      <acronym>ASCII</acronym>-compatible encoded
+      representation to the character set specified by the locale parameter.
+    </para>
+
+    <blockquote>
+      <informalexample>
+	<programlisting>
+#include &lt;&ns;/idn.H&gt;
+
+std::string i18n;
+std::string str=&ns;::idn::to_ascii(i18n, &ns;::locale::base::environment());
+
+i18n=&ns;::idn::from_ascii(str, &ns;::locale::base::environment());</programlisting>
+      </informalexample>
+    </blockquote>
+
+    <para>
+      <filename>idn.H</filename> defines
+      <ulink url="&link-x--idn;">low level functions</ulink> for converting
+      strings to or from <acronym>ASCII</acronym>-compatible encoding that's
+      used with international domain names.
+      Overloaded <methodname>to_ascii</methodname>() methods convert
+      international domain names encoded in the locale's codeset to
+      <acronym>ASCII</acronym>-compatible encoding method, and
+      <methodname>from_ascii</methodname>() does the reverse.
+    </para>
+  </section>
 </chapter>
+<!--
+Local Variables:
+mode: sgml
+sgml-parent-document: ("book.xml" "book" "chapter")
+End:
+-->

@@ -551,8 +551,15 @@ public:
 
 	uriimpl(const char *urlString);
 
-	uriimpl(const std::string &urlString,
+	//! Constructor
+
+	uriimpl(//! URI string
+		const std::string &urlString,
+
+		//! Locale for parsing international domain names
 		const const_locale &locale,
+
+		//! Optional \ref idn "libidn flags".
 		int flags=0);
 	//! Destructor
 
