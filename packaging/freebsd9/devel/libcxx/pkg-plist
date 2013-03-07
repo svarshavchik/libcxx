@@ -4,6 +4,7 @@ etc/periodic/monthly/tlsparamsgen.sh
 bin/maillogs
 bin/properties
 bin/tlsparamsgen
+etc/effective_tld_names.dat
 etc/httportmapd.properties
 etc/tlsparams/system.dh.conf.dist
 etc/tlsparams/system.rsa.conf.dist

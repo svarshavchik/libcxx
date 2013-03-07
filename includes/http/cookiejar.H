@@ -34,6 +34,19 @@ public:
 	//! Convenience typedef
 
 	typedef cookiejarObj::iterator iterator;
+
+	//! Return the public suffix of a domain
+
+	//! This basically returns the top-level domain, given a subdomain.
+	//! Passing a top-level domain just returns it. In all cases, the
+	//! domain gets converted to lowercase.
+
+	static std::string public_suffix(//! Domain
+
+					 //! An international domain name must
+					 //! be converted to ASCII-compatible
+					 //! encoding (punicode).
+					 const std::string &domain);
 };
 
 #if 0

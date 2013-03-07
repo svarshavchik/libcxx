@@ -105,6 +105,7 @@ libcxx_la_SOURCES=\
 	http_clientauthobj.C	\
 	http_clientimpl.C	\
 	http_cookie.C           \
+	http_cookiejar_publicsuffix.C \
 	http_cookiejarobj.C     \
 	http_cookiemrulist.C    \
 	http_domaincookies.C http_domaincookies.H \
@@ -215,8 +216,8 @@ $(call MSGDISPATCHER_GEN,singletonapp.msgs,all)
 
 $(call MSGDISPATCHER_GEN,timerobj.msgs,def decl)
 
-BUILT_SOURCES=x ymd_grdjd.h mksiglist.h mksigtab.h testoptgen.h maillogs.h propertiescli.h
-CLEANFILES=x ymd_grdjd.h mksiglist.h mksigtab.h testoptgen.h maillogs.h propertiescli.h
+BUILT_SOURCES=x ymd_grdjd.h mksiglist.h mksigtab.h testoptgen.h maillogs.h propertiescli.h sysconfdir.h
+CLEANFILES=x ymd_grdjd.h mksiglist.h mksigtab.h testoptgen.h maillogs.h propertiescli.h sysconfdir.h
 
 XTEST_MO_DIR=xtest/en_US/LC_MESSAGES
 XTEST_MO_FILE=xtest.mo
@@ -239,6 +240,23 @@ mksigtab.h: mksigtab
 	./mksigtab >mksigtab.h.tmp
 	mv -f mksigtab.h.tmp mksigtab.h
 
+sysconfdir.h:
+	echo '#define SYSCONFDIR "$(sysconfdir)"' >sysconfdir.h
+
+sysconf_DATA=effective_tld_names.dat
+EXTRA_DIST += effective_tld_names.dat
+
+dist-hook:
+	find $(srcdir)/effective_tld_names.dat.timestamp -mtime +30 -exec rm -f {} \; ; $(MAKE) effective_tld_names.dat
+
+effective_tld_names.dat: effective_tld_names.dat.timestamp
+
+effective_tld_names.dat.timestamp:
+	wget -O effective_tld_names.dat.tmp 'http://mxr.mozilla.org/mozilla-central/source/netwerk/dns/effective_tld_names.dat?raw=1'
+	cmp -s effective_tld_names.dat.tmp effective_tld_names.dat || mv -f effective_tld_names.dat.tmp effective_tld_names.dat
+	rm -f effective_tld_names.dat.tmp
+	touch effective_tld_names.dat.timestamp
+
 libcxx_la_LIBADD=-lpthread -lrt -lpcre -lmagic @LIBEXTRAPATH@ @LIBUNWIND@ @LINKLIBICONV@ @LINKLIBINTL@ @LIBIDN@
 
 libcxx_la_LDFLAGS=-version-info @VERSION_INFO@
@@ -252,6 +270,7 @@ noinst_PROGRAMS=\
 	testcredentials               \
 	testcsv                       \
 	testdestroycallbackwait4      \
+	testeffectivetldnames	      \
 	testeventcallback             \
 	testfactory                   \
 	testfactory2                  \
@@ -645,6 +664,10 @@ testidn_SOURCES=testidn.C
 testidn_LDADD=libcxx.la
 testidn_LDFLAGS=$(TESTLINKTYPE)
 
+testeffectivetldnames_SOURCES=testeffectivetldnames.C
+testeffectivetldnames_LDADD=libcxx.la
+testeffectivetldnames_LDFLAGS=$(TESTLINKTYPE)
+
 propertiescli.h : propertiescli.h.tmp
 	perl -p -e 's/^#include.*//;s/\b@LIBCXX_NAMESPACE@::/LIBCXX_NAMESPACE::/g' <propertiescli.h.tmp >propertiescli.h.tmp2
 	mv propertiescli.h.tmp2 propertiescli.h
@@ -826,6 +849,7 @@ check-am: $(noinst_PROGRAMS) $(noinst_DATA)
 	./testmimeencoder
 	./testidn
 	./testuseragentidn
+	./testeffectivetldnames
 
 $(XTEST_MO_DIR)/$(XTEST_MO_FILE): testmessages.po
 	mkdir -p $(XTEST_MO_DIR)

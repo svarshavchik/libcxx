@@ -117,6 +117,7 @@ fi
 %{_datadir}/libcxx
 %{_mandir}/*/*
 %{_unitdir}/*
+%config %{_sysconfdir}/*
 %attr(0777, root, root) %verify(user group mode) %ghost %config(missingok) %{_localstatedir}/run/httportmap
 %attr(0777, root, root) %verify(user group mode) %ghost %config(missingok) %{_localstatedir}/run/httportmap.client
 %attr(0700, root, root) %dir %{_localstatedir}/run/httportmap.priv

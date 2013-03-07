@@ -1,3 +1,5 @@
+/effective_tld_names.dat
+/effective_tld_names.dat.timestamp
 /libcxx.la
 /maillogs
 /maillogs.h
@@ -11,11 +13,13 @@
 /propertiescli.h
 /propertiescli.h.tmp
 /singletonapp.msgs.all.H
+/sysconfdir.h
 /testcgiimpl
 /testcodecvt
 /testcredentials
 /testcsv
 /testdestroycallbackwait4
+/testeffectivetldnames
 /testeventcallback
 /testfactory
 /testfactory2
