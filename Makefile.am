@@ -5,7 +5,13 @@
 
 AUTOMAKE_OPTIONS=foreign dist-bzip2 -Wno-portability
 SUBDIRS= po includes base yaml gnutls httportmap packaging/fedora
-DIST_SUBDIRS= $(SUBDIRS) benchmarks
+
+define reverse
+$(if $(1), $(call reverse,$(wordlist 2,$(words $(1)),$(1))) $(firstword $(1)))
+endef
+
+$(shell :)DIST_SUBDIRS=$(call reverse,$(SUBDIRS) benchmarks)
+
 DISTCHECK_CONFIGURE_FLAGS=--with-pkgconfigdir='$$(prefix)/local/pkgconf'
 man_MANS = properties.1 maillogs.1 httportmapd.8
 EXTRA_DIST=config.rpath DoxygenLayout.xml $(man_MANS) \
@@ -79,7 +85,6 @@ header.html: Doxyfile
 dist-hook:
 	rm -f $(distdir)/includes/namespace.h
 	rm -f $(distdir)/includes/msgdispatcher.xsl
-
 
 rpm:
 	make dist
