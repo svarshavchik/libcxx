@@ -15,15 +15,14 @@
 #include "x/property_value.H"
 #include <algorithm>
 
+LOG_CLASS_INIT(LIBCXX_NAMESPACE::http::cookiejarObj);
+
 namespace LIBCXX_NAMESPACE {
 	namespace http {
 #if 0
 	};
 };
 #endif
-
-static property::value<size_t>
-maxcookiesprop(LIBCXX_NAMESPACE_WSTR "::http::cookiejar::max", 3000);
 
 static property::value<size_t>
 maxdomaincookiesprop(LIBCXX_NAMESPACE_WSTR "::http::cookiejar::domainmax", 50);
@@ -96,6 +95,9 @@ void cookiejarObj::remove(cookiemrulist_t::lock &allcookies_lock,
 			  &writer_lock,
 			  const ref<storedcookieObj> &cookie)
 {
+	LOG_DEBUG("Removing cookie " << cookie->name << " from "
+		  << cookie->domain);
+
 	ref<domaincookiesObj> p=writer_lock->entry();
 
 	p->remove(allcookies_lock, cookie);
@@ -115,21 +117,13 @@ void cookiejarObj::store(const ref<storedcookieObj> &cookie)
 {
 	cookiemrulist_t::lock allcookies_lock(allcookies);
 
-	size_t maxcookies=maxcookiesprop.getValue();
+	size_t maxcookies=maxdomaincookiesprop.getValue();
 
-	while (maxcookies && allcookies_lock->count >= maxcookies)
-	{
-		auto oldest_cookie=*--allcookies_lock->list.end();
+	if (maxcookies < 2)
+		maxcookies=2;
 
-		std::list<std::string> domain;
-		domain_key(oldest_cookie->domain, domain);
-
-		auto writer_lock=cookiedomainhier->create_writelock();
-
-		if (!writer_lock->to_child(domain, false))
-			throw EXCEPTION("Internal error, did not find the domain object");
-		remove(allcookies_lock, writer_lock, oldest_cookie);
-	}
+	LOG_DEBUG("Storing cookie " << cookie->name << " for "
+		  << cookie->domain);
 
 	// Register the new cookie in allcookies. Unregister if an exception
 	// gets thrown before this is finished.
@@ -137,6 +131,27 @@ void cookiejarObj::store(const ref<storedcookieObj> &cookie)
 	cookie->all_cookie=allcookies_lock->insert(cookie);
 
 	try {
+		// Maximum number of cookies per public suffix.
+		LOG_TRACE("There are "
+			  << cookie->all_cookie.first->second.count
+			  << " existing cookies in "
+			  << cookie->all_cookie.first->first);
+
+		while (cookie->all_cookie.first->second.count > maxcookies)
+		{
+			auto oldest_cookie=
+				*--cookie->all_cookie.first->second.list.end();
+
+			std::list<std::string> domain;
+			domain_key(oldest_cookie->domain, domain);
+
+			auto writer_lock=cookiedomainhier->create_writelock();
+
+			if (!writer_lock->to_child(domain, false))
+				throw EXCEPTION("Internal error, did not find the domain object");
+			remove(allcookies_lock, writer_lock, oldest_cookie);
+		}
+
 		// Compute hierarchy
 		std::list<std::string> domain;
 

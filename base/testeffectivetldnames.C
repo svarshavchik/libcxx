@@ -6,6 +6,7 @@
 #include "libcxx_config.h"
 #include "x/http/cookiejar.H"
 #include "x/property_value.H"
+#include "srcdir.h"
 
 static void checkPublicSuffix(const std::string &domain,
 			      const std::string &public_suffix)
@@ -22,7 +23,8 @@ static void testeffectivetldnames()
 {
 	LIBCXX_NAMESPACE::property::load_property(LIBCXX_NAMESPACE_WSTR
 						  L"::http::effective_tld_names",
-						  L"effective_tld_names.dat",
+						  WSRCDIR
+						  L"/effective_tld_names.dat",
 						  true, true);
 
 	checkPublicSuffix("", "");

@@ -14,7 +14,11 @@ namespace LIBCXX_NAMESPACE {
 };
 #endif
 
-cookiemrulist::cookiemrulist() : count(0)
+cookiemrulist::ps_mrulist::ps_mrulist() : count(0)
+{
+}
+
+cookiemrulist::cookiemrulist()
 {
 }
 
@@ -22,29 +26,43 @@ cookiemrulist::~cookiemrulist() noexcept
 {
 }
 
-std::list< ref<storedcookieObj> >::iterator
+cookiemrulist::cookie_mru_iter_t
 cookiemrulist::insert(const ref<storedcookieObj> &cookie)
 {
-	list.push_front(cookie);
-	++count;
-	return list.begin();
+	std::string domain=cookie->domain;
+
+	if (domain.substr(0, 1) == ".")
+		domain=domain.substr(1);
+
+	std::string public_suffix=
+		cookiejar::base::public_suffix(domain);
+
+	auto iter=mru.find(public_suffix);
+
+	if (iter == mru.end())
+		iter=mru.insert(std::make_pair(public_suffix, ps_mrulist()))
+			.first;
+
+	iter->second.list.push_front(cookie);
+	++iter->second.count;
+	return std::make_pair(iter, iter->second.list.begin());
 }
 
-void cookiemrulist::remove(std::list< ref<storedcookieObj> >::iterator iter)
+void cookiemrulist::remove(cookiemrulist::cookie_mru_iter_t iter)
 	noexcept
 {
-	list.erase(iter);
-	--count;
+	iter.first->second.list.erase(iter.second);
+	if (--iter.first->second.count == 0)
+		mru.erase(iter.first);
 }
 
-std::list< ref<storedcookieObj> >::iterator
-cookiemrulist::refresh(std::list< ref<storedcookieObj> >::iterator iter)
+cookiemrulist::cookie_mru_iter_t
+cookiemrulist::refresh(cookiemrulist::cookie_mru_iter_t iter)
 {
-	auto newIter=insert(*iter);
+	iter.first->second.list.push_front(*iter.second);
+	iter.first->second.list.erase(iter.second);
 
-	remove(iter);
-
-	return newIter;
+	return std::make_pair(iter.first, iter.first->second.list.begin());
 }
 
 #if 0

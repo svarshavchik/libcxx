@@ -2,6 +2,7 @@
 #define x_http_storedcookie_H
 
 #include "x/http/cookie.H"
+#include "x/http/cookiemrulist.H"
 #include "x/obj.H"
 #include "x/ref.H"
 #include <list>
@@ -47,7 +48,7 @@ class storedcookieObj : public cookie, virtual public obj {
 
 	//! This cookie in the MRU-list of all cookies in the cookie jar
 
-	std::list<ref<storedcookieObj> >::iterator all_cookie;
+	cookiemrulist::cookie_mru_iter_t all_cookie;
 };
 
 #if 0

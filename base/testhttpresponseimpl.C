@@ -20,6 +20,7 @@
 #include <iostream>
 #include <sstream>
 #include <iterator>
+#include "srcdir.h"
 
 static void testhttpresponseimpl()
 {
@@ -566,17 +567,12 @@ void testcookieiter()
 void testcookielimits()
 {
 	LIBCXX_NAMESPACE::property::load_property
-		(LIBCXX_NAMESPACE_WSTR "::http::cookiejar::max", L"3",
+		(LIBCXX_NAMESPACE_WSTR L"::http::cookiejar::domainmax", L"2",
 		 true, true);
 
 	LIBCXX_NAMESPACE::property::load_property
-		(LIBCXX_NAMESPACE_WSTR "::http::cookiejar::domainmax", L"2",
-		 true, true);
-
-	LIBCXX_NAMESPACE::property::load_property
-		(LIBCXX_NAMESPACE_WSTR "::http::cookiejar::cookiebytesmax",
+		(LIBCXX_NAMESPACE_WSTR L"::http::cookiejar::cookiebytesmax",
 		 L"50", true, true);
-
 
 	auto jar=LIBCXX_NAMESPACE::http::cookiejar::create();
 
@@ -602,22 +598,35 @@ void testcookielimits()
 		       "limit4=value4; path=\"/subdir\"; domain=.subdomain1.domain.com");
 	checkcookiejar(jar, "limit2=value2|limit3=value3|limit4=value4|");
 
-	// Max 3 cookies in a jar
+	// Max two cookies per domain.
 	storecookiejar(jar,
 		       "http://subdomain1.domain.com",
 		       "limit5=value5; path=\"/subdir\"; domain=.subdomain1.domain.com");
 
-	checkcookiejar(jar, "limit3=value3|limit4=value4|limit5=value5|");
+	checkcookiejar(jar, "limit2=value2|limit3=value3|limit4=value4|limit5=value5|");
+
+	// Refresh limit4
+	storecookiejar(jar,
+		       "http://subdomain1.domain.com",
+		       "limit4=value4; path=\"/subdir\"; domain=.subdomain1.domain.com");
+
+	checkcookiejar(jar, "limit2=value2|limit3=value3|limit4=value4|limit5=value5|");
+
+	// limit5 should be the oldest cookie that gets purged
 
 	storecookiejar(jar,
 		       "http://subdomain2.domain.com",
 		       "limit6=value6; path=\"/subdir\"; domain=.subdomain2.domain.com");
-	checkcookiejar(jar, "limit4=value4|limit5=value5|limit6=value6|");
+	checkcookiejar(jar, "limit2=value2|limit3=value3|limit4=value4|limit6=value6|");
 }
 
 int main(int argc, char **argv)
 {
 	try {
+		LIBCXX_NAMESPACE::property::load_property
+			(LIBCXX_NAMESPACE_WSTR L"::http::effective_tld_names",
+			 WSRCDIR L"/effective_tld_names.dat", true, true);
+
 		LIBCXX_NAMESPACE::option::string_value
 			uri(LIBCXX_NAMESPACE::option::string_value::create());
 

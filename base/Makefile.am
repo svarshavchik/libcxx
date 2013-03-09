@@ -216,8 +216,8 @@ $(call MSGDISPATCHER_GEN,singletonapp.msgs,all)
 
 $(call MSGDISPATCHER_GEN,timerobj.msgs,def decl)
 
-BUILT_SOURCES=x ymd_grdjd.h mksiglist.h mksigtab.h testoptgen.h maillogs.h propertiescli.h sysconfdir.h
-CLEANFILES=x ymd_grdjd.h mksiglist.h mksigtab.h testoptgen.h maillogs.h propertiescli.h sysconfdir.h
+BUILT_SOURCES=x ymd_grdjd.h mksiglist.h mksigtab.h testoptgen.h maillogs.h propertiescli.h sysconfdir.h srcdir.h
+CLEANFILES=x ymd_grdjd.h mksiglist.h mksigtab.h testoptgen.h maillogs.h propertiescli.h sysconfdir.h srcdir.h
 
 XTEST_MO_DIR=xtest/en_US/LC_MESSAGES
 XTEST_MO_FILE=xtest.mo
@@ -242,6 +242,10 @@ mksigtab.h: mksigtab
 
 sysconfdir.h:
 	echo '#define SYSCONFDIR "$(sysconfdir)"' >sysconfdir.h
+
+srcdir.h:
+	echo '#define SRCDIR "$(srcdir)"' >srcdir.h
+	echo '#define WSRCDIR L"$(srcdir)"' >>srcdir.h
 
 sysconf_DATA=effective_tld_names.dat
 EXTRA_DIST += effective_tld_names.dat

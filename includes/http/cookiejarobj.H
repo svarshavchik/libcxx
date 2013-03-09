@@ -3,6 +3,7 @@
 
 #include <x/http/cookiemrulist.H>
 #include <x/hier.H>
+#include <x/logger.H>
 
 namespace LIBCXX_NAMESPACE {
 
@@ -22,6 +23,9 @@ class storedcookieObj;
 //! A cookie jar object.
 
 class cookiejarObj : virtual public obj {
+
+	//! Logging
+	LOG_CLASS_SCOPE;
 
 	//! A hierarchical container, by domain component
 

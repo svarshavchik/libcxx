@@ -5,6 +5,7 @@
 #include <x/ptrfwd.H>
 
 #include <list>
+#include <map>
 
 namespace LIBCXX_NAMESPACE {
 
@@ -29,25 +30,51 @@ struct cookiemrulist {
 	//! Destructor
 	~cookiemrulist() noexcept LIBCXX_HIDDEN;
 
-	//! The size of the list.
-	size_t count;
+	//! MRU list for a given public suffix
 
-	//! The list
-	std::list< ref<storedcookieObj> > list;
+	struct ps_mrulist {
 
-	//! Insert
-	std::list< ref<storedcookieObj> >::iterator
-		insert(const ref<storedcookieObj> &cookie) LIBCXX_HIDDEN;
+		//! The size of the list.
+		size_t count;
+
+		//! The list
+		std::list< ref<storedcookieObj> > list;
+
+		//! The constructor needs only to set count to 0
+
+		ps_mrulist() LIBCXX_HIDDEN;
+	};
+
+	//! Container for the MRU list, keyed by public suffix
+	typedef std::map<std::string, ps_mrulist> mru_t;
+
+	//! The MRU list
+
+	mru_t mru;
+
+	//! An iterator for a cookie in the MRU list
+
+	//! The iterator consists of two actual iterators, an iterator for
+	//! the mru_t container, and an iterator for the std::list in the
+	//! ps_mrulist.
+
+	typedef std::pair<mru_t::iterator,
+			  std::list<ref<storedcookieObj>>::iterator
+			  > cookie_mru_iter_t;
+
+	//! Insert the cookie
+
+	cookie_mru_iter_t insert(const ref<storedcookieObj> &cookie)
+		LIBCXX_HIDDEN;
 
 	//! Remove
 
-	void remove(std::list< ref<storedcookieObj> >::iterator iter)
+	void remove(cookie_mru_iter_t iter)
 		noexcept LIBCXX_HIDDEN;
 
 	//! A refresh
 
-	std::list< ref<storedcookieObj> >::iterator
-		refresh(std::list< ref<storedcookieObj> >::iterator iter)
+	cookie_mru_iter_t refresh(cookie_mru_iter_t iter)
 		LIBCXX_HIDDEN;
 
 };
