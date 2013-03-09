@@ -52,6 +52,7 @@ public:
 	void setCannedBodyStr(const std::string &extra);
 };
 
+#ifndef DOXYGEN_FIXME
 template<typename ...Args>
 void responseimpl::throw_proxy_authentication_required(Args && ...args)
 {
@@ -71,6 +72,7 @@ void responseimpl::throw_unauthorized(Args && ...args)
 
 	throw resp;
 }
+#endif
 
 #if 0
 {

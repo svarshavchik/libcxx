@@ -384,6 +384,16 @@ private:
 	template<typename factory_type, typename impl_type,
 		 typename args_type, typename ret_type> class managed_helper;
 public:
+
+	//! A managed application singleton
+
+	//! This is a wrapper for create() that provides a higher-level API, that
+	//! introduces the concept of singleton application parameters and return
+	//! values. Both are reference-counted objects, with a serialization function.
+	//!
+	//! \return a std::pair, containing the return object, and the userid of the
+	//! singleton process that processed the parameters.
+
 	template<typename factory_type, typename args_type>
 	static std::pair<typename managed_ret_type<factory_type, args_type>
 			 ::ret_t, uid_t>

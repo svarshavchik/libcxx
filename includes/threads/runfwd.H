@@ -73,6 +73,10 @@ public:
 	friend class logger;
 	class singletonbase;
 
+	//! Put an object on the local thread's stack, and return a mcguffin reference to it.
+
+	//! \internal
+
 	template<typename objClass, typename baseType>
 	static weakthreadlocal<objClass, baseType>
 	makeweakthreadlocal(const ref<objClass, baseType> &refobj);

@@ -16,9 +16,7 @@ namespace LIBCXX_NAMESPACE {
 };
 #endif
 
-//! Put an object on the local thread's stack, and return a mcguffin reference to it.
-
-//! \internal
+#ifndef DOXYGEN_FIXME
 
 template<typename objClass, typename baseType>
 weakthreadlocal<objClass, baseType>
@@ -30,6 +28,8 @@ run_async::makeweakthreadlocal(const ref<objClass, baseType> &refobj)
 	return weakthreadlocal<objClass, baseType>
 		::create(refobj, localscope::localscopeptr->mcguffin);
 }
+
+#endif
 
 template<typename objClass, typename baseType>
 inline weakthreadlocal<objClass, baseType>

@@ -591,6 +591,8 @@ inline void crtBase
 	import_cert_list(certList, std::string(filename), format);
 }
 
+#ifndef DOXYGEN_FIXME
+
 template<typename cert_chain_container_t,
 	 typename ca_list_container_t>
 unsigned int crtBase
@@ -628,6 +630,7 @@ unsigned int crtBase
 
 	return verify_cert_list_internal(cert_list, ca_list, flags);
 }
+#endif
 
 #if 0
 {

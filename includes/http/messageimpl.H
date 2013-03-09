@@ -125,6 +125,8 @@ iter_type messageimpl::httpver_parse(iter_type b,
 	return p;
 }
 
+#ifndef DOXYGEN_FIXME
+
 template<typename iter_type>
 iter_type messageimpl::httpver_toString(iter_type iter, httpver_t httpver)
 
@@ -135,6 +137,8 @@ iter_type messageimpl::httpver_toString(iter_type iter, httpver_t httpver)
 
 	return iter;
 }
+
+#endif
 
 //! Predicate class for splitting comma-separated values
 

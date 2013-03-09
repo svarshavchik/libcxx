@@ -166,6 +166,8 @@ public:
 	}
 };
 
+#ifndef DOXYGEN_FIXME
+
 template<typename input_container_type,
 	 typename output_iterator_type>
 output_iterator_type writer::write(const input_container_type &container,
@@ -242,6 +244,7 @@ output_iterator_type writer::write_one_document(const options &options,
 
 	return write(options, vec, iter);
 }
+#endif
 
 #if 0
 {

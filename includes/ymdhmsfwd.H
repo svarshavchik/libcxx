@@ -174,6 +174,17 @@ public:
 	       //! Timezone specification
 	       const const_tzfile &tzfileArg=tzfile::base::local());
 
+	//! Convert a string to a time_t
+
+	//! The string is expected to be formatted using any of the three
+	//! formats specified in section 3.3 of RFC 2616, namely:
+	//!
+	//! - "%a, %d %b %Y %H:%M:%S %z".
+	//! - "$A, %d-%b-%Y %H:%M:%S %z".
+	//! - "%a %b %d %H:%M:%S %Y".
+	//!
+	//! An exception gets thrown if the string cannot be parsed, as such.
+
 	template<typename iter_type>
 	static time_t to_time_t(iter_type b, iter_type e,
 				const const_locale &l);
@@ -328,16 +339,7 @@ public:
 	}
 };
 
-//! Convert a string to a time_t
-
-//! The string is expected to be formatted using any of the three formts
-//! specified in section 3.3 of RFC 2616, namely:
-//!
-//! - "%a, %d %b %Y %H:%M:%S %z".
-//! - "$A, %d-%b-%Y %H:%M:%S %z".
-//! - "%a %b %d %H:%M:%S %Y".
-//!
-//! An exception gets thrown if the string cannot be parsed, as such.
+#ifndef DOXYGEN_FIXME
 
 template<typename iter_type>
 time_t ymdhms::to_time_t(iter_type b, iter_type e,
@@ -464,6 +466,7 @@ time_t ymdhms::to_time_t(iter_type b, iter_type e,
 			       tzfile::base::utc())
 		- tz;
 }
+#endif
 
 #if 0
 {

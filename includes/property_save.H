@@ -32,6 +32,13 @@ template<typename char_type>
 class save_properties_impl {
 
 public:
+	//! Save properties into an output iterator
+
+	//! Constructs a temporary output iterator that converts the property values
+	//! to the output character class and writes the result to the real output
+	//! iterator, using the parsing locale, then invokes the
+	//! specialization that saves the property values into the temporary iterator.
+
 	template<typename iter_type> static
 	iter_type save_impl(const std::map<propvalue, propvalue> &properties,
 			    iter_type iter,
@@ -47,18 +54,22 @@ template<>
 class save_properties_impl<propvalue::value_type> {
 
 public:
+
+	//! Save property values into an output iterator
+
+	//! The properties are formatted as "name=value\n" pairs, into the output
+	//! iterator, prepended by "#LOCALE name\n" if the parsing locale has a name.
+	//!
+	//! Property values are escaped, if necessary, so that load_properties()
+	//! can restore the original values.
+
 	template<typename iter_type> static
 	iter_type save_impl(const std::map<propvalue, propvalue> &properties,
 			    iter_type iter,
 			    const const_locale &locale);
 };
 
-//! Save properties into an output iterator
-
-//! Constructs a temporary output iterator that converts the property values
-//! to the output character class and writes the result to the real output
-//! iterator, using the parsing locale, then invokes the
-//! specialization that saves the property values into the temporary iterator.
+#ifndef DOXYGEN_FIXME
 
 template<typename char_type>
 template<typename iter_type>
@@ -80,14 +91,6 @@ iter_type save_properties_impl<char_type>
 		::save_impl(properties, iter_t::create(iter, locale),
 			    locale).flush();
 }
-
-//! Save property values into an output iterator
-
-//! The properties are formatted as "name=value\n" pairs, into the output
-//! iterator, prepended by "#LOCALE name\n" if the parsing locale has a name.
-//!
-//! Property values are escaped, if necessary, so that load_properties()
-//! can restore the original values.
 
 template<typename iter_type>
 iter_type save_properties_impl<propvalue::value_type>
@@ -158,6 +161,7 @@ iter_type save_properties_impl<propvalue::value_type>
 	}
 	return iter;
 }
+#endif
 
 //! Format properties into an output iterator
 

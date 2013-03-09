@@ -324,6 +324,8 @@ public:
 
 };
 
+#ifndef DOXYGEN_FIXME
+
 //! A managed application singleton
 
 //! This is a wrapper for create() that provides a higher-level API, that
@@ -371,6 +373,7 @@ singletonapp::managed(//! A functor that constructs an aplication object
 			  singletonappuid,
 			  singletonsockmode, mustbesameuser);
 }
+#endif
 
 //! managed() implementation.
 
