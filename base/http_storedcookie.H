@@ -35,10 +35,6 @@ class storedcookieObj : public cookie, virtual public obj {
 	//! Destructor
 	~storedcookieObj() noexcept LIBCXX_HIDDEN;
 
-	//! This cookie in the MRU-list of all cookies for a domain
-
-	std::list<ref<storedcookieObj> >::iterator domain_cookie;
-
 	//! Using a raw pointer is safe here. This pathcookiesObj holds a
 	//! reference on this object. When the reference gets removed, this
 	//! storedcookie object gets destroyed. When the pathcookiesObj

@@ -26,82 +26,49 @@ domaincookiesObj::~domaincookiesObj() noexcept
 }
 
 void domaincookiesObj::store(cookiemrulist_t::lock &all_lock,
-			     const ref<storedcookieObj> &cookie,
-			     size_t maxdomaincookies)
+			     const ref<storedcookieObj> &cookie)
 {
-	cookiemrulist_t::lock domaincookies_lock(allcookies);
+	// Compute hierarchy
+	std::list<std::string> path;
+	strtok_str(cookie->path, "/", path);
 
-	// Prune the list of cookies
+	auto writer_lock=cookiepathhier->create_writelock();
 
-	while (maxdomaincookies &&
-	       domaincookies_lock->count >= maxdomaincookies)
-	{
-		remove(all_lock, domaincookies_lock,
-		       *--domaincookies_lock->list.end());
-	}
+	writer_lock->
+		insert([&]
+		       {
+			       // No such path exists, create it.
 
-	// Register the new cookie in allcookies. Unregister if an exception
-	// gets thrown before this is finished.
+			       auto p=ref<pathcookiesObj>::create();
 
-	cookie->domain_cookie=domaincookies_lock->insert(cookie);
+			       cookie->path_owner=&*p;
 
-	try {
-		// Compute hierarchy
-		std::list<std::string> path;
-		strtok_str(cookie->path, "/", path);
+			       p->cookies.insert(cookie);
 
-		auto writer_lock=cookiepathhier->create_writelock();
+			       return p;
+		       }, path,
+		       [&]
+		       (ref<pathcookiesObj> &&p)
+		       {
+			       cookie->path_owner=&*p;
 
-		writer_lock->
-			insert([&]
+			       // Ok, there are cookies at the
+			       // same path. If this cookie
+			       // already exists, erase it.
+
+			       auto old=p->cookies.find(cookie);
+
+			       if (old != p->cookies.end())
 			       {
-				       // No such path exists, create it.
-
-				       auto p=ref<pathcookiesObj>::create();
-
-				       cookie->path_owner=&*p;
-
-				       p->cookies.insert(cookie);
-
-				       return p;
-			       }, path,
-			       [&]
-			       (ref<pathcookiesObj> &&p)
-			       {
-				       cookie->path_owner=&*p;
-
-				       // Ok, there are cookies at the
-				       // same path. If this cookie
-				       // already exists, erase it.
-
-				       auto old=p->cookies.find(cookie);
-
-				       if (old != p->cookies.end())
-				       {
-					       drop(all_lock,
-						    domaincookies_lock, p,
-						    old);
-				       }
-				       p->cookies.insert(cookie);
-				       return false;
-			       });
-
-	} catch (...) {
-		domaincookies_lock->remove(cookie->domain_cookie);
-		throw;
-	}
+				       drop(all_lock, p,
+					    old);
+			       }
+			       p->cookies.insert(cookie);
+			       return false;
+		       });
 }
 
 void domaincookiesObj::remove(cookiemrulist_t::lock &all_lock,
-			      const ref<storedcookieObj> &cookie)
-{
-	cookiemrulist_t::lock domaincookies_lock(allcookies);
-
-	remove(all_lock, domaincookies_lock, cookie);
-}
-
-void domaincookiesObj::remove(cookiemrulist_t::lock &all_lock,
-			      cookiemrulist_t::lock &domaincookies_lock,
 			      const ref<storedcookieObj> &cookie)
 {
 	std::list<std::string> path;
@@ -119,7 +86,7 @@ void domaincookiesObj::remove(cookiemrulist_t::lock &all_lock,
 	if (old == p->cookies.end())
 		return;
 
-	drop(all_lock, domaincookies_lock, p, old);
+	drop(all_lock, p, old);
 
 	// If no more cookies at this path, remove the path object entirely.
 
@@ -128,23 +95,20 @@ void domaincookiesObj::remove(cookiemrulist_t::lock &all_lock,
 }
 
 void domaincookiesObj::drop(cookiemrulist_t::lock &all_lock,
-			    cookiemrulist_t::lock &domaincookies_lock,
 			    const ref<storedcookieObj> &oldest_cookie)
 {
 	ref<pathcookiesObj> p(oldest_cookie->path_owner);
 
-	drop(all_lock, domaincookies_lock,
+	drop(all_lock,
 	     p,
 	     p->cookies.find(oldest_cookie));
 }
 
 void domaincookiesObj::drop(cookiemrulist_t::lock &all_lock,
-			    cookiemrulist_t::lock &domaincookies_lock,
 			    const ref<pathcookiesObj> &p,
 			    pathcookiesObj::cookies_t::iterator old)
 {
 	all_lock->remove((*old)->all_cookie);
-	domaincookies_lock->remove((*old)->domain_cookie);
 	p->cookies.erase(old);
 }
 

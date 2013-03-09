@@ -32,10 +32,6 @@ class domaincookiesObj : virtual public obj {
 
 	cookiepathhier_t cookiepathhier;
 
-	//! All cookies in this domain
-
-	cookiemrulist_t allcookies;
-
 	//! Constructor
 
 	domaincookiesObj() LIBCXX_HIDDEN;
@@ -54,11 +50,7 @@ class domaincookiesObj : virtual public obj {
 
 		   //! The cookie's domain and path must be validated values.
 
-		   const ref<storedcookieObj> &cookie,
-
-		   //! The configured setting for max # of cookies per domain
-
-		   size_t maxdomaincookies) LIBCXX_HIDDEN;
+		   const ref<storedcookieObj> &cookie) LIBCXX_HIDDEN;
 
 	//! Remove a given cookie in this domain
 
@@ -80,14 +72,12 @@ class domaincookiesObj : virtual public obj {
 	//! \internal
 
 	void drop(cookiemrulist_t::lock &all_lock,
-		  cookiemrulist_t::lock &domain_cookies_lock,
 		  const ref<storedcookieObj> &oldest_cookie);
 
 	//! Remove a cookie from cookiepathhier and allcookies
 
 	//! \internal
 	static void drop(cookiemrulist_t::lock &all_lock,
-			 cookiemrulist_t::lock &domaincookies_lock,
 			 const ref<pathcookiesObj> &p,
 			 pathcookiesObj::cookies_t::iterator old) LIBCXX_HIDDEN;
 };

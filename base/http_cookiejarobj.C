@@ -154,9 +154,7 @@ void cookiejarObj::store(const ref<storedcookieObj> &cookie)
 
 				       auto p=ref<domaincookiesObj>::create();
 
-				       p->store(allcookies_lock, cookie,
-						maxdomaincookiesprop.getValue()
-						);
+				       p->store(allcookies_lock, cookie);
 				       return p;
 			       }, domain,
 			       [&]
@@ -166,9 +164,7 @@ void cookiejarObj::store(const ref<storedcookieObj> &cookie)
 				       // there, and return false so that the
 				       // hier entry does not get replaced.
 
-				       p->store(allcookies_lock, cookie,
-						maxdomaincookiesprop.getValue()
-						);
+				       p->store(allcookies_lock, cookie);
 				       return false;
 			       });
 
@@ -266,16 +262,6 @@ void cookiejarObj::find(const uriimpl &uri,
 						lock->refresh(cookie->
 							      all_cookie);
 				}
-
-				{
-					cookiemrulist_t::lock
-						lock(domaincookies->allcookies);
-
-					cookie->domain_cookie=
-						lock->refresh(cookie->
-							      domain_cookie);
-				}
-
 			}
 		} while (pathlock->to_parent());
 	} while (lock->to_parent());
