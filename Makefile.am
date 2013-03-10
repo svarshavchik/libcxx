@@ -3,7 +3,7 @@
 # See COPYING for distribution information.
 #
 
-AUTOMAKE_OPTIONS=foreign dist-bzip2 -Wno-portability
+AUTOMAKE_OPTIONS=dist-bzip2 -Wno-portability
 SUBDIRS= po includes base yaml gnutls httportmap packaging/fedora
 
 define reverse

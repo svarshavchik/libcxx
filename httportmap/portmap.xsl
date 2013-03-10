@@ -15,7 +15,7 @@
     </head>
     <body>
       <h1>Running applications</h1>
-      <table>
+      <table style="white-space: nowrap">
 	<thead>
 	  <tr>
 	    <th>Service</th>
