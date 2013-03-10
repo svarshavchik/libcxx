@@ -3,7 +3,7 @@
 # See COPYING for distribution information.
 
 AC_PREREQ(2.61)
-AC_INIT(libcxx, 0.2.1, [mrsam@courier-mta.com])
+AC_INIT(libcxx, 0.3, [mrsam@courier-mta.com])
 
 AC_CONFIG_SRCDIR([includes/obj.H])
 AC_CONFIG_HEADER([libcxx_config.h])
