@@ -947,6 +947,9 @@ static void systemd_send(const args &a)
 
 static int main2(int argc, char **argv)
 {
+	// Load the UTF-8 locale, before we go into chroot jail
+	auto utf8=LIBCXX_NAMESPACE::locale::base::utf8();
+
 	httportmap_server_opts opts;
 
 	LIBCXX_NAMESPACE::option::parser
