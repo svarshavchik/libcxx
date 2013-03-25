@@ -107,6 +107,10 @@ std::string escapestr(//! The original string
 		      //! Set this flag to true to also escape quotes, apostrophes, and control characters
 		      bool escapeqac=false);
 
+//! Convenience function for escaping a string
+
+//! \overload
+//! The string to escape gets defined by a beginning and an ending iterator.
 template<typename iter_type>
 std::string escapestr(//! Beginning iterator
 		      iter_type beg_iter,
@@ -114,6 +118,7 @@ std::string escapestr(//! Beginning iterator
 		      //! Ending iterator
 		      iter_type end_iter,
 
+		      //! Whether to replace quotes, apostrophes, and commas.
 		      bool escapeqac=false)
 {
 	std::string s;

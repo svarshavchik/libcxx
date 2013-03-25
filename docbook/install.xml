@@ -120,7 +120,7 @@ See COPYING for distribution information.
       <listitem>
 	<para>
 	  <application>GCC</application> version 4.7, or a higher version if
-	  it's the current dominant version of <application>GCC</application>.
+	  it's the current current version of <application>GCC</application>.
 	  As new <application>GCC</application> releases improve support for
 	  C++11, this library will probably be updated to take advantage of
 	  them.
@@ -132,6 +132,7 @@ See COPYING for distribution information.
 	  <application>gnutls</application>,
 	  <application>libgcrypt</application>,
 	  <application>libidn</application>,
+	  <application>libxml2</application>,
 	  <application>libxslt</application>,
 	  <application>libyaml</application> and
 	  <application>pcre</application>.

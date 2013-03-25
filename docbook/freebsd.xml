@@ -20,6 +20,7 @@ See COPYING for distribution information.
 	<application>pkg-config</application> or <application>pkgconf</application>,
 	<application>ca_root_nss</application>,
 	<application>pcre</application>,
+	<application>libxml2</application>,
 	<application>libxslt</application>,
 	<application>libyaml</application>,
 	<application>gnutls</application>,

@@ -96,9 +96,11 @@
 /testweak3
 /testworkerpool
 /testxmlescape
+/testxmlparse
 /testymd
 /timerobj.msgs.decl.H
 /timerobj.msgs.def.H
 /x
+/xml_parser_options.h
 /xtest/
 /ymd_grdjd.h

@@ -1,5 +1,5 @@
 #
-# Copyright 2012 Double Precision, Inc.
+# Copyright 2012-2013 Double Precision, Inc.
 # See COPYING for distribution information.
 
 AC_PREREQ(2.61)
@@ -74,6 +74,17 @@ AC_SUBST(GCRYPT_LIBS)
 AC_SUBST(GCRYPT_CFLAGS)
 
 CXXFLAGS="$CXXFLAGS -std=c++0x -fno-omit-frame-pointer"
+
+AC_CHECK_PROGS(XML2_CONFIG,xml2-config,none)
+if test "$XML2_CONFIG" = "none"
+then
+	AC_MSG_ERROR([xml2-config not found, install libxml2 development files])
+fi
+
+LIBXML2_LDADD="`$XML2_CONFIG --libs`"
+LIBXML2_CFLAGS="`$XML2_CONFIG --cflags`"
+AC_SUBST(LIBXML2_LDADD)
+AC_SUBST(LIBXML2_CFLAGS)
 
 # Checks for header files.
 

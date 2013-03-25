@@ -5,7 +5,7 @@
 
 include $(shell pwd)/../includes/libcxx.mk
 
-AM_CPPFLAGS=-I . -I $(srcdir)/../includes -I ../includes
+AM_CPPFLAGS=-I . -I $(srcdir)/../includes -I ../includes $(LIBXML2_CFLAGS)
 
 LDFLAGS += -export-dynamic
 
@@ -51,6 +51,7 @@ libcxx_la_SOURCES=\
 	addoverflow.h		\
 	gettext_in.h		\
 	ymd_internal.h		\
+	xml_internal.h		\
 \
 	basicattr.C		\
 	basiccodecvtcommon.C	\
@@ -206,7 +207,9 @@ libcxx_la_SOURCES=\
 	wordexp.C		\
 	workerpoolobj.C		\
 	xlocale.C		\
+	xml_doc.C		\
 	xml_escape.C		\
+	xml_parser.C		\
 	ymd.C			\
 	ymd2.C			\
 	ymdhms.C		\
@@ -216,8 +219,8 @@ $(call MSGDISPATCHER_GEN,singletonapp.msgs,all)
 
 $(call MSGDISPATCHER_GEN,timerobj.msgs,def decl)
 
-BUILT_SOURCES=x ymd_grdjd.h mksiglist.h mksigtab.h testoptgen.h maillogs.h propertiescli.h sysconfdir.h srcdir.h
-CLEANFILES=x ymd_grdjd.h mksiglist.h mksigtab.h testoptgen.h maillogs.h propertiescli.h sysconfdir.h srcdir.h effective_tld_names.dat effective_tld_names.dat.timestamp
+BUILT_SOURCES=x ymd_grdjd.h mksiglist.h mksigtab.h testoptgen.h maillogs.h propertiescli.h sysconfdir.h srcdir.h xml_parser_options.h
+CLEANFILES=x ymd_grdjd.h mksiglist.h mksigtab.h testoptgen.h maillogs.h propertiescli.h sysconfdir.h srcdir.h xml_parser_options.h effective_tld_names.dat effective_tld_names.dat.timestamp
 
 XTEST_MO_DIR=xtest/en_US/LC_MESSAGES
 XTEST_MO_FILE=xtest.mo
@@ -247,6 +250,12 @@ srcdir.h:
 	echo '#define SRCDIR "$(srcdir)"' >srcdir.h
 	echo '#define WSRCDIR L"$(srcdir)"' >>srcdir.h
 
+xml_parser_options.h:
+	echo '#include <libxml/parser.h>' >xml_parser_options.tmp.c
+	$(COMPILE) -E xml_parser_options.tmp.c | perl -n -e 'print "{(int)$$1, \"" . lc($$2) . "\"},\n" if /<</ && /^\s+(XML_PARSE_(\w+))/' >xml_parser_options.h.tmp
+	mv -f xml_parser_options.h.tmp xml_parser_options.h
+	rm -f xml_parser_options.tmp.c
+
 sysconf_DATA=effective_tld_names.dat
 EXTRA_DIST += effective_tld_names.dat
 
@@ -261,7 +270,7 @@ effective_tld_names.dat.timestamp:
 	rm -f effective_tld_names.dat.tmp
 	touch effective_tld_names.dat.timestamp
 
-libcxx_la_LIBADD=-lpthread -lrt -lpcre -lmagic @LIBEXTRAPATH@ @LIBUNWIND@ @LINKLIBICONV@ @LINKLIBINTL@ @LIBIDN@
+libcxx_la_LIBADD=-lpthread -lrt -lpcre -lmagic -lxml2 @LIBEXTRAPATH@ @LIBUNWIND@ @LINKLIBICONV@ @LINKLIBINTL@ @LIBIDN@ @LIBXML2_CFLAGS@
 
 libcxx_la_LDFLAGS=-version-info @VERSION_INFO@
 
@@ -345,6 +354,7 @@ noinst_PROGRAMS=\
 	testweak3                     \
 	testworkerpool                \
 	testxmlescape                 \
+	testxmlparse                  \
 	testymd
 
 mkgrdjd_SOURCES=mkgrdjd.C
@@ -506,6 +516,10 @@ testiconviofilter_LDFLAGS=$(TESTLINKTYPE)
 testxmlescape_SOURCES=testxmlescape.C
 testxmlescape_LDADD=libcxx.la
 testxmlescape_LDFLAGS=$(TESTLINKTYPE)
+
+testxmlparse_SOURCES=testxmlparse.C
+testxmlparse_LDADD=libcxx.la
+testxmlparse_LDFLAGS=$(TESTLINKTYPE)
 
 testfdtimeouts_SOURCES=testfdtimeouts.C
 testfdtimeouts_LDADD=libcxx.la
@@ -823,6 +837,7 @@ check-am: $(noinst_PROGRAMS) $(noinst_DATA)
 	./testhttpresponseimpl
 	./testiconviofilter
 	./testxmlescape
+	./testxmlparse
 	./testfdtimeouts
 	./testhttpserverimpl
 	./testhttpclientimpl
