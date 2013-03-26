@@ -5,6 +5,7 @@
 #include "x/xml/doc.H"
 #include "x/xml/parser.H"
 #include "x/logger.H"
+#include "x/rwlock.H"
 
 namespace LIBCXX_NAMESPACE {
 	namespace xml {
@@ -54,13 +55,22 @@ class LIBCXX_HIDDEN error_handler {
 class LIBCXX_HIDDEN impldocObj : public docObj {
 
  public:
+	class readlockImplObj;
+	class writelockImplObj;
+
 	xmlDocPtr p; // The libXML document.
+
+	rwlock lock; // Readers/writer lock object
 
 	// Constructor
 	impldocObj(xmlDocPtr pArg);
 
 	// If p is not nullptr, destroy it.
 	~impldocObj() noexcept;
+
+	ref<readlockObj> readlock() override;
+	ref<writelockObj> writelock() override;
+
 };
 
 // Implement xml::parser

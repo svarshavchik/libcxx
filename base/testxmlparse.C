@@ -56,11 +56,22 @@ void test1(size_t bufsize)
 	}
 }
 
+void test2()
+{
+	auto empty_document=LIBCXX_NAMESPACE::xml::doc::create();
+
+	auto lock=empty_document->readlock();
+
+	if (lock->get_root())
+		throw EXCEPTION("An empty document should not have a root node");
+}
+
 int main(int argc, char **argv)
 {
 	try {
 		test1(100);
 		test1(LIBCXX_NAMESPACE::fdbaseObj::get_buffer_size());
+		test2();
 	} catch (LIBCXX_NAMESPACE::exception &e)
 	{
 		std::cerr << e << std::endl;
