@@ -64,6 +64,49 @@ void test2()
 
 	if (lock->get_root())
 		throw EXCEPTION("An empty document should not have a root node");
+	if (lock->type() != "")
+		throw EXCEPTION("Why do I have a type, here?");
+
+	auto document=({
+			std::string dummy=
+				"<root attribute='value'>"
+				"<child>Text<i>element</i></child>"
+				"<child2>Text2<i>element2</i></child2>"
+				"</root>";
+
+			LIBCXX_NAMESPACE::xml::doc::create(dummy.begin(),
+							   dummy.end(),
+							   "string");
+		});
+
+	lock=document->readlock();
+	if (!lock->get_root() || lock->type() != "element_node")
+		throw EXCEPTION("Root node is not an element node");
+	if (lock->path() != "/root")
+		throw EXCEPTION("Root node is not /root");
+	if (!lock->get_first_child() || lock->path() != "/root/child" ||
+	    !lock->get_parent())
+		throw EXCEPTION("get_first_child/parent failed");
+
+	if (!lock->get_last_child() || lock->path() != "/root/child2" ||
+	    !lock->get_previous_element_sibling() || lock->path() != "/root/child")
+		throw EXCEPTION("get_last_child/get_prev_sibling_element failed");
+	auto lock2=lock->clone();
+
+	if (!lock2->get_next_element_sibling() || lock2->get_next_element_sibling() ||
+	    lock->get_previous_element_sibling() ||
+	    lock->path() != "/root/child" || lock2->path() != "/root/child2")
+		throw EXCEPTION("clone()/get_next_element_sibling() failed");
+
+	if (!lock2->get_first_element_child() ||
+	    lock2->path() != "/root/child2/i" ||
+	    !lock2->get_previous_sibling() ||
+	    lock2->type() != "text_node")
+		throw EXCEPTION("get_first_element_child/get_previous_sibling failed");
+	if (!lock2->get_next_sibling() ||
+	    lock2->path() != "/root/child2/i")
+		throw EXCEPTION("get_next_sibling failed");
+
 }
 
 int main(int argc, char **argv)

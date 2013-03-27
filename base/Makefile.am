@@ -219,8 +219,8 @@ $(call MSGDISPATCHER_GEN,singletonapp.msgs,all)
 
 $(call MSGDISPATCHER_GEN,timerobj.msgs,def decl)
 
-BUILT_SOURCES=x ymd_grdjd.h mksiglist.h mksigtab.h testoptgen.h maillogs.h propertiescli.h sysconfdir.h srcdir.h xml_parser_options.h
-CLEANFILES=x ymd_grdjd.h mksiglist.h mksigtab.h testoptgen.h maillogs.h propertiescli.h sysconfdir.h srcdir.h xml_parser_options.h effective_tld_names.dat effective_tld_names.dat.timestamp
+BUILT_SOURCES=x ymd_grdjd.h mksiglist.h mksigtab.h testoptgen.h maillogs.h propertiescli.h sysconfdir.h srcdir.h xml_parser_options.h xml_element_type.h
+CLEANFILES=x ymd_grdjd.h mksiglist.h mksigtab.h testoptgen.h maillogs.h propertiescli.h sysconfdir.h srcdir.h xml_parser_options.h xml_element_type.h effective_tld_names.dat effective_tld_names.dat.timestamp
 
 XTEST_MO_DIR=xtest/en_US/LC_MESSAGES
 XTEST_MO_FILE=xtest.mo
@@ -255,6 +255,12 @@ xml_parser_options.h:
 	$(COMPILE) -E xml_parser_options.tmp.c | perl -n -e 'print "{(int)$$1, \"" . lc($$2) . "\"},\n" if /<</ && /^\s+(XML_PARSE_(\w+))/' >xml_parser_options.h.tmp
 	mv -f xml_parser_options.h.tmp xml_parser_options.h
 	rm -f xml_parser_options.tmp.c
+
+xml_element_type.h:
+	echo '#include <libxml/parser.h>' >xml_element_type.tmp.c
+	$(COMPILE) -E xml_element_type.tmp.c | perl -n -e '@x=() if /^typedef enum/; $$x[$$3]=lc($$2) if /(XML_(\w+))[=\s+]+(\d+)/; if (/^\}\s+xmlElementType;/) { print "static const char element_names[]="; $$i=0; $$j=0; foreach my $$n (@x) { $$l[$$j++]=$$i; $$i += $$n ? length($$n)+1:0; print "\n    \"" . $$n . "\\0\"" if $$n; } print ";\nstatic const int element_offsets[]={" . join(", ", @l) . "};\n";  }' >xml_element_type.h.tmp
+	mv -f xml_element_type.h.tmp xml_element_type.h
+	rm -f xml_element_type.tmp.c
 
 sysconf_DATA=effective_tld_names.dat
 EXTRA_DIST += effective_tld_names.dat

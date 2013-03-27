@@ -9,12 +9,37 @@
 #include "xml_internal.h"
 #include "gettext_in.h"
 
+#include <sstream>
+
 namespace LIBCXX_NAMESPACE {
 	namespace xml {
 #if 0
 	};
 };
 #endif
+
+void throw_last_error(const char *context)
+{
+	auto p=xmlGetLastError();
+
+	throw EXCEPTION(std::string(context) + ": " +
+			(p ? p->message:"error"));
+}
+
+std::string not_null(xmlChar *p, const char *context)
+{
+	if (!p)
+		throw_last_error(context);
+
+	std::string s(reinterpret_cast<const char *>(p));
+	xmlFree(p);
+	return s;
+}
+
+#include "xml_element_type.h"
+
+static const size_t element_offsets_l=
+	sizeof(element_offsets)/sizeof(element_offsets[0]);
 
 impldocObj::impldocObj(xmlDocPtr pArg) : p(pArg), lock(rwlock::create())
 {
@@ -117,6 +142,156 @@ class LIBCXX_HIDDEN impldocObj::readlockImplObj : public writelockObj {
 
 		return !!n;
 	}
+
+	bool get_parent() override
+	{
+		if (n && n->parent)
+		{
+			n=n->parent;
+			return true;
+		}
+		return false;
+	}
+
+	bool get_first_child() override
+	{
+		if (n && xmlGetLastChild(n) && n->children)
+		{
+			n=n->children;
+			return true;
+		}
+		return false;
+	}
+
+	bool get_last_child() override
+	{
+		if (n)
+		{
+			xmlNodePtr p;
+
+			if ((p=xmlGetLastChild(n)) != nullptr)
+			{
+				n=p;
+				return true;
+			}
+		}
+		return false;
+	}
+
+	bool get_next_sibling() override
+	{
+		if (n && n->next)
+		{
+			n=n->next;
+			return true;
+		}
+		return false;
+	}
+
+	bool get_previous_sibling() override
+	{
+		if (n && n->prev)
+		{
+			n=n->prev;
+			return true;
+		}
+
+		return false;
+	}
+
+	bool get_first_element_child() override
+	{
+		if (n)
+		{
+			xmlNodePtr p;
+
+			if ((p=xmlFirstElementChild(n)) != nullptr)
+			{
+				n=p;
+				return true;
+			}
+		}
+		return false;
+	}
+
+	bool get_last_element_child() override
+	{
+		if (n)
+		{
+			xmlNodePtr p;
+
+			if ((p=xmlLastElementChild(n)) != nullptr)
+			{
+				n=p;
+				return true;
+			}
+		}
+		return false;
+	}
+
+	bool get_next_element_sibling() override
+	{
+		if (n)
+		{
+			xmlNodePtr p;
+
+			if ((p=xmlNextElementSibling(n)) != nullptr)
+			{
+				n=p;
+				return true;
+			}
+		}
+		return false;
+	}
+
+	bool get_previous_element_sibling() override
+	{
+		if (n)
+		{
+			xmlNodePtr p;
+
+			if ((p=xmlPreviousElementSibling(n)) != nullptr)
+			{
+				n=p;
+				return true;
+			}
+		}
+		return false;
+	}
+
+	std::string type() const override
+	{
+		std::string type_str;
+
+		if (n)
+		{
+			size_t i=(size_t)n->type;
+
+			if (i < element_offsets_l &&
+			    (i+1 == element_offsets_l ||
+			     element_offsets[i] != element_offsets[i+1]))
+			{
+				type_str=element_names + element_offsets[i];
+			}
+			else
+			{
+				std::ostringstream o;
+
+				o << "unknown_node_type_" << i;
+				type_str=o.str();
+			}
+		}
+		return type_str;
+	}
+
+	std::string path() const override
+	{
+		std::string p;
+
+		if (n)
+			p=not_null(xmlGetNodePath(n), "getNodePath");
+		return p;
+	}
 };
 
 class LIBCXX_HIDDEN impldocObj::writelockImplObj : public readlockImplObj {
@@ -133,7 +308,7 @@ class LIBCXX_HIDDEN impldocObj::writelockImplObj : public readlockImplObj {
 	{
 	}
 
-	ref<readlockObj> clone() override
+	ref<readlockObj> clone() const override
 	{
 		throw EXCEPTION(libmsg(_txt("Cannot clone a write lock")));
 	}

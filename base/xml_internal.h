@@ -109,6 +109,11 @@ class LIBCXX_HIDDEN implparserObj : public parserObj {
 	void operator=(char c) override;
 };
 
+void throw_last_error(const char *context)
+	LIBCXX_HIDDEN __attribute__((noreturn));
+
+std::string not_null(xmlChar *str, const char *context) LIBCXX_HIDDEN;
+
 #if 0
 {
 	{
