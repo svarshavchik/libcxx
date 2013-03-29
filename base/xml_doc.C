@@ -6,6 +6,7 @@
 #include "libcxx_config.h"
 #include "x/fditer.H"
 #include "x/fd.H"
+#include "x/tostring.H"
 #include "xml_internal.h"
 #include "gettext_in.h"
 
@@ -32,6 +33,13 @@ std::string not_null(xmlChar *p, const char *context)
 		throw_last_error(context);
 
 	std::string s(reinterpret_cast<const char *>(p));
+	xmlFree(p);
+	return s;
+}
+
+std::string null_ok(xmlChar *p)
+{
+	std::string s(p ? reinterpret_cast<const char *>(p):"");
 	xmlFree(p);
 	return s;
 }
@@ -291,6 +299,45 @@ class LIBCXX_HIDDEN impldocObj::readlockImplObj : public writelockObj {
 		if (n)
 			p=not_null(xmlGetNodePath(n), "getNodePath");
 		return p;
+	}
+
+	std::string get_attribute(const std::string &attribute_name,
+				  const uriimpl &attribute_namespace)
+		const override
+	{
+		std::string ns=tostring(attribute_namespace);
+		std::string s;
+
+		if (n)
+			s=null_ok(xmlGetNsProp(n,
+					       reinterpret_cast<const xmlChar *>
+					       (attribute_name.c_str()),
+					       reinterpret_cast<const xmlChar *>
+					       (ns.c_str())));
+		return s;
+	}
+
+	std::string get_attribute(const std::string &attribute_name)
+		const override
+	{
+		std::string s;
+
+		if (n)
+			s=null_ok(xmlGetNoNsProp(n, reinterpret_cast
+						 <const xmlChar *>
+						 (attribute_name.c_str())));
+		return s;
+	}
+
+	std::string get_any_attribute(const std::string &attribute_name) const
+	{
+		std::string s;
+
+		if (n)
+			s=null_ok(xmlGetProp(n,
+					     reinterpret_cast<const xmlChar *>
+					     (attribute_name.c_str())));
+		return s;
 	}
 };
 

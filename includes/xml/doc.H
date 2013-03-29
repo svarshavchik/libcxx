@@ -87,17 +87,79 @@ public:
 	//! lock, which blocks the document from being changed, as long as
 	//! a reader lock remains in scope.
 	//!
+	//! The lock objects' methods are thread-safe with respect to other
+	//! locks on the same document, but a single reader or a writer lock
+	//! can be used by only one thread at a time.
+	//!
 	//! \code
-	//! rlock->to_root();
 	//!
-	//! INSERT_LIBX_NAMESPACE::xml::doc::base::readlock lock2=rlock->clone();
+	//! bool flag;
 	//!
-	//! std::string type=rlock->type();
+	//! flag=rlock->get_root();
+	//!
+	//! flag=rlock->get_parent();
+	//!
+	//! flag=rlock->get_first_child();
+	//!
+	//! flag=rlock->get_last_child();
+	//!
+	//! flag=rlock->get_next_sibling();
+	//!
+	//! flag=rlock->get_previous_sibling();
+	//!
+	//! flag=rlock->get_first_element_child();
+	//!
+	//! flag=rlock->get_last_element_child();
+	//!
+	//! flag=rlock->get_next_element_sibling();
+	//!
+	//! flag=rlock->get_previous_element_sibling();
 	//! \endcode
 	//!
 	//! A reader lock is associated with a single node in the XML document.
-	//! to_root() positions the reader lock to the XML document's root
+	//!
+	//! get_root() positions the reader lock to the XML document's root
 	//! node.
+	//! get_first_child() and get_last_child() position the reader
+	//! lock to its current node's first or last child node in the XML
+	//! document. get_next_sibling() and get_previous_sibling() position
+	//! the node to its next or the previous sibling node.
+	//!
+	//! get_first_element_child(), get_last_element_child(),
+	//! get_next_element_sibling() and get_previous_element_sibling()
+	//! are similar, except that they reposition the reader lock to
+	//! the corresponding XML element node only, skipping over any text
+	//! nodes, or other nodes.
+	//!
+	//! get_parent() positions the reader lock to the parent node.
+	//!
+	//! All these functions return \c true if the reader lock gets
+	//! repositioned accordingly, or \c false if no such node exists
+	//! (no first child or last child, because the element has no child
+	//! nodes; or its the first or the last sibling node, etc...).
+	//!
+	//! \code
+	//! std::string type=rlock->type();
+	//!
+	//! std::string path=rlock->path();
+	//! \endcode
+	//!
+	//! type() returns the type of the current node, as a string.
+	//! "element_node" gets returned when the current node is an XML
+	//! element node, "text_node" gets returned when the current node is
+	//! a text node. The string corresponds directly to the enumerated
+	//! \c xmlElementType values of the underlyling \c libxml library:
+	//! \c XML_ELEMENT_NODE, \c XML_TEXT_NODE, and so on.
+	//!
+	//! An empty string gets returned if the reader lock is not positioned
+	//! on a node.
+	//!
+	//! path() returns the XPath to the current node, starting with the
+	//! document's root.
+	//!
+	//! \code
+	//! INSERT_LIBX_NAMESPACE::xml::doc::base::readlock lock2=rlock->clone();
+	//! \endcode
 	//!
 	//! clone() clones the reader lock, creating another read lock, that's
 	//! separately positionable. \ref readlock "readlock" is a reference-
@@ -110,10 +172,30 @@ public:
 	//! reader lock to go out of scope and release its lock on the
 	//! document.
 	//!
-	//! The lock objects' methods are thread-safe with respect to other
-	//! locks on the same document, but a single reader or a writer lock
-	//! can be used by only one thread at a time.
-
+	//! \code
+	//! std::string value;
+	//!
+	//! value=rlock->get_attribute("style");
+	//!
+	//! INSERT_LIBX_NAMESPACE::uriimpl ns;
+	//!
+	//! value=rlock->get_attribute("style", ns);
+	//!
+	//! value=rlock->get_any_attribute("style");
+	//! \endcode
+	//!
+	//! get_attribute() returns the value of the given attribute in the
+	//! null XML namespace, if the read lock is positioned on an element
+	//! node, and the given un-namespaced attribute exists. An empty
+	//! string gets returned in all other situations.
+	//!
+	//! A second parameter to get_attribute() specifies an XML namespace
+	//! for the attribute's name, and returns the value of the attribute
+	//! in the referenced namespace.
+	//!
+	//! get_any_attribute() retrieves the value of the specified attribute
+	//! in any namespace.
+	//!
 	typedef ref<docObj::readlockObj> readlock;
 
 	//! A nullable pointer reference to a \ref readlock "reader lock".

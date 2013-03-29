@@ -114,6 +114,8 @@ void throw_last_error(const char *context)
 
 std::string not_null(xmlChar *str, const char *context) LIBCXX_HIDDEN;
 
+std::string null_ok(xmlChar *str) LIBCXX_HIDDEN;
+
 #if 0
 {
 	{

@@ -53,6 +53,11 @@ class docBase;
 //! and an ending iterator. The third parameter specifies some label that
 //! refers to the document, which gets included in any error messages if there
 //! are parsing errors. A fourth optional parameter specifies parsing options.
+//!
+//! Once a document is parsed or created, use a
+//! \ref docBase::readlock "INSERT_LIBX_NAMESPACE::doc::base::readlock" or a
+//! \ref docBase::writelock "INSERT_LIBX_NAMESPACE::doc::base::writelock" to
+//! examine or modify its contents.
 
 typedef ref<docObj, docBase> doc;
 

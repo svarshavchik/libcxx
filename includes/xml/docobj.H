@@ -7,6 +7,7 @@
 #define x_xml_docobj_H
 
 #include <x/obj.H>
+#include <x/uriimpl.H>
 
 namespace LIBCXX_NAMESPACE {
 	namespace xml {
@@ -140,6 +141,42 @@ public:
 		//! on a node, this is a new lock.
 
 		virtual std::string path() const=0;
+
+		//! Return the value of an attribute of the current element node.
+
+		//! Returns the value of a attribute in a specific namespace.
+		//! An empty string gets returned if this attribute does not
+		//! exist, or the current node is not an element node.
+
+		virtual std::string get_attribute(//! Attribute's name
+						 const std::string &attribute_name,
+						 //! Attribute's namespace
+						 const uriimpl &attribute_namespace) const=0;
+
+		//! Return the value of an attribute of the current element node.
+
+		//! Returns the value of an attribute in no namespace.
+		//! An empty string gets returned if this attribute does not
+		//! exist, or the current node is not an element node.
+
+		virtual std::string get_any_attribute(//! Attribute's name
+
+						      //! This attribute name is not
+						      //! in any namespace.
+						      const std::string &attribute_name) const=0;
+
+		//! Return the value of an attribute of the current element node.
+
+		//! Returns the value of an attribute, in any namespace.
+		//! An empty string gets returned if this attribute does not
+		//! exist, or the current node is not an element node.
+
+		virtual std::string get_attribute(//! Attribute's name
+
+						 //! This attribute name is not
+						 //! in any namespace.
+						 const std::string &attribute_name) const=0;
+
 	};
 
 	//! A \ref ref "reference" to this object gets returned by writelock()

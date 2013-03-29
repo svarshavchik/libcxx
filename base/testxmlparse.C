@@ -69,9 +69,9 @@ void test2()
 
 	auto document=({
 			std::string dummy=
-				"<root attribute='value'>"
+				"<root attribute='value' xmlns:x='http://www.example.com'>"
 				"<child>Text<i>element</i></child>"
-				"<child2>Text2<i>element2</i></child2>"
+				"<child2>Text2<i x:attribute='value'>element2</i></child2>"
 				"</root>";
 
 			LIBCXX_NAMESPACE::xml::doc::create(dummy.begin(),
@@ -82,6 +82,12 @@ void test2()
 	lock=document->readlock();
 	if (!lock->get_root() || lock->type() != "element_node")
 		throw EXCEPTION("Root node is not an element node");
+
+	if (lock->get_attribute("attribute") != "value")
+		throw EXCEPTION("get_attribute() failed");
+	if (lock->get_any_attribute("attribute") != "value")
+		throw EXCEPTION("get_any_attribute() failed");
+
 	if (lock->path() != "/root")
 		throw EXCEPTION("Root node is not /root");
 	if (!lock->get_first_child() || lock->path() != "/root/child" ||
@@ -106,7 +112,13 @@ void test2()
 	if (!lock2->get_next_sibling() ||
 	    lock2->path() != "/root/child2/i")
 		throw EXCEPTION("get_next_sibling failed");
-
+	if (lock2->get_attribute("attribute") != "")
+		throw EXCEPTION("get_attribute should not return namespace attribute values");
+	if (lock2->get_any_attribute("attribute") != "value")
+		throw EXCEPTION("get_any_attribute did not return a namespaced attribute");
+	if (lock2->get_attribute("attribute", "http://www.example.com")
+	    != "value")
+		throw EXCEPTION("namespaces get_attribute() did not work");
 }
 
 int main(int argc, char **argv)
