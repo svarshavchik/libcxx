@@ -7,6 +7,7 @@
 #include "x/fditer.H"
 #include "x/fd.H"
 #include "x/tostring.H"
+#include "x/uriimpl.H"
 #include "xml_internal.h"
 #include "gettext_in.h"
 
@@ -44,6 +45,11 @@ std::string null_ok(xmlChar *p)
 	return s;
 }
 
+std::string get_str(const xmlChar *p)
+{
+	return p ? reinterpret_cast<const char *>(p):"";
+}
+
 #include "xml_element_type.h"
 
 static const size_t element_offsets_l=
@@ -65,6 +71,27 @@ docObj::docObj()
 
 docObj::~docObj() noexcept
 {
+}
+
+docObj::docAttribute::docAttribute(const std::string &attrnameArg,
+				   const std::string &attrnamespaceArg)
+	: attrname(attrnameArg), attrnamespace(attrnamespaceArg)
+{
+}
+
+docObj::docAttribute::~docAttribute() noexcept
+{
+}
+
+bool docObj::docAttribute::operator<(const docAttribute &o) const
+{
+	if (attrname < o.attrname)
+		return true;
+
+	if (o.attrname < attrname)
+		return false;
+
+	return attrnamespace < o.attrnamespace;
 }
 
 doc docBase::create()
@@ -305,15 +332,24 @@ class LIBCXX_HIDDEN impldocObj::readlockImplObj : public writelockObj {
 				  const uriimpl &attribute_namespace)
 		const override
 	{
-		std::string ns=tostring(attribute_namespace);
+		return get_attribute(attribute_name,
+				     tostring(attribute_namespace));
+	}
+
+	std::string get_attribute(const std::string &attribute_name,
+				  const std::string &attribute_namespace)
+		const override
+	{
 		std::string s;
 
 		if (n)
 			s=null_ok(xmlGetNsProp(n,
 					       reinterpret_cast<const xmlChar *>
 					       (attribute_name.c_str()),
+					       attribute_namespace.empty()
+					       ? nullptr :
 					       reinterpret_cast<const xmlChar *>
-					       (ns.c_str())));
+					       (attribute_namespace.c_str())));
 		return s;
 	}
 
@@ -337,6 +373,74 @@ class LIBCXX_HIDDEN impldocObj::readlockImplObj : public writelockObj {
 			s=null_ok(xmlGetProp(n,
 					     reinterpret_cast<const xmlChar *>
 					     (attribute_name.c_str())));
+		return s;
+	}
+
+	void get_all_attributes(std::set<docAttribute> &attributes) const
+	{
+		if (!n || n->type != XML_ELEMENT_NODE)
+			return;
+
+		for (auto p=n->properties; p; p=p->next)
+		{
+			attributes.insert(docAttribute(get_str(p->name),
+						       p->ns ?
+						       get_str(p->ns->href):""
+						       ));
+		}
+	}
+
+	bool is_blank() const
+	{
+		bool flag=true;
+
+		if (n)
+			flag=xmlIsBlankNode(n) ? true:false;
+		return flag;
+	}
+
+	bool is_text() const
+	{
+		bool flag=false;
+
+		if (n)
+			flag=xmlNodeIsText(n) ? true:false;
+		return flag;
+	}
+
+	std::string get_text() const
+	{
+		std::string s;
+
+		if (n)
+			s=null_ok(xmlNodeGetContent(n));
+		return s;
+	}
+
+	std::string get_lang() const
+	{
+		std::string s;
+
+		if (n)
+			s=null_ok(xmlNodeGetLang(n));
+		return s;
+	}
+
+	int get_space_preserve() const
+	{
+		int s=-1;
+
+		if (n)
+			s=xmlNodeGetSpacePreserve(n);
+		return s;
+	}
+
+	std::string get_base() const
+	{
+		std::string s;
+
+		if (n)
+			s=null_ok(xmlNodeGetBase(impl->p, n));
 		return s;
 	}
 };

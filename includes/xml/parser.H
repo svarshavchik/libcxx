@@ -14,6 +14,9 @@ namespace LIBCXX_NAMESPACE {
 
 	//! Load and save documents in XML format
 
+	//! This namespace is based on libxml2. These classes implement
+	//! parsing and creating of XML documents using libxml2.
+
 	namespace xml {
 #if 0
 	};

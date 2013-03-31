@@ -182,6 +182,10 @@ public:
 	//! value=rlock->get_attribute("style", ns);
 	//!
 	//! value=rlock->get_any_attribute("style");
+	//!
+	//! std::set<INSERT_LIBX_NAMESPACE::doc::base::attribute> attributes;
+	//!
+	//! rlock->get_all_attributes(attributes);
 	//! \endcode
 	//!
 	//! get_attribute() returns the value of the given attribute in the
@@ -191,11 +195,51 @@ public:
 	//!
 	//! A second parameter to get_attribute() specifies an XML namespace
 	//! for the attribute's name, and returns the value of the attribute
-	//! in the referenced namespace.
+	//! in the referenced namespace. The namespace can be specified either
+	//! as \ref uriimpl "INSERT_LIBX_NAMESPACE::uriimpl" or a literal
+	//! string.
 	//!
 	//! get_any_attribute() retrieves the value of the specified attribute
 	//! in any namespace.
 	//!
+	//! get_all_attributes() enumerates the current element's node
+	//! attributes, which are placed into a set of
+	//! \ref docObj::docAttribute "INSERT_LIBX_NAMESPACE::xml::doc::base::attribute".
+	//! This class contains two string members:
+	//!
+	//! - attrname: the attribute's name.
+	//!
+	//! - attrnamespace: the attribute's namespace. An empty string
+	//! specifies an attribute that's not in any namespace.
+	//!
+	//! \code
+	//! std::string text=rlock->get_text();
+	//!
+	//! std::string lang=rlock->get_lang();
+	//!
+	//! bool flag=rlock->is_text();
+	//!
+	//! bool flag=rlock->is_blank();
+	//!
+	//! int flag=rlock->get_space_preserve();
+	//!
+	//! std::string uri=rlock->get_base();
+	//! \endcode
+	//!
+	//! get_text() returns the text representation of the current node.
+	//! get_lang() returns the current's node declared language (the
+	//! \c xml:lang attribute, if it's defined, an empty string otherwise).
+	//! is_text() returns true if the current node is a text node.
+	//! is_blank() returns true if the current node is a text node, and
+	//! it is empty.
+	//!
+	//! get_space_preserve() returns 1 if \c xml:space specifies
+	//! 'preserve', 0 if it's 'default', and negative if \c xml:space
+	//! is not declared for the current node.
+	//!
+	//! get_base() returns the node's base URI, as defined in RFC 2396
+	//! section 5.1.1.
+
 	typedef ref<docObj::readlockObj> readlock;
 
 	//! A nullable pointer reference to a \ref readlock "reader lock".
@@ -239,6 +283,12 @@ public:
 	//! A nullable pointer reference to a constant \ref writelock "writer lock".
 
 	typedef const_ptr<docObj::writelockObj> const_writelockptr;
+
+	//! Convenience typedef for an element attribute
+
+	//! Refer to this class as \c INSERT_LIBX_NAMESPACE::xml::doc::base::attribute;
+
+	typedef docObj::docAttribute attribute;
 };
 
 #if 0

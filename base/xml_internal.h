@@ -116,6 +116,8 @@ std::string not_null(xmlChar *str, const char *context) LIBCXX_HIDDEN;
 
 std::string null_ok(xmlChar *str) LIBCXX_HIDDEN;
 
+std::string get_str(const xmlChar *str) LIBCXX_HIDDEN;
+
 #if 0
 {
 	{

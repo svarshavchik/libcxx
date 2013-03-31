@@ -8,6 +8,7 @@
 #include "x/xml/doc.H"
 #include "x/exception.H"
 #include "x/fd.H"
+#include "x/uriimpl.H"
 #include <algorithm>
 #include <iostream>
 #include <fstream>
@@ -70,8 +71,8 @@ void test2()
 	auto document=({
 			std::string dummy=
 				"<root attribute='value' xmlns:x='http://www.example.com'>"
-				"<child>Text<i>element</i></child>"
-				"<child2>Text2<i x:attribute='value'>element2</i></child2>"
+				"<child xml:lang='GB' xml:space='preserve'>Text<i>element</i></child>"
+				"<child2>Text2<i x:attribute='value'>element2<empty> </empty></i></child2>"
 				"</root>";
 
 			LIBCXX_NAMESPACE::xml::doc::create(dummy.begin(),
@@ -83,8 +84,27 @@ void test2()
 	if (!lock->get_root() || lock->type() != "element_node")
 		throw EXCEPTION("Root node is not an element node");
 
-	if (lock->get_attribute("attribute") != "value")
-		throw EXCEPTION("get_attribute() failed");
+	std::set<LIBCXX_NAMESPACE::xml::doc::base::attribute> attributes;
+
+	lock->get_all_attributes(attributes);
+
+	if (attributes.size() != 1)
+		throw EXCEPTION("Root node does not have one attribute");
+
+	{
+		const auto &a=*attributes.begin();
+
+		if (a.attrname != "attribute" || a.attrnamespace != "")
+			throw EXCEPTION("Root node does not have attribute");
+
+		if (lock->get_attribute("attribute") != "value")
+			throw EXCEPTION("get_attribute() failed");
+		if (lock->get_attribute(a) != "value")
+			throw EXCEPTION("get_attribute(doc::base::attribute) failed");
+		if (lock->get_attribute("attribute", "") != "value")
+			throw EXCEPTION("get_attribute(empty namespace str) failed");
+	}
+
 	if (lock->get_any_attribute("attribute") != "value")
 		throw EXCEPTION("get_any_attribute() failed");
 
@@ -119,6 +139,54 @@ void test2()
 	if (lock2->get_attribute("attribute", "http://www.example.com")
 	    != "value")
 		throw EXCEPTION("namespaces get_attribute() did not work");
+
+	if (lock2->get_attribute("attribute", LIBCXX_NAMESPACE::uriimpl("http://www.example.com"))
+	    != "value")
+		throw EXCEPTION("namespaces get_attribute(uriimpl) did not work");
+
+	attributes.clear();
+
+	lock2->get_all_attributes(attributes);
+
+	if (attributes.size() != 1)
+		throw EXCEPTION("<i> node does not have one attribute");
+
+	{
+		const auto &a=*attributes.begin();
+
+		if (a.attrname != "attribute" ||
+		    a.attrnamespace != "http://www.example.com")
+			throw EXCEPTION("<i> node does not have attribute");
+	}
+
+	if (lock2->is_text())
+		throw EXCEPTION("<i> is a text node");
+
+	if (lock2->is_blank())
+		throw EXCEPTION("<i> is blank");
+
+	if (!lock2->get_first_element_child() ||
+	    !lock2->get_first_child())
+		throw EXCEPTION("Could not position to empty's text node");
+
+	if (!lock2->is_text())
+		throw EXCEPTION("is not a text node");
+
+	if (!lock2->is_blank())
+		throw EXCEPTION("is not a blank node");
+
+	lock->get_root();
+	lock->get_first_element_child();
+
+	if (lock->get_text() != "Textelement")
+		throw EXCEPTION("child text mismatch");
+	lock->get_first_child();
+
+	if (lock->get_lang() != "GB")
+		throw EXCEPTION("Did not get language");
+
+	if (!lock->get_parent() || lock->get_space_preserve() <= 0)
+		throw EXCEPTION("Did not get space preserve setting");
 }
 
 int main(int argc, char **argv)

@@ -7,9 +7,10 @@
 #define x_xml_docobj_H
 
 #include <x/obj.H>
-#include <x/uriimpl.H>
-
+#include <set>
 namespace LIBCXX_NAMESPACE {
+
+	class uriimpl;
 	namespace xml {
 #if 0
 	};
@@ -26,6 +27,32 @@ public:
 
 	//! Destructor
 	~docObj() noexcept;
+
+	//! An attribute of an XML element node.
+
+	//! Refer to this class as INSERT_LIBX_NAMESPACE::xml::doc::base::attribute
+
+	class docAttribute {
+	public:
+		//! Attribute name
+		std::string attrname;
+
+		//! Attribute namespace. You should be able to convert this to
+		//! a \ref uriimpl "INSERT_LIBX_NAMESPACE::uriimpl".
+
+		std::string attrnamespace;
+
+		//! Constructor
+		docAttribute(const std::string &attrnameArg,
+			     const std::string &attrnamespaceArg);
+
+		//! Destructor
+		~docAttribute() noexcept;
+
+		//! Comparison operator for associative containers.
+
+		bool operator<(const docAttribute &) const;
+	};
 
 	//! A \ref ref "reference" to this object gets returned by readlock()
 
@@ -155,6 +182,37 @@ public:
 
 		//! Return the value of an attribute of the current element node.
 
+		//! \overload
+
+		virtual std::string get_attribute(//! Attribute's name
+						 const std::string &attribute_name,
+						 //! Attribute's namespace
+						 const std::string &attribute_namespace) const=0;
+
+		//! Return the value of an attribute of the current element node.
+
+		//! \overload
+
+		std::string get_attribute(//! Attribute's name
+					  const std::string &attribute_name,
+					  //! Attribute's namespace
+					  const char *attribute_namespace) const
+		{
+			return get_attribute(attribute_name,
+					     std::string(attribute_namespace));
+		}
+
+		//! Return the value of an attribute of the current element node.
+
+		//! \overload
+		std::string get_attribute(const docAttribute &attribute) const
+		{
+			return get_attribute(attribute.attrname,
+					     attribute.attrnamespace);
+		}
+
+		//! Return the value of an attribute of the current element node.
+
 		//! Returns the value of an attribute in no namespace.
 		//! An empty string gets returned if this attribute does not
 		//! exist, or the current node is not an element node.
@@ -176,6 +234,42 @@ public:
 						 //! This attribute name is not
 						 //! in any namespace.
 						 const std::string &attribute_name) const=0;
+
+		//! Enumerate all attributes of this element node
+
+		//! The names of all attributes of this element node are
+		//! added to the \c attributeSet.
+
+		virtual void get_all_attributes(//! All attributes of this node are placed here
+
+						//! \note
+						//! The existing contents of
+						//! this set are not removed.
+						std::set<docAttribute> &attributeSet) const=0;
+
+		//! Whether the current node is a text node.
+
+		virtual bool is_text() const=0;
+
+		//! Whether the current text node is blank.
+
+		virtual bool is_blank() const=0;
+
+		//! Return the text representation of the current node
+		virtual std::string get_text() const=0;
+
+		//! Return the current node's language
+		virtual std::string get_lang() const=0;
+
+		//! Return the current node's space preserving behavior.
+
+		//! Return 0 for the default behavior, 1 for "preserve"
+		//! behavior, -1 if xml:space was not inherited.
+		virtual int get_space_preserve() const=0;
+
+		//! Returns the node's base URL as defined in RFC 2396 section 5.1.1
+
+		virtual std::string get_base() const=0;
 
 	};
 
