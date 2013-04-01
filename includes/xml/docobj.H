@@ -162,6 +162,12 @@ public:
 
 		virtual std::string type() const=0;
 
+		//! Returns the current node's name
+
+		//! An empty name gets returned if the lock is not positioned
+		//! on a node, this is a new lock.
+		virtual std::string name() const=0;
+
 		//! Return the current node's path.
 
 		//! Returns an empty string if the lock is not positioned

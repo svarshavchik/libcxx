@@ -141,6 +141,8 @@ public:
 	//! \code
 	//! std::string type=rlock->type();
 	//!
+	//! std::string name=rlock->name();
+	//!
 	//! std::string path=rlock->path();
 	//! \endcode
 	//!
@@ -153,6 +155,9 @@ public:
 	//!
 	//! An empty string gets returned if the reader lock is not positioned
 	//! on a node.
+	//!
+	//! name() returns the name of the current node when it is an
+	//! "element_node".
 	//!
 	//! path() returns the XPath to the current node, starting with the
 	//! document's root.

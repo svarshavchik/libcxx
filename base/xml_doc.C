@@ -8,6 +8,8 @@
 #include "x/fd.H"
 #include "x/tostring.H"
 #include "x/uriimpl.H"
+#include "x/messages.H"
+#include "x/sysexception.H"
 #include "xml_internal.h"
 #include "gettext_in.h"
 
@@ -319,6 +321,15 @@ class LIBCXX_HIDDEN impldocObj::readlockImplObj : public writelockObj {
 		return type_str;
 	}
 
+	std::string name() const override
+	{
+		std::string name_str;
+
+		if (n)
+			name_str=n->name ?
+				reinterpret_cast<const char *>(n->name):"";
+		return name_str;
+	}
 	std::string path() const override
 	{
 		std::string p;
