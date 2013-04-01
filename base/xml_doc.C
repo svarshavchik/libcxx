@@ -568,15 +568,232 @@ class LIBCXX_HIDDEN impldocObj::readlockImplObj : public writelockObj {
 				throw EXCEPTION(libmsg(_txt("Unable to save XML document")));
 		}
 	}
+
+	ref<createnodeObj> create_child() override
+	{
+		throw EXCEPTION(libmsg(_txt("Somehow you ended up calling a virtual write method on a read object. Virtual objects are not for playing.")));
+	}
+
+	ref<createnodeObj> create_next_sibling() override
+	{
+		return create_child();
+	}
+
+	ref<createnodeObj> create_previous_sibling() override
+	{
+		return create_child();
+	}
+
 };
 
-class LIBCXX_HIDDEN impldocObj::writelockImplObj : public readlockImplObj {
+class LIBCXX_HIDDEN impldocObj::createnodeImplObj : public createnodeObj {
+
+ public:
+	//! Superclass with the pointer to the document and current node
+
+	readlockImplObj &lock;
+
+	//! The constructor saves the pointer to the document and current node
+	createnodeImplObj(readlockImplObj &lockArg) : lock(lockArg)
+	{
+	}
+
+	~createnodeImplObj() noexcept
+	{
+	}
+
+	void not_on_node() __attribute__((noreturn))
+	{
+		throw EXCEPTION(libmsg(_txt("Internal error: attempt to create a new XML node without a parent")));
+	}
+
+	// The methods here construct this guard object using the return
+	// value from one of the XML methods. We expect a non-null xmlNodePtr.
+	// A null NodePtr indicates an error, so we throw an exception.
+	// This is then passed to create(), which is expected to add it to the
+	// document, and reset it to null.
+	//
+	// If the destructor finds to be not null, it means that an exception
+	// is being thrown, so we xmlFreeNode it().
+
+	class guard {
+	public:
+		mutable xmlNodePtr n;
+
+		guard(xmlNodePtr nArg, const std::string &method) : n(nArg)
+		{
+			if (!n)
+				throw EXCEPTION(gettextmsg(libmsg(_txt("Cannot create a new XML %1% element")), method));
+		}
+
+		~guard() noexcept
+		{
+			if (n)
+				xmlFreeNode(n);
+		}
+	};
+
+	virtual void create(const guard &n)=0;
+
+	ref<createnodeObj> element(const std::string &name) override
+	{
+		create(guard(xmlNewNode(nullptr,
+					reinterpret_cast<const xmlChar *>
+					(name.c_str())), "<" + name + ">"));
+		return ref<createnodeObj>(this);
+	}
+
+	ref<createnodeObj> cdata(const std::string &cdata) override
+	{
+		create(guard(xmlNewCDataBlock(lock.impl->p,
+					      reinterpret_cast<const xmlChar *>
+					      (cdata.c_str()), cdata.size()),
+			     "cdata"));
+		return ref<createnodeObj>(this);
+	}
+
+	ref<createnodeObj> text(const std::string &text) override
+	{
+		create(guard(xmlNewText(reinterpret_cast<const xmlChar *>
+					(text.c_str())),
+			     "text"));
+		return ref<createnodeObj>(this);
+	}
+};
+
+// Factory that creates child nodes.
+
+// create() implementation that creates a new child node.
+
+class LIBCXX_HIDDEN impldocObj::createchildObj : public createnodeImplObj {
+
+ public:
+
+	createchildObj(readlockImplObj &rlockArg) : createnodeImplObj(rlockArg)
+	{
+	}
+
+	~createchildObj() noexcept
+	{
+	}
+
+	void create(const guard &n) override
+	{
+		if (!lock.n)
+		{
+			// Document root
+
+			if (n.n->type != XML_ELEMENT_NODE)
+				throw EXCEPTION(libmsg(_txt("Internal error: setting the document root to a non-element node")));
+
+			auto p=xmlDocSetRootElement(lock.impl->p, n.n);
+			n.n=nullptr;
+			if (p)
+				xmlFreeNode(p);
+
+			lock.n=xmlDocGetRootElement(lock.impl->p);
+			// Position the lock on the root node, of course.
+			return;
+		}
+
+		auto p=xmlAddChild(lock.n, n.n);
+
+		if (!p)
+			throw EXCEPTION(libmsg(_txt("Internal error: xmlAddChild()")));
+		n.n=nullptr;
+		lock.n=p;
+	}
+
+	ref<createnodeObj> get_create_child()
+	{
+		return ref<createnodeObj>(this);
+	}
+};
+
+// Factory that creates next sibling nodes.
+
+// create() implementation that creates next sibling node.
+
+class LIBCXX_HIDDEN impldocObj::createnextsiblingObj : public createnodeImplObj {
+
+ public:
+	createnextsiblingObj(readlockImplObj &rlockArg)
+		: createnodeImplObj(rlockArg)
+	{
+	}
+
+	~createnextsiblingObj() noexcept
+	{
+	}
+
+	void create(const guard &n) override
+	{
+		if (!lock.n)
+			not_on_node();
+
+		auto p=xmlAddNextSibling(lock.n, n.n);
+
+		if (!p)
+			throw EXCEPTION(libmsg(_txt("Internal error: xmlAddNextSibling() failed")));
+		n.n=nullptr;
+		lock.n=p;
+	}
+
+	ref<createnodeObj> get_create_next_sibling()
+	{
+		return ref<createnodeObj>(this);
+	}
+};
+
+// Factory that creates previous sibling nodes.
+
+// create() implementation that creates a previous sibling node.
+
+class LIBCXX_HIDDEN impldocObj::createprevioussiblingObj : public createnodeImplObj {
+
+ public:
+	createprevioussiblingObj(readlockImplObj &rlockArg)
+		: createnodeImplObj(rlockArg)
+	{
+	}
+
+	~createprevioussiblingObj() noexcept
+	{
+	}
+
+	void create(const guard &n) override
+	{
+		if (!lock.n)
+			not_on_node();
+
+		auto p=xmlAddPrevSibling(lock.n, n.n);
+
+		if (!p)
+			throw EXCEPTION(libmsg(_txt("Internal error: xmlAddPrevSibling() failed")));
+		n.n=nullptr;
+		lock.n=p;
+	}
+
+	ref<createnodeObj> get_create_previous_sibling()
+	{
+		return ref<createnodeObj>(this);
+	}
+};
+
+class LIBCXX_HIDDEN impldocObj::writelockImplObj
+	: public readlockImplObj,
+	  public createchildObj,
+	  public createnextsiblingObj,
+	  public createprevioussiblingObj {
 
  public:
 
 	writelockImplObj(const ref<impldocObj> &implArg,
 			 const ref<obj> &lockArg)
-		: readlockImplObj(implArg, lockArg)
+		: readlockImplObj(implArg, lockArg),
+		createchildObj(static_cast<readlockImplObj &>(*this)),
+		createnextsiblingObj(static_cast<readlockImplObj &>(*this)),
+		createprevioussiblingObj(static_cast<readlockImplObj &>(*this))
 	{
 	}
 
@@ -587,6 +804,21 @@ class LIBCXX_HIDDEN impldocObj::writelockImplObj : public readlockImplObj {
 	ref<readlockObj> clone() const override
 	{
 		throw EXCEPTION(libmsg(_txt("Cannot clone a write lock")));
+	}
+
+	ref<createnodeObj> create_child() override
+	{
+		return get_create_child();
+	}
+
+	ref<createnodeObj> create_next_sibling() override
+	{
+		return get_create_next_sibling();
+	}
+
+	ref<createnodeObj> create_previous_sibling() override
+	{
+		return get_create_previous_sibling();
 	}
 };
 
@@ -602,6 +834,14 @@ ref<docObj::writelockObj> impldocObj::writelock()
 	return ref<writelockImplObj>::create(ref<impldocObj>(this),
 					     lock->writelock());
 }
+
+docObj::createnodeObj::createnodeObj()
+{
+}
+
+docObj::createnodeObj::~createnodeObj() noexcept
+{
+} 
 
 #if 0
 {

@@ -296,6 +296,74 @@ public:
 	//! A writer lock subclasses the \ref readlock "reader lock", and
 	//! implements all of its methods, with the exception of clone(), which
 	//! throws an exception. A writer lock cannot be cloned.
+	//!
+	//! \code
+	//! INSERT_LIBX_NAMESPACE::xml::doc::base::createnode
+	//!     creator=wlock->create_child();
+	//!
+	//! INSERT_LIBX_NAMESPACE::xml::doc::base::createnode
+	//!     creator=wlock->create_next_sibling();
+	//!
+	//! INSERT_LIBX_NAMESPACE::xml::doc::base::createnode
+	//!     creator=wlock->create_previous_sibling();
+	//! \endcode
+	//!
+	//! A writer lock has three methods that return factories which insert
+	//! new content into an XML document. The create_child() factory inserts
+	//! new child nodes. The create_next_sibling() factory inserts a
+	//! sibling node after the writer lock's current node. The
+	//! create_previous_sibling() factory inserts a sibling node before
+	//! the writer lock's current node. All three methods return a
+	//! \ref createnode "INSERT_LIBX_NAMESPACE::doc::xml::createnode",
+	//! which is a reference to a reference-counted object.
+	//!
+	//! \note
+	//! The factory holds a reference on the writer lock, until it
+	//! goes out of scope and gets destroyed.
+	//!
+	//! A newly created writer lock, from create_writelock() is not
+	//! positioned on any node. It must be positioned before invoking
+	//! one of the factory's methods that insert new content into the
+	//! XML document, with the exception of create_child(). Invoking
+	//! create_child() on a new writer lock that's not positioned on any
+	//! node in the document returns a factory whose
+	//! element() method sets the document's root node.
+	//!
+	//! Like reader locks, writer locks may be used only by one thread, at
+	//! a time.
+	//!
+	//! \code
+	//! creator->element("p")->element("span");
+	//! creator->text("rosebud");
+	//! creator->cdata("<text>");
+	//! \endcode
+	//!
+	//! A creator's element() method creates a new XML element, and
+	//! adds to the XML document. A creator obtained from
+	//! create_child() adds the new XML element as a child node of the
+	//! writer lock's current node. Similarly, a creator obtained from
+	//! create_next_sibling() or create_previous_sibling() inserts the
+	//! new XML element as the writer lock's current node's next or
+	//! previous sibling().
+	//!
+	//! Creator's method return the same creator reference, for convenience,
+	//! allowing for creation of multiple elements in one statement.
+	//! After adding a new element to the XML document, the writer lock
+	//! gets positioned on the newly-added element.
+	//!
+	//! In the example above, if the creator was obtained from
+	//! create_child(), the example creates a \c \<p>
+	//! child element, positions the writer lock to it, then the second
+	//! call to element() creates a \c \<span>
+	//! child element of the \c \<p>.
+	//!
+	//! If the creator was obtained from create_next_sibling() instead,
+	//! this example would create two sibling elements,
+	//! \c \<p> and \c \<span>,
+	//! of the writer lock's current node.
+	//!
+	//! text() and cdata() create new text and \c \<CDATA>
+	//! elements in the XML document, and insert them accordingly.
 
 	typedef ref<docObj::writelockObj> writelock;
 
@@ -314,6 +382,21 @@ public:
 	//! Refer to this class as \c INSERT_LIBX_NAMESPACE::xml::doc::base::attribute;
 
 	typedef docObj::docAttribute attribute;
+
+	//! Modifying XML documents
+
+	//! Refer to this class a \c INSERT_LIBX_NAMESPACE::doc::base::createnode.
+	//! This is a \ref ref "reference" to a reference-counted object that
+	//! gets returned by \ref writelock "INSERT_LIBX_NAMESPACE::doc::base::writelock"'s
+	//! create_child(), create_next_sibling(), and
+	//! create_previous_sibling(), and implements creation of new XML
+	//! document elements that get inserted accordingly.
+
+	typedef ref<docObj::createnodeObj> createnode;
+
+	//! A nullable pointer reference to a \ref createnode "createnode".
+
+	typedef ptr<docObj::createnodeObj> createnodeptr;
 };
 
 #if 0

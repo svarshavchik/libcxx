@@ -364,6 +364,40 @@ public:
 		}
 	};
 
+	//! Create a new element in the document
+
+	//! A reference to this object gets returned by
+	//! \ref writelockObj "write lock"'s create_child(),
+	//! create_next_sibling() and create_previous_sibling(), which return a
+	//! \c INSERT_LIBX_NAMESPACE::xml::doc::base::createnode, which is
+	//! \ref ref "reference" to this object.
+	//!
+	//! Invoking one
+	//! of the methods here actually creates the new node in the XML
+	//! document.
+
+	class createnodeObj : virtual public obj {
+
+	public:
+		//! Constructor
+		createnodeObj();
+
+		//! Destructor
+		~createnodeObj() noexcept;
+
+		//! Create a new cdata block
+		virtual ref<createnodeObj> cdata(//! Content of the new CDATA
+						 const std::string &cdata)=0;
+
+		//! Create a new text node
+		virtual ref<createnodeObj> text(//! Content of the new text node
+						const std::string &text)=0;
+
+		//! Create a new element
+		virtual ref<createnodeObj> element(//! Element name
+						   const std::string &name)=0;
+	};
+
 	//! A \ref ref "reference" to this object gets returned by writelock()
 
 	class writelockObj : public readlockObj {
@@ -373,6 +407,64 @@ public:
 
 		//! Destructor
 		~writelockObj() noexcept;
+
+		//! Create a new child element
+
+		//! This call does not actually add a new child element.
+		//! It returns a \ref createnodeObj "INSERT_LIBX_NAMESPACE::doc::base::createnode"
+		//! reference. Invoke one of its methods to actually add a
+		//! new child element. The new child element is appended to
+		//! this node's child list. The write lock remains positioned
+		//! on this element, so invoking
+		//! another method from the returned
+		//! \ref createnodeObj "INSERT_LIBX_NAMESPACE::doc::base::createnode"
+		//! adds another child element to the same element.
+		//!
+		//! As a special case, invoking create_child() after obtaining
+		//! a write lock on the document, but before invoking
+		//! get_root(), installs a new document root element.
+		//!
+		//! \note
+		//! This method returns a \ref docBase::createnode "INSERT_LIBX_NAMESPACE::doc::base::create"
+		//! which holds a reference on this writelock, until it goes
+		//! out of scope, and gets destroyed.
+
+		virtual ref<createnodeObj> create_child()=0;
+
+		//! Create a new next sibling element
+
+		//! Similar to newchild(), but the new element becomes the
+		//! current
+		//! element's next sibling node, and the write lock also gets
+		//! repositioned to the newly added element, so invoking
+		//! another method from the returned
+		//! \ref createnodeObj "INSERT_LIBX_NAMESPACE::doc::base::createnode"
+		//! adds another next sibling element, after the first one.
+		//!
+		//! \note
+		//! This method returns a \ref docBase::createnode "INSERT_LIBX_NAMESPACE::doc::base::create"
+		//! which holds a reference on this writelock, until it goes
+		//! out of scope, and gets destroyed.
+
+		virtual ref<createnodeObj> create_next_sibling()=0;
+
+		//! Create a new previous sibling element
+
+		//! Similar to newchild(), but the new element becomes the
+		//! current element's previous
+		//! sibling node, and the write lock also gets
+		//! repositioned to the newly added element, so invoking
+		//! another method from the returned
+		//! \ref createnodeObj "INSERT_LIBX_NAMESPACE::doc::base::createnode"
+		//! adds another previous sibling element, before the one
+		//! that was just added.
+		//!
+		//! \note
+		//! This method returns a \ref docBase::createnode "INSERT_LIBX_NAMESPACE::doc::base::create"
+		//! which holds a reference on this writelock, until it goes
+		//! out of scope, and gets destroyed.
+
+		virtual ref<createnodeObj> create_previous_sibling()=0;
 	};
 
 	//! Create a read lock on the document.

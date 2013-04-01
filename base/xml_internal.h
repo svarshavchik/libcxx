@@ -56,6 +56,10 @@ class LIBCXX_HIDDEN impldocObj : public docObj {
 
  public:
 	class readlockImplObj;
+	class createnodeImplObj;
+	class createchildObj;
+	class createnextsiblingObj;
+	class createprevioussiblingObj;
 	class writelockImplObj;
 
 	class save_impl;

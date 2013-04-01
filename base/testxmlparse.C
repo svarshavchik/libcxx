@@ -189,12 +189,121 @@ void test2()
 		throw EXCEPTION("Did not get space preserve setting");
 }
 
+class test_3_throw {
+
+public:
+
+	test_3_throw &operator*()
+	{
+		return *this;
+	}
+
+	test_3_throw &operator=(char c)
+	{
+		throw EXCEPTION("Abort");
+	}
+
+	test_3_throw &operator++()
+	{
+		return *this;
+	}
+};
+
+void test3()
+{
+	auto empty_document=LIBCXX_NAMESPACE::xml::doc::create();
+
+	{
+		auto lock=empty_document->writelock();
+
+		lock->create_child()->element("root1");
+
+		if (!lock->get_root() || lock->name() != "root1")
+			throw EXCEPTION("Did not create <root1> somehow");
+	}
+
+	{
+		auto lock=empty_document->writelock();
+
+		lock->create_child()->element("root2");
+
+		if (!lock->get_root() || lock->name() != "root2")
+			throw EXCEPTION("Did not create <root2> somehow");
+
+		lock->create_child()->text("Text")->text("<>Node");
+
+		{
+			LIBCXX_NAMESPACE::xml::doc::base::createnode
+				cn=lock->create_next_sibling();
+			cn->cdata("Foo<bar>");
+		}
+		lock->get_root();
+		if (lock->get_text() != "Text<>NodeFoo<bar>")
+			throw EXCEPTION("Unexpected text() and cdata() results");
+		lock->save_file("testxmlparse.tmp");
+	}
+	empty_document=LIBCXX_NAMESPACE::xml::doc::create("testxmlparse.tmp",
+							  "nonet");
+	unlink("testxmlparse.tmp");
+
+	{
+		auto lock=empty_document->readlock();
+
+		lock->get_root();
+
+		if (lock->get_text() != "Text<>NodeFoo<bar>")
+			throw EXCEPTION("Something wrong with save_file()");
+	}
+
+	std::string big(32768, 'X');
+
+	empty_document=LIBCXX_NAMESPACE::xml::doc::create();
+
+	{
+		auto lock=empty_document->writelock();
+
+		lock->create_child()->element("root");
+		lock->create_child()->text(big);
+
+		std::string cpy;
+
+		lock->save_to(std::back_insert_iterator<std::string>(cpy));
+
+		bool caught=false;
+		try {
+			lock->save_to(test_3_throw());
+		} catch (const LIBCXX_NAMESPACE::exception &e)
+		{
+			caught=true;
+			std::cout << "Caught expected exception: " << e
+				  << std::endl;
+		}
+
+		if (!caught)
+			throw EXCEPTION("Did not catch expected exception");
+	}
+
+	{
+		std::string doc="<root><child1>text</child1><child2>text</child2></root>";
+
+		empty_document=LIBCXX_NAMESPACE::xml::doc::create(doc.begin(), doc.end(), "STRING");
+		doc.clear();
+
+		empty_document->readlock()
+			->save_to(std::back_insert_iterator<std::string>(doc),
+				  true);
+
+		std::cout << doc << std::endl;
+	}
+}
+
 int main(int argc, char **argv)
 {
 	try {
 		test1(100);
 		test1(LIBCXX_NAMESPACE::fdbaseObj::get_buffer_size());
 		test2();
+		test3();
 	} catch (LIBCXX_NAMESPACE::exception &e)
 	{
 		std::cerr << e << std::endl;
