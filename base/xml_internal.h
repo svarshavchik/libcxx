@@ -58,6 +58,8 @@ class LIBCXX_HIDDEN impldocObj : public docObj {
 	class readlockImplObj;
 	class writelockImplObj;
 
+	class save_impl;
+
 	xmlDocPtr p; // The libXML document.
 
 	rwlock lock; // Readers/writer lock object

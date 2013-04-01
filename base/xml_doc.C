@@ -146,6 +146,71 @@ docObj::writelockObj::~writelockObj() noexcept
 {
 }
 
+// Context pointer that's passed through via the libxml callback when
+// saving an XML document.
+
+class LIBCXX_HIDDEN impldocObj::save_impl {
+
+ public:
+
+	// We catch exceptions thrown while in a callback from libxml. The
+	// caught exception is going to get propagated when libxml returns.
+
+	exception e;
+
+	bool caught_exception;
+	save_to_callback &cb;
+
+	save_impl(save_to_callback &cbArg)
+		: caught_exception(false), cb(cbArg)
+	{
+	}
+
+	~save_impl() noexcept
+	{
+	}
+};
+
+extern "C" {
+
+	// Callback from xmlSaveFormatFileTo, delivering the next chunk of the
+	// saved XML document. Pass the chunk through to the output iterator,
+	// trap exceptions.
+
+	static int save_file_write(void *context,
+				   const char *buffer, int len)
+	{
+		auto impl=reinterpret_cast<impldocObj::save_impl *>(context);
+
+		try {
+			impl->cb.save(buffer, len);
+		} catch (const exception &e)
+		{
+			impl->e=e;
+			impl->caught_exception=true;
+			return -1;
+		} catch (...)
+		{
+			impl->e=EXCEPTION("Exception caught while saving XML document");
+			impl->caught_exception=true;
+		}
+		return len;
+	}
+
+	static int close_file_dummy(void *context)
+	{
+		return 0;
+	}
+};
+
+docObj::save_to_callback::save_to_callback()
+{
+}
+
+docObj::save_to_callback::~save_to_callback() noexcept
+{
+}
+
 class LIBCXX_HIDDEN impldocObj::readlockImplObj : public writelockObj {
 
  public:
@@ -453,6 +518,55 @@ class LIBCXX_HIDDEN impldocObj::readlockImplObj : public writelockObj {
 		if (n)
 			s=null_ok(xmlNodeGetBase(impl->p, n));
 		return s;
+	}
+
+	void save_file(const std::string &filename, bool format) const override
+	{
+		std::string tmpfile=filename + ".tmp";
+
+		if (xmlSaveFormatFile(tmpfile.c_str(),
+				      impl->p, format ? 1:0) < 0 ||
+		    rename(tmpfile.c_str(), filename.c_str()) < 0)
+		{
+			auto e=SYSEXCEPTION(tmpfile);
+			unlink(tmpfile.c_str());
+			throw e;
+		}
+	}
+
+	// Save to an output iterator. A template subclass of
+	// save_to_callback will take care of delivering each chunk of the
+	// XML document to the output iterator.
+
+	void save_file(save_to_callback &cb, bool format) const override
+	{
+		save_impl impl(cb);
+
+		// Interestingly enough, xmlSaveFormatFileTo is going to
+		// take care of destroying the output buffer for us.
+
+		auto io=xmlOutputBufferCreateIO(&save_file_write,
+						&close_file_dummy,
+						reinterpret_cast<void *>(&impl),
+						xmlGetCharEncodingHandler(XML_CHAR_ENCODING_UTF8));
+
+		if (!io)
+			throw SYSEXCEPTION("xmlOutputBufferCreateIO");
+
+		{
+			error_handler::error trap_errors;
+
+			auto result=xmlSaveFormatFileTo(io, this->impl->p,
+							"UTF-8", format);
+
+			if (impl.caught_exception)
+				throw impl.e;
+
+			trap_errors.check();
+
+			if (result < 0)
+				throw EXCEPTION(libmsg(_txt("Unable to save XML document")));
+		}
 	}
 };
 

@@ -21,6 +21,21 @@ namespace LIBCXX_NAMESPACE {
 
 class docObj : virtual public obj {
 
+protected:
+	//! Base class for an internal callback from libxml
+
+	//! \internal
+	class save_to_callback {
+	public:
+		//! Constructor
+		save_to_callback();
+
+		//! Destructor
+		~save_to_callback() noexcept;
+
+		//! Save a chunk of formatted XML
+		virtual void save(const char *, int)=0;
+	};
 public:
 	//! Constructor
 	docObj();
@@ -277,6 +292,76 @@ public:
 
 		virtual std::string get_base() const=0;
 
+		//! Save the XML document to a file
+
+		virtual void save_file(//! Filename
+				       const std::string &filename,
+
+				       //! Set to true to indent formatted XML
+				       bool format=false) const=0;
+
+	protected:
+		//! Callback shim to save formatted XML into an output iterator
+
+		template<typename iter_type>
+		class save_to_callback_iter : public save_to_callback {
+
+		public:
+			//! Output iterator
+			iter_type iter;
+
+			//! Constructor
+			save_to_callback_iter(iter_type iter_arg)
+				: iter(iter_arg)
+			{
+			}
+
+			//! Destructor
+			~save_to_callback_iter() noexcept
+			{
+			}
+
+			//! Save XML fragment into an output iterator
+			void save(const char *c, int n)
+			{
+				while (n)
+				{
+					*iter= *c;
+					++c;
+					++iter;
+					--n;
+				}
+			}
+		};
+
+		//! Save file to a callback output function
+
+		//! \internal
+		virtual void save_file(save_to_callback &cb,
+				       bool format) const=0;
+
+public:
+
+		//! Save the XML document to an output iterator
+
+		//! The XML document gets written to an output iterator that's
+		//! passed as the first parameter. save_to() returns the value
+		//! of the output iterator after the XML document is written
+		//! to it.
+
+		template<typename iter_type>
+		iter_type save_to(//! Output iterator
+				  iter_type iter,
+
+				  //! Set to true to indent formatted XML
+				  bool format=false)
+		{
+			save_to_callback_iter<iter_type> cb
+				=save_to_callback_iter<iter_type>(iter);
+
+			save_file(cb, format);
+			return cb.iter;
+		}
 	};
 
 	//! A \ref ref "reference" to this object gets returned by writelock()

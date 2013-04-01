@@ -244,6 +244,26 @@ public:
 	//!
 	//! get_base() returns the node's base URI, as defined in RFC 2396
 	//! section 5.1.1.
+	//!
+	//! \code
+	//! rlock->save_file("filename.xml");
+	//!
+	//! std::string s;
+	//!
+	//! rlock->save_to(std::back_insert_iterator<std::string>(s));
+	//! \endcode
+	//!
+	//! save_file() saves the XML document into a file.
+	//! save_to() writes the XML document into an output iterator.
+	//! save_to() returns the new value of the output iterator.
+	//!
+	//! Both save_file() and save_to() take an optional second \c bool
+	//! parameter. Setting it to \c true formats the XML document with
+	//! whitespace indentation.
+	//!
+	//! \note
+	//! save_file() writes the XML document into "filename.tmp", and
+	//! renames it to the given "filename".
 
 	typedef ref<docObj::readlockObj> readlock;
 
