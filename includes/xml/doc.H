@@ -143,6 +143,10 @@ public:
 	//!
 	//! std::string name=rlock->name();
 	//!
+	//! std::string prefix=rlock->prefix();
+	//!
+	//! std::string uri=rlock->uri();
+	//!
 	//! std::string path=rlock->path();
 	//! \endcode
 	//!
@@ -157,7 +161,9 @@ public:
 	//! on a node.
 	//!
 	//! name() returns the name of the current node when it is an
-	//! "element_node".
+	//! "element_node". prefix() and uri() return the element node's
+	//! namespace prefix and URI, or an empty string if the element node
+	//! is not in any namespace.
 	//!
 	//! path() returns the XPath to the current node, starting with the
 	//! document's root.
@@ -333,7 +339,7 @@ public:
 	//! a time.
 	//!
 	//! \code
-	//! creator->element("p")->element("span");
+	//! creator->element({"p"})->element({"span"});
 	//! creator->text("rosebud");
 	//! creator->cdata("<text>");
 	//! \endcode
@@ -357,6 +363,13 @@ public:
 	//! call to element() creates a \c \<span>
 	//! child element of the \c \<p>.
 	//!
+	//! The parameter to element() is an internal helper class,
+	//! \ref docObj::newElement "INSERT_LIBX_NAMESPACE::xml::doc::base::newelement",
+	//! which has several different constructors, and gets typically given
+	//! literally using a braced initializer list, for convenience.
+	//! The above example's initializer is a single string, which
+	//! initializes a new element, in an unnamed namespace.
+	//!
 	//! If the creator was obtained from create_next_sibling() instead,
 	//! this example would create two sibling elements,
 	//! \c \<p> and \c \<span>,
@@ -364,6 +377,61 @@ public:
 	//!
 	//! text() and cdata() create new text and \c \<CDATA>
 	//! elements in the XML document, and insert them accordingly.
+	//!
+	//! \code
+	//! creator->create_namespace("prefix", "http://www.example.com");
+	//! wlock->create_namespace("prefix", "http://www.example.com");
+	//! \endcode
+	//!
+	//! create_namespace() opens a new namespace in the XML element node
+	//! the writer locked is positioned on. The writer lock must be
+	//! positioned to an existing element node.
+	//! create_namespace() can be called either as a method on a writer
+	//! lock or as a creator's method, in which case it, like other
+	//! creator methods, returns the same creator reference, for convenience:
+	//!
+	//! \code
+	//! creator->create_namespace("ns1", "http://www.example.com");
+	//!      ->create_namespace("ns2", "http://www.example.com/ns2");
+	//! \endcode
+	//!
+	//! The first parameter is
+	//! a namespace prefix, the second parameter is the namespace \c URI
+	//! which may be given as a string, or as an
+	//! \ref uriimpl "INSERT_LIBX_NAMESPACE::uriimpl".
+	//!
+	//! The new namespace may be referenced by the node's children elements
+	//! using its prefix or \c URI.
+	//!
+	//! \code
+	//! creator->element({"item", "prefix", "http://www.example.com/items"});
+	//! \endcode
+	//!
+	//! This version of element()'s initializer adds a new XML element
+	//! in a new namespace.
+	//! This example creates a '<prefix:item xmlns:prefix="http://www.example.com/items"/>'
+	//! element, with "prefix".
+	//!
+	//! \code
+	//! creator->element({"prefix:item"});
+	//! \endcode
+	//!
+	//! This version of element()'s initializer adds a new XML element in a
+	//! namespace
+	//! with the given prefix. A namespace with this prefix
+	//! must be open in one of the new element's parent elements.
+	//!
+	//! \code
+	//! creator->element({"item", "http://www.example.com"});
+	//! \endcode
+	//!
+	//! This version of element()'s initializer adds a new XML element in a namespace
+	//! with the given \c URI that must be open in one of the new element's
+	//! parent elements.
+	//! The URI can be given as a literal string,
+	//! or as an \ref uriimpl "INSERT_LIBX_NAMESPACE::uriimpl".
+	//!
+
 
 	typedef ref<docObj::writelockObj> writelock;
 
@@ -382,6 +450,17 @@ public:
 	//! Refer to this class as \c INSERT_LIBX_NAMESPACE::xml::doc::base::attribute;
 
 	typedef docObj::docAttribute attribute;
+
+	//! Convenience typedef for a new element initialization parameters
+
+	//! Refer to this class as \c INSERT_LIBX_NAMESPACE::xml::doc::base::newelement
+	//! \see writelock
+	typedef docObj::newElement newelement;
+
+	//! Convenience typedef for a new element attribute
+
+	//! Refer to this class as \c INSERT_LIBX_NAMESPACE::xml::doc::base::newattribute;
+	typedef docObj::newAttribute newattribute;
 
 	//! Modifying XML documents
 

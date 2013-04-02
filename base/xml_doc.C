@@ -75,6 +75,44 @@ docObj::~docObj() noexcept
 {
 }
 
+docObj::newElement::newElement(const std::string &nameArg)
+	: newElement(nameArg, "", "")
+{
+	prefix_given=false;
+}
+
+docObj::newElement::newElement(const std::string &nameArg,
+			       const std::string &uriArg)
+	: newElement(nameArg, "", uriArg)
+{
+	prefix_given=false;
+}
+
+docObj::newElement::newElement(const std::string &nameArg,
+			       const char *uriArg)
+	: newElement(nameArg, "", uriArg)
+{
+	prefix_given=false;
+}
+
+docObj::newElement::newElement(const std::string &nameArg,
+			       const uriimpl &uriArg)
+	: newElement(nameArg, "", tostring(uriArg))
+{
+	prefix_given=false;
+}
+
+docObj::newElement::newElement(const std::string &nameArg,
+			       const std::string &prefixArg,
+			       const std::string &uriArg)
+	: name(nameArg), prefix(prefixArg), uri(uriArg), prefix_given(true)
+{
+}
+
+docObj::newElement::~newElement() noexcept
+{
+}
+
 docObj::docAttribute::docAttribute(const std::string &attrnameArg,
 				   const std::string &attrnamespaceArg)
 	: attrname(attrnameArg), attrnamespace(attrnamespaceArg)
@@ -395,6 +433,30 @@ class LIBCXX_HIDDEN impldocObj::readlockImplObj : public writelockObj {
 				reinterpret_cast<const char *>(n->name):"";
 		return name_str;
 	}
+
+	std::string prefix() const override
+	{
+		std::string prefix_str;
+
+		if (n && n->type == XML_ELEMENT_NODE && n->ns &&
+		    n->ns->prefix)
+			prefix_str=reinterpret_cast<const char
+						    *>(n->ns->prefix);
+
+		return prefix_str;
+	}
+
+	std::string uri() const override
+	{
+		std::string uri_str;
+
+		if (n && n->type == XML_ELEMENT_NODE && n->ns &&
+		    n->ns->href)
+			uri_str=reinterpret_cast<const char *>(n->ns->href);
+
+		return uri_str;
+	}
+
 	std::string path() const override
 	{
 		std::string p;
@@ -584,6 +646,23 @@ class LIBCXX_HIDDEN impldocObj::readlockImplObj : public writelockObj {
 		return create_child();
 	}
 
+	void do_create_namespace(const std::string &uri,
+				 const std::string &prefix) override
+	{
+		create_child();
+	}
+
+	void do_create_namespace(const std::string &uri,
+				 const char *prefix) override
+	{
+		create_child();
+	}
+
+	void do_create_namespace(const std::string &uri,
+				 const uriimpl &prefix) override
+	{
+		create_child();
+	}
 };
 
 class LIBCXX_HIDDEN impldocObj::createnodeImplObj : public createnodeObj {
@@ -635,11 +714,97 @@ class LIBCXX_HIDDEN impldocObj::createnodeImplObj : public createnodeObj {
 
 	virtual void create(const guard &n)=0;
 
-	ref<createnodeObj> element(const std::string &name) override
+	virtual xmlNsPtr do_search_ns(const xmlChar *prefix)=0;
+	virtual xmlNsPtr do_search_ns_href(const xmlChar *uri)=0;
+
+	xmlNsPtr search_ns(const std::string &prefix)
 	{
-		create(guard(xmlNewNode(nullptr,
-					reinterpret_cast<const xmlChar *>
-					(name.c_str())), "<" + name + ">"));
+		auto val=do_search_ns(prefix.size()
+				      ? reinterpret_cast<const xmlChar *>
+				      (prefix.c_str()):nullptr);
+
+		if (!val)
+			throw EXCEPTION(gettextmsg(libmsg(_txt("Namespace prefix %1% not found")),
+						   prefix));
+		return val;
+	}
+
+	xmlNsPtr search_ns_href(const std::string &uri)
+	{
+		auto val=do_search_ns_href(uri.size()
+					   ? reinterpret_cast<const xmlChar *>
+					   (uri.c_str()):nullptr);
+
+		if (!val)
+			throw EXCEPTION(gettextmsg(libmsg(_txt("Namespace URI %1% not found")),
+						   uri));
+		return val;
+	}
+
+	class created_element : public guard {
+
+	public:
+		created_element(xmlNsPtr ns, const std::string &name)
+			: guard(xmlNewNode(ns,
+					   reinterpret_cast<const xmlChar *>
+					   (name.c_str())), "<" + name + ">")
+		{
+		}
+		~created_element() noexcept
+		{
+		}
+	};
+
+	ref<createnodeObj> element(const newElement &e)
+	{
+		if (e.prefix_given)
+		{
+			// Create a new element in a new namespace
+
+			created_element new_element=
+				created_element(nullptr, e.name);
+
+			// xmlNewNs makes the xmlNodePtr own the new namespace,
+			// which is what we want. After it gets created, we just
+			// manually stick it into ->ns.
+
+			auto ns=xmlNewNs(new_element.n,
+					 reinterpret_cast<const xmlChar *>
+					 (e.uri.size() ? e.uri.c_str():nullptr),
+					 reinterpret_cast<const xmlChar *>
+					 (e.prefix.size() ? e.prefix.c_str()
+					  :nullptr));
+
+			if (!ns)
+				throw EXCEPTION(libmsg(_txt("Invalid namespace")));
+
+			new_element.n->ns=ns;
+			create(new_element);
+		}
+		else
+		{
+			if (!e.uri.empty())
+			{
+				create(created_element(search_ns_href(e.uri),
+						       e.name));
+			}
+			else
+			{
+				xmlNsPtr ns=nullptr;
+
+				std::string n=e.name;
+
+				size_t p=n.find(':');
+				if (p != std::string::npos)
+				{
+					ns=search_ns(n.substr(0, p));
+					n=n.substr(p+1);
+				}
+
+				create(created_element(ns, n));
+			}
+		}
+
 		return ref<createnodeObj>(this);
 	}
 
@@ -704,6 +869,18 @@ class LIBCXX_HIDDEN impldocObj::createchildObj : public createnodeImplObj {
 		lock.n=p;
 	}
 
+	xmlNsPtr do_search_ns(const xmlChar *prefix) override
+	{
+		return lock.n ? xmlSearchNs(lock.impl->p, lock.n, prefix)
+			: nullptr;
+	}
+
+	xmlNsPtr do_search_ns_href(const xmlChar *uri) override
+	{
+		return lock.n ? xmlSearchNsByHref(lock.impl->p, lock.n, uri)
+			: nullptr;
+	}
+
 	ref<createnodeObj> get_create_child()
 	{
 		return ref<createnodeObj>(this);
@@ -739,6 +916,20 @@ class LIBCXX_HIDDEN impldocObj::createnextsiblingObj : public createnodeImplObj 
 		lock.n=p;
 	}
 
+	xmlNsPtr do_search_ns(const xmlChar *prefix) override
+	{
+		return lock.n && lock.n->parent
+			? xmlSearchNs(lock.impl->p, lock.n->parent, prefix)
+			: nullptr;
+	}
+
+	xmlNsPtr do_search_ns_href(const xmlChar *uri) override
+	{
+		return lock.n && lock.n->parent
+			? xmlSearchNsByHref(lock.impl->p, lock.n->parent, uri)
+			: nullptr;
+	}
+
 	ref<createnodeObj> get_create_next_sibling()
 	{
 		return ref<createnodeObj>(this);
@@ -772,6 +963,20 @@ class LIBCXX_HIDDEN impldocObj::createprevioussiblingObj : public createnodeImpl
 			throw EXCEPTION(libmsg(_txt("Internal error: xmlAddPrevSibling() failed")));
 		n.n=nullptr;
 		lock.n=p;
+	}
+
+	xmlNsPtr do_search_ns(const xmlChar *prefix) override
+	{
+		return lock.n && lock.n->parent
+			? xmlSearchNs(lock.impl->p, lock.n->parent, prefix)
+			: nullptr;
+	}
+
+	xmlNsPtr do_search_ns_href(const xmlChar *uri) override
+	{
+		return lock.n && lock.n->parent
+			? xmlSearchNsByHref(lock.impl->p, lock.n->parent, uri)
+			: nullptr;
 	}
 
 	ref<createnodeObj> get_create_previous_sibling()
@@ -820,6 +1025,40 @@ class LIBCXX_HIDDEN impldocObj::writelockImplObj
 	{
 		return get_create_previous_sibling();
 	}
+
+	void do_create_namespace(const std::string &prefix,
+				 const uriimpl &uri)
+	{
+		do_create_namespace(prefix, tostring(uri));
+	}
+
+	void do_create_namespace(const std::string &prefix,
+				 const char *uri)
+	{
+		do_create_namespace(prefix, std::string(uri));
+	}
+
+
+	void do_create_namespace(const std::string &prefix,
+				 const std::string &uri) override
+	{
+		if (n)
+		{
+			if (xmlNewNs(n,
+				     reinterpret_cast<const xmlChar *>
+				     (uri.size() ? uri.c_str():nullptr),
+				     reinterpret_cast<const xmlChar *>
+				     (prefix.size() ? prefix.c_str():nullptr)))
+				return;
+			throw EXCEPTION(gettextmsg
+					(libmsg
+					 (_txt
+					  ("Namespace %1%:%2% cannot be added")
+					  ), prefix, uri));
+		}
+
+		throw EXCEPTION(libmsg(_txt("create_namespace() called on a nonexistent node")));
+	}
 };
 
 
@@ -841,8 +1080,45 @@ docObj::createnodeObj::createnodeObj()
 
 docObj::createnodeObj::~createnodeObj() noexcept
 {
-} 
+}
 
+ref<docObj::createnodeObj>
+docObj::createnodeObj::create_namespace(const std::string &prefix,
+					const std::string &uri)
+{
+	do_create_namespace(prefix, uri);
+	return ref<createnodeObj>(this);
+}
+
+ref<docObj::createnodeObj>
+docObj::createnodeObj::create_namespace(const std::string &prefix,
+					const uriimpl &uri)
+{
+	do_create_namespace(prefix, uri);
+	return ref<createnodeObj>(this);
+}
+
+ref<docObj::createnodeObj>
+docObj::createnodeObj::create_namespace(const std::string &prefix,
+					const char *uri)
+{
+	do_create_namespace(prefix, uri);
+
+	return ref<createnodeObj>(this);
+}
+
+ref<docObj::createnodeObj>
+docObj::createnodeObj::element(const newElement &e,
+			       const std::vector<newAttribute> &a)
+{
+	element(e);
+
+	for (const auto &aa:a)
+	{
+		attribute(aa);
+	}
+	return ref<createnodeObj>(this);
+}
 #if 0
 {
 	{

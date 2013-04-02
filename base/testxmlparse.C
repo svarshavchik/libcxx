@@ -84,6 +84,9 @@ void test2()
 	if (!lock->get_root() || lock->type() != "element_node")
 		throw EXCEPTION("Root node is not an element node");
 
+	if (lock->name() != "root" || lock->prefix() != "" || lock->uri() != "")
+		throw EXCEPTION("Root node is not <root>");
+
 	std::set<LIBCXX_NAMESPACE::xml::doc::base::attribute> attributes;
 
 	lock->get_all_attributes(attributes);
@@ -216,7 +219,7 @@ void test3()
 	{
 		auto lock=empty_document->writelock();
 
-		lock->create_child()->element("root1");
+		lock->create_child()->element({"root1"});
 
 		if (!lock->get_root() || lock->name() != "root1")
 			throw EXCEPTION("Did not create <root1> somehow");
@@ -225,7 +228,7 @@ void test3()
 	{
 		auto lock=empty_document->writelock();
 
-		lock->create_child()->element("root2");
+		lock->create_child()->element({"root2"});
 
 		if (!lock->get_root() || lock->name() != "root2")
 			throw EXCEPTION("Did not create <root2> somehow");
@@ -262,7 +265,7 @@ void test3()
 	{
 		auto lock=empty_document->writelock();
 
-		lock->create_child()->element("root");
+		lock->create_child()->element({"root"});
 		lock->create_child()->text(big);
 
 		std::string cpy;
@@ -297,6 +300,100 @@ void test3()
 	}
 }
 
+void test4()
+{
+	auto empty_document=LIBCXX_NAMESPACE::xml::doc::create();
+
+	auto lock=empty_document->writelock();
+
+	lock->create_child()->element({"item", "prefix",
+				"http://www.example.com"})
+		->element({"prefix:subitem"});
+	lock->create_next_sibling()->element({"subitem2", LIBCXX_NAMESPACE::uriimpl("http://www.example.com")});
+
+	{
+		std::string doc;
+
+		lock->save_to(std::back_insert_iterator<std::string>(doc));
+
+		std::cout << doc << std::endl;
+	}
+	lock->get_root();
+
+	if (lock->name() != "item" || lock->prefix() != "prefix"
+	    || lock->uri() != "http://www.example.com")
+		throw EXCEPTION("Top level <prefix:item> element not found");
+
+	lock->get_last_element_child();
+
+	if (lock->name() != "subitem2" || lock->prefix() != "prefix"
+	    || lock->uri() != "http://www.example.com")
+		throw EXCEPTION("<prefix:subitem2> element not found");
+}
+
+void test5()
+{
+	auto empty_document=LIBCXX_NAMESPACE::xml::doc::create();
+
+	auto lock=empty_document->writelock();
+
+	bool caught=false;
+
+	try {
+		lock->create_child()->element({
+				"head", "xml",
+					"http://www.w3.org/XML/1998/namespace"
+					});
+	} catch (...)
+	{
+		caught=true;
+	}
+
+	if (!caught)
+		throw EXCEPTION("Did not catch expected create_child() exception");
+}
+
+void test6()
+{
+	auto empty_document=LIBCXX_NAMESPACE::xml::doc::create();
+
+	auto lock=empty_document->writelock();
+
+	lock->create_child()->element({"head"});
+	lock->create_namespace("ns1", "http://www.example.com");
+
+	bool caught=false;
+	try {
+		lock->create_namespace("ns1", "http://www.example.com");
+	} catch (...)
+	{
+		caught=true;
+	}
+
+	if (!caught)
+		throw EXCEPTION("Did not catch expected create_namespace() exception");
+	lock->create_child()
+		->create_namespace("ns2", std::string("http://www.example.com"))
+		->create_namespace("ns3", LIBCXX_NAMESPACE::uriimpl("http://www.example.com/x"))
+		->element({"ns2:body"});
+	lock->create_next_sibling()->element({"body", "http://www.example.com/x"})->create_attribute("attr1", "value1");
+
+	if (lock->prefix() != "ns3" ||
+	    lock->uri() != "http://www.example.com/x")
+		throw EXCEPTION("element() specifying a URI failed");
+	lock->get_previous_sibling();
+	if (lock->prefix() != "ns2" ||
+	    lock->uri() != "http://www.example.com")
+		throw EXCEPTION("element() specifying a prefix");
+	{
+		std::string doc;
+
+		lock->save_to(std::back_insert_iterator<std::string>(doc));
+
+		std::cout << doc << std::endl;
+	}
+}
+
 int main(int argc, char **argv)
 {
 	try {
@@ -304,6 +401,9 @@ int main(int argc, char **argv)
 		test1(LIBCXX_NAMESPACE::fdbaseObj::get_buffer_size());
 		test2();
 		test3();
+		test4();
+		test5();
+		test6();
 	} catch (LIBCXX_NAMESPACE::exception &e)
 	{
 		std::cerr << e << std::endl;

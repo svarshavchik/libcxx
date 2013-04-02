@@ -43,6 +43,75 @@ public:
 	//! Destructor
 	~docObj() noexcept;
 
+	//! Helper class for creating a new element
+
+	//! Refer to this class as
+	//! \c INSERT_LIBX_NAMESPACE::xml::doc::base::newelement.
+	//! See \ref docBase::writelock "INSERT_LIBX_NAMESPACE::doc::base::writelock"
+	//! for more information.
+
+	class newElement {
+
+	public:
+		//! New element's name
+		std::string name;
+		//! New element's prefix
+		std::string prefix;
+
+		//! New element's URI
+		std::string uri;
+
+		//! Whether this helper class was constructed with a given prefix.
+		bool prefix_given;
+
+		//! Create a new element in an unnamed namespace.
+		newElement(//! New element's name
+			   const std::string &nameArg);
+
+		//! Create a new element in a given namespace
+
+		newElement(//! New element's name
+			   const std::string &namearg,
+
+			   //! New element's URI. This URI must be opened in
+			   //! some parent node of the new element.
+			   const std::string &uriArg);
+
+		//! Create a new element in a given namespace
+
+		newElement(//! New element's name
+			   const std::string &nameArg,
+
+			   //! New element's URI. This URI must be opened in
+			   //! some parent node of the new element.
+			   const char *uriArg);
+
+		//! Create a new element in a given namespace
+
+		newElement(//! New element's name
+			   const std::string &nameArg,
+
+			   //! New element's URI. This URI must be opened in
+			   //! some parent node of the new element.
+			   const uriimpl &uriArg);
+
+		//! Create a new element in a new namespace
+		newElement(//! New element's name
+			   const std::string &nameArg,
+
+			   //! The new namespace is opened in this element,
+			   //! this is its prefix.
+			   const std::string &prefixArg,
+
+			   //! The new namespace's URI
+			   const std::string &uriArg);
+
+		//! Destructor
+
+		~newElement() noexcept;
+	};
+
+
 	//! An attribute of an XML element node.
 
 	//! Refer to this class as INSERT_LIBX_NAMESPACE::xml::doc::base::attribute
@@ -182,6 +251,21 @@ public:
 		//! An empty name gets returned if the lock is not positioned
 		//! on a node, this is a new lock.
 		virtual std::string name() const=0;
+
+		//! Returns the current node's namespace prefix
+
+		//! An empty string gets returned if the lock is not positioned
+		//! on an element node or if the element node is in an unnamed
+		//! namespace.
+		virtual std::string prefix() const=0;
+
+		//! Returns the current node's namespace URI
+
+		//! An empty string gets returned if the lock is not positioned
+		//! on an element node or if the element node is in an unnamed
+		//! namespace.
+		virtual std::string uri() const=0;
+
 
 		//! Return the current node's path.
 
@@ -394,8 +478,60 @@ public:
 						const std::string &text)=0;
 
 		//! Create a new element
-		virtual ref<createnodeObj> element(//! Element name
-						   const std::string &name)=0;
+		virtual ref<createnodeObj> element(const newElement &)=0;
+
+		//! Create a new namespace in the current element
+
+		//! This is for convenience, this method simply invokes
+		//! the writer lock's create_namespace() method, and returns
+		//! another reference to this creator node.
+		ref<createnodeObj> create_namespace(const std::string &prefix,
+						    const std::string &uri);
+
+		//! Create a new namespace in the current element
+
+		//! \overload
+		ref<createnodeObj> create_namespace(const std::string &prefix,
+						    const uriimpl &uri);
+
+		//! Create a new namespace in the current element
+
+		//! \overload
+		ref<createnodeObj> create_namespace(const std::string &prefix,
+						    const char *uri);
+
+		//! Create a new element with attributes
+
+		ref<createnodeObj> element(//! New element
+					   const newElement &e,
+
+					   //! Attributes
+					   const std::vector<newAttribute> &a);
+
+	private:
+		//! Implement create_namespace().
+		virtual void do_create_namespace(//! New namespace prefix
+						 const std::string &prefix,
+
+						 //! New namespace URI
+						 const std::string &uri)=0;
+
+		//! Implement create_namespace().
+
+		//! \overload
+		virtual void do_create_namespace(//! New namespace prefix
+						 const std::string &prefix,
+						 //! New namespace URI
+						 const uriimpl &uri)=0;
+
+		//! Implement create_namespace().
+
+		//! \overload
+
+		virtual void do_create_namespace(//! New namespace prefix
+						 const std::string &prefix,
+						 //! New namespace URI
+						 const char *uri)=0;
 	};
 
 	//! A \ref ref "reference" to this object gets returned by writelock()
@@ -465,6 +601,66 @@ public:
 		//! out of scope, and gets destroyed.
 
 		virtual ref<createnodeObj> create_previous_sibling()=0;
+
+		//! Add a new namespace to the current element node.
+
+		void create_namespace(//! New namespace prefix
+				      const std::string &prefix,
+
+				      //! New namespace URI
+				      const std::string &uri)
+		{
+			do_create_namespace(prefix, uri);
+		}
+
+		//! Add a new namespace to the current element node.
+
+		//! \overload
+		void create_namespace(//! New namespace prefix
+				      const std::string &prefix,
+				      //! New namespace URI
+				      const uriimpl &uri)
+		{
+			do_create_namespace(prefix, uri);
+		}
+
+		//! Add a new namespace to the current element node.
+
+		//! \overload
+
+		void create_namespace(//! New namespace prefix
+				      const std::string &prefix,
+				      //! New namespace URI
+				      const char *uri)
+		{
+			do_create_namespace(prefix, uri);
+		}
+
+	private:
+		//! Implement create_namespace().
+		virtual void do_create_namespace(//! New namespace prefix
+						 const std::string &prefix,
+
+						 //! New namespace URI
+						 const std::string &uri)=0;
+
+		//! Implement create_namespace().
+
+		//! \overload
+		virtual void do_create_namespace(//! New namespace prefix
+						 const std::string &prefix,
+						 //! New namespace URI
+						 const uriimpl &uri)=0;
+
+		//! Implement create_namespace().
+
+		//! \overload
+
+		virtual void do_create_namespace(//! New namespace prefix
+						 const std::string &prefix,
+						 //! New namespace URI
+						 const char *uri)=0;
+
 	};
 
 	//! Create a read lock on the document.
