@@ -8,6 +8,7 @@
 
 #include <x/obj.H>
 #include <set>
+#include <vector>
 namespace LIBCXX_NAMESPACE {
 
 	class uriimpl;
@@ -138,7 +139,93 @@ public:
 		bool operator<(const docAttribute &) const;
 	};
 
-	//! A \ref ref "reference" to this object gets returned by readlock()
+	//! A new attribute of an XML document
+
+	//! Refer to this class as \c INSERT_LIBX_NAMESPACE::xml::doc::base::newattribute.
+	//! See \ref docBase::writelock "INSERT_LIBX_NAMESPACE::doc::base::writelock"
+	//! for more information.
+
+	class newAttribute : public docAttribute {
+	public:
+		//! Attribute value
+		std::string attrvalue;
+
+		//! Create a new attribute
+
+		newAttribute(//! Attribute name
+
+			     //! It can be specified as 'prefix:name', creating
+			     //! the attribute in the given namespace. A
+			     //! namespace with the given prefix must be opened
+			     //! by this element or one of its parent elements.
+			     //! Otherwise the attribute gets created in the
+			     //! unknown namespace.
+			     const std::string &attrnameArg,
+
+			     //! Attribute's value
+			     const std::string &attrvalueArg);
+
+		//! Create a new attribute in a given namespace
+
+		newAttribute(//! Attribute name
+			     const std::string &attrnameArg,
+
+			     //! Attribute's namespace URI.
+
+			     //! A namespace with the given URI must be opened
+			     //! by this element or one of its parent elements.
+
+			     const std::string &attrnamespaceArg,
+
+			     //! Attribute's value
+			     const std::string &attrvalueArg);
+
+		//! Create a new attribute in a given namespace
+
+		newAttribute(//! Attribute name
+			     const std::string &attrnameArg,
+
+			     //! Attribute's namespace URI.
+
+			     //! A namespace with the given URI must be opened
+			     //! by this element or one of its parent elements.
+
+			     const uriimpl &attrnamespaceArg,
+
+			     //! Attribute's value
+			     const std::string &attrvalueArg);
+
+		//! Create a new attribute in a given namespace
+
+		newAttribute(//! Attribute name
+			     const std::string &attrnameArg,
+
+			     //! Attribute's namespace URI.
+
+			     //! A namespace with the given URI must be opened
+			     //! by this element or one of its parent elements.
+
+			     const char *attrnamespaceArg,
+
+			     //! Attribute's value
+			     const std::string &attrvalueArg);
+
+		//! Destructor
+		~newAttribute() noexcept;
+
+		//! Comparison operator for associative containers.
+
+		using docAttribute::operator<;
+	};
+
+	//! A reader lock on an XML document.
+
+	//! A \ref ref "reference" to this object gets returned by readlock().
+	//!
+	//! \code
+	//! INSERT_LIBX_NAMESPACE::xml::doc::base::readlock lock=doc->readlock();
+	//!
+	//! \endcode
 
 	class readlockObj : virtual public obj {
 
@@ -480,6 +567,13 @@ public:
 		//! Create a new element
 		virtual ref<createnodeObj> element(const newElement &)=0;
 
+		//! Create a new attribute in the current element node
+
+		//! This is the same as calling attribute() in the
+		//! \ref writelock "writer lock".
+
+		ref<createnodeObj> attribute(const newAttribute &);
+
 		//! Create a new namespace in the current element
 
 		//! This is for convenience, this method simply invokes
@@ -509,6 +603,10 @@ public:
 					   const std::vector<newAttribute> &a);
 
 	private:
+		//! Implement attribute().
+
+		virtual void do_attribute(const newAttribute &)=0;
+
 		//! Implement create_namespace().
 		virtual void do_create_namespace(//! New namespace prefix
 						 const std::string &prefix,
@@ -636,6 +734,14 @@ public:
 			do_create_namespace(prefix, uri);
 		}
 
+		//! Create a new attribute in the current element node
+
+		void attribute(//! Attribute
+			       const newAttribute &attr)
+		{
+			do_attribute(attr);
+		}
+
 	private:
 		//! Implement create_namespace().
 		virtual void do_create_namespace(//! New namespace prefix
@@ -661,6 +767,9 @@ public:
 						 //! New namespace URI
 						 const char *uri)=0;
 
+		//! Implement attribute().
+		virtual void do_attribute(//! Attribute
+					  const newAttribute &attr)=0;
 	};
 
 	//! Create a read lock on the document.

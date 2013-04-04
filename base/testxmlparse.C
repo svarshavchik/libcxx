@@ -376,11 +376,23 @@ void test6()
 		->create_namespace("ns2", std::string("http://www.example.com"))
 		->create_namespace("ns3", LIBCXX_NAMESPACE::uriimpl("http://www.example.com/x"))
 		->element({"ns2:body"});
-	lock->create_next_sibling()->element({"body", "http://www.example.com/x"})->create_attribute("attr1", "value1");
+	lock->create_next_sibling()->element({"body", "http://www.example.com/x"})->attribute({"attr1", "value1"});
 
 	if (lock->prefix() != "ns3" ||
 	    lock->uri() != "http://www.example.com/x")
 		throw EXCEPTION("element() specifying a URI failed");
+	if (lock->get_attribute("attr1") != "value1")
+		throw EXCEPTION("Namespaceless attribute() failed");
+	lock->create_child()->attribute({"ns2:attr2", "value2"})
+		->attribute({"attr3", LIBCXX_NAMESPACE::uriimpl
+					("http://www.example.com/x"),
+					"value3"});
+	if (lock->get_attribute("attr2", "http://www.example.com") != "value2")
+		throw EXCEPTION("prefix:name attribute() failed");
+	
+	if (lock->get_attribute("attr3", "http://www.example.com/x") != "value3")
+		throw EXCEPTION("prefix, namespace attribute() failed");
+
 	lock->get_previous_sibling();
 	if (lock->prefix() != "ns2" ||
 	    lock->uri() != "http://www.example.com")
@@ -394,6 +406,45 @@ void test6()
 	}
 }
 
+void test7()
+{
+	auto empty_document=LIBCXX_NAMESPACE::xml::doc::create();
+
+	auto lock=empty_document->writelock();
+
+	lock->create_child()->element({"head", "html", "http://www.example.com"},
+				      {
+					      {"html:attr1", "value1"},
+					      {"attr2", "http://www.example.com",
+							      "value2"}
+				      });
+
+	if (lock->prefix() != "html" || lock->uri() != "http://www.example.com")
+		throw EXCEPTION("test7: prefix/uri not right");
+
+	{
+		std::set<LIBCXX_NAMESPACE::xml::doc::base::attribute> s;
+
+		lock->get_all_attributes(s);
+
+		if (s.size() != 2)
+			throw EXCEPTION("Not two attributes");
+
+		auto first=*s.begin();
+		auto second=*--s.end();
+
+		if (first.attrname != "attr1" ||
+		    first.attrnamespace != "http://www.example.com" ||
+		    lock->get_attribute(first) != "value1")
+			throw EXCEPTION("first attribute is wrong");
+
+		if (second.attrname != "attr2" ||
+		    second.attrnamespace != "http://www.example.com" ||
+		    lock->get_attribute(second) != "value2")
+			throw EXCEPTION("second attribute is wrong");
+	}
+}
+
 int main(int argc, char **argv)
 {
 	try {
@@ -404,6 +455,7 @@ int main(int argc, char **argv)
 		test4();
 		test5();
 		test6();
+		test7();
 	} catch (LIBCXX_NAMESPACE::exception &e)
 	{
 		std::cerr << e << std::endl;

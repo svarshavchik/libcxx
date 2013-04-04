@@ -431,7 +431,80 @@ public:
 	//! The URI can be given as a literal string,
 	//! or as an \ref uriimpl "INSERT_LIBX_NAMESPACE::uriimpl".
 	//!
-
+	//! \code
+	//! creator->attribute({"style", "white-space: nowrap"});
+	//! wlock->attribute({"style", "white-space: nowrap"});
+	//! \endcode
+	//!
+	//! The attribute() method may be called either directly on a writer
+	//! lock, or one of the creators, in which case it, like other
+	//! create methods, returns the same creator reference, for convenience:
+	//!
+	//! \code
+	//! creator->attribute({"style", "white-space: nowrap"})
+	//!        ->attribute({"class", "address"});
+	//! \endcode
+	//!
+	//! The writer lock must be positioned
+	//! on an element node in the document; attribute() adds a new
+	//! attribute to the element.
+	//!
+	//! The parameter to attribute() is an internal helper class,
+	//! \ref docObj::newAttribute "INSERT_LIBX_NAMESPACE::xml::doc::base::newattribute",
+	//! which has several different constructors, and gets typically given
+	//! literally using a braced initializer list, for convenience.
+	//! The first example's initializer is a single string, which
+	//! initializes a new attribute named "style", in an unnamed namespace
+	//! with the value of "white-space: nowrap".
+	//!
+	//! \code
+	//! wlock->attribute({"html:style", "white-space: nowrap"});
+	//! \endcode
+	//!
+	//! This version of attribute()'s initializer adds a new attribute in a
+	//! namespace
+	//! with the given prefix that must be open in its element, or one
+	//! of its parent elements.
+	//!
+	//! \code
+	//! wlock->attribute({"style", "http://www.w3.org/1999/xhtml", "white-space: nowrap"});
+	//! \endcode
+	//!
+	//! This version of attribute()'s initializer adds a new attribute in a
+	//! namespace
+	//! with the given URI, that must be open in its element, or one
+	//! of its parent elements.
+	//! The URI can be given as a literal string,
+	//! or as an \ref uriimpl "INSERT_LIBX_NAMESPACE::uriimpl".
+	//!
+	//! \code
+	//! creator->element({"html:div"},
+	//!                  {
+	//!                      {"style", "white-space: nowrap"},
+	//!                      {"id", "box"}
+	//!                  });
+	//! \endcode
+	//!
+	//! The two parameter version of element() creates a new element,
+	//! and all of its
+	//! attributes, in one go. The first parameter is still the same
+	//! internal helper class,
+	//! \ref docObj::newElement "INSERT_LIBX_NAMESPACE::xml::doc::base::newelement",
+	//! that can be given literally as a braced
+	//! initializer list.
+	//!
+	//! The second parameter is a \c std::vector that enumerates the
+	//! new element's attributes, as
+	//! \ref docObj::newAttribute "INSERT_LIBX_NAMESPACE::xml::doc::base::newattribute"
+	//! helper class instances. This also can be expressed as a braced
+	//! initializer list. The above example creates an XML element node
+	//! "div", in the "html" namespace, with two attributes, "style" and
+	//! "id".
+	//!
+	//! The two parameter version of element() is equivalent to calling
+	//! the one parameter version, passing it the first parameter, then
+	//! calling attribute() repeatedly, passing it each element in the
+	//! second parameter's vector.
 
 	typedef ref<docObj::writelockObj> writelock;
 
@@ -459,7 +532,9 @@ public:
 
 	//! Convenience typedef for a new element attribute
 
-	//! Refer to this class as \c INSERT_LIBX_NAMESPACE::xml::doc::base::newattribute;
+	//! This is passed as a parameter to \ref writelock "attribute()", to
+	//! add a new attribute to the current element node.
+	//! Refer to this class as \c INSERT_LIBX_NAMESPACE::xml::doc::base::newattribute.
 	typedef docObj::newAttribute newattribute;
 
 	//! Modifying XML documents

@@ -134,6 +134,39 @@ bool docObj::docAttribute::operator<(const docAttribute &o) const
 	return attrnamespace < o.attrnamespace;
 }
 
+docObj::newAttribute::newAttribute(const std::string &attrnameArg,
+				   const std::string &attrvalueArg)
+	: newAttribute(attrnameArg, "", attrvalueArg)
+{
+}
+
+docObj::newAttribute::newAttribute(const std::string &attrnameArg,
+				   const std::string &attrnamespaceArg,
+				   const std::string &attrvalueArg)
+	: docAttribute(attrnameArg, attrnamespaceArg), attrvalue(attrvalueArg)
+{
+}
+
+docObj::newAttribute::newAttribute(const std::string &attrnameArg,
+				   const uriimpl &attrnamespaceArg,
+				   const std::string &attrvalueArg)
+	: newAttribute(attrnameArg, tostring(attrnamespaceArg), attrvalueArg)
+{
+}
+
+docObj::newAttribute::newAttribute(const std::string &attrnameArg,
+				   const char *attrnamespaceArg,
+				   const std::string &attrvalueArg)
+	: newAttribute(attrnameArg, std::string(attrnamespaceArg),
+		       attrvalueArg)
+{
+}
+
+docObj::newAttribute::~newAttribute() noexcept
+{
+}
+
+
 doc docBase::create()
 {
 	return ref<impldocObj>::create(xmlNewDoc((const xmlChar *)"1.0"));
@@ -663,6 +696,11 @@ class LIBCXX_HIDDEN impldocObj::readlockImplObj : public writelockObj {
 	{
 		create_child();
 	}
+
+	void do_attribute(const newAttribute &attr) override
+	{
+		create_child();
+	}
 };
 
 class LIBCXX_HIDDEN impldocObj::createnodeImplObj : public createnodeObj {
@@ -1059,8 +1097,83 @@ class LIBCXX_HIDDEN impldocObj::writelockImplObj
 
 		throw EXCEPTION(libmsg(_txt("create_namespace() called on a nonexistent node")));
 	}
-};
 
+	void do_attribute(const newAttribute &attr) override
+	{
+		if (attr.attrnamespace.empty())
+		{
+			size_t p=attr.attrname.find(':');
+
+			if (p == std::string::npos)
+			{
+				create_attribute(attr.attrname, nullptr,
+						 attr.attrvalue);
+				return;
+			}
+
+			xmlNsPtr ns;
+			std::string prefix=attr.attrname.substr(0, p);
+
+			if (n && (ns=xmlSearchNs(impl->p, n,
+						 reinterpret_cast<const xmlChar
+						 *>
+						 (prefix.c_str()))) != 0)
+			{
+				create_attribute(attr.attrname.substr(p+1),
+						 ns, attr.attrvalue);
+				return;
+			}
+
+			throw EXCEPTION(gettextmsg
+					(libmsg(_txt("Namespace prefix %1% not found")),
+					 prefix));
+		}
+
+		if (!attr.attrnamespace.empty())
+		{
+			xmlNsPtr ns;
+
+			if (n && (ns=xmlSearchNsByHref(impl->p, n,
+						       reinterpret_cast<const
+						       xmlChar *>
+						       (attr.attrnamespace
+							.c_str()))) != 0)
+			{
+				create_attribute(attr.attrname, ns,
+						 attr.attrvalue);
+				return;
+			}
+			throw EXCEPTION(gettextmsg(libmsg(_txt("Namespace URI %1% not found")),
+						   attr.attrnamespace));
+		}
+		create_attribute(attr.attrname, nullptr, attr.attrvalue);
+	}
+
+	void create_attribute(const std::string &attrname,
+			      const xmlNsPtr attrnamespace,
+			      const std::string &attrvalue)
+	{
+		auto an=reinterpret_cast<const xmlChar *>(attrname.c_str());
+		auto av=reinterpret_cast<const xmlChar *>(attrvalue.c_str());
+
+		if (n && n->type == XML_ELEMENT_NODE)
+		{
+			if (!attrnamespace)
+			{
+				if (xmlNewProp(n, an, av))
+					return;
+			}
+			else
+			{
+				if (xmlNewNsProp(n, attrnamespace, an, av))
+					return;
+			}
+		}
+
+		throw EXCEPTION(gettextmsg(libmsg(_txt("Cannot set attribute %1%")),
+					   attrname));
+	}
+};
 
 ref<docObj::readlockObj> impldocObj::readlock()
 {
@@ -1080,6 +1193,13 @@ docObj::createnodeObj::createnodeObj()
 
 docObj::createnodeObj::~createnodeObj() noexcept
 {
+}
+
+ref<docObj::createnodeObj>
+docObj::createnodeObj::attribute(const newAttribute &attr)
+{
+	do_attribute(attr);
+	return ref<createnodeObj>(this);
 }
 
 ref<docObj::createnodeObj>
@@ -1115,7 +1235,7 @@ docObj::createnodeObj::element(const newElement &e,
 
 	for (const auto &aa:a)
 	{
-		attribute(aa);
+		do_attribute(aa);
 	}
 	return ref<createnodeObj>(this);
 }
