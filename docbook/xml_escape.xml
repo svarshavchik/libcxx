@@ -6,19 +6,20 @@ See COPYING for distribution information.
 -->
 
 <chapter id="xml_escape">
-  <title>Escaping <acronym>XML</acronym> strings</title>
+  <title>Escaping &xml; strings</title>
 
   <blockquote>
     <informalexample>
       <programlisting>
-#include &lt;&ns;/xml_escape.H&gt;
+#include &lt;&ns;/xml/escape.H&gt;
 
 std::string str=&ns;::xml::escapestr("&lt;URL:http://www.example.com&gt;");</programlisting>
     </informalexample>
   </blockquote>
 
   <para>
-    <function>&ns;::xml::escapestr</function>() replaces all occurences of
+    <function>&ns;::xml::escapestr</function>() is a miscellaneous
+    utility function replaces all occurences of
     the characters <literal>&lt;</literal>,
     <literal>&gt;</literal>, and
     <literal>&amp;</literal> with

@@ -1,0 +1,384 @@
+<!--
+
+Copyright 2013 Double Precision, Inc.
+See COPYING for distribution information.
+
+-->
+
+<chapter id="xml_readlock">
+  <title>Accessing the contents of &xml; documents using reader locks</title>
+
+  <blockquote>
+    <informalexample>
+      <programlisting>
+auto doc=&ns;::xml::doc::create("filename.xml");
+
+&ns;::xml::doc::base::readlock rlock=doc-&gt;readlock();
+</programlisting>
+    </informalexample>
+  </blockquote>
+
+  <para>
+    A reader lock blocks other threads from modifying the &xml; document.
+    It blocks the creation of a <link linkend="xml_writelock">writer
+      lock</link>.
+    If a writer lock exists, <methodname>readlock</methodname>() blocks until
+    the writer lock goes out of scope and gets destroyed.
+    A reader lock does not block other reader locks. Multiple reader locks
+    can exist, and different threads can use other reader locks on the same
+    &xml; document, but only one thread can use the same reader lock, at the
+    same time.
+  </para>
+
+  <blockquote>
+    <informalexample>
+      <programlisting>
+&ns;::xml::doc::base::readlock rlock2=rlock-&gt;clone();
+</programlisting>
+    </informalexample>
+  </blockquote>
+
+  <para>
+    <methodname>clone</methodname>() creates another reader lock by
+    <quote>cloning</quote> an existing one. A single thread must not
+    call the document's <methodname>readlock</methodname>() method to create
+    another reader lock on the same document, the thread must use
+    <methodname>clone</methodname>(). This is because
+    <methodname>readlock</methodname>(),
+    can be blocked by another thread calling
+    <methodname>writelock</methodname>(),
+    a pending writer lock, which is blocked by the
+    first reader lock; this results in a deadlock.
+  </para>
+
+  <para>
+    <classname>&ns;::xml::doc::base::readlock</classname>
+    is a reference to a <link linkend="refobj">reference-counted</link>
+    object. Copying <classname>&ns;::xml::doc::base::readlock</classname>
+    variables
+    does not create new reader locks, only more references to the same
+    reader lock get created. Only <methodname>clone</methodname> creates
+    a distinct, new, reader lock on the same document.
+  </para>
+
+  <section id="xml_readlock_navigate">
+    <title>Navigating the &xml; document using a reader lock</title>
+
+    <para>
+      The contents of an &xml; document are examined by instantiating a reader
+      lock, then positioning it on different parts of the &xml; document.
+      Each reader lock is independently positioned.
+      <methodname>clone</methodname>() creates a new reader lock which is
+      initially positioned on the same node of the &xml; document.
+    </para>
+
+    <blockquote>
+      <informalexample>
+	<programlisting>
+bool flag=rlock-&gt;get_root();
+</programlisting>
+      </informalexample>
+    </blockquote>
+
+    <para>
+      A new reader lock created by <methodname>readlock</methodname>() is not
+      initially positioned on any part of the &xml; document.
+      <methodname>get_root</methodname>() positions the reader lock to the
+      top, root, element of the &xml; document.
+      <methodname>get_root</methodname>() returns <literal>false</literal> if
+      the &ns; document is empty and does not even have a root node,
+      otherwise a <literal>true</literal> return indicates that the reader
+      lock is now positioned on the root node.
+    </para>
+
+    <blockquote>
+      <informalexample>
+	<programlisting>
+size_t n=rlock-&gt;get_child_element_count();
+
+flag=rlock-&gt;get_first_child();
+	
+flag=rlock-&gt;get_last_child();
+	
+flag=rlock-&gt;get_next_sibling();
+	
+flag=rlock-&gt;get_previous_sibling();
+
+flag=rlock-&gt;get_parent();
+</programlisting>
+      </informalexample>
+    </blockquote>
+
+    <para>
+      <methodname>get_child_element_count</methodname>()
+      returns the number of child node of the reader lock's current node.
+      <methodname>get_first_child</methodname>()
+      and
+      <methodname>get_last_child</methodname>()
+      reposition the reader lock to the first or the last child node of the
+      reader lock's current node.
+      <methodname>get_next_sibling</methodname>()
+      and
+      <methodname>get_previous_sibling</methodname>()
+      reposition the reader lock to the next or the previous sibling node.
+      <methodname>get_parent</methodname>() repositions the reader lock
+      to the parent node of the reader lock's current node.
+    </para>
+
+    <para>
+      These methods return <literal>false</literal> if the reader lock is not
+      currently positioned on any node, or if the reader lock cannot be
+      repositioned (it does not have any child nodes, or the appropriate
+      sibling node, or if this is the document root node which has no parent
+      node), and the reader lock remains positioned on its current node.
+      Otherwise, the reader lock gets repositioned, and <literal>true</literal>
+      gets returned.
+    </para>
+
+    <blockquote>
+      <informalexample>
+	<programlisting>
+flag=rlock-&gt;get_first_element_child();
+	
+flag=rlock-&gt;get_last_element_child();
+	
+flag=rlock-&gt;get_next_element_sibling();
+	
+flag=rlock-&gt;get_previous_element_sibling();</programlisting>
+      </informalexample>
+    </blockquote>
+
+    <para>
+      These methods are similar, except that they ignore all nodes which are
+      node element nodes (like text nodes and comments).
+      <methodname>get_first_element_child</methodname>()
+      and
+      <methodname>get_last_element_child</methodname>()
+      reposition the reader lock to the first or the last child element
+      node of the reader lock's current node, ignoring any text nodes, comments,
+      or other kind of nodes.
+      <methodname>get_next_sibling</methodname>()
+      and
+      <methodname>get_previous_sibling</methodname>()
+      reposition the reader lock to the next or the previous sibling element
+      node.
+    </para>
+
+    <para>
+      These methods return <literal>false</literal> if the reader lock is not
+      currently positioned on any node, or if the reader lock cannot be
+      repositioned (it does not have any child nodes which are element nodes,
+      or the appropriate sibling element node.
+    </para>
+  </section>
+
+  <section id="xml_readlock_examine">
+    <title>Examining reader lock's current node</title>
+
+    <blockquote>
+      <informalexample>
+	<programlisting>
+std::string type=rlock-&gt;type();
+	
+std::string name=rlock-&gt;name();
+	
+std::string prefix=rlock-&gt;prefix();
+	
+std::string uri=rlock-&gt;uri();
+	
+std::string path=rlock-&gt;path();
+	</programlisting>
+      </informalexample>
+    </blockquote>
+
+    <para>
+      <methodname>type</methodname>() returns the type of the current node,
+      as a string.
+      <quote>element_node</quote> gets returned when the current node is an
+      &xml;
+      element node,
+      <quote>text_node</quote> gets returned when the current node is
+      a text node. The string corresponds directly to 
+      the
+      <ulink url="http://www.xmlsoft.org/html/libxml-tree.html#xmlElementType"><classname>xmlElementType</classname></ulink>
+      values from <application>libxml</application>, in lowercase and without
+      the <quote>XML_</quote> prefix.
+      An empty string gets returned if the reader lock is not positioned
+      on a node.
+    </para>
+
+    <para>
+      <methodname>name</methodname>() returns the name of the current node
+      when it is an <quote>element_node</quote>.
+      Some other node types also use <methodname>name</methodname>()
+      (processing instructions, <quote>pi_node</quote>s, have the processor
+      name, here).
+    </para>
+
+    <para>
+      <methodname>prefix</methodname>() and
+      <methodname>uri</methodname>() give
+      the element node's
+      namespace prefix and URI, or an empty string if the element node
+      is not in any namespace.
+    </para>
+
+    <para>
+      <methodname>path</methodname>() returns the XPath to the current node,
+      starting with the document's root.
+    </para>
+
+    <blockquote>
+      <informalexample>
+	<programlisting>
+std::string value;
+
+value=rlock-&gt;get_attribute("style");
+
+&ns;::uriimpl ns;
+
+value=rlock-&gt;get_attribute("style", ns);
+
+value=rlock-&gt;get_any_attribute("style");
+
+std::set&lt;&ns;::doc::base::attribute&gt; attributes;
+rlock-&gt;get_all_attributes(attributes);</programlisting>
+      </informalexample>
+    </blockquote>
+
+    <para>
+      <methodname>get_attribute()</methodname> returns the value of the given
+      attribute in the
+      null XML namespace, if the reader lock is positioned on an element
+      node, and the given un-namespaced attribute exists. An empty
+      string gets returned in all other situations.
+    </para>
+
+    <para>
+      A second parameter to <methodname>get_attribute()</methodname>
+      gives an explicit &ns; namespace
+      for the attribute's name, and returns the value of the attribute
+      in the referenced namespace. The namespace can be specified either
+      as <link linkend="uri"><classname>&ns;::uriimpl</classname></link>
+      or as a literal string.
+    </para>
+
+    <para>
+      <methodname>get_any_attribute()</methodname> retrieves the value of the
+      specified attribute in any namespace.
+	
+      <methodname>get_all_attributes()</methodname> enumerates the current
+      element's node attributes, and places them into a set of
+      <ulink url="&link-x--xml--docObj--docAttribute;"><classname>&ns;::xml::doc::base::attribute</classname></ulink>s.
+
+      This class contains two string members:
+    </para>
+
+    <variablelist>
+      <varlistentry>
+	<term><varname>attrname</varname></term>
+	<listitem>
+	  <para>The attribute's name.</para>
+	</listitem>
+      </varlistentry>
+      <varlistentry>
+	<term><varname>attrnamespace</varname></term>
+	<listitem>
+	  <para>
+	    The attribute's namespace. An empty string
+	    specifies an attribute that's not in any namespace.
+	  </para>
+	</listitem>
+      </varlistentry>
+    </variablelist>
+
+    <blockquote>
+      <informalexample>
+	<programlisting>
+std::string text=rlock-&gt;get_text();
+
+std::string lang=rlock-&gt;get_lang();
+
+bool flag=rlock-&gt;is_text();
+
+bool flag=rlock-&gt;is_blank();
+
+int flag=rlock-&gt;get_space_preserve();
+
+std::string uri=rlock-&gt;get_base();</programlisting>
+      </informalexample>
+    </blockquote>
+
+    <para>
+      <methodname>get_text</methodname>() returns the text representation of the
+      current node.
+      For comment nodes, <methodname>get_text</methodname>() returns the
+      contents of the comment.
+      For processing instruction nodes,
+      <methodname>get_text</methodname>() returns the processing instructions.
+      <methodname>get_lang</methodname>() returns the current's node declare
+      language (the
+      <literal>xml:lang</literal> attribute, if it's defined, an empty string
+      otherwise).
+      <methodname>is_text</methodname>() returns true if the current node is a
+      text node.
+      <methodname>is_blank</methodname>() returns true if the current node is a
+      text node, and it is empty.
+    </para>
+
+    <para>
+      <methodname>get_space_preserve</methodname>() returns 1 if the node
+      or one of its parent node has an <literal>xml:space</literal> attribute
+      that's set to <quote>preserve</quote>,
+      0 if it's <quote>default</quote>, and negative if
+      <literal>xml:space</literal>
+      is not declared for the current node.
+	
+      <methodname>get_base</methodname>() returns the node's base
+      <acronym>URI</acronym>, as
+      defined in RFC 2396 section 5.1.1.
+    </para>
+
+    <blockquote>
+      <informalexample>
+	<programlisting>
+rlock-&gt;save_file("filename.xml");
+	
+std::string s;
+	
+rlock-&gt;save_to(std::back_insert_iterator&lt;std::string&gt;(s));</programlisting>
+      </informalexample>
+    </blockquote>
+
+    <para>
+      <methodname>save_file</methodname>() saves the &xml; document into a file.
+      <methodname>save_to</methodname>() writes the &xml; document into an
+      output iterator.
+      <methodname>save_to</methodname>() returns the new value of the output
+      iterator.
+    </para>
+
+    <para>
+      Both <methodname>save_file</methodname>() and
+      <methodname>save_to</methodname>() take an optional second
+      <classname>bool</classname>
+      parameter. Setting it to <literal>true</literal> formats the &xml;
+      document with whitespace indentation.
+    </para>
+
+    <note>
+      <para>
+	<methodname>save_file</methodname>() writes the &xml; document into
+	<filename><replaceable>filename.tmp</replaceable></filename>, and
+	renames it to the given
+	<filename><replaceable>filename</replaceable></filename>.
+      </para>
+    </note>
+  </section>
+</chapter>
+<!--
+Local Variables:
+mode: sgml
+sgml-parent-document: ("book.xml" "part" "chapter")
+End:
+-->

@@ -61,6 +61,9 @@
 <!ENTITY miscjoiniterator SYSTEM "miscjoiniterator.xml">
 <!ENTITY miscdf SYSTEM "miscdf.xml">
 <!ENTITY miscpostponed SYSTEM "miscpostponed.xml">
+<!ENTITY xml_parse SYSTEM "xml_parse.xml">
+<!ENTITY xml_readlock SYSTEM "xml_readlock.xml">
+<!ENTITY xml_writelock SYSTEM "xml_writelock.xml">
 <!ENTITY xml_escape SYSTEM "xml_escape.xml">
 <!ENTITY yamlparser SYSTEM "yamlparser.xml">
 <!ENTITY yamlwriter SYSTEM "yamlwriter.xml">
@@ -89,6 +92,7 @@
 <!ENTITY gcrypt "<application>Libgcrypt</application>">
 <!ENTITY automakeintro SYSTEM "automakeintro.inc.xml">
 <!ENTITY automakelibxinit SYSTEM "automakelibxinit.inc.xml">
+<!ENTITY xml "<acronym>XML</acronym>">
 
 %entity-list;
 
@@ -164,14 +168,26 @@ See COPYING for distribution information.
   &httportmap;
 
   <part id="xml">
-    <title><acronym>XML</acronym>-related classes and functions</title>
+    <title>&xml;-related classes and functions</title>
 
     <partintro>
       <para>
-	The following classes and functions are useful for handling
-      <acronym>XML</acronym>-related documents.</para>
-    </partintro>
+	These classes and functions implement a C++
+	<acronym>API</acronym> for processing &xml; documents.
+	This is a C++ <acronym>API</acronym> to
+	<ulink url="http://www.xmlsoft.org"><application>libxml</application></ulink>.
+      </para>
 
+      <para>
+	All of these classes and functions use the <literal>UTF-8</literal>
+	codeset. All text content returned from &xml; documents uses the
+	<literal>UTF-8</literal> codeset, and all text strings passed to these
+	functions must be in <literal>UTF-8</literal>.
+      </para>
+    </partintro>
+    &xml_parse;
+    &xml_readlock;
+    &xml_writelock;
     &xml_escape;
   </part>
 

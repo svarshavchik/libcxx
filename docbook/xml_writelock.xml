@@ -1,0 +1,497 @@
+<!--
+
+Copyright 2013 Double Precision, Inc.
+See COPYING for distribution information.
+
+-->
+
+<chapter id="xml_writelock">
+  <title>Modifying &xml; documents using writer locks</title>
+
+  <blockquote>
+    <informalexample>
+      <programlisting>
+auto doc=&ns;::xml::doc::create();
+
+&ns;::xml::doc::base::writelock wlock=doc-&gt;writelock();
+</programlisting>
+    </informalexample>
+  </blockquote>
+
+  <para>
+    A writer lock blocks all other <link linkend="xml_readlock">reader</link>
+    and writer locks.
+    It blocks the creation of all other locks.
+    If any other lock exists, <methodname>writelock</methodname>() blocks until
+    all other locks go out of scope and gets destroyed.
+  </para>
+
+  <para>
+    <classname>&ns;::xml::doc::base::writelock</classname>
+    is a reference to a <link linkend="refobj">reference-counted</link>
+    object. Copying <classname>&ns;::xml::doc::base::writelock</classname>
+    variables
+    does not create new writer locks, only more references to the same
+    writer lock get created. The writer lock object is a subclass
+    of a reader lock, and implements all <link linkend="xml_readlock">reader
+      lock</link> methods, except for <methodname>clone</methodname>().
+    Only one writer lock can exist at a time, and an attemp to invoke
+    its <methodname>clone</methodname>() method throws an exception.
+  </para>
+
+  <section id="xml_writelock_creator">
+    <title>Creator factories</title>
+
+    <para>
+      Creating new elements in an &xml; document is a two-step process:
+    </para>
+
+    <orderedlist>
+      <listitem>
+	<para>
+	  Invoke either the writer lock's
+	  <methodname>create_child</methodname>(),
+	  <methodname>create_next_sibling</methodname>(), or the
+	  <methodname>create_previous_sibling</methodname>() method.
+	</para>
+      </listitem>
+
+      <listitem>
+	<para>
+	  These methods return a
+	  <ulink url="&link-x--xml--docObj--createnodeObj;"><classname>&ns;::xml::doc::base::createnode</classname></ulink>, or a
+	  <quote>creator factory</quote>,
+	  which is a reference to a
+	  <link linkend="refobj">reference-counted</link>
+	  object with several methods that create a new element, comment,
+	  a processing instruction, or some other
+	  part of an &xml; document.
+	  <methodname>create_child</methodname>()'s methods add the new element
+	  as a child element of the current node.
+	  Invoking
+	  <methodname>create_next_sibling</methodname>()'s or
+	  <methodname>create_previous_sibling</methodname>()'s method adds
+	  the new element as the corresponding sibling element of the
+	  writer lock's current node.
+	</para>
+      </listitem>
+    </orderedlist>
+
+    <para>
+      Before invoking a creator factory's method, the writer lock should be positioned,
+      using the methods that it inherits from the
+      <link linkend="xml_readlock">reader lock</link>, to the appropriate
+      existing element in the &xml; document. Afterwards,
+      invoking one of creator factory's
+      methods creates a new &xml; node, and installs it
+      with respect to the writer lock's current node. As a special case,
+      a new writer lock in a new, empty document, is not positioned on any
+      existing node. If a writer lock is not positioned on any node, its
+      <methodname>create_child</methodname>()'s methods installs the
+      document's root node.
+    </para>
+
+    <para>
+      In all cases, after creating and installing a new &xml; node, the
+      writer lock is repositioned so that its current node is the new &xml;
+      node. Invoking another (or the same) creator factory method creates
+      another new
+      &xml; node. The second new &xml; node gets installed again, by the
+      creator factory, with respect to the first &xml; node. So, for example,
+      using <methodname>create_child</methodname>()'s creator factory installs
+      the first new node as a child node of the original &xml; parent node,
+      and invoking one of creator factory's methods again installs the second
+      new node as a child node of the first new node, since the first new node
+      became the writer lock's current node.
+    </para>
+
+    <note>
+      <para>
+	The creator factory holds a reference on the writer lock, until
+	the last reference to the creator factory goes out of scope, and it
+	gets destroyed.
+      </para>
+
+      <para>
+	The creator factory is not bound to any particular part of the &xml;
+	document, it is bound to a writer lock (on which it holds an internal
+	reference), and the writer lock is positioned on some existing
+	element of the &xml; document. The writer lock uses the same methods
+	as a reader lock (it inherits them), to change its current position.
+	It is not necessary to destroy a creator factory, then recreate it
+	after reposition the writer lock. If it's the same creator factory type
+	(<methodname>create_child</methodname>(),
+	<methodname>create_next_sibling</methodname>(), or
+	<methodname>create_previous_sibling</methodname>()), it's quite
+	usable after repositioning the writer lock, and will continue to
+	perform its duties, with respect to the writer lock's new position.
+      </para>
+    </note>
+
+    <blockquote>
+      <informalexample>
+	<programlisting>
+wlock-&gt;create_child()-&gt;element({"p"})
+     -&gt;create_next_sibling()-&gt;element({"p"})
+     -&gt;parent()-&gt;element({"p"});</programlisting>
+      </informalexample>
+    </blockquote>
+
+    <para>
+      This example calls a writer lock's <methodname>create_child</methodname>()
+      factory. The writer lock is presumed to be already positioned on an
+      existing &xml; element node. The creator factory's
+      <link linkend="xml_writelock_newelement"><methodname>element</methodname></link>()
+      creates a new <quote><literal>&lt;p&gt;</literal></quote> node, and the
+      creator factory installs this as a new child element, then repositions
+      the writer lock to the new element.
+    </para>
+
+    <para>
+      <methodname>element</methodname>() returns a reference to the same
+      creator factory, and at this point, invoking
+      <methodname>element</methodname>() would create a second &xml; element,
+      and install it as <literal>&lt;p&gt;</literal>'s child element, because
+      it's now the writer lock's current element.
+    </para>
+
+    <para>
+      For convenience, each creator factory also implements its origin
+      writer lock's
+      <methodname>create_child</methodname>(),
+      <methodname>create_next_sibling</methodname>(), and
+      <methodname>create_previous_sibling</methodname>() methods,
+      that return the other types of creator factories. This allows a single
+      statement to create new XML nodes in different <quote>directions</quote>.
+      The above example uses switch to the
+      <methodname>create_next_sibling</methodname>() creator factory and
+      installs another
+      <literal>&lt;p&gt;</literal> element as its sibling. The net effect is
+      the creation of
+      two <literal>&lt;p&gt;</literal> elements from the parent node.
+    </para>
+
+    <para>
+      For convenience, each creator factory also implements
+      <methodname>parent</methodname>()
+      by repositioning the writer lock to its current node's parent node.
+      After creating the two new <literal>&lt;p&gt;</literal> child elements of
+      of the parent
+      node, the writer lock is positioned on the second child element.
+      <methodname>parent</methodname>() repositions the writer lock to the
+      original parent node.
+      The creator factory remains unchanged, it's still
+      <methodname>create_next_sibling</methodname>(), and a third call to
+      <methodname>element</methodname>() creates
+      a sibling element of the original parent node.
+    </para>
+  </section>
+
+  <section id="xml_writelock_newelement">
+    <title>Creating new &xml; elements and attributes</title>
+
+    <blockquote>
+      <informalexample>
+	<programlisting>
+auto doc=&ns;::xml::doc::create();
+
+&ns;::xml::doc::base::writelock wlock=doc-&gt;writelock();
+
+wlock-&gt;create_child()-&gt;element({"html"});</programlisting>
+      </informalexample>
+    </blockquote>
+
+    <para>
+      A creator's <methodname>element</methodname>() method creates a new
+      &xml; element node. Its parameter is an instance of a helper class,
+      <ulink url="&link-x--xml--docObj--newElement;"><classname>&ns;::doc::base::newelement</classname></ulink>,
+      which has several different constructors that provide alternate ways
+      of defining the new element, and it's convenient to invoke them using
+      braced initializer lists, as in this example.
+    </para>
+
+    <para>
+      A braced initializer list or a constructor with one string creates
+      a new element in an unnamed namespace. This example creates
+      <quote>&lt;html&gt;</quote>.
+    </para>
+
+    <para>
+      <methodname>element</methodname>(), and all other creator factory
+      elements, return a reference to the same creator class:
+    </para>
+
+    <blockquote>
+      <informalexample>
+	<programlisting>
+wlock-&gt;create_child()-&gt;element({"html"})-&gt;element({"body"});</programlisting>
+      </informalexample>
+    </blockquote>
+
+    <para>
+      The first call to <methodname>element</methodname>() creates an
+      <quote>&lt;html&gt;</quote> &xml; element. The
+      <methodname>create_child</methodname>() creator factory installs the
+      new element as the child element of the writer lock's current node,
+      then repositions the writer lock to the new
+      <quote>&lt;html&gt;</quote> &xml; element. The second call to
+      <methodname>element</methodname>() creates a new
+      <quote>&lt;body&gt;</quote> &xml; element. Because the writer lock
+      is now positioned on the
+      <quote>&lt;html&gt;</quote> &xml; element, the new element becomes its
+      child node.
+    </para>
+
+    <blockquote>
+      <informalexample>
+	<programlisting>
+creator-&gt;element({"prefix:item"});</programlisting>
+      </informalexample>
+    </blockquote>
+
+    <para>
+      This example creates a new <literal>item</literal> element node in the
+      <quote>prefix</quote> namespace, which must be an &xml; namespace that's
+      opened in the new element's parent node, or one of its parents.
+    </para>
+
+    <blockquote>
+      <informalexample>
+	<programlisting>
+creator-&gt;element({"item", "http://www.example.com"});</programlisting>
+      </informalexample>
+    </blockquote>
+
+    <para>
+      The two argument form of the constructor to the
+      <ulink url="&link-x--xml--docObj--newElement;"><classname>&ns;::doc::base::newelement</classname></ulink>
+      helper class,
+      the argument to <methodname>element</methodname>() creates a new element
+      in an &xml; namespace whose <acronym>URI</acronym> is given by the
+      second argument, that's specified either as a literal string or a
+      <link linkend="uri"><classname>&ns;::uriimpl</classname></link>.
+      This namespace must be
+      opened in the new element's parent node, or one of its parents.
+    </para>
+
+    <blockquote>
+      <informalexample>
+	<programlisting>
+creator-&gt;element({"item", "itemlist", "http://www.example.com"});</programlisting>
+      </informalexample>
+    </blockquote>
+
+    <para>
+      The three argument form of the constructor creates a new element
+      in a new namespace that gets opened in the new element itself.
+      The second argument gives the namespace prefix, the third argument
+      gives the new namespace's <acronym>URI</acronym>. The above example
+      creates, basically,
+      <quote><literal>&lt;itemlist:item xmlns:itemlist="http://www.example.com"&gt;</literal></quote>.
+      <methodname>create_namespace</methodname>() adds a namespace to the
+      the writer lock's current element:
+    </para>
+
+    <blockquote>
+      <informalexample>
+	<programlisting>
+creator-&gt;element({"item", "itemlist", "http://www.example.com"})
+       -&gt;create_namespace("packages", "http://www.example.com/packages");</programlisting>
+      </informalexample>
+    </blockquote>
+
+    <para>
+      This example results in a new
+      <quote><literal>&lt;itemlist:item xmlns:itemlist="http://www.example.com" xmlns:packages="http://www.example.com/packages"&gt;</literal></quote>
+      child node.
+      <methodname>create_namespace</methodname>(), for convenience, can be
+      invoked as either a creator or as a writer lock method:
+    </para>
+
+    <blockquote>
+      <informalexample>
+	<programlisting>
+wlock-&gt;create_child()-&gt;element({"item", "itemlist", "http://www.example.com"})
+       -&gt;create_namespace("packages", "http://www.example.com/packages");</programlisting>
+      </informalexample>
+    </blockquote>
+
+    <para>
+      and
+    </para>
+
+    <blockquote>
+      <informalexample>
+	<programlisting>
+wlock-&gt;create_child()-&gt;element({"item", "itemlist", "http://www.example.com"});
+wlock-&gt;create_namespace("packages", "http://www.example.com/packages");</programlisting>
+      </informalexample>
+    </blockquote>
+
+    <para>
+      have the same results.
+      <methodname>create_namespace</methodname>() simply creates and opens a
+      new namespace in the &xml; element the writer lock is currently positioned
+      to, and <methodname>create_child</methodname>() positions the writer lock
+      to the new element.
+    </para>
+
+    <para>
+      Similarly, <methodname>attribute</methodname>() creates a new attribute
+      in the &xml; element the writer lock is currently positioned to:
+    </para>
+
+    <blockquote>
+      <informalexample>
+	<programlisting>
+creator-&gt;attribute({"style", "white-space: nowrap"})
+       -&gt;attribute({"class", "address"});</programlisting>
+      </informalexample>
+    </blockquote>
+
+    <para>
+      The writer lock must be positioned
+      on an element node in the document; <methodname>attribute</methodname>()
+      adds a new attribute to the element.
+    </para>
+
+    <para>
+      The parameter to <methodname>attribute</methodname>() is also an internal
+      helper class,
+      <ulink url="&link-x--xml--docObj--newAttribute;"><classname>&ns;::xml::doc::base::newattribute</classname></ulink>
+      which has several different constructors, and gets typically given
+      literally using a braced initializer list, for convenience.
+      The first example's initializer is a single string, which
+      initializes a new attribute named <quote>style</quote>, in an unnamed
+      namespace
+      with the value of <quote>white-space: nowrap</quote>.
+    </para>
+
+    <blockquote>
+      <informalexample>
+	<programlisting>
+wlock-&gt;attribute({"html:style", "white-space: nowrap"});</programlisting>
+      </informalexample>
+    </blockquote>
+
+    <para>
+      This version of <methodname>attribute</methodname>()'s initializer adds
+      a new attribute in a namespace
+      with the given prefix that must be open in its element, or one
+      of its parent elements.
+    </para>
+
+    <blockquote>
+      <informalexample>
+	<programlisting>
+wlock-&gt;attribute({"style", "http://www.w3.org/1999/xhtml", "white-space: nowrap"});</programlisting>
+      </informalexample>
+    </blockquote>
+
+    <para>
+      This version of attribute()'s initializer adds a new attribute in a
+      namespace
+      with the given <acronym>URI</acronym>, that must be open in its element,
+      or one
+      of its parent elements.
+      The <acronym>URI</acronym> can be given as a literal string,
+      or as an <link linkend="uri"><classname>&ns;::uriimpl</classname></link>.
+    </para>
+
+    <blockquote>
+      <informalexample>
+	<programlisting>
+creator-&gt;element({"html:div"},
+                        {
+	                    {"style", "white-space: nowrap"},
+	                    {"id", "box"}
+	                }
+                   );</programlisting>
+      </informalexample>
+    </blockquote>
+
+    <para>
+      The two parameter version of <methodname>element</methodname>() creates a
+      new element,
+      and all of its
+      attributes, in one go. The first parameter is still the same
+      internal helper class,
+      <classname>&ns;::xml::doc::base::newelement</classname>,
+      that can be given literally as a braced
+      literally using a braced initializer list.
+    </para>
+
+    <para>
+      The second parameter is a <classname>std::vector</classname>
+      that enumerates the
+      new element's attributes, as
+      <classname>&ns;::xml::doc::base::newattribute</classname>
+      helper class instances. This also can be expressed as a braced
+      initializer list. The above example creates an &ns; element node
+      <quote>div</quote>, in the <quote>html</quote> namespace, with two attributes, <quote>style</quote> and
+      <quote>id</quote>.
+    </para>
+
+    <para>
+      The two parameter version of <methodname>element</methodname>() is
+      equivalent to calling
+      the one parameter version, passing it the first parameter, then
+      calling <methodname>attribute</methodname>() repeatedly, passing it each
+      element in the
+      second parameter's vector.
+    </para>
+  </section>
+
+  <section id="xml_writelock_other">
+    <title>Creating other kinds of &xml; nodes, and other writer lock methods</title>
+    <blockquote>
+      <informalexample>
+	<programlisting>
+creator-&gt;comment("For descriptive purposes only");
+creator-&gt;text("overpayment");
+creator-&gt;cdata("&lt;text&gt;");
+creator-&gt;processing_instruction("man2html", "style=visible");</programlisting>
+      </informalexample>
+    </blockquote>
+
+    <para>
+      <methodname>comment</methodname>() creates an &xml; comment.
+      <methodname>text</methodname>() creates a text node, and
+      <methodname>cdata</methodname>() create a <literal>CDATA</literal> text
+      node.
+      <methodname>processing_instruction</methodname>() creates an &xml;
+      processing instruction. Its first parameter is the processor name,
+      the second parameter is the instruction.
+    </para>
+
+    <blockquote>
+      <informalexample>
+	<programlisting>
+creator-&gt;set_base("http://www.example.com");
+creator-&gt;set_lang("EN");
+creator-&gt;set_space_preserve("&lt;text&gt;");</programlisting>
+      </informalexample>
+    </blockquote>
+
+    <para>
+      <methodname>set_base</methodname>() sets the <literal>xml::base</literal>
+      attribute of the writer lock's current node. The <acronym>URI</acronym>
+      may be specified as a literal string or as a
+      <link linkend="uri"><classname>&ns;::uriimpl</classname></link>.
+      <methodname>set_lang</methodname>() sets the <literal>xml::lang</literal>
+      attribute, and
+      <methodname>set_space_preserve</methodname>() sets the
+      <literal>xml::space_preserve</literal> attribute.
+      In all cases the writer lock must be positioned on an existing &xml;
+      element node. These methods can be invoked directly on a writer lock,
+      or as a creator factory's methods, in which case they return a
+      reference to the same creator factory.
+    </para>
+  </section>
+</chapter>
+<!--
+Local Variables:
+mode: sgml
+sgml-parent-document: ("book.xml" "part" "chapter")
+End:
+-->

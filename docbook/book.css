@@ -70,7 +70,7 @@ code.computeroutput div.literallayout {
     font-weight: bold;
 }
 
-.command {
+.command, .acronym {
     font-family: "liberation mono", "courier new", monospace;
 }
 

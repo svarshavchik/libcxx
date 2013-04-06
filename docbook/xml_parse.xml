@@ -1,0 +1,120 @@
+<!--
+
+Copyright 2013 Double Precision, Inc.
+See COPYING for distribution information.
+
+-->
+
+<chapter id="xml_parse">
+  <title>Parsing and creating &xml; documents</title>
+
+  <blockquote>
+    <informalexample>
+      <programlisting>
+#include &lt;&ns;/xml/doc.H&gt;
+
+&ns;::xml::doc empty_document=&ns;::xml::doc::create();
+
+&ns;::xml::doc loaded_document=&ns;::xml::doc::create("testxml.xml", "nonet xinclude");
+</programlisting>
+    </informalexample>
+  </blockquote>
+
+  <para>
+    <ulink url="&link-typedef-x--xml-doc;"><classname>&ns;::xml::doc</classname></ulink>
+    is a reference to a <link linkend="refobj">reference-counted</link>
+    object that represents a parsed &xml; document.
+    <ulink url="&link-typedef-x--xml-docptr;"><classname>&ns;::xml::docptr</classname></ulink>,
+    <ulink url="&link-typedef-x--xml-const-doc;"><classname>&ns;::xml::const_doc</classname></ulink>, and
+    <ulink url="&link-typedef-x--xml-const-docptr;"><classname>&ns;::xml::const_docptr</classname></ulink>
+    follow the usual convention for reference-counted objects for defining
+    nullable reference pointer, and their <literal>const</literal>
+    equivalens.
+  </para>
+
+  <para>
+    Their default <function>create</function>() function constructs a new,
+    empty, &xml; document. Otherwise the first parameter specifies the name
+    of the file whose contents get parsed. An exception gets thrown if
+    an error occured during parsing.
+  </para>
+
+  <para>
+    An optional second parameter to <function>create</function>()
+    gives options for parsing this &xml; document.
+    The second parameter is a string that specifies one or more &xml; parsing
+    options, separated by commas or spaces.
+    The option names correspond directly to
+    <application>libxml</application>'s
+    <ulink url="http://www.xmlsoft.org/html/libxml-parser.html#xmlParserOption"><classname>xmlParserOption</classname></ulink>
+    flags.
+    Each option name consists of the <classname>xmlParserOption</classname>
+    in lower case, and without the <quote>XML_PARSE_</quote> prefix.
+    In the above example, <quote>nonet</quote> and <quote>xinclude</quote>
+    specify the <literal>XML_PARSE_NONET</literal> and
+    <literal>XML_PARSE_XINCLUDE</literal> options.
+  </para>
+
+  <para>
+    It is also possible to parse an &xml; document from an arbitrary source,
+    by using an
+    <ulink url="&link-typedef-x--xml-parser;"><classname>&ns;::xml::parser</classname></ulink>:
+  </para>
+
+  <blockquote>
+    <informalexample>
+      <programlisting>
+#include &lt;&ns;/xml/parser.H&gt;
+#include &lt;&ns;/xml/doc.H&gt;
+
+template&lt;typename iter_type&gt;
+&ns;::xml::doc parse_xml(iter_type beg_iter, iter_type end_iter)
+{
+    &ns;::xml::parser parser=&ns;::xml::parser::create("in-memory-xml");
+
+    parser=std::copy(beg_iter, end_iter, parser);
+
+    return parser.get()-&gt;done();
+}</programlisting>
+    </informalexample>
+  </blockquote>
+
+  <para>
+    <classname>&ns;::xml::parser</classname> is a
+    <link linkend="refiterator">reference-counted output iterator</link>.
+    Construct it with <methodname>create</methodname>() then have it iterate
+    over a <classname>char</classname> sequence that defines an &xml;
+    document. Call <methodname>get</methodname>() to retrieve a reference
+    to the output iterator's underlying reference-counted object, then invoke
+    its <methodname>done</methodname>() to return an
+    <classname>&ns;::xml::doc</classname> that represents the parsed &xml;
+    document.
+  </para>
+
+  <para>
+    <methodname>create</methodname>()'s first required parameter is a short
+    label, some kind of an identifier that refers to the document that gets
+    parsed. This label gets used to refer to the document in any error
+    messages that result from an attempt to parse it.
+  </para>
+
+  <note>
+    <para>
+      A parsing error results in a thrown exception, which occurs
+      during iteration.
+    </para>
+  </note>
+
+  <para>
+    <methodname>create</methodname>() also takes a second optional argument
+    that gives parsing option, the same parsing option argument to
+    <classname>&ns;::xml::doc</classname>'s
+    <methodname>create</methodname>().
+  </para>
+</chapter>
+<!--
+Local Variables:
+mode: sgml
+sgml-parent-document: ("book.xml" "part" "chapter")
+End:
+-->
