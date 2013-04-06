@@ -427,9 +427,9 @@ public:
 
 		virtual std::string get_attribute(//! Attribute's name
 
-						 //! This attribute name is not
-						 //! in any namespace.
-						 const std::string &attribute_name) const=0;
+						  //! This attribute name is not
+						  //! in any namespace.
+						  const std::string &attribute_name) const=0;
 
 		//! Enumerate all attributes of this element node
 
@@ -515,7 +515,7 @@ public:
 		virtual void save_file(save_to_callback &cb,
 				       bool format) const=0;
 
-public:
+	public:
 
 		//! Save the XML document to an output iterator
 
@@ -605,6 +605,30 @@ public:
 
 					   //! Attributes
 					   const std::vector<newAttribute> &a);
+		//! Create a new comment
+
+		ref<createnodeObj>
+		comment(const std::string &comment);
+
+		//! Create a new processing instruction
+		ref<createnodeObj>
+		processing_instruction(const std::string &name,
+				       const std::string &content);
+
+		//! Set the xml:base attribute
+		ref<createnodeObj> set_base(const std::string &uri);
+
+		//! Set the xml:base attribute
+		ref<createnodeObj> set_base(const char *uri);
+
+		//! Set the xml:base attribute
+		ref<createnodeObj> set_base(const uriimpl &uri);
+
+		//! Set the xml:lang attribute
+		ref<createnodeObj> set_lang(const std::string &lang);
+
+		//! Set the xml::space attribute
+		ref<createnodeObj> set_space_preserve(bool flag);
 
 	private:
 		//! Implement attribute().
@@ -634,6 +658,33 @@ public:
 						 const std::string &prefix,
 						 //! New namespace URI
 						 const char *uri)=0;
+
+		//! Implement comment() virtually
+
+		//! \internal
+		virtual void do_comment(const std::string &comment)=0;
+
+		//! Implement processing_instruction() virtually
+
+		//! \internal
+		virtual void
+		do_processing_instruction(const std::string &name,
+					  const std::string &content)=0;
+
+		//! Implement set_base() virtually
+		virtual void do_set_base(const std::string &uri)=0;
+
+		//! Implement set_base() virtually
+		virtual void do_set_base(const char *uri)=0;
+
+		//! Implement set_base() virtually
+		virtual void do_set_base(const uriimpl &uri)=0;
+
+		//! Implement set_lang() virtually
+		virtual void do_set_lang(const std::string &lang)=0;
+
+		//! Implement set_space_preserve() virtually
+		virtual void do_set_space_preserve(bool flag)=0;
 	};
 
 	//! A \ref ref "reference" to this object gets returned by writelock()
@@ -758,6 +809,36 @@ public:
 			do_attribute(attr);
 		}
 
+		//! Set the xml:base attribute
+		void set_base(const std::string &uri)
+		{
+			do_set_base(uri);
+		}
+
+		//! Set the xml:base attribute
+		void set_base(const char *uri)
+		{
+			do_set_base(uri);
+		}
+
+		//! Set the xml:base attribute
+		void set_base(const uriimpl &uri)
+		{
+			do_set_base(uri);
+		}
+
+		//! Set the xml:lang attribute
+		void set_lang(const std::string &lang)
+		{
+			do_set_lang(lang);
+		}
+
+		//! Set the xml::space attribute
+		void set_space_preserve(bool flag)
+		{
+			do_set_space_preserve(flag);
+		}
+
 	private:
 		//! Implement create_namespace().
 		virtual void do_create_namespace(//! New namespace prefix
@@ -786,6 +867,21 @@ public:
 		//! Implement attribute().
 		virtual void do_attribute(//! Attribute
 					  const newAttribute &attr)=0;
+
+		//! Implement set_base().
+		virtual void do_set_base(const std::string &uri)=0;
+
+		//! Implement set_base().
+		virtual void do_set_base(const char *uri)=0;
+
+		//! Implement set_base().
+		virtual void do_set_base(const uriimpl &uri)=0;
+
+		//! Implement set_lang().
+		virtual void do_set_lang(const std::string &lang)=0;
+
+		//! Implement set_space_preserve().
+		virtual void do_set_space_preserve(bool)=0;
 	};
 
 	//! Create a read lock on the document.

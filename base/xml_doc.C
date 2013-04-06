@@ -711,6 +711,31 @@ class LIBCXX_HIDDEN impldocObj::readlockImplObj : public writelockObj {
 	{
 		create_child();
 	}
+
+	void do_set_base(const std::string &uri) override
+	{
+		create_child();
+	}
+
+	void do_set_base(const char *uri) override
+	{
+		create_child();
+	}
+
+	void do_set_base(const uriimpl &uri) override
+	{
+		create_child();
+	}
+
+	void do_set_lang(const std::string &lang) override
+	{
+		create_child();
+	}
+
+	void do_set_space_preserve(bool) override
+	{
+		create_child();
+	}
 };
 
 class LIBCXX_HIDDEN impldocObj::createnodeImplObj : public createnodeObj {
@@ -871,6 +896,23 @@ class LIBCXX_HIDDEN impldocObj::createnodeImplObj : public createnodeObj {
 					(text.c_str())),
 			     "text"));
 		return ref<createnodeObj>(this);
+	}
+
+	void do_comment(const std::string &comment) override
+	{
+		create(guard(xmlNewComment(reinterpret_cast<const xmlChar *>
+					   (comment.c_str())),
+			     "comment"));
+	}
+
+	void do_processing_instruction(const std::string &name,
+				       const std::string &content) override
+	{
+		create(guard(xmlNewPI(reinterpret_cast<const xmlChar *>
+				      (name.c_str()),
+				      reinterpret_cast<const xmlChar *>
+				      (content.c_str())),
+			     "processing_instruction"));
 	}
 };
 
@@ -1194,6 +1236,40 @@ class LIBCXX_HIDDEN impldocObj::writelockImplObj
 		xmlFreeNode(n);
 		n=parent;
 	}
+
+	void do_set_base(const char *uri)
+	{
+		do_set_base(std::string(uri));
+	}
+
+	void do_set_base(const uriimpl &uri)
+	{
+		do_set_base(tostring(uri));
+	}
+
+	void do_set_base(const std::string &uri) override
+	{
+		if (!n || n->type != XML_ELEMENT_NODE)
+			throw EXCEPTION(gettextmsg(libmsg(_txt("Cannot set the base URI"))));
+		xmlNodeSetBase(n,
+			       reinterpret_cast<const xmlChar *>(uri.c_str()));
+	}
+
+	void do_set_lang(const std::string &lang) override
+	{
+		if (!n || n->type != XML_ELEMENT_NODE)
+			throw EXCEPTION(gettextmsg(libmsg(_txt("Cannot set the lang attribute"))));
+		xmlNodeSetLang(n,
+			       reinterpret_cast<const xmlChar *>(lang.c_str()));
+	}
+
+	void do_set_space_preserve(bool flag) override
+	{
+		if (!n || n->type != XML_ELEMENT_NODE)
+			throw EXCEPTION(gettextmsg(libmsg(_txt("Cannot set the space preserve attribute"))));
+
+		xmlNodeSetSpacePreserve(n, flag ? 1:0);
+	}
 };
 
 ref<docObj::readlockObj> impldocObj::readlock()
@@ -1260,6 +1336,54 @@ docObj::createnodeObj::element(const newElement &e,
 	}
 	return ref<createnodeObj>(this);
 }
+
+ref<docObj::createnodeObj>
+docObj::createnodeObj::comment(const std::string &comment)
+{
+	do_comment(comment);
+	return ref<createnodeObj>(this);
+}
+
+ref<docObj::createnodeObj>
+docObj::createnodeObj::processing_instruction(const std::string &name,
+					      const std::string &content)
+{
+	do_processing_instruction(name, content);
+	return ref<createnodeObj>(this);
+}
+
+ref<docObj::createnodeObj>
+docObj::createnodeObj::set_base(const std::string &uri)
+{
+	do_set_base(uri);
+	return ref<createnodeObj>(this);
+}
+
+ref<docObj::createnodeObj> docObj::createnodeObj::set_base(const char *uri)
+{
+	do_set_base(uri);
+	return ref<createnodeObj>(this);
+}
+
+ref<docObj::createnodeObj> docObj::createnodeObj::set_base(const uriimpl &uri)
+{
+	do_set_base(uri);
+	return ref<createnodeObj>(this);
+}
+
+
+ref<docObj::createnodeObj> docObj::createnodeObj::set_lang(const std::string &lang)
+{
+	do_set_lang(lang);
+	return ref<createnodeObj>(this);
+}
+
+ref<docObj::createnodeObj> docObj::createnodeObj::set_space_preserve(bool flag)
+{
+	do_set_space_preserve(flag);
+	return ref<createnodeObj>(this);
+}
+
 #if 0
 {
 	{

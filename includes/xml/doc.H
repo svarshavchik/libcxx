@@ -518,6 +518,36 @@ public:
 	//! node. If the removed node is the document root node, this becomes
 	//! an empty document, and the writer lock is no longer positioned on
 	//! any element.
+	//!
+	//! \code
+	//! wlock->set_base("http://www.example.com");
+	//! wlock->set_lang("EN");
+	//! wlock->set_space_preserve(true);
+	//! \endcode
+	//!
+	//! These function set the \c xml:base, \c xml:lang, and
+	//! \c xml:space_preserve attributes of the current element node that
+	//! the writer lock is positioned to. An exception gets thrown if the
+	//! writer lock is not position on an element node.
+	//!
+	//! \code
+	//! creator->comment("Optional element");
+	//!
+	//! creator->processing_instruction("man2html", "style=visible");
+	//! \endcode
+	//!
+	//! comment() and processing_instruction() adds a new XML comment
+	//! or a processing instruction.
+	//!
+	//! A reader or a writer lock that's positioned on a comment node
+	//! results in type() returning "comment_node" and get_text() returning
+	//! the contents of the comment.
+	//!
+	//! A reader or a writer lock that's positioned on a processing
+	//! instruction node
+	//! results in type() returning "pi_node", name() returning the
+	//! processing instruction name, and get_text() returning
+	//! the contents of the processing instruction.
 
 	typedef ref<docObj::writelockObj> writelock;
 

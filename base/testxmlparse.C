@@ -12,6 +12,7 @@
 #include <algorithm>
 #include <iostream>
 #include <fstream>
+#include <iterator>
 #include <unistd.h>
 	
 static LIBCXX_NAMESPACE::xml::doc parse(const std::string &str)
@@ -476,6 +477,85 @@ void test8()
 	lock->remove();
 }
 
+void test9()
+{
+	auto empty_document=LIBCXX_NAMESPACE::xml::doc::create();
+
+	auto lock=empty_document->writelock();
+
+	lock->create_child()->element({"root"});
+
+	lock->set_base("http://www.example.com");
+	lock->set_lang("EN");
+	lock->set_space_preserve(true);
+
+	lock->create_child()->comment("A comment");
+	lock->create_next_sibling()->processing_instruction("html","visible");
+
+	lock->get_root();
+
+	if (lock->get_base() != "http://www.example.com")
+		throw EXCEPTION("get_base() in test9 did not work");
+
+	if (lock->get_lang() != "EN")
+		throw EXCEPTION("get_lang() in test9 did not work");
+
+	if (lock->get_space_preserve() <= 0)
+		throw EXCEPTION("get_space_preserve() in test9 did not work");
+
+	lock->get_first_child();
+
+	if (lock->type() != "comment_node" ||
+	    lock->get_text() != "A comment")
+		throw EXCEPTION("test9 failed to verify the comment node");
+
+	lock->get_next_sibling();
+
+	if (lock->type() != "pi_node" ||
+	    lock->name() != "html" ||
+	    lock->get_text() != "visible")
+		throw EXCEPTION("test9 failed to verify the processing instruction node");
+}
+
+void test10()
+{
+	auto empty_document=LIBCXX_NAMESPACE::xml::doc::create();
+
+	auto lock=empty_document->writelock();
+
+	lock->create_child()
+		->element({"root"})
+		->set_base(LIBCXX_NAMESPACE::uriimpl("http://www.example.com"))
+		->set_lang("EN")
+		->set_space_preserve(true)
+		->comment("A comment");
+	lock->create_next_sibling()->processing_instruction("html","visible");
+
+	lock->get_root();
+
+	if (lock->get_base() != "http://www.example.com")
+		throw EXCEPTION("get_base() in test10 did not work");
+
+	if (lock->get_lang() != "EN")
+		throw EXCEPTION("get_lang() in test10 did not work");
+
+	if (lock->get_space_preserve() <= 0)
+		throw EXCEPTION("get_space_preserve() in test10 did not work");
+
+	lock->get_first_child();
+
+	if (lock->type() != "comment_node" ||
+	    lock->get_text() != "A comment")
+		throw EXCEPTION("test10 failed to verify the comment node");
+
+	lock->get_next_sibling();
+
+	if (lock->type() != "pi_node" ||
+	    lock->name() != "html" ||
+	    lock->get_text() != "visible")
+		throw EXCEPTION("test10 failed to verify the processing instruction node");
+}
+
 int main(int argc, char **argv)
 {
 	try {
@@ -488,6 +568,8 @@ int main(int argc, char **argv)
 		test6();
 		test7();
 		test8();
+		test9();
+		test10();
 	} catch (LIBCXX_NAMESPACE::exception &e)
 	{
 		std::cerr << e << std::endl;
