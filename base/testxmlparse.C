@@ -87,6 +87,9 @@ void test2()
 	if (lock->name() != "root" || lock->prefix() != "" || lock->uri() != "")
 		throw EXCEPTION("Root node is not <root>");
 
+	if (lock->get_child_element_count() != 2)
+		throw EXCEPTION("Root node does not have two children");
+
 	std::set<LIBCXX_NAMESPACE::xml::doc::base::attribute> attributes;
 
 	lock->get_all_attributes(attributes);
@@ -445,6 +448,34 @@ void test7()
 	}
 }
 
+void test8()
+{
+	auto document=({
+			std::string dummy=
+				"<root attribute='value' xmlns:x='http://www.example.com'>"
+				"<child xml:lang='GB' xml:space='preserve'>Text<i>element</i></child>"
+				"<child2>Text2<i x:attribute='value'>element2<empty> </empty></i></child2>"
+				"</root>";
+
+			LIBCXX_NAMESPACE::xml::doc::create(dummy.begin(),
+							   dummy.end(),
+							   "string");
+		});
+
+	auto lock=document->writelock();
+
+	lock->get_root();
+	lock->get_first_child();
+
+	if (lock->path() != "/root/child")
+		throw EXCEPTION("Where are we in test8?");
+
+	lock->remove();
+	if (lock->path() != "/root")
+		throw EXCEPTION("remove() did not reposition writer lock");
+	lock->remove();
+}
+
 int main(int argc, char **argv)
 {
 	try {
@@ -456,6 +487,7 @@ int main(int argc, char **argv)
 		test5();
 		test6();
 		test7();
+		test8();
 	} catch (LIBCXX_NAMESPACE::exception &e)
 	{
 		std::cerr << e << std::endl;

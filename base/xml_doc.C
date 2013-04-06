@@ -432,6 +432,11 @@ class LIBCXX_HIDDEN impldocObj::readlockImplObj : public writelockObj {
 		return false;
 	}
 
+	size_t get_child_element_count() const override
+	{
+		return n ? xmlChildElementCount(n):0;
+	}
+
 	std::string type() const override
 	{
 		std::string type_str;
@@ -667,6 +672,11 @@ class LIBCXX_HIDDEN impldocObj::readlockImplObj : public writelockObj {
 	ref<createnodeObj> create_child() override
 	{
 		throw EXCEPTION(libmsg(_txt("Somehow you ended up calling a virtual write method on a read object. Virtual objects are not for playing.")));
+	}
+
+	void remove() override
+	{
+		create_child();
 	}
 
 	ref<createnodeObj> create_next_sibling() override
@@ -1172,6 +1182,17 @@ class LIBCXX_HIDDEN impldocObj::writelockImplObj
 
 		throw EXCEPTION(gettextmsg(libmsg(_txt("Cannot set attribute %1%")),
 					   attrname));
+	}
+
+	void remove() override
+	{
+		if (!n)
+			return;
+
+		auto parent=n->parent;
+		xmlUnlinkNode(n);
+		xmlFreeNode(n);
+		n=parent;
 	}
 };
 

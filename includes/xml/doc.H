@@ -114,6 +114,8 @@ public:
 	//! flag=rlock->get_next_element_sibling();
 	//!
 	//! flag=rlock->get_previous_element_sibling();
+	//!
+	//! size_t n=rlock->get_child_element_count();
 	//! \endcode
 	//!
 	//! A reader lock is associated with a single node in the XML document.
@@ -129,7 +131,8 @@ public:
 	//! get_next_element_sibling() and get_previous_element_sibling()
 	//! are similar, except that they reposition the reader lock to
 	//! the corresponding XML element node only, skipping over any text
-	//! nodes, or other nodes.
+	//! nodes, or other nodes. get_child_element_count() return the count
+	//! of child elements.
 	//!
 	//! get_parent() positions the reader lock to the parent node.
 	//!
@@ -505,6 +508,16 @@ public:
 	//! the one parameter version, passing it the first parameter, then
 	//! calling attribute() repeatedly, passing it each element in the
 	//! second parameter's vector.
+	//!
+	//! \code
+	//! wlock->remove();
+	//! \endcode
+	//!
+	//! remove() removes the current node that the writer lock is positioned
+	//! on. The wrier lock gets repositioned to the removed node's parent
+	//! node. If the removed node is the document root node, this becomes
+	//! an empty document, and the writer lock is no longer positioned on
+	//! any element.
 
 	typedef ref<docObj::writelockObj> writelock;
 

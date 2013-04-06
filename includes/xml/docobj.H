@@ -361,6 +361,10 @@ public:
 
 		virtual std::string path() const=0;
 
+		//! Return the number of children elements
+
+		virtual size_t get_child_element_count() const=0;
+
 		//! Return the value of an attribute of the current element node.
 
 		//! Returns the value of a attribute in a specific namespace.
@@ -664,6 +668,18 @@ public:
 		//! out of scope, and gets destroyed.
 
 		virtual ref<createnodeObj> create_child()=0;
+
+		//! Remove element
+
+		//! Remove the current element node that the writer lock
+		//! is positioned on. The writer lock gets repositioned
+		//! to the element's parent node. If the current node is the
+		//! the document root node, the writer lock is no longer
+		//! positioned on any node.
+		//!
+		//! No effect if the writer lock is not currently positioned
+		//! on any node.
+		virtual void remove()=0;
 
 		//! Create a new next sibling element
 
