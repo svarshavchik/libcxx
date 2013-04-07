@@ -528,10 +528,10 @@ void test10()
 		->set_base(LIBCXX_NAMESPACE::uriimpl("http://www.example.com"))
 		->set_lang("EN")
 		->set_space_preserve(true)
-		->comment("A comment");
-	lock->create_next_sibling()->processing_instruction("html","visible");
-
-	lock->get_root();
+		->comment("A comment")
+		->create_next_sibling()
+		->processing_instruction("html","visible")
+		->parent();
 
 	if (lock->get_base() != "http://www.example.com")
 		throw EXCEPTION("get_base() in test10 did not work");

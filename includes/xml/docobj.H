@@ -630,6 +630,18 @@ public:
 		//! Set the xml::space attribute
 		ref<createnodeObj> set_space_preserve(bool flag);
 
+		//! Switch to a different creator
+		virtual ref<createnodeObj> create_child()=0;
+
+		//! Switch to a different creator
+		virtual ref<createnodeObj> create_next_sibling()=0;
+
+		//! Switch to a different creator
+		virtual ref<createnodeObj> create_previous_sibling()=0;
+
+		//! Move the writer lock to the parent node.
+		ref<createnodeObj> parent();
+
 	private:
 		//! Implement attribute().
 
@@ -685,6 +697,9 @@ public:
 
 		//! Implement set_space_preserve() virtually
 		virtual void do_set_space_preserve(bool flag)=0;
+
+		//! Implement parent()
+		virtual void do_parent()=0;
 	};
 
 	//! A \ref ref "reference" to this object gets returned by writelock()

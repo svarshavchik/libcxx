@@ -548,6 +548,32 @@ public:
 	//! results in type() returning "pi_node", name() returning the
 	//! processing instruction name, and get_text() returning
 	//! the contents of the processing instruction.
+	//!
+	//! \code
+	//! wlock->create_child()->element({"p"})
+	//!      ->create_next_sibling()->element({"p"})
+	//!      ->parent()->element({"p"});
+	//! \endcode
+	//!
+	//! For convenience, each creator factory also implements its origin
+	//! writer lock's create_child(), create_next_sibling() and
+	//! create_previous_sibling() methods, that return the other types
+	//! of creator factories. This allows a single statement to create
+	//! new XML nodes in different "directions". The above example uses
+	//! the create_child() factory to install a new \c <p> child element
+	//! of the parent node, then switch to the
+	//! create_next_sibling() creator factory and installs another
+	//! \c <p> element as its sibling. The net effect is the creation of
+	//! two \c <p> elements from the parent node.
+	//!
+	//! For convenience, each creator factory also implements parent()
+	//! by repositioning the writer lock to its current node's parent node.
+	//! After creating the two new \c <p> child elements of of the parent
+	//! node, the writer lock is positioned on the second child element.
+	//! parent() repositions the writer lock to the original parent node.
+	//! The creator factory remains unchanged, it's still
+	//! create_next_sibling(), and a third call to element() creates
+	//! a sibling element of the original parent node.
 
 	typedef ref<docObj::writelockObj> writelock;
 

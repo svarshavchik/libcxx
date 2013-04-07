@@ -1270,6 +1270,12 @@ class LIBCXX_HIDDEN impldocObj::writelockImplObj
 
 		xmlNodeSetSpacePreserve(n, flag ? 1:0);
 	}
+
+	void do_parent() override
+	{
+		if (!get_parent())
+			throw EXCEPTION(gettextmsg(libmsg(_txt("parent() called on the document's root node"))));
+	}
 };
 
 ref<docObj::readlockObj> impldocObj::readlock()
@@ -1384,6 +1390,11 @@ ref<docObj::createnodeObj> docObj::createnodeObj::set_space_preserve(bool flag)
 	return ref<createnodeObj>(this);
 }
 
+ref<docObj::createnodeObj> docObj::createnodeObj::parent()
+{
+	do_parent();
+	return ref<createnodeObj>(this);
+}
 #if 0
 {
 	{
