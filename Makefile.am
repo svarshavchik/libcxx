@@ -1,5 +1,5 @@
 #
-# Copyright 2012 Double Precision, Inc.
+# Copyright 2012-2013 Double Precision, Inc.
 # See COPYING for distribution information.
 #
 
@@ -20,7 +20,13 @@ EXTRA_DIST=config.rpath DoxygenLayout.xml $(man_MANS) \
 	   $(wildcard $(srcdir)/examples/*/configure.ac) \
 	   $(wildcard $(srcdir)/examples/*/Makefile.am) \
 	   $(wildcard $(srcdir)/examples/*/*.C) \
-        )
+        ) \
+	packaging/freebsd9/devel/libcxx/Makefile \
+	packaging/freebsd9/devel/libcxx/pkg-deinstall \
+	packaging/freebsd9/devel/libcxx/pkg-descr \
+	packaging/freebsd9/devel/libcxx/pkg-install \
+	packaging/freebsd9/devel/libcxx/pkg-message \
+	packaging/freebsd9/devel/libcxx/pkg-plist
 
 DOCS_SRC = $(shell find includes -name '*.H' -print)
 
