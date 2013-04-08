@@ -488,6 +488,25 @@ creator-&gt;set_space_preserve("&lt;text&gt;");</programlisting>
       reference to the same creator factory.
     </para>
   </section>
+
+  <section id="xml_writelock_remove">
+    <title>Removing XML document nodes</title>
+
+    <blockquote>
+      <informalexample>
+	<programlisting>
+wlock->remove();</programlisting>
+      </informalexample>
+    </blockquote>
+
+    <para>
+      <methodname>remove</methodname>() removes the &xml; document node that
+      the writer lock is positioned to, and repositions the writer lock to
+      its parent node. If the writer lock is positioned on the document's root
+      node, the document becomes empty, and the writer lock has no &xml;
+      document node position.
+    </para>
+  </section>
 </chapter>
 <!--
 Local Variables:

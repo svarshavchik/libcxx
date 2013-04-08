@@ -1,0 +1,152 @@
+<!--
+
+Copyright 2013 Double Precision, Inc.
+See COPYING for distribution information.
+
+-->
+
+<chapter id="xml_dtd">
+  <title>&xml; document type definitions</title>
+
+  <blockquote>
+    <informalexample>
+      <programlisting>
+#include &lt;&ns;/xml/doc.H&gt;
+#include &lt;&ns;/xml/newdtd.H&gt;
+
+auto empty_document=&ns;::xml::doc::create();
+lock-&gt;create_child()-&gt;element({"html"})
+    -&gt;element({"body"})
+    -&gt;element({"p"})
+    -&gt;text("Hello world");
+lock-&gt;create_internal_dtd("-//W3C//DTD XHTML 1.0 Strict//EN",
+                          "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd");
+lock-&gt;save_file("filename.html", true);</programlisting>
+    </informalexample>
+  </blockquote>
+
+  <para>
+    This example creates the following file:
+  </para>
+
+  <computeroutput>
+    <literallayout><![CDATA[
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <body>
+    <p>Hello world</p>
+  </body>
+</html>]]></literallayout>
+  </computeroutput>
+
+  <para>
+    A writer lock's
+    <methodname>create_internal_dtd</methodname>() method adds a
+    <literal>DOCTYPE</literal>
+    declaration to the &xml; document. The &xml; document cannot be empty.
+    <methodname>create_internal_dtd</methodname>() returns a
+    <ulink url="&link-typedef-x--xml-newdtd;"><classname>&ns;::xml::newdtd</classname></ulink>,
+    which is a reference to a <link linkend="refobj">reference-counted</link>
+    object with methods that further modify the document type
+    declaration.
+  </para>
+
+  <para>
+    A reader lock's
+    <methodname>get_internal_dtd</methodname>() returns a
+    <ulink url="&link-typedef-x--xml-newdtd;"><classname>&ns;::xml::dtd</classname></ulink>
+    that represents the existing document's <literal>DOCTYPE</literal>
+    declaration.
+    A writer lock also implements
+    <methodname>get_internal_dtd</methodname>(), but the writer lock's
+    version returns
+    a <classname>&ns;::xml::newdtd</classname>.
+    <classname>&ns;::xml::newdtd</classname>'s object is a subclass of
+    <classname>&ns;::xml::dtd</classname>'s object and inherits all of
+    <classname>&ns;::xml::dtd</classname>'s object's methods that provide
+    access to the <literal>DOCTYPE</literal>'s definition:
+  </para>
+
+  <blockquote>
+    <informalexample>
+      <programlisting>
+auto dtd=rlock-&gt;get_internal_dtd();
+
+if (dtd-&gt;exists())
+{
+    std::cout &lt;&lt; "Name: " &lt;&lt; dtd-&gt;name() &lt;&lt; std::endl
+              &lt;&lt; dtd-&gt;external_id() &lt;&lt; std::endl
+              &lt;&lt; dtd-&gt;system_id() &lt;&lt; std::endl;
+}</programlisting>
+    </informalexample>
+  </blockquote>
+
+  <para>
+    <methodname>get_internal_dtd</methodname>() returns a
+    <classname>&ns;::xml::dtd</classname> or a
+    <classname>&ns;::xml::newdtd</classname> even when the &xml;
+    document does not have a <literal>DOCTYPE</literal>.
+    Its <methodname>exists</methodname>() returns a <classname>bool</classname>
+    indication whether the <literal>DOCTYPE</literal> exists. If so,
+    <methodname>name</methodname>(),
+    <methodname>external_id</methodname>(), and
+    <methodname>system_id</methodname>() indicate the
+    <literal>DOCTYPE</literal>'s name, public/external identifier, and the
+    system identifier.
+  </para>
+
+  <note>
+    <para>
+      <classname>&ns;::xml::dtd</classname> and
+      <classname>&ns;::xml::newdtd</classname> are
+      references to a <link linkend="refobj">reference-counted</link> objects
+      that get created by a reader or a writer lock. They each hold an
+      internal reference on the lock that created them, until all
+      references to
+      <classname>&ns;::xml::dtd</classname>'s or
+      <classname>&ns;::xml::newdtd</classname>'s object go out of scope and
+      it gets destroyed.
+    </para>
+
+    <para>
+      Generally, they follow the same thread-safe semantics as their
+      corresponding locks. Different threads can retrieve and use their own
+      respective
+      <classname>&ns;::xml::dtd</classname>, but only one thread can use
+      a given <classname>&ns;::xml::dtd</classname> at the same time.
+      Only one writer lock can exist at the same time, so there's only
+      one <classname>&ns;::xml::newdtd</classname> in existence, and only
+      one thread can access the <classname>&ns;::xml::newdtd</classname>.
+      At this time, it's possible to call
+      <methodname>get_internal_dtd</methodname>() a second time which
+      technically returns
+      a different <classname>&ns;::xml::newdtd</classname>; however for all
+      practical purposes it's the same underlying object, and only one thread
+      can use a <classname>&ns;::xml::newdtd</classname>, at a time.
+    </para>
+  </note>
+
+  <para>
+    There are also analogous
+    <methodname>create_external_dtd</methodname>() and
+    <methodname>get_external_dtd</methodname>() methods, for external
+    <literal>DOCTYPE</literal> subsets, but they're not commonly used;
+    their only purpose is to expose the underlying
+    <application>libxml</application> object, that's mainly used in
+    <acronym>DTD</acronym> validation.
+  </para>
+
+  <para>
+    A writer lock also implements a
+    <methodname>remove_internal_dtd</methodname>() (and
+    <methodname>remove_external_dtd</methodname>()),
+    which removes an &xml; document's <literal>DOCTYPE</literal>.
+  </para>
+</chapter>
+<!--
+Local Variables:
+mode: sgml
+sgml-parent-document: ("book.xml" "part" "chapter")
+End:
+-->

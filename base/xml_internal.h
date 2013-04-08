@@ -4,6 +4,8 @@
 #include <libxml/parser.h>
 #include "x/xml/doc.H"
 #include "x/xml/parser.H"
+#include "x/xml/dtd.H"
+#include "x/xml/newdtd.H"
 #include "x/logger.H"
 #include "x/rwlock.H"
 
@@ -113,6 +115,64 @@ class LIBCXX_HIDDEN implparserObj : public parserObj {
 	~implparserObj() noexcept;
 	doc done() override;
 	void operator=(char c) override;
+};
+
+// Implement read-only DTD methods.
+// This subclasses newdtdObj, which subclasses dtdObj, in order to implement
+// readonly methods for both classes. Methods inherited from newdtdObj
+// throw an exception.
+
+class LIBCXX_HIDDEN dtdimplObj : public newdtdObj {
+
+ public:
+
+	struct LIBCXX_HIDDEN subset_impl_t {
+
+		// Whether all methods apply to the external or the internal subset
+		xmlDtdPtr (dtdimplObj::*get_dtd)();
+	};
+
+	const subset_impl_t &subset_impl;
+
+	static const subset_impl_t impl_external, impl_internal;
+
+	// The document
+	ref<impldocObj> impl;
+
+	// This DTD's methods apply to the external subset.
+	xmlDtdPtr get_external_dtd();
+
+	// This DTD's methods apply to the internal subset.
+	xmlDtdPtr get_internal_dtd();
+
+	// This DTD better exist.
+	xmlDtdPtr get_dtd_not_null();
+
+	doc::base::readlock lock;
+
+	dtdimplObj(const subset_impl_t &subset_implArg,
+		   const ref<impldocObj> &implArg,
+		   const doc::base::readlock lockArg);
+	~dtdimplObj() noexcept;
+
+	bool exists() override;
+
+	std::string name() override;
+
+	std::string external_id() override;
+
+	std::string system_id() override;
+};
+
+class LIBCXX_HIDDEN newdtdimplObj : public dtdimplObj {
+ public:
+
+	doc::base::writelock lock;
+
+	newdtdimplObj(const subset_impl_t &subset_implArg,
+		      const ref<impldocObj> &implArg,
+		      const doc::base::writelock &lockArg);
+	~newdtdimplObj() noexcept;
 };
 
 void throw_last_error(const char *context)

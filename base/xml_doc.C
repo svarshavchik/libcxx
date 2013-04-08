@@ -217,6 +217,30 @@ docObj::writelockObj::~writelockObj() noexcept
 {
 }
 
+newdtd docObj::writelockObj::create_external_dtd(const std::string &external_id,
+						 const char *system_id)
+{
+	return create_external_dtd(external_id, std::string(system_id));
+}
+
+newdtd docObj::writelockObj::create_external_dtd(const std::string &external_id,
+						 const uriimpl &system_id)
+{
+	return create_external_dtd(external_id, tostring(system_id));
+}
+
+newdtd docObj::writelockObj::create_internal_dtd(const std::string &external_id,
+						 const char *system_id)
+{
+	return create_internal_dtd(external_id, std::string(system_id));
+}
+
+newdtd docObj::writelockObj::create_internal_dtd(const std::string &external_id,
+						 const uriimpl &system_id)
+{
+	return create_internal_dtd(external_id, tostring(system_id));
+}
+
 // Context pointer that's passed through via the libxml callback when
 // saving an XML document.
 
@@ -318,7 +342,7 @@ class LIBCXX_HIDDEN impldocObj::readlockImplObj : public writelockObj {
 
 	bool get_parent() override
 	{
-		if (n && n->parent)
+		if (n && n->parent && n->parent->type != XML_DOCUMENT_NODE)
 		{
 			n=n->parent;
 			return true;
@@ -736,6 +760,62 @@ class LIBCXX_HIDDEN impldocObj::readlockImplObj : public writelockObj {
 	{
 		create_child();
 	}
+
+	dtd do_get_external_dtd_dtd() const override
+	{
+		return ref<dtdimplObj>::create(dtdimplObj::impl_external,
+					       impl,
+					       doc::base::
+					       readlock(const_cast<
+							readlockImplObj *>
+							(this)));
+	}
+
+	dtd do_get_internal_dtd_dtd() const override
+	{
+		return ref<dtdimplObj>::create(dtdimplObj::impl_internal,
+					       impl,
+					       doc::base::
+					       readlock(const_cast<
+							readlockImplObj *>
+							(this)));
+	}
+
+	newdtd do_get_external_dtd_newdtd() override
+	{
+		create_child();
+		return newdtdptr();
+	}
+
+	newdtd do_get_internal_dtd_newdtd() override
+	{
+		create_child();
+		return newdtdptr();
+	}
+
+	newdtd create_external_dtd(const std::string &external_id,
+				      const std::string &system_id) override
+	{
+		create_child();
+		return newdtdptr();
+	}
+
+	newdtd create_internal_dtd(const std::string &external_id,
+				      const std::string &system_id) override
+	{
+		create_child();
+		return newdtdptr();
+	}
+
+	void remove_external_dtd() override
+	{
+		create_child();
+	}
+
+	void remove_internal_dtd() override
+	{
+		create_child();
+	}
 };
 
 class LIBCXX_HIDDEN impldocObj::createnodeImplObj : public createnodeObj {
@@ -940,6 +1020,9 @@ class LIBCXX_HIDDEN impldocObj::createchildObj : public createnodeImplObj {
 
 			if (n.n->type != XML_ELEMENT_NODE)
 				throw EXCEPTION(libmsg(_txt("Internal error: setting the document root to a non-element node")));
+
+			if (xmlDocGetRootElement(lock.impl->p))
+				throw EXCEPTION(libmsg(_txt("Write lock is not positioned on an existing node")));
 
 			auto p=xmlDocSetRootElement(lock.impl->p, n.n);
 			n.n=nullptr;
@@ -1232,6 +1315,25 @@ class LIBCXX_HIDDEN impldocObj::writelockImplObj
 			return;
 
 		auto parent=n->parent;
+		if (!parent || parent->type == XML_DOCUMENT_NODE)
+		{
+			// Root node. Free DTDs, etc...
+
+			auto p=impl->p->extSubset;
+
+			if (p)
+			{
+				xmlUnlinkNode(reinterpret_cast<xmlNodePtr>(p));
+				xmlFreeDtd(p);
+			}
+
+			if ((p=xmlGetIntSubset(impl->p)) != nullptr)
+			{
+				xmlUnlinkNode(reinterpret_cast<xmlNodePtr>(p));
+				xmlFreeDtd(p);
+			}
+		}
+
 		xmlUnlinkNode(n);
 		xmlFreeNode(n);
 		n=parent;
@@ -1276,6 +1378,114 @@ class LIBCXX_HIDDEN impldocObj::writelockImplObj
 		if (!get_parent())
 			throw EXCEPTION(gettextmsg(libmsg(_txt("parent() called on the document's root node"))));
 	}
+
+	newdtd do_get_external_dtd_newdtd() override
+	{
+		return ref<newdtdimplObj>::create(dtdimplObj::impl_external,
+						  impl,
+						  doc::base::writelock(this));
+	}
+
+	newdtd do_get_internal_dtd_newdtd() override
+	{
+		return ref<newdtdimplObj>::create(dtdimplObj::impl_internal,
+						  impl,
+						  doc::base::writelock(this));
+	}
+
+	newdtd create_external_dtd(const std::string &external_id,
+				      const std::string &system_id)
+	{
+		auto root=xmlDocGetRootElement(impl->p);
+
+		if (!root)
+			throw EXCEPTION(libmsg(_txt("Cannot install an external subset for an empty document")));
+
+		xmlDtdPtr ptr;
+
+		{
+			error_handler::error trap_errors;
+			const xmlChar *external_id_str=
+				reinterpret_cast<const xmlChar *>
+				(external_id.c_str()),
+				*system_id_str=
+				reinterpret_cast<const xmlChar *>
+				(system_id.c_str());
+
+			ptr=xmlNewDtd(impl->p,
+				      root->name,
+				      *external_id_str ?
+				      external_id_str:nullptr,
+				      system_id_str ? system_id_str:nullptr);
+
+			trap_errors.check();
+		}
+		if (!ptr)
+			throw EXCEPTION(libmsg(_txt("Cannot create external subset")));
+
+		return ref<newdtdimplObj>::create(dtdimplObj::impl_external,
+						  impl,
+						  doc::base::writelock(this));
+	}
+
+	newdtd create_internal_dtd(const std::string &external_id,
+				   const std::string &system_id)
+	{
+		auto root=xmlDocGetRootElement(impl->p);
+
+		if (!root)
+			throw EXCEPTION(libmsg(_txt("Cannot install an external subset for an empty document")));
+
+		xmlDtdPtr ptr;
+
+		{
+			error_handler::error trap_errors;
+			const xmlChar *external_id_str=
+				reinterpret_cast<const xmlChar *>
+				(external_id.c_str()),
+				*system_id_str=
+				reinterpret_cast<const xmlChar *>
+				(system_id.c_str());
+
+			ptr=xmlCreateIntSubset(impl->p,
+					       root->name,
+					       *external_id_str ?
+					       external_id_str:nullptr,
+					       system_id_str ? system_id_str
+					       :nullptr);
+
+			trap_errors.check();
+		}
+		if (!ptr)
+			throw EXCEPTION(libmsg(_txt("Cannot create internal subset")));
+
+		return ref<newdtdimplObj>::create(dtdimplObj::impl_internal,
+						  impl,
+						  doc::base::writelock(this));
+	}
+
+	void remove_external_dtd() override
+	{
+		auto p=impl->p->extSubset;
+
+		if (p)
+		{
+			xmlUnlinkNode(reinterpret_cast<xmlNodePtr>(p));
+			xmlFreeDtd(p);
+		}
+	}
+
+	void remove_internal_dtd() override
+	{
+		auto p=xmlGetIntSubset(impl->p);
+
+		if (p)
+		{
+			xmlUnlinkNode(reinterpret_cast<xmlNodePtr>(p));
+			xmlFreeDtd(p);
+		}
+	}
+
 };
 
 ref<docObj::readlockObj> impldocObj::readlock()

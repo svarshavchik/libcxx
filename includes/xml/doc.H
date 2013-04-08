@@ -273,6 +273,19 @@ public:
 	//! \note
 	//! save_file() writes the XML document into "filename.tmp", and
 	//! renames it to the given "filename".
+	//!
+	//! \code
+	//! INSERT_LIBX_NAMESPACE::xml::dtd dtd=rlock->get_internal_dtd();
+	//! \endcode
+	//!
+	//! get_internal_dtd() returns the XML document's \c DOCTYPE declaration
+	//! object. An object gets returned even if the XML document does not
+	//! have a \c DOCTYPE declaration, in which case its exists() method
+	//! returns \c false.
+	//! There's also a
+	//! get_external_dtd(), which retuns the XML document's "external"
+	//! declaration. This is not normally used; its primary purpose is to
+	//! validate an XML document's DTD.
 
 	typedef ref<docObj::readlockObj> readlock;
 
@@ -574,6 +587,42 @@ public:
 	//! The creator factory remains unchanged, it's still
 	//! create_next_sibling(), and a third call to element() creates
 	//! a sibling element of the original parent node.
+	//!
+	//! \code
+	//! INSERT_LIBX_NAMESPACE::xml::newdtd dtd=
+	//!    wlock->create_internal_dtd("-//W3C//DTD XHTML 1.0 Strict//EN",
+	//!        "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd");
+	//! \endcode
+	//!
+	//! create_internal_dtd() declaration an XML document's \c DOCTYPE
+	//! definition. The XML document must be non empty, and the DOCTYPE's
+	//! name gets automatically set to the XML document's root element.
+	//!
+	//! There's also a create_external_dtd(), which is rarely used; mostly
+	//! when validating a documents DTD.
+	//!
+	//! \code
+	//! INSERT_LIBX_NAMESPACE::xml::newdtd dtd=wlock->get_internal_dtd();
+	//! \endcode
+	//!
+	//! The writer lock implements get_internal_dtd() like a reader clock,
+	//! except that the writer lock returns a
+	//! \ref newdtd "INSERT_LIBX_NAMESPACE::xml::newdtd". Its referenced
+	//! object is a subclass of the object referenced by
+	//! \ref dtd "INSERT_LIBX_NAMESPACE::xml::dtd", and implements all of
+	//! its methods; \ref newdtd "INSERT_LIBX_NAMESPACE::xml::newdtd"'s
+	//! additional methods modify the XML document's DOCTYPE declaration.
+	//! The lesser used get_external_dtd() also returns a
+	//! \ref newdtd "INSERT_LIBX_NAMESPACE::xml::newdtd" for the external
+	//! subset.
+	//!
+	//! \code
+	//! wlock->remove_internal_dtd();
+	//! \endcode
+	//!
+	//! remove_internal_dtd() (and remove_external_dtd()) removes any
+	//! existing \c DOCTYPE. create_internal_dtd() throws an exception
+	//! if the XML document already has a declared \c DOCTYPE.
 
 	typedef ref<docObj::writelockObj> writelock;
 

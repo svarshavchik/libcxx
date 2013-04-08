@@ -7,6 +7,8 @@
 #define x_xml_docobj_H
 
 #include <x/obj.H>
+#include <x/xml/dtd.H>
+#include <x/xml/newdtd.H>
 #include <set>
 #include <vector>
 namespace LIBCXX_NAMESPACE {
@@ -537,6 +539,28 @@ public:
 			save_file(cb, format);
 			return cb.iter;
 		}
+
+		//! Return the document's external dtd
+
+		dtd get_external_dtd() const
+		{
+			return do_get_external_dtd_dtd();
+		}
+
+		//! Return the document's internal dtd
+
+		dtd get_internal_dtd() const
+		{
+			return do_get_internal_dtd_dtd();
+		}
+
+	private:
+
+		//! Implement get_external_dtd
+		virtual dtd do_get_external_dtd_dtd() const=0;
+
+		//! Implement get_internal_dtd
+		virtual dtd do_get_internal_dtd_dtd() const=0;
 	};
 
 	//! Create a new element in the document
@@ -854,6 +878,62 @@ public:
 			do_set_space_preserve(flag);
 		}
 
+		//! Return the document's external dtd
+
+		newdtd get_external_dtd()
+		{
+			return do_get_external_dtd_newdtd();
+		}
+
+		//! Return the document's internal dtd
+
+		newdtd get_internal_dtd()
+		{
+			return do_get_internal_dtd_newdtd();
+		}
+
+		//! Create the document's external dtd
+		virtual newdtd create_external_dtd(const std::string &external_id,
+						   const std::string &system_id)=0;
+
+		//! Create the document's external dtd
+
+		//! \overload
+		//!
+		newdtd create_external_dtd(const std::string &external_id,
+					   const char *system_id);
+
+		//! Create the document's external dtd
+
+		//! \overload
+		//!
+		newdtd create_external_dtd(const std::string &external_id,
+					   const uriimpl &system_id);
+
+		//! Create the document's internal dtd
+		virtual newdtd create_internal_dtd(const std::string &external_id,
+						   const std::string &system_id)=0;
+
+		//! Create the document's internal dtd
+
+		//! \overload
+		//!
+		newdtd create_internal_dtd(const std::string &external_id,
+					   const char *system_id);
+
+		//! Create the document's internal dtd
+
+		//! \overload
+		//!
+		newdtd create_internal_dtd(const std::string &external_id,
+					   const uriimpl &system_id);
+
+		//! Remove any existing external dtd
+		virtual void remove_external_dtd()=0;
+
+		//! Remove any existing internal dtd
+		virtual void remove_internal_dtd()=0;
+
 	private:
 		//! Implement create_namespace().
 		virtual void do_create_namespace(//! New namespace prefix
@@ -897,6 +977,12 @@ public:
 
 		//! Implement set_space_preserve().
 		virtual void do_set_space_preserve(bool)=0;
+
+		//! Implement get_external_dtd
+		virtual newdtd do_get_external_dtd_newdtd()=0;
+
+		//! Implement get_internal_dtd
+		virtual newdtd do_get_internal_dtd_newdtd()=0;
 	};
 
 	//! Create a read lock on the document.

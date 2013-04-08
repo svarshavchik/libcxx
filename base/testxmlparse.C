@@ -6,6 +6,8 @@
 #include "libcxx_config.h"
 #include "x/xml/parser.H"
 #include "x/xml/doc.H"
+#include "x/xml/newdtd.H"
+#include "x/xml/dtd.H"
 #include "x/exception.H"
 #include "x/fd.H"
 #include "x/uriimpl.H"
@@ -227,6 +229,7 @@ void test3()
 
 		if (!lock->get_root() || lock->name() != "root1")
 			throw EXCEPTION("Did not create <root1> somehow");
+		lock->remove();
 	}
 
 	{
@@ -556,6 +559,165 @@ void test10()
 		throw EXCEPTION("test10 failed to verify the processing instruction node");
 }
 
+void test20()
+{
+	{
+		std::ofstream teeny("teeny.dtd");
+
+		teeny <<
+			"<!ELEMENT html (body?)>\n"
+			"<!ELEMENT body (p?)>\n"
+			"<!ELEMENT p (#PCDATA)>\n";
+	}
+
+	auto document=({
+			std::string dummy=
+				"<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\"?>"
+				"<!DOCTYPE html SYSTEM \"teeny.dtd\">"
+				"<html>"
+				"<body><p>Hello world</p></body></html>";
+
+			LIBCXX_NAMESPACE::xml::doc::create(dummy.begin(),
+							   dummy.end(),
+							   "test20 string",
+							   "nonet dtdload");
+		});
+
+	{
+		auto lock=document->readlock();
+
+		lock->get_root();
+
+		if (lock->name() != "html")
+			throw EXCEPTION("test20: root node is not HTML");
+
+		LIBCXX_NAMESPACE::xml::dtd dd=
+			lock->get_external_dtd();
+
+		if (dd->name() != "html" ||
+		    dd->system_id() != "teeny.dtd")
+			throw EXCEPTION("test20: read lock external subset fail");
+
+		dd=lock->get_internal_dtd();
+
+		if (dd->name() != "html" ||
+		    dd->system_id() != "teeny.dtd")
+			throw EXCEPTION("test20: read lock external subset fail");
+	}
+
+	{
+		auto lock=document->writelock();
+
+		lock->get_root();
+
+		if (lock->name() != "html")
+			throw EXCEPTION("test20: root node is not HTML");
+
+		LIBCXX_NAMESPACE::xml::newdtd dd=
+			lock->get_external_dtd();
+
+		if (dd->name() != "html" ||
+		    dd->system_id() != "teeny.dtd")
+			throw EXCEPTION("test20: read lock external subset fail");
+
+		dd=lock->get_internal_dtd();
+
+		if (dd->name() != "html" ||
+		    dd->system_id() != "teeny.dtd")
+			throw EXCEPTION("test20: read lock external subset fail");
+
+	}
+	
+	unlink("teeny.dtd");
+}
+
+void test21()
+{
+	auto empty_document=LIBCXX_NAMESPACE::xml::doc::create();
+
+	auto lock=empty_document->writelock();
+
+	lock->create_child()->element({"html"})
+		->element({"body"})
+		->element({"p"})
+		->text("Hello world");
+
+	lock->create_external_dtd("-//W3C//DTD XHTML 1.0 Strict//EN",
+				  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd");
+	lock->remove_external_dtd();
+
+	lock->create_external_dtd("-//W3C//DTD XHTML 1.0 Strict//EN",
+				  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd");
+
+	LIBCXX_NAMESPACE::xml::newdtd newdtd=
+		lock->create_internal_dtd("-//W3C//DTD XHTML 1.0 Strict//EN",
+					  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd");
+
+	// One mo time.
+	lock->remove_internal_dtd();
+
+	newdtd=lock->create_internal_dtd("-//W3C//DTD XHTML 1.0 Strict//EN",
+					 "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd");
+
+	if (newdtd->external_id() != "-//W3C//DTD XHTML 1.0 Strict//EN")
+		throw EXCEPTION("test21: external_id mismatch");
+
+	if (newdtd->system_id() != "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd")
+		throw EXCEPTION("test21: external_id mismatch");
+
+	std::string buffer;
+
+	lock->save_to(std::back_insert_iterator<std::string>(buffer), true);
+	std::cout << buffer;
+
+	empty_document=LIBCXX_NAMESPACE::xml::doc::create(buffer.begin(),
+							  buffer.end(),
+							  "test21-document");
+
+	auto rlock=empty_document->readlock();
+
+	if (rlock->get_external_dtd()->exists())
+		throw EXCEPTION("test21: external subset is not null");
+
+	auto rdtd=rlock->get_internal_dtd();
+
+	if (!rdtd->exists())
+		throw EXCEPTION("test21: internal subset does not exist?");
+
+	if (rdtd->name() != "html")
+		throw EXCEPTION("test21: name mismatch(3)");
+
+	if (rdtd->external_id() != "-//W3C//DTD XHTML 1.0 Strict//EN")
+		throw EXCEPTION("test21: external_id mismatch (3)");
+
+	if (rdtd->system_id() != "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd")
+		throw EXCEPTION("test21: external_id mismatch (3)");
+}
+
+void test22()
+{
+	auto empty_document=LIBCXX_NAMESPACE::xml::doc::create();
+
+	auto lock=empty_document->writelock();
+
+	lock->create_child()->element({"html"})
+		->element({"body"})
+		->element({"p"})
+		->text("Hello world");
+
+	auto extdtd=lock->create_external_dtd("-//W3C//DTD XHTML 1.0 Strict//EN",
+					      LIBCXX_NAMESPACE::uriimpl("http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"));
+
+	auto intdtd=lock->create_internal_dtd("-//W3C//DTD XHTML 1.0 Strict//EN",
+					      LIBCXX_NAMESPACE::uriimpl("http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"));
+
+	lock->get_root();
+	lock->remove();
+
+	if (extdtd->exists() || intdtd->exists())
+		throw EXCEPTION("test22 has no idea what happened");
+}
+
 int main(int argc, char **argv)
 {
 	try {
@@ -570,6 +732,10 @@ int main(int argc, char **argv)
 		test8();
 		test9();
 		test10();
+
+		test20();
+		test21();
+		test22();
 	} catch (LIBCXX_NAMESPACE::exception &e)
 	{
 		std::cerr << e << std::endl;

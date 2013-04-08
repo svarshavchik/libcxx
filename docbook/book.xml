@@ -64,6 +64,7 @@
 <!ENTITY xml_parse SYSTEM "xml_parse.xml">
 <!ENTITY xml_readlock SYSTEM "xml_readlock.xml">
 <!ENTITY xml_writelock SYSTEM "xml_writelock.xml">
+<!ENTITY xml_dtd SYSTEM "xml_dtd.xml">
 <!ENTITY xml_escape SYSTEM "xml_escape.xml">
 <!ENTITY yamlparser SYSTEM "yamlparser.xml">
 <!ENTITY yamlwriter SYSTEM "yamlwriter.xml">
@@ -188,6 +189,7 @@ See COPYING for distribution information.
     &xml_parse;
     &xml_readlock;
     &xml_writelock;
+    &xml_dtd;
     &xml_escape;
   </part>
 

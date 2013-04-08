@@ -208,7 +208,9 @@ libcxx_la_SOURCES=\
 	workerpoolobj.C		\
 	xlocale.C		\
 	xml_doc.C		\
+	xml_dtd.C		\
 	xml_escape.C		\
+	xml_newdtd.C		\
 	xml_parser.C		\
 	ymd.C			\
 	ymd2.C			\
