@@ -134,6 +134,13 @@ class LIBCXX_HIDDEN dtdimplObj : public newdtdObj {
 
 		// Whether all methods apply to the external or the internal subset
 		xmlDtdPtr (dtdimplObj::*get_dtd)();
+
+		// Either xmlAddDocEntity or xmlAddDtdEntity
+		xmlEntityPtr (*add_entity)(xmlDocPtr, const xmlChar *,
+					   int,
+					   const xmlChar *,
+					   const xmlChar *,
+					   const xmlChar *);
 	};
 
 	const subset_impl_t &subset_impl;
@@ -166,6 +173,17 @@ class LIBCXX_HIDDEN dtdimplObj : public newdtdObj {
 	std::string external_id() override;
 
 	std::string system_id() override;
+
+	static void notwrite() __attribute__((noreturn));
+
+	void create_entity(const std::string &name,
+			   int type,
+			   const std::string &external_id,
+			   const std::string &system_id,
+			   const std::string &content) override;
+
+	void include_parameter_entity(const std::string &name) override;
+
 };
 
 class LIBCXX_HIDDEN newdtdimplObj : public dtdimplObj {
@@ -177,6 +195,15 @@ class LIBCXX_HIDDEN newdtdimplObj : public dtdimplObj {
 		      const ref<impldocObj> &implArg,
 		      const doc::base::writelock &lockArg);
 	~newdtdimplObj() noexcept;
+
+	void create_entity(const std::string &name,
+			   int type,
+			   const std::string &external_id,
+			   const std::string &system_id,
+			   const std::string &content) override;
+
+	void include_parameter_entity(const std::string &name) override;
+
 };
 
 void throw_last_error(const char *context)

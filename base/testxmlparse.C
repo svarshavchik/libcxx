@@ -718,6 +718,275 @@ void test22()
 		throw EXCEPTION("test22 has no idea what happened");
 }
 
+void test30()
+{
+	std::string docstr=({
+			auto empty_document=LIBCXX_NAMESPACE::xml::doc::create();
+
+			empty_document->writelock()
+				->create_child()->element({"html"})
+				->element({"body"})
+				->element({"p"})
+				->text("Hello ")
+				->create_next_sibling()
+				->entity("XML")
+				->text(" world");
+
+			{
+				auto intdtd=empty_document->writelock()
+					->create_internal_dtd("-//W3C//DTD XHTML 1.0 Strict//EN",
+							      LIBCXX_NAMESPACE::uriimpl("http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"));
+
+				intdtd->create_general_entity("XML", "<i>XML</i>");
+			}
+
+			std::ostringstream o;
+
+			empty_document->readlock()
+				->save_to(std::ostreambuf_iterator<char>(o),
+					  false);
+			o.str();
+		});
+
+	auto doc=LIBCXX_NAMESPACE::xml::doc::create(docstr.begin(),
+						    docstr.end(), "test30");
+
+	auto lock=doc->readlock();
+	lock->get_root();
+	lock->get_first_child();
+	lock->get_first_child();
+
+	std::cout << docstr;
+
+	if (lock->get_text() != "Hello XML world")
+		throw EXCEPTION("Generic entity expansion fail");
+}
+
+void test31()
+{
+	std::string docstr=({
+			auto empty_document=LIBCXX_NAMESPACE::xml::doc::create();
+
+			empty_document->writelock()
+				->create_child()->element({"html"})
+				->element({"body"})
+				->element({"p"})
+				->text("Hello ")
+				->create_next_sibling()
+				->entity("XML")
+				->text(" world");
+
+			{
+				auto intdtd=empty_document->writelock()
+					->create_internal_dtd("-//W3C//DTD XHTML 1.0 Strict//EN",
+							      LIBCXX_NAMESPACE::uriimpl("http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"));
+
+				intdtd->create_parsed_entity("XML", "",
+							     "filename.xml");
+			}
+
+			std::ostringstream o;
+
+			empty_document->readlock()
+				->save_to(std::ostreambuf_iterator<char>(o),
+					  false);
+			o.str();
+		});
+
+	bool caught=false;
+	unlink("filename.xml");
+	try {
+		LIBCXX_NAMESPACE::xml::doc::create(docstr.begin(),
+						   docstr.end(), "test31",
+						   "noent");
+	} catch (const LIBCXX_NAMESPACE::exception &e)
+	{
+		caught=true;
+		std::cerr << "Caught expected exception: " << e << std::endl;
+	}
+
+	if (!caught)
+		throw EXCEPTION("test31: did not catch expected expection for failing to load external entity");
+
+	std::ofstream("filename.xml") << "<i>XML</i>" << std::flush;
+
+	auto doc=LIBCXX_NAMESPACE::xml::doc::create(docstr.begin(),
+						    docstr.end(), "test31",
+						    "noent");
+
+	auto lock=doc->readlock();
+	lock->get_root();
+	lock->get_first_child();
+	lock->get_first_child();
+
+	if (lock->get_text() != "Hello XML world")
+		throw EXCEPTION("Parsed entity expansion fail in test31");
+	unlink("filename.xml");
+}
+
+void test32()
+{
+	std::string docstr=({
+			auto empty_document=LIBCXX_NAMESPACE::xml::doc::create();
+
+			empty_document->writelock()
+				->create_child()->element({"html"})
+				->element({"body"})
+				->element({"p"})
+				->text("Hello ")
+				->create_next_sibling()
+				->entity("XML")
+				->text(" world");
+
+			{
+				auto intdtd=empty_document->writelock()
+					->create_internal_dtd("-//W3C//DTD XHTML 1.0 Strict//EN",
+							      LIBCXX_NAMESPACE::uriimpl("http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"));
+
+				intdtd->create_unparsed_entity("XML", "",
+							       "filename.xml",
+							       "txt");
+			}
+
+			std::ostringstream o;
+
+			empty_document->readlock()
+				->save_to(std::ostreambuf_iterator<char>(o),
+					  false);
+			o.str();
+		});
+
+	std::ofstream("filename.xml") << "<i>XML</i>" << std::flush;
+
+	bool caught=false;
+
+	try {
+		LIBCXX_NAMESPACE::xml::doc::create(docstr.begin(),
+						   docstr.end(), "test32",
+						   "noent");
+	} catch (const LIBCXX_NAMESPACE::exception &e)
+	{
+		caught=true;
+		std::cerr << "Caught expected exception: " << e << std::endl;
+	}
+
+	unlink("filename.xml");
+
+	if (!caught)
+		throw EXCEPTION("test32: did not catch expected expection for failing to load unparsed entity");
+}
+
+void test33()
+{
+	std::string docstr=({
+			auto empty_document=LIBCXX_NAMESPACE::xml::doc::create();
+
+			empty_document->writelock()
+				->create_child()->element({"html"})
+				->element({"body"})
+				->element({"p"})
+				->text("Hello ")
+				->create_next_sibling()
+				->entity("XML")
+				->text(" world");
+
+			{
+				auto intdtd=empty_document->writelock()
+					->create_internal_dtd("-//W3C//DTD XHTML 1.0 Strict//EN",
+							      LIBCXX_NAMESPACE::uriimpl("http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"));
+
+				intdtd->create_external_parameter_entity("entities",
+									 "",
+									 "entities.xml");
+				intdtd->include_parameter_entity("entities");
+			}
+
+			std::ostringstream o;
+
+			empty_document->readlock()
+				->save_to(std::ostreambuf_iterator<char>(o),
+					  false);
+			o.str();
+		});
+
+	unlink("entities.xml");
+
+	bool caught=false;
+	try {
+		LIBCXX_NAMESPACE::xml::doc::create(docstr.begin(),
+						   docstr.end(), "test33",
+						   "noent");
+	} catch (const LIBCXX_NAMESPACE::exception &e)
+	{
+		caught=true;
+		std::cerr << "Caught expected exception: " << e << std::endl;
+	}
+
+	if (!caught)
+		throw EXCEPTION("test33: did not catch expected expection for failing to load external entity");
+
+	std::ofstream("entities.xml") << "<!ENTITY XML \"<i>XML</i>\">\n"
+				      << std::flush;
+
+	auto doc=LIBCXX_NAMESPACE::xml::doc::create(docstr.begin(),
+						    docstr.end(), "test34",
+						    "noent");
+
+	auto lock=doc->readlock();
+	lock->get_root();
+	lock->get_first_child();
+	lock->get_first_child();
+
+	if (lock->get_text() != "Hello XML world")
+		throw EXCEPTION("Parsed entity expansion fail in test33");
+	unlink("entities.xml");
+}
+
+void test34()
+{
+	std::string docstr=({
+			auto empty_document=LIBCXX_NAMESPACE::xml::doc::create();
+
+			empty_document->writelock()
+				->create_child()->element({"html"})
+				->element({"body"})
+				->element({"p"})
+				->text("Hello ")
+				->create_next_sibling()
+				->entity("XML")
+				->text(" world");
+
+			{
+				auto intdtd=empty_document->writelock()
+					->create_internal_dtd("-//W3C//DTD XHTML 1.0 Strict//EN",
+							      LIBCXX_NAMESPACE::uriimpl("http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"));
+
+				intdtd->create_internal_parameter_entity("entities",
+									 "<!ENTITY XML \"<i>XML</i>\">");
+				intdtd->include_parameter_entity("entities");
+			}
+
+			std::ostringstream o;
+
+			empty_document->readlock()
+				->save_to(std::ostreambuf_iterator<char>(o),
+					  false);
+			o.str();
+		});
+
+	auto doc=LIBCXX_NAMESPACE::xml::doc::create(docstr.begin(),
+						    docstr.end(), "test34",
+						    "noent");
+
+	auto lock=doc->readlock();
+	lock->get_root();
+	lock->get_first_child();
+	lock->get_first_child();
+
+	if (lock->get_text() != "Hello XML world")
+		throw EXCEPTION("Parsed entity expansion fail in test34");
+}
+
 int main(int argc, char **argv)
 {
 	try {
@@ -736,6 +1005,11 @@ int main(int argc, char **argv)
 		test20();
 		test21();
 		test22();
+		test30();
+		test31();
+		test32();
+		test33();
+		test34();
 	} catch (LIBCXX_NAMESPACE::exception &e)
 	{
 		std::cerr << e << std::endl;

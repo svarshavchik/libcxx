@@ -978,6 +978,15 @@ class LIBCXX_HIDDEN impldocObj::createnodeImplObj : public createnodeObj {
 		return ref<createnodeObj>(this);
 	}
 
+	ref<createnodeObj> entity(const std::string &text)
+	{
+		create(guard(xmlNewCharRef(lock.impl->p,
+					   reinterpret_cast<const xmlChar *>
+					   (text.c_str())),
+			     "entity"));
+		return ref<createnodeObj>(this);
+	}
+
 	void do_comment(const std::string &comment) override
 	{
 		create(guard(xmlNewComment(reinterpret_cast<const xmlChar *>

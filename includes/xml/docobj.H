@@ -592,6 +592,9 @@ public:
 		virtual ref<createnodeObj> text(//! Content of the new text node
 						const std::string &text)=0;
 
+		//! Create a new entity reference.
+		virtual ref<createnodeObj> entity(const std::string &text)=0;
+
 		//! Create a new element
 		virtual ref<createnodeObj> element(const newElement &)=0;
 

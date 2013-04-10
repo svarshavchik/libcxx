@@ -143,6 +143,156 @@ if (dtd-&gt;exists())
     <methodname>remove_external_dtd</methodname>()),
     which removes an &xml; document's <literal>DOCTYPE</literal>.
   </para>
+
+  <section id="xmldtdentities">
+    <title>Defining custom document type entities</title>
+
+    <para>
+      The object referenced by
+      <classname>&ns;::xml::newdtd</classname> implements several methods that
+      add custom entity declaration to <literal>DOCTYPE</literal>:
+    </para>
+
+    <blockquote>
+      <informalexample>
+	<programlisting>
+auto empty_document=&ns;::xml::doc::create();
+
+empty_document-&gt;writelock()-&gt;create_child()-&gt;element({"html"})
+
+auto wlock=empty_document-&gt;writelock();
+auto intdtd=wlock
+    -&gt;create_internal_dtd("-//W3C//DTD XHTML 1.0 Strict//EN",
+	                  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd");
+
+intdtd-&gt;create_general_entity("XML", "&lt;i&gt;XML&lt;/i&gt;");
+
+// ...
+
+wlock-&gt;save_file("filename.xml");</programlisting>
+      </informalexample>
+    </blockquote>
+
+    <para>
+      This results in the following &xml; document:
+    </para>
+
+    <computeroutput>
+      <literallayout><![CDATA[
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd" [
+<!ENTITY XML "<i>XML</i>">
+]>
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+ ....
+]]></literallayout>
+    </computeroutput>
+
+    <para>
+      Custom entities get typically declared in an &xml; document that gets
+      saved into a file. When creating the rest of the document (prior
+      to saving it), use <methodname>entity</methodname>() to insert an
+      entity reference:
+    </para>
+
+    <blockquote>
+      <informalexample>
+	<programlisting>
+wlock-&gt;create_child()-&gt;entity("XML");
+	</programlisting>
+      </informalexample>
+    </blockquote>
+
+    <para>
+      This inserts the <quote>&amp;XML;</quote> entity reference
+      into the &xml; document.
+      Using the <quote>noent</quote> option when
+      <link linkend="xml_parse">loading the &xml; document</link> resolves
+      entity references, the entities get replaced by their contents, in the
+      parsed &xml; document.
+    </para>
+
+	
+    <blockquote>
+      <informalexample>
+	<programlisting>
+newdtd-&gt;create_parsed_entity("ch1", "", "chapter1.xml");</programlisting>
+      </informalexample>
+    </blockquote>
+
+    <para>
+      <methodname>create_parsed_entity</methodname>() adds a declaration for
+      an external
+      parsed entity. The second parameter is a public identifier,
+      which is normally an empty string. This example adds
+      <quote>&lt;!ENTITY ch1 SYSTEM 'chapter1.xml'&gt;</quote> to the
+      <literal>DOCTYPE</literal> declaration.
+    </para>
+	
+    <blockquote>
+      <informalexample>
+	<programlisting>
+newdtd-&gt;create_unparsed_entity("table1", "", "table1.jpg", "jpg");</programlisting>
+      </informalexample>
+    </blockquote>
+
+    <para>
+      <methodname>create_unparsed_entity</methodname>() adds a declaration for
+      an external
+      unparsed entity. The second parameter is a public identifier,
+      which is normally an empty string. This example adds
+      <quote>&lt;!ENTITY table1 SYSTEM 'table1.jpg' NDATA jpg&gt;</quote>
+      to the &xml; document.
+    </para>
+
+    <blockquote>
+      <informalexample>
+	<programlisting><![CDATA[
+std::ostringstream o;
+	
+for (int i=1; i<10; ++i)
+{
+    o << "<!ENTITY ch" << i << " SYSTEM \"ch" << i << ".xml\">";
+}
+
+newdtd->create_internal_parameter_entity("chapters", o.str());]]></programlisting>
+      </informalexample>
+    </blockquote>
+
+    <para>
+      <methodname>create_internal_parameter_entity</methodname>() adds a
+      declaration for an internal parameter entity. This example adds
+      <quote>&lt;!ENTITY % chapters '[...]'&gt;</quote> (with a long, messy
+      string instead of the ellipsis) to the document.
+    </para>
+
+    <blockquote>
+      <informalexample>
+	<programlisting>
+newdtd-&gt;create_external_parameter_entity("chapters", "", "chapters.xml");</programlisting>
+      </informalexample>
+    </blockquote>
+
+    <para>
+      <methodname>create_external_parameter_entity</methodname>() adds a
+      declaration for an
+      external parameter entity. The second parameter is a public
+      identifier, which is normally an empty string. This example adds
+      <quote>&lt;!ENTITY % chapters SYSTEM 'chapters.xml'&gt;</quote> to the document.
+    </para>
+	
+    <blockquote>
+      <informalexample>
+	<programlisting>
+newdtd-&gt;include_parameter_entity("chapters");</programlisting>
+      </informalexample>
+    </blockquote>
+
+    <para>	
+      This example adds "%chapters;" to the document.
+    </para>
+  </section>
 </chapter>
 <!--
 Local Variables:

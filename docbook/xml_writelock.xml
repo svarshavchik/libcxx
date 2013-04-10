@@ -450,7 +450,8 @@ creator-&gt;element({"html:div"},
 creator-&gt;comment("For descriptive purposes only");
 creator-&gt;text("overpayment");
 creator-&gt;cdata("&lt;text&gt;");
-creator-&gt;processing_instruction("man2html", "style=visible");</programlisting>
+creator-&gt;processing_instruction("man2html", "style=visible");
+creator-&gt;entity("XML");</programlisting>
       </informalexample>
     </blockquote>
 
@@ -462,6 +463,8 @@ creator-&gt;processing_instruction("man2html", "style=visible");</programlisting
       <methodname>processing_instruction</methodname>() creates an &xml;
       processing instruction. Its first parameter is the processor name,
       the second parameter is the instruction.
+      <methodname>entity</methodname>() creates a
+      <link linkend="xmldtdentities">custom entity reference</link>.
     </para>
 
     <blockquote>

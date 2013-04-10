@@ -22,6 +22,44 @@ newdtdObj::~newdtdObj() noexcept
 {
 }
 
+void newdtdObj::create_general_entity(const std::string &name,
+				      const std::string &value)
+{
+	create_entity(name, (int)XML_INTERNAL_GENERAL_ENTITY, "", "", value);
+}
+
+void newdtdObj::create_parsed_entity(const std::string &name,
+				     const std::string &external_id,
+				     const std::string &system_id)
+{
+	create_entity(name, (int)XML_EXTERNAL_GENERAL_PARSED_ENTITY,
+		      external_id, system_id, "");
+}
+
+void newdtdObj::create_unparsed_entity(const std::string &name,
+				       const std::string &external_id,
+				       const std::string &system_id,
+				       const std::string &ndata)
+{
+	create_entity(name, (int)XML_EXTERNAL_GENERAL_UNPARSED_ENTITY,
+		      external_id, system_id, ndata);
+}
+
+void newdtdObj::create_internal_parameter_entity(const std::string &name,
+						 const std::string &value)
+{
+	create_entity(name, (int)XML_INTERNAL_PARAMETER_ENTITY,
+		      "", "", value);
+}
+
+void newdtdObj::create_external_parameter_entity(const std::string &name,
+						 const std::string &external_id,
+						 const std::string &system_id)
+{
+	create_entity(name, (int)XML_EXTERNAL_PARAMETER_ENTITY,
+		      external_id, system_id, "");
+}
+
 newdtdimplObj::newdtdimplObj(const subset_impl_t &subset_implArg,
 			     const ref<impldocObj> &implArg,
 			     const doc::base::writelock &lockArg)
@@ -31,6 +69,50 @@ newdtdimplObj::newdtdimplObj(const subset_impl_t &subset_implArg,
 
 newdtdimplObj::~newdtdimplObj() noexcept
 {
+}
+
+void newdtdimplObj::create_entity(const std::string &name,
+				  int type,
+				  const std::string &external_id,
+				  const std::string &system_id,
+				  const std::string &content)
+{
+	xmlEntityPtr ptr;
+
+	{
+		error_handler::error trap_errors;
+
+		ptr=(*subset_impl.add_entity)
+			(impl->p,
+			 reinterpret_cast<const xmlChar *>(name.c_str()),
+			 type,
+			 reinterpret_cast<const xmlChar *>
+			 (external_id.size() ? external_id.c_str():nullptr),
+			 reinterpret_cast<const xmlChar *>
+			 (system_id.size() ? system_id.c_str():nullptr),
+			 reinterpret_cast<const xmlChar *>
+			 (content.size() ? content.c_str():nullptr));
+		trap_errors.check();
+	}
+	if (!ptr)
+		throw EXCEPTION(libmsg(_txt("Cannot create a new entity")));
+}
+
+void newdtdimplObj::include_parameter_entity(const std::string &name)
+{
+	auto dtd=get_dtd_not_null();
+
+	auto str= "%" + name + ";";
+
+	auto nodeptr=xmlNewText(reinterpret_cast<const xmlChar *>(str.c_str()));
+	if (!nodeptr)
+		throw EXCEPTION(libmsg(_txt("xmlNewText failed")));
+
+	if (!xmlAddChild(reinterpret_cast<xmlNodePtr>(dtd), nodeptr))
+	{
+		xmlFreeNode(nodeptr);
+		throw EXCEPTION(libmsg(_txt("xmlAddChild failed")));
+	}
 }
 
 #if 0

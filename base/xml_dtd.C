@@ -24,10 +24,12 @@ dtdObj::~dtdObj() noexcept
 
 const dtdimplObj::subset_impl_t dtdimplObj::impl_external = {
 	&dtdimplObj::get_external_dtd,
+	&xmlAddDtdEntity,
 };
 
 const dtdimplObj::subset_impl_t dtdimplObj::impl_internal = {
 	&dtdimplObj::get_internal_dtd,
+	&xmlAddDocEntity,
 };
 
 dtdimplObj::dtdimplObj(const subset_impl_t &subset_implArg,
@@ -80,6 +82,25 @@ std::string dtdimplObj::external_id()
 std::string dtdimplObj::system_id()
 {
 	return get_str(get_dtd_not_null()->SystemID);
+}
+
+void dtdimplObj::notwrite()
+{
+	throw EXCEPTION(libmsg(_txt("Somehow you ended up calling a virtual write method on a read object. Virtual objects are not for playing.")));
+}
+
+void dtdimplObj::create_entity(const std::string &name,
+			       int type,
+			       const std::string &external_id,
+			       const std::string &system_id,
+			       const std::string &content)
+{
+	notwrite();
+}
+
+void dtdimplObj::include_parameter_entity(const std::string &name)
+{
+	notwrite();
 }
 
 #if 0

@@ -623,6 +623,65 @@ public:
 	//! remove_internal_dtd() (and remove_external_dtd()) removes any
 	//! existing \c DOCTYPE. create_internal_dtd() throws an exception
 	//! if the XML document already has a declared \c DOCTYPE.
+	//!
+	//! The following methods add entity declarations to a document
+	//! type definition. They are typically used with an internal 
+	//! DOCTYPE, when creating, then saving, an XML document.
+	//!
+	//! \code
+	//! newdtd->create_general_entity("appname", "<application>LibXML</application>");
+	//! \endcode
+	//!
+	//! create_general_entity() adds a general entity declaration. This
+	//! example adds "<!ENTITY appname '<application>LibXML</application>'>".
+	//!
+	//! \code
+	//! newdtd->create_parsed_entity("ch1", "", "chapter1.xml");
+	//! \endcode
+	//!
+	//! create_parsed_entity() adds a declaration for an external
+	//! parsed entity. The second parameter is a public identifier,
+	//! which is normally an empty string. This example adds
+	//! "<!ENTITY ch1 SYSTEM 'chapter1.xml'>".
+	//!
+	//! \code
+	//! newdtd->create_unparsed_entity("table1", "", "table1.jpg", "jpg");
+	//! \endcode
+	//!
+	//! create_unparsed_entity() adds a declaration for an external
+	//! unparsed entity. The second parameter is a public identifier,
+	//! which is normally an empty string. This example adds
+	//! "<!ENTITY table1 SYSTEM 'table1.jpg' NDATA jpg>".
+	//!
+	//! \code
+	//! std::ostringstream o;
+	//!
+	//! for (int i=1; i<10; ++i)
+	//! {
+	//!     o << "<!ENTITY ch" << i << " SYSTEM \"ch" << i << ".xml\">";
+	//! }
+	//! newdtd->create_internal_parameter_entity("chapters", o.str());
+	//! \endcode
+	//!
+	//! create_internal_parameter_entity() adds a declaration for an
+	//! internal parameter entity. This example adds
+	//! "<!ENTITY % chapters '[...]'>" (with a long, messy
+	//! string instead of the ellipsis) to the document.
+	//!
+	//! \code
+	//! newdtd->create_external_parameter_entity("chapters", "", "chapters.xml");
+	//! \endcode
+	//!
+	//! create_external_parameter_entity() adds a declaration for an
+	//! external parameter entity. The second parameter is a public
+	//! identifier, which is normally an empty string. This example adds
+	//! "<!ENTITY % chapters SYSTEM 'chapters.xml'>" to the document.
+	//!
+	//! \code
+	//! newdtd->include_parameter_entity("chapters");
+	//! \endcode
+	//!
+	//! This example adds "%chapters;" to the document.
 
 	typedef ref<docObj::writelockObj> writelock;
 
