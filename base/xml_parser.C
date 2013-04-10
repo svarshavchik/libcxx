@@ -27,6 +27,7 @@ namespace LIBCXX_NAMESPACE {
 error_handler::error::error() noexcept
 {
 	thread_error=this;
+	errorflag=false;
 }
 
 error_handler::error::~error() noexcept
@@ -36,51 +37,29 @@ error_handler::error::~error() noexcept
 
 void error_handler::error::check()
 {
-	if (!message.empty())
-		throw EXCEPTION(message);
+	if (errorflag)
+		throw EXCEPTION(message.str());
 }
 
 error_handler::error __thread *error_handler::error::thread_error;
+bool __thread error_handler::error::errorflag;
 
 extern "C" {
 
-	// libxml2 global error handler.
-
-	static void handleValidationError(void *ctx, const char *format, ...)
+	static void handleStructuredError(void *dummy,
+					  xmlErrorPtr error)
 	{
-		size_t n;
-		size_t o=512;
+		std::ostream &o=error_handler::error::thread_error
+			? error_handler::error::thread_error->message
+			: std::cerr;
 
-		// It's unlikely that the small fragments of error messages
-		// that libxml2 emits, piecemeal, will exceed 1024 bytes. But,
-		// if so, adapt.
-
-		while (1)
+		if (error->file)
 		{
-			n=o+512;
-
-			char buffer[n+1];
-
-			buffer[n]=0;
-			// See vsprintf(3) note, old glibc, just in case.
-
-			va_list args;
-			va_start(args, format);
-			o=vsnprintf(buffer, n, format, args);
-			va_end(args);
-
-			if (o >= n)
-				continue;
-
-			// We better have thread_error initialized
-
-			if (!error_handler::error::thread_error)
-				std::cerr << buffer << std::flush;
-			else
-				error_handler::error::thread_error->message
-					+= buffer;
-			break;
+			o << error->file << "(" << error->line << "): ";
 		}
+		o << error->message << std::flush;
+		if (error->level >= XML_ERR_ERROR)
+			error_handler::error::errorflag=true;
 	}
 };
 
@@ -88,7 +67,7 @@ extern "C" {
 
 error_handler::error_handler() noexcept
 {
-	xmlSetGenericErrorFunc(NULL, handleValidationError);
+	xmlSetStructuredErrorFunc(NULL, handleStructuredError);
 }
 
 error_handler::~error_handler() noexcept

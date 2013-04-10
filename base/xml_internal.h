@@ -2,6 +2,7 @@
 #define xml_internal_h
 
 #include <libxml/parser.h>
+#include <sstream>
 #include "x/xml/doc.H"
 #include "x/xml/parser.H"
 #include "x/xml/dtd.H"
@@ -33,7 +34,10 @@ class LIBCXX_HIDDEN error_handler {
 
 	public:
 		// Accumulating error
-		std::string message;
+		std::ostringstream message;
+
+		// An error was reported
+		static __thread bool errorflag;
 
 		static __thread error *thread_error LIBCXX_HIDDEN;
 
