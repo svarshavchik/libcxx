@@ -375,6 +375,82 @@ rlock-&gt;save_to(std::back_insert_iterator&lt;std::string&gt;(s));</programlist
       </para>
     </note>
   </section>
+
+  <section id="xmlxpath">
+    <title>Using XPath expressions</title>
+
+    <blockquote>
+      <informalexample>
+	<programlisting>
+rlock-&gt;get_xpath("body/p[1]")-&gt;to_node();</programlisting>
+      </informalexample>
+    </blockquote>
+
+    <para>
+      The parameter to a reader lock's
+      <methodname>get_xpath</methodname>() is an XPath expression.
+      <methodname>get_xpath</methodname>() returns a
+      <ulink url="&link-x--xml--docObj--xpathObj;"><classname>&ns;::xml::doc::base::xpath</classname></ulink>
+      representing the resulting nodeset from evaluating the expression against
+      the current node the reader lock is positioned to.
+      <methodname>to_node</methodname>() expects the nodeset containing exactly
+      one node, and it positions the reader lock, that created the
+      <classname>&ns;::xml::doc::base::xpath</classname>, to the node.
+    </para>
+
+    <note>
+      <para>
+	Each <classname>&ns;::xml::doc::base::xpath</classname> holds an
+	internal reference on the underlying lock that created it, until the
+	last reference to the object referred to by the
+	<classname>&ns;::xml::doc::base::xpath</classname> goes out of, and it
+	gets destroyed.
+      </para>
+    </note>
+
+    <blockquote>
+      <informalexample>
+	<programlisting>
+auto xpath=rlock-&gt;get_xpath("body/p");
+
+for (size_t i=1, n=xpath-&gt;count(); i&lt;=n; ++i)
+{
+    xpath-&gt;to_node(i);
+}</programlisting>
+      </informalexample>
+    </blockquote>
+
+    <para>
+      <methodname>count</methodname>() returns the number of nodes in the
+      nodeset. Passing an explicit node number to
+      <methodname>to_node</methodname>() positions the lock to the given
+      node in the nodeset.
+    </para>
+
+    <note>
+      <para>
+	Nodes are numbered starting with node #1. A nodeset with three nodes
+	consists of nodes #1, #2, and #3.
+      </para>
+    </note>
+
+    <blockquote>
+      <informalexample>
+	<programlisting>
+bool flag=xpath-&gt;as_bool();
+
+double number=xpath-&gt;as_number();
+
+std::string string=xpath-&gt;as_string();</programlisting>
+      </informalexample>
+    </blockquote>
+
+    <para>
+      <methodname>as_bool</methodname>(), <methodname>as_number</methodname>(),
+      and <methodname>as_string</methodname>() return the value of the
+      XPath nodeset expressed as the corresponding data type.
+    </para>
+  </section>
 </chapter>
 <!--
 Local Variables:

@@ -61,6 +61,43 @@ extern "C" {
 		if (error->level >= XML_ERR_ERROR)
 			error_handler::error::errorflag=true;
 	}
+
+	static void handleValidationError(void *ctx, const char *format, ...)
+	{
+		size_t n;
+		size_t o=512;
+
+		// It's unlikely that the small fragments of error messages
+		// that libxml2 emits, piecemeal, will exceed 1024 bytes. But,
+		// if so, adapt.
+
+		while (1)
+		{
+			n=o+512;
+
+			char buffer[n+1];
+
+			buffer[n]=0;
+			// See vsprintf(3) note, old glibc, just in case.
+
+			va_list args;
+			va_start(args, format);
+			o=vsnprintf(buffer, n, format, args);
+			va_end(args);
+
+			if (o >= n)
+				continue;
+
+			// We better have thread_error initialized
+
+			if (!error_handler::error::thread_error)
+				std::cerr << buffer << std::flush;
+			else
+				error_handler::error::thread_error->message
+					<< buffer;
+			break;
+		}
+	}
 };
 
 // Global scope constructor, install our error handler hook.
@@ -68,6 +105,7 @@ extern "C" {
 error_handler::error_handler() noexcept
 {
 	xmlSetStructuredErrorFunc(NULL, handleStructuredError);
+	xmlSetGenericErrorFunc(NULL, handleValidationError);
 }
 
 error_handler::~error_handler() noexcept

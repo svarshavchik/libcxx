@@ -220,6 +220,42 @@ public:
 		using docAttribute::operator<;
 	};
 
+	class readlockObj;
+
+	//! The result of get_xpath().
+
+	//! get_xpath() returns a \ref docBase::xpath "INSERT_LIBX_NAMESPACE::doc::xml::base::xpath",
+	//! which is a reference to this object.
+
+	class xpathObj : virtual public obj {
+
+	public:
+		xpathObj();
+		~xpathObj() noexcept;
+
+		//! How many nodes in the resulting nodeset.
+		virtual size_t count() const=0;
+
+		//! Position the lock to the only node in the nodeset.
+
+		virtual void to_node()=0;
+
+		//! Position the lock to one of the nodes in the nodeset.
+
+		virtual void to_node(//! This is 1-based, not 0-based index.
+				     size_t n)=0;
+
+
+		//! Evaluate the xpath expression as a bool.
+		virtual bool as_bool() const=0;
+
+		//! Evaluate the xpath expression as a number.
+		virtual double as_number() const=0;
+
+		//! Evaluate the xpath expression as a string.
+		virtual std::string as_string() const=0;
+	};
+
 	//! A reader lock on an XML document.
 
 	//! A \ref ref "reference" to this object gets returned by readlock().
@@ -476,6 +512,14 @@ public:
 
 				       //! Set to true to indent formatted XML
 				       bool format=false) const=0;
+
+		//! Evaluate an XPATH expression against the current node
+
+		//! An exception gets thrown if \c expr is not a valid XPath
+		//! expression.
+		//!
+		//! \return \ref docBase::xpath "INSERT_LIBX_NAMESPACE::xml::doc::base::xpath".
+		virtual ref<xpathObj> get_xpath(const std::string &expr)=0;
 
 	protected:
 		//! Callback shim to save formatted XML into an output iterator

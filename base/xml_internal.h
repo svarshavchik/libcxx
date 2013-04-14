@@ -2,6 +2,7 @@
 #define xml_internal_h
 
 #include <libxml/parser.h>
+#include <libxml/xpath.h>
 #include <sstream>
 #include "x/xml/doc.H"
 #include "x/xml/parser.H"
@@ -67,6 +68,9 @@ class LIBCXX_HIDDEN impldocObj : public docObj {
 	class createnextsiblingObj;
 	class createprevioussiblingObj;
 	class writelockImplObj;
+
+	class xpathcontextObj;
+	class xpathImplObj;
 
 	class save_impl;
 

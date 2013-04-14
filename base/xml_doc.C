@@ -10,6 +10,7 @@
 #include "x/uriimpl.H"
 #include "x/messages.H"
 #include "x/sysexception.H"
+#include "x/weakptr.H"
 #include "xml_internal.h"
 #include "gettext_in.h"
 
@@ -590,6 +591,8 @@ class LIBCXX_HIDDEN impldocObj::readlockImplObj : public writelockObj {
 		}
 	}
 
+	ref<xpathObj> get_xpath(const std::string &expr) override;
+
 	bool is_blank() const
 	{
 		bool flag=true;
@@ -701,6 +704,14 @@ class LIBCXX_HIDDEN impldocObj::readlockImplObj : public writelockObj {
 	void remove() override
 	{
 		create_child();
+	}
+
+	virtual ref<obj> get_removal_mcguffin()
+	{
+		// We never remove anything here, so for the purposes of
+		// the removal mcguffin, just return ourselves.
+
+		return ref<obj>(this);
 	}
 
 	ref<createnodeObj> create_next_sibling() override
@@ -1175,6 +1186,13 @@ class LIBCXX_HIDDEN impldocObj::writelockImplObj
 
  public:
 
+	// Removal mcguffin
+
+	// get_removal_mcguffin() returns this object, creating if it does
+	// not exist. remove() releases this reference on the object.
+
+	ptr<obj> removal_mcguffin;
+
 	writelockImplObj(const ref<impldocObj> &implArg,
 			 const ref<obj> &lockArg)
 		: readlockImplObj(implArg, lockArg),
@@ -1346,6 +1364,14 @@ class LIBCXX_HIDDEN impldocObj::writelockImplObj
 		xmlUnlinkNode(n);
 		xmlFreeNode(n);
 		n=parent;
+		removal_mcguffin=ptr<obj>();
+	}
+
+	ref<obj> get_removal_mcguffin() override
+	{
+		if (removal_mcguffin.null())
+			removal_mcguffin=ref<obj>::create();
+		return removal_mcguffin;
 	}
 
 	void do_set_base(const char *uri)
@@ -1614,6 +1640,135 @@ ref<docObj::createnodeObj> docObj::createnodeObj::parent()
 	do_parent();
 	return ref<createnodeObj>(this);
 }
+
+////////////////////////////////////////////////////////////////////////////
+
+
+class LIBCXX_HIDDEN impldocObj::xpathcontextObj : virtual public obj {
+
+ public:
+	ref<readlockImplObj> lock;
+
+	xmlXPathContextPtr context;
+
+	xpathcontextObj(ref<readlockImplObj> &&lockArg)
+		: lock(std::move(lockArg)),
+		context(xmlXPathNewContext(lock->impl->p))
+		{
+			if (!context)
+				throw EXCEPTION(libmsg(_txt("xmlXpathNewContext failed")));
+			if (!(context->node=lock->n))
+				throw EXCEPTION(libmsg(_txt("Lock not positioned on a node")));
+		}
+
+	~xpathcontextObj() noexcept
+	{
+		if (context)
+			xmlXPathFreeContext(context);
+	}
+};
+
+docObj::xpathObj::xpathObj()
+{
+}
+
+
+docObj::xpathObj::~xpathObj() noexcept
+{
+}
+
+class LIBCXX_HIDDEN impldocObj::xpathImplObj : public xpathObj {
+
+ public:
+	ref<readlockImplObj> lock;
+	std::string expression;
+	xmlXPathObjectPtr objp;
+
+	weakptr<ptr<obj>> mcguffin;
+
+	xpathImplObj(const ref<xpathcontextObj> &context,
+		     const std::string &expressionArg)
+		: lock(context->lock), expression(expressionArg), objp(nullptr),
+		mcguffin(lock->get_removal_mcguffin())
+	{
+		error_handler::error trap_errors;
+
+		objp=xmlXPathEval(reinterpret_cast<const xmlChar *>
+				 (expression.c_str()), context->context);
+
+		trap_errors.check();
+
+		if (!objp)
+			throw EXCEPTION(gettextmsg(libmsg(_txt("Cannot parse xpath expression: %1%")),
+						   expression));
+	}
+
+	~xpathImplObj() noexcept
+	{
+		if (objp)
+			xmlXPathFreeObject(objp);
+	}
+
+	bool gone() const
+	{
+		return mcguffin.getptr().null();
+	}
+
+	size_t count() const override
+	{
+		return !gone() && objp && objp->nodesetval
+			? objp->nodesetval->nodeNr:0;
+	}
+
+	void to_node() override
+	{
+		auto c=count();
+
+		if (c < 1)
+			throw EXCEPTION(gettextmsg(libmsg(_txt("%1% does not exist")),
+						   expression));
+		if (c > 1)
+			throw EXCEPTION(gettextmsg(libmsg(_txt("Found %1% %2% elements")),
+						   c, expression));
+
+		lock->n=objp->nodesetval->nodeTab[0];
+	}
+
+	void to_node(size_t n) override
+	{
+		if (n == 0 || n > count())
+			throw EXCEPTION(gettextmsg(libmsg(_txt("%1% node #%2% does not exist")),
+						   expression, n));
+
+		lock->n=objp->nodesetval->nodeTab[n-1];
+	}
+
+	bool as_bool() const override
+	{
+		return !gone() && objp ? !!xmlXPathCastToBoolean(objp):false;
+	}
+
+	double as_number() const override
+	{
+		return !gone() && objp ? xmlXPathCastToNumber(objp):0;
+	}
+
+	std::string as_string() const override
+	{
+		return !gone() && objp ?
+			not_null(xmlXPathCastToString(objp),
+				 "xmlXPathCastToString"):"";
+	}
+};
+
+ref<impldocObj::xpathObj>
+impldocObj::readlockImplObj::get_xpath(const std::string &expr)
+{
+	return ref<xpathImplObj>::create(ref<xpathcontextObj>
+					 ::create(ref<readlockImplObj>(this)),
+					 expr);
+}
+
 #if 0
 {
 	{

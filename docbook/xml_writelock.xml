@@ -509,6 +509,17 @@ wlock->remove();</programlisting>
       node, the document becomes empty, and the writer lock has no &xml;
       document node position.
     </para>
+
+    <note>
+      <para>
+	When an <link linkend="xmlxpath">XPath nodeset</link>
+	gets created by a writer lock, calling <methodname>remove</methodname>()
+	automatically turns all xpath objects that were
+	created by the writer lock, and which still exist, into empty
+	nodesets (their <methodname>count</methodname>() methods will all
+	return zero).
+      </para>
+    </note>
   </section>
 </chapter>
 <!--

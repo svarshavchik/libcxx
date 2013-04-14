@@ -987,6 +987,125 @@ void test34()
 		throw EXCEPTION("Parsed entity expansion fail in test34");
 }
 
+static void test40()
+{
+	std::string docstr="<root><child><subchild /><subchild /></child><bool>1</bool><num>2.5</num></root>";
+
+	auto doc=LIBCXX_NAMESPACE::xml::doc::create(docstr.begin(),
+						    docstr.end(),
+						    "test40");
+
+	{
+		auto readlock=doc->readlock();
+
+		readlock->get_root();
+
+		readlock->get_xpath("child")->to_node();
+
+		if (readlock->path() != "/root/child")
+			throw EXCEPTION("to_node() failed");
+
+		bool caught=false;
+
+		try {
+			readlock->get_xpath("subchild[");
+		} catch (const LIBCXX_NAMESPACE::exception &e)
+		{
+			std::cerr << "Expected exception: [" << e
+				  << "]" << std::endl;
+			caught=true;
+		}
+
+		if (!caught)
+			throw EXCEPTION("Did not catch expected exception");
+
+		caught=false;
+
+		try {
+			readlock->get_xpath("subchild")->to_node();
+		} catch (const LIBCXX_NAMESPACE::exception &e)
+		{
+			std::cerr << "Expected exception: [" << e
+				  << "]" << std::endl;
+			caught=true;
+		}
+
+		if (!caught)
+			throw EXCEPTION("Did not catch expected exception");
+
+		caught=false;
+
+		try {
+			readlock->get_xpath("subchild")->to_node(3);
+		} catch (const LIBCXX_NAMESPACE::exception &e)
+		{
+			std::cerr << "Expected exception: [" << e
+				  << "]" << std::endl;
+			caught=true;
+		}
+
+		if (!caught)
+			throw EXCEPTION("Did not catch expected exception");
+
+		if (readlock->path() != "/root/child")
+			throw EXCEPTION("Lost read lock position at some point");
+		readlock->get_xpath("subchild")->to_node(2);
+
+		if (readlock->path()
+		    != "/root/child/subchild[2]")
+			throw EXCEPTION("New read lock position is unexpected in test40");
+	}
+
+	{
+		auto writelock=doc->writelock();
+
+		writelock->get_root();
+
+		writelock->get_xpath("child/subchild")->to_node(2);
+		if (writelock->path() != "/root/child/subchild[2]")
+			throw EXCEPTION("set_node() failed");
+	}
+
+	{
+		auto readlock=doc->readlock();
+
+		readlock->get_root();
+
+		if (readlock->get_xpath("notbool")->as_bool())
+			throw EXCEPTION("as_bool failed");
+
+		if (!readlock->get_xpath("bool")->as_bool())
+			throw EXCEPTION("as_bool failed");
+
+		if (readlock->get_xpath("num")->as_string() != "2.5")
+			throw EXCEPTION("as_bool failed");
+
+		if (readlock->get_xpath("num")->as_number() != 2.5)
+			throw EXCEPTION("as_number failed");
+	}
+
+	{
+		auto writelock=doc->writelock();
+
+		writelock->get_root();
+
+		auto xpath=writelock->get_xpath("child/subchild");
+
+		if (xpath->count() != 2)
+			throw EXCEPTION("Expected 2 subchild elements");
+
+		writelock->get_xpath("bool")->to_node();
+
+		if (xpath->count() != 2)
+			throw EXCEPTION("Expected 2 subchild elements");
+
+		writelock->remove();
+
+		if (xpath->count() != 0)
+			throw EXCEPTION("xpath was not invalidated");
+	}
+}
+
 int main(int argc, char **argv)
 {
 	try {
@@ -1010,6 +1129,8 @@ int main(int argc, char **argv)
 		test32();
 		test33();
 		test34();
+
+		test40();
 	} catch (LIBCXX_NAMESPACE::exception &e)
 	{
 		std::cerr << e << std::endl;
