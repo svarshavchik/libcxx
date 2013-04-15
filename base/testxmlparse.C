@@ -1106,6 +1106,49 @@ static void test40()
 	}
 }
 
+static void test50()
+{
+	std::string docstr=
+		"<html xmlns:xi=\"http://www.w3.org/2001/XInclude\">"
+		"<xi:include href=\"xincluded.xml\" />"
+		"</html>";
+
+	std::ofstream("xincluded.xml") << "<p>Hello world</p>" << std::flush;
+
+	auto doc=LIBCXX_NAMESPACE::xml::doc::create(docstr.begin(),
+						    docstr.end(),
+						    "test50",
+						    "xinclude");
+
+	auto lock=doc->readlock();
+
+	lock->get_root();
+	lock->get_xpath("p")->to_node();
+
+	if (lock->get_text() != "Hello world")
+		throw EXCEPTION("test50 failed");
+
+	std::ofstream("xincluded.xml") << "<p>Hello world" << std::flush;
+
+	bool caught=false;
+	try {
+		LIBCXX_NAMESPACE::xml::doc::create(docstr.begin(),
+						   docstr.end(),
+						   "test50",
+						   "xinclude");
+	} catch (const LIBCXX_NAMESPACE::exception &e)
+	{
+		caught=true;
+		std::cout << "Caught expected exception: [" << e << "]"
+			  << std::endl;
+	}
+
+	unlink("xincluded.xml");
+
+	if (!caught)
+		throw EXCEPTION("test50 did not catch the expected exception");
+}
+
 int main(int argc, char **argv)
 {
 	try {
@@ -1131,6 +1174,7 @@ int main(int argc, char **argv)
 		test34();
 
 		test40();
+		test50();
 	} catch (LIBCXX_NAMESPACE::exception &e)
 	{
 		std::cerr << e << std::endl;

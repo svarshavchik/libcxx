@@ -35,8 +35,8 @@ auto doc=&ns;::xml::doc::create();
     writer lock get created. The writer lock object is a subclass
     of a reader lock, and implements all <link linkend="xml_readlock">reader
       lock</link> methods, except for <methodname>clone</methodname>().
-    Only one writer lock can exist at a time, and an attemp to invoke
-    its <methodname>clone</methodname>() method throws an exception.
+    Only one writer lock can exist at a time. Invoking a writer lock's
+    <methodname>clone</methodname>() method throws an exception.
   </para>
 
   <section id="xml_writelock_creator">
@@ -163,7 +163,7 @@ wlock-&gt;create_child()-&gt;element({"p"})
       <methodname>create_previous_sibling</methodname>() methods,
       that return the other types of creator factories. This allows a single
       statement to create new XML nodes in different <quote>directions</quote>.
-      The above example uses switch to the
+      The above example switches to the
       <methodname>create_next_sibling</methodname>() creator factory and
       installs another
       <literal>&lt;p&gt;</literal> element as its sibling. The net effect is
@@ -175,9 +175,9 @@ wlock-&gt;create_child()-&gt;element({"p"})
       For convenience, each creator factory also implements
       <methodname>parent</methodname>()
       by repositioning the writer lock to its current node's parent node.
-      After creating the two new <literal>&lt;p&gt;</literal> child elements of
-      of the parent
-      node, the writer lock is positioned on the second child element.
+      After creating these two new <literal>&lt;p&gt;</literal> child elements
+      of of the parent
+      node, the writer lock gets positioned on the second child element.
       <methodname>parent</methodname>() repositions the writer lock to the
       original parent node.
       The creator factory remains unchanged, it's still

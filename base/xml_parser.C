@@ -12,6 +12,7 @@
 #include "x/join.H"
 #include "x/chrcasecmp.H"
 #include "x/messages.H"
+#include <libxml/xinclude.h>
 #include <cstdarg>
 #include <map>
 
@@ -125,6 +126,7 @@ parserObj::~parserObj() noexcept
 implparserObj::implparserObj(const std::string &uriArg,
 			     const std::string &options) : uri(uriArg),
 							   p(nullptr),
+							   p_options(0),
 							   buffer_size(0)
 {
 // XML_PARSER_ options that are pulled out of libxml/parser.h
@@ -145,8 +147,6 @@ implparserObj::implparserObj(const std::string &uriArg,
 		for (const auto &option:option_list)
 			requested_options.insert(option);
 	}
-
-	p_options=0;
 
 	for (const auto &option:parser_options)
 	{
@@ -206,6 +206,22 @@ doc implparserObj::done()
 	xmlFreeParserCtxt(p);
 	p=nullptr;
 	buffer_size=0;
+
+	// The XML_PARSE_XINCLUDE option seems to be used by the TextReader
+	// API only, so we handle it ourselves.
+
+	if (p_options & XML_PARSE_XINCLUDE)
+	{
+		error_handler::error capture;
+
+		int rc=xmlXIncludeProcessFlags(ret->p, p_options);
+
+		capture.check();
+
+		if (rc < 0)
+			throw EXCEPTION(libmsg(_txt("xincluded document parsing failed")));
+	}
+
 	return ret;
 }
 
