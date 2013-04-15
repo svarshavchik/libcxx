@@ -6,9 +6,9 @@
 #, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version: libcxx 0.3\n"
+"Project-Id-Version: libcxx 0.4\n"
 "Report-Msgid-Bugs-To: mrsam@courier-mta.com\n"
-"POT-Creation-Date: 2013-03-10 13:16-0400\n"
+"POT-Creation-Date: 2013-04-14 20:49-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -554,6 +554,148 @@ msgstr ""
 
 #: base/workerpoolobj.C:76
 msgid "Unknown exception caught"
+msgstr ""
+
+#: base/xml_doc.C:695
+msgid "Unable to save XML document"
+msgstr ""
+
+#: base/xml_doc.C:701 base/xml_dtd.C:89
+msgid ""
+"Somehow you ended up calling a virtual write method on a read object. "
+"Virtual objects are not for playing."
+msgstr ""
+
+#: base/xml_doc.C:850
+msgid "Internal error: attempt to create a new XML node without a parent"
+msgstr ""
+
+#: base/xml_doc.C:869
+msgid "Cannot create a new XML %1% element"
+msgstr ""
+
+#: base/xml_doc.C:891 base/xml_doc.C:1290
+msgid "Namespace prefix %1% not found"
+msgstr ""
+
+#: base/xml_doc.C:903 base/xml_doc.C:1308
+msgid "Namespace URI %1% not found"
+msgstr ""
+
+#: base/xml_doc.C:943
+msgid "Invalid namespace"
+msgstr ""
+
+#: base/xml_doc.C:1042
+msgid "Internal error: setting the document root to a non-element node"
+msgstr ""
+
+#: base/xml_doc.C:1045
+msgid "Write lock is not positioned on an existing node"
+msgstr ""
+
+#: base/xml_doc.C:1060
+msgid "Internal error: xmlAddChild()"
+msgstr ""
+
+#: base/xml_doc.C:1107
+msgid "Internal error: xmlAddNextSibling() failed"
+msgstr ""
+
+#: base/xml_doc.C:1156
+msgid "Internal error: xmlAddPrevSibling() failed"
+msgstr ""
+
+#: base/xml_doc.C:1211
+msgid "Cannot clone a write lock"
+msgstr ""
+
+#: base/xml_doc.C:1256
+msgid "Namespace %1%:%2% cannot be added"
+msgstr ""
+
+#: base/xml_doc.C:1260
+msgid "create_namespace() called on a nonexistent node"
+msgstr ""
+
+#: base/xml_doc.C:1335
+msgid "Cannot set attribute %1%"
+msgstr ""
+
+#: base/xml_doc.C:1390
+msgid "Cannot set the base URI"
+msgstr ""
+
+#: base/xml_doc.C:1398
+msgid "Cannot set the lang attribute"
+msgstr ""
+
+#: base/xml_doc.C:1406
+msgid "Cannot set the space preserve attribute"
+msgstr ""
+
+#: base/xml_doc.C:1414
+msgid "parent() called on the document's root node"
+msgstr ""
+
+#: base/xml_doc.C:1437 base/xml_doc.C:1472
+msgid "Cannot install an external subset for an empty document"
+msgstr ""
+
+#: base/xml_doc.C:1459
+msgid "Cannot create external subset"
+msgstr ""
+
+#: base/xml_doc.C:1495
+msgid "Cannot create internal subset"
+msgstr ""
+
+#: base/xml_doc.C:1659
+msgid "xmlXpathNewContext failed"
+msgstr ""
+
+#: base/xml_doc.C:1661
+msgid "Lock not positioned on a node"
+msgstr ""
+
+#: base/xml_doc.C:1702
+msgid "Cannot parse xpath expression: %1%"
+msgstr ""
+
+#: base/xml_doc.C:1728
+msgid "%1% does not exist"
+msgstr ""
+
+#: base/xml_doc.C:1731
+msgid "Found %1% %2% elements"
+msgstr ""
+
+#: base/xml_doc.C:1740
+msgid "%1% node #%2% does not exist"
+msgstr ""
+
+#: base/xml_dtd.C:63
+msgid "Document type is not defined"
+msgstr ""
+
+#: base/xml_newdtd.C:98
+msgid "Cannot create a new entity"
+msgstr ""
+
+#: base/xml_newdtd.C:109
+msgid "xmlNewText failed"
+msgstr ""
+
+#: base/xml_newdtd.C:114
+msgid "xmlAddChild failed"
+msgstr ""
+
+#: base/xml_parser.C:163
+msgid "Unknown XML parsing options: %1%"
+msgstr ""
+
+#: base/xml_parser.C:222
+msgid "xincluded document parsing failed"
 msgstr ""
 
 #: base/ymd.C:39
