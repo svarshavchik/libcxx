@@ -3,7 +3,7 @@
 # See COPYING for distribution information.
 
 AC_PREREQ(2.61)
-AC_INIT(libcxx, 0.4, [mrsam@courier-mta.com])
+AC_INIT(libcxx, 0.5, [mrsam@courier-mta.com])
 
 AC_CONFIG_SRCDIR([includes/obj.H])
 AC_CONFIG_HEADER([libcxx_config.h])
@@ -639,7 +639,7 @@ AC_SUBST(YAMLCPPFLAGS)
 
 AC_SUBST(LIBCXX_NAMESPACE,x)
 
-VERSION_INFO=5:0:1
+VERSION_INFO=6:0:0
 AC_SUBST(VERSION_INFO)
 
 test "x$prefix" = xNONE && prefix=$ac_default_prefix
@@ -664,6 +664,7 @@ AC_CONFIG_FILES([Doxyfile po/Makefile.in
 		 includes/epoll_def.h
 		 includes/namespace.h
 		 includes/libcxx.mk
+		 includes/libcxx.m4
 		 includes/optgen.xsl
 		 includes/globlocale.H
 		 includes/signal_def.h

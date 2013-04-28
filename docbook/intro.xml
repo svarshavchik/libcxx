@@ -77,6 +77,21 @@ See COPYING for distribution information.
 	  <link linkend="mime">&MIME; classes and templates</link>.
 	</para>
       </listitem>
+
+      <listitem>
+	<para>
+	  Reading and writing <link linkend="xml">&xml;</link> and
+	  <link linkend="yaml"><acronym>YAML</acronym></link> documents.
+	</para>
+      </listitem>
+
+      <listitem>
+	<para>
+	  Accessing <ulink url="sql/index.html"><acronym>SQL</acronym>
+	    databases</ulink>.
+	</para>
+      </listitem>
+
     </itemizedlist>
 
     <para>

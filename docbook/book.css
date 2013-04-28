@@ -175,3 +175,7 @@ a:link, a:visited {
     text-align: left;
 }
 
+#externallinks th, #externallinks td {
+    border-width: 0px;
+}
+

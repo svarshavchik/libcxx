@@ -16,7 +16,7 @@ aclocal_DATA=libcxx.m4
 
 BUILT_SOURCES=namespace.h epoll_def.h globlocale.H signal_def.h xlocale.H
 DISTCLEANFILES=namespace.h optgen.xsl msgdispatcher.xsl libcxx.mk
-EXTRA_DIST=optgen.xsl optgen.sample.xml libcxx.m4
+EXTRA_DIST=optgen.xsl optgen.sample.xml
 
 dist-hook:
 	rm -f $(patsubst %,$(distdir)/%,$(BUILT_SOURCES))

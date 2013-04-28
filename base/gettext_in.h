@@ -11,7 +11,7 @@ namespace LIBCXX_NAMESPACE {
 #endif
 
 #undef LIBCXX_DOMAIN
-#define LIBCXX_DOMAIN "libx"
+#define LIBCXX_DOMAIN "libcxx"
 
 #define _TXT(a) dgettext(LIBCXX_DOMAIN, a)
 

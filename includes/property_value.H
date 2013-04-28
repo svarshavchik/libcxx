@@ -17,7 +17,7 @@
 
 namespace LIBCXX_NAMESPACE {
 
-//! Application properties
+//! \anchor explicit_property_namespace Application properties
 
 //! Properties are arbitrary "name=value" pairs that are loaded from a %property
 //! file when the application starts.

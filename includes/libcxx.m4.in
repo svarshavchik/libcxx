@@ -1,6 +1,6 @@
 AC_DEFUN([LIBCXX_INIT],[
 PKG_PROG_PKG_CONFIG
-PKG_CHECK_EXISTS([libcxx],[:],[AC_MSG_ERROR([libcxx not found])])
+PKG_CHECK_EXISTS([libcxx >= @VERSION@],[:],[AC_MSG_ERROR([LibCXX package @VERSION@, or higher not found])])
 
 libx_pkgdatadir="`$PKG_CONFIG --variable=pkgdatadir libcxx`"
 CFLAGS="$CFLAGS `$PKG_CONFIG --cflags libcxx`"

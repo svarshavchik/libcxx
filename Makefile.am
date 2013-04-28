@@ -51,6 +51,7 @@ html/icon.gif: html/index.html docbook/icon.gif
 	$(INSTALL) -m 0644 $(srcdir)/docbook/icon.gif html/icon.gif
 
 html/index.html: html/ref/index.html $(wildcard docbook/*.xml) docbook/xmllinks.xsl
+	cd ../libcxxsql && $(MAKE) docs
 	mkdir -p docbook
 	xsltproc $(srcdir)/docbook/xmllinks.xsl xml/index.xml >docbook/entities
 	rm -rf html.tmp
@@ -68,9 +69,10 @@ html/index.html: html/ref/index.html $(wildcard docbook/*.xml) docbook/xmllinks.
 	rm -rf html/examples
 	find examples -depth \( -type d -o -name '*.[CH]' -o -name '*.xml' -o -name Makefile.am -o -name configure.ac \) -print | cpio -o --quiet | (cd html; cpio -i --quiet --make-directories)
 	echo 'ForceType text/plain' >html/examples/.htaccess
-	rm -f html/stasher
+	rm -rf html/stasher html/sql
 	ln -s ../stasher html
-	links --dump html/INSTALL.html >INSTALL.tmp
+	rsync -a ../libcxxsql/html/. html/sql
+	links -dump -no-numbering -no-references html/INSTALL.html >INSTALL.tmp
 	mv -f INSTALL.tmp INSTALL
 
 html/ref/index.html: $(DOCS_SRC) Doxyfile header.html
