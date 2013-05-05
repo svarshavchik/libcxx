@@ -132,6 +132,290 @@ inline exception &exception::operator<<(const exceptionObj::libx_exception_done_
 
 std::ostream &operator<<(std::ostream &o, const exception &e);
 
+//! Helper class for custom exceptions
+
+//! \see CUSTOM_EXCEPTION
+
+template<typename custom_exception_class>
+class custom_exceptionObj : public custom_exception_class,
+			    public exceptionObj {
+
+public:
+
+	//! Constructor
+
+	//! The constructor forwards file and line parameters to
+	//! exceptionObj::fileline() (after construction), and the remaining
+	//! parameters to the custom exception class constructor.
+	template<typename ...Args>
+	custom_exceptionObj(Args && ...args)
+		: custom_exception_class(std::forward<Args>(args)...)
+	{
+	}
+
+	//! Destructor.
+
+	virtual ~custom_exceptionObj() noexcept
+	{
+	}
+};
+
+//! Internal helper class to determine whether the custom exception class has describe()
+
+//! \internal
+
+template<typename T> struct custom_exception_implements_describe
+{
+	//! Yes return value
+
+	typedef char yes[1];
+
+	//! No return value
+
+	typedef char no[2];
+
+	//! Helper for check()
+
+	static exception &dummy_exception();
+
+	//! The class implements describe()
+
+	template<typename S>
+	static yes &check(decltype( ((S *)nullptr)->describe(dummy_exception())) *);
+
+	//! The class does not describe()
+
+	template<typename S>
+	static no &check(...);
+
+	//! Determine whether the class implements describe()
+
+	static const bool value = sizeof(check<T>(0)) == sizeof(yes);
+};
+
+//! Invoke a custom exception class's describe() method, if it has one.
+
+//! \internal
+
+template<bool implements_describe> class invoke_custom_exception_describe;
+
+//! Specialization: the class does not implement describe()
+
+//! \internal
+
+template<>
+struct invoke_custom_exception_describe<false> {
+
+	//! Invoke objname(), as the default.
+
+	template<typename T>
+	static void describe(exception &e, T *p)
+	{
+		e << p->objname();
+	}
+};
+
+//! Specialization: the class implements describe()
+
+//! \internal
+
+template<>
+struct invoke_custom_exception_describe<true> {
+
+	//! Invoke describe()
+
+	template<typename T>
+	static void describe(exception &e, T *p)
+	{
+		p->describe(e);
+	}
+};
+
+//! Internal helper class to determine whether the custom exception class defines a 'base' typedef.
+
+//! \internal
+
+template<typename T> struct custom_exception_defines_base
+{
+	//! Yes return value
+
+	typedef char yes[1];
+
+	//! No return value
+
+	typedef char no[2];
+
+	//! The class defines a base typedef
+
+	template<typename S>
+	static yes &check(typename S::base *);
+
+	//! The class does not define a base typedef
+
+	template<typename S>
+	static no &check(...);
+
+	//! Determine whether the class implements describe()
+
+	static const bool value = sizeof(check<T>(0)) == sizeof(yes);
+};
+
+//! Return the custom exception class's \c base typedef, if it exists.
+
+//! \internal
+
+template<bool defines_base_class> class custom_exception_base_class;
+
+//! Specialization: the class does not define a \c base typedef
+
+//! \internal
+
+template<>
+struct custom_exception_base_class<false> {
+
+	//! The class does not define a \c base typedef
+
+	template<typename T>
+	struct base_class {
+
+		//! Use void instead
+		typedef void base_t;
+	};
+		
+};
+
+//! Specialization: the class defines a \c base typedef
+
+//! \internal
+
+template<>
+struct custom_exception_base_class<true> {
+
+	//! The class defines a \c base typedef
+
+	template<typename T>
+	struct base_class {
+
+		//! Use it.
+		typedef typename T::base base_t;
+	};
+		
+};
+
+//! Custom subclass of an exception
+
+//! \see CUSTOM_EXCEPTION
+
+template<typename custom_exception_class,
+	 typename base_class_t=typename custom_exception_base_class<
+		 custom_exception_defines_base<custom_exception_class>::value
+		 >::template base_class<custom_exception_class>::base_t>
+class custom_exception : public exception {
+
+public:
+
+	//! This is not a real \ref ref "reference", but let's pretend we have a base class
+
+	typedef base_class_t base;
+
+	//! Inherit << from exception superclass
+
+	using exception::operator <<;
+
+	//! Override * operator
+
+	//! We know that the underlying reference must point to a custom class.
+	//!
+
+	custom_exception_class &operator*() const
+	{
+		return dynamic_cast<custom_exception_class &>(exception::operator*());
+	}
+
+	//! Override -> operator
+
+	//! We know that the underlying reference must point to a custom class.
+	//!
+
+	custom_exception_class *operator->() const
+	{
+		return &operator*();
+	}
+
+	//! Copy constructor
+
+	custom_exception(const custom_exception<custom_exception_class, base_class_t> &c)
+		: exception(c)
+	{
+	}
+
+	//! Move constructor
+
+	custom_exception(custom_exception<custom_exception_class, base_class_t> &&c)
+		: exception(std::move(c))
+	{
+	}
+
+	//! Copy constructor from a non-const reference.
+
+	custom_exception(custom_exception<custom_exception_class, base_class_t> &c)
+		: exception(c)
+	{
+	}
+
+	//! Constructor
+
+	template<typename ...Args>
+	custom_exception(Args && ...args)
+		: exception(ref<custom_exceptionObj<custom_exception_class>>
+			    ::create(std::forward<Args>(args)...))
+	{
+	}
+
+	//! After the constructor finishes, CUSTOM_EXCEPTION invokes this.
+
+        const custom_exception<custom_exception_class> &log(const char *file,
+							    int line)
+	{
+		exception::operator->()->fileline(file, line);
+
+		invoke_custom_exception_describe<
+			custom_exception_implements_describe<
+				custom_exception_class>::value>
+			::describe(*this,
+				   &dynamic_cast< custom_exceptionObj<
+				   custom_exception_class> &>(exception::operator*()));
+
+		(*this) << exceptionObj::libx_exception_done;
+		return *this;
+	}
+};
+
+//! Throw a custom exception
+
+//! \code
+//! class myExceptionClass {
+//!
+//! public:
+//!    myExceptionClass(int error_code);
+//!
+//! };
+//!
+//! // ...
+//!
+//! throw INSERT_LIBX_NAMESPACE::CUSTOM_EXCEPTION(myException, -100);
+//!
+//! // ...
+//!
+//! catch (const INSERT_LIBX_NAMESPACE::custom_exception<myExceptionClass> &e)
+//! {
+//!     doSomething(e->error_code);
+//! }
+//! \endcode
+#define CUSTOM_EXCEPTION(className, ...) \
+	(::LIBCXX_NAMESPACE::custom_exception<className>(__VA_ARGS__).log(__FILE__, __LINE__))
+
+//!
 #if 0
 {
 #endif

@@ -49,9 +49,10 @@ std::cerr &lt;&lt; e &lt;&lt; std::endl;</programlisting>
   <para>
     This library throws
     <ulink url="&link-x--exception;"><classname>&ns;::exception</classname></ulink>
-    exceptions, but
-    applications should use
-    the <literal>EXCEPTION</literal> or a <literal>SYSEXCEPTION</literal>
+    exceptions, but applications should use the
+    <ulink url="&link-define-exception.H-EXCEPTION;"><literal>EXCEPTION</literal></ulink>
+    or a
+    <ulink url="&link-define-sysexception.H-SYSEXCEPTION;"><literal>SYSEXCEPTION</literal></ulink>
     macro.
     These macros take an argument that can generally appear on the right
     hand side of a <quote>std::ostream &lt;&lt;</quote>. The exception text
@@ -102,6 +103,135 @@ std::cerr &lt;&lt; e &lt;&lt; std::endl;</programlisting>
     to the macro. The value of <varname>errno</varname> is also saved, and
     may be retrieved by the <methodname>getErrorCode</methodname>() method.
   </para>
+
+  <section id="custom_exceptions">
+    <title>Throwing customized exceptions</title>
+
+    <blockquote>
+      <informalexample>
+	<programlisting>
+class custom_exception {
+
+public:
+    int errcode;
+
+    custom_exception(int n) : errcode(n)
+    {
+    }
+};
+
+// ...
+
+try {
+
+    throw CUSTOM_EXCEPTION(custom_exception, 100);
+} catch (const &ns;::custom_exception&lt;custom_exception&gt; &amp;c)
+{
+    doSomething(c->errcode);
+    // ...
+}</programlisting>
+      </informalexample>
+    </blockquote>
+
+    <para>
+      The
+      <ulink url="&link-define-exception.H-CUSTOM-EXCEPTION;"><literal>CUSTOM_EXCEPTION</literal></ulink>
+      macro
+      constructs a temporary class that multiply derives from
+      <classname>&ns;::custom_exception&lt;argument&gt;</classname>, with
+      <replaceable>argument</replaceable>
+      given as the first macro parameter, and
+      <classname>&ns;:;exception</classname>.
+      The remaining macro parameters get forwarded to its constructor.
+    </para>
+
+    <para>
+      The temporary class is a subclass of
+      <classname>&ns;::exception</classname>, and it's catchable by
+      a <literal>const &ns;::exception &amp;</literal>, but passing it
+      to a <classname>std::ostream</classname> via the
+      <methodname>&lt;&lt;</methodname> operator results in a single string,
+      the name of the custom subclass.
+      Dereferencing
+      <classname>&ns;::custom_exception&lt;argument&gt;</classname>,
+      produces an instance <replaceable>argument</replaceable>, instantiated
+      using the arguments to the <literal>CUSTOM_EXCEPTION</literal>.
+    </para>
+
+    <blockquote>
+      <informalexample>
+	<programlisting>
+class custom_exception {
+
+public:
+    int errcode;
+
+    custom_exception(int n) : errcode(n)
+    {
+    }
+
+    void describe(&ns;::exception &amp;e)
+    {
+        e &lt;&lt; "Internal error " &lt;&lt; errcode;
+    }
+};</programlisting>
+      </informalexample>
+    </blockquote>
+
+    <para>
+      Use a <methodname>describe</methodname>() method, that takes a
+      native reference to
+      <classname>&ns;::exception</classname>, to provide a generic error
+      message text, that gets written
+      to a <classname>std::ostream</classname> by this
+      <literal>&ns;::exception</literal>, instead of just a class name.
+      <methodname>describe</methodname>() gets invoked to provide the
+      exception's description just after its constructor gets invoked, and
+      before the actual exception gets thrown.
+    </para>
+
+    <blockquote>
+      <informalexample>
+	<programlisting>
+class custom_exception {
+
+public:
+    int errcode;
+
+    class base {
+    public:
+        static void base_function();
+    };
+
+    custom_exception(int n) : errcode(n)
+    {
+    }
+};
+
+typedef &ns;::custom_exception&lt;custom_exception&gt; custom_thrown_exception;
+// ...
+
+try {
+
+    throw CUSTOM_EXCEPTION(custom_exception, 100);
+} catch (const custom_thrown_exception &amp;c)
+{
+    custom_thrown_exception::base::base_function(c->errcode);
+}</programlisting>
+      </informalexample>
+    </blockquote>
+
+    <para>
+      If a custom exception class defines an inner class named
+      <quote>base</quote>, the
+      <classname>&ns;::custom_exception</classname> template contains
+      a member typedef alias for this class.
+      Although a
+      <classname>&ns;::custom_exception</classname> is not an
+      <classname>&ns;::ref</classname> (it subclasses it), this allows code
+      to treat it similarly, with a defined base class.
+    </para>
+  </section>
 </chapter>
 
 <!--

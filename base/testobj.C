@@ -246,6 +246,74 @@ static void exceptiontest()
 	}
 }
 
+class custom_exception1 {
+
+public:
+	int errcode;
+
+	custom_exception1(int n) : errcode(n)
+	{
+	}
+
+	int getErrorCode()
+	{
+		return errcode;
+	}
+};
+
+class custom_exception2 {
+
+public:
+
+	typedef int base;
+
+	custom_exception2()
+	{
+	}
+
+	void describe(LIBCXX_NAMESPACE::exception &e)
+	{
+		e << "foo";
+	}
+};
+
+char custom_exception_base_class_works
+[sizeof(LIBCXX_NAMESPACE::custom_exception<custom_exception2>
+	::base) == sizeof(int) ? 1:-1];
+					       
+static void exceptiontest2()
+{
+	try {
+		throw CUSTOM_EXCEPTION(custom_exception1, 100);
+	} catch (const LIBCXX_NAMESPACE::custom_exception<custom_exception1> &c)
+	{
+		c->getErrorCode();
+	}
+
+	try {
+		throw CUSTOM_EXCEPTION(custom_exception1, 100);
+	} catch (const LIBCXX_NAMESPACE::exception &e)
+	{
+		std::cout << e << std::endl;
+	}
+
+	std::ostringstream o;
+
+	try {
+		throw CUSTOM_EXCEPTION(custom_exception2);
+	} catch (const LIBCXX_NAMESPACE::exception &e)
+	{
+		o << e;
+	}
+
+	if (o.str() != "foo")
+	{
+		std::cerr << "Custom exception describe() did not work"
+			  << std::endl;
+		exit(1);
+	}
+}
+
 static void testattr(LIBCXX_NAMESPACE::attr tmp)
 {
 	tmp->setattr("user.foo", "foo");
@@ -2350,6 +2418,7 @@ int main()
 	alarm(60);
 	objtest();
 	exceptiontest();
+	exceptiontest2();
 	threadtest();
 	fdtest();
 	fdtest2();
