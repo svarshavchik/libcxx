@@ -7,6 +7,7 @@ p5 erased
 Exception thrown
 Destroyed 5
 Null ptr dereference
+x::custom_exceptionObj<custom_exception1>
 Thread 0 got signaled.
 Thread 1 got signaled.
 Thread 0 got signaled.

@@ -14,9 +14,10 @@ bool used_specialization=false;
 #include <list>
 #include <iostream>
 
+template<typename T>
 void testjoin()
 {
-	std::list<std::string> foobar = {"foo", "bar", "foobar"};
+	std::list<T> foobar = {"foo", "bar", "foobar"};
 
 	used_specialization=false;
 	if (LIBCXX_NAMESPACE::join(foobar.begin(), foobar.end(), ", ")
@@ -31,24 +32,19 @@ void testjoin()
 	    != "foo, bar, foobar")
 		throw EXCEPTION("testjoin test 2 failed");
 
-	used_specialization=false;
-
 	if (LIBCXX_NAMESPACE::join(foobar, ", ")
 	    != "foo, bar, foobar")
 		throw EXCEPTION("testjoin test 3 failed");
 
-	if (!used_specialization)
-		throw EXCEPTION("testjoin test 3 did not use specialized template");
-
 	if (LIBCXX_NAMESPACE::join(foobar, std::string(", "))
 	    != "foo, bar, foobar")
 		throw EXCEPTION("testjoin test 4 failed");
-
 }
 
+template<typename T>
 void testwjoin()
 {
-	std::list<std::wstring> foobar = {L"foo", L"bar", L"foobar"};
+	std::list<T> foobar = {L"foo", L"bar", L"foobar"};
 
 	used_specialization=false;
 	if (LIBCXX_NAMESPACE::join(foobar.begin(), foobar.end(), L", ")
@@ -63,14 +59,9 @@ void testwjoin()
 	    != L"foo, bar, foobar")
 		throw EXCEPTION("testwjoin test 2 failed");
 
-	used_specialization=false;
-
 	if (LIBCXX_NAMESPACE::join(foobar, L", ")
 	    != L"foo, bar, foobar")
 		throw EXCEPTION("testwjoin test 3 failed");
-
-	if (!used_specialization)
-		throw EXCEPTION("testwjoin test 3 did not use specialized template");
 
 	if (LIBCXX_NAMESPACE::join(foobar, std::wstring(L", "))
 	    != L"foo, bar, foobar")
@@ -81,8 +72,9 @@ void testwjoin()
 int main(int argc, char **argv)
 {
 	try {
-		testjoin();
-		testwjoin();
+		testjoin<std::string>();
+		testwjoin<std::wstring>();
+		testjoin<const char *>();
 	} catch (const LIBCXX_NAMESPACE::exception &e)
 	{
 		std::cout << "testjoin: "

@@ -15,10 +15,11 @@ namespace LIBCXX_NAMESPACE {
 }
 #endif
 
-template<typename OutputIterator, typename InputIterator>
+template<typename OutputIterator, typename InputIterator,
+	 typename sep_type>
 OutputIterator join(InputIterator beg_iter,
 		    InputIterator end_iter,
-		    const typename std::decay<decltype(*beg_iter)>::type &separator,
+		    const sep_type &separator,
 		    OutputIterator out_iter)
 {
 	bool need_separator=false;
@@ -26,28 +27,18 @@ OutputIterator join(InputIterator beg_iter,
 	while (beg_iter != end_iter)
 	{
 		if (need_separator)
-			out_iter=std::copy(std::begin(separator),
-					   std::end(separator),
-					   out_iter);
+			out_iter=join_copy<sep_type>::copy(out_iter,
+							   separator);
 		need_separator=true;
 
-		out_iter=std::copy(beg_iter->begin(),
-				   beg_iter->end(), out_iter);
+		out_iter=join_copy<
+			typename std::remove_cv<
+				typename std::remove_reference<
+					decltype(*beg_iter)>
+				::type>::type>::copy(out_iter, *beg_iter);
 		++beg_iter;
 	}
 	return out_iter;
-}
-
-template<typename OutputIterator, typename InputIterator>
-OutputIterator join(InputIterator beg_iter,
-		    InputIterator end_iter,
-		    const typename std::decay<decltype(*beg_iter)>::type
-		    ::value_type *separator,
-		    OutputIterator out_iter)
-{
-	return join(beg_iter, end_iter,
-		    typename std::decay<decltype(*beg_iter)>::type(separator),
-		    out_iter);
 }
 
 template<typename OutputIterator, typename InputIterator, size_t n>
@@ -62,7 +53,7 @@ OutputIterator join(InputIterator beg_iter,
 #endif
 
 	return join(beg_iter, end_iter,
-		    typename std::decay<decltype(*beg_iter)>::type(separator),
+		    &separator[0],
 		    out_iter);
 }
 
@@ -78,7 +69,7 @@ OutputIterator join(InputIterator beg_iter,
 #endif
 
 	return join(beg_iter, end_iter,
-		    typename std::decay<decltype(*beg_iter)>::type(separator),
+		    &separator[0],
 		    out_iter);
 }
 
@@ -95,9 +86,12 @@ template<typename InputIterator, typename sep_type>
 auto join(InputIterator beg_iter,
 	  InputIterator end_iter,
 	  const sep_type &separator)
-	-> typename std::decay<decltype(*beg_iter)>::type
+	-> typename string_ret_type<typename std::decay<decltype(*beg_iter)>
+				    ::type>::type
 {
-	typedef typename std::decay<decltype(*beg_iter)>::type string_t;
+	typedef typename string_ret_type<typename
+					 std::decay<decltype(*beg_iter)>
+					 ::type>::type string_t;
 
 	string_t string;
 
@@ -107,41 +101,44 @@ auto join(InputIterator beg_iter,
 	return string;
 }
 
-template<typename InputIterator, size_t n>
+template<typename InputIterator, typename sep_type, size_t n>
 auto join(InputIterator beg_iter,
 	  InputIterator end_iter,
-	  const typename std::decay<decltype(*beg_iter)>::type::value_type (&separator)[n])
-	-> typename std::decay<decltype(*beg_iter)>::type
+	  const sep_type (&separator)[n])
+	-> typename string_ret_type<typename std::decay<decltype(*beg_iter)>
+				    ::type>::type
 {
 #ifdef LIBCXX_INTERNAL_DEBUG
 	LIBCXX_INTERNAL_DEBUG;
 #endif
 
-	return join(beg_iter, end_iter,
-		    static_cast <const typename std::decay<decltype(*beg_iter)>::type::value_type *>(separator));
+	return join(beg_iter, end_iter, &separator[0]);
 }
 
-template<typename InputIterator, size_t n>
+template<typename InputIterator, typename sep_type,size_t n>
 auto join(InputIterator beg_iter,
 	  InputIterator end_iter,
-	  typename std::decay<decltype(*beg_iter)>::type::value_type (&separator)[n])
-	-> typename std::decay<decltype(*beg_iter)>::type
+	  sep_type (&separator)[n])
+	-> typename string_ret_type<typename std::decay<decltype(*beg_iter)>
+				    ::type>::type
 {
 #ifdef LIBCXX_INTERNAL_DEBUG
 	LIBCXX_INTERNAL_DEBUG;
 #endif
 
-	return join(beg_iter, end_iter,
-		    static_cast <const typename std::decay<decltype(*beg_iter)>::type::value_type *>(separator));
+	return join(beg_iter, end_iter, &separator[0]);
 }
-
-
 
 template<typename Container, typename sep_type>
-typename Container::value_type join(const Container &container,
-				    const sep_type &separator)
+auto join(const Container &container,
+	  const sep_type &separator)
+	-> typename string_ret_type<
+		typename std::remove_reference<decltype(*std::begin(container))>
+		::type >::type
 {
-	typedef typename Container::value_type string_t;
+	typedef typename string_ret_type<
+		typename std::remove_reference<decltype(*std::begin(container))>
+		::type >::type string_t;
 
 	string_t string;
 
@@ -151,26 +148,32 @@ typename Container::value_type join(const Container &container,
 	return string;
 }
 
-template<typename Container, size_t n>
-typename Container::value_type join(const Container &container,
-				    const typename Container::value_type::value_type (&separator)[n])
+template<typename Container, typename sep_type, size_t n>
+auto join(const Container &container,
+	  const sep_type (&separator)[n])
+	-> typename string_ret_type<
+		typename std::remove_reference<decltype(*std::begin(container))>
+		::type >::type 
 {
 #ifdef LIBCXX_INTERNAL_DEBUG
 	LIBCXX_INTERNAL_DEBUG;
 #endif
 
-	return join(container, static_cast<const typename Container::value_type::value_type *>(separator));
+	return join(container, &separator[0]);
 }
 
-template<typename Container, size_t n>
-typename Container::value_type join(const Container &container,
-				    typename Container::value_type::value_type (&separator)[n])
+template<typename Container, typename sep_type, size_t n>
+auto join(const Container &container,
+	  sep_type (&separator)[n])
+	-> typename string_ret_type<
+		typename std::remove_reference<decltype(*std::begin(container))>
+		::type >::type 
 {
 #ifdef LIBCXX_INTERNAL_DEBUG
 	LIBCXX_INTERNAL_DEBUG;
 #endif
 
-	return join(container, static_cast<const typename Container::value_type::value_type *>(separator));
+	return join(container, &separator[0]);
 }
 
 #if 0

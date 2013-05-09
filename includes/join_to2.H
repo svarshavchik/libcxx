@@ -3,10 +3,12 @@
 ** See COPYING for distribution information.
 */
 
+#define LIBCXX_JOIN_TO3_FIRST
 #define LIBCXX_CONTAINER_ITERATOR \
 	LIBCXX_CONTAINER_TYPE<std::basic_string<LIBCXX_CHAR_TYPE> >::const_iterator
 #include <x/join_to3.H>
 #undef LIBCXX_CONTAINER_ITERATOR
+#undef LIBCXX_JOIN_TO3_FIRST
 
 #ifndef DOXYGEN
 
@@ -40,7 +42,7 @@ template<>
 std::back_insert_iterator<std::basic_string<LIBCXX_CHAR_TYPE> >
 join(LIBCXX_CONTAINER_ITERATOR beg,
      LIBCXX_CONTAINER_ITERATOR end,
-     const LIBCXX_CHAR_TYPE *separator,
+     const LIBCXX_CHAR_TYPE * const &separator,
      std::back_insert_iterator<std::basic_string<LIBCXX_CHAR_TYPE> > iter)
 #ifdef LIBCXX_TEMPLATE_SPEC
 {
