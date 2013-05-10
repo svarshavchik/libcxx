@@ -63,7 +63,7 @@ public:
 	//! Dump the contents of this vector to a stream
 
 	void write(//! The output stream
-		   const ptr<obj> &writeStream) const
+		   const ref<obj> &writeStream) const
 	{
 		interface<std::ostream> oInt(writeStream);
 
@@ -87,7 +87,7 @@ public:
 	//! Existing contents of this vector objects are removed.
 	//!
 	void read(//! Input stream
-		  const ptr<obj> &readStream)
+		  const ref<obj> &readStream)
 	{
 		interface<std::istream> iInt(readStream);
 
