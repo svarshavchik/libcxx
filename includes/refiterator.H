@@ -10,6 +10,7 @@
 #include <x/ref.H>
 #include <x/obj.H>
 #include <x/tuple_param_pack.H>
+#include <x/refiteratorfwd.H>
 #include <x/namespace.h>
 
 namespace LIBCXX_NAMESPACE {
