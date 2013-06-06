@@ -56,30 +56,30 @@ class encoderObj: public encoderbaseObj {
 	//! A component of this encoded MIME object.
 
 	//! \internal
-	struct section : public encoderbase {
+	struct section : public const_encoderbase {
 
 	public:
 		//! Constructor forwards its argument to the underlying ref
 
 		template<typename Arg>
-		section(Arg &&arg) : encoderbase(std::forward<Arg>(arg))
+		section(Arg &&arg) : const_encoderbase(std::forward<Arg>(arg))
 		{
 		}
 
 		//! Destructor
 		~section() noexcept;
 
-		using encoderbase::operator*;
-		using encoderbase::operator->;
+		using const_encoderbase::operator*;
+		using const_encoderbase::operator->;
 
 		//! Return the beginning iterator for the referenced subsection
 
 		auto begin() const
-			-> decltype( (*(encoderbase *)nullptr)->begin());
+			-> decltype( (*(const_encoderbase *)nullptr)->begin());
 
 		//! Return the ending iterator for the referenced subsection
 		auto end() const
-			-> decltype( (*(encoderbase *)nullptr)->end());
+			-> decltype( (*(const_encoderbase *)nullptr)->end());
 	};
 
 	//! Components of this MIME section

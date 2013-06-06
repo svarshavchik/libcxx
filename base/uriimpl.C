@@ -408,7 +408,7 @@ void uriimpl::setQuery(const std::string &value)
 	query=value;
 }
 
-void uriimpl::setQuery(const http::form::parameters &value)
+void uriimpl::setQuery(const http::form::const_parameters &value)
 
 {
 	setQuery(std::string(value->encode_begin(), value->encode_end()));

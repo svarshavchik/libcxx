@@ -343,25 +343,9 @@ public:
 
 	//! Copy constructor
 
-	inline ref(const const_ref<objClass, baseClass> &o) noexcept
-		__attribute__((artificial))
-		: const_ref<objClass, baseClass>(o)
-	{
-	}
-
-	//! Copy constructor
-
 	inline ref(const ref<objClass, baseClass> &o) noexcept
 		__attribute__((artificial))
 		: const_ref<objClass, baseClass>(o)
-	{
-	}
-
-	//! Move constructor
-
-	inline ref(const_ref<objClass, baseClass> &&o) noexcept
-		__attribute__((artificial))
-		: const_ref<objClass, baseClass>(std::move(o))
 	{
 	}
 
