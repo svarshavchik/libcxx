@@ -13,11 +13,11 @@ LIBCXX_MSGDISPATCHER_SET_PARAMS=$(foreach param,$(1),--stringparam $(subst =, ,$
 # additional targets
 
 ifneq ($(AUTOMAKE),)
-.PHONY: distclean-libx
+.PHONY: distclean-libcxx
 
-distclean: distclean-libx
+distclean: distclean-libcxx
 
-distclean-libx:
+distclean-libcxx:
 	rm -f $(LIBCXX_CLEANFILES)
 
 EXTRA_DIST += $(sort $(LIBCXX_SOURCES))
