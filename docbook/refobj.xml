@@ -755,7 +755,7 @@ for (auto config: *etcdir)
 	to.
       </para>
 
-      <note>
+      <note id="rangervalue">
 	<para>
 	  This shorter alternative seems intuitive, but it's actually
 	  ill-formed:

@@ -213,34 +213,6 @@ public:
 	}
 };
 
-//! A referenced-counted pointer that implements iterator requirements.
-
-//! \see refobjiterator
-
-template<typename obj_type, typename baseType=ptrrefBase>
-using refiterator=refobjiterator<ref<obj_type, baseType>>;
-
-//! A referenced-counted pointer that implements iterator requirements.
-
-//! \see refobjiterator
-
-template<typename obj_type, typename baseType=ptrrefBase>
-using ptriterator=refobjiterator<ptr<obj_type, baseType>>;
-
-//! A referenced-counted pointer that implements iterator requirements.
-
-//! \see refobjiterator
-
-template<typename obj_type, typename baseType=ptrrefBase>
-using const_refiterator=refobjiterator<const_ref<obj_type, baseType>>;
-
-//! A referenced-counted pointer that implements iterator requirements.
-
-//! \see refobjiterator
-
-template<typename obj_type, typename baseType=ptrrefBase>
-using const_ptriterator=refobjiterator<const_ptr<obj_type, baseType>>;
-
 //! Construct an referenced-counted object that implements an iterator.
 
 //! This is a convenience function that constructs a

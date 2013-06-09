@@ -7,6 +7,7 @@
 #define x_refiteratorfwd_H
 
 #include <x/namespace.h>
+#include <x/ptrfwd.H>
 
 namespace LIBCXX_NAMESPACE {
 
@@ -23,6 +24,34 @@ template<typename value_type, typename ...Args>
 refobjiterator<ref<outputrefiteratorTupleObj<value_type, typename
 					     std::decay<Args>::type...>>>
 make_outputrefiterator(Args && ...args);
+
+//! A referenced-counted pointer that implements iterator requirements.
+
+//! \see refobjiterator
+
+template<typename obj_type, typename baseType=ptrrefBase>
+using refiterator=refobjiterator<ref<obj_type, baseType>>;
+
+//! A referenced-counted pointer that implements iterator requirements.
+
+//! \see refobjiterator
+
+template<typename obj_type, typename baseType=ptrrefBase>
+using ptriterator=refobjiterator<ptr<obj_type, baseType>>;
+
+//! A referenced-counted pointer that implements iterator requirements.
+
+//! \see refobjiterator
+
+template<typename obj_type, typename baseType=ptrrefBase>
+using const_refiterator=refobjiterator<const_ref<obj_type, baseType>>;
+
+//! A referenced-counted pointer that implements iterator requirements.
+
+//! \see refobjiterator
+
+template<typename obj_type, typename baseType=ptrrefBase>
+using const_ptriterator=refobjiterator<const_ptr<obj_type, baseType>>;
 
 #if 0
 {

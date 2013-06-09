@@ -8,7 +8,7 @@ CXXFLAGS="$CXXFLAGS `$PKG_CONFIG --cflags libcxx`"
 LDFLAGS="$LDFLAGS `$PKG_CONFIG --libs libcxx`"
 CC="`$PKG_CONFIG --variable=CC libcxx`"
 CXX="`$PKG_CONFIG --variable=CXX libcxx`"
-LIBCXX_AM="include $libx_pkgdatadir/libcxx.mk"
+LIBCXX_AM="include $libx_pkgdatadir/*.mk"
 AC_SUBST([LIBCXX_AM])
 
 LIBCXX_OPTGEN="$libx_pkgdatadir/optgen.xsl"

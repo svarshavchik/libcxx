@@ -65,13 +65,34 @@ See COPYING for distribution information.
 
     <blockquote>
       <informalexample>
-	<programlisting>
+	<variablelist>
+	  <varlistentry>
+	    <term><filename>configure.ac</filename>:</term>
+	    <listitem>
+	      <programlisting>
 LIBCXX_INIT</programlisting>
+	    </listitem>
+	  </varlistentry>
+
+	  <varlistentry>
+	    <term><filename>Makefile.am</filename>:</term>
+	    <listitem>
+	      <programlisting>
+@LIBCXX_AM@
+
+bin_PROGRAMS=application
+
+application_SOURCES=source1.C source2.C
+application_LDADD=-lcxx</programlisting>
+	    </listitem>
+	  </varlistentry>
+	</variablelist>
       </informalexample>
     </blockquote>
 
     <para>
-      This macro overrides <envar>CC</envar> and <envar>CXX</envar>, and
+      The <literal>LIBCXX_INIT</literal> configure script macro
+      overrides <envar>CC</envar> and <envar>CXX</envar>, and
       sets them to the compiler that built &app;.
       The same compiler must be used to build
       any code that links with it. The macro also adds any additional compiler
@@ -81,10 +102,17 @@ LIBCXX_INIT</programlisting>
     </para>
 
     <para>
+      <literal>LIBCXX_INIT</literal> defines the
+      <literal>LIBCXX_AM</literal> automake macro which pulls in Makefile
+      used in <xref linkend="msgdispatcher" /> and
+      <xref linkend="options" />.
+    </para>
+
+    <para>
       See
       <ulink url="examples/managedsingleton"><filename>examples/managedsingleton</filename></ulink> subdirectory in
       &app;'s source code tarball. This is an example of building C++
-      applicaitons with &app;, complete with a basic autotools configuration:
+      applications with &app;, complete with a basic autotools configuration:
     </para>
 
     <blockquote>

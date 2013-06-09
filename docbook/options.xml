@@ -121,8 +121,8 @@ if (verbose_value-&gt;value)
     <para>
       This <acronym>XML</acronym> file defines command line options, and
       gets processed by an <acronym>XSLT</acronym> file, installed by default
-      as <filename>/usr/share/lib&ns;/optgen.xsl</filename> or
-      as <filename>/usr/local/share/lib&ns;/optgen.xsl</filename>. Use an
+      as <filename>/usr/share/libcxx/optgen.xsl</filename> or
+      as <filename>/usr/local/share/libcxx/optgen.xsl</filename>. Use an
       <acronym>XSLT</acronym> processor, such as <command>xsltproc</command>,
       to turn it into a class
       definition. If this <acronym>XML</acronym> file is
@@ -132,7 +132,7 @@ if (verbose_value-&gt;value)
     <blockquote>
       <informalexample>
 	<programlisting>
-xsltproc /usr/share/lib&ns;/optgen.xsl testoptions.xml &gt;testoptions.h</programlisting>
+xsltproc /usr/share/libcxx/optgen.xsl testoptions.xml &gt;testoptions.h</programlisting>
       </informalexample>
     </blockquote>
 

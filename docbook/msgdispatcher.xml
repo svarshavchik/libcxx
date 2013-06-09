@@ -535,8 +535,8 @@ sgroup-&gt;add(extraThread);</programlisting>
 
     <para>
       An <acronym>XSLT</acronym> stylesheet, usually installed as
-      <filename>/usr/share/lib&ns;/msgdispatcher.xsl</filename> or
-      <filename>/usr/local/share/lib&ns;/msgdispatcher.xsl</filename>, produces
+      <filename>/usr/share/libcxx/msgdispatcher.xsl</filename> or
+      <filename>/usr/local/share/libcxx/msgdispatcher.xsl</filename>, produces
       generic code for a message dispatching-based object from a stylesheet.
       An <acronym>XML</acronym> file defines the names of methods implemented
       by a class as a public interface, and the stylesheet generates the
