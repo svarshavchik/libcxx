@@ -4,7 +4,7 @@
 # $FreeBSD$
 
 PORTNAME=		libcxx
-PORTVERSION=		0.5
+PORTVERSION=		0.6
 CATEGORIES=		devel
 
 MAINTAINER=		mrsam@courier-mta.com
