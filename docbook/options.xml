@@ -1129,7 +1129,7 @@ int main(int argc, char **argv)
     <blockquote>
       <informalexample>
 	<programlisting>
-include /usr/share/lib&ns;/libx.mk
+include /usr/share/libcxx/libcxx.mk
 
 $(call OPTIONS_GEN,cliopts.H,cliopts.xml)</programlisting>
       </informalexample>

@@ -336,6 +336,27 @@ See COPYING for distribution information.
     &httpserver;
   </part>
 
+  <part id="sql">
+    <title>Accessing <acronym>SQL</acronym> databases</title>
+
+    <chapter id="sqlinstall">
+      <title>Installing the &app; <acronym>SQL</acronym> library</title>
+
+      <para>
+	The 
+	<ulink url="sql/index.html"><application><emphasis>LIBCXX</emphasis>
+	<acronym>SQL</acronym>
+	library</application></ulink> is a separately-installed module that
+	implements classes and templates for accessing
+	<acronym>SQL</acronym> databases.
+      </para>
+
+      <para>
+	Install this library separately, after
+	<link linkend="INSTALL">installing &app; first</link>.
+      </para>
+    </chapter>
+  </part>
   &freebsd;
 
   <appendix id="manpages">
