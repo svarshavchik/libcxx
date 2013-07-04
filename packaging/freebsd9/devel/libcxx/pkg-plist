@@ -7,7 +7,6 @@ bin/tlsparamsgen
 etc/effective_tld_names.dat
 etc/httportmapd.properties
 etc/tlsparams/system.dh.conf.dist
-etc/tlsparams/system.rsa.conf.dist
 include/x/attr.H
 include/x/attrfwd.H
 include/x/base64.H
@@ -133,8 +132,6 @@ include/x/gnutls/privkeyobj.H
 include/x/gnutls/pubkey.H
 include/x/gnutls/pubkeyobj.H
 include/x/gnutls/rdn.H
-include/x/gnutls/rsaparams.H
-include/x/gnutls/rsaparamsobj.H
 include/x/gnutls/rsaprivkey.H
 include/x/gnutls/rsaprivkeyobj.H
 include/x/gnutls/rsapubkey.H
@@ -530,7 +527,6 @@ share/libcxx/msgdispatcher.xsl
 share/libcxx/optgen.sample.xml
 share/libcxx/optgen.xsl
 var/tlsparams/system.dh.dist
-var/tlsparams/system.rsa.dist
 @dirrm include/x/gnutls
 @dirrm include/x/http
 @dirrm include/x/param

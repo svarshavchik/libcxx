@@ -37,17 +37,6 @@ testsessionfactory::create(gnutls_connection_end_t mode,
 		crt->set_x509_keyfile("testrsa1.crt", "testrsa1.key",
 				      GNUTLS_X509_FMT_PEM);
 
-		LIBCXX_NAMESPACE::gnutls::rsaparams
-			rsa(LIBCXX_NAMESPACE::gnutls::rsaparams::create());
-
-		LIBCXX_NAMESPACE::gnutls::datum_t
-			rsa_dat(LIBCXX_NAMESPACE::gnutls::datum_t::create());
-
-		rsa_dat->load("rsaparams.dat");
-		rsa->import_pk(rsa_dat, GNUTLS_X509_FMT_PEM);
-
-		crt->set_rsa_params(rsa);
-
 		LIBCXX_NAMESPACE::gnutls::dhparams
 			dh(LIBCXX_NAMESPACE::gnutls::dhparams::create());
 

@@ -26,7 +26,7 @@ namespace LIBCXX_NAMESPACE {
 
 //! A temporary key exchange parameter
 
-//! This is a superclass of rsaparamsobj and dhparamsobj.
+//! This is a generic superclass, currently the only subclass is dhparamsObj.
 //!
 
 class pkparamsObj : virtual public obj {
@@ -62,11 +62,6 @@ public:
 	//! For dsa keys, this function resizes \c raw_datum to a two-element
 	//! array, then places \c prime and \c generator into the array,
 	//! and sets \c bits to the number of bits in the key.
-	//!
-	//! For rsa keys, this function resizes \c raw_datum to a six-element
-	//! array, then places \c m, \c e, \c d, \c p, \c q, and \c u
-	//! values into the array,
-	//! and sets \c bits to the number of bits in the key.
 
 	virtual void export_raw(//! Raw public key parameter
 				std::vector<datum_t> &raw_datum,
@@ -80,8 +75,6 @@ public:
 
 				//! This is a two-element array for DH
 				//! keys (\c prime and \c generator values),
-				//! or a six-element array for RSA keys
-				//! (\c m, \c e, \c d, \c p, \c q, and \c u ).
 
 				const std::vector<datum_t> &raw_datum)
 =0;

@@ -5,7 +5,6 @@
 
 #include "libcxx_config.h"
 #include "gnutls/dhparams.H"
-#include "gnutls/rsaparams.H"
 #include "pwd.H"
 #include "grp.H"
 #include "tlsparamsgen.h"
@@ -20,16 +19,6 @@ static void create_dsa(tlsparamsgen &gen, LIBCXX_NAMESPACE::fd &newfile)
 
 	dhp->generate(gen.bits->value);
 	dhp->export_pk(GNUTLS_X509_FMT_PEM)->save(newfile);
-}
-
-static void create_rsa(tlsparamsgen &gen, LIBCXX_NAMESPACE::fd &newfile)
-{
-	LIBCXX_NAMESPACE::gnutls::rsaparams
-		rsa(LIBCXX_NAMESPACE::gnutls::rsaparams
-		    ::create());
-
-	rsa->generate(gen.bits->value);
-	rsa->export_pk(GNUTLS_X509_FMT_PEM)->save(newfile);
 }
 
 static void create(tlsparamsgen &gen, const std::string &filename,
@@ -127,8 +116,6 @@ int main(int argc, char **argv)
 
 		if (gen.type->value == "dsa")
 			create_func=&create_dsa;
-		else if (gen.type->value == "rsa")
-			create_func=&create_rsa;
 		else throw EXCEPTION("Unknown parameter type: "
 				     + gen.type->value);
 

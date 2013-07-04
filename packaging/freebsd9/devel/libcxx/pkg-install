@@ -16,7 +16,7 @@ then
 # make install runs the default install, which installs the config files, so
 # move them to .dist; package tarballs contain the .dist-s, move them back.
 
-	for f in ${PKG_PREFIX}/etc/tlsparams/system.dh.conf ${PKG_PREFIX}/etc/tlsparams/system.rsa.conf ${PKG_PREFIX}/var/tlsparams/system.dh ${PKG_PREFIX}/var/tlsparams/system.rsa
+	for f in ${PKG_PREFIX}/etc/tlsparams/system.dh.conf ${PKG_PREFIX}/var/tlsparams/system.dh
 	do
 		if test ! -f "$f".dist
 		then

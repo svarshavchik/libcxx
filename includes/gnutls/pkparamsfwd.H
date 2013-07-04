@@ -22,24 +22,23 @@ class pkparamsBase;
 
 //! Temporary public key parameters for TLS/SSL sessions
 
-//! This is a reference to a common superclass of rsaparamsObj and
+//! This is a reference to a generic superclass, currently subclassed only by
 //! dhparamsObj. This reference gets returned by
 //! \link x509::privkeyObj::get_pkparams() x509::privkey-&gt;get_pkparams()\endlink.
 //!
 //! \par Manually creating public key parameters
 //!
 //! \code
-//! gnutls::pkparams pk= gnutls::pkparams::create("RSA");
+//! gnutls::pkparams pk= gnutls::pkparams::create("DSA");
 //! \endcode
 //!
 //! Without a convenient \c x509::privkey object, a pkparams may be created
 //! manually by invoking the
 //! \ref pkparamsBase::newobj::create(const std::string &) "create()"
-//! function. create() takes a public key
-//! type of "RSA" or "DSA". An overloaded
+//! function. create() takes a public key type, currently the only valid
+//! public key type is "DSA". An overloaded
 //! \ref pkparamsBase::newobj::create(gnutls_pk_algorithm_t) "create()"
-//! function also takes
-//! \c GNUTLS_PK_RSA or \c GNUTLS_PK_DSA.
+//! function also takes \c GNUTLS_PK_DSA.
 //!
 //! \par Exporting and importing public key parameters
 //!

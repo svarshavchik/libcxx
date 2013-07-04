@@ -228,57 +228,50 @@ clientCert-&gt;set_x509_trust_default();</programlisting>
     <para>
       Most TLS sessions make use of ephemeral DH parameters to effect the key
       exchange between the client and the server.
-      Support for weak export-grade encryption also requires temporary RSA
-      parameters. These objects are created on the server side of a TLS
+      These objects are created on the server side of a TLS
       session.
     </para>
 
     <blockquote>
       <informalexample>
 	<programlisting>
-#include &lt;&ns;/gnutls/rsaparams.H&gt;
 #include &lt;&ns;/gnutls/dhparams.H&gt;
 #include &lt;&ns;/gnutls/pkparams.H&gt;
 
 &ns;::gnutls::dhparams dh(&ns;::gnutls::dhparams::create());
 
-dh-&gt;generate(2048);
-
-&ns;::gnutls::rsaparams rsa(&ns;::gnutls::rsaparams::create());
-
-rsa-&gt;generate(2048);</programlisting>
+dh-&gt;generate(2048);</programlisting>
       </informalexample>
     </blockquote>
 
     <para>
-      <ulink url="&link-typedef-x--gnutls-dhparams;"><classname>&ns;::gnutls::dhparams</classname></ulink>
-      and
-      <ulink url="&link-typedef-x--gnutls-rsaparams;"><classname>&ns;::gnutls::rsaparams</classname></ulink>
-      are reference to a
+      <ulink url="&link-typedef-x--gnutls-dhparams;"><classname>&ns;::gnutls::dhparams</classname></ulink> is a
+      reference to a
       <link linkend="refobj">reference-counted object</link> that represents
-      the ephemeral DH or the temporary RSA parameter.
-      The above example creates a 2048 parameter of either type.
+      an ephemeral DH parameter.
       <ulink url="&link-typedef-x--gnutls-pkparams;"><classname>&ns;::gnutls::pkparams</classname></ulink>
-      is a reference to a shared superclass that implements common
-      methods, such as
+      is a reference to a generic superclass that implements the public
+      key parameter interface, for future extensibility, such as
       <methodname>generate</methodname>(), which generates a new parameter.
-      <methodname>get_pk_algorithm</methodname>() returns either
-      <constant>GNUTLS_PK_RSA</constant> or <constant>GNUTLS_PK_DSA</constant>
-      that indicates which subclass is referenced by the
+      At this time, the only subclass is
+      <classname>&ns;::gnutls::dhparams</classname>; the temporary RSA parameter
+      implementation has been obsoleted.
+      <methodname>get_pk_algorithm</methodname>() returns
+      <constant>GNUTLS_PK_DSA</constant>,
+      that indicates the implementing subclass of
       <classname>&ns;::gnutls::pkparams</classname>.
     </para>
   </section>
 
   <section id="pkparamsgenerator">
-    <title>Loading system-generated ephemeral and temporary parameters</title>
+    <title>Loading system-generated ephemeral parameters</title>
 
     <para>
-      Generating a temporary parameter is an expensive experation. A common
-      approach is to pregenerate the temporary parameter and save it to
+      Generating ephemeral parameters is an expensive experation. A common
+      approach is to pregenerate them in advance, and save them in
       a secure file.
-      The low-level methods to implement that are provided in the
-      <ulink url="&link-typedef-x--gnutls-rsaparams;"><classname>&ns;::gnutls::rsaparams</classname></ulink>
-      and
+      The low-level methods to export and import emphemeral
+      parameters are provided in the
       <ulink url="&link-typedef-x--gnutls-pkparams;"><classname>&ns;::gnutls::pkparams</classname></ulink>-referenced
       object.
       Another approach is to import a system-provided temporary parameter file
@@ -297,76 +290,27 @@ dh-&gt;import();</programlisting>
     </blockquote>
 
     <para>
-      A system-wide process periodically generates new DH and RSA parameters
+      A system-wide process periodically generates new DH parameters
       and saves them in the directory specified by the
       <literal>&ns;::gnutls::tlsparamsdir</literal>
       <link linkend="properties">property</link>.
       <methodname>import</methodname>() searches this directory for the first
       file from the following list, and loads the parameters from the file:
+      <filename>user.<replaceable>USERNAME</replaceable>.dh<superscript>*</superscript></filename>,
+      <filename>group.<replaceable>GROUPNAME</replaceable>.dh<superscript>+</superscript></filename>,
+      <filename>system.dh</filename>.
     </para>
-
-    <informaltable>
-      <tgroup cols="2">
-	<colspec colname="first" />
-	<colspec colname="second" />
-	<thead>
-	  <row>
-	    <entry>
-	      <methodname>dhparams-&gt;import()</methodname>
-	    </entry>
-	    <entry>
-	      <methodname>rsaparams-&gt;import()</methodname>
-	    </entry>
-	  </row>
-	</thead>
-	<tfoot>
-	  <row>
-	    <entry namest="first" nameend="second" role="tblfootnote">
-	      <simpara>
-		Note:
-	      </simpara>
-	      <blockquote role="footer">
-		<simpara>
-		  <superscript>*</superscript><replaceable>USERNAME</replaceable> is the process's
+    <note>
+      <para>
+	<superscript>*</superscript><replaceable>USERNAME</replaceable> is the process's
 		  effective userid.
-		</simpara>
-		<simpara>
-		  <superscript>+</superscript><replaceable>GROUPNAME</replaceable> is the process's
-		  effective group id. Additionally, any supplementary group ids
-		  are also checked.
-		</simpara>
-	      </blockquote>
-	    </entry>
-	  </row>
-	</tfoot>
-	<tbody>
-	  <row>
-	    <entry>
-	      <filename>user.<replaceable>USERNAME</replaceable>.dh<superscript>*</superscript></filename>
-	    </entry>
-	    <entry>
-	      <filename>user.<replaceable>USERNAME</replaceable>.rsa<superscript>*</superscript></filename>
-	    </entry>
-	  </row>
-	  <row>
-	    <entry>
-	      <filename>group.<replaceable>GROUPNAME</replaceable>.dh<superscript>+</superscript></filename>
-	    </entry>
-	    <entry>
-	      <filename>group.<replaceable>GROUPNAME</replaceable>.rsa<superscript>+</superscript></filename>
-	    </entry>
-	  </row>
-	  <row>
-	    <entry>
-	      <filename>system.dh</filename>
-	    </entry>
-	    <entry>
-	      <filename>system.rsa</filename>
-	    </entry>
-	  </row>
-	</tbody>
-      </tgroup>
-    </informaltable>
+      </para>
+      <para>
+	<superscript>+</superscript><replaceable>GROUPNAME</replaceable> is the process's
+	effective group id. Additionally, any supplementary group ids
+	are also checked.
+      </para>
+    </note>
   </section>
 
   <section id="sessionsetup">

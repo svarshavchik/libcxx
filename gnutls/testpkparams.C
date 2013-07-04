@@ -7,7 +7,6 @@
 #include "gnutls/init.H"
 #include "gnutls/pkparams.H"
 #include "gnutls/dhparams.H"
-#include "gnutls/rsaparams.H"
 #include "options.H"
 #include "property_properties.H"
 #include "exception.H"
@@ -43,11 +42,6 @@ static void testpkparams()
 
 static void testpkparams2()
 {
-	LIBCXX_NAMESPACE::gnutls::rsaparams rsap=
-		LIBCXX_NAMESPACE::gnutls::rsaparams::create();
-
-	rsap->import();
-
 	LIBCXX_NAMESPACE::gnutls::dhparams dhp=
 		LIBCXX_NAMESPACE::gnutls::dhparams::create();
 	dhp->import();

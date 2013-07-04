@@ -15,7 +15,6 @@
 #include <x/gnutls/x509_privkey.H>
 #include <x/gnutls/x509_crt.H>
 #include <x/gnutls/dhparams.H>
-#include <x/gnutls/rsaparams.H>
 
 #include <gnutls/gnutls.h>
 
@@ -66,10 +65,6 @@ class gnutls::credentials::certificateObj : virtual public obj {
 	//! Reference to the certificate's DH parameters
 
 	dhparamsptr dh;
-
-	//! Reference to the certificate's RSA parameters
-
-	rsaparams rsa;
 
 	//! A %credentials callback for this certicicate
 
@@ -211,11 +206,6 @@ public:
 
 	void set_dh_params(//! DH parameters
 			   const dhparams &dhArg);
-
-	//! Set the RSA parameters to use for key exchange
-
-	void set_rsa_params(//! DH parameters
-			    const rsaparams &rsaArg);
 
 	//! Set the DH or the RSA parameters to use for the key exchange
 

@@ -7,7 +7,6 @@
 #include "gnutls/init.H"
 #include "gnutls/x509_privkeyobj.H"
 #include "gnutls/x509_privkey.H"
-#include "gnutls/rsaparams.H"
 #include "gnutls/dhparams.H"
 #include "gnutls/datumwrapper.H"
 #include "exception.H"

@@ -7,7 +7,6 @@
 #include "gnutls/pkparamsobj.H"
 #include "gnutls/init.H"
 #include "gnutls/x509_privkey.H"
-#include "gnutls/rsaparams.H"
 #include "gnutls/dhparams.H"
 #include "gnutls/datumwrapper.H"
 #include "pwd.H"
@@ -30,8 +29,6 @@ gnutls::pkparams gnutls::pkparamsBase::newobj
 ::create(gnutls_pk_algorithm_t pkid)
 {
 	switch (pkid) {
-	case GNUTLS_PK_RSA:
-		return gnutls::rsaparams::create();
 	case GNUTLS_PK_DSA:
 		return gnutls::dhparams::create();
 	default:

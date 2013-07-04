@@ -6,7 +6,6 @@
 #include "libcxx_config.h"
 #include "property_properties.H"
 #include "gnutls/x509_privkey.H"
-#include "gnutls/rsaparams.H"
 #include "gnutls/dhparams.H"
 #include "exception.H"
 
@@ -202,44 +201,6 @@ static void createparams(LIBCXX_NAMESPACE::gnutls::x509::privkey &rsakey,
 		if (a->size() != b->size() ||
 		    !std::equal(a->begin(), a->end(), b->begin()))
 			throw EXCEPTION("dh export/import raw() test failed");
-
-	}
-
-	LIBCXX_NAMESPACE::gnutls::pkparams rsa=rsakey->get_pkparams();
-
-	std::cout << "Generating RSA parameters, this could take a while..." << std::endl;
-
-	{
-		LIBCXX_NAMESPACE::gnutls::progress_notifier notifier;
-
-		rsa->generate(512);
-	}
-
-	{
-		LIBCXX_NAMESPACE::gnutls::rsaparams rsa2(LIBCXX_NAMESPACE::gnutls::rsaparams::create());
-
-		rsa2->import_pk(rsa->export_pk(GNUTLS_X509_FMT_DER),
-				GNUTLS_X509_FMT_DER);
-
-		rsa2->export_pk(GNUTLS_X509_FMT_PEM)->save("rsaparams.dat");
-
-		LIBCXX_NAMESPACE::gnutls::pkparams
-			rsa3(LIBCXX_NAMESPACE::gnutls::pkparams::create(rsa2
-							 ->get_pk_algorithm()));
-
-		std::vector<LIBCXX_NAMESPACE::gnutls::datum_t> datums;
-		unsigned int nbits;
-
-		rsa2->export_raw(datums, nbits);
-		rsa3->import_raw(datums);
-
-
-		LIBCXX_NAMESPACE::gnutls::datum_t a(rsa3->export_pk(GNUTLS_X509_FMT_DER)),
-			b(rsa2->export_pk(GNUTLS_X509_FMT_DER));
-
-		if (a->size() != b->size() ||
-		    !std::equal(a->begin(), a->end(), b->begin()))
-			throw EXCEPTION("rsa export/import raw() test failed");
 	}
 }
 

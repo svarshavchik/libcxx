@@ -144,15 +144,6 @@ void serverThread::run(const LIBCXX_NAMESPACE::fd &fd)
 	sess->set_default_priority();
 
 	{
-		LIBCXX_NAMESPACE::gnutls::rsaparams rsa(LIBCXX_NAMESPACE::gnutls::rsaparams::create());
-
-		LIBCXX_NAMESPACE::gnutls::datum_t rsa_dat(LIBCXX_NAMESPACE::gnutls::datum_t::create());
-
-		rsa_dat->load("rsaparams.dat");
-		rsa->import_pk(rsa_dat, GNUTLS_X509_FMT_PEM);
-
-		serverCert->set_rsa_params(rsa);
-
 		LIBCXX_NAMESPACE::gnutls::dhparams dh(LIBCXX_NAMESPACE::gnutls::dhparams::create());
 		LIBCXX_NAMESPACE::gnutls::datum_t dh_dat(LIBCXX_NAMESPACE::gnutls::datum_t::create());
 
@@ -310,15 +301,6 @@ void serverRehandshakeThread::run(const LIBCXX_NAMESPACE::fd &fd)
 				     GNUTLS_X509_FMT_PEM);
 
 	{
-		LIBCXX_NAMESPACE::gnutls::rsaparams rsa(LIBCXX_NAMESPACE::gnutls::rsaparams::create());
-
-		LIBCXX_NAMESPACE::gnutls::datum_t rsa_dat(LIBCXX_NAMESPACE::gnutls::datum_t::create());
-
-		rsa_dat->load("rsaparams.dat");
-		rsa->import_pk(rsa_dat, GNUTLS_X509_FMT_PEM);
-
-		serverCert->set_rsa_params(rsa);
-
 		LIBCXX_NAMESPACE::gnutls::dhparams dh(LIBCXX_NAMESPACE::gnutls::dhparams::create());
 		LIBCXX_NAMESPACE::gnutls::datum_t dh_dat(LIBCXX_NAMESPACE::gnutls::datum_t::create());
 
@@ -596,15 +578,6 @@ void readAbortThread::run(const LIBCXX_NAMESPACE::fd &fd)
 				     GNUTLS_X509_FMT_PEM);
 
 	{
-		LIBCXX_NAMESPACE::gnutls::rsaparams rsa(LIBCXX_NAMESPACE::gnutls::rsaparams::create());
-
-		LIBCXX_NAMESPACE::gnutls::datum_t rsa_dat(LIBCXX_NAMESPACE::gnutls::datum_t::create());
-
-		rsa_dat->load("rsaparams.dat");
-		rsa->import_pk(rsa_dat, GNUTLS_X509_FMT_PEM);
-
-		serverCert->set_rsa_params(rsa);
-
 		LIBCXX_NAMESPACE::gnutls::dhparams dh(LIBCXX_NAMESPACE::gnutls::dhparams::create());
 		LIBCXX_NAMESPACE::gnutls::datum_t dh_dat(LIBCXX_NAMESPACE::gnutls::datum_t::create());
 
@@ -766,15 +739,6 @@ void writeAbortThread::run(const LIBCXX_NAMESPACE::fd &fd)
 				     GNUTLS_X509_FMT_PEM);
 
 	{
-		LIBCXX_NAMESPACE::gnutls::rsaparams rsa(LIBCXX_NAMESPACE::gnutls::rsaparams::create());
-
-		LIBCXX_NAMESPACE::gnutls::datum_t rsa_dat(LIBCXX_NAMESPACE::gnutls::datum_t::create());
-
-		rsa_dat->load("rsaparams.dat");
-		rsa->import_pk(rsa_dat, GNUTLS_X509_FMT_PEM);
-
-		serverCert->set_rsa_params(rsa);
-
 		LIBCXX_NAMESPACE::gnutls::dhparams dh(LIBCXX_NAMESPACE::gnutls::dhparams::create());
 		LIBCXX_NAMESPACE::gnutls::datum_t dh_dat(LIBCXX_NAMESPACE::gnutls::datum_t::create());
 

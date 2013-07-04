@@ -6,7 +6,6 @@
 #include "libcxx_config.h"
 #include "gnutls/session.H"
 #include "gnutls/credentials.H"
-#include "gnutls/rsaparams.H"
 #include "gnutls/dhparams.H"
 #include "gnutls/x509_crt.H"
 #include "gnutls/init.H"
@@ -98,33 +97,12 @@ get_params_cb(gnutls_session_t session,
 
 int gnutls::credentials::certificateObj::get_params(gnutls_params_type_t type,
 						    gnutls_params_st *st)
-
 {
 	LOG_FUNC_SCOPE(get_paramsLog);
 
 	switch (type) {
 	case GNUTLS_PARAMS_RSA_EXPORT:
-
-		{
-			rsaparams p=rsa;
-
-			if (p.null())
-			{
-				p=rsaparams::create();
-
-				p->import();
-			}
-
-			rsaparams rsa_cpy(rsaparams::create());
-
-			rsa_cpy->import_pk(p->export_pk(GNUTLS_X509_FMT_DER),
-					   GNUTLS_X509_FMT_DER);
-
-			st->type=GNUTLS_PARAMS_RSA_EXPORT;
-			st->params.rsa_export = *rsa_cpy;
-			st->deinit=1;
-		}
-		return 0;
+		break;
 	case GNUTLS_PARAMS_DH:
 		{
 			dhparamsptr d=dh;
@@ -290,19 +268,9 @@ void gnutls::credentials::certificateObj
 }
 
 void gnutls::credentials::certificateObj
-::set_rsa_params(const rsaparams &rsaArg)
-{
-	gnutls_certificate_set_rsa_export_params(cred, rsaArg->rsa);
-	rsa=rsaArg;
-}
-
-void gnutls::credentials::certificateObj
 ::set_pk_params(const pkparams &pkArg)
 {
 	switch (pkArg->get_pk_algorithm()) {
-	case GNUTLS_PK_RSA:
-		set_rsa_params(pkArg);
-		return;
 	case GNUTLS_PK_DSA:
 		set_dh_params(pkArg);
 		return;
