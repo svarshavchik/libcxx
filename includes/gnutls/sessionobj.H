@@ -1,5 +1,5 @@
 /*
-** Copyright 2012 Double Precision, Inc.
+** Copyright 2012-2013 Double Precision, Inc.
 ** See COPYING for distribution information.
 */
 
@@ -37,7 +37,7 @@ namespace LIBCXX_NAMESPACE {
 class gnutls::sessionObj : virtual public obj, public fdbaseObj {
 
 	//! \c GNUTLS_CLIENT or \c GNUTLS_SERVER
-	gnutls_connection_end_t mode;
+	unsigned mode;
 
 	//! The session handle
 
@@ -59,7 +59,7 @@ public:
 	//! Construct a new session object
 
 	sessionObj(//! \c GNUTLS_CLIENT or \c GNUTLS_SERVER
-		   gnutls_connection_end_t modeArg,
+		   unsigned modeArg,
 
 		   //! The underlying sequence
 
@@ -507,7 +507,7 @@ public:
 	//! Create a new session object
 
 	virtual session create(//! Connection mode
-			       gnutls_connection_end_t mode,
+			       unsigned mode,
 
 			       //! The underlying transport
 			       const fdbase &transportArg);

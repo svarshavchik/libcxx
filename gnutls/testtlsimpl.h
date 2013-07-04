@@ -11,7 +11,7 @@ public:
 	testsessionfactory() throw(LIBCXX_NAMESPACE::exception) {}
 	~testsessionfactory() throw() {}
 
-	LIBCXX_NAMESPACE::gnutls::session create(gnutls_connection_end_t mode,
+	LIBCXX_NAMESPACE::gnutls::session create(unsigned mode,
 					       const LIBCXX_NAMESPACE::fdbase
 					       &transportArg)
 		throw(LIBCXX_NAMESPACE::exception);
@@ -19,7 +19,7 @@ public:
 
 
 inline LIBCXX_NAMESPACE::gnutls::session
-testsessionfactory::create(gnutls_connection_end_t mode,
+testsessionfactory::create(unsigned mode,
 			   const LIBCXX_NAMESPACE::fdbase &transportArg)
 	throw(LIBCXX_NAMESPACE::exception)
 {
@@ -96,13 +96,13 @@ public:
 		std::mutex mutex;
 
 		LIBCXX_NAMESPACE::fd filedesc;
-		gnutls_connection_end_t side;
+		unsigned side;
 		LIBCXX_NAMESPACE::ref<testsessionfactory> factory;
 		LIBCXX_NAMESPACE::gnutls::sessionptr sess;
 
 	public:
 		filedescObj(const LIBCXX_NAMESPACE::fd &filedescArg,
-			    gnutls_connection_end_t sideArg)
+			    unsigned sideArg)
 			throw(LIBCXX_NAMESPACE::exception)
 			: filedesc(filedescArg), side(sideArg),
 			  factory(LIBCXX_NAMESPACE::ref<testsessionfactory>

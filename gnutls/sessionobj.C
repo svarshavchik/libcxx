@@ -45,7 +45,7 @@ gnutls::sessionObj::factoryObj::~factoryObj() noexcept
 }
 
 gnutls::session gnutls::sessionObj::factoryObj
-::create(gnutls_connection_end_t mode,
+::create(unsigned mode,
 	 const fdbase &transportArg)
 {
 	gnutls::session sess(session::create(mode, transportArg));
@@ -61,7 +61,7 @@ gnutls::session gnutls::sessionObj::factoryObj
 	return sess;
 }
 
-gnutls::sessionObj::sessionObj(gnutls_connection_end_t modeArg,
+gnutls::sessionObj::sessionObj(unsigned modeArg,
 			       const fdbase &transportArg)
 	: mode(modeArg),
 	  transport(transportArg), handshake_needed(true)
