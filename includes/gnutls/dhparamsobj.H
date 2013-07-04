@@ -1,5 +1,5 @@
 /*
-** Copyright 2012 Double Precision, Inc.
+** Copyright 2012-2013 Double Precision, Inc.
 ** See COPYING for distribution information.
 */
 
@@ -104,7 +104,7 @@ public:
 
 	//! GnuTLS public key algorithm ID
 
-	static const gnutls_pk_algorithm pk_algorithm=GNUTLS_PK_DSA;
+	static const gnutls_pk_algorithm_t pk_algorithm=GNUTLS_PK_DSA;
 
 	//! Import the default public key parameter file
 

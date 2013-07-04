@@ -18,7 +18,7 @@
 
 static void testpkparams()
 {
-	static const gnutls_pk_algorithm algo_list[]={
+	static const gnutls_pk_algorithm_t algo_list[]={
 		GNUTLS_PK_RSA, GNUTLS_PK_DSA};
 
 	static const char * const algo_names[]={
