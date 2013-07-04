@@ -90,7 +90,7 @@ template<typename T, typename Allocator> class weaklistBase;
 //! properties apply to the weak list container, also.
 
 template<typename T,
-	 typename Allocator=std::allocator<weakptr<T > > >
+	 typename Allocator=std::allocator<weakptr<ptr<T> > > >
 using weaklist=ref< weaklistObj< ptr<T>, Allocator>,
 		    weaklistBase<T, Allocator> >;
 
@@ -99,7 +99,7 @@ using weaklist=ref< weaklistObj< ptr<T>, Allocator>,
 //! \see weaklist
 
 template<typename T,
-	 typename Allocator=std::allocator<weakptr<T > > >
+	 typename Allocator=std::allocator<weakptr<ptr<T> > > >
 using weaklistptr=ptr< weaklistObj< ptr<T>, Allocator>,
 		       weaklistBase<T, Allocator> >;
 
