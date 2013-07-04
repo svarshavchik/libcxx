@@ -25,11 +25,11 @@ protected:
 
 	//! A list of all values in the enumeration
 
-	static const enum_t manual_enumeration[] LIBCXX_HIDDEN;
+	static const enum_t manual_enumeration[];
 
 	//! The size of the manual_enumeration array
 
-	static const size_t manual_enumeration_cnt LIBCXX_HIDDEN;
+	static const size_t manual_enumeration_cnt;
 };
 
 #if 0

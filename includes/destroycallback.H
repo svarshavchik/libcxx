@@ -87,7 +87,7 @@ public:
 			typedef typename std::enable_if<
 				! std::is_lvalue_reference<functor_type>::value &&
 				! std::is_rvalue_reference<functor_type>::value,
-				functor_type>::type functor_cannot_be_a_reference;
+				functor_type>::type functor_cannot_be_a_reference __attribute__((unused));
 
 			return ref<functorCallbackObj< functor_type > >
 				::create(std::forward<F>(functor));

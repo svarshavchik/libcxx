@@ -66,7 +66,7 @@ public:
 
 	static void nosuchname(const std::string &name,
 			       const const_locale &localeRef)
-		__attribute__((noreturn)) LIBCXX_HIDDEN;
+		__attribute__((noreturn));
 
 };
 
