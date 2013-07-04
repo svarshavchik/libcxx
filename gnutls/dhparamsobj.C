@@ -51,7 +51,7 @@ void gnutls::dhparamsObj::generate(//! Number of bits
 }
 
 gnutls::datum_t gnutls::dhparamsObj::export_pk(gnutls_x509_crt_fmt_t format)
-
+	const
 {
 	// gnutls_rsa_params_export_pkcs1 is not thread safe, too tired to check
 	// if this one is.
@@ -77,7 +77,6 @@ gnutls::datum_t gnutls::dhparamsObj::export_pk(gnutls_x509_crt_fmt_t format)
 
 void gnutls::dhparamsObj::import_pk(datum_t dhparams,
 				    gnutls_x509_crt_fmt_t format)
-
 {
 	gnutls_datum_t datum;
 
@@ -89,7 +88,7 @@ void gnutls::dhparamsObj::import_pk(datum_t dhparams,
 }
 
 void gnutls::dhparamsObj::export_raw(std::vector<datum_t> &raw_datum,
-				     unsigned int &bits)
+				     unsigned int &bits) const
 {
 	// gnutls_rsa_params_export_pkcs1 is not thread safe, too tired to check
 	// if this one is.
@@ -131,7 +130,7 @@ void gnutls::dhparamsObj::import_raw(const std::vector<datum_t> &raw_datum)
 	       "gnutls_dh_params_import_raw");
 }
 
-gnutls_pk_algorithm_t gnutls::dhparamsObj::get_pk_algorithm()
+gnutls_pk_algorithm_t gnutls::dhparamsObj::get_pk_algorithm() const
 {
 	return pk_algorithm;
 }

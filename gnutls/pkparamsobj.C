@@ -38,7 +38,7 @@ gnutls::pkparams gnutls::pkparamsBase::newobj
 	throw EXCEPTION("Unknown public key algorithm");
 }
 
-unsigned int gnutls::pkparamsObj::get_bits()
+unsigned int gnutls::pkparamsObj::get_bits() const
 {
 	std::vector<datum_t> factors;
 	unsigned int nbits;

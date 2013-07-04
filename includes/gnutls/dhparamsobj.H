@@ -58,7 +58,7 @@ public:
 	//! Export the DH parameters
 
 	datum_t export_pk(//! \c GNUTLS_X509_FMT_DER or \c GNUTLS_X509_FMT_PEM
-			  gnutls_x509_crt_fmt_t format);
+			  gnutls_x509_crt_fmt_t format) const override;
 
 	//! Import the DH parameters
 	void import_pk(//! The DH parameters
@@ -76,7 +76,7 @@ public:
 			std::vector<datum_t> &raw_datum,
 
 			//! Number of bits in the public key parameter
-			unsigned int &bits);
+			unsigned int &bits) const override;
 
 	//! Import raw key exchange parameters
 
@@ -92,7 +92,7 @@ public:
 	//! \return \c GNUTLS_PK_DSA
 	//!
 
-	gnutls_pk_algorithm_t get_pk_algorithm();
+	gnutls_pk_algorithm_t get_pk_algorithm() const;
 
 	//! Disown this DH parameter
 

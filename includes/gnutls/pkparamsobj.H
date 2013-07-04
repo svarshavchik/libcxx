@@ -48,7 +48,7 @@ public:
 	//! Export key exchange parameters
 
 	virtual datum_t export_pk(//! \c GNUTLS_X509_FMT_DER or \c GNUTLS_X509_FMT_PEM
-				  gnutls_x509_crt_fmt_t format)=0;
+				  gnutls_x509_crt_fmt_t format) const=0;
 
 	//! Import key exchange parameters
 
@@ -67,7 +67,7 @@ public:
 				std::vector<datum_t> &raw_datum,
 
 				//! Number of bits in the public key parameter
-				unsigned int &bits)=0;
+				unsigned int &bits) const=0;
 
 	//! Import raw key exchange parameters
 
@@ -76,8 +76,7 @@ public:
 				//! This is a two-element array for DH
 				//! keys (\c prime and \c generator values),
 
-				const std::vector<datum_t> &raw_datum)
-=0;
+				const std::vector<datum_t> &raw_datum)=0;
 
 	//! Import the default public key parameter file
 
@@ -88,14 +87,14 @@ public:
 	//! \return \c GNUTLS_PK_RSA or \c GNUTLS_PK_DSA
 	//!
 
-	virtual gnutls_pk_algorithm_t get_pk_algorithm()=0;
+	virtual gnutls_pk_algorithm_t get_pk_algorithm() const=0;
 
 	//! Retrieve the number of bits in the public key parameters
 
 	//! This function calls export_raw(), and throws away the resulting
 	//! raw vectors, giving back just the bit count.
 
-	unsigned int get_bits();
+	unsigned int get_bits() const;
 
 protected:
 	//! Import a pregenerated public key parameter file
