@@ -195,8 +195,15 @@ static void createparams(LIBCXX_NAMESPACE::gnutls::x509::privkey &rsakey,
 		dh2->export_raw(datums, nbits);
 		dh3->import_raw(datums);
 
+		LIBCXX_NAMESPACE::gnutls::pkparams
+			dh4(LIBCXX_NAMESPACE::gnutls::pkparams
+			    ::create(dh3->get_pk_algorithm()));
+
+		dh3->export_raw(datums, nbits);
+		dh4->import_raw(datums);
+
 		LIBCXX_NAMESPACE::gnutls::datum_t a(dh3->export_pk(GNUTLS_X509_FMT_DER)),
-			b(dh2->export_pk(GNUTLS_X509_FMT_DER));
+			b(dh4->export_pk(GNUTLS_X509_FMT_DER));
 
 		if (a->size() != b->size() ||
 		    !std::equal(a->begin(), a->end(), b->begin()))
@@ -215,6 +222,7 @@ int main(int argc, char **argv)
 		createparams(rsakey, dsakey);
 	} catch (LIBCXX_NAMESPACE::exception &e) {
 		std::cout << e << std::endl;
+		exit(1);
 	}
 	return 0;
 }

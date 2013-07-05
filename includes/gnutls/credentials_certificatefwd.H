@@ -98,12 +98,8 @@ class callbackObj;
 //! %certificate authorities.
 //!
 //! Both clients and servers should use
-//! \link certificateObj::set_rsa_params() set_rsa_params() \endlink or
 //! \link certificateObj::set_dh_params() set_dh_params() \endlink
-//! to set the decryption key exchange parameters, depending on the
-//! certificate type.
-//! Use both functions for maximum compatibility, when a callback method
-//! can return either a \c RSA or a \c DH based certificate.
+//! to set the decryption key exchange parameters, when using DSA certificates.
 //!
 //! The default %certificate verification limits may be adjuted by using
 //! \link certificateObj::set_verify_flags() set_verify_flags() \endlink and
