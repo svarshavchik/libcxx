@@ -6,9 +6,9 @@
 #, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version: libcxx 0.6\n"
+"Project-Id-Version: libcxx 0.7\n"
 "Report-Msgid-Bugs-To: mrsam@courier-mta.com\n"
-"POT-Creation-Date: 2013-06-29 22:18-0400\n"
+"POT-Creation-Date: 2013-07-08 07:01-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -122,7 +122,7 @@ msgstr ""
 msgid "logfile"
 msgstr ""
 
-#: gnutls/credentials_certificateobj.C:150
+#: gnutls/credentials_certificateobj.C:128
 msgid "Unknown temporary key parameter"
 msgstr ""
 
@@ -138,7 +138,7 @@ msgstr ""
 msgid "Message digest number must be explicitly given to digest()"
 msgstr ""
 
-#: gnutls/pkparamsobj.C:99
+#: gnutls/pkparamsobj.C:96
 msgid "Cannot open the default %1% parameter file"
 msgstr ""
 
