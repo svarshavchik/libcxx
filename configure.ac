@@ -262,6 +262,8 @@ void has_extattr()
 
 AC_SUBST(LIBCXX_SET_XATTR)
 
+AC_ARG_ENABLE(xlocale, [AS_HELP_STRING([--disable-xlocale],[do not use xlocale, not implemented in libstdc++])], [ xlocale="$enableval" ], [
+
 AC_COMPILE_IFELSE([AC_LANG_SOURCE([
 #include <locale.h>
 
@@ -270,15 +272,19 @@ void foo(locale_t l)
 	uselocale(l);
 }
 
-])], [ AC_DEFINE_UNQUOTED(HAVE_XLOCALE,1,[locale_t and uselocale() exists])
-     LIBCXX_LOCALE_T=locale_t
-     HAVE_XLOCALE=1 ],
+])], [xlocale='yes'], [xlocale='no'])])
 
-    [LIBCXX_LOCALE_T='std::string'
+if test "$xlocale" = "yes"
+then
+     AC_DEFINE_UNQUOTED(HAVE_XLOCALE,1,[locale_t and uselocale() exists])
+     LIBCXX_LOCALE_T=locale_t
+     HAVE_XLOCALE=1
+else
+     LIBCXX_LOCALE_T='std::string'
      LIBCXX_LOCALE_SAVE_ENV_T='std::string oldenv;'
      HAVE_XLOCALE=0
-     LIBCXX_LOCALE_T_GLOBLOCK=' : private globlock']
-)
+     LIBCXX_LOCALE_T_GLOBLOCK=' : private globlock'
+fi
 
 AC_SUBST(LIBCXX_LOCALE_T)
 AC_SUBST(LIBCXX_LOCALE_SAVE_ENV_T)
