@@ -56,7 +56,7 @@ public:
 	std::condition_variable c;
 	bool quitit;
 
-	test1app(const test1info &infoArg) : info(infoArg)
+	test1app(const test1info &infoArg) : info(infoArg), quitit(false)
 	{
 		std::unique_lock<std::mutex> l(info->m);
 		++info->counter;
