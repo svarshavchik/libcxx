@@ -20,13 +20,15 @@ EXTRA_DIST=config.rpath DoxygenLayout.xml $(man_MANS) \
 	   $(wildcard $(srcdir)/examples/*/configure.ac) \
 	   $(wildcard $(srcdir)/examples/*/Makefile.am) \
 	   $(wildcard $(srcdir)/examples/*/*.C) \
-        ) \
-	packaging/freebsd9/devel/libcxx/Makefile \
-	packaging/freebsd9/devel/libcxx/pkg-deinstall \
-	packaging/freebsd9/devel/libcxx/pkg-descr \
-	packaging/freebsd9/devel/libcxx/pkg-install \
-	packaging/freebsd9/devel/libcxx/pkg-message \
-	packaging/freebsd9/devel/libcxx/pkg-plist
+	   $(srcdir)/packaging/freebsd9/devel/libcxx/Makefile \
+	   $(srcdir)/packaging/freebsd9/devel/libcxx/pkg-deinstall \
+	   $(srcdir)/packaging/freebsd9/devel/libcxx/pkg-descr \
+	   $(srcdir)/packaging/freebsd9/devel/libcxx/pkg-install \
+	   $(srcdir)/packaging/freebsd9/devel/libcxx/pkg-message \
+	   $(srcdir)/packaging/freebsd9/devel/libcxx/pkg-plist \
+	   $(wildcard $(srcdir)/packaging/freebsd9/devel/libcxx/files/*.in) \
+	   $(wildcard $(srcdir)/packaging/freebsd9/devel/libcxx/files/patch*C) \
+        )
 
 DOCS_SRC = $(shell find includes -name '*.H' -print)
 
