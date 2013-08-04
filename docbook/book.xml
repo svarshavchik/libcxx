@@ -88,7 +88,7 @@
 <!ENTITY const_ptr "<classname>&ns;::const_ptr</classname>">
 <!ENTITY reforptr "&ref; or an &ptr;">
 <!ENTITY stl "<acronym>STL</acronym>">
-<!ENTITY freebsdver "FreeBSD 9">
+<!ENTITY freebsdver "FreeBSD 9.1">
 <!ENTITY freebsdverdir "<filename>packaging/freebsd9/devel/libcxx</filename>">
 <!ENTITY gcrypt "<application>Libgcrypt</application>">
 <!ENTITY automakeintro SYSTEM "automakeintro.inc.xml">

@@ -30,34 +30,16 @@ See COPYING for distribution information.
 	<application>libidn</application> and
 	<application>libiconv</application> packages need to be installed to
 	build &app;, in addition to
-	<application>gcc47</application>
+	<application>gcc49</application>
 	and <application>gmake</application>
 	that must be used to compile it.
 	<application>doxygen</application>, <application>graphviz</application>,
 	and <application>doxygen-xsl</application> are also required to build
 	from &app;'s source repository.
       </para>
-
-      <note>
-	<para>
-	  &app; gets miscompiled by the pre-release version of
-	  <application>gcc 4.7</application> in the installation image's
-	  port collection. <application>gcc 4.7</application> must be updated
-	  from ports to at least 4.7.2, in order to compile &app;
-	  and applications that use &app;.
-	</para>
-      </note>
     </listitem>
 
     <listitem>
-      <para>
-	Without the <interfacename>xlocale</interfacename>
-	<acronym>API</acronym>,
-	many classes that use <classname>&ns;::locale</classname> will suffer
-	poor performance, since they must obtain an exclusive global lock,
-	in order to temporarily set the global application locale.
-      </para>
-
       <para>
 	Subsequently, <methodname>imbue</methodname>(), and any other code that
 	touches a locale object must be wrapped inside an instance
