@@ -86,8 +86,6 @@ int main(int argc, char **argv)
 			mythr->submit(msg);
 		}
 
-		typedef LIBCXX_NAMESPACE::eventqueue<intarraymsg> ack_queue_t;
-
 		mythr->stop();
 		thr->wait();
 

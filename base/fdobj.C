@@ -1553,7 +1553,8 @@ std::string fdBase::mktempdir(mode_t mode)
 
 	mkdir(n.c_str(), 0700);
 	chmod(n.c_str(), mode);
-	chown(n.c_str(), geteuid(), getegid());
+	if (chown(n.c_str(), geteuid(), getegid()) < 0)
+		; // Ignore
 
 	auto s=fileattr::create(n, true)->stat();
 
