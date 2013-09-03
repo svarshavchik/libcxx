@@ -378,7 +378,13 @@ useragentObj::do_request_with_auth(const fd *terminate_fd,
 				   requestimpl &req,
 				   request_sans_body &impl)
 {
-	// Add the Cookie header.
+	// Add the Cookie header, after removing any existing cookie headers.
+
+	{
+		auto old_cookies=req.equal_range("Cookie");
+
+		req.erase(old_cookies.first, old_cookies.second);
+	}
 
 	{
 		std::list<std::pair<std::string, std::string> > tray;
