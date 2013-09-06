@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: libcxx 0.7\n"
 "Report-Msgid-Bugs-To: mrsam@courier-mta.com\n"
-"POT-Creation-Date: 2013-07-08 07:01-0400\n"
+"POT-Creation-Date: 2013-09-06 08:56-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -182,7 +182,7 @@ msgstr ""
 msgid "Domain parameter missing from digest authentication challenge"
 msgstr ""
 
-#: base/fd.C:414
+#: base/fd.C:445
 msgid "Internal error: did not create file descriptor for deserialization"
 msgstr ""
 
@@ -339,11 +339,11 @@ msgid ""
 "one"
 msgstr ""
 
-#: base/http_useragentobj.C:617
+#: base/http_useragentobj.C:623
 msgid "Cannot process the Authentication-Info header"
 msgstr ""
 
-#: base/http_useragentobj.C:719
+#: base/http_useragentobj.C:725
 msgid "Unknown protocol: %1"
 msgstr ""
 

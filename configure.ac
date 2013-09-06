@@ -656,6 +656,9 @@ eval "sbindir=\"$sbindir\""
 eval "httportmapd=\"$sbindir/httportmapd\""
 
 AC_SUBST(httportmapd)
+
+AM_CONDITIONAL(HAVE_REPO, test -d ${srcdir}/docbook)
+
 AC_CONFIG_FILES([Doxyfile po/Makefile.in
 		 Makefile
 		 includes/Makefile

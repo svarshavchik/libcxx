@@ -270,6 +270,9 @@ include/x/mime/sectioniter.H
 include/x/mime/sectionprocessor.H
 include/x/mime/structured_content_header.H
 include/x/mime/tokens.H
+include/x/mmap.H
+include/x/mmapfwd.H
+include/x/mmapobj.H
 include/x/mpobj.H
 include/x/msgdispatcher.H
 include/x/mutex.H

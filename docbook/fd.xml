@@ -1430,6 +1430,122 @@ listener-&gt;start(server, document::create());</programlisting>
       </para>
     </note>
   </section>
+
+  <section id="shmem">
+    <title>POSIX shared memory segments, and memory-mapped files</title>
+
+    <blockquote>
+      <informalexample>
+	<programlisting>
+&ns;::fd fd=&ns;::fd::base::shm_open("testshm", O_RDWR|O_CREAT, 0600);
+
+fd->truncate(1024);
+
+// ...
+
+&ns;::fd::base::shm_unlink("testshm");</programlisting>
+      </informalexample>
+    </blockquote>
+
+    <para>
+      <function>shm_open</function>() creates or opens an existing POSIX
+      shared memory segment.
+      <function>ftruncate</function>() sets the size of the shared memory
+      segment. <function>shm_unlink</function>() removes it.
+    </para>
+
+    <para>
+      The shared memory segment is referenced by a file descriptor, but it's
+      not readable or writable, like a traditional file. It's accessed by
+      memory-mapping it into the process's address space:
+    </para>
+
+    <blockquote>
+      <informalexample>
+	<programlisting>
+struct X;
+
+&ns;::mmap&lt;X&gt; mapped=INSERT_LIBX_NAMESPACE::mmap&lt;X&gt;::create(fd, PROT_READ|PROT_WRITE);
+
+X *instance=mapped->object();
+
+mapped->msync();</programlisting>
+      </informalexample>
+    </blockquote>
+
+    <para>
+      <ulink url="&link-typedef-x-mmap;"><classname>&ns;::mmap</classname></ulink>
+      is a reference to a <link linkend="refobj">reference-counted</link>
+      object that represents a memory-mapped segment.
+      This is is an interface to the
+      <citerefentry><refentrytitle>mmap</refentrytitle><manvolnum>2</manvolnum></citerefentry>
+      system call.
+      The constructor maps the memory segment. When the last reference to this
+      reference-counted object goes out of scope and it gets destroyed, the
+      destructor call
+      <citerefentry><refentrytitle>munmap</refentrytitle><manvolnum>2</manvolnum></citerefentry>.
+    </para>
+
+    <para>
+      The template parameter is typically a POD class, but a real object could
+      possibly be used, if its constructor and destructor invocations are
+      carefully handled.
+    </para>
+
+    <para>
+      The <function>create</function>() constructor takes the following
+      arguments.
+    </para>
+
+    <itemizedlist>
+      <listitem>
+	<para>
+	  An optional <classname>void *</classname>,
+	  specifying the first argument to
+	  <citerefentry><refentrytitle>mmap</refentrytitle><manvolnum>2</manvolnum></citerefentry>,
+	  if not present it defaults to <literal>nullptr</literal>; then either:
+	</para>
+      </listitem>
+      <listitem>
+	<para>
+	  An open
+	  <link linkend="fd"><classname>&ns;::fd</classname></link>,
+	  the protection setting,
+	  and thre optional parameters: flags, offset, and length. This maps
+	  in the opened file descriptor.
+	</para>
+      </listitem>
+
+      <listitem>
+	<para>
+	  A length, the protection setting, and an optional flag value. This
+	  creates a standalone mapped segment.
+	</para>
+      </listitem>
+    </itemizedlist>
+
+    <para>
+      These parameters get forwarded to
+      <citerefentry><refentrytitle>mmap</refentrytitle><manvolnum>2</manvolnum></citerefentry>, mostly unchanged.
+      The optional flag <varname>value</varname> defaults to
+      <literal>MAP_SHARED</literal>. For a file-based mapping the offset
+      value defaults to 0. For the file-based mapping, the default length value
+      of 0 is replaced with the current size of the file, as obtained by the
+      <citerefentry><refentrytitle>stat</refentrytitle><manvolnum>2</manvolnum></citerefentry>
+      system call.
+    </para>
+
+    <para>
+      <methodname>msync</methodname>() calls the
+      <citerefentry><refentrytitle>msync</refentrytitle><manvolnum>2</manvolnum></citerefentry>
+      system call.
+    </para>
+
+    <para>
+      <methodname>object</methodname>() returns a pointer to the mapped
+      memory segment, casted to a pointer to the template type.
+    </para>
+  </section>
 </chapter>
 <!--
 Local Variables:

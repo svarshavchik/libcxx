@@ -223,7 +223,7 @@ $(call MSGDISPATCHER_GEN,singletonapp.msgs,all)
 $(call MSGDISPATCHER_GEN,timerobj.msgs,def decl)
 
 BUILT_SOURCES=x ymd_grdjd.h mksiglist.h mksigtab.h testoptgen.h maillogs.h propertiescli.h sysconfdir.h srcdir.h xml_parser_options.h xml_element_type.h
-CLEANFILES=x ymd_grdjd.h mksiglist.h mksigtab.h testoptgen.h maillogs.h propertiescli.h sysconfdir.h srcdir.h xml_parser_options.h xml_element_type.h effective_tld_names.dat effective_tld_names.dat.timestamp
+CLEANFILES=x ymd_grdjd.h mksiglist.h mksigtab.h testoptgen.h maillogs.h propertiescli.h sysconfdir.h srcdir.h xml_parser_options.h xml_element_type.h effective_tld_names.dat.timestamp
 
 XTEST_MO_DIR=xtest/en_US/LC_MESSAGES
 XTEST_MO_FILE=xtest.mo
@@ -271,6 +271,7 @@ EXTRA_DIST += effective_tld_names.dat
 dist-hook:
 	find $(srcdir)/effective_tld_names.dat.timestamp -mtime +30 -exec rm -f {} \; ; $(MAKE) effective_tld_names.dat
 
+if HAVE_REPO
 effective_tld_names.dat: effective_tld_names.dat.timestamp
 
 effective_tld_names.dat.timestamp:
@@ -278,6 +279,7 @@ effective_tld_names.dat.timestamp:
 	cmp -s effective_tld_names.dat.tmp effective_tld_names.dat || mv -f effective_tld_names.dat.tmp effective_tld_names.dat
 	rm -f effective_tld_names.dat.tmp
 	touch effective_tld_names.dat.timestamp
+endif
 
 libcxx_la_LIBADD=-lpthread -lrt -lpcre -lmagic -lxml2 @LIBEXTRAPATH@ @LIBUNWIND@ @LINKLIBICONV@ @LINKLIBINTL@ @LIBIDN@ @LIBXML2_CFLAGS@
 
