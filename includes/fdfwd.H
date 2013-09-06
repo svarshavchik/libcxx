@@ -32,7 +32,7 @@ class fdBase;
 //! \par Creating an uninitialized file descriptor object
 //!
 //! \code
-//! fdptr myFd(fdptr::create());
+//! INSERT_LIBX_NAMESPACE::fd myFd(INSERT_LIBX_NAMESPACE::fd::create());
 //! \endcode
 //!
 //! This creates a reference to a new file descriptor object, that has not
@@ -43,15 +43,15 @@ class fdBase;
 //! \par Opening files
 //!
 //! \code
-//! fdptr myFd;
+//! INSERT_LIBX_NAMESPACE::fd myFd;
 //!
-//! myFd=fdptr::base::open("/etc/passwd", O_RDONLY);
+//! myFd=INSERT_LIBX_NAMESPACE::fd::base::open("/etc/passwd", O_RDONLY);
 //! \endcode
 //!
 //! This creates a reference to a file descriptor object for an opened file.
 //!
 //! \code
-//! fdptr myFd(fdptr::base::tmpfile());
+//! INSERT_LIBX_NAMESPACE::fd myFd(INSERT_LIBX_NAMESPACE::fd::base::tmpfile());
 //! \endcode
 //!
 //! Thie new file descriptor object references a newly-created temporary file.
@@ -60,9 +60,7 @@ class fdBase;
 //!
 //! \par Creating files under a temporary name
 //! \code
-//! fdptr myFd;
-//!
-//! myFd=fdptr::create("filename", 0600);
+//! INSERT_LIBX_NAMESPACE::fd myFd=INSERT_LIBX_NAMESPACE::fd::create("filename", 0600);
 //! \endcode
 //!
 //! The create() function enables creating a file under a temporary name.
@@ -75,14 +73,14 @@ class fdBase;
 //! \par Creating a pipe
 //!
 //! \code
-//! std::pair<fd, fd> fdpipe(fd::base::pipe());
+//! std::pair<INSERT_LIBX_NAMESPACE::fd, INSERT_LIBX_NAMESPACE::fd> fdpipe(INSERT_LIBX_NAMESPACE::fd::base::pipe());
 //! \endcode
 //!
 //! Use %pipe(2) to create a pipe. \c fdpipe.first is the read side of the
 //! pipe. \c fdpipe.second is the write side of the pipe.
 //!
 //! \code
-//! std::pair<fd, fd> fdpair(fd::base::socketpair());
+//! std::pair<INSERT_LIBX_NAMESPACE::fd, INSERT_LIBX_NAMESPACE::fd> fdpair(INSERT_LIBX_NAMESPACE::fd::base::socketpair());
 //! \endcode
 //!
 //! Use %socketpair(2) to create a socket pair pipe.
@@ -92,7 +90,7 @@ class fdBase;
 //! \par Creating a single socket
 //!
 //! \code
-//! fd myFd(fd::base::socket(PF_INET, SOCK_STREAM, 0);
+//! INSERT_LIBX_NAMESPACE::fd myFd(INSERT_LIBX_NAMESPACE::fd::base::socket(PF_INET, SOCK_STREAM, 0);
 //! \endcode
 //!
 //! Use %socket(2) to create a new socket.
@@ -100,11 +98,11 @@ class fdBase;
 //! \par Listening on sockets
 //!
 //! \code
-//! std::list<fd> listen_fds;
+//! std::list<INSERT_LIBX_NAMESPACE::fd> listen_fds;
 //!
 //! // ...
 //!
-//! fd::base::listen(listen_fds, 20);
+//! INSERT_LIBX_NAMESPACE::fd::base::listen(listen_fds, 20);
 //! \endcode
 //!
 //! fd::listen() takes a list of file descriptors that's initialized by
@@ -115,7 +113,7 @@ class fdBase;
 //! \note
 //! Linux has \c IPV6_V6ONLY disabled by default, so
 //! listening on a wildcard IPv4 and a wildcard IPv6
-//! address fails with \c EADDRINUSE. fd::base::listen() detects this
+//! address fails with \c EADDRINUSE. INSERT_LIBX_NAMESPACE::fd::base::listen() detects this
 //! situation, and quietly removes the IPv4 file descriptor from the list.
 //!
 //! \par All other operations
@@ -138,7 +136,7 @@ class fdBase;
 //! \par Passing file descriptors
 //!
 //! \code
-//! fd fdFile=fd::base::open(filename, O_RDONLY);
+//! INSERT_LIBX_NAMESPACE::fd fdFile=INSERT_LIBX_NAMESPACE::fd::base::open(filename, O_RDONLY);
 //!
 //! fdSocketFd->send_fd(&fdFile, 1);
 //! \endcode
@@ -215,6 +213,21 @@ class fdBase;
 //! descriptor gets used to update the file's timestamp. This means that even
 //! if the file gets closed, its timestamp continues to get updated, as long
 //! as the mcguffin remains in scope!
+//!
+//! \par POSIX shared memory
+//!
+//! \code
+//! std::string name;
+//!
+//! INSERT_LIBX_NAMESPACE::fd fdFile=INSERT_LIBX_NAMESPACE::fd::base::shm_open(filename, O_RDWR|O_CREAT, 0600);
+//!
+//! INSERT_LIBX_NAMESPACE::fd::base::shm_unlink(filename);
+//! \endcode
+//!
+//! shm_open() opens a new file descriptor that's attached to a POSIX shared
+//! memory segment. Its parameters get passed to the shm_open(2) system call.
+//! shm_unlink() is also just a wrapper around the shm_unlink(2) system call,
+//! implement for completeness' sake.
 
 typedef ptr<fdObj, fdBase> fdptr;
 

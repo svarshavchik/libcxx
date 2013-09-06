@@ -94,7 +94,7 @@ AC_CHECK_HEADERS(endian.h sys/endian.h)
 AC_SYS_LARGEFILE
 # Checks for library functions.
 
-AC_CHECK_FUNCS(futimens ppoll dup3 accept4 pipe2)
+AC_CHECK_FUNCS(futimens ppoll dup3 accept4 pipe2 ftruncate64 mmap64)
 
 changequote(<,>)
 

@@ -1,5 +1,5 @@
 /*
-** Copyright 2012 Double Precision, Inc.
+** Copyright 2012-2013 Double Precision, Inc.
 ** See COPYING for distribution information.
 */
 
@@ -12,6 +12,7 @@
 #include "serialization.H"
 #include "gettext_in.h"
 #include <sys/eventfdsys.h>
+#include <sys/mman.h>
 #include <cstring>
 
 namespace LIBCXX_NAMESPACE {
@@ -234,6 +235,35 @@ fd fdBase::adopt(int filedesc)
 	return ptrrefBase::objfactory<fd>::create(filedesc);
 }
 
+fd fdBase::shm_open(const char *filename,
+		    int flags,
+		    mode_t mode)
+{
+	int filedesc=::shm_open(filename, flags, mode);
+
+	if (filedesc < 0)
+		throw EXCEPTION("shm_open");
+	try {
+		return adopt(filedesc);
+	} catch (...)
+	{
+		::close(filedesc);
+		throw;
+	}
+}
+
+fd fdBase::shm_open(const std::string &filename,
+		    int flags,
+		    mode_t mode)
+{
+	return shm_open(filename.c_str(), flags, mode);
+}
+
+void fdBase::shm_unlink(const std::string &filename)
+{
+	::shm_unlink(filename.c_str());
+}
+
 fd fdBase::tmpfile()
 {
 	const char *tmpdir=getenv("TMPDIR");
@@ -297,6 +327,7 @@ fd fdBase::tmpfile(const std::string &dirname)
 		return adopt(nfd);
 	} catch (...)
 	{
+		::close(nfd);
 		throw;
 	}
 }

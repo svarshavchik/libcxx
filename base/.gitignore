@@ -80,6 +80,7 @@
 /testsendrecvfd
 /testseq
 /testserialize
+/testshm
 /testsignalfd
 /testsingleton
 /teststoppable

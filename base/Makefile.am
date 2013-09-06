@@ -146,6 +146,7 @@ libcxx_la_SOURCES=\
 	mime_sectioninfo.C      \
 	mime_sectiondecoder.C	\
 	mime_structured_content_header.C \
+	mmap.C			\
 	msgdispatcher.C		\
 	mutexobj.C		\
 	mutexpool.C		\
@@ -346,6 +347,7 @@ noinst_PROGRAMS=\
 	testsendrecvfd                \
 	testseq                       \
 	testserialize                 \
+	testshm			      \
 	testsignalfd                  \
 	testsingleton                 \
 	teststoppable                 \
@@ -579,6 +581,10 @@ $(call MSGDISPATCHER_GEN,testmsgdispatcher.testclass2,def decl)
 testsemaphore_SOURCES=testsemaphore.C
 testsemaphore_LDADD=libcxx.la
 testsemaphore_LDFLAGS=$(TESTLINKTYPE)
+
+testshm_SOURCES=testshm.C
+testshm_LDADD=libcxx.la
+testshm_LDFLAGS=$(TESTLINKTYPE)
 
 $(call OPTIONS_GEN,testoptgen.h.tmp,$(srcdir)/../includes/optgen.sample.xml)
 
@@ -877,6 +883,7 @@ check-am: $(noinst_PROGRAMS) $(noinst_DATA)
 	./testidn
 	./testuseragentidn
 	./testeffectivetldnames
+	./testshm
 
 $(XTEST_MO_DIR)/$(XTEST_MO_FILE): testmessages.po
 	mkdir -p $(XTEST_MO_DIR)

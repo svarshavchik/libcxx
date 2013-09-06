@@ -66,6 +66,17 @@ See COPYING for distribution information.
     <itemizedlist>
       <listitem>
 	<para>
+	  gcc's implementation of <classname>shared_ptr</classname>
+	  is derived from an implementation in the Boost library, which
+	  appears to be not
+	  <ulink url="http://gcc.gnu.org/ml/libstdc++/2013-08/msg00161.html">thread-safe</ulink>.
+	  The proposal that's discussed in that email thread to address this
+	  defect will have a major thread performance impact.
+	</para>
+      </listitem>
+
+      <listitem>
+	<para>
 	  A <classname>shared_ptr</classname>
 	  contains a pointer to a small heap-allocated object
 	  that stores the reference count, and a second pointer to the

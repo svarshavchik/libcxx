@@ -1,5 +1,5 @@
 /*
-** Copyright 2012 Double Precision, Inc.
+** Copyright 2012-2013 Double Precision, Inc.
 ** See COPYING for distribution information.
 */
 
@@ -132,6 +132,31 @@ public:
 	static fd open(const std::string &filename,
 		       int flags,
 		       mode_t mode=0666);
+
+	//! Open POSIX shared memory
+
+	static fd shm_open(//! The name of the shared memory segment.
+			   const char *filename,
+
+			   //! File open flags.
+			   int flags,
+
+			   //! New file's permissions
+			   mode_t mode=0666);
+
+	//! Open POSIX shared memory
+
+	static fd shm_open(//! The name of the shared memory segment.
+			   const std::string &filename,
+
+			   //! File open flags.
+			   int flags,
+
+			   //! New file's permissions
+			   mode_t mode=0666);
+
+	//! Unlink POSIX shared memory segment
+	static void shm_unlink(const std::string &filename);
 
 	//! Create a temporary file.
 
@@ -967,6 +992,10 @@ public:
 		     //! Either \c SEEK_SET, \c SEEK_CUR, or \c SEEK_END.
 
 		     int whence);
+
+	//! Truncate the file
+	void truncate(//! New file size
+		      off64_t offset);
 
 	//! Set or clear the close-on-exec flag.
 

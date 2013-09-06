@@ -1,5 +1,5 @@
 /*
-** Copyright 2012 Double Precision, Inc.
+** Copyright 2012-2013 Double Precision, Inc.
 ** See COPYING for distribution information.
 */
 
@@ -612,6 +612,23 @@ off64_t fdObj::seek(off64_t offset,
 		throw SYSEXCEPTION("seek");
 
 	return n;
+}
+
+void fdObj::truncate(off64_t offset)
+{
+#if HAVE_FTRUNCATE64
+	if (ftruncate64(filedesc, offset) < 0)
+		throw SYSEXCEPTION("ftruncate");
+#else
+	if (sizeof(off64_t) != sizeof(off_t) &&
+	    (off64_t)(off_t)offset != offset)
+	{
+		errno=ERANGE;
+		throw SYSEXCEPTION("ftruncate");
+	}
+	if (ftruncate(filedesc, offset) < 0)
+		throw SYSEXCEPTION("ftruncate");
+#endif
 }
 
 void fdObj::ipv6only(bool flag)
