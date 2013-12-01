@@ -22,8 +22,6 @@ namespace LIBCXX_NAMESPACE {
 };
 #endif
 
-class fdtimeoutconfig;
-
 //! An unresolved network address.
 
 //! This object holds an unresolved network address. Generally, this object

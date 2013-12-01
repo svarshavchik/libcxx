@@ -23,6 +23,8 @@ class netaddrBase;
 class netaddrResultObj;
 class netaddrResultBase;
 
+class fdtimeoutconfig;
+
 //! An unresolved network address.
 //!
 //! Connecting to a network socket, or accepting connections to a socket,
