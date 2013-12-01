@@ -95,6 +95,7 @@ include/x/fdreadlimitobj.H
 include/x/fdstreambufobj.H
 include/x/fdtimeout.H
 include/x/fdtimeoutconfig.H
+include/x/fdtimeoutfwd.H
 include/x/fdtimeoutobj.H
 include/x/fileattr.H
 include/x/fileattrobj.H
