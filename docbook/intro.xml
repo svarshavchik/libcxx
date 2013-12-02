@@ -66,8 +66,9 @@ See COPYING for distribution information.
       <listitem>
 	<para>
 	  <link linkend="http"><acronym>HTTP</acronym> client and
-	    server classes</link>; including SSL/TLS, with
-	  a reference-counted
+	    server classes</link>;
+	  <link linkend="ftp"><acronym>FTP</acronym> clients</link>;
+	    including SSL/TLS, with a reference-counted
 	  <link linkend="gnutls">GnuTLS library classes</link>.
 	</para>
       </listitem>

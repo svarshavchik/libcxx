@@ -1043,6 +1043,8 @@ static void testnet() noexcept
 
 }
 
+void foo(LIBCXX_NAMESPACE::fd *x) {}
+
 void test_run_lambda_return_value(LIBCXX_NAMESPACE::netaddr &addr)
 {
 	auto ret=LIBCXX_NAMESPACE::run_lambda
@@ -1059,6 +1061,7 @@ void test_run_lambda_return_value(LIBCXX_NAMESPACE::netaddr &addr)
 	auto val=ret->get();
 
 	LIBCXX_NAMESPACE::fd *fdptr=&val;
+	foo(fdptr);
 }
 
 class eventthread : virtual public LIBCXX_NAMESPACE::obj {

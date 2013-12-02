@@ -30,6 +30,7 @@
 /testfdtimeouts
 /testfmtsize
 /testforkexec
+/testftp
 /testfutime
 /testgetprop
 /testgetpwgr

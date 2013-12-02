@@ -90,6 +90,9 @@ libcxx_la_SOURCES=\
 	filestat.C		\
 	fmtsize.C		\
 	forkexec.C              \
+	ftp_client.C		\
+	ftp_client.H		\
+	ftp_exception.C		\
 	getlinecrlf.C		\
 	globlock.C		\
 	globobj.C		\
@@ -304,6 +307,7 @@ noinst_PROGRAMS=\
 	testfdtimeouts                \
 	testfmtsize                   \
 	testforkexec                  \
+	testftp                       \
 	testfutime                    \
 	testgetprop                   \
 	testgetpwgr                   \
@@ -389,6 +393,10 @@ testrefiterator_LDFLAGS=$(TESTLINKTYPE)
 testqp_SOURCES=testqp.C
 testqp_LDADD=libcxx.la
 testqp_LDFLAGS=$(TESTLINKTYPE)
+
+testftp_SOURCES=testftp.C testftp.H testftp2.C
+testftp_LDADD=libcxx.la
+testftp_LDFLAGS=$(TESTLINKTYPE)
 
 testfutime_SOURCES=testfutime.C
 testfutime_LDADD=libcxx.la
@@ -892,6 +900,7 @@ check-am: $(noinst_PROGRAMS) $(noinst_DATA)
 	./testuseragentidn
 	./testeffectivetldnames
 	./testshm
+	./testftp
 
 $(XTEST_MO_DIR)/$(XTEST_MO_FILE): testmessages.po
 	mkdir -p $(XTEST_MO_DIR)

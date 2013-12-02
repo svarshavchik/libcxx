@@ -1,0 +1,412 @@
+<!--
+
+Copyright 2013 Double Precision, Inc.
+See COPYING for distribution information.
+
+-->
+
+<chapter id="connftpclient">
+  <title>Connecting to an <acronym>FTP</acronym> server</title>
+
+  <blockquote>
+    <informalexample>
+      <programlisting>
+#include &lt;&ns;/ftp/client.H&gt;
+
+auto socket=&ns;::netaddr::create("ftp.example.com", "ftp")->connect();
+
+auto ftp=&ns;::ftp::client::create(socket);
+
+ftp-&gt;login("anonymous", "user@example.com");
+
+// ...
+
+ftp-&gt;logout();
+      </programlisting>
+    </informalexample>
+  </blockquote>
+
+  <para>
+    <ulink url="&link-typedef-x--ftp-client;"><classname>&ns;::ftp::client</classname></ulink>
+    and
+    <ulink url="&link-typedef-x--ftp-clientptr;"><classname>&ns;::ftp::clientptr</classname></ulink>
+    are a reference and a nullable pointer reference to a
+    <link linkend="refobj">reference-counted object</link> that implements
+    an <acronym>FTP</acronym> client.
+    In accordance with the usual naming convention,
+    <classname>&ns;::ftp::const_client</classname> and
+    <classname>&ns;::ftp::const_clientptr</classname> define references
+    to a constant <acronym>FTP</acronym> client object.
+    Only methods that do not write to the <acronym>FTP</acronym> server are
+    constant class methods.
+  </para>
+
+  <para>
+    <methodname>create</methodname>() takes an already-connected socket
+    as a required parameter. The second optional parameter, specifies
+    whether the connection will use the passive form of <acronym>FTP</acronym>
+    and defaults to <literal>true</literal>.
+  </para>
+
+  <para>
+    <classname>&ns;::ftp::client</classname> throws an exception when an
+    error occurs. One of the exceptions could be a timeout waiting for the
+    FTP server to respond. The default timeout configuration gets specified
+    by the
+    <literal>&ns;::ftp::client::timeout::read</literal>,
+    <literal>&ns;::ftp::client::timeout::read_bytes</literal>,
+    <literal>&ns;::ftp::client::timeout::write</literal>, and
+    <literal>&ns;::ftp::client::timeout::write_bytes</literal>
+    <link linkend="properties">application properties</link>.
+    A timeout exception gets thrown if the given number of bytes is not
+    succesfull read/written from/to the server within the specific amount
+    of time; at which point the connection is no longer usable, and all
+    further <classname>FTP</classname> operations will throw exceptions
+    immediately.
+  </para>
+
+  <para>
+    Polite <acronym>FTP</acronym> clients will
+    <methodname>logout</methodname>() before disconnecting from the server.
+  </para>
+
+  <blockquote>
+    <informalexample>
+      <programlisting>
+auto socket=&ns;::netaddr("ftp.example.com", "ftp")->connect();
+
+auto timeout=&ns;::fdtimeout::create(socket);
+
+timeout-&gt;set_read_timeout(8192, 60);
+timeout-&gt;set_write_timeout(8192, 30);
+
+auto conn=&ns;::ftp::client::create(netaddr, timeout);
+
+conn->timeout(timeout);
+      </programlisting>
+    </informalexample>
+  </blockquote>
+
+  <para>
+    <methodname>create</methodname>() also taks an optional custom timeout
+    setting.
+    The custom timeout setting is used only for the initial greeting, and
+    Use <methodname>timeout</methodname>() to permanently install a
+    custom timeout handler, for the connection.
+  </para>
+
+  <para>
+    Note that this timeout setting affects the main <acronym>FTP</acronym>
+    control channel. All
+    <classname>&ns;::ftp::client</classname>
+    methods that create a data channel take an optional
+    <link linkend="fdsockets"><classname>&ns;::fdtimeoutconfig</classname></link>
+    that gets used to set up a custom timeout for the data channel, for the
+    duration of the method.
+  </para>
+
+  <para>
+    <methodname>create</methodname>() only waits for the initial greeting
+    from the server. <methodname>login</methodname>() logs in using the
+    specified userid and password.
+  </para>
+
+  <section id="connftpssl">
+    <title>FTP over SSL</title>
+
+    <blockquote>
+      <informalexample>
+	<programlisting>
+#include &lt;&ns;/ftp/client.H&gt;
+#include &lt;&ns;/gnutls/credentials.H&gt;
+
+auto socket=&ns;::netaddr::create("ftp.example.com", "ftp")->connect();
+
+auto credentials=&ns;::gnutls::credentials::certificate::create();
+
+credentials-&gt;set_x509_trust_default();
+
+auto ftp=&ns;::ftp::client::create(socket, credentials, "ftp.example.com");</programlisting>
+      </informalexample>
+    </blockquote>
+
+    <para>
+      Link with <option>-lcxxtls</option> to be able to connect to an
+      <acronym>FTP</acronym> server using <acronym>SSL</acronym>.
+      See <xref linkend="gnutls" /> for general information about using
+      <acronym>SSL</acronym> and <acronym>TLS</acronym> classes.
+      This example expects the server's certificate to be signed by one of the
+      default trusted certificate authorities. For a connection to a
+      server that uses a self-signed or a privately-signed certificate, use
+      <methodname>set_x509_trust_file</methodname>() to install the custom
+      certificate, instead.
+    </para>
+
+    <para>
+      Pass the credentials object, and the server's known name to
+      <methodname>create</methodname>(). The server's known name gets
+      checked against the server's certificate, and an exception gets thrown
+      if the names do not match. Additionally the server's expected name
+      gets sent to the server as part of the initial handshake, so that
+      the server can return the correct certificate (for servers serving
+      multiple domains on the same IP address).
+      Leave out the server name parameter in order to disable the server
+      name check.
+    </para>
+  </section>
+
+  <section id="connftptraverse">
+    <title>Traversing the server's contents</title>
+
+    <blockquote>
+      <informalexample>
+	<programlisting>
+ftp-&gt;chdir("/pub");
+
+std::set&lt;std::string&gt; directory;
+
+ftp-&gt;list(std::insert_iterator&lt;std::vector&lt;std::string&gt;&gt;(dir, dir.end());
+
+ftp->cdup();
+
+std::string pwd=ftp->pwd();
+
+std::string result=ftp->site("chmod 755 file.dat");
+</programlisting>
+      </informalexample>
+    </blockquote>
+
+    <para>
+      Use <methodname>chdir</methodname>() and <methodname>cdup</methodname>()
+      to navigate the server's directory structure.
+      <methodname>list</methodname>() obtains a human-readable listing of
+      the server's directory. The first parameter is an output iterator.
+      Each line in the listing gets written to the output iterator.
+      The remaining, optional parameters to <methodname>list</methodname>():
+    </para>
+
+    <orderedlist>
+      <listitem>
+	<para>
+	  The directory name. This returns a listing of the specified
+	  directory's contents, instead of the current directory.
+	</para>
+      </listitem>
+
+      <listitem>
+	<para>
+	  <link linkend="fdsockets"><classname>&ns;::fdtimeoutconfig</classname></link>
+	  that sets up the timeout configuration for the data channel used
+	  to transfer the requested data.
+	</para>
+      </listitem>
+    </orderedlist>
+
+    <para>
+      <methodname>nlst</methodname>() works exactly like
+      <methodname>list</methodname>() but the server returns just the
+      name of each file in the server's directory, on each line, and nothing
+      else.
+    </para>
+
+    <para>
+      <methodname>pwd</methodname>() returns the name of the current directory,
+      and <methodname>site</methodname>() executes some arbitrary
+      server-specific command.
+    </para>
+    <blockquote>
+      <informalexample>
+	<programlisting>
+&ns;::ymdhms timestamp=ftp-&gt;timestamp("filename");
+off64_t filesize=ftp-&gt;size("filename");
+
+std::map&lt;std::string, &ns;::ftp::client::base::stat&gt; stat;
+
+ftp-&gt;filestat([&amp;stat]
+    (const char *filename, const &ns;::ftp::client::base::stat &amp;info)
+    {
+        stat[filename]=info;
+    }, "filename");
+
+ftp-&gt;dirstat([&amp;stat]
+    (const char *filename, const &ns;::ftp::client::base::stat &amp;info)
+    {
+        stat[filename]=info;
+    }, "directory");</programlisting>
+      </informalexample>
+    </blockquote>
+
+    <para>
+      <methodname>timestamp</methodname>() returns the modification file of
+      some file on the server, and
+      <methodname>size</methodname>() gives the file's size, where available.
+      Some older servers may not implement the newer <acronym>FTP</acronym>
+      commands, used by <methodname>filestat</methodname>() and
+      <methodname>dirstat</methodname>() methods.
+    </para>
+
+    <para>
+      <methodname>filestat</methodname>() returns file information about
+      a single file (this is the <literal>MLST</literal> command
+      described in
+      <ulink url="http://tools.ietf.org/html/rfc3659#page-23">RFC 3659</ulink>)
+      <methodname>dirstat</methodname>() returns information about every
+      file in a given directory (this would be <literal>MLSD</literal>).
+      Both methods take a lambda or a functor as their first argument, which
+      receives two parameters: the file's name, and a
+      <ulink url="&link-x--ftp--clientBase--stat;"><classname>&ns;::ftp::client::base::stat</classname></ulink>
+      for that file or directory entry.
+      Normally <methodname>filestat</methodname>()'s callback usually gets
+      called once, and
+      <methodname>dirstat</methodname>()'s callback gets called once for each
+      file in a directory, but some servers might make additional calls for
+      each file, for the reasons described in RFC 3659.
+    </para>
+  </section>
+
+  <section id="connftpget">
+    <title>Downloading files</title>
+
+    <blockquote>
+      <informalexample>
+	<programlisting>
+ftp-&lt;get_file("localfile", "remotefile");
+
+ftp-&lt;get_file("localfile", 0644, "remotefile");
+
+std::vector&lt;char&gt; buffer;
+
+ftp-&gt;get(std::back_insert_iterator&lt;std::vector&lt;char&gt;&gt;(buffer), "remotefile");</programlisting>
+      </informalexample>
+    </blockquote>
+
+    <para>
+      <methodname>get_file</methodname>() downloads a file from the server,
+      creating a local file. Optional file creation permission mode parameter
+      follows the local filename parameter.
+      <methodname>get_file</methodname>() creates a file with a temporary
+      name, and renames it to <quote>localfile</quote> when the download
+      finishes. An error throws an exception and removes the temporary file.
+    </para>
+
+    <para>
+      <methodname>get</methodname>() downloads a file and writes it to
+      an output iterator, instead of a file.
+      The remaining, optional parameters to <methodname>get_file</methodname>()
+      and <methodname>get</methodname>():
+    </para>
+
+    <orderedlist>
+      <listitem>
+	<para>
+	  Binary transfer flag. The default value of
+	  <literal>true</literal> effects binary mode file transfer;
+	  <literal>false</literal> effects text mode file transfer.
+	  The text mode transfer makes no changes to the transferred contents.
+	  This specifies the mode setting for the transfer, and the
+	  transferred data gets saved in the file, as received from the
+	  server.
+	</para>
+      </listitem>
+
+      <listitem>
+	<para>
+	  <link linkend="fdsockets"><classname>&ns;::fdtimeoutconfig</classname></link>
+	  that sets up the timeout configuration for the data channel used
+	  to transfer the requested file.
+	</para>
+      </listitem>
+    </orderedlist>
+  </section>
+
+  <section id="connftpput">
+    <title>Uploading, renaming, and deleting files and directories</title>
+
+    <blockquote>
+      <informalexample>
+	<programlisting>
+ftp-&gt;put_file("localfile", "remotefile");
+
+std::string reply=ftp-&gt;put_unique_file("localfile");
+
+ftp-&gt;append_file("localfile", "remotefile");
+
+std::vector&lt;char&gt; buffer;
+
+ftp-&gt;put("remotefile", buffer.begin(), buffer.end());
+
+ftp-&gt;append("remotefile", buffer.begin(), buffer.end());
+
+std::string reply=ftp-&gt;put_unique(buffer.begin(), buffer.end());</programlisting>
+      </informalexample>
+    </blockquote>
+
+    <para>
+      <methodname>put_file</methodname>() uploads a local file to the
+      server, with an explicit file name on the server.
+      <methodname>put_unique_file</methodname>() uploads a local file to the
+      server, with the server creating a unique name for the new file.
+      <methodname>put_unique_file</methodname>() returns the response from the
+      server that should indicate the created file's name; however
+      <acronym>FTP</acronym> does not specify the message's exact format.
+      <methodname>append_file</methodname>() is a lesser-used function to
+      append the uploaded file's contents to the existing file.
+    </para>
+
+    <para>
+      <methodname>put</methodname>(),
+      <methodname>put_unique</methodname>(), and
+      <methodname>append</methodname>() specify the uploaded file's contents
+      by a beginning and an ending iterator value, instead of a filename.
+      The iterators should be random access iterators, but input iterators
+      are also acceptable. Input iterators cannot be used when the server
+      requires the <literal>ALLO</literal> command to precede the file
+      transfer. With forward/bidirectional iterators the sequence gets
+      iterated over twice, internally; once to compute the upload size
+      for the <literal>ALLO</literal>, and the second time to effect the
+      transfer. All these functions also take the following optional
+      parameters.
+    </para>
+
+    <orderedlist>
+      <listitem>
+	<para>
+	  Binary transfer flag. The default value of
+	  <literal>true</literal> effects binary mode file transfer;
+	  <literal>false</literal> effects text mode file transfer.
+	  The text mode transfer makes no changes to the transferred contents.
+	  This specifies the mode setting for the transfer, and the
+	  transferred data gets sent to the server, as is.
+	</para>
+      </listitem>
+
+      <listitem>
+	<para>
+	  <link linkend="fdsockets"><classname>&ns;::fdtimeoutconfig</classname></link>
+	  that sets up the timeout configuration for the data channel used
+	  to transfer the requested file.
+	</para>
+      </listitem>
+    </orderedlist>
+
+    <blockquote>
+      <informalexample>
+	<programlisting>
+ftp-&gt;mkdir("directory");
+ftp-&gt;rmdir("directory");
+ftp-&gt;unlink("filename");
+ftp-&gt;rename("from", "to");</programlisting>
+      </informalexample>
+    </blockquote>
+
+    <para>
+      Self-explanatory.
+    </para>
+  </section>
+</chapter>
+<!--
+Local Variables:
+mode: sgml
+sgml-parent-document: ("book.xml" "book" "chapter")
+End:
+-->

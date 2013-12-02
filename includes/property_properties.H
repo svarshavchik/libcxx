@@ -290,7 +290,7 @@ void load_properties(//! Literal %properties
 //! Update a single %property value
 
 //! \code
-//! property::update_property(L"main.window.width", L"400");
+//! property::load_property(L"main.window.width", L"400", true, true);
 //! \endcode
 //!
 //! Set a value of a single %property, the value specified by a string value.

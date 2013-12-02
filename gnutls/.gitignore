@@ -1,6 +1,7 @@
 /gettext_in.h
 /gnutls_defs.h
 /libcxxtls.la
+/testftp
 /testhttpclientimpl
 /testhttpserverimpl
 /testmd

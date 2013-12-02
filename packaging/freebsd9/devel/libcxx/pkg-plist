@@ -105,6 +105,11 @@ include/x/filestat.H
 include/x/filestatobj.H
 include/x/fmtsize.H
 include/x/forkexec.H
+include/x/ftp/client.H
+include/x/ftp/clientfwd.H
+include/x/ftp/clientobj.H
+include/x/ftp/exception.H
+include/x/ftp/exceptionimpl.H
 include/x/gcrypt/errors.H
 include/x/gcrypt/md.H
 include/x/gcrypt/mdfwd.H

@@ -48,6 +48,7 @@ libcxxtls_la_SOURCES=\
 	fdtlsclientobj.C		\
 	fdtlsserverimpl.C		\
 	fdtlsserverobj.C		\
+	ftp_client.C			\
 	http_auth_internal.C http_auth_internal.H \
 	http_serverauth.C		\
 	init.C				\
@@ -70,6 +71,7 @@ libcxxtls_la_LIBADD=../base/libcxx.la
 libcxxtls_la_LDFLAGS=-version-info @VERSION_INFO@ $(GNUTLS_LIBS) $(GCRYPT_LIBS) -lpthread
 
 noinst_PROGRAMS=\
+	testftp						\
 	testhttpclientimpl				\
 	testhttpserverimpl				\
 	testmd						\
@@ -93,9 +95,20 @@ check-am: testx509privkey testx509cert testsession
 	./testhttpserverimpl --set-property x::gnutls::tlsparamsdir=`pwd`/tlsparamsdir.tst
 	./testuseragent_static --set-property x::gnutls::tlsparamsdir=`pwd`/tlsparamsdir.tst
 	./testuseragent_shared --set-property x::gnutls::tlsparamsdir=`pwd`/tlsparamsdir.tst
+	./testftp --set-property x::gnutls::tlsparamsdir=`pwd`/tlsparamsdir.tst
 	rm -rf testrsa[123].key testrsa*.crt dhparams.dat tlsparamsdir.tst
 	./testmd
 	./testserverauth
+
+internal-test:
+	./testx509privkey
+	rm -rf tlsparamsdir.tst
+	mkdir tlsparamsdir.tst
+	cp dhparams.dat tlsparamsdir.tst/system.dh
+	sed -n '/BEGIN CERTIFICATE/,/END CERTIFICATE/p' </etc/pki/tls/certs/proftpd.pem >proftpd.pem
+	./testftp --set-property x::gnutls::tlsparamsdir=`pwd`/tlsparamsdir.tst --set-property testftpcert=proftpd.pem --set-property domain=localhost --test
+	rm -rf testrsa[123].key testrsa*.crt dhparams.dat tlsparamsdir.tst proftpd.pem
+
 
 bin_PROGRAMS=tlsparamsgen
 sbin_SCRIPTS=tlsparamsgen.sh
@@ -115,6 +128,10 @@ testsession_LDFLAGS=$(LINKTYPE)
 testpkparams_SOURCES=testpkparams.C
 testpkparams_LDADD=../base/libcxx.la libcxxtls.la
 testpkparams_LDFLAGS=$(LINKTYPE)
+
+testftp_SOURCES=testftp.C testftp2.C
+testftp_LDADD=../base/libcxx.la libcxxtls.la
+testftp_LDFLAGS=$(LINKTYPE)
 
 testhttpclientimpl_SOURCES=testhttpclientimpl.C testtlsimpl.h
 testhttpclientimpl_LDADD=../base/libcxx.la libcxxtls.la

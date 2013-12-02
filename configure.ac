@@ -663,6 +663,7 @@ AC_CONFIG_FILES([Doxyfile po/Makefile.in
 		 Makefile
 		 includes/Makefile
 		 includes/http/Makefile
+		 includes/ftp/Makefile
 		 includes/gcrypt/Makefile
 		 includes/gnutls/Makefile
 		 includes/mime/Makefile

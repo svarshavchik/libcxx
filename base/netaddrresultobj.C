@@ -169,6 +169,7 @@ netaddrResultObj &netaddrResultObj::add(const const_sockaddr &addr, int type)
 
 	a.domain=addr->family();
 	a.type=type;
+	a.protocol=0;
 
 	addrlist.push_back(a);
 	return *this;

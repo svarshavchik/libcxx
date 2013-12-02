@@ -81,7 +81,7 @@
 <!ENTITY manhttportmapd SYSTEM "manhttportmapd.xml">
 <!ENTITY httpuseragent SYSTEM "httpuseragent.xml">
 <!ENTITY httpserver SYSTEM "httpserver.xml">
-
+<!ENTITY ftpclient SYSTEM "ftpclient.xml">
 <!ENTITY ns "x">
 <!ENTITY ref "<classname>&ns;::ref</classname>">
 <!ENTITY ptr "<classname>&ns;::ptr</classname>">
@@ -338,6 +338,20 @@ See COPYING for distribution information.
     &httpserver;
   </part>
 
+  <part id="ftp">
+    <title>FTP client</title>
+
+    <partintro>
+      <para>
+	The <ulink url="&namespace-x--ftp;"><classname>&ns;::ftp</classname></ulink>
+	implements a full-featured <acronym>FTP</acronym> and
+	<acronym>FTP</acronym> over
+	<acronym>SSL</acronym>/<acronym>TLS</acronym>.
+      </para>
+    </partintro>
+
+    &ftpclient;
+  </part>
   <part id="sql">
     <title>Accessing <acronym>SQL</acronym> databases</title>
 

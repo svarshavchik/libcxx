@@ -509,7 +509,7 @@ size_t gnutls::sessionObj::send(const void *data, size_t cnt, int &direction)
 
 	// Propagate ETIMEDOUT, because gnutls complains about packet length instead
 
-	if (errno == ETIMEDOUT)
+	if (errno == ETIMEDOUT || errno == EPIPE)
 		throw SYSEXCEPTION("gnutls_record_send");
 
 	chkerr(n, "gnutls_record_send");
