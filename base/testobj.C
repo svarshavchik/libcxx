@@ -901,30 +901,6 @@ static void testepoll() noexcept
 	}
 }
 
-class connectthread : public LIBCXX_NAMESPACE::obj {
-public:
-	connectthread() noexcept;
-	~connectthread() noexcept;
-	void run(const LIBCXX_NAMESPACE::netaddr &addr);
-};
-
-connectthread::connectthread() noexcept
-{
-}
-
-connectthread::~connectthread() noexcept
-{
-}
-
-void connectthread::run(const LIBCXX_NAMESPACE::netaddr &addr)
-{
-	LIBCXX_NAMESPACE::fd fd(addr->connect());
-
-	char dummy;
-
-	fd->read(&dummy, 1);
-}
-
 class testnetObj : public LIBCXX_NAMESPACE::epoll::base::callbackObj {
 
 public:
@@ -993,13 +969,20 @@ static void testnet() noexcept
 
 		epollSet->epoll_add(listen_fd, EPOLLIN, callback);
 
-		LIBCXX_NAMESPACE::ref<connectthread>
-			thr=LIBCXX_NAMESPACE::ref<connectthread>::create();
+		auto ret=LIBCXX_NAMESPACE::run_lambda
+			([]
+			 (const LIBCXX_NAMESPACE::netaddr &addr)
+			 {
+				 LIBCXX_NAMESPACE::fd fd(addr->connect());
 
-		auto ret=LIBCXX_NAMESPACE::run(thr,
-					     LIBCXX_NAMESPACE::netaddr
-					     ::create(SOCK_STREAM,
-						      "file:testsock.tmp"));
+				 char dummy;
+
+				 fd->read(&dummy, 1);
+			 },
+
+			 LIBCXX_NAMESPACE::netaddr::create
+			 (SOCK_STREAM, "file:testsock.tmp"));
+
 		epollSet->epoll_wait();
 
 		if (!callback->flag)
@@ -1058,6 +1041,24 @@ static void testnet() noexcept
 		std::cout << e << std::endl;
 	}
 
+}
+
+void test_run_lambda_return_value(LIBCXX_NAMESPACE::netaddr &addr)
+{
+	auto ret=LIBCXX_NAMESPACE::run_lambda
+		([]
+		 (const LIBCXX_NAMESPACE::netaddr &addr)
+		 {
+			 LIBCXX_NAMESPACE::fd sock=addr->connect();
+
+			 return sock;
+		 }, addr);
+
+	ret->wait();
+
+	auto val=ret->get();
+
+	LIBCXX_NAMESPACE::fd *fdptr=&val;
 }
 
 class eventthread : virtual public LIBCXX_NAMESPACE::obj {

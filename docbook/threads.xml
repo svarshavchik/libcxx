@@ -830,6 +830,36 @@ class myThreadObj : virtual public &ns;::obj, virtual public &ns;::runthreadsing
       </para>
     </section>
 
+    <section id="runlambda">
+      <title>Running a lambda inside a separate thread</title>
+
+      <blockquote>
+	<informalexample>
+	  <programlisting>
+auto ret=&ns;::run_lambda([]
+    (const &ns;::netaddr &amp;addr)
+    {
+        &ns;::fd sock=addr->connect();
+
+        return sock;
+    }, &ns;::netaddr::create("localhost", "http"));
+
+ret->wait();
+
+&ns;::fd val=ret->get();</programlisting>
+	</informalexample>
+      </blockquote>
+
+      <para>
+	<ulink url="&link-function-x-run-lambda;"><function>&ns;::run_lambda</function></ulink>()
+	starts a new thread that starts running the lambda given as its
+	first parameter, then returns a
+	<link linkend="runthread"><classname>&ns;::runthread&lt;<replaceable>T</replaceable>&gt;</classname></link>,
+	that can be used to wait for the lambda to finish, then retrieve
+	the return value from the lambda.
+      </para>
+    </section>
+
     <section id="threaddestructor">
       <title>Cleanup thread</title>
 

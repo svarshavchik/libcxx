@@ -287,6 +287,71 @@ inline auto run(//! The thread object with a run() method.
 				     std::forward<Args>(args)...);
 }
 
+//! Helper object constructed by run_lambda().
+
+template<typename lambdaType>
+class lambdaThreadObj : virtual public LIBCXX_NAMESPACE::obj,
+			public runthreadname {
+
+	//! This thread's name is this object's name
+
+	std::string getName() const override
+	{
+		return this->objname();
+	}
+
+	//! Saved lambda
+	lambdaType lambda;
+
+public:
+	//! Constructor
+	lambdaThreadObj(lambdaType &&lambdaArg)
+		: lambda(std::move(lambdaArg))
+	{
+	}
+
+	//! Destructor
+	~lambdaThreadObj() noexcept
+	{
+	}
+
+	//! Forward run() to the lambda
+	template<typename ...Args>
+	auto run(Args && ...args) ->
+		decltype(lambda(std::forward<Args>(args)...))
+	{
+		return lambda(std::forward<Args>(args)...);
+	}
+};
+
+
+//! Helper function called by run_lambda()
+
+template<typename lambdaType>
+auto inline make_lambda_thread(lambdaType &&lambda)
+	-> ref<lambdaThreadObj<typename
+	std::remove_reference<lambdaType>::type>>
+{
+	return ref<lambdaThreadObj<typename
+				   std::remove_reference<lambdaType>::type>>
+		::create(std::move(lambda));
+}
+
+//! Run a lambda in a separate thread.
+
+template<typename lambdaType, typename ...Args>
+auto inline run_lambda(//! Lambda to run
+		       lambdaType && lambda,
+
+		       //! Arguments to the lambda
+		       Args && ...args)
+	-> decltype(run(make_lambda_thread(std::move(lambda)),
+			std::forward<Args>(args)...))
+{
+	return run(make_lambda_thread(std::move(lambda)),
+		   std::forward<Args>(args)...);
+}
+
 #if 0
 {
 #endif
