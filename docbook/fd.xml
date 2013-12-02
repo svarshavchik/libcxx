@@ -591,6 +591,14 @@ iter.flush();
 
       <listitem>
 	<para>
+	  A read or a write timeout results in a thrown
+	  <literal>ETIMEDOUT</literal>
+	  <link linkend="exceptions"><classname>&ns;::sysexception</classname></link>.
+	</para>
+      </listitem>
+
+      <listitem>
+	<para>
 	  Once a read or a write timeout occurs, additional attempts to
 	  read/write/connect a file descriptor fail immediately, until
 	  the timeout is reset.
@@ -875,6 +883,12 @@ fd_with_readlimit-&gt;set_read_limit(1000000);</programlisting>
 	underlying object.
       </para>
     </note>
+
+    <para>
+      Exceeding the read limit throws a
+      <literal>EOVERFLOW</literal>
+      <link linkend="exceptions"><classname>&ns;::sysexception</classname></link>.
+    </para>
   </section>
 
   <section id="fdsockets">
@@ -1185,6 +1199,13 @@ fd-&gt;stat(); // The fstat() system call on an open file descriptor</programlis
     when the last reference to the underlying object goes out of scope.
     Anything that was still buffered by the underlying stream buffer object
     gets lost, and not flushed to the underlying file descriptor.
+    </para>
+
+    <para>
+      By default, these stream buffers are initialized by default with
+      exceptions() set to <literal>std::ios::badbit</literal>, so that
+      exceptions thrown from the underlying file descriptor objects get
+      propagated by <classname>std::{i|i|io}stream</classname>.
     </para>
   </section>
 

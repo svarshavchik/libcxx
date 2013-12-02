@@ -1,5 +1,5 @@
 /*
-** Copyright 2012 Double Precision, Inc.
+** Copyright 2012-2013 Double Precision, Inc.
 ** See COPYING for distribution information.
 */
 
@@ -80,6 +80,7 @@ public:
 			     ::getRef(streambufrefArg)),
 		  streambufref(streambufrefArg)
 	{
+		this->exceptions(std::ios::badbit);
 	}
 
 	//! The default destructor

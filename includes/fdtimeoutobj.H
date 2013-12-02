@@ -1,5 +1,5 @@
 /*
-** Copyright 2012 Double Precision, Inc.
+** Copyright 2012-2013 Double Precision, Inc.
 ** See COPYING for distribution information.
 */
 
@@ -79,6 +79,9 @@ namespace LIBCXX_NAMESPACE {
 //! in effect, reading or writing still blocks, on a non-blocking file
 //! descriptor, until the file descriptor is ready for reading or writing,
 //! or until the respective timer expires.
+//!
+//! A read or a write timeout results in a thrown \c ETIMEDOUT
+//! \ref sysexception "INSERT_LIBX_NAMESPACE::sysexception".
 //!
 //! \par Periodic read and write timers
 //!

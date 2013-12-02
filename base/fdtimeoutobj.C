@@ -1,5 +1,5 @@
 /*
-** Copyright 2012 Double Precision, Inc.
+** Copyright 2012-2013 Double Precision, Inc.
 ** See COPYING for distribution information.
 */
 
@@ -187,7 +187,7 @@ size_t fdtimeoutObj::pubwrite(const char *buffer, size_t cnt)
 
 	if (timedout_write)
 	{
-		errno=EPIPE;
+		errno=ETIMEDOUT;
 		throw SYSEXCEPTION("write");
 	}
 

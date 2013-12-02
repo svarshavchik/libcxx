@@ -1,12 +1,13 @@
 /*
-** Copyright 2012 Double Precision, Inc.
+** Copyright 2012-2013 Double Precision, Inc.
 ** See COPYING for distribution information.
 */
 
 #include "libcxx_config.h"
-#include "fd.H"
-#include "ref.H"
-#include "fdtimeout.H"
+#include "x/fd.H"
+#include "x/ref.H"
+#include "x/fdtimeout.H"
+#include "x/sysexception.H"
 #include <unistd.h>
 #include <cstdlib>
 
@@ -33,8 +34,14 @@ static void testtimers()
 
 		to->set_write_timeout(10, 2);
 
-		while (!o->fail())
-			*o << '\0';
+		try {
+			while(1)
+				*o << '\0';
+		} catch (const LIBCXX_NAMESPACE::sysexception &e)
+		{
+			if (e.getErrorCode() != ETIMEDOUT)
+				throw;
+		}
 	}
 
 	{
@@ -44,8 +51,14 @@ static void testtimers()
 		LIBCXX_NAMESPACE::istream i(to->getistream());
 		to->set_read_timeout(10, 2);
 
-		while (!i->fail())
-			i->get();
+		try {
+			while(1)
+				i->get();
+		} catch (const LIBCXX_NAMESPACE::sysexception &e)
+		{
+			if (e.getErrorCode() != ETIMEDOUT)
+				throw;
+		}
 	}
 }
 

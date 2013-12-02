@@ -1,5 +1,5 @@
 /*
-** Copyright 2012 Double Precision, Inc.
+** Copyright 2012-2013 Double Precision, Inc.
 ** See COPYING for distribution information.
 */
 
@@ -2313,13 +2313,19 @@ static void testtimer()
 			LIBCXX_NAMESPACE::istream
 				i(to->getistream());
 
-			std::string line;
+			bool flag=false;
 
-			std::getline(*i, line);
+			try {
+				std::string line;
 
-			if (i->fail() && !i->eof())
-				;
-			else
+				std::getline(*i, line);
+			} catch (const LIBCXX_NAMESPACE::sysexception &e)
+			{
+				if (e.getErrorCode() == ETIMEDOUT)
+					flag=true;
+			}
+
+			if (!flag)
 				throw EXCEPTION("istream status not timeout");
 
 		}
@@ -2338,16 +2344,21 @@ static void testtimer()
 
 			rl->set_read_limit(5, "Test timeout");
 
-			std::string line;
+			bool flag=false;
 
-			std::getline(*i, line);
+			try {
+				std::string line;
 
-			if (i->fail() && !i->eof())
-				;
-			else
+				std::getline(*i, line);
+			} catch (const LIBCXX_NAMESPACE::sysexception &e)
+			{
+				if (e.getErrorCode() == EOVERFLOW)
+					flag=true;
+			}
+
+			if (!flag)
 				throw EXCEPTION("read_limit did not work");
 		}
-
 	} catch(const LIBCXX_NAMESPACE::exception &e)
 	{
 		std::cout << "testtimer: "

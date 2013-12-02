@@ -1,10 +1,11 @@
 /*
-** Copyright 2012 Double Precision, Inc.
+** Copyright 2012-2013 Double Precision, Inc.
 ** See COPYING for distribution information.
 */
 
 #include "libcxx_config.h"
-#include "fdreadlimit.H"
+#include "x/fdreadlimit.H"
+#include "x/sysexception.H"
 
 namespace LIBCXX_NAMESPACE {
 #if 0
@@ -38,7 +39,9 @@ size_t fdreadlimitObj::pubread(char *buffer, size_t cnt)
 	if (read_limit_reached)
 	{
 	err:
-		throw EXCEPTION(exceptionmsg);
+		errno=EOVERFLOW;
+
+		throw SYSEXCEPTION(exceptionmsg);
 	}
 
 	size_t n=fdptr->pubread(buffer, cnt);

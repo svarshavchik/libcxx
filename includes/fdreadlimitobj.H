@@ -1,5 +1,5 @@
 /*
-** Copyright 2012 Double Precision, Inc.
+** Copyright 2012-2013 Double Precision, Inc.
 ** See COPYING for distribution information.
 */
 
@@ -66,6 +66,9 @@ namespace LIBCXX_NAMESPACE {
 //! together. This can be done in either order, but whichever one's at the
 //! end of the daisy-chain is the one whose file descriptor transport
 //! methods (pubread(), pubwrite(), and others),  must be used.
+//!
+//! Exceeding the read limit results in a thrown \c EOVERFLOW
+//! \ref sysexception "INSERT_LIBX_NAMESPACE::sysexception".
 
 class fdreadlimitObj : public fdbaseObj::adapterObj {
 
