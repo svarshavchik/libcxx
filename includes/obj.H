@@ -108,7 +108,7 @@ public:
 			     std::string &demangled) noexcept;
 
 	//! Name of this object
-	std::string objname();
+	std::string objname() const;
 
 	//! Destroy myself
 

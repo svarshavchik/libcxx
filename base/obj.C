@@ -57,7 +57,7 @@ void obj::demangle(const char *mangled,
 
 //! Name of this object
 
-std::string obj::objname()
+std::string obj::objname() const
 {
 	std::string n;
 
