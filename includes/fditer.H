@@ -53,7 +53,7 @@ class fdbufferObj : virtual public obj {
 public:
 
 	//! Constructor
-	fdbufferObj(const ptr<fdbaseObj> &fdArg,
+	fdbufferObj(const fdbaseptr &fdArg,
 		    size_t buffer_size) LIBCXX_INTERNAL;
 	~fdbufferObj() noexcept LIBCXX_INTERNAL;
 
@@ -75,12 +75,14 @@ class fdinputiter : public std::iterator<std::input_iterator_tag,
 	ref<fdbufferObj> buf;
 
 public:
-	//! Constructor
+	//! Ending iterator constructor
+	fdinputiter();
 
+	//! Non-null iterator constructor
 	//! A non-null fd reference constructs a beginning iterator.
 	//! A null fd reference constructs an ending iterator.
 
-	fdinputiter(const ptr<fdbaseObj> &fdArg=ptr<fdbaseObj>(),
+	fdinputiter(const fdbase &fdArg,
 		    size_t buffer_size=fdbaseObj::get_buffer_size());
 		
 	//! Destructor
@@ -88,17 +90,21 @@ public:
 
 	//! Update the file descriptor transport
 
-	//! Any buffered input is not discarded. If the given reference is
-	//! null, this becomes an ending iterator.
+	//! Any buffered input is discarded. This becomes an ending
+	//! iterator.
 
-	void update(const ptr<fdbaseObj> &fdArg=ptr<fdbaseObj>());
+	void update();
+
+	//! Update the file descriptor transport
+
+	void update(const fdbase &fdArg);
 
 	//! Return the current file descriptor transport
 
 	//! \return the file descriptor transport object that's connected
 	//! to this iterator.
 
-	ptr<fdbaseObj> buffer();
+	fdbaseptr buffer();
 
 	//! Resize the buffer, non-destructively
 
@@ -149,20 +155,25 @@ class fdoutputiter : public std::iterator<std::output_iterator_tag,
 
 public:
 
+	//! Default constructor
+	fdoutputiter();
+
 	//! Constructor
-	fdoutputiter(const fdbaseptr &fdArg=fdbaseptr(),
-		     size_t buffer_size=fdbaseObj::get_buffer_size())
-;
+	fdoutputiter(const fdbase &fdArg,
+		     size_t buffer_size=fdbaseObj::get_buffer_size());
 
 	//! Destructor
 	~fdoutputiter() noexcept;
 
 	//! Update the file descriptor transport
 
-	//! Any buffered input is not discarded. If the given reference is
-	//! null, this becomes an ending iterator.
+	//! Any buffered input is discarded.
 
-	void update(const ptr<fdbaseObj> &fdArg);
+	void update();
+
+	//! Update the file descriptor transport
+
+	void update(const fdbase &fdArg);
 
 	//! Resize the buffer, non-destructively
 

@@ -5,6 +5,7 @@
 
 #include "libcxx_config.h"
 #include "fditer.H"
+#include "fdbase.H"
 #include "ref.H"
 
 namespace LIBCXX_NAMESPACE {
@@ -24,7 +25,14 @@ fdbufferObj::~fdbufferObj() noexcept
 
 // ---
 
-fdinputiter::fdinputiter(const fdbaseptr &fdArg,
+fdinputiter::fdinputiter()
+	: buf(ref<fdbufferObj>::create(fdbaseptr(),
+				       fdbaseObj::get_buffer_size()))
+{
+}
+
+
+fdinputiter::fdinputiter(const fdbase &fdArg,
 			 size_t buffer_size)
 	: buf(ref<fdbufferObj>::create(fdArg, buffer_size))
 {
@@ -34,11 +42,15 @@ fdinputiter::~fdinputiter() noexcept
 {
 }
 
-void fdinputiter::update(const fdbaseptr &fdArg)
+void fdinputiter::update()
+{
+	buf->fd=fdbaseptr();
+	buf->buf_ptr=buf->buf_size=0;
+}
+
+void fdinputiter::update(const fdbase &fdArg)
 {
 	buf->fd=fdArg;
-	if (fdArg.null())
-		buf->buf_ptr=buf->buf_size=0;
 }
 
 fdbaseptr fdinputiter::buffer()
@@ -124,7 +136,13 @@ const char *fdinputiter::operator++(int)
 
 // ---
 
-fdoutputiter::fdoutputiter(const fdbaseptr &fdArg,
+fdoutputiter::fdoutputiter()
+	: buf(ref<fdbufferObj>::create(fdbaseptr(),
+				       fdbaseObj::get_buffer_size()))
+{
+}
+
+fdoutputiter::fdoutputiter(const fdbase &fdArg,
 			   size_t buffer_size)
 	: buf(ref<fdbufferObj>::create(fdArg, buffer_size))
 {
@@ -134,11 +152,15 @@ fdoutputiter::~fdoutputiter() noexcept
 {
 }
 
-void fdoutputiter::update(const fdbaseptr &fdArg)
+void fdoutputiter::update()
+{
+	buf->fd=fdbaseptr();
+	buf->buf_ptr=0;
+}
+
+void fdoutputiter::update(const fdbase &fdArg)
 {
 	buf->fd=fdArg;
-	if (fdArg.null())
-		buf->buf_ptr=0;
 }
 
 void fdoutputiter::flush()
@@ -176,7 +198,6 @@ void fdoutputiter::flush()
 }
 
 fdoutputiter &fdoutputiter::operator=(char c)
-
 {
 	fdbufferObj &o= *buf;
 

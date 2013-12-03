@@ -11,6 +11,7 @@
 
 #include <iostream>
 #include <x/ref.H>
+#include <x/fdbasefwd.H>
 #include <x/basicstreamobj.H>
 #include <x/sockaddr.H>
 #include <x/property_valuefwd.H>
@@ -240,22 +241,6 @@ public:
 	iostream getiostream();
 
 };
-
-//! A reference to a file descriptor-like based transport.
-
-typedef ref<fdbaseObj> fdbase;
-
-//! A reference to an immutable file descriptor-like based transport.
-
-typedef const_ref<fdbaseObj> const_fdbase;
-
-//! A nullable reference to a file descriptor-like based transport.
-
-typedef ptr<fdbaseObj> fdbaseptr;
-
-//! A nullable reference to an immutable file descriptor-like based transport.
-
-typedef const_ptr<fdbaseObj> const_fdbaseptr;
 
 //! An fdbase that chains to another fdbase
 

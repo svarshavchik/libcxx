@@ -83,6 +83,8 @@ include/x/exceptionobj.H
 include/x/facet.H
 include/x/facetobj.H
 include/x/fd.H
+include/x/fdbase.H
+include/x/fdbasefwd.H
 include/x/fdbaseobj.H
 include/x/fdfwd.H
 include/x/fditer.H

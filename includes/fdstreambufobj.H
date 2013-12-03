@@ -9,7 +9,7 @@
 #include <x/obj.H>
 #include <x/ptrfwd.H>
 #include <x/ref.H>
-#include <x/fdbaseobj.H>
+#include <x/fdbasefwd.H>
 #include <x/basicstreambufobj.H>
 
 #include <streambuf>

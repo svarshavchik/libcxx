@@ -6,10 +6,9 @@
 #ifndef x_http_fdimplbase_H
 #define x_http_fdimplbase_H
 
-#include <x/fdbaseobj.H>
+#include <x/fdbasefwd.H>
 #include <x/fdfwd.H>
 #include <x/fditer.H>
-#include <x/fdbaseobj.H>
 #include <x/fdreadlimit.H>
 #include <x/fdtimeout.H>
 #include <x/namespace.h>

@@ -5,6 +5,7 @@
 
 #include "libcxx_config.h"
 #include "fdstreambufobj.H"
+#include "fdbase.H"
 #include <cstdio>
 
 namespace LIBCXX_NAMESPACE {

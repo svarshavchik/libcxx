@@ -5,6 +5,7 @@
 
 #include "libcxx_config.h"
 #include "fd.H"
+#include "fdbase.H"
 #include "epoll.H"
 #include "attr.H"
 #include "uuid.H"

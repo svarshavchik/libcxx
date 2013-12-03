@@ -6,6 +6,7 @@
 #include "libcxx_config.h"
 #include "fdobj.H"
 #include "fd.H"
+#include "fdbase.H"
 #include "filestat.H"
 #include "sockaddr.H"
 #include "fdstreambufobj.H"
