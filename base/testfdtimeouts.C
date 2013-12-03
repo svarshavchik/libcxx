@@ -7,7 +7,10 @@
 #include "x/fd.H"
 #include "x/ref.H"
 #include "x/fdtimeout.H"
+#include "x/netaddr.H"
+#include "x/destroycallbackflag.H"
 #include "x/sysexception.H"
+#include "x/threads/run.H"
 #include <unistd.h>
 #include <cstdlib>
 
@@ -103,6 +106,68 @@ static void testwrite2()
 		throw EXCEPTION("file descriptor write failed");
 }
 
+LIBCXX_NAMESPACE::fd listen_socket()
+{
+	std::list<LIBCXX_NAMESPACE::fd> fdlist;
+
+	LIBCXX_NAMESPACE::netaddr::create("localhost", 0)->bind(fdlist, 0);
+
+	fdlist.front()->listen();
+	return fdlist.front();
+}
+
+void testaccept()
+{
+	std::cout << "Test accept read timeout" << std::endl;
+	auto sock=listen_socket();
+
+	auto timeout=LIBCXX_NAMESPACE::fdtimeout::create(sock);
+
+	timeout->set_read_timeout(2);
+
+	bool caught=false;
+	try {
+		timeout->pubaccept();
+	} catch (const LIBCXX_NAMESPACE::sysexception &e)
+	{
+		if (e.getErrorCode() == ETIMEDOUT)
+			caught=true;
+	}
+
+	if (!caught)
+		throw EXCEPTION("Did not catch expected exception (timeout)");
+
+	std::cout << "Test accept terminate fd" << std::endl;
+
+	timeout=LIBCXX_NAMESPACE::fdtimeout::create(sock);
+
+	LIBCXX_NAMESPACE::destroyCallbackFlag::base::guard guard;
+
+	auto pipe=LIBCXX_NAMESPACE::fd::base::pipe();
+
+	auto thread=LIBCXX_NAMESPACE::run_lambda([&pipe]
+						 {
+							 sleep(2);
+							 pipe.second->close();
+						 });
+
+	guard(thread);
+
+	timeout->set_terminate_fd(pipe.first);
+
+	caught=false;
+	try {
+		timeout->pubaccept();
+	} catch (const LIBCXX_NAMESPACE::sysexception &e)
+	{
+		if (e.getErrorCode() == ETIMEDOUT)
+			caught=true;
+	}
+
+	if (!caught)
+		throw EXCEPTION("Did not catch expected exception (terminate_fd)");
+}
+
 int main()
 {
 	alarm(60);
@@ -110,6 +175,7 @@ int main()
 		testwrite1();
 		testwrite2();
 		testtimers();
+		testaccept();
 	} catch (LIBCXX_NAMESPACE::exception &e)
 	{
 		std::cerr << e << std::endl;

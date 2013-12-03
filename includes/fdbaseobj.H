@@ -11,6 +11,7 @@
 
 #include <iostream>
 #include <x/ref.H>
+#include <x/fdfwd.H>
 #include <x/fdbasefwd.H>
 #include <x/basicstreamobj.H>
 #include <x/sockaddr.H>
@@ -74,11 +75,23 @@ public:
 	//!
 	void pubconnect(//! The server's address.
 
-			const const_ptr<sockaddrObj> &addr)
+			const const_sockaddr &addr)
 	{
 		pubconnect( (const struct ::sockaddr *)&*addr->begin(),
 			    addr->size());
 	}
+
+	//! Accept from the socket
+
+	//! See \ref fdObj::accept "INSERT_LIBX_NAMESPACE::fd->accept"().
+
+	virtual fdptr pubaccept(sockaddrptr &peername)=0;
+
+	//! Accept from the socket
+
+	//! See \ref fdObj::accept "INSERT_LIBX_NAMESPACE::fd->accept"().
+
+	fdptr pubaccept();
 
 	//! Read from the underlying file descriptor
 
@@ -252,7 +265,7 @@ class fdbaseObj::adapterObj : public fdbaseObj {
 protected:
 	//! The real fdbase
 
-	fdbase fdptr;
+	fdbase ptr;
 
 public:
 	//! Constructor
@@ -269,20 +282,30 @@ public:
 	//! The default adapter invokes ptr->connect().
 	//!
 
-	virtual void pubconnect(//! The server's address.
+	void pubconnect(//! The server's address.
 
-				const struct ::sockaddr *serv_addr,
+			const struct ::sockaddr *serv_addr,
 
-				//! serv_addr's length, in bytes
+			//! serv_addr's length, in bytes
 
-				socklen_t addrlen);
+			socklen_t addrlen) override;
+
+	using fdbaseObj::pubaccept;
+
+	//! Pass through method
+
+	//! The default adapter invokes ptr->accept()
+	//!
+
+	fdptr pubaccept(//! Connected peer's address
+			sockaddrptr &peername) override;
 
 	//! Pass through method
 
 	//! The default adapter invokes ptr->getFd().
 	//!
 
-	int getFd() const noexcept;
+	int getFd() const noexcept override;
 
 	//! Pass through method
 
@@ -295,15 +318,14 @@ public:
 
 		       //! Element count
 
-		       size_t cnt)
-;
+		       size_t cnt) override;
 
 	//! Pass through method
 
 	//! The default adapter invokes ptr->pubread_pending().
 	//!
 
-	size_t pubread_pending() const;
+	size_t pubread_pending() const override;
 
 	//! Pass through method
 
@@ -315,7 +337,7 @@ public:
 
 			//! Element count
 
-			size_t cnt);
+			size_t cnt) override;
 
 	//! Pass through method
 
@@ -327,7 +349,7 @@ public:
 
 			//! Either \c SEEK_SET, \c SEEK_CUR, or \c SEEK_END.
 
-			int whence);
+			int whence) override;
 };
 
 #if 0

@@ -714,6 +714,13 @@ void gnutls::sessionObj::pubconnect(const struct ::sockaddr *serv_addr,
 	throw SYSEXCEPTION("connect");
 }
 
+fdptr gnutls::sessionObj::pubaccept(//! Connected peer's address
+				    sockaddrptr &peername)
+{
+	errno=EINVAL;
+	throw SYSEXCEPTION("accept");
+}
+
 #if 0
 {
 #endif

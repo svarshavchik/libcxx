@@ -146,7 +146,6 @@ class fdtimeoutObj : public fdbaseObj::adapterObj {
 	bool read_timer_set;
 
 	//! The read timer
-
 	timespec read_timer;
 
 	//! Whether the write timer is set
@@ -259,8 +258,7 @@ public:
 	//! not get written before a timer expires. For this to work this file
 	//! descriptor must be nonblocking.
 
-	void set_write_timeout(const timespec &timerref)
-;
+	void set_write_timeout(const timespec &timerref);
 
 	//! Set a periodic write timer.
 
@@ -291,7 +289,13 @@ public:
 			const struct ::sockaddr *serv_addr,
 
 			//! serv_addr's length, in bytes
-			socklen_t addrlen);
+			socklen_t addrlen) override;
+
+	using fdbaseObj::adapterObj::pubaccept;
+
+	//! Implement the accept timeout
+	fdptr pubaccept(//! Connected peer's address
+			sockaddrptr &peername) override;
 
 	//! Implement the read timeout.
 

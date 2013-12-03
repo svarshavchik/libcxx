@@ -44,7 +44,7 @@ size_t fdreadlimitObj::pubread(char *buffer, size_t cnt)
 		throw SYSEXCEPTION(exceptionmsg);
 	}
 
-	size_t n=fdptr->pubread(buffer, cnt);
+	size_t n=ptr->pubread(buffer, cnt);
 
 	if (read_limit && n >= read_limit)
 	{

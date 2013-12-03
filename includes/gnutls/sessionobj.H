@@ -416,11 +416,11 @@ private:
 
 		       //! Element count
 
-		       size_t cnt) LIBCXX_HIDDEN;
+		       size_t cnt) override LIBCXX_HIDDEN;
 
 	//! Implement pubread_pending(), inherited from fdbaseObj
 
-	size_t pubread_pending() const;
+	size_t pubread_pending() const override;
 
 	//! Implement pubwrite(), inherited from fdbaseObj
 
@@ -430,7 +430,7 @@ private:
 
 			//! Element count
 
-			size_t cnt) LIBCXX_HIDDEN;
+			size_t cnt) override LIBCXX_HIDDEN;
 
 	//! Implement pubseek(), inherited from fdbaseObj
 
@@ -444,11 +444,11 @@ private:
 
 			//! Either \c SEEK_SET, \c SEEK_CUR, or \c SEEK_END.
 
-			int whence) LIBCXX_HIDDEN;
+			int whence) override LIBCXX_HIDDEN;
 
 	//! Return the underlying file descriptor
 
-	int getFd() const noexcept;
+	int getFd() const noexcept override;
 
 	//! Implement pubconnect(), inherited from fdbaseObj
 
@@ -458,8 +458,14 @@ private:
 
 			//! serv_addr's length, in bytes
 
-			socklen_t addrlen);
+			socklen_t addrlen) override;
 
+	using fdbaseObj::pubaccept;
+
+	//! Implement pubconnect(), inherited from fdbaseObj
+
+	fdptr pubaccept(//! Connected peer's address
+			sockaddrptr &peername) override;
 public:
 	class factoryObj;
 };

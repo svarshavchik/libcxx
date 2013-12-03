@@ -8,6 +8,7 @@
 
 #include <x/fdtimeoutobj.H>
 #include <x/ref.H>
+#include <x/fdbasefwd.H>
 #include <x/fdobj.H>
 #include <x/namespace.h>
 
@@ -32,8 +33,8 @@ public:
 
 	//! The transport for reading or writing the file descriptor.
 
-	virtual ref<fdbaseObj> operator()(//! Original file descriptor
-					  const fd &fd)
+	virtual fdbase operator()(//! Original file descriptor
+				  const fd &fd)
 		const;
 
 	class terminate_fd;

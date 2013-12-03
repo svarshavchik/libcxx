@@ -4,8 +4,9 @@
 */
 
 #include "libcxx_config.h"
-#include "fdtimeout.H"
-#include "sysexception.H"
+#include "x/fd.H"
+#include "x/fdtimeout.H"
+#include "x/sysexception.H"
 #include <poll.h>
 #include <unistd.h>
 #include <fcntl.h>
@@ -123,11 +124,11 @@ size_t fdtimeoutObj::pubread(char *buffer, size_t cnt)
 			if (n < cnt)
 				cnt=n;
 
-			return fdptr->pubread(buffer, cnt);
+			return ptr->pubread(buffer, cnt);
 		}
 
 		if (!read_timer_set && terminatefdref.null())
-			return fdptr->pubread(buffer, cnt);
+			return ptr->pubread(buffer, cnt);
 
 		while(1)
 		{
@@ -137,7 +138,7 @@ size_t fdtimeoutObj::pubread(char *buffer, size_t cnt)
 				break;
 			}
 
-			if ((n=fdptr->pubread(buffer, cnt)) > 0)
+			if ((n=ptr->pubread(buffer, cnt)) > 0)
 				break;
 
 			if (errno == 0)
@@ -170,7 +171,7 @@ size_t fdtimeoutObj::pubwrite(const char *buffer, size_t cnt)
 	if (!timedout_write)
 	{
 		if (!write_timer_set && terminatefdref.null())
-			return fdptr->pubwrite(buffer, cnt);
+			return ptr->pubwrite(buffer, cnt);
 
 		while (1)
 		{
@@ -180,7 +181,7 @@ size_t fdtimeoutObj::pubwrite(const char *buffer, size_t cnt)
 				break;
 			}
 
-			if ((n=fdptr->pubwrite(buffer, cnt)) > 0)
+			if ((n=ptr->pubwrite(buffer, cnt)) > 0)
 				break;
 		}
 	}
@@ -206,7 +207,7 @@ void fdtimeoutObj::pubconnect(const struct ::sockaddr *serv_addr,
 {
 	if (!write_timer_set && terminatefdref.null())
 	{
-		fdptr->pubconnect(serv_addr, addrlen);
+		ptr->pubconnect(serv_addr, addrlen);
 		return;
 	}
 
@@ -227,7 +228,7 @@ void fdtimeoutObj::pubconnect(const struct ::sockaddr *serv_addr,
 	try {
 		try {
 
-			fdptr->pubconnect(serv_addr, addrlen);
+			ptr->pubconnect(serv_addr, addrlen);
 		} catch (const sysexception &e)
 		{
 			if (e.getErrorCode() != EINPROGRESS)
@@ -260,6 +261,58 @@ void fdtimeoutObj::pubconnect(const struct ::sockaddr *serv_addr,
 
 		if (fcntl(getFd(), F_SETFL, fm) < 0)
 			throw SYSEXCEPTION("fcntl(F_SETFL)");
+	} catch (...) {
+		fcntl(getFd(), F_SETFL, fm);
+		throw;
+	}
+}
+
+fdptr fdtimeoutObj::pubaccept(sockaddrptr &peername)
+{
+	if (!read_timer_set && terminatefdref.null())
+		return ptr->pubaccept(peername);
+
+	if (timedout_read)
+	{
+		errno=ETIMEDOUT;
+		throw SYSEXCEPTION("accept");
+	}
+
+	int fm=fcntl(getFd(), F_GETFL);
+
+	if (fm < 0)
+		throw SYSEXCEPTION("fcntl(F_GETFL)");
+
+	if (fcntl(getFd(), F_SETFL, fm | O_NONBLOCK) < 0)
+		throw SYSEXCEPTION("fcntl(F_SETFL)");
+
+	try
+	{
+		while (1)
+		{
+			if (wait_timer(read_timer_set, read_timer, POLLIN))
+			{
+				timedout_read=true;
+				break;
+			}
+
+			try {
+				auto p=ptr->pubaccept(peername);
+
+				if (!p.null())
+				{
+					fcntl(getFd(), F_SETFL, fm);
+					return p;
+				}
+			} catch (const sysexception &e)
+			{
+				if (e.getErrorCode() != EINTR)
+					throw;
+			}
+		}
+
+		errno=ETIMEDOUT;
+		throw SYSEXCEPTION("read");
 	} catch (...) {
 		fcntl(getFd(), F_SETFL, fm);
 		throw;

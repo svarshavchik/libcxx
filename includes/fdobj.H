@@ -1271,6 +1271,10 @@ private:
 
 			socklen_t addrlen);
 
+	//! Implement pubaccept(), inherited from fdbaseObj
+
+	fdptr pubaccept(sockaddrptr &peername);
+
 	template<bool serialize_flag>
 	class do_serialize;
 

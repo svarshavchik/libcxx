@@ -389,13 +389,20 @@ eventfd_t cnt=ev-&gt;event();
     <itemizedlist>
       <listitem>
 	<para>
-	  pubread(), pubwrite(), pubseek(), and pubconnect()
+
+	  <methodname>pubread</methodname>(),
+	  <methodname>pubwrite</methodname>(),
+	  <methodname>pubseek</methodname>(),
+	  <methodname>pubaccept</methodname>() and
+	  <methodname>pubconnect</methodname>()
 	  are the equivalent to their
 	  non-"pub" versions, except that they are virtual.
 	  <classname>&ns;::fd</classname> implements
 	  read(), write(), seek() and connect() as inline functions
 	  that are suitable for compile-time optimizations, and
 	  implements the pub methods by invoking the non-pub functions.
+	  accept() is not inlined, but it's inherited from
+	  <link linkend="fdbase"><classname>&ns;::fdbase</classname></link>.
 	</para>
       </listitem>
 
@@ -566,6 +573,7 @@ iter.flush();
 	  <methodname>pubwrite</methodname>()
 	  methods of <classname>&ns;::fdtimeout</classname> observe the
 	  corresponding timeouts, when enabled.
+	  <methodname>pubaccept</methodname>() observes the read timeout, if set.
 	  <methodname>pubconnect</methodname>() observes the write timeout, if set.
 	  If the underlying <methodname>pubread_pending</methodname>() returns
 	  non-0, <methodname>pubread</methodname>() invokes the underlying
@@ -733,7 +741,11 @@ fd_with_timeout-&gt;set_write_timeout(8192, 15);</programlisting>
       descriptor terminator is a separate file descriptor object that's
       attached to the primary file descriptor.
       When the terminator file descriptor becomes readable, calls to
-      primary descriptor's pubread(), pubwrite() and pubconnect() methods
+      primary descriptor's
+      <methodname>pubread</methodname>(),
+      <methodname>pubwrite</methodname>(),
+      <methodname>pubaccept</methodname>(), and
+      <methodname>pubconnect</methodname>() methods
       throw an exception:
     </para>
 
@@ -778,7 +790,8 @@ socket_with_timeout-&gt;set_terminate_fd(terminatefd);</programlisting>
     <note>
       <para>
 	Only the behavior of <methodname>pubread</methodname>(),
-	<methodname>pubwrite</methodname>(), and
+	<methodname>pubwrite</methodname>(),
+	<methodname>pubaccept</methodname>() and
 	<methodname>pubconnect</methodname> is affected by attaching a terminator
 	file descriptor. Other methods are not affected (except indirectly,
 	as the result of the file descriptor set to the non-blocking

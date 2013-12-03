@@ -69,7 +69,7 @@ std::string fdBase::cwd()
 }
 
 fdbaseObj::adapterObj::adapterObj(const fdbase &ptrArg)
-	: fdptr(ptrArg)
+	: ptr(ptrArg)
 {
 }
 
@@ -79,38 +79,44 @@ fdbaseObj::adapterObj::~adapterObj() noexcept
 
 int fdbaseObj::adapterObj::getFd() const noexcept
 {
-	return fdptr->getFd();
+	return ptr->getFd();
 }
 
 size_t fdbaseObj::adapterObj::pubread(char *buffer,
 				      size_t cnt)
 
 {
-	return fdptr->pubread(buffer, cnt);
+	return ptr->pubread(buffer, cnt);
 }
 
 size_t fdbaseObj::adapterObj::pubread_pending()
 	const
 {
-	return fdptr->pubread_pending();
+	return ptr->pubread_pending();
 }
 
 size_t fdbaseObj::adapterObj::pubwrite(const char *buffer,
 				       size_t cnt)
 {
-	return fdptr->pubwrite(buffer, cnt);
+	return ptr->pubwrite(buffer, cnt);
 }
 
 off64_t fdbaseObj::adapterObj::pubseek(off64_t offset,
 				       int whence)
 {
-	return fdptr->pubseek(offset, whence);
+	return ptr->pubseek(offset, whence);
 }
 
 void fdbaseObj::adapterObj::pubconnect(const struct ::sockaddr *serv_addr,
 				       socklen_t addrlen)
 {
-	return fdptr->pubconnect(serv_addr, addrlen);
+	return ptr->pubconnect(serv_addr, addrlen);
+}
+
+fdptr fdbaseObj::adapterObj::pubaccept(//! Connected peer's address
+				       sockaddrptr &peername)
+{
+	return ptr->pubaccept(peername);
 }
 
 void fdbaseObj::badconnect(const struct ::sockaddr *serv_addr,
@@ -149,6 +155,13 @@ ref<fdstreambufObj> fdbaseObj::getStreamBuffer(size_t bufsiz)
 
 	return ref<fdstreambufObj>::create(fdbase(this), bufsiz,
 					   S_ISREG(stat_buf.st_mode));
+}
+
+fdptr fdbaseObj::pubaccept()
+{
+	sockaddrptr ignore;
+
+	return pubaccept(ignore);
 }
 
 istream fdbaseObj::getistream()
@@ -315,6 +328,11 @@ void fdObj::futimens(const timespec &atime)
 void fdObj::futimens()
 {
 	futimens(timespec::getclock());
+}
+
+fdptr fdObj::pubaccept(sockaddrptr &peername)
+{
+	return accept(peername);
 }
 
 void fdObj::pubconnect(const struct ::sockaddr *serv_addr,
