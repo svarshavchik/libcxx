@@ -163,6 +163,17 @@ void netaddrResultObj::bind(std::list<fd> &fds,
 	}
 }
 
+netaddrResultObj &netaddrResultObj::add(const const_sockaddr &addr, int type)
+{
+	addrstruct a(addr);
+
+	a.domain=addr->family();
+	a.type=type;
+
+	addrlist.push_back(a);
+	return *this;
+}
+
 #if 0
 {
 #endif

@@ -236,6 +236,11 @@ public:
 		return *this;
 	}
 
+	//! Manually add an address.
+
+	netaddrResultObj &add(const const_sockaddr &addr,
+			      int type=SOCK_STREAM);
+
 	//! Combine two address lists together
 
 	netaddr::base::result operator+(const netaddrResultObj &o)
