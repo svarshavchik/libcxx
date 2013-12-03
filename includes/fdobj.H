@@ -351,6 +351,14 @@ public:
 
 	static std::string cwd();
 
+	//! Return socket name of a native file descriptor
+
+	static sockaddr getsockname(int filedesc);
+
+	//! Return peer name of a native file descriptor
+
+	static sockaddr getpeername(int filedesc);
+
 #include <x/sys/credentialssys.h>
 
 };

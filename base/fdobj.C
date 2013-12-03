@@ -337,6 +337,11 @@ void fdObj::reuseaddr(bool flag)
 
 sockaddr fdObj::getsockname() const
 {
+	return fd::base::getsockname(filedesc);
+}
+
+sockaddr fdBase::getsockname(int filedesc)
+{
 	struct sockaddr_storage ss;
 	socklen_t ss_len=sizeof(ss);
 
@@ -354,11 +359,16 @@ sockaddr fdObj::getsockname() const
 
 sockaddr fdObj::getpeername() const
 {
+	return fd::base::getpeername(filedesc);
+}
+
+sockaddr fdBase::getpeername(int filedesc)
+{
 	struct sockaddr_storage ss;
 	socklen_t ss_len=sizeof(ss);
 
 	if (::getpeername(filedesc, (struct ::sockaddr *)&ss, &ss_len) < 0)
-		throw SYSEXCEPTION("getsockname");
+		throw SYSEXCEPTION("getpeername");
 
 	sockaddr sa=sockaddr::create();
 
