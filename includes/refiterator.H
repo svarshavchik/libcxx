@@ -277,34 +277,6 @@ public:
 	virtual void operator=(value_type c) {}
 };
 
-//! A referenced-counted output iterator.
-
-//! \see outputrefiteratorObj
-
-template<typename value_type>
-using outputrefiterator=refiterator<outputrefiteratorObj<value_type>>;
-
-//! A referenced-counted output iterator.
-
-//! \see outputrefiteratorObj
-
-template<typename value_type>
-using outputrefiteratorptr=ptriterator<outputrefiteratorObj<value_type>>;
-
-//! A referenced-counted output iterator.
-
-//! \see outputrefiteratorObj
-
-template<typename value_type>
-using const_outputrefiterator=const_refiterator<outputrefiteratorObj<value_type>>;
-
-//! A referenced-counted output iterator.
-
-//! \see outputrefiteratorObj
-
-template<typename value_type>
-using const_outputrefiteratorptr=const_ptriterator<outputrefiteratorObj<value_type>>;
-
 template<typename Arg> class outputref_tuple_unpack;
 
 //! A subclass of outputrefiteratorObj that forwards the output sequence to one or more output iterators

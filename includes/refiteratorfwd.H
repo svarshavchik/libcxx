@@ -53,6 +53,34 @@ using const_refiterator=refobjiterator<const_ref<obj_type, baseType>>;
 template<typename obj_type, typename baseType=ptrrefBase>
 using const_ptriterator=refobjiterator<const_ptr<obj_type, baseType>>;
 
+//! A referenced-counted output iterator.
+
+//! \see outputrefiteratorObj
+
+template<typename value_type>
+using outputrefiterator=refiterator<outputrefiteratorObj<value_type>>;
+
+//! A referenced-counted output iterator.
+
+//! \see outputrefiteratorObj
+
+template<typename value_type>
+using outputrefiteratorptr=ptriterator<outputrefiteratorObj<value_type>>;
+
+//! A referenced-counted output iterator.
+
+//! \see outputrefiteratorObj
+
+template<typename value_type>
+using const_outputrefiterator=const_refiterator<outputrefiteratorObj<value_type>>;
+
+//! A referenced-counted output iterator.
+
+//! \see outputrefiteratorObj
+
+template<typename value_type>
+using const_outputrefiteratorptr=const_ptriterator<outputrefiteratorObj<value_type>>;
+
 #if 0
 {
 #endif
