@@ -25,6 +25,8 @@ class fdbaseObj;
 //! Take an underlying file descriptor, and return a facade, presumably
 //! \ref fdtimeout "fdtimeout" for reading or writing to the file descriptor
 //! with the prescribed timeout mechanism.
+//!
+//! \see make_fdtimeoutconfig()
 
 class fdtimeoutconfig {
 
@@ -64,6 +66,47 @@ public:
 	fdbase operator()(const fd &fdinst)
 		const;
 };
+
+//! Helper class returned from make_fdtimeoutconfig()
+
+template<typename lambda_type>
+class fdtimeoutconfig_helper : public fdtimeoutconfig {
+
+public:
+	//! Lambda that's called to return timeout configuration
+
+	mutable lambda_type lambda;
+
+	//! Constructor
+	fdtimeoutconfig_helper(lambda_type &&lambdaArg)
+		: lambda(std::move(lambdaArg))
+	{
+	}
+
+	//! Destructor
+	~fdtimeoutconfig_helper() noexcept {}
+
+	//! Return the timeout wrapper for a file descriptor
+	fdbase operator()(const fd &fd) const override
+	{
+		return lambda(fd);
+	}
+};
+
+//! Create an fdtimeoutconfig from a lambda.
+
+//! Returns a subclass of \ref fdtimeoutconfig "fdtimeoutconfig" that uses
+//! the supplied lamba.
+template<typename lambda_type>
+auto make_fdtimeoutconfig(//! Lambda that implements fdtimeoutconfig
+			  lambda_type &&lambda)
+	-> fdtimeoutconfig_helper<typename
+				  std::remove_reference<lambda_type>::type>
+{
+	return fdtimeoutconfig_helper<typename
+				      std::remove_reference<lambda_type>::type>
+		(std::move(lambda));
+}
 
 #if 0
 {

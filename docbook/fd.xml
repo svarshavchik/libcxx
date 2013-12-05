@@ -1033,6 +1033,40 @@ fd sock=&ns;::netaddr::create("www.example.com", "http", SOCK_STREAM)
     <blockquote>
       <informalexample>
 	<programlisting>
+LIBCXX_NAMESPACE::fdtimeoutptr timeout;
+
+fd sock=&ns;::netaddr::create("www.example.com", "http", SOCK_STREAM)
+        -&gt;domain(AF_INET)
+        -&gt;connect(&ns;::make_fdtimeoutconfig(
+            [&amp;timeout]
+            (const &ns;::fdbase &amp;fd)
+            {
+                auto new_timeout=&ns;::fdtimeout::create(fd);
+
+                new_timeout-&gt;set_write_timeout(60);
+                timeout=new_timeout;
+                return new_timeout;
+            }));
+
+timeout-&gt;set_read_timeout(60);</programlisting>
+      </informalexample>
+    </blockquote>
+
+    <para>
+      <ulink url="&link-function-x-make-fdtimeoutconfig;"><function>&ns;::make_fdtimeoutconfig</function>()</ulink>
+      takes a lambda as a
+      parameter, and constructs a subclass of
+      <classname>&ns;::fdtimeoutconfig::terminate_fd</classname>
+      that calls the lambda. Note that <methodname>connect</methodname>()
+      uses the returned timeout handler for the duration of the socket
+      connection only, and returns the actual socket file descriptor, so
+      this lambda saves the constructed timeout handled, for use after
+      <methodname>connect</methodname>() returns.
+    </para>
+
+    <blockquote>
+      <informalexample>
+	<programlisting>
 std::list&lt;&ns;::fd&gt; fdList;
 
     &ns;::netaddr::create("", "http", SOCK_STREAM)
