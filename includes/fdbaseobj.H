@@ -93,6 +93,9 @@ public:
 
 	fdptr pubaccept();
 
+	//! Close socket
+	virtual void pubclose()=0;
+
 	//! Read from the underlying file descriptor
 
 	//! The possible outcomes are:
@@ -291,6 +294,12 @@ public:
 			socklen_t addrlen) override;
 
 	using fdbaseObj::pubaccept;
+
+	//! Pass through method
+
+	//! The default adapter invokes ptr->pubclose();
+
+	void pubclose() override;
 
 	//! Pass through method
 

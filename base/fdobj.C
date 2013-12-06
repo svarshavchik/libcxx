@@ -119,6 +119,11 @@ fdptr fdbaseObj::adapterObj::pubaccept(//! Connected peer's address
 	return ptr->pubaccept(peername);
 }
 
+void fdbaseObj::adapterObj::pubclose()
+{
+	ptr->pubclose();
+}
+
 void fdbaseObj::badconnect(const struct ::sockaddr *serv_addr,
 			   socklen_t addrlen)
 {
@@ -535,6 +540,11 @@ void fdObj::cancel()
 
 	if (!hook.null())
 		hook->cancel();
+}
+
+void fdObj::pubclose()
+{
+	close();
 }
 
 void fdObj::close()

@@ -389,12 +389,12 @@ eventfd_t cnt=ev-&gt;event();
     <itemizedlist>
       <listitem>
 	<para>
-
 	  <methodname>pubread</methodname>(),
 	  <methodname>pubwrite</methodname>(),
 	  <methodname>pubseek</methodname>(),
-	  <methodname>pubaccept</methodname>() and
-	  <methodname>pubconnect</methodname>()
+	  <methodname>pubaccept</methodname>(),
+	  <methodname>pubconnect</methodname>() and
+	  <methodname>pubclose</methodname>()
 	  are the equivalent to their
 	  non-"pub" versions, except that they are virtual.
 	  <classname>&ns;::fd</classname> implements
@@ -568,7 +568,6 @@ iter.flush();
 
       <listitem>
 	<para>
-
 	  <methodname>pubread</methodname>() and
 	  <methodname>pubwrite</methodname>()
 	  methods of <classname>&ns;::fdtimeout</classname> observe the

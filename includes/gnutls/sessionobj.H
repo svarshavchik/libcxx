@@ -466,6 +466,10 @@ private:
 
 	fdptr pubaccept(//! Connected peer's address
 			sockaddrptr &peername) override;
+
+	//! Implement pubclose(), inherited from fdbaseObj
+
+	void pubclose() override;
 public:
 	class factoryObj;
 };

@@ -1070,12 +1070,6 @@ public:
 
 	bool keepalive();
 
-	//! Return the file descriptor.
-
-	//! \return the currently open file descriptor, or -1.
-	//!
-	int getFd() const noexcept;
-
 private:
 	//! Set the sigpipe flag based on the file descriptor type
 
@@ -1228,6 +1222,12 @@ public:
 		       //! epoll(uint32_t,ptr<epollObj>);
 		       uint32_t newEvents=0);
 
+	//! Return the file descriptor, inherited from fdbaseObj
+
+	//! \return the currently open file descriptor, or -1.
+	//!
+	int getFd() const noexcept override;
+
 private:
 	//! Implement pubread(), inherited from fdbaseObj
 
@@ -1237,12 +1237,11 @@ private:
 
 		       //! Element count
 
-		       size_t cnt)
- LIBCXX_HIDDEN;
+		       size_t cnt) override LIBCXX_HIDDEN;
 
 	//! Implement pubread_pending(), inherited from fdbaseObj
 
-	size_t pubread_pending() const;
+	size_t pubread_pending() const override LIBCXX_HIDDEN;
 
 	//! Implement pubwrite(), inherited from fdbaseObj
 
@@ -1252,7 +1251,7 @@ private:
 
 			//! Element count
 
-			size_t cnt) LIBCXX_HIDDEN;
+			size_t cnt) override LIBCXX_HIDDEN;
 
 	//! Implement pubseek(), inherited from fdbaseObj
 
@@ -1262,7 +1261,7 @@ private:
 
 			//! Either \c SEEK_SET, \c SEEK_CUR, or \c SEEK_END.
 
-			int whence) LIBCXX_HIDDEN;
+			int whence) override LIBCXX_HIDDEN;
 
 	//! Implement pubconnect(), inherited from fdbaseObj
 
@@ -1272,11 +1271,15 @@ private:
 
 			//! serv_addr's length, in bytes
 
-			socklen_t addrlen);
+			socklen_t addrlen) override LIBCXX_HIDDEN;
 
 	//! Implement pubaccept(), inherited from fdbaseObj
 
-	fdptr pubaccept(sockaddrptr &peername);
+	fdptr pubaccept(sockaddrptr &peername) override LIBCXX_HIDDEN;
+
+	//! Implement pubclose(), inherited from fdbaseObj
+
+	void pubclose() override LIBCXX_HIDDEN;
 
 	template<bool serialize_flag>
 	class do_serialize;
