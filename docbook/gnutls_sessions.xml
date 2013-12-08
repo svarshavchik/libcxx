@@ -154,18 +154,14 @@ clientCert-&gt;set_x509_trust_default();</programlisting>
 	  This is called an <quote>ephemeral DH keypair</quote>, which is
 	  also called a <link linkend="pkparams">temporary public key
 	  parameter</link>.
-	  Also the <acronym>TLS</acronym> server needs to create a
-	  <quote>temporary RSA parameter</quote>
-	  if the server should support weak
-	  export-grade <acronym>RSA</acronym> keys.
 	</para>
 
 	<para>
-	  The requirement for a temporary public key parameter or a
-	  temporary <acronym>RSA</acronym> may be satisfied in two ways.
-	  First by explicitly installing an emphemeral DH keypair,
-	  or a temporary RSA parameter that was created in advance.
-	  A second way, is to import the global DH or RSA parameters that are
+	  The requirement for a temporary public key parameter
+	  may be satisfied in two ways.
+	  First by explicitly installing an emphemeral DH keypair
+	  that was created in advance.
+	  A second way, is to import the global DH parameters that are
 	  <link linkend="pkparamsgenerator">periodically regenerated</link>
 	  by the system.
 	</para>
