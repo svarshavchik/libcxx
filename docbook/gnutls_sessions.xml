@@ -236,7 +236,8 @@ clientCert-&gt;set_x509_trust_default();</programlisting>
 
 &ns;::gnutls::dhparams dh(&ns;::gnutls::dhparams::create());
 
-dh-&gt;generate(2048);</programlisting>
+dh-&gt;generate(2048);
+serverCert->set_dh_params(dh);</programlisting>
       </informalexample>
     </blockquote>
 
@@ -281,7 +282,8 @@ dh-&gt;generate(2048);</programlisting>
 
 &ns;::gnutls::dhparams dh(&ns;::gnutls::dhparams::create());
 
-dh-&gt;import();</programlisting>
+dh-&gt;import();
+serverCert->set_dh_params(dh);</programlisting>
       </informalexample>
     </blockquote>
 
