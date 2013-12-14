@@ -14,6 +14,8 @@
 #include <x/gnutls/sessionfwd.H>
 #include <x/gnutls/credentials.H>
 #include <x/gnutls/x509_crt.H>
+#include <x/gnutls/datumwrapper.H>
+#include <x/gnutls/sessioncachefwd.H>
 #include <gnutls/gnutls.h>
 
 #include <string>
@@ -43,13 +45,20 @@ class gnutls::sessionObj : virtual public obj, public fdbaseObj {
 
 	gnutls_session_t sess;
 
+	//! The TLS session cache used by this handle, for servers.
+
+	sessioncacheptr cache;
+
 	//! The underlying transport
 
 	fdbase transport;
 
 	//! Whether a handshake is needed
 
-	bool handshake_needed;
+	bool handshake_needed=true;
+
+	//! Whether the TLS session should be uncached by the destructor
+	bool session_remove_needed=false;
 
 	//! Reference to the currently-set %credentials
 
@@ -119,6 +128,28 @@ private:
 				 size_t buf_s) noexcept LIBCXX_HIDDEN;
 
 public:
+	//! Return the session identifier
+	datum_t get_session_id() const;
+
+	//! Return the session data
+	datum_t get_session_data() const;
+
+	//! Set the session resumption data
+	void set_session_data(const datum_t &session_dataArg);
+
+	//! Set the TLS session cache for a server
+	void session_cache(const sessioncache &cacheArg);
+
+	//! Set the TLS session cache for a server with a custom expiration
+	void session_cache(const sessioncache &cacheArg,
+			   time_t expiration);
+private:
+	//! Saved session data.
+	datumptr_t session_data;
+public:
+	//! Whether this is a resumed session
+	bool session_resumed() const;
+
 	//! Define the %credentials object for this session
 
 	void credentials_set(//! Certificate-based %credentials

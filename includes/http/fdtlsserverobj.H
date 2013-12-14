@@ -8,6 +8,7 @@
 
 #include <x/obj.H>
 #include <x/http/fdtlsserverimpl.H>
+#include <x/gnutls/sessioncachefwd.H>
 #include <x/logger.H>
 #include <x/namespace.h>
 
@@ -27,14 +28,18 @@ namespace LIBCXX_NAMESPACE {
 class fdtlsserverObj : virtual public obj {
 
 protected:
-	//! The logger objects
-
+	//! The logger object
 	LOG_CLASS_SCOPE;
+
+	//! The session cache.
+	sessioncache cache;
 
 public:
 	//! Default constructor
-
 	fdtlsserverObj();
+
+	//! Install a custom cache
+	fdtlsserverObj(const sessioncache &cacheArg);
 
 	//! Destructor
 	~fdtlsserverObj() noexcept;
@@ -72,9 +77,11 @@ public:
 		try {
 			auto instance=factory->create();
 
-			instance->run(socket, termpipe,
-				      session_factory->create(GNUTLS_SERVER,
-							      socket),
+			auto sess=session_factory->create(GNUTLS_SERVER,
+							  socket);
+
+			sess->session_cache(cache);
+			instance->run(socket, termpipe, sess,
 				      std::forward<Args>(args)...);
 		} catch (const exception &e)
 		{

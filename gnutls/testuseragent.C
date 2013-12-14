@@ -4,9 +4,10 @@
 */
 
 #include "libcxx_config.h"
-#include "fdlistener.H"
-#include "http/useragent.H"
-#include "http/fdtlsserver.H"
+#include "x/fdlistener.H"
+#include "x/http/useragent.H"
+#include "x/http/fdtlsserver.H"
+#include "x/gnutls/sessioncache.H"
 
 class myserverimpl : public LIBCXX_NAMESPACE::gnutls::http::fdtlsserverimpl {
 
@@ -174,6 +175,94 @@ static void showuri(const LIBCXX_NAMESPACE::uriimpl &uri)
 	} while (has_challenge);
 }
 
+class sessioncacheserverObj : virtual public LIBCXX_NAMESPACE::obj {
+
+public:
+	LIBCXX_NAMESPACE::gnutls::sessioncache cache=
+		LIBCXX_NAMESPACE::gnutls::sessioncache::create();
+
+	sessioncacheserverObj() {}
+	~sessioncacheserverObj() noexcept {}
+
+	void run(const LIBCXX_NAMESPACE::fd &socket,
+		 const LIBCXX_NAMESPACE::fd &termfd)
+	{
+		auto combined_socket=
+			LIBCXX_NAMESPACE::fdtimeout::create(socket);
+		combined_socket->set_terminate_fd(termfd);
+
+		auto sess=LIBCXX_NAMESPACE::gnutls::session
+			::create(GNUTLS_SERVER, combined_socket);
+		sess->session_cache(cache);
+
+		LIBCXX_NAMESPACE::gnutls::credentials::certificate
+			serverCert(LIBCXX_NAMESPACE::gnutls::credentials::certificate::create());
+
+		serverCert->set_x509_keyfile("testrsa1.crt", "testrsa1.key",
+					     GNUTLS_X509_FMT_PEM);
+		sess->credentials_set(serverCert);
+		sess->set_default_priority();
+
+		LIBCXX_NAMESPACE::gnutls::dhparams dh(LIBCXX_NAMESPACE::gnutls::dhparams::create());
+		LIBCXX_NAMESPACE::gnutls::datum_t dh_dat(LIBCXX_NAMESPACE::gnutls::datum_t::create());
+
+		dh_dat->load("dhparams.dat");
+		dh->import_pk(dh_dat, GNUTLS_X509_FMT_PEM);
+		serverCert->set_dh_params(dh);
+
+		int direction;
+
+		sess->handshake(direction);
+
+		std::string line;
+
+		std::getline(*sess->getistream(), line);
+		sess->bye(direction);
+	}
+};
+
+void testsessioncache()
+{
+	std::list<LIBCXX_NAMESPACE::fd> fdlist;
+
+	LIBCXX_NAMESPACE::netaddr::create("localhost", "")->bind(fdlist, true);
+
+	int portnum=fdlist.front()->getsockname()->port();
+
+	typedef LIBCXX_NAMESPACE::ref<sessioncacheserverObj> myserver;
+
+	auto listener=LIBCXX_NAMESPACE::fdlistener::create(fdlist);
+
+	listener->start(myserver::create());
+
+	auto sock=LIBCXX_NAMESPACE::netaddr::create("localhost", portnum)->connect();
+
+	auto sess=LIBCXX_NAMESPACE::gnutls::session::create(GNUTLS_CLIENT, sock);
+	sess->credentials_set(LIBCXX_NAMESPACE::gnutls::credentials::certificate::create());
+	sess->set_default_priority();
+
+	int direction;
+	sess->handshake(direction);
+	if (sess->session_resumed())
+		throw EXCEPTION("Resumed from what?");
+	auto data=sess->get_session_data();
+	sess->bye(direction);
+
+	sock=LIBCXX_NAMESPACE::netaddr::create("localhost", portnum)->connect();
+
+	sess=LIBCXX_NAMESPACE::gnutls::session::create(GNUTLS_CLIENT, sock);
+	sess->credentials_set(LIBCXX_NAMESPACE::gnutls::credentials::certificate::create());
+	sess->set_default_priority();
+	sess->set_session_data(data);
+	sess->handshake(direction);
+	if (!sess->session_resumed())
+		throw EXCEPTION("I didn't resume!");
+	sess->bye(direction);
+
+	listener->stop();
+	listener->wait();
+}
+
 int main(int argc, char **argv)
 {
 	try {
@@ -206,6 +295,7 @@ int main(int argc, char **argv)
 		}
 
 		testuseragent();
+		testsessioncache();
 	} catch (LIBCXX_NAMESPACE::exception &e) {
 		std::cout << e << std::endl;
 		exit(1);

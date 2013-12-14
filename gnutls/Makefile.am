@@ -60,6 +60,7 @@ libcxxtls_la_SOURCES=\
 	rsapubkeyobj.C			\
 	sec_param.C			\
 	session.C			\
+	sessioncacheobj.C		\
 	sessionobj.C			\
 	useragentobj.C			\
 	x509_crtobj.C			\

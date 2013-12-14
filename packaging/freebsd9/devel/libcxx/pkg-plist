@@ -141,6 +141,9 @@ include/x/gnutls/rsapubkey.H
 include/x/gnutls/rsapubkeyobj.H
 include/x/gnutls/sec_param.H
 include/x/gnutls/session.H
+include/x/gnutls/sessioncache.H
+include/x/gnutls/sessioncachefwd.H
+include/x/gnutls/sessioncacheobj.H
 include/x/gnutls/sessionfwd.H
 include/x/gnutls/sessionobj.H
 include/x/gnutls/x509_crt.H

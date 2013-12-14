@@ -58,6 +58,18 @@ See COPYING for distribution information.
 
     <listitem>
       <para>
+	An optional non-default
+	<classname>&ns;::gnutls::http::fdtlsserverObj</classname> constructor
+	takes a <classname>&ns;::gnutls::sessioncache</classname>.
+	The default constructor creates a default TLS session cache object
+	that's described in <xref linkend="tlssessioncacheserver" />.
+	The non-default constructor allows using non-default TLS session
+	caching.
+      </para>
+    </listitem>
+
+    <listitem>
+      <para>
 	Define a reference-counted factory class with a
 	<methodname>create</methodname>() method that constructs a new instance
 	of the server class.

@@ -394,6 +394,102 @@ sess-&gt;verify_peer("www.example.com");</programlisting>
 	established <acronym>TLS</acronym> session, ready to be used.
       </para>
     </section>
+
+    <section id="tlssessioncacheserver">
+      <title>TLS session caching, server side</title>
+
+      <blockquote>
+	<informalexample>
+	  <programlisting>
+#include &lt;&ns;/gnutls/sessioncache.H&gt;
+
+auto cache=&ns;::gnutls::sessioncache::create();
+
+// ...
+
+sess->session_cache(cache);
+sess->handshake();
+
+if (sess->session_resumed())
+   // ...
+
+</programlisting>
+	</informalexample>
+      </blockquote>
+
+      <para>
+	A TLS client may reuse the same TLS session parameters with a TLS
+	server for additional connections, in order to create the additional
+	connections faster. This optional feature requires
+	some support from the server. The server constructs a
+	<ulink url="&link-typedef-x--gnutls-sessioncache;"><classname>&ns;::gnutls::sessioncache</classname></ulink>,
+	then installs it before handshaking each established connection.
+	The same session cache object should be installed in every client
+	connection session.
+	After a handshake, <methodname>session_resumed</methodname>() indicates
+	whether the new connection uses cached session parameters.
+      </para>
+
+      <para>
+	The default <classname>&ns;::gnutls::sessioncache</classname> caches
+	TLS sessions in memory. The
+	<literal>&ns;::gnutls::session_cache::size</literal>
+	<link linkend="properties">application property</link> sets the
+	TLS session cache size. The most recent sessions, up to the value of
+	this property are cached.
+	It is possible to implement custom TLS session caching by subclassing
+	<ulink url="&link-x--gnutls--sessioncacheObj;"><classname>&ns;::gnutls::sessioncacheObj</classname></ulink>
+	and implementing the
+	<methodname>store</methodname>(),
+	<methodname>remove</methodname>(), and
+	<methodname>retr</methodname>() methods.
+      </para>
+
+      <para>
+	The <literal>&ns;::gnutls::session_cache::expiration</literal>
+	<link linkend="properties">application property</link> sets how long
+	TLS sessions remain cacheable, and defaults to one hour.
+	This is slightly different than
+	<literal>&ns;::gnutls::session_cache::size</literal>; this
+	setting controls the maximum size of the default implementation of the
+	TLS session cache.
+	<literal>&ns;::gnutls::session_cache::expiration</literal>
+	specifies that TLS sessions can no longer be reused after an hour,
+	by default, irrespective of the size of the TLS session cache.
+      </para>
+    </section>
+
+    <section id="tlssessioncacheclient">
+      <title>TLS session caching, client side</title>
+
+      <blockquote>
+	<informalexample>
+	  <programlisting>
+sess->handshake();
+
+&ns;::gnutls::datum_t session_data=sess->get_session_data();
+
+// ...
+
+sess2->set_session_data(session_data);
+sess->handshake();
+if (sess->session_resumed())
+   // ...
+</programlisting>
+	</informalexample>
+      </blockquote>
+
+      <para>
+	After a handshake, a TLS client obtains the session's parameters
+	from
+	<methodname>get_session_data</methodname>(), which returns an
+	opaque blob representing the session parameters.
+	For subsequent session, the TLS client uses
+	<methodname>set_session_data</methodname>() before the handshake.
+	After a handshake, <methodname>session_resumed</methodname>() indicates
+	whether the new connection uses same, cached session parameters.
+      </para>
+    </section>
   </section>
 
   <section id="usingsession">

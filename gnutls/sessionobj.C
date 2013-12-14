@@ -13,9 +13,12 @@
 #include "x/gnutls/sessionobj.H"
 #include "x/gnutls/credentials.H"
 #include "x/gnutls/init.H"
+#include "x/gnutls/sessioncache.H"
 #include "x/logger.H"
 #include "x/exception.H"
 #include "x/timerfd.H"
+#include "x/property_value.H"
+#include "x/hms.H"
 #include "gettext_in.h"
 
 #include <sys/poll.h>
@@ -30,6 +33,10 @@ namespace LIBCXX_NAMESPACE {
 #if 0
 };
 #endif
+
+static property::value<hms> session_cache_expiration
+( LIBCXX_NAMESPACE_WSTR L"::gnutls::session_cache::expiration",
+  hms(1,0,0));
 
 gnutls::sessionObj::factoryObj::factoryObj()
 {
@@ -64,7 +71,7 @@ gnutls::session gnutls::sessionObj::factoryObj
 gnutls::sessionObj::sessionObj(unsigned modeArg,
 			       const fdbase &transportArg)
 	: mode(modeArg),
-	  transport(transportArg), handshake_needed(true)
+	  transport(transportArg)
 {
 	gnutls::init::gnutls_init();
 
@@ -164,6 +171,8 @@ ssize_t gnutls::sessionObj::push_func(gnutls_transport_ptr_t ptr,
 
 gnutls::sessionObj::~sessionObj() noexcept
 {
+	if (session_remove_needed && !cache.null())
+		gnutls_db_remove_session(sess);
 	gnutls_deinit(sess);
 }
 
@@ -223,6 +232,40 @@ bool gnutls::sessionObj::handshake(int &direction)
 	return handshake(true, direction);
 }
 
+void gnutls::sessionObj::set_session_data(const datum_t &session_dataArg)
+{
+	chkerr(gnutls_session_set_data(sess,
+				       &*session_dataArg->begin(),
+				       session_dataArg->size()),
+	       "gnutls_session_set_data");
+
+	session_data=session_dataArg;
+}
+
+void gnutls::sessionObj::session_cache(const sessioncache &cacheArg)
+{
+	session_cache(cacheArg, session_cache_expiration.getValue().seconds());
+}
+
+void gnutls::sessionObj::session_cache(const sessioncache &cacheArg,
+				       time_t expiration)
+{
+	gnutls_db_set_cache_expiration(sess, expiration);
+
+	tempdatum temp_datum(cacheArg->ticket);
+
+	chkerr(gnutls_session_ticket_enable_server(sess, &temp_datum.datum),
+	       "gnutls_session_ticket_enable_server");
+
+	cache=cacheArg;
+
+	auto voidp=reinterpret_cast<void *>(&*cache);
+	gnutls_db_set_ptr(sess, voidp);
+	gnutls_db_set_remove_function(sess, &sessioncacheObj::remove_func);
+	gnutls_db_set_retrieve_function(sess, &sessioncacheObj::retr_func);
+	gnutls_db_set_store_function(sess, &sessioncacheObj::store_func);
+}
+
 bool gnutls::sessionObj::handshake(bool force,
 				   int &direction)
 {
@@ -270,6 +313,7 @@ bool gnutls::sessionObj::handshake(bool force,
 		chkerr(err, "gnutls_handshake");
 	}
 	handshake_needed=false;
+	session_remove_needed=true; // Removed after a bye()
 	return true;
 }
 
@@ -342,13 +386,15 @@ void gnutls::sessionObj::verify_peers_x509(const std::string *hostname)
 
 	if (peercerts.empty())
 		chkerr(GNUTLS_E_X509_CERTIFICATE_ERROR,
-		       "verify_peers: empty X.509 certificate list");
+		       _("Peer did not provide a certificate"));
 
 	x509::crt &c=peercerts.front();
 
 	if (hostname && !c->check_hostname(*hostname))
 		chkerr(GNUTLS_E_X509_CERTIFICATE_ERROR,
-		       "verify_peers: certificate name mismatch");
+		       ((std::string)
+			gettextmsg(_("Peer certificate is not %1%"),
+				   *hostname)).c_str());
 }
 
 gnutls_cipher_algorithm_t gnutls::sessionObj::getCipher() const
@@ -386,6 +432,8 @@ std::string gnutls::sessionObj::getSuite() const
 bool gnutls::sessionObj::bye(int &direction,
 			     gnutls_close_request_t how)
 {
+	std::lock_guard<std::mutex> lock(objmutex);
+
 	direction=0;
 
 	errno=0;
@@ -402,8 +450,8 @@ bool gnutls::sessionObj::bye(int &direction,
 	if (err && errno == ETIMEDOUT)
 		throw SYSEXCEPTION("gnutls_rehandshake");
 
-
 	chkerr(err, "gnutls_bye");
+	session_remove_needed=false;
 	return true;
 }
 
@@ -631,6 +679,32 @@ ref<fdstreambufObj> gnutls::sessionObj::getStreamBuffer()
 		s=BUFSIZ;
 
 	return ref<fdstreambufObj>::create(fdbase(this), s*2, false);
+}
+
+
+gnutls::datum_t gnutls::sessionObj::get_session_id() const
+{
+	gnutls_datum_t session_id;
+
+	chkerr(gnutls_session_get_id2(sess, &session_id),
+	       "gnutls_session_get_id2");
+
+	return datumwrapper(session_id);
+}
+
+gnutls::datum_t gnutls::sessionObj::get_session_data() const
+{
+	gnutls_datum_t session_data;
+
+	chkerr(gnutls_session_get_data2(sess, &session_data),
+	       "gnutls_session_get_data2");
+
+	return datumwrapper(session_data);
+}
+
+bool gnutls::sessionObj::session_resumed() const
+{
+	return gnutls_session_is_resumed(sess) ? true:false;
 }
 
 iostream gnutls::sessionObj::getiostream()

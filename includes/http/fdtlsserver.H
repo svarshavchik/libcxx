@@ -47,6 +47,20 @@ namespace LIBCXX_NAMESPACE {
 //! "INSERT_LIBX_NAMESPACE::fdlistener". It calls both factories, installs
 //! the TLS session and the file descriptors into
 //! the \c INSERT_LIBX_NAMESPACE::http::gnutls::fdtlsserverimpl superclass.
+//!
+//! \code
+//! class myCacheObj : LIBCXX_NAMESPACE::gnutls::sessioncacheObj {
+//! ...
+//! };
+//!
+//! auto cache=LIBCXX_NAMESPACE::ref<myCacheObj>::create();
+//!
+//! auto server=LIBCXX_NAMESPACE::gnutls::http::fdtlsserver::create(cache);
+//! \endcode
+//!
+//! An optional argument to the constructor installs a custom
+//! \ref sessioncache "TLS session cache implementation". The default
+//! constructor installs a default, in memory, TLS session cache.
 
 typedef ref<fdtlsserverObj> fdtlsserver;
 

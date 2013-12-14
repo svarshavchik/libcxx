@@ -1,10 +1,11 @@
 /*
-** Copyright 2012 Double Precision, Inc.
+** Copyright 2012-2013 Double Precision, Inc.
 ** See COPYING for distribution information.
 */
 
 #include "libcxx_config.h"
-#include "http/fdtlsserverobj.H"
+#include "x/gnutls/sessioncache.H"
+#include "x/http/fdtlsserverobj.H"
 
 LOG_CLASS_INIT(LIBCXX_NAMESPACE::gnutls::http::fdtlsserverObj);
 
@@ -18,6 +19,12 @@ namespace LIBCXX_NAMESPACE {
 #endif
 
 fdtlsserverObj::fdtlsserverObj()
+	: fdtlsserverObj(sessioncache::create())
+{
+}
+
+fdtlsserverObj::fdtlsserverObj(const sessioncache &cacheArg)
+	: cache(cacheArg)
 {
 }
 
