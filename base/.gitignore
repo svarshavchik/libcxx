@@ -66,6 +66,7 @@
 /testoptgen.h
 /testoptgen.h.tmp
 /testoptions
+/testorderer
 /testoutpseq
 /testpcre
 /testpidinfo

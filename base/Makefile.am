@@ -335,6 +335,7 @@ noinst_PROGRAMS=\
 	testobj                       \
 	testoptgen                    \
 	testoptions                   \
+	testorderer		      \
 	testoutpseq                   \
 	testpcre                      \
 	testpidinfo                   \
@@ -622,6 +623,10 @@ testjoin_SOURCES=testjoin.C
 testjoin_LDADD=libcxx.la
 testjoin_LDFLAGS=$(TESTLINKTYPE)
 
+testorderer_SOURCES=testorderer.C
+testorderer_LDADD=libcxx.la
+testorderer_LDFLAGS=$(TESTLINKTYPE)
+
 testrwmutex_SOURCES=testrwmutex.C
 testrwmutex_LDADD=libcxx.la
 testrwmutex_LDFLAGS=$(TESTLINKTYPE)
@@ -873,6 +878,7 @@ check-am: $(noinst_PROGRAMS) $(noinst_DATA)
 	./testsemaphore
 	./testsignalfd
 	./testjoin
+	./testorderer
 	./testpidinfo
 	./testforkexec
 	./testhier

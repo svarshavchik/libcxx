@@ -1,0 +1,264 @@
+<!--
+
+Copyright 2013 Double Precision, Inc.
+See COPYING for distribution information.
+
+-->
+
+<chapter id="orderedcache">
+  <title>An ordered cache</title>
+
+  <blockquote>
+    <informalexample>
+      <programlisting>
+#include &lt;&ns;/orderedcache.H&gt;
+
+typedef &ns;::ordered_cache_traits&lt;int, std::string&gt; cache_traits;
+
+&ns;::ordered_cache&lt;cache_traits&gt; cache(100);
+
+cache.add(1, "alpha");
+cache.add(2, "beta");
+
+cache.remove(2);
+
+const std::string *valueptr=cache.find(1);
+
+if (valueptr)
+{
+    std::cout &lt;&lt; *valueptr &lt;&lt; std::endl;
+}
+</programlisting>
+    </informalexample>
+  </blockquote>
+
+  <para>
+    The
+    <ulink url="&link-x--ordered-cache;"><classname>&ns;::ordered_cache</classname></ulink>
+    template implements a an algorithm for a basic cache: a container for
+    key/value tuples, that grows to some maximum size, then existing
+    tuples are removed to make room for new ones.
+    <classname>&ns;::ordered_cache</classname>'s required template parameter
+    is an instance of the
+    <ulink url="&link-x--ordered-cache-traits;"><classname>&ns;::ordered_cache_traits</classname></ulink>
+    template which defines the cache properties.
+  </para>
+
+  <para>
+    <classname>&ns;::ordered_cache_traits</classname>'s required first and
+    second template
+    parameters specify the classes for the cache's keys and values.
+    This example caches <classname>std::string</classname> values, keyed by
+    <classname>int</classname>s.
+  </para>
+
+  <para>
+    <methodname>add</methodname>() adds a key and its value to the
+    cache.
+    Only one value can be in the cache given a particular key. If the key
+    already exists, <methodname>add()</methodname> replaces the value in the
+    cache for that key.
+  </para>
+  <para>
+    <methodname>remove</methodname>() removes a key. Nothing happens if
+    the key does not exist. <methodname>find</methodname>() returns a
+    <literal>nullptr</literal> if the cache does not contain a value with the
+    given key, or a pointer to the corresponding value.
+  </para>
+
+  <para>
+    The constructor's argument specifies the maximum cache size.
+    If <methodname>add</methodname>() finds the cache at its maximum size, one
+    of the existing entries in the cache gets removed, to make room for the
+    new key and value. The default implementation removes the oldest element
+    in the cache. The third optional template parameter specifies a class
+    that controls which element gets removed.
+  </para>
+
+  <blockquote>
+    <informalexample>
+      <programlisting>
+#include &lt;&ns;/orderedcache.H&gt;
+
+struct cache_order {
+
+   int operator()(const int key, const std::string &amp;value)
+   {
+        return key;
+   }
+};
+
+typedef &ns;::ordered_cache_traits&lt;int, std::string, cache_order&gt; cache_traits;
+
+&ns;::ordered_cache&lt;cache_traits&gt; cache(2);
+
+cache.add(2, "beta");
+cache.add(1, "alpha");
+cache.add(3, "gamma");
+</programlisting>
+    </informalexample>
+  </blockquote>
+
+  <para>
+    <classname>&ns;::ordered_cache_traits</classname>'s third parameter is
+    optional, and defins the class that sets the cache order.
+    <methodname>add</methodname>() calls the ordering class's functor
+    once for each key and value. The ordering class's functor returns the
+    ordering value for that cache entry.
+    When the cache's size is its maximum size, cache entry with the smallest
+    ordering value gets removed.
+    This example limits the cache to two elements, and the functor sets the
+    cache order value to the value of the key. The third
+    <methodname>add</methodname>() removes the <quote>alpha</quote> from the
+    cache, because it was the one with the smallest cache order value.
+  </para>
+
+  <note>
+    <para>
+      The functor gets called to obtain the ordering value once, for each
+      key and data added to the cache, and the ordering value gets saved
+      (unless <quote>most recently used</quote> flag is set, see below).
+      When its time to trim the cache, the entry with the smallest saved
+      ordering value gets the boot.
+    </para>
+  </note>
+
+  <note>
+    <para>
+      When more than one key/value tuple in the cache has the same ordering
+      value, it is unspecified which one of them gets removed from the cache,
+      first.
+    </para>
+  </note>
+  <blockquote>
+    <informalexample>
+      <programlisting>
+auto orderer=[]
+   (const int key, const std::string &amp;value)
+   {
+        return key;
+   };
+
+typedef &ns;::ordered_cache_traits&lt;int, std::string, decltype(orderer)&gt; cache_traits;
+
+&ns;::ordered_cache&lt;cache_traits&gt; cache(2);</programlisting>
+    </informalexample>
+  </blockquote>
+
+  <para>
+    This is an equivalent example that uses a lambda.
+    <classname>&ns;::ordered_cache_traits</classname>'s
+    third template parameter defaults to
+    <ulink url="&link-x--ordered-cache-fifo;"><classname>&ns;::ordered_cache_fifo</classname></ulink>
+    that sets up the default behavior of removing the oldest element in the
+    cache by using a simple counter:
+  </para>
+
+  <blockquote>
+    <informalexample>
+      <programlisting>
+class &ns;::ordered_cache_fifo {
+	size_t counter=0;
+public:
+	template&lt;typename key_type, typename value_type&gt;
+	size_t operator()(const key_type &amp;key,
+			  const value_type &amp;value)
+	{
+		return ++counter;
+	}
+};</programlisting>
+    </informalexample>
+  </blockquote>
+
+  <para>
+    The value returning by the ordering class functor does not have to be
+    an <classname>int</classname> or a <classname>size_t</classname>, but
+    can be any class that implements strict weak ordering.
+    <classname>&ns;::ordered_cache_traits</classname>
+    has two more optional template parameters:
+  </para>
+
+  <itemizedlist>
+    <listitem>
+      <para>
+	A key class comparator implementing strict weak ordering for the
+	key class, which defaults to
+	<classname>std::less&lt;key_type&gt;</classname>.
+      </para>
+    </listitem>
+
+    <listitem>
+      <para>
+	An ordering class comparator implementing strict weak ordering for the
+	return value from the ordering functor, which defaults to
+	<classname>std::less&lt;return value type from the ordering functor&gt;</classname>.
+      </para>
+    </listitem>
+  </itemizedlist>
+
+  <para>
+    The parameters to <classname>&ns;::orderedcache</classname>'s
+    constructor are:
+  </para>
+
+  <orderedlist>
+    <listitem>
+      <para>
+	Maximum cache size. This is the only required parameter. All of the
+	remaining parameters are optional, and get constructed by default
+	using the default constructor of the corresponding class:
+      </para>
+    </listitem>
+
+    <listitem>
+      <para>
+	Orderer class instance.
+      </para>
+    </listitem>
+
+    <listitem>
+      <para>
+	Key type comparator class instance.
+      </para>
+    </listitem>
+
+    <listitem>
+      <para>
+	Ordering value comparator class instance.
+      </para>
+    </listitem>
+  </orderedlist>
+
+  <note>
+    <para>
+      <classname>&ns;::orderedcache</classname> does not implement locking.
+      Use <link linkend="threads">&ns;::mpobj</link> to implement a thread-safe
+      ordered cache.
+    </para>
+  </note>
+
+  <blockquote>
+    <informalexample>
+      <programlisting>
+&ns;::ordered_cache&lt;cache_traits, true&gt; cache(100);</programlisting>
+    </informalexample>
+  </blockquote>
+
+  <para>
+    <classname>&ns;::orderedcache</classname>'s second template parameter is a
+    <classname>bool</classname> value, defaulting to
+    <literal>false</literal>. Setting it to true has the
+    effect of enabling <quote>most recently used</quote> caching logic.
+    Specifically: when <methodname>find</methodname>() and
+    <methodname>add</methodname>() locate an existing cache entry, the
+    ordering class's functor is called again to calculate the new
+    ordering value, and the key/value tuple gets repositioned in the ordered
+    cache according to its new ordering value.
+  </para>
+</chapter>
+<!--
+Local Variables:
+mode: sgml
+sgml-parent-document: ("book.xml" "part" "chapter")
+End:
+-->

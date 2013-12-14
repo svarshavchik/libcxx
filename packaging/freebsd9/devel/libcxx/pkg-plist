@@ -315,6 +315,7 @@ include/x/option_valuebaseobj.H
 include/x/option_valueobj.H
 include/x/option_valueopobj.H
 include/x/options.H
+include/x/orderedcache.H
 include/x/param/enumeration.H
 include/x/param/getenumerationarr.H
 include/x/param/getenumerationarr_int.H

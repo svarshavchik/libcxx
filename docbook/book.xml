@@ -59,6 +59,7 @@
 <!ENTITY miscvector SYSTEM "miscvector.xml">
 <!ENTITY misccsv SYSTEM "misccsv.xml">
 <!ENTITY miscjoiniterator SYSTEM "miscjoiniterator.xml">
+<!ENTITY miscorderedcache SYSTEM "miscorderedcache.xml">
 <!ENTITY miscdf SYSTEM "miscdf.xml">
 <!ENTITY miscpostponed SYSTEM "miscpostponed.xml">
 <!ENTITY xml_parse SYSTEM "xml_parse.xml">
@@ -156,6 +157,7 @@ See COPYING for distribution information.
     &miscstringability;
     &miscstrtok;
     &miscjoiniterator;
+    &miscorderedcache;
     &misctokenizer;
     &miscwordexp;
     &misctimespec;
