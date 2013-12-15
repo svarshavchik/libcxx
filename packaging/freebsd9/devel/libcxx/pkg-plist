@@ -1,4 +1,3 @@
-@stopdaemon httportmap
 share/libcxx/apache.conf
 etc/periodic/monthly/tlsparamsgen.sh
 bin/maillogs
@@ -522,15 +521,15 @@ include/x/ymdhmsfwd.H
 lib/libcxx.a
 lib/libcxx.la
 lib/libcxx.so
-lib/libcxx.so.8
+lib/libcxx.so.9
 lib/libcxxtls.a
 lib/libcxxtls.la
 lib/libcxxtls.so
-lib/libcxxtls.so.8
+lib/libcxxtls.so.9
 lib/libcxxyaml.a
 lib/libcxxyaml.la
 lib/libcxxyaml.so
-lib/libcxxyaml.so.8
+lib/libcxxyaml.so.9
 libdata/pkgconfig/libcxx.pc
 libexec/libcxx/httportmapd
 libexec/libcxx/tlsparamsgen.sh

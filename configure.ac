@@ -3,7 +3,7 @@
 # See COPYING for distribution information.
 
 AC_PREREQ(2.61)
-AC_INIT(libcxx, 0.7, [mrsam@courier-mta.com])
+AC_INIT(libcxx, 0.8, [mrsam@courier-mta.com])
 
 AC_CONFIG_SRCDIR([includes/obj.H])
 AC_CONFIG_HEADER([libcxx_config.h])
@@ -39,19 +39,26 @@ then
 fi
 AC_SUBST(PKGCONFIGDIR)
 
-if pkg-config --atleast-version=2.6.0 gnutls
+gnutlspkg=gnutls
+
+if pkg-config --atleast-version=3.1.0 gnutls3
 then
-	:
+	gnutlspkg=gnutls3
 else
-	AC_MSG_ERROR([GnuTLS library version 2.6.0, or higher, required])
+	if pkg-config --atleast-version=3.1.0 gnutls
+	then
+		:
+	else
+		AC_MSG_ERROR([GnuTLS library version 3.1.0, or higher, required])
+	fi
 fi
 
 AC_CHECK_PROGS(GNUTLS_CONFIG,libgnutls-config,none,/usr/local/bin:$PATH)
 
 if test "$GNUTLS_CONFIG" = "none"
 then
-	GNUTLS_CFLAGS="`pkg-config --cflags gnutls`"
-	GNUTLS_LIBS="`pkg-config --libs gnutls`"
+	GNUTLS_CFLAGS="`pkg-config --cflags $gnutlspkg`"
+	GNUTLS_LIBS="`pkg-config --libs $gnutlspkg`"
 else
 	GNUTLS_LIBS=`$GNUTLS_CONFIG --libs`
 	GNUTLS_CFLAGS=`$GNUTLS_CONFIG --cflags`
@@ -645,7 +652,7 @@ AC_SUBST(YAMLCPPFLAGS)
 
 AC_SUBST(LIBCXX_NAMESPACE,x)
 
-VERSION_INFO=8:1:0
+VERSION_INFO=9:0:0
 AC_SUBST(VERSION_INFO)
 
 test "x$prefix" = xNONE && prefix=$ac_default_prefix

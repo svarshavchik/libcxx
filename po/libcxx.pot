@@ -6,9 +6,9 @@
 #, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version: libcxx 0.7\n"
+"Project-Id-Version: libcxx 0.8\n"
 "Report-Msgid-Bugs-To: mrsam@courier-mta.com\n"
-"POT-Creation-Date: 2013-09-06 08:56-0400\n"
+"POT-Creation-Date: 2013-12-14 22:24-0500\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -146,43 +146,51 @@ msgstr ""
 msgid "Unknown security strength: %1%"
 msgstr ""
 
-#: gnutls/sessionobj.C:316
+#: gnutls/sessionobj.C:360
 msgid "Revoked certificate"
 msgstr ""
 
-#: gnutls/sessionobj.C:318
+#: gnutls/sessionobj.C:362
 msgid "Unknown certificate authority"
 msgstr ""
 
-#: gnutls/sessionobj.C:320
+#: gnutls/sessionobj.C:364
 msgid "Certificate signer is not an authority"
 msgstr ""
 
-#: gnutls/sessionobj.C:322
+#: gnutls/sessionobj.C:366
 msgid "Certificate signed by a weak hash"
 msgstr ""
 
-#: gnutls/sessionobj.C:324
+#: gnutls/sessionobj.C:368
 msgid "Certificate not yet active"
 msgstr ""
 
-#: gnutls/sessionobj.C:326
+#: gnutls/sessionobj.C:370
 msgid "Certificate expired"
 msgstr ""
 
-#: gnutls/sessionobj.C:328
+#: gnutls/sessionobj.C:372
 msgid "Invalid certificate"
 msgstr ""
 
-#: gnutls/sessionobj.C:329
+#: gnutls/sessionobj.C:373
 msgid "Certificate verification failed"
+msgstr ""
+
+#: gnutls/sessionobj.C:389
+msgid "Peer did not provide a certificate"
+msgstr ""
+
+#: gnutls/sessionobj.C:396
+msgid "Peer certificate is not %1%"
 msgstr ""
 
 #: gnutls/useragentobj.C:134
 msgid "Domain parameter missing from digest authentication challenge"
 msgstr ""
 
-#: base/fd.C:445
+#: base/fd.C:446
 msgid "Internal error: did not create file descriptor for deserialization"
 msgstr ""
 
@@ -196,6 +204,68 @@ msgstr ""
 
 #: base/forkexec.C:36
 msgid "Invalid file descriptor"
+msgstr ""
+
+#: base/ftp_client.C:345
+msgid "Connection to FTP server timed out"
+msgstr ""
+
+#: base/ftp_client.C:347
+msgid "FTP server has closed the connection"
+msgstr ""
+
+#: base/ftp_client.C:442
+msgid "FTP connection no longer usable due to a fatal error"
+msgstr ""
+
+#: base/ftp_client.C:558
+msgid "NUL character in directory name for CWD"
+msgstr ""
+
+#: base/ftp_client.C:579
+msgid "NUL character in parameter for SMNT"
+msgstr ""
+
+#: base/ftp_client.C:613
+msgid "FTP login ID or password cannot contain spaces or control characters"
+msgstr ""
+
+#: base/ftp_client.C:780
+msgid "Unknown server address protocol family"
+msgstr ""
+
+#: base/ftp_client.C:783
+msgid "Cannot parse server response: %1%"
+msgstr ""
+
+#: base/ftp_client.C:915 base/ftp_client.C:1374
+msgid "NUL character in directory name"
+msgstr ""
+
+#: base/ftp_client.C:963 base/ftp_client.C:1002 base/ftp_client.C:1009
+#: base/ftp_client.C:1060 base/ftp_client.C:1184 base/ftp_client.C:1202
+#: base/ftp_client.C:1337
+msgid "NUL character in filename"
+msgstr ""
+
+#: base/ftp_client.C:1072
+msgid "NUL character in \"from\" filename"
+msgstr ""
+
+#: base/ftp_client.C:1073
+msgid "NUL character in \"to\" filename"
+msgstr ""
+
+#: base/ftp_client.C:1114 base/ftp_client.C:1127
+msgid "NUL character in directory filename"
+msgstr ""
+
+#: base/ftp_client.C:1150
+msgid "NUL character in SITE command"
+msgstr ""
+
+#: base/ftp_client.C:1170
+msgid "Cannot parse timestamp from FTP server"
 msgstr ""
 
 #: base/globobj.C:36
