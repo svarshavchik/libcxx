@@ -605,7 +605,10 @@ public:
 	//! accept(2) system call fails, unless \c errno is \c EAGAIN or
 	//! \c EWOULDBLOCK. This indicates no pending connections on a
 	//! non-blocking socket. In this case, accept() returns a null ptr.
-
+	//!
+	//! The new socket has the close-on-exec flag set. Other socket
+	//! flags are cleared (notably, the nonblocking flag, inherited
+	//! by the new socket from the parent, on Linux) is cleared.
 	fdptr accept(//! Peer's address.
 
 		     sockaddrptr &peername);

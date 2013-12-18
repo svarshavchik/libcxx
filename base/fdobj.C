@@ -485,6 +485,7 @@ fdptr fdObj::accept(sockaddrptr &peername)
 #endif
 
 	newFd->setsigpipe(nfd);
+	newFd->nonblock(false);
 
 	peername=sockaddr::create();
 
