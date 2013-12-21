@@ -344,7 +344,7 @@ See COPYING for distribution information.
     <partintro>
       <para>
 	The <ulink url="&namespace-x--ftp;"><classname>&ns;::ftp</classname></ulink>
-	implements a full-featured <acronym>FTP</acronym> and
+	namespace implements a full-featured <acronym>FTP</acronym> and
 	<acronym>FTP</acronym> over
 	<acronym>SSL</acronym>/<acronym>TLS</acronym>.
       </para>

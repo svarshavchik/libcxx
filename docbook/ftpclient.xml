@@ -59,7 +59,7 @@ ftp-&gt;logout();
     <literal>&ns;::ftp::client::timeout::write_bytes</literal>
     <link linkend="properties">application properties</link>.
     A timeout exception gets thrown if the given number of bytes is not
-    succesfull read/written from/to the server within the specific amount
+    succesfully read/written from/to the server within a specific amount
     of time; at which point the connection is no longer usable, and all
     further <classname>FTP</classname> operations will throw exceptions
     immediately.
@@ -88,9 +88,9 @@ conn->timeout(timeout);
   </blockquote>
 
   <para>
-    <methodname>create</methodname>() also taks an optional custom timeout
+    <methodname>create</methodname>() also takes an optional custom timeout
     setting.
-    The custom timeout setting is used only for the initial greeting, and
+    The custom timeout setting is used only for the initial greeting.
     Use <methodname>timeout</methodname>() to permanently install a
     custom timeout handler, for the connection.
   </para>
@@ -270,9 +270,9 @@ ftp-&gt;dirstat([&amp;stat]
     <blockquote>
       <informalexample>
 	<programlisting>
-ftp-&lt;get_file("localfile", "remotefile");
+ftp-&gt;get_file("localfile", "remotefile");
 
-ftp-&lt;get_file("localfile", 0644, "remotefile");
+ftp-&gt;get_file("localfile", 0644, "remotefile");
 
 std::vector&lt;char&gt; buffer;
 
