@@ -125,7 +125,7 @@ See COPYING for distribution information.
 	  operators do not check for a <literal>nullptr</literal>
 	  because &ref; cannot be a <literal>nullptr</literal>, it must always
 	  refer to an object. This is enforced. The <literal>nullptr</literal>
-	  gets checked upon an assignment of a &ref;.
+	  gets checked upon an assignment of an &ref;.
 	  &ref; is proven, by contract, never to contain a
 	  <literal>nullptr</literal>; hence its
 	  <methodname>*</methodname> and <methodname>-&gt;</methodname> directly
@@ -410,14 +410,14 @@ if (!b.null())
       <methodname>null</methodname>(), because it always refers to some object.
       An &ref; can always be converted to an
       &ptr; to the same class.
-      An &ptr; can also be converted to a
+      An &ptr; can also be converted to an
       &ref;, but if its unbound, an
       <link linkend="exceptions">exception</link> gets thrown at the point the
       conversion is attempted.
     </para>
 
     <para>
-      It follows that a &ref; does not have
+      It follows that an &ref; does not have
       a default constructor. All &ref;s
       must be constructed to refer to some existing instance of the
       referenced class.
@@ -496,7 +496,7 @@ b-&gt;click();</programlisting>
 
     <para>
       As mentioned previously,
-      unlike a &ref;, a &ptr; may not be bound to any actual
+      unlike an &ref;, a &ptr; may not be bound to any actual
       object:
     </para>
 
@@ -697,7 +697,7 @@ button quit(button::create(100, 100));</programlisting>
       members that are provided by the &ref; or the
       &ptr;, to supplement the class
       <literal>*</literal> and <literal>-&gt;</literal> method operators.
-      A &ref;'s and &ptr;'s <methodname>create</methodname>() is actually
+      An &ref;'s and &ptr;'s <methodname>create</methodname>() is actually
       a call to <methodname>base::objfactory&lt;<replaceable>T</replaceable>&gt;::create</methodname>(), with
       <replaceable>T</replaceable> being the &ref; or a &ptr; type that's
       calling it, and is the expected return type from
@@ -1352,7 +1352,7 @@ if (!origw.null())
     <para>
 	The
 	<ulink url="&link-x--weakptr;"><classname>weakptr</classname></ulink>
-	template takes a &ptr; (not a &ref;), and makes a weak version of it.
+	template takes a &ptr; (not an &ref;), and makes a weak version of it.
 	A weak pointer is similarly instantiated from an existing,
 	ordinary pointer. The only method implemented by a
 	<classname>weakptr</classname> is <methodname>getptr</methodname>(),
@@ -1556,7 +1556,8 @@ myobj-&gt;addOnDestroy(&ns;::destroyCallback::create([]
 
       <para>
 	In this example, <function>create</function>() instantiates
-	a &ref; to a subclass of <classname>&ns;::destroyCallbackObj</classname>
+	an &ref; to a subclass of
+	<classname>&ns;::destroyCallbackObj</classname>
 	whose <methodname>destroyed</methodname>() invokes the functor.
       </para>
 
@@ -1623,7 +1624,8 @@ cb->wait();</programlisting>
       <para>
 	A
 	<ulink url="&link-x--destroyCallbackFlagBase--guard;"><classname>&ns;::destroyCallbackFlag::base::guard</classname></ulink>
-	is an object meant to be instantiated on the stack.
+	is an object meant to be instantiated on the stack, or as a class
+	member.
 	Its destructor waits until other objects placed in its care get
 	destroyed, before the destructor itself returns:
       </para>
@@ -1653,8 +1655,8 @@ void run()
       </para>
 
       <para>
-	Use this guard object when you want to wait for these mcguffins
-	to go out of scope and get destroyed. The guard object's destructor
+	Use this guard object when you want to wait for these mcguffins to
+	really go out of scope and get destroyed. The guard object's destructor
 	waits indefinitely until the guarded objects gets destroyed, if they're
 	not destroyed already.
       </para>
@@ -1701,6 +1703,69 @@ void run()
       <para>
 	Subsequently, when <varname>guard</varname> goes out of scope, it
 	waits for the mcguffin to get destroyed, wherever it is.
+      </para>
+
+      <note>
+	<para>
+	  <classname>&ns;::destroyCallbackFlag::base::guard</classname>
+	  does not implement copy contructors or assignment operators.
+	  It should always be instantiated either on the stack, or as a
+	  class member.
+	</para>
+      </note>
+
+      <para>
+	<ulink url="&link-x--destroyCallbackFlagBase--guard-object--ref--objClass--baseClass----;"><classname>&ns;::destroyCallbackFlag::base::guard_object</classname></ulink>
+	is a convenient template to instantiate a guard for a single
+	&ref;.
+      </para>
+
+      <blockquote>
+	<informalexample>
+	  <programlisting>
+typedef &ns;::ref&lt;widgetObj&gt; widget;
+
+class containerObj : virtual public &ns;::obj {
+
+    &ns;::destroyCallbackFlag::base::guard_object&lt;widget&gt; title;
+
+// ...
+};
+
+// ...
+containerObj::containerObj() : title(widget::create())
+{
+// ...
+
+   title-&gt;method();
+}</programlisting>
+	</informalexample>
+      </blockquote>
+      <para>
+	<classname>&ns;::destroyCallbackFlag::base::guard_object</classname>'s
+	template parameter must be an &ref;.
+	<classname>&ns;::destroyCallbackFlag::base::guard_object</classname>
+	declares a subclass of this &ref;, that's privately guarded.
+	When <classname>&ns;::destroyCallbackFlag::base::guard_object</classname>
+	goes out of scope and gets destroyed, if there are any other &ref;s
+	or &ptr;s
+	to the same object,
+	<classname>&ns;::destroyCallbackFlag::base::guard_object</classname>
+	waits until all other &ref;s and &ptr;s go out of scope and gets
+	destroyed.
+	<classname>&ns;::destroyCallbackFlag::base::guard_object</classname>'s
+	destructor does not return until the referenced object's destructor
+	returns.
+      </para>
+      <para>
+	<classname>&ns;::destroyCallbackFlag::base::guard_object</classname>
+	inherits
+	<methodname>*</methodname>() and
+	<methodname>-&gt;</methodname>() operators from the underlying
+	&ref;, so that it can be used just like one. Although the
+	guard object itself is not copy-constructible or assignable, the
+	&ref; can be copied and passed around (with all copies required to be
+	destroyed, before the guard's destructor returns).
       </para>
     </section>
 
@@ -1849,7 +1914,7 @@ mycb-&gt;onAnyDestroyed(objects.begin(), objects.end());</programlisting>
 
       <para>
 	The input sequence is expected to produce strong &ref;s only. However,
-	it's an arbitrary input sequence. Once a &ref; has been iterated over,
+	it's an arbitrary input sequence. Once an &ref; has been iterated over,
 	it is no longer in scope, and, with a custom input iterator, its
 	possible that it can get destroyed. If so, it's possible that
 	<methodname>destroyed</methodname>() gets called before

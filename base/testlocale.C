@@ -121,6 +121,8 @@ int main(int argc, char *argv[])
 		testctype();
 		testwctype();
 
+		LIBCXX_NAMESPACE::fromutf8string(LIBCXX_NAMESPACE::toutf8string(std::string("Hello World!")));
+
 		if (LIBCXX_NAMESPACE::strftime(1000000000, LIBCXX_NAMESPACE::tzfile::base::utc(), LIBCXX_NAMESPACE::locale::base::utf8())("%Y")
 		    != "2001")
 			throw EXCEPTION("What's up with strftime()?");

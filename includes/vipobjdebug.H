@@ -124,8 +124,8 @@ class vipobjdebug : private vipobj<obj_type, handler_type, invoke_type,
 		tid_t threadid;
 
 		//! Constructor
-		lockrecord_t(lock_t locktypearg, tid_t threadidarg)
-			noexcept : locktype(locktypearg), threadid(threadidarg)
+		lockrecord_t(lock_t locktypearg, tid_t threadidarg) noexcept
+		: locktype(locktypearg), threadid(threadidarg)
 		{
 		}
 

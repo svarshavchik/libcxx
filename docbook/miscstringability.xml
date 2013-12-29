@@ -330,6 +330,29 @@ std::string s=&ns;::towstring(w, l);</programlisting>
 	a conversion call between narrow and wide characters, in the
 	specified locale.
       </para>
+
+      <blockquote>
+	<informalexample>
+	  <programlisting>
+#include &lt;&ns;/tostring.H&gt;
+
+&ns;::locale l;
+
+std::string s;
+
+std::string s_utf8=&ns;::toutf8string(s, l);
+
+s=&ns;::fromutf8string(s, l);</programlisting>
+	</informalexample>
+      </blockquote>
+
+      <para>
+	<methodname>&ns;::toutf8string</methodname>() and
+	<methodname>&ns;::fromutf8string</methodname>() convert a string to
+	or from the UTF-8 codeset. The second parameter specifies the
+	string's codeset, as a locale. The second parameter is optional.
+	It defaults to <methodname>&ns;::local::base::globa()</methodname>.
+      </para>
     </section>
   </section>
 </chapter>

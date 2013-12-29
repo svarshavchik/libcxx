@@ -168,10 +168,35 @@ void testaccept()
 		throw EXCEPTION("Did not catch expected exception (terminate_fd)");
 }
 
+void testguardobject()
+{
+	std::cout << "Testing guard object" << std::endl;
+
+	time_t before=time(nullptr);
+
+	{
+		LIBCXX_NAMESPACE::destroyCallbackFlag::base::guard_object<LIBCXX_NAMESPACE::ref<LIBCXX_NAMESPACE::obj>>
+			guard(LIBCXX_NAMESPACE::ref<LIBCXX_NAMESPACE::obj>::create());
+
+		LIBCXX_NAMESPACE::ref<LIBCXX_NAMESPACE::obj> refobj=guard;
+
+		LIBCXX_NAMESPACE::run_lambda([]
+					     (LIBCXX_NAMESPACE::ref<LIBCXX_NAMESPACE::obj> &arg)
+					     {
+						     sleep(2);
+					     }, refobj);
+	}
+
+	if (before == time(nullptr))
+		throw EXCEPTION("Guard object didn't work for some reason");
+	std::cout << "Ok" << std::endl;
+}
+
 int main()
 {
 	alarm(60);
 	try {
+		testguardobject();
 		testwrite1();
 		testwrite2();
 		testtimers();

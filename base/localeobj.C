@@ -4,10 +4,11 @@
 */
 
 #include "libcxx_config.h"
-#include "localeobj.H"
-#include "locale.H"
-#include "singleton.H"
-#include "exception.H"
+#include "x/localeobj.H"
+#include "x/locale.H"
+#include "x/tostring.H"
+#include "x/singleton.H"
+#include "x/exception.H"
 
 namespace LIBCXX_NAMESPACE {
 #if 0
@@ -153,6 +154,20 @@ std::string localeObj::name() const noexcept
 	return x.h;
 #endif
 }
+
+template std::string fromutf8string(const std::string &,
+				    const const_locale &);
+template std::string fromutf8string(std::string &&,
+				    const const_locale &);
+template std::string fromutf8string(const std::string &);
+template std::string fromutf8string(std::string &&);
+
+template std::string toutf8string(const std::string &,
+				  const const_locale &);
+template std::string toutf8string(std::string &&,
+				  const const_locale &);
+template std::string toutf8string(const std::string &);
+template std::string toutf8string(std::string &&);
 
 #if 0
 {

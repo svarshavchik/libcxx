@@ -160,7 +160,7 @@ private:
 
 	public:
 		//! Constructor
-		factoryObj(//! An application object that implements newThread()
+		factoryObj(//! An application object that implements its own newThread method
 			   const ref_type &appArg) : app(appArg)
 		{
 		}

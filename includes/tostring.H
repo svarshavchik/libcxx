@@ -162,6 +162,43 @@ inline std::wstring towstring(const wchar_t (&cl)[n],
 	return cl;
 }
 
+//! Convert string in some locale to a UTF-8 string
+
+template<typename string_type>
+std::string toutf8string(string_type &&type, const const_locale &localeRef)
+{
+	return tostring(towstring(std::forward<string_type>(type),
+				  localeRef),
+			locale::base::utf8());
+}
+
+//! Convert string in global locale to a UTF-8 string
+
+template<typename string_type>
+std::string toutf8string(string_type &&type)
+{
+	return toutf8string(std::forward<string_type>(type),
+			    locale::base::global());
+}
+
+//! Convert UTF-8 string to a string in some locale
+
+template<typename string_type>
+std::string fromutf8string(string_type &&type, const const_locale &localeRef)
+{
+	return tostring(towstring(std::forward<string_type>(type),
+				  locale::base::utf8()), localeRef);
+}
+
+//! Convert UTF-8 string to string in global locale
+
+template<typename string_type>
+std::string fromutf8string(string_type &&type)
+{
+	return fromutf8string(std::forward<string_type>(type),
+			      locale::base::global());
+}
+
 //! Implement conversion functions between a string type and some class type
 
 template<typename string_type, typename class_type> class stringize_impl;
@@ -248,6 +285,22 @@ template<typename string_type, typename char_type, size_t n>
 class stringize<string_type, char_type[n]>
 	: public stringize_impl<string_type, std::basic_string<char_type> > {
 };
+
+#ifndef DOXYGEN
+extern template std::string fromutf8string(const std::string &,
+					   const const_locale &);
+extern template std::string fromutf8string(std::string &&,
+					   const const_locale &);
+extern template std::string fromutf8string(const std::string &);
+extern template std::string fromutf8string(std::string &&);
+
+extern template std::string toutf8string(const std::string &,
+					 const const_locale &);
+extern template std::string toutf8string(std::string &&,
+					 const const_locale &);
+extern template std::string toutf8string(const std::string &);
+extern template std::string toutf8string(std::string &&);
+#endif
 
 #if 0
 {

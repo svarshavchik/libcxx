@@ -519,7 +519,7 @@ private:
 
 	public:
 		//! Constructor - beginning iterator
-		word_iter(//! String to escape (or not)
+		word_iter(//! String to escape, or not to escape
 			  const char *ptrArg,
 
 			  //! Whether to %-escape the string
