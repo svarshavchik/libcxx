@@ -74,6 +74,20 @@ tid_t gettid() noexcept
 			;					\
 	} while(0)
 
+
+log_stringstream::log_stringstream()
+{
+	try {
+		imbue(std::locale(std::locale(), "C", std::locale::numeric));
+	} catch (const std::exception &e)
+	{
+	}
+}
+
+log_stringstream::~log_stringstream() noexcept
+{
+}
+
 //! Superclass for log handlers
 
 //! \internal

@@ -100,6 +100,12 @@ tid_t gettid() noexcept;
 //! an object "logger", in the current scope. Use these macros to define a
 //! hierarchy of logging scopes.
 //!
+//! \note
+//! Log messages are formatted in the application global default locale,
+//! modifier with the \c std::locale::numeric category from the "C" locale.
+//! Formatting various numbers, in log messages, with thousands' separators
+//! looks out of place.
+//!
 //! \par Class level
 //!
 //! \code
@@ -924,6 +930,25 @@ private:
 //!
 #define LOG_CLASS_INIT2(...) # __VA_ARGS__
 
+//! stringstream class used for generating log messages.
+
+//! This is subclassed directly from std::stringstream. We imbue the
+//! string with the global locale, but with the numeric category taken
+//! from the C locale. Log messages often have numbers, and such, and
+//! thousands separators often look quite absurd, in this context
+
+class log_stringstream : public std::stringstream {
+
+public:
+
+	//! The constructor will fix up the locale
+
+	log_stringstream();
+
+	//! Destructor
+	~log_stringstream() noexcept;
+};
+
 //! Internal macro
 
 //! \internal
@@ -932,7 +957,8 @@ private:
 	do {short xx_v=(level); const LIBCXX_NAMESPACE::logger &xx_l=(obj); \
 		if (xx_l.getDebugLevel() <= xx_v)			\
 		{							\
-			std::stringstream xx_s; xx_s << txt;		\
+			LIBCXX_NAMESPACE::log_stringstream xx_s;	\
+			(std::stringstream &)xx_s << txt;		\
 			xx_l(xx_s.str(), xx_v);				\
 		} } while(0)
 		
