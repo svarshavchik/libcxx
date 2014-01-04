@@ -7,6 +7,7 @@
 #define x_threads_singleton_H
 
 #include <x/threads/runfwd.H>
+#include <x/notcopyableobj.H>
 #include <x/weakptr.H>
 #include <x/namespace.h>
 
@@ -74,7 +75,7 @@ class threadsingleton;
 
 template<typename obj_type, typename base_class>
 class threadsingleton<ptr<obj_type, base_class> >
-	: private run_async::singletonbase {
+	: private run_async::singletonbase, public notcopyableObj {
 
 	//! Catch duplicate declarations in static scope
 	static __thread bool initialized;
@@ -125,14 +126,6 @@ public:
 	~threadsingleton() noexcept
 	{
 	}
-
-	//! Not implemented
-	threadsingleton(const threadsingleton<ptr<obj_type, base_class>
-					      > &)=delete;
-
-	//! Not implemented
-	threadsingleton<ptr<obj_type, base_class> >
-	&operator=(const threadsingleton<ptr<obj_type, base_class> > &)=delete;
 
 	//! Return this thread's singleton value.
 

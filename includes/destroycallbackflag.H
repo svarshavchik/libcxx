@@ -8,7 +8,7 @@
 
 #include <x/destroycallbackflagfwd.H>
 #include <x/destroycallbackflagobj.H>
-
+#include <x/notcopyableobj.H>
 #include <list>
 
 namespace LIBCXX_NAMESPACE {
@@ -33,19 +33,13 @@ public:
 
 //! Refer to this class as \c destroyCallbackFlag::base::guard
 
-class destroyCallbackFlagBase::guard {
+class destroyCallbackFlagBase::guard : public notcopyableObj {
 
 	//! The owned callbacks
 
 	std::list<destroyCallbackFlag> callbacks;
 
 public:
-	//! Can't copy construct
-	guard(const guard &)=delete;
-
-	//! Can't do an assignment
-	guard &operator=(const guard &)=delete;
-
 	//! Constructor
 	guard();
 

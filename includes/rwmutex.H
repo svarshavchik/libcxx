@@ -7,6 +7,7 @@
 #define rwmutex_H
 
 #include <x/namespace.h>
+#include <x/notcopyableobj.H>
 #include <mutex>
 #include <condition_variable>
 
@@ -20,7 +21,7 @@ namespace LIBCXX_NAMESPACE {
 //! This class instantiates two related mutexes, a readers mutex, and a writer
 //! mutex.
 
-class rwmutex {
+class rwmutex : public notcopyableObj {
 
 public:
 
@@ -32,7 +33,7 @@ public:
 	//! other execution threads that own this mutex or its related readers
 	//! mutex.
 
-	class wmutex {
+	class wmutex : public notcopyableObj {
 
 		//! Number of readers that have the readers/writer mutex locked.
 		size_t			nreaders;
@@ -53,10 +54,6 @@ public:
 		wmutex();
 
 	public:
-
-		wmutex(const wmutex &)=delete; //!< Not implemented
-
-		wmutex &operator=(const wmutex &)=delete; //!< Not implemented
 
 		friend class rmutex;
 		friend class rwmutex;
@@ -83,7 +80,7 @@ public:
 	//! This is a \c TimedLockable mutex that locks when there are no
 	//! other execution threads that own the related writer mutex.
 
-	class rmutex {
+	class rmutex : public notcopyableObj {
 
 		//! The related writer mutex
 		wmutex &w;
@@ -92,10 +89,6 @@ public:
 		rmutex(wmutex &wArg);
 
 	public:
-		rmutex(const rmutex &)=delete; //!< Not implemented
-
-		rmutex &operator=(const rmutex &)=delete; //!< Not implemented
-
 		friend class rwmutex;
 
 		//! The \c BasicLockable requirement
@@ -125,9 +118,6 @@ public:
 
 	//! Destructor
 	~rwmutex() noexcept;
-
-	rwmutex(const rwmutex &)=delete; //!< Not implemented.
-	rwmutex &operator=(const rwmutex &)=delete; //!< Not implemented.
 };
 
 

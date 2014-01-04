@@ -9,7 +9,7 @@
 #include <x/namespace.h>
 #include <x/refcnt.H>
 #include <x/ptr.H>
-
+#include <x/notcopyableobj.H>
 
 #include <list>
 #include <string>
@@ -67,7 +67,7 @@ template<class refType> class weakptr;
 //!
 //! \see ptr
 
-class obj : public refcnt {
+class obj : public refcnt, public notcopyableObj {
 
 	//! The weak reference information associated with this object.
 
@@ -84,19 +84,6 @@ protected:
 
 	mutable std::mutex objmutex;
 public:
-
-	//! Not implemented.
-
-	//! All subclasses of \ref obj "obj" must be dynamically allocated
-	//! on the heap.
-
-	obj(const obj &)=delete;
-
-	//! Not implemented.
-
-	//! All subclasses of \ref obj "obj" must be dynamically allocated
-	//! on the heap.
-	obj &operator=(const obj &)=delete;
 
 	//! Demangle a C++ type
 

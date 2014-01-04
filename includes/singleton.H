@@ -43,7 +43,7 @@ namespace LIBCXX_NAMESPACE {
 //! references to the singleton instance go out of scope.
 
 template<typename obj_type,
-	 typename baseClass> class singleton {
+	 typename baseClass> class singleton : public notcopyableObj {
 
 	//! The instance on the main thread's local object pool.
 
@@ -82,14 +82,6 @@ public:
 
 	//! Default no-op constructor
 	singleton() {}
-
-	//! Unimplemented
-
-	singleton(const singleton<obj_type> &)=delete;
-
-	//! Unimplemented
-
-	singleton<obj_type> &operator=(const singleton<obj_type> &)=delete;
 
 	//! Return the singleton instance
 

@@ -57,7 +57,7 @@ private:
 
 	//! \internal
 
-	class repeatinfo {
+	class repeatinfo : public notcopyableObj {
 
 	public:
 
@@ -84,12 +84,6 @@ private:
 
 		//! Destructor
 		~repeatinfo() noexcept;
-
-		//! Not implemented
-		repeatinfo(const repeatinfo &)=delete;
-
-		//! Not implemented
-		repeatinfo &operator=(const repeatinfo &)=delete;
 
 		//! Retrieve the current repeat interval
 		duration_t getDuration()

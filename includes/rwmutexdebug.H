@@ -168,9 +168,6 @@ public:
 
 	//! Destructor
 	~rwmutexdebug() noexcept;
-
-	rwmutexdebug(const rwmutexdebug &)=delete; //!< Not implemented.
-	rwmutexdebug &operator=(const rwmutexdebug &)=delete; //!< Not implemented.
 };
 
 #if 0

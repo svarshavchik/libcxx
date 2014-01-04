@@ -30,17 +30,9 @@ class hms;
 //! Common locale-related functions used by basic_strftime
 
 template<typename char_type>
-class basic_strftime_base {
+class basic_strftime_base : public notcopyableObj {
 
 protected:
-
-	//! Copy constructor not implemented.
-
-	basic_strftime_base(const basic_strftime_base<char_type> &)=delete;
-
-	//! Assignment operator not implemented.
-
-	basic_strftime_base<char_type> &operator=(const basic_strftime_base<char_type> &)=delete;
 
 	//! Locale for the time format
 	const_locale l;

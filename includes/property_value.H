@@ -309,15 +309,10 @@ namespace LIBCXX_NAMESPACE {
 //! uninstall() in its destructor.
 
 template<typename argType, typename stringType>
-class value : private propvaluesetbase, public valueimpl<argType> {
+class value : private propvaluesetbase, public valueimpl<argType>,
+	      public notcopyableObj {
 
 public:
-	//! Not implemented
-	value(const value<argType> &)=delete;
-
-	//! Not implemented
-	value<argType> &operator=(const value<argType> &)=delete;
-
 	//! Initialize the %property %value
 
 	value(//! The name of the %property

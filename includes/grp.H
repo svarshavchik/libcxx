@@ -8,6 +8,7 @@
 
 #include <x/namespace.h>
 #include <x/exception.H>
+#include <x/notcopyableobj.H>
 #include <grp.h>
 #include <vector>
 
@@ -18,7 +19,7 @@ namespace LIBCXX_NAMESPACE {
 
 //! A thread-safe wrapper for a \c struct \c group.
 
-class group {
+class group : public notcopyableObj {
 
 	//! The embeded group structure
 	struct ::group grstruct;
@@ -27,14 +28,6 @@ class group {
 	std::vector<char> buffer;
 
 public:
-	//! Not implemented
-
-	group(const group &)=delete;
-
-	//! Not implemented
-
-	group &operator=(const group &)=delete;
-
 	//! getgrnam() equivalent
 
 	//! Throws an exception if an error occured. If the groupname was not
