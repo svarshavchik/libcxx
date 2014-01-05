@@ -6,7 +6,7 @@ See COPYING for distribution information.
 -->
 
 <chapter id="strtok">
-  <title>A C++-ish strtok(), and join()</title>
+  <title>A C++-ish strtok(); strsplit(), and join()</title>
 
   <para>
     Two template functions implement strtok()-like functionality that's more
@@ -105,6 +105,54 @@ int main()
     by a beginning and an ending iterator. The separator string can be a
     string object or a literal string. The resulting joined string can be
     written to an output iterator, or returned as a single string.
+  </para>
+
+  <blockquote>
+    <informalexample>
+      <programlisting>
+#include &lt;&ns;/strsplit.H&gt;
+
+std::vector&lt;std::string&gt; words;
+
+std::string line;
+
+&ns;::strsplit_if(line.begin(), line.end(), words,
+   []
+   (char c)
+   {
+       return isspace(c);
+   },
+   []
+   (char quote)
+   {
+       return quote == 34;
+   });</programlisting>
+    </informalexample>
+  </blockquote>
+
+  <para>
+    <ulink url="&link-function-x-strsplit-if;"><function>&ns;::strsplit_if</function></ulink>()
+    implements string splitting with quoting. This example splits strings by
+    whitespaces, except that the quote character delimits quoted content.
+    Whitespace inside quotes becomes a part of each split word.
+    If two consecutive quoting characters inside a quoted string appear, the
+    first one gets dropped, and the second one gets included in the split
+    word.
+  </para>
+
+  <blockquote>
+    <informalexample>
+      <programlisting>
+&ns;::strsplit(line.begin(), line.end(), words, " \t\r", 34);</programlisting>
+    </informalexample>
+  </blockquote>
+
+  <para>
+    <ulink url="&link-function-x-strsplit;"><function>&ns;::strsplit</function></ulink>()
+    is a wrapper for
+    <function>&ns;::strsplit_if</function>() that supplies the
+    lambda predicates based on the literal raw character string, and the
+    quoting character.
   </para>
 </chapter>
 
