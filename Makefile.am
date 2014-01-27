@@ -133,7 +133,7 @@ libcxx.pc: Makefile
 	echo "Description: libcxx library" >>libcxx.pc.tmp
 	echo "Version: @VERSION@" >>libcxx.pc.tmp
 	echo "Requires.private: gnutls" >>libcxx.pc.tmp
-	echo "Cflags: -std=c++0x -fno-omit-frame-pointer" >>libcxx.pc.tmp
+	echo "Cflags: -fno-omit-frame-pointer" >>libcxx.pc.tmp
 	mv -f libcxx.pc.tmp libcxx.pc
 
 CLEANFILES=libcxx.pc $(man_MANS)
