@@ -1,13 +1,13 @@
 /*
-** Copyright 2012 Double Precision, Inc.
+** Copyright 2012-2014 Double Precision, Inc.
 ** See COPYING for distribution information.
 */
 
 #include "libcxx_config.h"
-#include "weakmultimap.H"
-#include "ptr.H"
-#include "obj.H"
-#include "ondestroy.H"
+#include "x/ptr.H"
+#include "x/obj.H"
+#include "x/weakmultimap.H"
+#include "x/ondestroy.H"
 
 #include <string>
 #include <iostream>
@@ -16,7 +16,9 @@
 class valueObj : virtual public LIBCXX_NAMESPACE::obj {
 
 public:
-	valueObj() noexcept {}
+	int n;
+
+	valueObj(int nArg=0):n(nArg) {}
 	~valueObj() noexcept {}
 };
 
@@ -51,6 +53,43 @@ void myDestructorCallbackObj::destroyed() noexcept
 			  << std::endl;
 		++b;
 	}
+}
+
+void test_find_or_create()
+{
+	map_t m=map_t::create();
+
+	auto a=LIBCXX_NAMESPACE::ptr<valueObj>::create(0);
+	auto b=LIBCXX_NAMESPACE::ptr<valueObj>::create(1);
+
+	m->insert("A", a);
+	m->insert("B", b);
+
+	auto p=m->begin();
+
+	if (p->second.getptr()->n != 0)
+		throw EXCEPTION("find_or_create test 1 failed");
+
+	auto lambda=[]
+		{
+			return LIBCXX_NAMESPACE::ptr<valueObj>::create(2);
+		};
+
+	if (m->find_or_create("B", lambda)->n != 1)
+		throw EXCEPTION("find_or_create test 2 failed");
+
+	b=LIBCXX_NAMESPACE::ptr<valueObj>();
+
+	if (m->count("B") != 1)
+		throw EXCEPTION("find_or_create test 3 failed");
+
+	auto c=m->begin();
+
+	if (c == m->end() || ++c == m->end() || c->first != "B")
+		throw EXCEPTION("find_or_create test 4 failed");
+
+	if (m->find_or_create("B", lambda)->n != 2)
+		throw EXCEPTION("find_or_create test 5 failed");
 }
 
 int main(int argc, char **argv)
@@ -88,7 +127,7 @@ int main(int argc, char **argv)
 			}
 			v=LIBCXX_NAMESPACE::ptr<valueObj>();
 		}
-
+		test_find_or_create();
 	} catch (LIBCXX_NAMESPACE::exception &e) {
 		std::cout << e << std::endl;
 	}

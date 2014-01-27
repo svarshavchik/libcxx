@@ -2176,28 +2176,38 @@ for (weakwidgetlist::base::iterator b=currentWidgets->begin(),
       <methodname>push_back()</methodname>, and
       <methodname>push_front()</methodname>.
       Iteration over a weak list container iterates over
-      <link linkend="weakptr">weak pointers</link>, so
-      <methodname>getptr</methodname>() must be used to recover a strong
+      <link linkend="weakptr">weak pointers</link>. Use
+      <methodname>getptr</methodname>() to recover a strong
       reference.
-      Although the weak pointers get purged from the container upon destruction
-      of the referenced object, it's
-      still possible that an occasional null weak pointer gets encountered.
-      When the last reference to the weakly-referenced object goes out of
-      scope and it gets destroyed, the weak pointer to the object normally
-      gets removed from the container automatically. However, this is not
-      possible if there are iterators in scope. They are
-      currently iterating over the weak container, which cannot be modified
-      as long as they remain in scope. For this, and a few other reasons,
-      it's possible that
-      a null pointer gets recovered from a weak pointer.
-      The weak pointer to the destroyed object gets purged from the weak
-      container only after the last
-      weak container iterator goes out of scope and gets destroyed,
-      so nothing else refers to the weak container
-      (except pointers or references to the container itself).
-      Once the contents of the container are safe from potential access,
-      the weak pointers to destroyed objects get purged from the container.
     </para>
+
+    <note id="weakcontainergetptrnull">
+      <para>
+	It's possible that <methodname>getptr</methodname>() might return
+	a null &ptr;, even though the container automatically removes
+	weak pointers upon destruction of the referenced object.
+	When the last reference to the weakly-referenced object goes out of
+	scope and it gets destroyed, the weak pointer to the object normally
+	gets removed from the container automatically.
+      </para>
+
+      <para>
+	However, this is not possible when there are iterators still in scope.
+	They are currently iterating over the weak container, and the
+	container can't be modified as long as they remain in scope; so
+	the weak pointers do not get immediately removed, and
+	<methodname>getptr</methodname>() subsequently returns
+	a null &ptr;.
+      </para>
+
+      <para>
+	The weak pointer to the destroyed object gets eventually removed
+	from the weak container, after the last
+	weak container iterator goes out of scope and gets destroyed.
+	Until that happens, it's possible for weak container iterators to
+	iterate over a weak null pointer.
+      </para>
+    </note>
 
     <para>
       For this reason, iterators over a weak list, or a weak map,
@@ -2298,6 +2308,84 @@ currentWidgets-&gt;insert("left", p);</programlisting>
       object that must be dereferenced by a <methodname>*</methodname>, this may
       not be very useful.
     </para>
+
+
+
+    <blockquote>
+      <informalexample>
+	<programlisting>
+#include &lt;&ns;/weakmultimap.H&gt;
+
+class widgetObj;
+
+typedef &ns;:ptr&lt;widgetObj&gt; widgetptr;
+
+typedef &ns;::weakmultimap&lt;std::string, widgetObj&gt; weakwidgetmap;
+
+weakwidgetmap currentWidgets(weakwidgetmap::create());
+
+// ...
+
+&ns;::ref&lt;widgetObj&gt;
+    w=currentWidgets-&gt;find_or_create("left", []
+                                             {
+                                                 return ref&lt;widgerObj&gt;::create();
+                                             });</programlisting>
+      </informalexample>
+    </blockquote>
+
+    <para>
+      Recall that although weak pointers get automatically removed from
+      weak containers when the referenced object goes out of scope and
+      gets destroyed, there are edge conditions when iterating over the
+      weak container iterates over a weak pointer
+      <link linkend="weakcontainergetptrnull">whose
+	<methodname>getptr</methodname>() can return a
+	<literal>nullptr</literal></link>.
+      For that reason, sometimes a weak multimap is a better choice instead of a
+      weak map for a key/value lookup mapping.
+      With a weak map, it's possible that the weak pointer continues to exist
+      in the map, for the given key, making it impossible to store a
+      weakly-referenced value for the given key.
+    </para>
+
+    <para>
+      With a weak multimap, if a key's value is a null weak pointer, a new
+      value for the same key can still be inserted into this map.
+      <methodname>find_or_create</methodname>() is a convenient atomic
+      method that does the following:
+    </para>
+
+    <itemizedlist>
+      <listitem>
+	<para>
+	  The first parameter to <methodname>find_or_create</methodname>() is
+	  a map key.
+	</para>
+
+	<para>
+	  Checks if the map contains any key with the given value, whose
+	  weak pointer returnsa non-<literal>nullptr</literal> reference, if
+	  so <methodname>find_or_create</methodname>() returns it.
+	</para>
+      </listitem>
+      <listitem>
+	<para>
+	  The first parameter to <methodname>find_or_create</methodname>() is
+	  a lambda. The lambda must return an &ref; to the map's
+	  weakly-referenced object.
+	</para>
+
+	<para>
+	  If the map does not contain any value for the given key, or if all
+	  of them have weak pointers
+	  that return a <literal>nullptr</literal>:
+	  <methodname>find_or_create</methodname>() calls the lambda, inserts
+	  the key, and the value returned from the lambda, then returns the
+	  same value.
+	</para>
+      </listitem>
+    </itemizedlist>
   </section>
 
   <section id="circularrefs">

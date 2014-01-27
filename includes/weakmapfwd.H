@@ -103,6 +103,19 @@ class weakmapBase;
 //! the object's weak reference (together with its key) gets removed from the
 //! map.
 //!
+//! \code
+//! weakObjMap->find_or_create(keyValue, []
+//!     {
+//!         return ref<myObject>::create();
+//!     });
+//! \endcode
+//!
+//! find_or_create() is mostly usefull with weak multimaps. It's atomically
+//! performs the following actions: checks every map value returned by
+//! equal_range(), and returns the first non-null value in the map, otherwise
+//! calls the lambda, inserts its return value into the map, with the given
+//! key, then returns the newly created value.
+//!
 //! \par Locking
 //!
 //! The reference-counted map's methods are thread-safe. All existing iterators

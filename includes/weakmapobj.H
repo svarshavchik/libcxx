@@ -249,6 +249,33 @@ public:
 				   ::readlock(lock->container())->find(key));
 	}
 
+	//! Find a key in the map, if not exists, create the value using the passed lambda
+	template<typename lambda_type>
+	ref<typename T::obj_type> find_or_create(//! The key to search for
+						 const K &key,
+
+						 //! If not found, call lambda
+						 lambda_type &&lambda)
+	{
+		std::unique_lock<std::mutex> object_lock(this->objmutex);
+
+		{
+			auto range=this->equal_range(key);
+
+			while (range.first != range.second)
+			{
+				auto ptr=range.first->second.getptr();
+				if (!ptr.null())
+					return ptr;
+				++range.first;
+			}
+		}
+		ref<typename T::obj_type> value=lambda();
+		insert(key, value);
+
+		return value;
+	}
+
 	//! Count number of entries in the map
 
 	size_t count(//! The key to search for)
