@@ -10,11 +10,13 @@ define reverse
 $(if $(1), $(call reverse,$(wordlist 2,$(words $(1)),$(1))) $(firstword $(1)))
 endef
 
+BUILT_SOURCES=abi.xml
+
 $(shell :)DIST_SUBDIRS=$(call reverse,$(SUBDIRS) benchmarks)
 
 DISTCHECK_CONFIGURE_FLAGS=--with-pkgconfigdir='$$(prefix)/local/pkgconf'
 man_MANS = properties.1 maillogs.1 httportmapd.8
-EXTRA_DIST=config.rpath DoxygenLayout.xml $(man_MANS) \
+EXTRA_DIST=config.rpath DoxygenLayout.xml abi.xml.in $(man_MANS) \
 	$(patsubst $(srcdir)/%,%, \
            $(wildcard $(srcdir)/examples/*.C) \
 	   $(wildcard $(srcdir)/examples/*/configure.ac) \
@@ -136,7 +138,7 @@ libcxx.pc: Makefile
 	echo "Cflags: -fno-omit-frame-pointer" >>libcxx.pc.tmp
 	mv -f libcxx.pc.tmp libcxx.pc
 
-CLEANFILES=libcxx.pc $(man_MANS)
+CLEANFILES=libcxx.pc abi.xml $(man_MANS)
 
 $(man_MANS): man.stamp
 	touch $@
@@ -147,6 +149,9 @@ man.stamp: $(wildcard docbook/man*.xml)
 	xsltproc --nonet -o manpages/ http://docbook.sourceforge.net/release/xsl/current/manpages/docbook.xsl docbook/book.xml; \
 	mv -f manpages/* . ; touch man.stamp
 	rm -rf manpages
+
+abi.xml: abi.xml.in config.status
+	sed 's~@INCLUDEDIR@~$(includedir)~;s~@LIBDIR@~$(libdir)~' <abi.xml.in >abi.xml.tmp; mv -f abi.xml.tmp abi.xml
 
 CLEANFILES += man.stamp
 

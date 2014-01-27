@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<version>
+  0.8
+</version>
+
+<headers>
+  @INCLUDEDIR@/x
+</headers>
+
+<libs>
+  @LIBDIR@/libcxx.so
+  @LIBDIR@/libcxxtls.so
+  @LIBDIR@/libcxxyaml.so
+</libs>
