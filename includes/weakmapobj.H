@@ -158,6 +158,10 @@ public:
 
 	typedef weakContainerObj<T, M, Allocator> weak_container_t;
 
+	//! The iterator class, defined in the superclass
+
+	typedef typename weak_container_t::iterator iterator;
+
 	//! The internal read lock object in the superclass
 
 	typedef typename weak_container_t::rlock rlock;
@@ -236,9 +240,8 @@ public:
 
 	//! Search the map for a key
 
-	typename weakContainerObj<T, M, Allocator>::iterator
-	find(//! The key to search for
-	     const K &key) const
+	iterator find(//! The key to search for
+		      const K &key) const
 	{
 		rlock lock = rlock::create(this);
 
@@ -259,9 +262,8 @@ public:
 
 	//! Retrieve the lower bound iterator for a given key
 
-	typename weakContainerObj<T, M, Allocator>::iterator
-	lower_bound(//! The key to search for
-		    const K &key) const
+	iterator lower_bound(//! The key to search for
+			     const K &key) const
 	{
 		rlock lock = rlock::create(this);
 		
@@ -272,9 +274,8 @@ public:
 
 	//! Retrieve the upper bound iterator for a given key
 
-	typename weakContainerObj<T, M, Allocator>::iterator
-	upper_bound(//! The key to search for
-		    const K &key) const
+	iterator upper_bound(//! The key to search for
+			     const K &key) const
 	{
 		rlock lock = rlock::create(this);
 		
@@ -285,10 +286,8 @@ public:
 
 	//! Retrieve the range iterator pair for a given key
 
-	std::pair<typename weakContainerObj<T, M, Allocator>::iterator,
-		  typename weakContainerObj<T, M, Allocator>::iterator>
-	equal_range(//! The key to search for
-		    const K &key) const
+	std::pair<iterator, iterator> equal_range(//! The key to search for
+						  const K &key) const
 	{
 		rlock lock = rlock::create(this);
 		
