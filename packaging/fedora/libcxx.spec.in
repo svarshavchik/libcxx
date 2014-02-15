@@ -8,6 +8,7 @@ Name: libcxx
 Version: @VERSION@
 Release: 1%{?extrarelease}
 License: GPL
+URL: http://www.libcxx.org
 Group: System Environment/Libraries
 Source0: %{name}-%{version}.tar.bz2
 

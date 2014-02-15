@@ -6,7 +6,8 @@
 #ifndef x_ondestroy_H
 #define x_ondestroy_H
 
-#include <x/ptr.H>
+#include <x/ref.H>
+#include <x/ondestroyfwd.H>
 #include <x/ondestroyobj.H>
 #include <x/mpobj.H>
 #include <x/namespace.h>
@@ -18,15 +19,6 @@ namespace LIBCXX_NAMESPACE {
 };
 #endif
 
-//! A destructor reference
-
-//! \see ptr
-//!
-typedef ref<ondestroyObj> ondestroy;
-
-//! A nullable pointer to a destructor reference
-
-typedef ptr<ondestroyObj> ondestroyptr;
 
 //! Proxy destructor callback used by onAnyDestroyed().
 
