@@ -1252,6 +1252,14 @@ static void teststreambufferobj() noexcept
 				throw EXCEPTION("fdstreambufObj test 7 failed");
 		}
 		testfile->close();
+
+		auto v=LIBCXX_NAMESPACE::vector<char>::base::load
+			(LIBCXX_NAMESPACE::fd::base::open("testfile.dat",
+							  O_RDONLY));
+
+		if (v->size() == 0)
+			throw EXCEPTION("fdstreambufObj test 8 failed");
+
 		unlink("testfile.dat");
 	} catch(const LIBCXX_NAMESPACE::exception &e)
 	{

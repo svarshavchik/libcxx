@@ -7,6 +7,7 @@
 #define x_vectorfwd_H
 
 #include <x/ptrfwd.H>
+#include <x/fdfwd.H>
 #include <memory>
 #include <x/namespace.h>
 
@@ -25,16 +26,22 @@ template<class T, class Allocator=std::allocator<T> > class vectorObj;
 //! have template typedefs, the typedef is defined within a templated class.
 //!
 //! \code
-//! vector<char>::ref_t vecref=vector<char>::ref_t::create();
+//! INSERT_LIBX_NAMESPACE::vector<char> vecref=INSERT_LIBX_NAMESPACE::vector<char>::create();
 //! \endcode
 //!
 //! This instantiates a new %vector object, and sets up its initial reference.
 //! \c vecref is a reference that can be freely passed around.
 //! \c *vecref may be used anywhere the equivalent \c std::vector is used.
 //! The %vector gets automatically destroyed when its last reference goes out
-//! of scope
+//! of scope.
 //!
-//! \see ptr
+//! \code
+//! auto vecref=INSERT_LIBX_NAMESPACE::vector<char>::base::load(INSERT_LIBX_NAMESPACE::fd::base::load("filename"));
+//! \endcode
+//!
+//! The load() constructor calls create(), then takes an opened
+//! \ref fd "INSERT_LIBX_NAMESPACE::fd" passes it to
+//! \ref fdObj::load "load"().
 
 template<class T, class Allocator=std::allocator<T> >
 using vector=ref<vectorObj<T, Allocator>, vectorBase<T, Allocator> >;
@@ -82,6 +89,17 @@ public:
 	//! A convenient typedef for the container type
 
 	typedef typename vectorObj<T, Allocator>::container container;
+
+	//! A constructor that loads the contents of the vector from a file.
+
+	static vector<T, Allocator> load(const fd &file)
+	{
+		auto v=vector<T, Allocator>::create();
+
+		v->load(file);
+
+		return v;
+	}
 };
 
 #if 0

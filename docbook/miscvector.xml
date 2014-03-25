@@ -34,6 +34,26 @@ See COPYING for distribution information.
     contents of a vector to a file (usable, of course, only with vectors of
     Plain Old Data).
   </para>
+
+  <blockquote>
+    <informalexample>
+      <programlisting>
+#include &lt;&ns;/vector.H&gt;
+#include &lt;&ns;/load.H&gt;
+
+auto fd=&ns;::fd::base::open("filename.txt");
+
+auto vecref=&ns;::vector&lt;char&gt;::base::load(fd);</programlisting>
+    </informalexample>
+  </blockquote>
+
+  <para>
+    The base class defins a
+    <methodname>load</methodname>() that takes an opened
+    <link linkend="fd"><classname>&ns;::fd</classname></link>,
+    calls <methodname>create</methodname>(), then loads the vector from the
+    opened file.
+  </para>
 </chapter>
 <!--
 Local Variables:
