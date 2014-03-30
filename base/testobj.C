@@ -117,6 +117,20 @@ public:
 	}
 };
 
+class derived : public base {
+
+public:
+
+	derived(int v) : base(v) {}
+	~derived() noexcept {}
+};
+
+class notderived : virtual public LIBCXX_NAMESPACE::obj {
+public:
+	notderived() {}
+	~notderived() noexcept {}
+};
+
 class threadtestinfo : virtual public LIBCXX_NAMESPACE::obj {
 
 public:
@@ -169,6 +183,9 @@ static void objtest()
 		p4=LIBCXX_NAMESPACE::ptr<base>::create(4),
 		p5=LIBCXX_NAMESPACE::ptr<base>::create(5), p6;
 
+	if (p4->isa<LIBCXX_NAMESPACE::ref<derived>>())
+		throw EXCEPTION("False derived");
+
 	p6=p5;
 	p5=p4;
 	std::cerr << "Swap completed" << std::endl;
@@ -195,6 +212,13 @@ static void objtest()
 	{
 		throw EXCEPTION("How did mpcobj get signaled?");
 	}
+
+	auto d=LIBCXX_NAMESPACE::ref<derived>::create(2);
+
+	if (!d->isa<LIBCXX_NAMESPACE::ref<derived>>() ||
+	    !d->isa<LIBCXX_NAMESPACE::ptr<base>>() ||
+	    d->isa<LIBCXX_NAMESPACE::ref<notderived>>())
+		throw EXCEPTION("isa() test failed");
 }
 
 static void threadtest()

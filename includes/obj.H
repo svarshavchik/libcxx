@@ -1,5 +1,5 @@
 /*
-** Copyright 2012 Double Precision, Inc.
+** Copyright 2012-2014 Double Precision, Inc.
 ** See COPYING for distribution information.
 */
 
@@ -66,6 +66,20 @@ template<class refType> class weakptr;
 //! \ref ptr "ptr" template class for more information.
 //!
 //! \see ptr
+//!
+//! \code
+//! typedef INSERT_LIBX_NAMESPACE::ref<aObj> a;
+//!
+//! typedef INSERT_LIBX_NAMESPACE::ref<bObj> b;
+//!
+//! bool am_i_really_b(const a &A)
+//! {
+//!      return A->isa<b>();
+//! }
+//! \endcode
+//!
+//! isa() is a convenience method for trying a dynamic cast to another
+//! \ref ref "ref"'s or \ref ptr "ptr"'s object.
 
 class obj : public refcnt, public notcopyableObj {
 
@@ -104,6 +118,16 @@ public:
 	//! goes down to zero.
 
 	void destroy() noexcept;
+
+	//! Whether this object is a specific subclass.
+
+	template<typename ref_or_ptr_type>
+	bool isa() const
+	{
+		return dynamic_cast<const typename ref_or_ptr_type::obj_type *>
+			(this)
+			!= nullptr;
+	}
 public:
 	template<typename baseType> friend class ptrImpl;
 	template<typename baseClass> friend class ptrBase;

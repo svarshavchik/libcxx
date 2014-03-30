@@ -1324,6 +1324,37 @@ class main_window : virtual private &ns;::final_class&lt;main_window&gt; {
     </para>
   </section>
 
+  <section id="isa">
+    <title><methodname>isa</methodname>()</title>
+
+    <blockquote>
+      <informalexample>
+	<programlisting>
+
+typedef &ns;::ref&lt;buttonObj&gt; button;
+
+typedef &ns;::ref&lt;windowObj&gt; window;
+
+bool is_a_button(const window &amp;w)
+{
+    return w->isa&lt;button&gt;();
+}</programlisting>
+      </informalexample>
+    </blockquote>
+
+    <para>
+      The <methodname>isa</methodname>() <classname>&ns;::obj</classname>
+      method takes an &reforptr; template parameter, and returns true if
+      an &reforptr; to this object is capable of getting dynamically casted
+      to the template &reforptr;.
+    </para>
+
+    <para>
+      This is equivalent to <quote>dynamic_cast&lt;buttonObj *&gt;(&amp;*w)</quote>,
+      but with a clean syntax.
+    </para>
+  </section>
+
   <section id="weakptr">
     <title>Weak pointers</title>
 

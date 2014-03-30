@@ -102,6 +102,7 @@ include/x/fileattr.H
 include/x/fileattrobj.H
 include/x/filestat.H
 include/x/filestatobj.H
+include/x/final_class.H
 include/x/fmtsize.H
 include/x/forkexec.H
 include/x/ftp/client.H
@@ -297,8 +298,10 @@ include/x/netaddrresultobj.H
 include/x/netif.H
 include/x/netifobj.H
 include/x/nonconst_type.H
+include/x/notcopyableobj.H
 include/x/obj.H
 include/x/ondestroy.H
+include/x/ondestroyfwd.H
 include/x/ondestroyobj.H
 include/x/opendirobj.H
 include/x/option_definitionbaseobj.H
@@ -386,6 +389,7 @@ include/x/stopexception.H
 include/x/stoppable.H
 include/x/strftime.H
 include/x/strftimefwd.H
+include/x/strsplit.H
 include/x/strtok.H
 include/x/sys/clockt.h
 include/x/sys/credentialssys.h
