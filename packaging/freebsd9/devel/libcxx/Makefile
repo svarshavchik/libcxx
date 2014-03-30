@@ -69,6 +69,9 @@ post-install:
 	# PKG_PREFIX=${PREFIX} ${SH} ${PKGINSTALL} ${PKGNAME} POST-INSTALL
 	mkdir -p $(STAGEDIR)$(PREFIX)/etc/periodic/monthly
 	ln -fs ../../../libexec/libcxx/tlsparamsgen.sh $(STAGEDIR)$(PREFIX)/etc/periodic/monthly/tlsparamsgen.sh
+	rm $(STAGEDIR)$(PREFIX)/lib/libcxx.la
+	rm $(STAGEDIR)$(PREFIX)/lib/libcxxtls.la
+	rm $(STAGEDIR)$(PREFIX)/lib/libcxxyaml.la
 
 post-deinstall:
 	# PKG_PREFIX=${PREFIX} ${SH} ${PKGDEINSTALL} ${PKGNAME} POST-DEINSTALL

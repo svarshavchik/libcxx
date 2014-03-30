@@ -81,6 +81,9 @@ chmod 600 $RPM_BUILD_ROOT%{_localstatedir}/run/httportmap.lock
 
 %{__mkdir_p} $RPM_BUILD_ROOT%{_sysconfdir}/cron.monthly
 %{__ln_s} %{_sbindir}/tlsparamsgen.sh $RPM_BUILD_ROOT%{_sysconfdir}/cron.monthly/tlsparamsgen
+
+rm -f $RPM_BUILD_ROOT%{_libdir}/*.la
+
 %clean
 rm -rf $RPM_BUILD_ROOT
 
@@ -138,7 +141,6 @@ fi
 %files devel
 %defattr(-,root,root,-)
 %{_libdir}/*.so
-%{_libdir}/*.la
 %{_libdir}/*.a
 %{_libdir}/pkgconfig/*
 %{_includedir}/*

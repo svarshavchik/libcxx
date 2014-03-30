@@ -519,15 +519,12 @@ include/x/ymdhms.H
 include/x/ymdhmsbase.H
 include/x/ymdhmsfwd.H
 lib/libcxx.a
-lib/libcxx.la
 lib/libcxx.so
 lib/libcxx.so.9
 lib/libcxxtls.a
-lib/libcxxtls.la
 lib/libcxxtls.so
 lib/libcxxtls.so.9
 lib/libcxxyaml.a
-lib/libcxxyaml.la
 lib/libcxxyaml.so
 lib/libcxxyaml.so.9
 libdata/pkgconfig/libcxx.pc

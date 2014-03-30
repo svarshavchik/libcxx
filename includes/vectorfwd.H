@@ -41,7 +41,7 @@ template<class T, class Allocator=std::allocator<T> > class vectorObj;
 //!
 //! The load() constructor calls create(), then takes an opened
 //! \ref fd "INSERT_LIBX_NAMESPACE::fd" passes it to
-//! \ref fdObj::load "load"().
+//! \ref vectorObj::load "load"().
 
 template<class T, class Allocator=std::allocator<T> >
 using vector=ref<vectorObj<T, Allocator>, vectorBase<T, Allocator> >;
