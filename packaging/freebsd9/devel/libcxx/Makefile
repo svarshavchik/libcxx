@@ -62,7 +62,7 @@ post-install:
 	$(INSTALL_DATA) $(WRKDIR)/apache.conf $(STAGEDIR)$(PREFIX)/share/libcxx
 	${CHMOD} 700 $(STAGEDIR)$(PREFIX)/libexec/libcxx/tlsparamsgen.sh
 	sed "s@gnutls@gnutls3@;s@^Cflags:@Cflags: -I$(PREFIX)/include/gnutls3@" <$(STAGEDIR)$(PREFIX)/libdata/pkgconfig/libcxx.pc >$(STAGEDIR)$(PREFIX)/libdata/pkgconfig/libcxx.pc.tmp
-	echo 'Libs: -R$(PREFIX)/lib/$(CC) -R$(PREFIX)/lib -L$(PREFIX)/lib/$(CC) -L$(PREFIX)/lib' >>$(STAGEDIR)$(PREFIX)/libdata/pkgconfig/libcxx.pc.tmp
+	echo 'Libs: -R$(PREFIX)/lib/$(CC) -R$(PREFIX)/lib -L$(PREFIX)/lib/$(CC) -L$(PREFIX)/lib -lintl' >>$(STAGEDIR)$(PREFIX)/libdata/pkgconfig/libcxx.pc.tmp
 	mv -f $(STAGEDIR)$(PREFIX)/libdata/pkgconfig/libcxx.pc.tmp $(STAGEDIR)$(PREFIX)/libdata/pkgconfig/libcxx.pc
 	chmod 444 $(STAGEDIR)$(PREFIX)/libdata/pkgconfig/libcxx.pc
 	for f in /etc/tlsparams/system.dh.conf /var/tlsparams/system.dh ; do mv -f $(STAGEDIR)$(PREFIX)$$f $(STAGEDIR)$(PREFIX)$$f.dist; done
