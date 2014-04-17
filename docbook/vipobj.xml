@@ -496,6 +496,26 @@ x::ref&lt;vipnotifyObj&gt; handler;
       invoking their <methodname>notify</methodname>() methods.
     </para>
 
+    <blockquote>
+      <informalexample>
+	<programlisting>
+
+&ns;::eventcallbackbase&lt;vipintvalue&gt; callback=
+   hl.install_callback([]
+                       (vipintvalue n)
+                       {
+                           // ...
+                       }, val);</programlisting>
+      </informalexample>
+    </blockquote>
+
+    <para>
+      <methodname>install_callback</methodname>() is a wrapper for
+      <methodname>install</methodname>() that installs a callback
+      that invokes the given lambda.
+      <methodname>install_callback</methodname>() returns the installed
+      callback object.
+    </para>
   </section>
 
   <section id="vipobjtrylock">

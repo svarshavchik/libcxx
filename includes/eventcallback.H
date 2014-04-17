@@ -50,6 +50,13 @@ public:
 	virtual void event()=0;
 };
 
+//! A reference to the base callback class
+
+//! \see eventcallback
+
+template<typename arg_type>
+using eventcallbackbase=ref<eventcallbackbaseObj<arg_type>>;
+
 //! Default handler invocation implementation
 
 template<typename arg_type,
@@ -126,15 +133,23 @@ class eventcallback {
 
 	typedef eventcallback<arg_type, handler_type, invoke_type> thisclass_t;
 
-	//! Not implemented
-
-	eventcallback(const thisclass_t &);
-
-	//! Not implemented
-
-	thisclass_t &operator=(const thisclass_t &);
-
 public:
+
+	//! Not implemented
+
+	eventcallback(const thisclass_t &)=delete;
+
+	//! Not implemented
+
+	thisclass_t &operator=(const thisclass_t &)=delete;
+
+	//! Not implemented
+
+	eventcallback(thisclass_t &&)=delete;
+
+	//! Not implemented
+
+	thisclass_t &operator=(thisclass_t &&)=delete;
 
 	//! Base class for reference class instances registered by install()
 
@@ -167,6 +182,52 @@ public:
 	void install(const ref<baseObj> &callback)
 	{
 		callback_list->push_back(callback);
+	}
+
+	//! Helper class for using a lambda as a callback.
+
+	template<typename lambda_type>
+	class lambdaBaseHelperObj : public baseObj {
+
+	public:
+		//! The lambda
+		lambda_type lambda;
+
+		//! Constructor
+		template<typename argType>
+		lambdaBaseHelperObj(argType &&arg)
+			: lambda(std::forward<argType>(arg))
+		{
+		}
+
+		//! Destructor
+		~lambdaBaseHelperObj() noexcept
+		{
+		}
+
+		//! Forward event() to the lambda
+		void event(const arg_type &arg) override
+		{
+			lambda(arg);
+		}
+	};
+
+	//! Install a callback that invokes a lambda.
+
+	//! This is available only when this template uses the
+	//! default eventcallbackbaseObj value for the second template
+	//! parameter.
+
+	template<typename lambda_type>
+	ref<baseObj> install_callback(lambda_type &&lambda)
+	{
+		auto cb=ref<lambdaBaseHelperObj<
+				    typename std::decay<lambda_type>::type>>
+			::create(std::forward<lambda_type>(lambda));
+
+		install(cb);
+
+		return cb;
 	}
 
 	//! Invoke all the registered callbacks
@@ -205,15 +266,24 @@ class eventcallback<void, handler_type, invoke_type> {
 
 	typedef eventcallback<void, handler_type, invoke_type> thisclass_t;
 
-	//! Not implemented
-
-	eventcallback(const thisclass_t &);
-
-	//! Not implemented
-
-	thisclass_t &operator=(const thisclass_t &);
-
 public:
+
+	//! Not implemented
+
+	eventcallback(const thisclass_t &)=delete;
+
+	//! Not implemented
+
+	thisclass_t &operator=(const thisclass_t &)=delete;
+
+	//! Not implemented
+
+	eventcallback(thisclass_t &&)=delete;
+
+	//! Not implemented
+
+	thisclass_t &operator=(thisclass_t &&)=delete;
+
 
 	//! Base class for reference class instances registered by install()
 
@@ -247,6 +317,47 @@ public:
 	void install(const ref<baseObj> &callback)
 	{
 		callback_list->push_back(callback);
+	}
+	//! Helper class for using a lambda as a callback.
+
+	template<typename lambda_type>
+	class lambdaBaseHelperObj : public baseObj {
+
+	public:
+		//! The lambda
+		lambda_type lambda;
+
+		//! Constructor
+		template<typename argType>
+		lambdaBaseHelperObj(argType &&arg)
+			: lambda(std::forward<argType>(arg))
+		{
+		}
+
+		//! Destructor
+		~lambdaBaseHelperObj() noexcept
+		{
+		}
+
+		//! Forward event() to the lambda
+		void event() override
+		{
+			lambda();
+		}
+	};
+
+	//! Install a callback that invokes a lambda
+
+	template<typename lambda_type>
+	ref<baseObj> install_callback(lambda_type &&lambda)
+	{
+		auto cb=ref<lambdaBaseHelperObj<
+				    typename std::decay<lambda_type>::type>>
+			::create(std::forward<lambda_type>(lambda));
+
+		install(cb);
+
+		return cb;
 	}
 
 	//! Invoke all the registered callbacks

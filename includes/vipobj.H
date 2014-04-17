@@ -227,6 +227,33 @@ public:
 
 			initial_invoke_type::event(h, v);
 		}
+
+		//! Register a new lambda
+
+		//! The callback gets immediately invoked with the object
+		//! value.
+		//! This is available only when this template uses the
+		//! default eventcallbackbaseObj value for the second template
+		//! parameter.
+
+		template<typename lambda_type>
+		ref<handler_type>
+		install_callback(//! The handler being installed
+				 lambda_type &&lambda,
+
+				 //! The alleged initial value of the very important object
+
+				 const arg_type &v)
+		{
+			ref<handler_type> h=
+				objp.callbacks
+				.install_callback(std::forward<lambda_type>
+						  (lambda));
+
+			initial_invoke_type::event(h, v);
+			return h;
+		}
+
 	};
 };
 

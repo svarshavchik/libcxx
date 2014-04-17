@@ -80,6 +80,31 @@ callback_list.event(3);</programlisting>
     take arguments.
   </para>
 
+  <section id="eventcallbacklambda">
+    <title>Using lambdas as callbacks</title>
+
+    <blockquote>
+      <informalexample>
+	<programlisting>
+
+&ns;::eventcallbackbase&lt;int&gt; callback=
+   callback_list.install_callback([]
+                                 (int n)
+                                 {
+                                    // ...
+                                 });</programlisting>
+      </informalexample>
+    </blockquote>
+
+    <para>
+      <methodname>install_callback</methodname>() is a wrapper for
+      <methodname>install</methodname>() that installs a callback
+      that invokes the given lambda.
+      <methodname>install_callback</methodname>() returns the installed
+      callback object.
+    </para>
+  </section>
+
   <section id="customeventcallbacks">
     <title>Using the same callback objects for multiple callbacks</title>
 
@@ -174,4 +199,9 @@ cb_void.event();</programlisting>
   </section>
 </chapter>
 
-
+<!--
+Local Variables:
+mode: sgml
+sgml-parent-document: ("book.xml" "book" "chapter")
+End:
+-->

@@ -51,6 +51,18 @@ void test1()
 
 	if (a->sum != 5)
 		throw EXCEPTION("Second event failed");
+
+	int n=0;
+
+	auto lambda=cb.install_callback([&n]
+					(int a)
+					{
+						n += a;
+					});
+	cb.event(9);
+
+	if (n != 9)
+		throw EXCEPTION("install_callback failed");
 }
 
 class mycbvoidObj : public LIBCXX_NAMESPACE::eventcallback<void>::baseObj {
@@ -86,6 +98,17 @@ void test2()
 
 	if (cb->counter != 1)
 		throw EXCEPTION("test2 failed");
+
+	int n=0;
+
+	auto lambda=cblist.install_callback([&n]
+					    {
+						    ++n;
+					    });
+	cblist.event();
+
+	if (n != 1)
+		throw EXCEPTION("install_callback failed");
 }
 
 class customcbObj : virtual public LIBCXX_NAMESPACE::obj {
@@ -288,6 +311,28 @@ void test4()
 	}		
 }
 
+void test5()
+{
+	typedef LIBCXX_NAMESPACE::vipobj<int> vip_t;
+
+	vip_t v(2);
+
+	int n=0;
+
+	vip_t::readlock l(v);
+
+	vip_t::handlerlock h(v);
+
+	LIBCXX_NAMESPACE::eventcallbackbase<int>
+		ref=h.install_callback([&n]
+				       (int value)
+				       {
+					       n=value;
+				       }, *l);
+
+	if (n != 2)
+		throw EXCEPTION("test5 failed");
+}
 
 int main(int argc, char **argv)
 {
@@ -297,6 +342,7 @@ int main(int argc, char **argv)
 		test2();
 		test3();
 		test4();
+		test5();
 	} catch (const LIBCXX_NAMESPACE::exception &e)
 	{
 		std::cerr << e << std::endl;

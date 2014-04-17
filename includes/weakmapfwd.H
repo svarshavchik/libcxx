@@ -8,6 +8,7 @@
 
 #include <x/ref.H>
 #include <x/ptr.H>
+#include <x/weakptrfwd.H>
 #include <map>
 namespace LIBCXX_NAMESPACE {
 #if 0
