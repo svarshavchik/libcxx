@@ -483,6 +483,11 @@ x::ref&lt;vipnotifyObj&gt; handler;
     </para>
 
     <para>
+      The second parameter, the current value, is optional. If not specified,
+      the newly installed callback does not get invoked after installation.
+    </para>
+
+    <para>
       The above example releases the read lock before installing the handler.
       It's permissible to acquire, and hold, read or write locks, while
       invoking <methodname>install</methodname>(). Of course, that affects the
@@ -499,21 +504,24 @@ x::ref&lt;vipnotifyObj&gt; handler;
     <blockquote>
       <informalexample>
 	<programlisting>
-
 &ns;::eventcallbackbase&lt;vipintvalue&gt; callback=
-   hl.install_callback([]
-                       (vipintvalue n)
-                       {
-                           // ...
-                       }, val);</programlisting>
+   hl.create_callback([]
+                     (vipintvalue n)
+                     {
+                         // ...
+                     });
+
+   hl.install(callback, val);</programlisting>
       </informalexample>
     </blockquote>
 
     <para>
-      <methodname>install_callback</methodname>() is a wrapper for
-      <methodname>install</methodname>() that installs a callback
+      The
+      <methodname>create_callback</methodname>() method takes a lambda
+      and creates a callback object, suitable for
+      <methodname>install</methodname>()ation,
       that invokes the given lambda.
-      <methodname>install_callback</methodname>() returns the installed
+      <methodname>crate_callback</methodname>() returns the new
       callback object.
     </para>
   </section>

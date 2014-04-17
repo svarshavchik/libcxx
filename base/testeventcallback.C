@@ -54,11 +54,13 @@ void test1()
 
 	int n=0;
 
-	auto lambda=cb.install_callback([&n]
-					(int a)
-					{
-						n += a;
-					});
+	auto lambda=cb.create_callback([&n]
+				       (int a)
+				       {
+					       n += a;
+				       });
+	cb.install(lambda);
+
 	cb.event(9);
 
 	if (n != 9)
@@ -101,10 +103,11 @@ void test2()
 
 	int n=0;
 
-	auto lambda=cblist.install_callback([&n]
-					    {
-						    ++n;
-					    });
+	auto lambda=cblist.create_callback([&n]
+					   {
+						   ++n;
+					   });
+	cblist.install(lambda);
 	cblist.event();
 
 	if (n != 1)
@@ -324,11 +327,13 @@ void test5()
 	vip_t::handlerlock h(v);
 
 	LIBCXX_NAMESPACE::eventcallbackbase<int>
-		ref=h.install_callback([&n]
-				       (int value)
-				       {
-					       n=value;
-				       }, *l);
+		ref=v.create_callback([&n]
+				      (int value)
+				      {
+					      n+=value;
+				      });
+	h.install(ref, *l);
+	h.install(ref);
 
 	if (n != 2)
 		throw EXCEPTION("test5 failed");

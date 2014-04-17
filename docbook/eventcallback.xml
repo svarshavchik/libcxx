@@ -86,21 +86,24 @@ callback_list.event(3);</programlisting>
     <blockquote>
       <informalexample>
 	<programlisting>
-
-&ns;::eventcallbackbase&lt;int&gt; callback=
-   callback_list.install_callback([]
+&ns;::eventcallbackbase&lt;int&gt;
+   callback=callback_list.create_callback([]
                                  (int n)
                                  {
                                     // ...
-                                 });</programlisting>
+                                 });
+
+callback_list.install(callback);</programlisting>
       </informalexample>
     </blockquote>
 
     <para>
-      <methodname>install_callback</methodname>() is a wrapper for
-      <methodname>install</methodname>() that installs a callback
+      The
+      <methodname>create_callback</methodname>() method takes a lambda
+      and creates a callback object, suitable for
+      <methodname>install</methodname>()ation,
       that invokes the given lambda.
-      <methodname>install_callback</methodname>() returns the installed
+      <methodname>crate_callback</methodname>() returns the new
       callback object.
     </para>
   </section>

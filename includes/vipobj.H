@@ -1,5 +1,5 @@
 /*
-** Copyright 2012 Double Precision, Inc.
+** Copyright 2012-2014 Double Precision, Inc.
 ** See COPYING for distribution information.
 */
 
@@ -81,8 +81,11 @@ template<typename obj_type,
 	 typename rwmutex_type=rwmutex>
 class vipobj : public sipobj<obj_type, rwmutex_type> {
 
+	//! Container for a  list of registered callbacks.
+	typedef eventcallback<arg_type, handler_type, invoke_type> callbacks_t;
+
 	//! A list of registered callbacks
-	eventcallback<arg_type, handler_type, invoke_type> callbacks;
+	callbacks_t callbacks;
 
 	//! A lock on updates to the callback handlers
 	rwmutex_type updlock;
@@ -109,6 +112,15 @@ public:
 	friend class updatelock;
 	friend class handlerlock;
 
+	//! Helper template that creates a callback that invokes a lambda.
+
+	//! The returned callback
+	template<typename lambda_type>
+	static ref<handler_type> create_callback(lambda_type &&lambda)
+	{
+		return callbacks_t
+			::create_callback(std::forward<lambda_type>(lambda));
+	}
 
 	//! Update the value of the VIP object
 
@@ -221,39 +233,22 @@ public:
 			     //! The alleged initial value of the very important object
 
 			     const arg_type &v)
-
 		{
 			objp.callbacks.install(h);
 
 			initial_invoke_type::event(h, v);
 		}
 
-		//! Register a new lambda
+		//! Register a new callback without immediately invoking it.
 
 		//! The callback gets immediately invoked with the object
 		//! value.
-		//! This is available only when this template uses the
-		//! default eventcallbackbaseObj value for the second template
-		//! parameter.
 
-		template<typename lambda_type>
-		ref<handler_type>
-		install_callback(//! The handler being installed
-				 lambda_type &&lambda,
-
-				 //! The alleged initial value of the very important object
-
-				 const arg_type &v)
+		void install(//! The handler being installed
+			     const ref<handler_type> &h)
 		{
-			ref<handler_type> h=
-				objp.callbacks
-				.install_callback(std::forward<lambda_type>
-						  (lambda));
-
-			initial_invoke_type::event(h, v);
-			return h;
+			objp.callbacks.install(h);
 		}
-
 	};
 };
 

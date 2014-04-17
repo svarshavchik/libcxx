@@ -1,5 +1,5 @@
 /*
-** Copyright 2012 Double Precision, Inc.
+** Copyright 2012-2014 Double Precision, Inc.
 ** See COPYING for distribution information.
 */
 
@@ -187,7 +187,7 @@ public:
 	//! Helper class for using a lambda as a callback.
 
 	template<typename lambda_type>
-	class lambdaBaseHelperObj : public baseObj {
+	class lambdaBaseHelperObj : public handler_type {
 
 	public:
 		//! The lambda
@@ -212,22 +212,14 @@ public:
 		}
 	};
 
-	//! Install a callback that invokes a lambda.
-
-	//! This is available only when this template uses the
-	//! default eventcallbackbaseObj value for the second template
-	//! parameter.
+	//! Helper template that creates a callback that invokes a lambda.
 
 	template<typename lambda_type>
-	ref<baseObj> install_callback(lambda_type &&lambda)
+	static ref<handler_type> create_callback(lambda_type &&lambda)
 	{
-		auto cb=ref<lambdaBaseHelperObj<
-				    typename std::decay<lambda_type>::type>>
+		return ref<lambdaBaseHelperObj<
+				   typename std::decay<lambda_type>::type>>
 			::create(std::forward<lambda_type>(lambda));
-
-		install(cb);
-
-		return cb;
 	}
 
 	//! Invoke all the registered callbacks
@@ -318,6 +310,7 @@ public:
 	{
 		callback_list->push_back(callback);
 	}
+
 	//! Helper class for using a lambda as a callback.
 
 	template<typename lambda_type>
@@ -346,18 +339,14 @@ public:
 		}
 	};
 
-	//! Install a callback that invokes a lambda
+	//! Helper template that creates a callback that invokes a lambda.
 
 	template<typename lambda_type>
-	ref<baseObj> install_callback(lambda_type &&lambda)
+	ref<baseObj> create_callback(lambda_type &&lambda)
 	{
-		auto cb=ref<lambdaBaseHelperObj<
-				    typename std::decay<lambda_type>::type>>
+		return ref<lambdaBaseHelperObj<
+				   typename std::decay<lambda_type>::type>>
 			::create(std::forward<lambda_type>(lambda));
-
-		install(cb);
-
-		return cb;
 	}
 
 	//! Invoke all the registered callbacks
