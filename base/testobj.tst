@@ -5,6 +5,8 @@ p4 erased
 Destroyed 4
 p5 erased
 Exception thrown
+Created 2
+Destroyed 2
 Destroyed 5
 Null ptr dereference
 x::custom_exceptionObj<custom_exception1>

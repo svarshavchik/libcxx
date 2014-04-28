@@ -80,18 +80,28 @@ public:
 			if (stopped)
 				return;
 
+			auto wait_for_all_threads_to_stop=[]
+				{
+					return thread_counter == 0;
+				};
+
+			// Give a 10 second grace period for all threads to
+			// hara-kiri themselves. Then, if there are still
+			// threads running, complain, and wait 50 more seconds.
+
+			cleanup_thread_cond
+				.wait_for(lock,
+					  std::chrono::seconds(10),
+					  wait_for_all_threads_to_stop);
+
 			if (thread_counter)
 			{
 				std::cerr << "Warning: waiting for all threads to stop"
 					  << std::endl;
 
 				if (!cleanup_thread_cond
-				    .wait_for(lock, std::chrono::seconds(60),
-					      []
-					      {
-						      return thread_counter
-							      == 0;
-					      }))
+				    .wait_for(lock, std::chrono::seconds(50),
+					      wait_for_all_threads_to_stop))
 				{
 					std::cerr << "Fatal: threads remain at exit"
 						  << std::endl;
