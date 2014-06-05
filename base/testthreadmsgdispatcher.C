@@ -1,10 +1,11 @@
 /*
-** Copyright 2012 Double Precision, Inc.
+** Copyright 2012-2014 Double Precision, Inc.
 ** See COPYING for distribution information.
 */
 
 #include "libcxx_config.h"
 #include "eventqueuemsgdispatcher.H"
+#include "threadeventqueuemsgdispatcher.H"
 #include "threads/run.H"
 
 #include <vector>
@@ -70,6 +71,22 @@ public:
 
 typedef LIBCXX_NAMESPACE::ptr<mythreadObj> mythread;
 
+class mythread2Obj : public LIBCXX_NAMESPACE::threadeventqueuemsgdispatcherObj<mythread2Obj> {
+
+public:
+
+	mythread2Obj() {}
+	~mythread2Obj() noexcept {}
+
+	void run(const LIBCXX_NAMESPACE::ref<LIBCXX_NAMESPACE::obj> &mcguffin,
+		 const msgqueue_t &q,
+		 int foo)
+	{
+		while (1)
+			q->pop()->dispatch();
+	}
+};
+
 int main(int argc, char **argv)
 {
 	try {
@@ -92,6 +109,12 @@ int main(int argc, char **argv)
 		if (mythr->sum != 7)
 			throw EXCEPTION("Unexpected result from test message");
 
+		auto t2=LIBCXX_NAMESPACE::ref<mythread2Obj>::create();
+
+		auto t2_thread=t2->run_thread(2);
+		t2->stop();
+		t2_thread->wait();
+		t2->stop();
 	} catch (LIBCXX_NAMESPACE::exception &e)
 	{
 		std::cerr << e << std::endl;

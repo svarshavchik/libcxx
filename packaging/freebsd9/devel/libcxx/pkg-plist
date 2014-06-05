@@ -406,6 +406,8 @@ include/x/sys/timerfdsys.h
 include/x/sys/valueimpl64sys.h
 include/x/sys/xattrsys.h
 include/x/sysexception.H
+include/x/threadeventqueuemsgdispatcher.H
+include/x/threadeventqueuemsgdispatcherfwd.H
 include/x/threadlocale.H
 include/x/threads/run.H
 include/x/threads/runfwd.H

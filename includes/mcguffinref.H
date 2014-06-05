@@ -60,18 +60,9 @@ public:
 	}
 };
 
-//! A reference that depends on a mcguffin
+//! Mcguffin-based reference
 
-//! After constructing this object, invoke install() with a reference and
-//! a \ref ptr "mcguffin".
-//!
-//! Use getptr() to retrieve the previously installed reference.
-//!
-//! When the mcguffin gets destroyed, getptr() returns null from that point on.
-//!
-//! destroyed(), if defined by the subclass, gets invoked when the mcguffin
-//! gets destroyed, and received the installed reference. getptr() already
-//! returns null, destroyed() in the subclass gets last dibs on it.
+//! \see mcguffinref
 
 template<typename ref_type>
 class mcguffinrefObj : virtual public obj {
@@ -137,6 +128,22 @@ public:
 	{
 	}
 };
+
+//! A reference that depends on a mcguffin
+
+//! After constructing this object, invoke its install() with a reference and
+//! a \ref ptr "mcguffin".
+//!
+//! Use getptr() to retrieve the previously installed reference.
+//!
+//! When the mcguffin gets destroyed, getptr() returns null from that point on.
+//!
+//! destroyed(), if defined by the subclass, gets invoked when the mcguffin
+//! gets destroyed, and received the installed reference. getptr() already
+//! returns null, destroyed() in the subclass gets last dibs on it.
+
+template<typename objClass>
+using mcguffinref=ref<mcguffinrefObj<ptr<objClass>>>;
 
 #if 0
 {

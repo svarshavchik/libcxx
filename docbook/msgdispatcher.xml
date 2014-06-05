@@ -81,12 +81,15 @@ See COPYING for distribution information.
     that constructs messages and puts them into a message queue by
     calling a pure virtual <methodname>event</methodname>(). A subclass
     implements <methodname>event</methodname>().
-    There are two available implementations.
+    There are three available implementations.
     <ulink url="&link-x--eventqueuemsgdispatcherObj;"><classname>&ns;::eventqueuemsgdispatcherObj</classname></ulink>
     is a subclass that uses an <link linkend="eventfd">event file
       descriptor</link>-based message queue and implemens
     <methodname>event</methodname> by putting the message into the
     event queue.
+    The <classname>&ns;::threadeventqueuemsgdispatcherObj</classname> template
+    class is an alternative event file descriptor-based queue implementation
+    that's discussed later.
     <ulink url="&link-x--dequemsgdispatcherObj;"><classname>&ns;::dequemsgdispatcherObj</classname></ulink> is a subclass that uses a regular, mutex-protected,
     queue.
   </para>
@@ -1691,6 +1694,94 @@ $(call MSGDISPATCHER_GEN,errorlog,all)
       that the message was not processed (the return value object is
       presumably instantiated indicating that the corresponding message
       is not processed).
+    </para>
+
+    <para>
+      Another alternative is to use
+      <ulink url="&link-typedef-x-threadeventqueuemsgdispatcher;"><classname>&ns;::threadeventqueuemsgdispatcher</classname></ulink>:
+    </para>
+    <blockquote>
+      <informalexample>
+	<programlisting>
+#include &lt;&ns;/threadeventqueuemsgdispatcher.H&gt;
+
+class mythread2Obj : public &ns;::threadeventqueuemsgdispatcherObj&lt;mythread2Obj&gt; {
+
+public:
+
+	mythread2Obj() {}
+	~mythread2Obj() noexcept {}
+
+	void run(const &ns;::ref&lt;&ns;::obj&gt; &amp;mcguffin,
+		 const msgqueue_t &amp;q,
+		 int foo)
+	{
+		while (1)
+			q-&gt;pop()->dispatch();
+	}
+};
+
+// ...
+
+auto &ns;::threadeventqueuemsgdispatcher&lt;mythread2Obj&gt; thread=&ns;::ref&lt;mythread2Obj&gt;::create();
+
+auto runthread=t2-&gt;run_thread(2);</programlisting>
+      </informalexample>
+    </blockquote>
+
+    <para>
+      <classname>&ns;::threadeventqueuemsgdispatcherObj's</classname> template
+      parameter is its subclass. Its <methodname>run_thread</methodname>()
+      method invokes its subclass's <methodname>run</methodname>() in a
+      new thread via
+      <link linkend="ethreads"><function>&ns;::run</function>()</link>,
+      returning the
+      <ulink url="&link-typedef-x-runthread;"><classname>&ns;::runthread&lt;<replaceable>T</replaceable>&gt;</classname></ulink>
+      return value from <function>&ns;::run</function>().
+      The first parameter the subclass's <methodname>run</methodname>()
+      receives is an opaque <link linkend="ondestroy">mcguffin</link>, the
+      second parameter to the thread's <classname>msgqueue_t</classname>,
+      message queue.
+    </para>
+
+    <para>
+      Any additional parameters to <methodname>&ns;::run_thread</methodname>()
+      get forwarded to subclass's <methodname>run</methodname>().
+      <classname>&ns;::threadeventqueuemsgdispatcherObj</classname>
+      implements the same <methodname>event</methodname>() method that
+      <classname>&ns;::eventqueuemsgdispatcherObj</classname> does, and
+      that works interchangably with
+      <link linkend="msgdispatchergen">stylesheet-generated</link> code.
+      The subclass must keep the mcguffin and the event queue parameters
+      on its execution stack. When the thread terminates, they go
+      out of scope and get destroyed.
+    </para>
+
+    <para>
+      After the execution thread terminates, the event queue file descriptor
+      based message queue also gets destroyed together with any unprocessed
+      messages, and any additional calls to <methodname>event</methodname>()
+      return immediately; unlike
+      <classname>&ns;::eventqueuemsgdispatcherObj</classname> whose
+      event queue continues to exist as long as the object itself remains
+      in scope; its messages will only get processed if another thread
+      gets started.
+    </para>
+
+    <para>
+      <classname>&ns;::threadeventqueuemsgdispatcherObj</classname> multiply
+      inherits from
+      <link linkend="threadsuperclasses"><classname>&ns;::runthreadsingleton</classname></link>,
+      only one execution thread can be started by
+      <methodname>run_thread</methodname>() for the same object.
+      <methodname>run_thread</methodname>() creates a new event queue using
+      a new event file descriptor, that gets subsequently used by
+      <methodname>event</methodname>() until the execution thread terminates
+      and the event queue goes out of scope and gets destroyed.
+      <methodname>run_thread_using_eventfd</methodname>() constructs the
+      event queue using the event file descriptor as its first parameter,
+      and the remaining parameters get forwarded to
+      <methodname>run</methodname>().
     </para>
   </section>
 </chapter>
