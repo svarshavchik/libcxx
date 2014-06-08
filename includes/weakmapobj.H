@@ -88,8 +88,8 @@ public:
 
 //! Weak reference map container implementation
 
-//! This subclass of weakContainerObj implements the container as a
-//! std::map, and provides the insert() method and an assignment operator.
+//! Implements methods common to weakmapObj and weakmcguffinmapObj; all
+//! methods except insert(), find_or_create(), and the assignment operator.
 //!
 //! The first template parameter is the map's key.
 //! The second template parameter must be a reference to an object.
@@ -107,7 +107,7 @@ template<typename K,
 	 typename C,
 	 typename M,
 	 typename Allocator>
-class weakmapObj : public weakContainerObj<T, M, Allocator> {
+class weakmapBaseObj : public weakContainerObj<T, M, Allocator> {
 
 public:
 	//! Helper object for implementing the assignment operation.
@@ -117,13 +117,14 @@ public:
 	//! proceeds with iniating the insert() operation, now that all the
 	//! key pieces are available.
 
+	template<typename ref_type>
 	class assignmentHelper {
 
 		//! The saved key value
 		const K k;
 
 		//! A reference to the original map
-		ref<weakmapObj<K, T, C, M, Allocator> > mapref;
+		ref_type mapref;
 
 	public:
 		//! Constructor
@@ -132,8 +133,7 @@ public:
 				 const K &kArg,
 
 				 //! The original map.
-				 const ref<weakmapObj<K, T, C, M, Allocator> >
-				 &refArg)
+				 const ref_type &refArg)
 			: k(kArg), mapref(refArg)
 		{
 		}
@@ -147,8 +147,9 @@ public:
 		//! The assignment operation gets converted into an insert()
 		//! operation on the underlying weak map.
 
-		bool operator=(//! The reference being stored in the map
+		auto operator=(//! The reference being stored in the map
 			       const T &value)
+			->decltype(mapref->insert(std::make_pair(k, value)))
 		{
 			return mapref->insert(std::make_pair(k, value));
 		}
@@ -171,71 +172,15 @@ public:
 	typedef typename weak_container_t::container_t container_t;
 
 	//! Default constructor
-	explicit weakmapObj(const C &comp=C(),
-			    const Allocator &a=Allocator()) noexcept
+	explicit weakmapBaseObj(const C &comp=C(),
+				const Allocator &a=Allocator()) noexcept
 		: weak_container_t(comp, a)
 	{
 	}
 
 	//! Default destructor
-	~weakmapObj() noexcept
+	~weakmapBaseObj() noexcept
 	{
-	}
-
-	//! Implement a map-like insert()
-
-	//! A weak reference to the object gets added to the map, keyed by
-	//! the given key.
-
-	bool insert(//! The key/value being added to the map
-		    const std::pair<const K, T> &newValue)
-	{
-		return insert(newValue.first, newValue.second);
-	}
-
-	//! A more sane insert()
-
-	bool insert(//! The key for the new weak pointer.
-
-		    const K &keyValue,
-
-		    //! The pointer
-
-		    const T &ptrValue)
-	{
-		if (ptrValue.null())
-			return false;
-
-		auto lock=weak_container_t::rlock::create(this);
-
-		typename container_t::writelock w(lock->container());
-
-		ref<typename weak_container_t::cleanupObj>
-			destroyed(ref<typename weak_container_t::cleanupObj>
-				  ::create(this));
-
-		typename weakmapiteratorOps<M>::map_insert_ret_type
-			i=w->insert(std::make_pair(keyValue,
-						   weakptr<T>(ptrValue))
-				    );
-
-		if (!weakmapiteratorOps<M>::inserted(i))
-			return false;
-
-		ptrValue->addOnDestroy(destroyed);
-		destroyed->install(weakmapiteratorOps<M>::iter(i));
-		return true;
-	}
-
-	//! The [] operator.
-
-	//! The [] operation returns an assignmentHelper object. Assigning to
-	//! this object gets translated into an insert() operation.
-
-	assignmentHelper operator[](const K &k)
-	{
-		return assignmentHelper(k, ref<weakmapObj<K, T, C, M,
-					Allocator> >(this));
 	}
 
 	//! Search the map for a key
@@ -247,33 +192,6 @@ public:
 
 		return this->begin(lock, typename weak_container_t::container_t
 				   ::readlock(lock->container())->find(key));
-	}
-
-	//! Find a key in the map, if not exists, create the value using the passed lambda
-	template<typename lambda_type>
-	ref<typename T::obj_type> find_or_create(//! The key to search for
-						 const K &key,
-
-						 //! If not found, call lambda
-						 lambda_type &&lambda)
-	{
-		std::unique_lock<std::mutex> object_lock(this->objmutex);
-
-		{
-			auto range=this->equal_range(key);
-
-			while (range.first != range.second)
-			{
-				auto ptr=range.first->second.getptr();
-				if (!ptr.null())
-					return ptr;
-				++range.first;
-			}
-		}
-		ref<typename T::obj_type> value=lambda();
-		insert(key, value);
-
-		return value;
 	}
 
 	//! Count number of entries in the map
@@ -325,6 +243,283 @@ public:
 
 		return std::make_pair(this->begin(lock, range.first),
 				      this->begin(lock, range.second));
+	}
+};
+
+//! Helper class for implementing correct weakmapObj::find_or_create() semantics
+
+//! \internal
+
+template<typename underlyingMapType>
+class handle_find_or_create {
+
+public:
+
+	//! Calculate the return type from weakmap::find_or_create().
+
+	//! The callback lambda must return a ref. A compilation error here
+	//! means that the callback lambda is not returning a ref.
+	//!
+	//! It's a ptr, since find_or_create() can fail.
+
+	template<typename objClass, typename baseType>
+	static ptr<objClass, baseType>
+	weak_return_value(ref<objClass, baseType> &&value)
+	{
+		return ptr<objClass, baseType>();
+	}
+
+	//! Calculate the return type from mcguffinmap::find_or_create().
+
+	//! The callback lambda must return a ref. A compilation error here
+	//! means that the callback lambda is not returning a ref.
+	//!
+	//! It's a ptr, since find_or_create() can fail.
+
+	template<typename objClass, typename baseType>
+	static std::pair<ptr<obj>, ptr<objClass, baseType>>
+	mcguffin_return_value(ref<objClass, baseType> &&value)
+	{
+		return std::pair<ptr<obj>, ptr<objClass, baseType>>();
+	}
+
+	//! Try valiantly to create, after we couldn't find anything.
+
+	template<typename objClass, typename baseType,
+		 typename key_type,
+		 typename ptr_type>
+	static inline ptr<objClass, baseType>
+	insert_into_map(ptr_type *m,
+			const key_type &key,
+			const ref<objClass, baseType> &value)
+	{
+		if (!m->insert(key, value))
+			return ptr<objClass, baseType>();
+		return value;
+	}
+
+	//! Try valiantly to create, after we couldn't find anything.
+
+	template<typename objClass, typename baseType,
+		 typename key_type,
+		 typename ptr_type>
+	static std::pair<ptr<obj>, ptr<objClass, baseType>>
+		insert_into_mcguffin(ptr_type *m,
+				     const key_type &key,
+				     const ref<objClass, baseType> &value)
+	{
+		auto mcguffin=m->insert(key, value);
+
+		if (mcguffin.null())
+			return std::pair<ptr<obj>, ptr<objClass, baseType>>();
+
+		return std::pair<ptr<obj>, ptr<objClass, baseType>>
+			(mcguffin, value);
+	}
+};
+
+//! Helper class for implementing correct weakmapObj::find_or_create() semantics
+
+//! Specialization for a weakmultimap
+//! \internal
+
+template<typename K, typename V, typename C, typename A>
+class handle_find_or_create<std::multimap<K, V, C, A>> {
+
+ public:
+	//! Calculate the return type from weakmap::find_or_create().
+
+	//! The callback lambda must return a ref. A compilation error here
+	//! means that the callback lambda is not returning a ref.
+
+	template<typename objClass, typename baseType>
+	static ref<objClass, baseType>
+	weak_return_value(ref<objClass, baseType> &&value)
+	{
+		return std::move(value);
+	}
+
+	//! Calculate the return type from mcguffinmap::find_or_create().
+
+	//! The callback lambda must return a ref. A compilation error here
+	//! means that the callback lambda is not returning a ref.
+	//!
+	//! It's a ptr, since find_or_create() can fail.
+
+	template<typename objClass, typename baseType>
+	static std::pair<ref<obj>, ref<objClass, baseType>>
+	mcguffin_return_value(ref<objClass, baseType> &&value)
+	{
+		return std::pair<ref<obj>, ref<objClass, baseType>>
+			(ref<obj>::create(), value);
+	}
+
+	//! Ho-hum.
+
+	template<typename objClass, typename baseType,
+		 typename key_type,
+		 typename ptr_type>
+	static inline ref<objClass, baseType>
+		insert_into_map(ptr_type *m,
+				const key_type &key,
+				const ref<objClass, baseType> &value)
+	{
+		m->insert(key, value);
+		return value;
+	}
+
+	//! Ho-hum.
+
+	template<typename objClass, typename baseType,
+		 typename key_type,
+		 typename ptr_type>
+		static std::pair<ref<obj>, ref<objClass, baseType>>
+		insert_into_mcguffin(ptr_type *m,
+				     const key_type &key,
+				     const ref<objClass, baseType> &value)
+	{
+		return std::pair<ref<obj>, ref<objClass, baseType>>
+			(m->insert(key, value), value);
+	}
+};
+
+//! A map with weak references.
+
+//! \see weakmapBaseObj
+
+template<typename K,
+	 typename T,
+	 typename C,
+	 typename M,
+	 typename Allocator>
+class weakmapObj : public weakmapBaseObj<K, T, C, M, Allocator> {
+
+	//! find_or_create() atomicity
+	std::recursive_mutex insert_mutex;
+public:
+
+	//! Base class typedef, for convenience.
+	typedef weakmapBaseObj<K, T, C, M, Allocator> base_t;
+
+	//! Import typedef from the base class.
+
+	typedef typename base_t::weak_container_t weak_container_t;
+
+	//! Import typedef from the base class.
+
+	typedef typename base_t::iterator iterator;
+
+	//! Import typedef from the base class.
+
+	typedef typename base_t::rlock rlock;
+
+	//! Import typedef from the base class.
+
+	typedef typename base_t::container_t container_t;
+
+	//! Convenience typedef
+	typedef typename base_t::template assignmentHelper<
+		ref<weakmapObj<K, T, C, M, Allocator>>> assignmentHelper_t;
+
+	//! Constructor
+	explicit weakmapObj(const C &comp=C(),
+			    const Allocator &a=Allocator()) noexcept
+		: base_t(comp, a)
+	{
+	}
+
+	//! Destructor
+	~weakmapObj() noexcept
+	{
+	}
+
+	//! Find a key in the map, if not exists, create the value using the passed lambda
+	template<typename lambda_type>
+	auto find_or_create(//! The key to search for
+			    const K &key,
+
+			    //! If not found, call lambda
+			    lambda_type &&lambda)
+		-> decltype( handle_find_or_create<M>
+			     ::weak_return_value(lambda()))
+	{
+		std::unique_lock<std::recursive_mutex>
+			insert_lock(insert_mutex);
+
+		{
+			auto range=this->equal_range(key);
+
+			while (range.first != range.second)
+			{
+				auto ptr=range.first->second.getptr();
+				if (!ptr.null())
+					return ptr;
+				++range.first;
+			}
+		}
+		auto value=lambda();
+
+		return handle_find_or_create<M>
+			::insert_into_map(this, key, value);
+	}
+
+	//! Implement a map-like insert()
+
+	//! A weak reference to the object gets added to the map, keyed by
+	//! the given key.
+
+	bool insert(//! The key/value being added to the map
+		    const std::pair<const K, T> &newValue)
+	{
+		return insert(newValue.first, newValue.second);
+	}
+
+	//! A more sane insert()
+
+	bool insert(//! The key for the new weak pointer.
+
+		    const K &keyValue,
+
+		    //! The pointer
+
+		    const T &ptrValue)
+	{
+		if (ptrValue.null())
+			return false;
+
+		std::unique_lock<std::recursive_mutex>
+			insert_lock(insert_mutex);
+
+		auto lock=weak_container_t::rlock::create(this);
+
+		typename container_t::writelock w(lock->container());
+
+		ref<typename weak_container_t::cleanupObj>
+			destroyed(ref<typename weak_container_t::cleanupObj>
+				  ::create(this));
+
+		typename weakmapiteratorOps<M>::map_insert_ret_type
+			i=w->insert(std::make_pair(keyValue,
+						   weakptr<T>(ptrValue))
+				    );
+
+		if (!weakmapiteratorOps<M>::inserted(i))
+			return false;
+
+		ptrValue->addOnDestroy(destroyed);
+		destroyed->install(weakmapiteratorOps<M>::iter(i));
+		return true;
+	}
+
+	//! The [] operator.
+
+	//! The [] operation returns an assignmentHelper object. Assigning to
+	//! this object gets translated into an insert() operation.
+
+	assignmentHelper_t operator[](const K &k)
+	{
+		return assignmentHelper_t
+			(k, ref<weakmapObj<K, T, C, M, Allocator> >(this));
 	}
 };
 

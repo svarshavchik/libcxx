@@ -260,6 +260,16 @@ include/x/lockpool.H
 include/x/lockpoolobj.H
 include/x/logger.H
 include/x/managedsingletonapp.H
+include/x/mcguffincontainerfwd.H
+include/x/mcguffincontainerobj.H
+include/x/mcguffinlist.H
+include/x/mcguffinlistfwd.H
+include/x/mcguffinlistobj.H
+include/x/mcguffinmap.H
+include/x/mcguffinmapfwd.H
+include/x/mcguffinmapobj.H
+include/x/mcguffinmultimap.H
+include/x/mcguffinmultimapfwd.H
 include/x/mcguffinref.H
 include/x/messages.H
 include/x/messagesfwd.H

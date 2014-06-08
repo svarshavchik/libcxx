@@ -7,11 +7,13 @@
 #include "x/ptr.H"
 #include "x/obj.H"
 #include "x/weakmultimap.H"
+#include "x/weakmap.H"
 #include "x/ondestroy.H"
 
 #include <string>
 #include <iostream>
 #include <unistd.h>
+#include <vector>
 
 class valueObj : virtual public LIBCXX_NAMESPACE::obj {
 
@@ -22,19 +24,20 @@ public:
 	~valueObj() noexcept {}
 };
 
-typedef LIBCXX_NAMESPACE::weakmultimap<std::string, valueObj> map_t;
+typedef LIBCXX_NAMESPACE::weakmultimap<std::string, valueObj> mmap_t;
+typedef LIBCXX_NAMESPACE::weakmap<std::string, valueObj> map_t;
 
 class myDestructorCallbackObj : public LIBCXX_NAMESPACE::destroyCallbackObj {
 
-	map_t &m;
+	mmap_t &m;
 
 public:
-	myDestructorCallbackObj(map_t &mArg) noexcept;
+	myDestructorCallbackObj(mmap_t &mArg) noexcept;
 	~myDestructorCallbackObj() noexcept;
 	void destroyed() noexcept;
 };
 
-myDestructorCallbackObj::myDestructorCallbackObj(map_t &mArg) noexcept
+myDestructorCallbackObj::myDestructorCallbackObj(mmap_t &mArg) noexcept
 	: m(mArg)
 {
 }
@@ -45,7 +48,7 @@ myDestructorCallbackObj::~myDestructorCallbackObj() noexcept
 
 void myDestructorCallbackObj::destroyed() noexcept
 {
-	map_t::base::iterator b(m->begin()), e(m->end());
+	mmap_t::base::iterator b(m->begin()), e(m->end());
 	while (b != e)
 	{
 		std::cout << "weakmap: " << b->first << ": "
@@ -55,9 +58,17 @@ void myDestructorCallbackObj::destroyed() noexcept
 	}
 }
 
+template<typename t>
+void find_or_create_must_return_a_ref();
+
+template<>
+void find_or_create_must_return_a_ref<LIBCXX_NAMESPACE::ref<valueObj>>()
+{
+}
+
 void test_find_or_create()
 {
-	map_t m=map_t::create();
+	mmap_t m=mmap_t::create();
 
 	auto a=LIBCXX_NAMESPACE::ptr<valueObj>::create(0);
 	auto b=LIBCXX_NAMESPACE::ptr<valueObj>::create(1);
@@ -72,7 +83,7 @@ void test_find_or_create()
 
 	auto lambda=[]
 		{
-			return LIBCXX_NAMESPACE::ptr<valueObj>::create(2);
+			return LIBCXX_NAMESPACE::ref<valueObj>::create(2);
 		};
 
 	if (m->find_or_create("B", lambda)->n != 1)
@@ -90,6 +101,24 @@ void test_find_or_create()
 
 	if (m->find_or_create("B", lambda)->n != 2)
 		throw EXCEPTION("find_or_create test 5 failed");
+
+	find_or_create_must_return_a_ref
+		<decltype(m->find_or_create("B", lambda))>();
+}
+
+void test_find_or_create2()
+{
+	map_t m=map_t::create();
+
+	auto first=m->find_or_create("A",
+				     []
+				     {
+					     return LIBCXX_NAMESPACE
+						     ::ref<valueObj>::create(2);
+
+				     });
+
+	std::cout << "first: " << first.null() << std::endl;
 }
 
 int main(int argc, char **argv)
@@ -98,7 +127,7 @@ int main(int argc, char **argv)
 		alarm(60);
 
 		{
-			map_t m(map_t::create());
+			mmap_t m(mmap_t::create());
 
 			LIBCXX_NAMESPACE::ptr<valueObj> v(LIBCXX_NAMESPACE::ptr<valueObj>::create());
 
@@ -114,7 +143,7 @@ int main(int argc, char **argv)
 		}
 
 		{
-			map_t m(map_t::create());
+			mmap_t m(mmap_t::create());
 
 			LIBCXX_NAMESPACE::ptr<valueObj> v(LIBCXX_NAMESPACE::ptr<valueObj>::create());
 
@@ -128,6 +157,7 @@ int main(int argc, char **argv)
 			v=LIBCXX_NAMESPACE::ptr<valueObj>();
 		}
 		test_find_or_create();
+		test_find_or_create2();
 	} catch (LIBCXX_NAMESPACE::exception &e) {
 		std::cout << e << std::endl;
 	}

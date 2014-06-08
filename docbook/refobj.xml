@@ -2365,8 +2365,6 @@ currentWidgets-&gt;insert("left", p);</programlisting>
       not be very useful.
     </para>
 
-
-
     <blockquote>
       <informalexample>
 	<programlisting>
@@ -2420,14 +2418,15 @@ weakwidgetmap currentWidgets(weakwidgetmap::create());
 	</para>
 
 	<para>
-	  Checks if the map contains any key with the given value, whose
-	  weak pointer returnsa non-<literal>nullptr</literal> reference, if
+	  <methodname>find_or_create</methodname>() checks
+	  if the map contains any key with the given value, whose
+	  weak pointer returns a non-<literal>nullptr</literal> reference, if
 	  so <methodname>find_or_create</methodname>() returns it.
 	</para>
       </listitem>
       <listitem>
 	<para>
-	  The first parameter to <methodname>find_or_create</methodname>() is
+	  The second parameter to <methodname>find_or_create</methodname>() is
 	  a lambda. The lambda must return an &ref; to the map's
 	  weakly-referenced object.
 	</para>
@@ -2440,8 +2439,214 @@ weakwidgetmap currentWidgets(weakwidgetmap::create());
 	  the key, and the value returned from the lambda, then returns the
 	  same value.
 	</para>
+
+	<note>
+	  <para>
+	    <methodname>find_or_create</methodname>() is less useful with a
+	    <classname>&ns;::weakmap</classname>, which is based on a
+	    <classname>std::map</classname> that allows only one value per
+	    key. As metioned before, weak pointers to destroyed objects
+	    cannot get removed from the weak container as long as
+	    <link linkend="weakcontainergetptrnull">any iterators
+	    to the weak container are still in scope</link>.
+	    <methodname>find_or_create</methodname>() might find an existing
+	    value for the key in the <classname>&ns;::weakmap</classname>,
+	    but unable to remove it.
+	  </para>
+
+	  <para>
+	    <methodname>find_or_create</methodname>() returns a &ptr;, and
+	    returns a null one, in that situation; but only after
+	    the lambda gets called and returns its &ref;.
+	    Immediately afterwards,
+	    <methodname>find_or_create</methodname>() fails to insert the
+	    new &ref;, which then goes out of scope and gets destroyed, and a
+	    null &ptr; gets returned.
+	  </para>
+
+	  <para>
+	    <classname>&ns;::weakmultimap</classname>'s
+	    <methodname>find_or_create</methodname>()
+	    has no problems inserting
+	    a new value for the same key, of course, and won't have this
+	    problem; so its <methodname>find_or_create</methodname>()
+	    always returns a &ref;
+	  </para>
+	</note>
       </listitem>
     </itemizedlist>
+
+    <section id="mcguffincontainers">
+      <title>Mcguffin containers</title>
+
+      <para>
+	Once something gets added to a
+	<ulink url="&link-typedef-x-weaklist;"><classname>&ns;::weaklist</classname></ulink>,
+	<ulink url="&link-typedef-x-weakmap;"><classname>&ns;::weakmap</classname></ulink>, or
+	<ulink url="&link-typedef-x-weakmultimap;"><classname>&ns;::weakmultimap</classname></ulink>,
+	it remains in the weak container until the referenced object goes out
+	of scope and gets destroyed.
+	Alternatively,
+	<ulink url="&link-typedef-x-mcguffinlist;"><classname>&ns;::mcguffinlist</classname></ulink>,
+	<ulink url="&link-typedef-x-mcguffinmap;"><classname>&ns;::mcguffinmap</classname></ulink>, or
+	<ulink url="&link-typedef-x-mcguffinmultimap;"><classname>&ns;::mcguffinmultimap</classname></ulink>
+	are based on their weak counterparts, but take
+	 a <link linkend="ondestroy">mcguffin</link>-based approach that
+	allows removal of referenced objects that still exist,
+	from their container.
+      </para>
+
+      <blockquote>
+	<informalexample>
+	  <programlisting>
+#include &lt;&ns;/mcguffinlist.H&gt;
+#include &lt;&ns;/mcguffinmap.H&gt;
+#include &lt;&ns;/mcguffinmultimap.H&gt;
+
+class widgetObj;
+
+typedef &ns;::ref&lt;widgetObj&gt; widget;
+typedef &ns;::ptr&lt;widgetObj&gt; widgetptr;
+
+&ns;::mcguffinlist&lt;widget&gt; l=&ns;::mcguffinlist&lt;widget&gt;::create();
+&ns;::mcguffinmap&lt;int, widget&gt; m=&ns;::mcguffinmap&lt;int, widget&gt;::create();
+&ns;::mcguffinmultimap&lt;int, widget&gt; mm=&ns;::mcguffinmultimap&lt;int, widget&gt;::create();
+
+&ns;::ref&lt;&ns;::obj&gt; mcguffin=l-&gt;push_back(widget::create());
+
+&ns;::ptr&lt;&ns;::obj&gt; mcguffin=m-&gt;insert(0, widget::create());
+
+std::pair&lt;&ns;::ptr&lt;&ns;::obj&gt;, widgeptrt&gt; ref=m-&gt;find_or_create(0, [] { return widget::create(); });
+
+for (&ns;::mcguffinlist&lt;widget&gt;::base::iterator b=l->begin(), e=l->end(); b != e; ++b)
+{
+    widgetptr p=b->getptr();
+    &ns;::ptr&lt;&ns;::obj&gt; mcguffin=b->mcguffin();
+    b->erase();
+}
+
+for (&ns;::mcguffinmultimap&lt;widget&gt;::base::iterator b=mm->begin(), e=mm->end(); b != e; ++b)
+{
+    widgetptr p=b->second.getptr();
+    &ns;::ptr&lt;&ns;::obj&gt; mcguffin=b->second.mcguffin();
+    b->second.erase();
+}</programlisting>
+	</informalexample>
+      </blockquote>
+    </section>
+
+    <para>
+      These mcguffin containers work the same as their weak counterparts,
+      and implement the same methods; but with the following differences.
+    </para>
+
+    <itemizedlist>
+      <listitem>
+	<para>
+	  The first parameter to the
+	  <ulink url="&link-typedef-x-mcguffinlist;"><classname>&ns;::mcguffinlist</classname></ulink>,
+	  and the second parameter to the
+	  <ulink url="&link-typedef-x-mcguffinmap;"><classname>&ns;::mcguffinmap</classname></ulink> or
+	  <ulink url="&link-typedef-x-mcguffinmultimap;"><classname>&ns;::mcguffinmultimap</classname></ulink>
+	  templates must be a &ref;.
+	</para>
+      </listitem>
+
+      <listitem>
+	<para>
+	  <ulink url="&link-typedef-x-mcguffinlist;"><classname>&ns;::mcguffinlist</classname></ulink>'s
+	  <methodname>push_front</methodname>() and
+	  <methodname>push_back</methodname>() return an opaque
+	  <classname>&ns;::ref&lt;&ns;::obj&gt;</classname>
+	  <link linkend="ondestroy">mcguffin</link>.
+	</para>
+      </listitem>
+
+      <listitem>
+	<para>
+	  <ulink url="&link-typedef-x-mcguffinmap;"><classname>&ns;::mcguffinmap</classname></ulink>'s
+	  <methodname>insert</methodname>()
+	  returns an opaque
+	  <classname>&ns;::ptr&lt;&ns;::obj&gt;</classname>
+	  mcguffin.
+	  A null &ptr; gets returned if the value cannot be inserted into
+	  the map because the key already exists.
+	</para>
+      </listitem>
+
+      <listitem>
+	<para>
+	  <ulink url="&link-typedef-x-mcguffinmultimap;"><classname>&ns;::mcguffinmultimap</classname></ulink>
+	  <methodname>insert</methodname>()
+	  returns an opaque
+	  <classname>&ns;::ref&lt;&ns;::obj&gt;</classname>
+	  mcguffin.
+	</para>
+      </listitem>
+
+      <listitem>
+	<para>
+	  <ulink url="&link-typedef-x-mcguffinmap;"><classname>&ns;::mcguffinmap</classname></ulink>'s
+	  and
+	  <ulink url="&link-typedef-x-mcguffinmultimap;"><classname>&ns;::mcguffinmultimap</classname></ulink>
+	  <methodname>find_or_create</methodname>() returns
+	  <classname>std::pair</classname> with both the mcguffin and the
+	  value.
+	  <ulink url="&link-typedef-x-mcguffinmap;"><classname>&ns;::mcguffinmap</classname></ulink>'s
+	  <classname>std::pair</classname> contains &ptr;s,
+	  <ulink url="&link-typedef-x-mcguffinmap;"><classname>&ns;::mcguffinmap</classname></ulink>'s
+	  <classname>std::pair</classname> contains &ref;s.
+
+	  <ulink url="&link-typedef-x-mcguffinmap;"><classname>&ns;::mcguffinmap</classname></ulink>'s
+	  <classname>std::pair</classname> contains null &ptr;s if it couldn't
+	  create a new value for the key.
+	  In all other situations, either the existing map's value and its
+	  mcguffin, or the new value returned by the lambda and its mcguffin,
+	  get returned.
+	</para>
+      </listitem>
+    </itemizedlist>
+
+    <para>
+      The mcguffin owns a strong reference on the inserted object.
+      The iterators' value's <methodname>getptr</methodname>() returns the
+      supposedly inserted object, just like the weak containers;
+      however the underlying weak containers actually
+      weakly-reference the corresponding mcguffins, so when the inserted
+      object's mcguffin goes out of scope and gets destroyed, the inserted
+      object gets removed from the container, even if other strong references
+      to the inserted object are still in some scope, somewhere.
+    </para>
+
+    <para>
+      The iterators' values also implement two additional methods:
+    </para>
+
+    <variablelist>
+      <varlistentry>
+	<term><literal>&ns;::ptr&lt;&ns;::obj&gt; mcguffin();</literal></term>
+	<listitem>
+	  <para>
+	    Returns the mcguffin for the inserted object. A null
+	    &ptr; gets returned if the object is no longer in the container.
+	  </para>
+	</listitem>
+      </varlistentry>
+
+      <varlistentry>
+	<term><literal>void erase();</literal></term>
+	<listitem>
+	  <para>
+	    Removes the value from the container, even if its mcguffin is
+	    still in scope. Afterwards, the same iterator's value's
+	    <methodname>getptr</methodname>() will always return a null
+	    &ptr;, and the container entry gets removed when the iterator
+	    goes out of scope.
+	  </para>
+	</listitem>
+      </varlistentry>
+    </variablelist>
+
   </section>
 
   <section id="circularrefs">
