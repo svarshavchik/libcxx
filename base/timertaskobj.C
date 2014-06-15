@@ -4,7 +4,7 @@
 */
 
 #include "libcxx_config.h"
-#include "x/threads/timertaskobj.H"
+#include "x/threads/timertask.H"
 #include "x/threads/timerobj.H"
 #include "x/dequemsgdispatcher.H"
 #include "x/logger.H"

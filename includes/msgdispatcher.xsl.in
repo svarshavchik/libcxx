@@ -333,7 +333,7 @@ See COPYING for distribution information.
 	<xsl:call-template name="emit-class" />
 	<xsl:value-of select="@name" />
 
-	<xsl:text>message to the class &#10;</xsl:text>
+	<xsl:text> message to the class &#10;</xsl:text>
       </xsl:otherwise>
     </xsl:choose>
 

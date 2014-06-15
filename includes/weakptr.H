@@ -6,7 +6,7 @@
 #ifndef x_weakptr_H
 #define x_weakptr_H
 
-#include <x/ptr.H>
+#include <x/ref.H>
 #include <x/exception.H>
 #include <x/weakptrfwd.H>
 #include <x/weakinfo.H>
@@ -19,25 +19,26 @@ namespace LIBCXX_NAMESPACE {
 };
 #endif
 
-template<typename ptrType>
-inline weakptr<ptrType>::weakptr()
+template<typename objClass, typename baseType>
+inline weakptr<ptr<objClass, baseType>>::weakptr()
 {
 }
 
-template<typename ptrType>
-inline weakptr<ptrType>::weakptr(const ptrType &refArg)
+template<typename objClass, typename baseType>
+inline weakptr<ptr<objClass, baseType>>::weakptr(const ptrType &refArg)
 {
 	if (!refArg.null())
 		ptr<weakinfo>::operator=(refArg->obj::weak());
 }
 
-template<typename ptrType>
-inline weakptr<ptrType>::~weakptr() noexcept
+template<typename objClass, typename baseType>
+inline weakptr<ptr<objClass, baseType>>::~weakptr() noexcept
 {
 }
 
-template<typename ptrType>
-inline weakptr<ptrType> &weakptr<ptrType>::operator=(const ptrType &r)
+template<typename objClass, typename baseType>
+inline weakptr<ptr<objClass, baseType>> &weakptr<ptr<objClass, baseType>>
+	::operator=(const ptrType &r)
 
 {
 	(*this)=weakptr<ptrType>(r);
@@ -45,8 +46,36 @@ inline weakptr<ptrType> &weakptr<ptrType>::operator=(const ptrType &r)
 	return *this;
 }
 
-template<typename ptrType>
-inline ptrType weakptr<ptrType>::getptr() const
+template<typename objClass, typename baseType>
+template<typename objClass2, typename baseType2>
+inline weakptr<ptr<objClass, baseType>> &weakptr<ptr<objClass, baseType>>
+	::operator=(const ptr<objClass2, baseType2> &r)
+
+{
+	(*this)=weakptr<ptrType>(ptrType(r));
+
+	return *this;
+}
+
+template<typename objClass, typename baseType>
+inline weakptr<ptr<objClass, baseType>> &weakptr<ptr<objClass, baseType>>
+	::operator=(const ref<objClass, baseType> &r)
+
+{
+	return *this = ptrType(r);
+}
+
+template<typename objClass, typename baseType>
+template<typename objClass2, typename baseType2>
+inline weakptr<ptr<objClass, baseType>> &weakptr<ptr<objClass, baseType>>
+	::operator=(const ref<objClass2, baseType2> &r)
+
+{
+	return *this = ptrType(r);
+}
+
+template<typename objClass, typename baseType>
+inline ptr<objClass, baseType> weakptr<ptr<objClass, baseType>>::getptr() const
 {
 	if (!refP)
 		return ptrType();

@@ -1,5 +1,5 @@
 /*
-** Copyright 2012 Double Precision, Inc.
+** Copyright 2012-2014 Double Precision, Inc.
 ** See COPYING for distribution information.
 */
 
@@ -17,6 +17,8 @@ namespace LIBCXX_NAMESPACE {
 #endif
 
 class weakinfo;
+
+template<typename ptrType> class weakptr;
 
 //! A weak pointer.
 
@@ -73,10 +75,14 @@ class weakinfo;
 //! went out of scope and the object got destroyed, getptr() returns a null
 //! pointer.
 
-template<typename ptrType>
-class weakptr : private ptr<weakinfo> {
+template<typename objClass, typename baseType>
+class weakptr<ptr<objClass, baseType>> : private ptr<weakinfo> {
 
 public:
+	//! The strong pointer type
+
+	typedef ptr<objClass, baseType> ptrType;
+
 	//! Default constructor
 
 	//! This weak pointer is not bound to anything.
@@ -105,6 +111,28 @@ public:
 
 	weakptr<ptrType> &operator=(//! A strong pointer
 				    const ptrType &r);
+
+	//! Assignment operator
+
+	//! Construct a weak pointer by assignment
+	template<typename objClass2, typename baseType2>
+	weakptr<ptrType> &operator=(//! A strong pointer
+				    const ptr<objClass2, baseType2> &r);
+
+	//! Assignment operator
+
+	//! Construct a weak pointer by assignment
+
+	weakptr<ptrType> &operator=(//! A strong pointer
+				    const ref<objClass, baseType> &r);
+
+	//! Assignment operator
+
+	//! Construct a weak pointer by assignment
+
+	template<typename objClass2, typename baseType2>
+	weakptr<ptrType> &operator=(//! A strong pointer
+				    const ref<objClass2, baseType2> &r);
 
 	//! Return a strong pointer to the underlying object.
 

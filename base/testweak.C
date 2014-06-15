@@ -25,8 +25,29 @@ public:
 
 };
 
-typedef LIBCXX_NAMESPACE::ptr<testclass> testref;
+typedef LIBCXX_NAMESPACE::ptr<testclass> testptr;
+typedef LIBCXX_NAMESPACE::weakptr<testptr> wtestptr;
+
+typedef LIBCXX_NAMESPACE::ref<testclass> testref;
 static bool weaktest_go=false;
+
+void foo1(const testref &r)
+{
+	// Make sure this compiles
+	wtestptr w(r);
+}
+
+void foo2(const LIBCXX_NAMESPACE::ref<LIBCXX_NAMESPACE::obj> &r)
+{
+	// Make sure this compiles
+	wtestptr w(r);
+}
+
+void foo3(const LIBCXX_NAMESPACE::ptr<LIBCXX_NAMESPACE::obj> &r)
+{
+	// Make sure this compiles
+	wtestptr w(r);
+}
 
 class weaktestinfo : virtual public LIBCXX_NAMESPACE::obj {
 
@@ -34,7 +55,7 @@ public:
 	std::mutex mutex;
 	std::condition_variable cond;
 
-	testref strongref;
+	testptr strongref;
 
 	volatile bool done;
 
@@ -51,7 +72,7 @@ public:
 
 void weaktestinfo::run()
 {
-	LIBCXX_NAMESPACE::weakptr<testref> weakptr(strongref);
+	LIBCXX_NAMESPACE::weakptr<testptr> weakptr(strongref);
 
 	std::cout << "Weak reference acquired"
 		  << std::endl << std::flush;
@@ -71,7 +92,7 @@ void weaktestinfo::run()
 			  << std::endl << std::flush;
 	}
 
-	testref strongref=weakptr.getptr();
+	testptr strongref=weakptr.getptr();
 
 	std::cout << "Acquired strong reference: "
 		  << (strongref.null() ? "no":"yes")
@@ -82,21 +103,21 @@ static weaktestinfo *weaktestinfo_ptr;
 
 int main(int argc, char **argv)
 {
-	LIBCXX_NAMESPACE::weakptr<testref> weakptr;
+	LIBCXX_NAMESPACE::weakptr<testptr> weakptr;
 
 	std::cout << "weak ref null flag: "
 		  << (weakptr.getptr().null() ? "null":"not null")
 		  << std::endl;
 
 	{
-		testref strongref=testref::create();
+		testptr strongref=testref(testptr::create());
 
 		weakptr=strongref;
 
 		std::cout << "Created weakref" << std::endl;
 
 		{
-			testref strongref2=strongref;
+			testptr strongref2=strongref;
 		}
 
 		std::cout << "weak ref null flag: "
@@ -116,7 +137,8 @@ int main(int argc, char **argv)
 	weaktestinfo_ptr= &*wti;
 
 	{
-		wti->strongref=testref::create();
+		wti->strongref=LIBCXX_NAMESPACE::ref<LIBCXX_NAMESPACE::obj>
+			(testptr::create());
 
 		std::cout << "Begin thread weak test" << std::endl
 			  << std::flush;
@@ -135,7 +157,7 @@ int main(int argc, char **argv)
 			});
 
 		std::cout << "Thread started, dropping the strong reference" << std::endl << std::flush;
-		wti->strongref=testref();
+		wti->strongref=testptr();
 
 		threadptr->get();
 

@@ -9,6 +9,7 @@
 #include <x/threads/timertaskfwd.H>
 #include <x/threads/timertaskobj.H>
 #include <x/ref.H>
+#include <x/weakptr.H>
 #include <type_traits>
 
 namespace LIBCXX_NAMESPACE {

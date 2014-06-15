@@ -8,6 +8,7 @@
 #include <x/namespace.h>
 #include <x/mime/sectioninfofwd.H>
 #include <x/mime/sectioninfoobj.H>
+#include <x/weakptr.H>
 
 namespace LIBCXX_NAMESPACE {
 
