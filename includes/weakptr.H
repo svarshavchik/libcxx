@@ -46,6 +46,7 @@ inline weakptr<ptr<objClass, baseType>> &weakptr<ptr<objClass, baseType>>
 	return *this;
 }
 
+//! Assignment operator
 template<typename objClass, typename baseType>
 template<typename objClass2, typename baseType2>
 inline weakptr<ptr<objClass, baseType>> &weakptr<ptr<objClass, baseType>>
@@ -65,6 +66,7 @@ inline weakptr<ptr<objClass, baseType>> &weakptr<ptr<objClass, baseType>>
 	return *this = ptrType(r);
 }
 
+//! Assignment operator
 template<typename objClass, typename baseType>
 template<typename objClass2, typename baseType2>
 inline weakptr<ptr<objClass, baseType>> &weakptr<ptr<objClass, baseType>>

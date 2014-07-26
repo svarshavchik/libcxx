@@ -185,11 +185,15 @@ namespace LIBCXX_NAMESPACE {
 };
 #endif
 
+//! ref(this) or ptr(this) cannot be used in a constructor or destructor
+
+void ref_in_constructor(obj *p) __attribute__((noreturn));
+
 template<typename objClass>
 inline void ptrImpl<objClass>::setRef(objClass *newRefP) noexcept
 {
-	if (newRefP)
-		newRefP->refcnt::refadd(1);
+	if (newRefP && newRefP->refcnt::refadd(1) == 0)
+		ref_in_constructor(newRefP);
 
 	objClass *oldRef=refP;
 

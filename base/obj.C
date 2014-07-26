@@ -1,5 +1,5 @@
 /*
-** Copyright 2012 Double Precision, Inc.
+** Copyright 2012-2014 Double Precision, Inc.
 ** See COPYING for distribution information.
 */
 
@@ -12,10 +12,13 @@
 #include "ref.H"
 #include "destroycallback.H"
 #include "logger.H"
+#include "exception.H"
+#include "messages.H"
 
 #include <cstdlib>
 #include <iostream>
 #include <cxxabi.h>
+#include "gettext_in.h"
 
 #ifndef SELFTEST_HOOK
 #define SELFTEST_HOOK() do { } while (0)
@@ -26,7 +29,20 @@ namespace LIBCXX_NAMESPACE {
 };
 #endif
 
-obj::obj() noexcept
+LOG_FUNC_SCOPE_DECL(LIBCXX_NAMESPACE::obj, objlog);
+
+void ref_in_constructor(obj *p)
+{
+	LOG_FUNC_SCOPE(objlog);
+
+	exception e;
+
+	LOG_FATAL(gettextmsg(libmsg(_txt("Attempting to create an x::ref(this) or x::ptr(this) in %1%'s constructor")), p->objname()));
+	LOG_TRACE(e->backtrace);
+	abort();
+}
+
+obj::obj() noexcept : refcnt(-1)
 {
 }
 
@@ -85,12 +101,13 @@ void obj::destroy() noexcept
 		SELFTEST_HOOK();
 	}
 
-
 	std::list<ref<destroyCallbackObj> > cb_list_cpy;
 
 	if (!weakinfop)
 	{
 		try {
+
+			refadd(-1); // Prevent ref(this) in the destructor
 			delete this;
 		} catch (const exception &e)
 		{
@@ -132,6 +149,7 @@ void obj::destroy() noexcept
 
 		}
 
+		refadd(-1); // Prevent ref(this) in the destructor
 		delete this;
 
 		// Destructor callback invocations must be protected by

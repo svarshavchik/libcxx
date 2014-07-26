@@ -24,6 +24,7 @@ namespace LIBCXX_NAMESPACE {
 //! \ref ptr "INSERT_LIBX_NAMESPACE::ptr<class>::base".
 //!
 //! 
+class obj;
 
 class ptrrefBase {
 
@@ -56,9 +57,13 @@ public:
 		static inline ptrrefType
 		create(Args_t &&...args)
 		{
-			return ptrrefType(new typename ptrrefType
-					  ::obj_type(std::forward<Args_t>
-						     (args)...));
+			auto p=new typename ptrrefType
+				::obj_type(std::forward<Args_t>(args)...);
+
+
+			p->obj::refadd(1); // Set refcnt's constructor
+
+			return ptrrefType(p);
 		}
 	};
 };

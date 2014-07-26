@@ -28,8 +28,19 @@ class refcnt {
 	mutable long cnt;
 
 public:
-	inline refcnt() noexcept __attribute__((artificial)) : cnt(0) {}
+	//! Constructor
 
+	//! The reference count gets initialized to 0 by default, however
+	//! obj's constructor passes -1. This is used to
+	//! detect attempts to ref(this) in the constructor (also the
+	//! destructor. create() manually increments it to 0, before
+	//! constructing the first ref, and ref's constructor kills the
+	//! process if the new reference count is 0.
+
+	inline refcnt(long cntArg=0) noexcept __attribute__((artificial))
+		: cnt(cntArg) {}
+
+	//! Destructor
 	virtual inline ~refcnt() noexcept __attribute__((artificial)) {}
 
 	//! Increment or decrement the reference counter

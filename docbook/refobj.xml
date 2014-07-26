@@ -737,6 +737,18 @@ button quit(button::create(100, 100));</programlisting>
       before most of its classes get initialized.
     </para>
 
+    <note>
+      <para>
+	<methodname>create</methodname>() must be used to create
+	subclasses of <classname>&ns;::obj</classname>. An explicit
+	<literal>new</literal>, and assigning the result to an &reforptr;
+	will not work. Assigning a native pointer, to an existing
+	<classname>&ns;::obj</classname> subclass instance, to an &reforptr;
+	is permitted, and has the expected result of incrementing the
+	internal reference count.
+      </para>
+    </note>
+
     <section id="createrange">
       <title>Range-based iteration on reference-counted objects</title>
 
@@ -1109,45 +1121,84 @@ void widgetObj::method()
     <note>
       <para>
 	Creating an &reforptr;
-	to <varname>this</varname> in the object's
-	constructor is generally prohibited, for the following reason.
-	The object has not finished its own construction, but the
-	<classname>&ns;::obj</classname> virtual superclass is already
-	constructed, with its reference count set to zero.
-	What normally happens when the object
-	gets fully constructed is that it gets assigned to its initial
-	&reforptr;, which
-	increments the reference count to 1, resulting in
-	an object with a single reference.
-	But this hasn't happened yet. The object is still in its
-	constructor.
+	to <varname>this</varname> in the object's constructor
+	<methodname>abort</methodname>()s. Consider the following scenario:
+      </para>
+
+      <itemizedlist>
+	<listitem>
+	  <para>
+	    <methodname>create</methodname>() creates the object. The new
+	    object's reference count does not get incremented from its initial
+	    value of zero, to one, until the object gets fully constructed.
+	  </para>
+	</listitem>
+
+	<listitem>
+	  <para>
+	    With the initial reference count still zero, one
+	    the constructors makes
+	    an explicit &ref;&lt;<replaceable>classname</replaceable>&gt;(<varname>this</varname>)
+	    creating a new &ref;. This increments the object's reference
+	    count to one.
+	  </para>
+	</listitem>
+
+	<listitem>
+	  <para>
+	    This &ref; goes out of scope and gets destroyed, also before
+	    the constructor finishes. This now decrements the reference count
+	    back to zero. When an object's reference count goes to 0,
+	    it gets destroyed. This is now happening before the object
+	    is fully constructed. Even if that, by some miracle
+	    of miracles, doesn't blow up, the remaining constructors continue
+	    to execute, and eventually the original &ref; attempts to
+	    increment what it thinks is the initial reference count, in the
+	    object that's already destroyed.
+	  </para>
+	</listitem>
+      </itemizedlist>
+
+      <para>
+	Undefined behavior is guaranteed here. The same holds true with
+	creating an &ref; to an object from one of its destructors. The
+	object's reference count is zero, and it's going to get destroyed
+	no matter what, after all destructors are done. A new &ref;
+	(or a &ns;::ptr, doesn't matter) to the object does not prevent that
+	from happening. The end result is an &reforptr; to a destroyed object.
       </para>
 
       <para>
-	If the object's constructor also creates an &reforptr; from
-	<varname>this</varname>, the object's reference count gets incremented
-	to 1 prematurely. This is no different than from any other
-	&reforptr; getting created from <varname>this</varname>.
-	But now, if the &reforptr; that was created from <varname>this</varname>
-	goes out of scope and gets destroyed before the original constructor
-	finishes, the object's count becomes zero again.
-	When that happens, the object gets destroyed.
+	For this reason, attempting to create an &reforptr; to
+	<literal>this</literal> in its constructor or destructor immediately
+	<function>abort</function>()s, to aid in debugging.
+	It's true that it's technically possible to have everything be legal
+	with a &reforptr; from <literal>this</literal> created in its
+	constructor, as long as the object succesfully finishes its full
+	construction. However, &appshort; takes the pessimistic view that
+	this can't be guaranteed (on the assumption that an exception can
+	get thrown at any time), and prevents this from happening.
+	Constructing an &reforptr; from <literal>this</literal> in the
+	constructor is a bad idea.
       </para>
 
       <para>
-	But, if you're keeping score, the initial constructor hasn't returned
-	yet.
-	When the constructor returns, the newly-created object is already
-	destroyed. However, the object has been
-	created in the context of initializing the first reference to the
-	object, so the caller's context expects the constructor to produce
-	a new object, whose reference count gets immediately incremented.
-	Memory corruption results.
+	Technical note:
+	it's not really true that the a newly-constructed object starts
+	with a reference count of 0. Internally, &appshort; sets the
+	initial reference count to -1, and resets it to 0 just before
+	<methodname>create</methodname>() creates and returns the first
+	&reforptr;, which immediately updates it to 1. The reference
+	count of -1 gets used to detect an attempt to create an &reforptr;
+	in a constructor (or the destructor).
       </para>
 
       <para>
-	Furthermore, creating an &reforptr; from <varname>this</varname> in its
-	own destructor is also a non-starter.
+	For this reason, new reference-counted objects must always get
+	created with <methodname>create</methodname>() in order to
+	properly initialize the new object's reference count. Manually
+	instantiating the object with <literal>new</literal>, and
+	assigning it to an &reforptr;, also aborts the program.
       </para>
     </note>
   </section>

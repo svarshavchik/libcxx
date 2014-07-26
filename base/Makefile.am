@@ -412,7 +412,7 @@ testoutpseq_LDFLAGS=$(TESTLINKTYPE)
 
 testweak_SOURCES=testweak.C
 testweak_LDADD=libcxx.la
-testweak_LDFLAGS=$(TESTLINKTYPE)
+testweak_LDFLAGS=-static
 
 testweak2_SOURCES=testweak2.C
 testweak2_LDADD=libcxx.la
