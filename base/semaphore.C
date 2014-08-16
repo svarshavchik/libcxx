@@ -66,7 +66,7 @@ semaphoreObj::~semaphoreObj() noexcept
 }
 
 void semaphoreObj::request(const ref<ownerObj> &req,
-			   size_t howmany)
+			      size_t howmany)
 {
 	if (howmany == 0)
 		howmany=1; // Joker

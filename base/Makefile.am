@@ -88,6 +88,7 @@ libcxx_la_SOURCES=\
 	fdtimeoutobj.C		\
 	fileattrobj.C		\
 	filestat.C		\
+	fixed_semaphore.C	\
 	fmtsize.C		\
 	forkexec.C              \
 	ftp_client.C		\

@@ -49,9 +49,12 @@ public:
 
 	~semaphoreObj() noexcept;
 
-	//! Base class for semaphore count owners
+	//! Semaphore owners
 
-	//! This class is typedef-ed to \c semaphore::base::owner.
+	//! An owner of the semaphore can either subclass this and
+	//! implement process(), or use create() with a functor.
+	//!
+	//! Refer to this class as \c INSERT_LIBX_NAMESPACE::semaphore::base::ownerObj
 
 	class ownerObj : virtual public obj {
 
@@ -70,10 +73,10 @@ public:
 
 	//! Submit a request for the semaphore
 	void request(//! Who wants it
-		     const ref<ownerObj> &req,
+			const ref<ownerObj> &req,
 
-		     //! How much the semaphore should be incremented by
-		     size_t howmany);
+			//! How much the semaphore should be incremented by
+			size_t howmany);
 
 private:
 	//! A mcguffin got released
@@ -95,18 +98,18 @@ class semaphoreBase;
 //! A reference-counted semaphore object
 
 //! \code
-//! property::value<size_t> max_filedescs(L"max_filedescs");
+//! INSERT_LIBX_NAMESPACE::property::value<size_t> max_filedescs(L"max_filedescs");
 //!
-//! semaphore s=semaphore::create(max_filedescs);
+//! INSERT_LIBX_NAMESPACE::semaphore s=INSERT_LIBX_NAMESPACE::semaphore::create(max_filedescs);
 //!
-//! class ownerObj : public semaphore::ownerObj {
+//! class ownerObj : public INSERT_LIBX_NAMESPACE::semaphore::ownerObj {
 //!
 //! // ...
 //!
-//!     void process(const ptr<obj> &mcguffin);
+//!     void process(const INSERT_LIBX_NAMESPACE::ref<INSERT_LIBX_NAMESPACE::obj> &mcguffin) override;
 //! };
 //!
-//! ref<ownerObj> p(ref<ownerObj>::create());
+//! auto p=ref<ownerObj>::create();
 //!
 //! // ...
 //!
@@ -133,6 +136,21 @@ class semaphoreBase;
 //! Any thread that calls request(), or releases the last reference on a
 //! mcguffin, may get hijacked to invoke process() of pending owners. process()
 //! needs to be mindful, and not engage in any time-consuming processing.
+//!
+//! \code
+//! INSERT_LIBX_NAMESPACE::semaphore::base::owner owner=
+//!    INSERT_LIBX_NAMESPACE::semaphore::base::owner::create(
+//!       []
+//!       (const INSERT_LIBX_NAMESPACE::ref<INSERT_LIBX_NAMESPACE::obj> &mcguffin)
+//!       {
+//!       });
+//!
+//! s->request(owner, 1);
+//!
+//! \endcode
+//!
+//! An owner handle may also be create()d. create() takes a functor that
+//! gets invoked from process().
 
 typedef ref<semaphoreObj, semaphoreBase> semaphore;
 
@@ -142,21 +160,76 @@ typedef ref<semaphoreObj, semaphoreBase> semaphore;
 
 typedef ptr<semaphoreObj, semaphoreBase> semaphoreptr;
 
-//! Refer to this class as \c semaphore::base or \c semaphoreptr::base
+//! Refer to this class as \c INSERT_LIBX_NAMESPACE::semaphore::base or \c INSERT_LIBX_NAMESPACE::semaphoreptr::base
 
 class semaphoreBase : public ptrrefBase {
 
 public:
 
+	class ownerBase;
+
 	//! Convenience typedef
 	typedef semaphoreObj::ownerObj ownerObj;
 
 	//! Convenience typedef
-	typedef ref<ownerObj> owner;
+	typedef ref<ownerObj, ownerBase> owner;
 
 	//! Convenience typedef
-	typedef ptr<ownerObj> ownerptr;
+	typedef ptr<ownerObj, ownerBase> ownerptr;
 
+};
+
+//! Base class for semaphore owner objects.
+
+//! Implements a custom create() for \ref semaphoreObj::ownerObj "semaphore owners".
+
+class semaphoreBase::ownerBase : public ptrrefBase {
+
+public:
+
+	//! Helper subclass that invokes a functor
+
+	template<typename functor_type>
+	class ownerImpl : public semaphoreObj::ownerObj {
+
+	public:
+		//! The functor
+		functor_type functor;
+
+		//! Constructor
+		template<typename argType>
+		ownerImpl(argType &&arg)
+			: functor(std::forward<argType>(arg))
+		{
+		}
+
+		//! Destructor
+		~ownerImpl() noexcept
+		{
+		}
+
+		void process(const ref<obj> &mcguffin) override
+		{
+			functor(mcguffin);
+		}
+	};
+
+	//! Factory with the custom create() method.
+
+	template<typename ptrrefType> class objfactory {
+	public:
+
+		//! Custom create() method for owner objects.
+
+		template<typename functor_type>
+		static ptrrefType create(//! Who wants it
+					 functor_type &&functor)
+		{
+			return ref<ownerImpl<typename std::decay<functor_type>
+					     ::type>>
+				::create(std::forward<functor_type>(functor));
+		}
+	};
 };
 
 #if 0

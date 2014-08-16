@@ -1,6 +1,6 @@
 <!--
 
-Copyright 2012 Double Precision, Inc.
+Copyright 2012-2014 Double Precision, Inc.
 See COPYING for distribution information.
 
 -->
@@ -1660,7 +1660,7 @@ myQueueObj res(q&gt;pop());
   </section>
 
   <section id="semaphores">
-    <title>Thread-safe semaphores</title>
+    <title>Thread-safe semaphore queue</title>
 
     <blockquote>
       <informalexample>
@@ -1692,10 +1692,12 @@ sem-&gt;request(owner, 1);</programlisting>
 
     <para>
       <ulink url="&link-typedef-x-semaphore;"><classname>&ns;::semaphore</classname></ulink>
-      is a
-      <link linkend="refobj">reference-counted object</link> that implements
-      a semaphore.
-      The <methodname>create</methodname>() method creates a semaphore, its
+      is one of two semaphore-oriented design patterns. This class implements
+      a semaphore whose size comes from an application property,
+      and with a queue of objects that are waiting to acquire the semaphore.
+      <classname>&ns;::semaphore</classname> is a
+      <link linkend="refobj">reference-counted object</link>.
+      The <methodname>create</methodname>() method creates the semaphore, its
       parameter is a property that specifies the maximum value of the
       semaphore counter, 10 in the above example.
     </para>
@@ -1728,7 +1730,8 @@ sem-&gt;request(owner, 1);</programlisting>
 
     <para>
       The second parameter to <methodname>request</methodname>() specifies by how
-      much the semaphore gets incremented (not necessarily 1). If this can
+      much the semaphore gets incremented (not necessarily 1, but t cannot be
+      zero). If this can
       be done and the semaphore's count remains at or below the maximum value,
       the ownership gets acquired immediately, and the owner's
       <methodname>process</methodname>() gets invoked immediately.
@@ -1771,6 +1774,107 @@ sem-&gt;request(owner, 1);</programlisting>
 	new maximum semaphore count.
       </para>
     </note>
+
+    <blockquote>
+      <informalexample>
+	<programlisting>
+&ns;::semaphore::base::owner owner=
+    &ns;::semaphore::base::owner::create(
+       []
+       (const &ns;::ref&lt;&ns;::obj&gt; &amp;mcguffin)
+       {
+           // ...
+       });
+
+s->request(owner, 1);</programlisting>
+      </informalexample>
+    </blockquote>
+
+    <para>
+      The semaphore owner object class supplies a
+      <methodname>create</methodname>() that takes a functor and constructs
+      an owner object that invokes the given functor from its
+      <methodname>process</methodname>().
+    </para>
+  </section>
+
+  <section id="fixed_semaphores">
+    <title>A fixed semaphore</title>
+
+    <para>
+      This is a second thread-safe semaphore-oriented design pattern that's
+      more suitable for internal application semaphores that have a fixed
+      number of instances. There is no queue, if a semaphore instance or
+      instances cannot be acquired, too bad.
+    </para>
+
+    <blockquote>
+      <informalexample>
+	<programlisting>
+#include &lt;&ns;/fixed_semaphore.H&gt;
+
+&ns;::fixed_semaphore s=&ns;::fixed_semaphore::create(4);
+
+&ns;::fixed_semaphore::base::acquiredptr acquired=s->acquire(
+      []
+      {
+           return true;
+      },
+      []
+      {
+           // ...
+      }, 2);</programlisting>
+      </informalexample>
+    </blockquote>
+
+    <para>
+      <ulink url="&link-typedef-x-fixed-semaphore;"><classname>&ns;::fixed_semaphore</classname></ulink>
+      is a
+      <link linkend="refobj">reference-counted object</link>.
+      Its constructor takes the number of available semaphore instances, which
+      defaults to 1.
+    </para>
+
+    <para>
+      <methodname>acquire</methodname>() immediately returns an
+      <classname>&ns;::semaphore::base::acquiredptr</classname>.
+      It's <methodname>null</methodname>()
+      if the number of available semaphores is fewer than the third, optional
+      parameter, which defaults to 1.
+    </para>
+
+    <para>
+      Otherwise, the first functor gets invoked. If it returns
+      <literal>false</literal>,
+      <methodname>acquire</methodname>() returns a
+      <methodname>null</methodname>()
+      <classname>&ns;::semaphore::base::acquiredptr</classname>, and
+      takes no further action.
+    </para>
+
+    <para>
+      Otherwise, the requested number of semaphore instances is now
+      considered to be acquired
+      (the fixed semaphore object remains internally locked for the
+      duration of the functor call) and a
+      non-<methodname>null</methodname>(),
+      <classname>&ns;::semaphore::base::acquiredptr</classname>
+      gets returned. This is an opaque, reference-counted, handle
+      the represents the requested number of acquired semaphores.
+    </para>
+
+    <para>
+      The handle maintains an internal reference on the semaphore. When
+      the last reference to the handle goes out of scope and it gets destroyed,
+      the second functor that was passed to
+      <methodname>acquire</methodname>() gets invoked.
+    </para>
+
+    <para>
+      The second functor cannot throw exceptions. When the second functor
+      returns, the acquired semaphore instances are now considered to be
+      released.
+    </para>
   </section>
 </chapter>
 <!--

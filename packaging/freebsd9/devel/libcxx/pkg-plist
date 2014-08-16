@@ -103,6 +103,9 @@ include/x/fileattrobj.H
 include/x/filestat.H
 include/x/filestatobj.H
 include/x/final_class.H
+include/x/fixed_semaphore.H
+include/x/fixed_semaphorefwd.H
+include/x/fixed_semaphoreobj.H
 include/x/fmtsize.H
 include/x/forkexec.H
 include/x/ftp/client.H
