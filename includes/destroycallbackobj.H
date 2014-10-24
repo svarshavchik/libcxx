@@ -37,23 +37,6 @@ public:
 
 	virtual void destroyed() noexcept=0;
 
-
-	//! Invoke destroyed() when any one of multiple objects gets destroyed.
-
-	//! The iterators define an input sequence of objects. destroyed()
-	//! gets invoked when the first one of these objects gets destroyed.
-	//! destroyed() gets invoked only once. The destruction of remaining
-	//! objects does not result in additional invocations of destroyed().
-	//!
-	//! A strong reference to this destructor callback object remains only
-	//! until destroyed() gets invoked.
-	//!
-	//! If the input sequence is empty, destroyed() gets invoked before
-	//! onAnyDestroyed() returns.
-
-	template<typename iter_type>
-	void onAnyDestroyed(iter_type b, iter_type e);
-
 	class onAnyDestroyCallbackObj;
 
 };

@@ -9,6 +9,7 @@
 #include <x/ref.H>
 #include <x/ondestroyfwd.H>
 #include <x/ondestroyobj.H>
+#include <x/destroycallback.H>
 #include <x/mpobj.H>
 #include <x/namespace.h>
 
@@ -53,12 +54,32 @@ private:
 	mpobj<ptr<cbListObj> > callbacks;
 };
 
-template<typename iter_type>
-void destroyCallbackObj::onAnyDestroyed(iter_type b, iter_type e)
-{
-	auto cblist=ref<onAnyDestroyCallbackObj::cbListObj>::create();
 
-	auto mcguffin=ref<onAnyDestroyCallbackObj>::create(cblist);
+//! Invoke a functor when any one of multiple objects gets destroyed.
+
+//! The iterators define an input sequence of objects. The functor
+//! gets invoked when the first one of these objects gets destroyed.
+//! The functor gets invoked only once. The destruction of remaining
+//! objects does not result in additional invocations of the functor.
+//!
+//! A strong reference to this destructor callback object remains only
+//! until functor gets invoked.
+//!
+//! If the input sequence is empty, the functor gets invoked before
+//! the functor returns.
+
+template<typename functor_type, typename iter_type>
+destroyCallback on_any_destroyed(functor_type &&functor,
+				 iter_type b, iter_type e)
+{
+	auto callback=destroyCallback::create(std::forward<functor_type>
+					      (functor));
+
+	auto cblist=ref<destroyCallbackObj::onAnyDestroyCallbackObj
+			::cbListObj>::create();
+
+	auto mcguffin=ref<destroyCallbackObj::onAnyDestroyCallbackObj>
+		::create(cblist);
 
 	while (b != e)
 	{
@@ -66,7 +87,9 @@ void destroyCallbackObj::onAnyDestroyed(iter_type b, iter_type e)
 		++b;
 	}
 
-	mcguffin->addOnDestroy(ref<destroyCallbackObj>(this));
+	mcguffin->addOnDestroy(callback);
+
+	return callback;
 }
 
 #if 0

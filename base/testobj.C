@@ -1700,7 +1700,10 @@ void testdestroyfunc6()
 
 	df6obj1 v[2]={a, c};
 
-	b->onAnyDestroyed(v, v+2);
+	LIBCXX_NAMESPACE::on_any_destroyed([b]
+					   {
+						   b->destroyed();
+					   }, v, v+2);
 
 	v[0]=df6obj1();
 	v[1]=df6obj1();
@@ -1719,7 +1722,11 @@ void testdestroyfunc6()
 	{
 		df6iter bp(0, &a), ep(1, 0);
 
-		b->onAnyDestroyed(bp, ep);
+		LIBCXX_NAMESPACE::on_any_destroyed([b]
+						   {
+							   b->destroyed();
+						   },
+						   bp, ep);
 	}
 
 	if (l->log != "a[b]")

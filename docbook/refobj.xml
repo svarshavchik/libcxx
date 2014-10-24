@@ -1,6 +1,6 @@
 <!--
 
-Copyright 2012 Double Precision, Inc.
+Copyright 2012-2014 Double Precision, Inc.
 See COPYING for distribution information.
 
 -->
@@ -1975,48 +1975,34 @@ ondestroyHook-&gt;cancel();</programlisting>
 	  <programlisting>
 #include &lt;&ns;/ondestroy.H&gt;
 
-class myDestructorCallbackObj : public &ns;::destroyCallbackObj {
-
-public:
-      myDestructorCallbackObj() noexcept;
-      ~myDestructorCallbackObj() noexcept;
-      void destroyed() noexcept;
-};
-
-typedef &ns;::ref&lt;myDestructorCallbackObj&gt; myDestructorCallback;
-
-myDestructorCallback mycb(myDestructorCallback::create());
-
 // ...
 
 std::list&lt;&ns;::ref&lt;&ns;::obj&gt; &gt; objects;
 
-mycb-&gt;onAnyDestroyed(objects.begin(), objects.end());</programlisting>
+&ns;::on_any_destroyed([]
+                   {
+                      // Something was destroyed
+                   }, objects.begin(), objects.end());</programlisting>
 	</informalexample>
       </blockquote>
 
       <para>
-	<methodname>onAnyDestroyed</methodname>() is a template method in
-	<classname>&ns;::destroyCallbackObj</classname>. Its parameters are
+	<methodname>&ns;::on_any_destroyed</methodname>() invokes a lambda
+	when any one of several objects gets destroyed.. Its parameters are
+	a lambda to invoke, and a
 	a beginning and an ending input iterator for a sequence of references
 	to reference-counted object class instances.
       </para>
 
       <para>
-	<methodname>onAnyDestroyed</methodname>() results in the destructor
-	callback's <methodname>destroyed</methodname>() getting invoked when
+	<methodname>&ns;::on_any_destroyed</methodname>() results in the lambda
+	getting invoked when
 	any of the objects in the sequence go out of scope and gets destroyed.
-	<methodname>destroyed</methodname>() gets invoked only once; for all
+	The lambda callback gets invoked only once; for all
 	practical matters, for the first object in the sequence that goes out
 	of scope and gets destroyed. Subsequent destruction of other objects
 	in the sequence does not result in
-	<methodname>destroyed</methodname>() getting invoked on their behalf.
-      </para>
-
-      <para>
-	Of course, the same destructor callback can be attached to other
-	mcguffins, whose own destruction will result in
-	<methodname>destroyed</methodname>() invocations on their behalf.
+	the lambda getting invoked on their behalf.
       </para>
 
       <para>
@@ -2024,25 +2010,24 @@ mycb-&gt;onAnyDestroyed(objects.begin(), objects.end());</programlisting>
 	it's an arbitrary input sequence. Once an &ref; has been iterated over,
 	it is no longer in scope, and, with a custom input iterator, its
 	possible that it can get destroyed. If so, it's possible that
-	<methodname>destroyed</methodname>() gets called before
-	<methodname>onAnyDestroyed</methodname>() returns.
+	the lambda gets called even before
+	<methodname>&ns;::on_any_destroyed</methodname>() returns.
       </para>
 
       <para>
-	<methodname>destroyed</methodname>() also gets called in the event
+	The lambda also gets called, prior to
+	<methodname>&ns;::on_any_destroyed</methodname>() returning in the event
 	that the iterators define an empty input sequence.
+	<methodname>&ns;::on_any_destroyed</methodname>() works by attaching
+	an <link linkend="ondestroyrevocable"><methodname>&ns;::ondestroy</methodname></link>()
+	callback to all of the objects in the sequence to a mcguffin that
+	invokes the lambda, with the first
+	<link linkend="ondestroyrevocable"><methodname>&ns;::ondestroy</methodname></link>()
+	call releasing the mcguffin, whose destructor invokes the lambda.
+	If the iterator sequence is empty, the mcguffin goes out of scope
+	immediately, prior to
+	<methodname>&ns;::on_any_destroyed</methodname>() returning.
       </para>
-
-      <note>
-	<para>
-	  It's the mcguffin's
-	  <methodname>addOnDestroy</methodname>() method that gets invoked,
-	  and it takes the callback as a parameter.
-	  It is a destructor callback's
-	  <methodname>onAnyDestroyed</methodname>() method that gets invoked,
-	  and it takes an input sequence of mcguffins.
-	</para>
-      </note>
 
       <note>
 	<para>

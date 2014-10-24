@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: libcxx 0.8\n"
 "Report-Msgid-Bugs-To: mrsam@courier-mta.com\n"
-"POT-Creation-Date: 2013-12-14 22:24-0500\n"
+"POT-Creation-Date: 2014-10-24 08:18-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -443,6 +443,12 @@ msgstr ""
 
 #: base/maillogs.C:304
 msgid "state file must be specified"
+msgstr ""
+
+#: base/obj.C:40
+msgid ""
+"Attempting to create an x::ref(this) or x::ptr(this) in %1%'s constructor or "
+"destructor"
 msgstr ""
 
 #: base/option_definitionpropertiesobj.C:27
