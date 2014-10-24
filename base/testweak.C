@@ -49,6 +49,15 @@ void foo3(const LIBCXX_NAMESPACE::ptr<LIBCXX_NAMESPACE::obj> &r)
 	wtestptr w(r);
 }
 
+wtestptr foo4(const testref &r)
+{
+	// Make sure this compiles
+
+	wtestptr w=r;
+
+	return w;
+}
+
 class weaktestinfo : virtual public LIBCXX_NAMESPACE::obj {
 
 public:

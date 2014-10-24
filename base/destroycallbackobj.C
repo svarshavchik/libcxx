@@ -20,10 +20,6 @@ destroyCallbackObj::~destroyCallbackObj() noexcept
 {
 }
 
-void destroyCallbackObj::destroyed() noexcept
-{
-}
-
 destroyCallbackObj::onAnyDestroyCallbackObj::cbListObj::cbListObj()
 {
 }

@@ -101,6 +101,23 @@ public:
 
 		const ptrType &refArg);
 
+	//! Create a weak pointer
+
+	//! \overload
+	weakptr(const ref<objClass, baseType> &refArg);
+
+	//! Create a weak pointer
+
+	//! \overload
+	template<typename objClass2, typename baseType2>
+		weakptr(const ptr<objClass2, baseType2> &ptrArg);
+
+	//! Create a weak pointer
+
+	//! \overload
+	template<typename objClass2, typename baseType2>
+		weakptr(const ref<objClass2, baseType2> &refArg);
+
 	//! Default destructor
 
 	~weakptr() noexcept;

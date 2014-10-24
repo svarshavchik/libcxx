@@ -1,5 +1,5 @@
 /*
-** Copyright 2012 Double Precision, Inc.
+** Copyright 2012-2014 Double Precision, Inc.
 ** See COPYING for distribution information.
 */
 
@@ -29,6 +29,29 @@ inline weakptr<ptr<objClass, baseType>>::weakptr(const ptrType &refArg)
 {
 	if (!refArg.null())
 		ptr<weakinfo>::operator=(refArg->obj::weak());
+}
+
+template<typename objClass, typename baseType>
+inline weakptr<ptr<objClass, baseType>>::weakptr(const ref<objClass, baseType>
+						 &refArg)
+{
+	ptr<weakinfo>::operator=(refArg->obj::weak());
+}
+
+template<typename objClass, typename baseType>
+template<typename objClass2, typename baseType2>
+inline weakptr<ptr<objClass, baseType>>
+::weakptr(const ptr<objClass2, baseType2> &ptrArg)
+	: weakptr(ptrType(ptrArg))
+{
+}
+
+template<typename objClass, typename baseType>
+template<typename objClass2, typename baseType2>
+inline weakptr<ptr<objClass, baseType>>
+::weakptr(const ref<objClass2, baseType2> &refArg)
+	: weakptr(ref<objClass, baseType>(refArg))
+{
 }
 
 template<typename objClass, typename baseType>

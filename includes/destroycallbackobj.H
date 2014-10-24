@@ -35,7 +35,7 @@ public:
 
 	//! The callback
 
-	virtual void destroyed() noexcept;
+	virtual void destroyed() noexcept=0;
 
 
 	//! Invoke destroyed() when any one of multiple objects gets destroyed.

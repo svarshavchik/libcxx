@@ -37,7 +37,7 @@ void ref_in_constructor(obj *p)
 
 	exception e;
 
-	LOG_FATAL(gettextmsg(libmsg(_txt("Attempting to create an x::ref(this) or x::ptr(this) in %1%'s constructor")), p->objname()));
+	LOG_FATAL(gettextmsg(libmsg(_txt("Attempting to create an x::ref(this) or x::ptr(this) in %1%'s constructor or destructor")), p->objname()));
 	LOG_TRACE(e->backtrace);
 	abort();
 }
