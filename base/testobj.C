@@ -1449,7 +1449,7 @@ void testdestroy::destroyed() noexcept
 void testdestroyfunc1()
 {
 	try {
-		LIBCXX_NAMESPACE::ptr<testdestroy> td(LIBCXX_NAMESPACE::ptr<testdestroy>::create());
+		auto td=LIBCXX_NAMESPACE::ptr<testdestroy>::create();
 
 		std::cout << "testdestroy object created" << std::endl;
 
@@ -1478,7 +1478,7 @@ void testdestroyfunc1()
 void testdestroyfunc2()
 {
 	try {
-		LIBCXX_NAMESPACE::ptr<testdestroy> td(LIBCXX_NAMESPACE::ptr<testdestroy>::create());
+		auto td=LIBCXX_NAMESPACE::ptr<testdestroy>::create();
 
 		std::cout << "testdestroy object created" << std::endl;
 
@@ -1486,7 +1486,11 @@ void testdestroyfunc2()
 
 		std::cout << "dummy object created" << std::endl;
 
-		LIBCXX_NAMESPACE::ondestroyptr od(LIBCXX_NAMESPACE::ondestroy::create(td, obj, false));
+		auto od=LIBCXX_NAMESPACE::ondestroyptr
+			::create([td]
+				 {
+					 td->destroyed();
+				 }, obj, false);
 
 		std::cout << "ondestroy created" << std::endl;
 
@@ -1526,7 +1530,11 @@ void testdestroyfunc3()
 
 		std::cout << "dummy object created" << std::endl;
 
-		LIBCXX_NAMESPACE::ondestroyptr od(LIBCXX_NAMESPACE::ondestroy::create(td, obj, false));
+		auto od=LIBCXX_NAMESPACE::ondestroyptr
+			::create([td]
+				 {
+					 td->destroyed();
+				 }, obj, false);
 
 		std::cout << "ondestroy created" << std::endl;
 
@@ -1567,7 +1575,11 @@ void testdestroyfunc4()
 
 		std::cout << "dummy object created" << std::endl;
 
-		LIBCXX_NAMESPACE::ondestroyptr od(LIBCXX_NAMESPACE::ondestroy::create(td, obj, false));
+		auto od=LIBCXX_NAMESPACE::ondestroyptr
+			::create([td]
+				 {
+					 td->destroyed();
+				 }, obj, false);
 
 		std::cout << "ondestroy created" << std::endl;
 
@@ -1600,7 +1612,11 @@ void testdestroyfunc5()
 
 		std::cout << "dummy object created" << std::endl;
 
-		LIBCXX_NAMESPACE::ondestroyptr od(LIBCXX_NAMESPACE::ondestroy::create(td, obj, true));
+		auto od=LIBCXX_NAMESPACE::ondestroyptr
+			::create([td]
+				 {
+					 td->destroyed();
+				 }, obj, true);
 
 		std::cout << "ondestroy created" << std::endl;
 

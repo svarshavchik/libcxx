@@ -1890,13 +1890,7 @@ containerObj::containerObj() : title(widget::create())
       <blockquote>
 	<informalexample>
 	  <programlisting>
-class myDestructorCallbackObj : public &ns;::destroyCallbackObj {
-
-public:
-      myDestructorCallbackObj() noexcept;
-      ~myDestructorCallbackObj() noexcept;
-      void destroyed() noexcept;
-};
+#include &lt;&ns;/ondestroy.H&gt;
 
 class mcguffinObj : virtual public &ns;::obj {
 
@@ -1904,27 +1898,27 @@ class mcguffinObj : virtual public &ns;::obj {
 
 };
 
-typedef &ns;::ref&lt;myDestructorCallbackObj&gt; myDestructorCallback;
-
-myDestructorCallback mycb(myDestructorCallback::create());
-
 &ns;::ref&lt;mcguffinObj&gt; mcguffin=&ns;::ref&lt;mcguffinObj&gt;::create();
 
-&ns;::ondestroy ondestroyHook(&ns;::ondestroy::create(myDestructorCallback, mcguffin,
-                                           true);
+auto ondestroy_hook=&ns;::ondestroy::create([]
+                  {
+                        // ...
+                  }, mcguffin, true);
 
 // ...
 
-ondestroyHook-&gt;cancel();</programlisting>
+ondestroy_hook-&gt;cancel();</programlisting>
 	</informalexample>
       </blockquote>
 
       <para>
-	The destructor callback stays attached
+	The destructor callback lambda stays attached
 	to its mcguffin until <classname>&ns;::ondestroy</classname>'s
-	<methodname>cancel</methodname>() gets invoked. After the
-	<methodname>cancel</methodname>(), the destructor callback will no
-	longer get invoked when the mcguffin gets destroyed. If the mcguffin is
+	<methodname>cancel</methodname>() gets invoked. If the mcguffin is
+	not destroyed by the time
+	<methodname>cancel</methodname>() gets invoked,
+	the destructor callback does not get invoked as part of the mcguffin's
+	eventual destruction. If the mcguffin is
 	already destroyed, and its destructor callbacks were already invoked,
 	<methodname>cancel</methodname>() has no effect.
       </para>

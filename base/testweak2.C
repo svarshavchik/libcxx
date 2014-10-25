@@ -27,26 +27,7 @@ public:
 typedef LIBCXX_NAMESPACE::weakmultimap<std::string, valueObj> mmap_t;
 typedef LIBCXX_NAMESPACE::weakmap<std::string, valueObj> map_t;
 
-class myDestructorCallbackObj : public LIBCXX_NAMESPACE::destroyCallbackObj {
-
-	mmap_t &m;
-
-public:
-	myDestructorCallbackObj(mmap_t &mArg) noexcept;
-	~myDestructorCallbackObj() noexcept;
-	void destroyed() noexcept;
-};
-
-myDestructorCallbackObj::myDestructorCallbackObj(mmap_t &mArg) noexcept
-	: m(mArg)
-{
-}
-
-myDestructorCallbackObj::~myDestructorCallbackObj() noexcept
-{
-}
-
-void myDestructorCallbackObj::destroyed() noexcept
+static void dump_m(const mmap_t &m)
 {
 	mmap_t::base::iterator b(m->begin()), e(m->end());
 	while (b != e)
@@ -133,9 +114,10 @@ int main(int argc, char **argv)
 
 			{
 				LIBCXX_NAMESPACE::ondestroy::create
-					(LIBCXX_NAMESPACE::ptr<myDestructorCallbackObj>
-					 ::create(m),
-					 v);
+					([m]
+					 {
+						 dump_m(m);
+					 }, v);
 
 				m->insert(std::make_pair(std::string("A"), v));
 			}
@@ -151,8 +133,10 @@ int main(int argc, char **argv)
 				m->insert(std::make_pair(std::string("B"), v));
 
 				LIBCXX_NAMESPACE::ondestroy::create
-					(LIBCXX_NAMESPACE::ref<myDestructorCallbackObj>
-					 ::create(m), v);
+					([m]
+					 {
+						 dump_m(m);
+					 }, v);
 			}
 			v=LIBCXX_NAMESPACE::ptr<valueObj>();
 		}

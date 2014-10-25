@@ -485,28 +485,18 @@ template<typename objClass2> inline const_ptr<objClass, baseClass>
 //! \code
 //! #include <ondestroy.H>
 //!
-//! class myDestructorCallbackObj : public INSERT_LIBX_NAMESPACE::destroyCallbackObj {
-//!
-//! public:
-//!       myDestructorCallbackObj() noexcept;
-//!       ~myDestructorCallbackObj() noexcept;
-//!       void destroyed() noexcept;
-//! };
-//!
 //! class mcguffinObj : virtual public INSERT_LIBX_NAMESPACE::obj {
 //!
 //! // ...
 //!
 //! };
 //!
-//! typedef INSERT_LIBX_NAMESPACE::ptr<myDestructorCallbackObj> myDestructorCallback;
+//! auto mcguffin=INSERT_LIBX_NAMESPACE::ref<mcguffinObj>::create();
 //!
-//! myDestructorCallback mycb(myDestructorCallback::create());
-//!
-//! INSERT_LIBX_NAMESPACE::ptr<mcguffinObj> mcguffin=INSERT_LIBX_NAMESPACE::ptr<mcguffinObj>::create();
-//!
-//! INSERT_LIBX_NAMESPACE::ondestroy ondestroyHook(INSERT_LIBX_NAMESPACE::ondestroy::create(myDestructorCallback, mcguffin,
-//!                                           true);
+//! auto ondestroyHook=INSERT_LIBX_NAMESPACE::ondestroy::create([]
+//!                        {
+//!                            // ...
+//!                        }, mcguffin, true);
 //!
 //! // ...
 //!
@@ -516,8 +506,8 @@ template<typename objClass2> inline const_ptr<objClass, baseClass>
 //!
 //! Instead of invoking a mcguffin's addOnDestroy() function, instantiate an
 //! \c ondestroy object, which is a reference-counted object. Its constructor
-//! takes the destructor callback reference and the mcguffin, and invokes
-//! \c addOnDestroy() itself, but this is now reversable.
+//! takes a lambda and the mcguffin. The lambda gets invoked, as usual,
+//! when the mcguffin goes out of scope and gets destroyed.
 //! If, for some reason it might be necessary to detach the destructor callback
 //! from the mcguffin, use
 //! \ref ondestroyObj::cancel() "cancel()"
@@ -527,9 +517,13 @@ template<typename objClass2> inline const_ptr<objClass, baseClass>
 //! a pointer to a reference-counted object. If the third
 //! parameter is \c true, \c cancel() gets invoked automatically when its last
 //! reference goes out of scope. Otherwise, the third parameter's default
-//! value of \c false leaves the destructor callback in place, and it will
-//! be invoked when the mcguffin gets destroyed (if it's not destroyed
+//! value of \c false leaves the destructor callback in place, and it gets
+//! invoked when the mcguffin gets destroyed (if it's not destroyed
 //! already).
+//!
+//! \note
+//! cancel() can get invoked while the destructor callback is being executed
+//! by another thread. cancel() blocks until the lambda returns.
 
 template<typename objClass,
 	 typename baseClass> class ptr : public const_ptr<objClass, baseClass> {

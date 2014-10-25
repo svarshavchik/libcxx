@@ -24,7 +24,7 @@ template<typename ref_type> class mcguffinrefObj;
 //! Mcguffin destructor callback trigger
 
 template<typename ref_type>
-class mcguffinref_cbObj : public destroyCallbackObj {
+class mcguffinref_cbObj : virtual public obj {
 
 public:
 	//! The connection to the controller
@@ -114,7 +114,10 @@ public:
 
 		auto cb=ref<mcguffinref_cbObj<ref_type> >::create();
 
-		ondestroy d(ondestroy::create(cb, mcguffin));
+		auto d=ondestroy::create([cb]
+					 {
+						 cb->destroyed();
+					 }, mcguffin);
 
 		cb->disconnect_ref=
 			ptr<mcguffinrefObj<ref_type> >(this);

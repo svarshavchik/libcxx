@@ -15,6 +15,14 @@ namespace LIBCXX_NAMESPACE {
 };
 #endif
 
+ondestroy ondestroyBase::do_create(const destroyCallback &cb,
+				   const ref<obj> &objArg,
+				   bool autodestroy)
+{
+	return ptrrefBase::objfactory<ondestroy>::create(cb, objArg,
+							 autodestroy);
+}
+
 ondestroyObj::ondestroyObj(const ref<destroyCallbackObj> &cbArg,
 			   const ref<obj> &objArg,
 			   bool autodestroyArg)

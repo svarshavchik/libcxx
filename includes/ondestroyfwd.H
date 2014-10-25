@@ -16,16 +16,17 @@ namespace LIBCXX_NAMESPACE {
 #endif
 
 class ondestroyObj;
+class ondestroyBase;
 
 //! A destructor reference
 
 //! \see ptr
 //!
-typedef ref<ondestroyObj> ondestroy;
+typedef ref<ondestroyObj, ondestroyBase> ondestroy;
 
 //! A nullable pointer to a destructor reference
 
-typedef ptr<ondestroyObj> ondestroyptr;
+typedef ptr<ondestroyObj, ondestroyBase> ondestroyptr;
 
 #if 0
 {

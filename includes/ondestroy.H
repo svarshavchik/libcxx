@@ -23,8 +23,7 @@ namespace LIBCXX_NAMESPACE {
 
 //! Proxy destructor callback used by onAnyDestroyed().
 
-class destroyCallbackObj::onAnyDestroyCallbackObj : public destroyCallbackObj {
-
+class destroyCallbackObj::onAnyDestroyCallbackObj : virtual public obj {
 
 public:
 
@@ -43,10 +42,10 @@ public:
 	//! Destructor
 	~onAnyDestroyCallbackObj() noexcept;
 
-private:
-
 	//! One of the mcguffins went out of scope. We're done, cancel the whole show.
 	void destroyed() noexcept;
+
+private:
 
 	//! Cancellable destructor callbacks that were set up
 
@@ -83,7 +82,10 @@ destroyCallback on_any_destroyed(functor_type &&functor,
 
 	while (b != e)
 	{
-		cblist->push_back(ondestroy::create(mcguffin, *b, true));
+		cblist->push_back(ondestroy::create([mcguffin]
+						    {
+							    mcguffin->destroyed();
+						    }, *b, true));
 		++b;
 	}
 
@@ -91,6 +93,39 @@ destroyCallback on_any_destroyed(functor_type &&functor,
 
 	return callback;
 }
+
+//! Base class for \ref ondestroy "destructor references."
+
+class ondestroyBase {
+
+public:
+
+	//! Real create() implementation takes a generic destroy callback
+
+	static ondestroy do_create(const destroyCallback &cb,
+				   const ref<obj> &objArg,
+				   bool autodestroy);
+
+	//! Custom create() method implementation.
+
+	template<typename ptrrefType> class objfactory {
+
+	public:
+		//! Custom create() method.
+
+		//! Wraps the lambda, and calls do_create().
+
+		template<typename functor_type>
+			static inline ptrrefType create(functor_type &&functor,
+							const ref<obj> &objArg,
+							bool autodestroy=false)
+		{
+			return do_create(destroyCallback::create
+					 (std::forward<functor_type>(functor)),
+					 objArg, autodestroy);
+		}
+	};
+};
 
 #if 0
 {
