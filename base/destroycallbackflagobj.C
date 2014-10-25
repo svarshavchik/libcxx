@@ -20,7 +20,7 @@ destroyCallbackFlagObj::~destroyCallbackFlagObj() noexcept
 {
 }
 
-void destroyCallbackFlagObj::destroyed() noexcept
+void destroyCallbackFlagObj::destroyed()
 {
 	mpcobj<bool>::lock lock(flag);
 
@@ -52,7 +52,7 @@ void destroyCallbackFlagBase::guard::add(const x::ref<x::obj> &obj)
 {
 	auto cb=destroyCallbackFlag::create();
 
-	obj->addOnDestroy(cb);
+	obj->ondestroy([cb] { cb->destroyed(); });
 	callbacks.push_back(cb);
 }
 

@@ -65,7 +65,7 @@ void timertaskObj::cancel()
 		if (impl->samethread())
 			return; // Soon.
 
-		mcguffin->addOnDestroy(cb);
+		mcguffin->ondestroy([cb] { cb->destroyed(); });
 	}
 
 	cb->wait();

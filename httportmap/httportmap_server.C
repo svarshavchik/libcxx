@@ -386,7 +386,7 @@ void httportmap_server::startup(const std::string &sockname,
 			{
 				auto recv(reexec_fd_recv::create(timeout,
 								 existing_fd));
-				recv->addOnDestroy(flag);
+				recv->ondestroy([flag]{flag->destroyed();});
 
 				meta.serialize(*recv);
 

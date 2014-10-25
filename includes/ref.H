@@ -289,7 +289,7 @@ template<typename objClass2> inline const_ref<objClass, baseClass>
 	return *this;
 }
 
-//! A non-empty pointer reference.
+//! A non-null pointer reference.
 
 //! This template defines a pointer to a reference-counted object, and is
 //! similar to \ref ptr "INSERT_LIBX_NAMESPACE::ptr", except that
@@ -300,7 +300,7 @@ template<typename objClass2> inline const_ref<objClass, baseClass>
 //! a native NULL pointer. Dereferencing a NULL
 //! \ref ptr "INSERT_LIBX_NAMESPACE::ptr", using its \c * or \c -> operator,
 //! throws an %exception. This
-//! \ref ref "INSERT_LIBX_NAMESPACE::ref" also has a \c * and a \c -> operator,
+//! \ref ref "INSERT_LIBX_NAMESPACE::ref" also has a \c * and a \c -> operators,
 //! which work exactly like their
 //! \ref ptr "INSERT_LIBX_NAMESPACE::ptr" counterparts, except that they
 //! never throw an %exception because

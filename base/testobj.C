@@ -9,7 +9,6 @@
 #include "x/weaklist.H"
 #include "x/weakmap.H"
 #include "x/weakmultimap.H"
-#include "x/destroycallbackobj.H"
 #include "x/ondestroy.H"
 #include "x/mutex.H"
 #include "x/vector.H"
@@ -1423,13 +1422,13 @@ static void testtimerfd() noexcept
 	}
 }
 
-class testdestroy : public LIBCXX_NAMESPACE::destroyCallbackObj {
+class testdestroy : public LIBCXX_NAMESPACE::obj::destroyCallbackObj {
 
 public:
 	testdestroy() noexcept;
 	~testdestroy() noexcept;
 
-	void destroyed() noexcept;
+	void destroyed();
 };
 
 testdestroy::testdestroy() noexcept
@@ -1440,7 +1439,7 @@ testdestroy::~testdestroy() noexcept
 {
 }
 
-void testdestroy::destroyed() noexcept
+void testdestroy::destroyed()
 {
 	sleep(2);
 	std::cout << "destroyed() called" << std::endl;
@@ -1457,7 +1456,7 @@ void testdestroyfunc1()
 
 		std::cout << "dummy object created" << std::endl;
 
-		obj->addOnDestroy(td);
+		obj->ondestroy([td]{td->destroyed();});
 
 		std::cout << "ondestroy callback installed" << std::endl;
 
@@ -1649,7 +1648,7 @@ public:
 
 typedef LIBCXX_NAMESPACE::ref<df6logObj> df6log;
 
-class df6obj1Obj : virtual public LIBCXX_NAMESPACE::destroyCallbackObj {
+class df6obj1Obj : virtual public LIBCXX_NAMESPACE::obj::destroyCallbackObj {
 
 public:
 	df6log l;
@@ -1665,7 +1664,7 @@ public:
 		l->log += id;
 	}
 
-	void destroyed() noexcept
+	void destroyed()
 	{
 		l->log += "[" + id + "]";
 	}

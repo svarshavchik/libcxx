@@ -9,7 +9,6 @@
 #include <x/namespace.h>
 #include <x/ref.H>
 #include <x/obj.H>
-#include <x/destroycallbackobj.H>
 #include <x/threads/runfwd.H>
 #include <thread>
 
@@ -49,7 +48,7 @@ private:
 
 	//! A destructor callback attached to a mcguffin passed to the thread.
 
-	class threadCleanupObj : public destroyCallbackObj {
+	class threadCleanupObj : virtual public obj {
 
 		//! When the thread terminates, send this to the cleanup thread.
 		ref<runthreadbaseObj> thr;
@@ -74,7 +73,10 @@ private:
 
 		//! Destructor
 		~threadCleanupObj() noexcept LIBCXX_HIDDEN;
-		void destroyed() noexcept LIBCXX_HIDDEN;
+
+		//! Thread terminated.
+
+		void destroyed();
 	};
 
 	//! The joinable thread

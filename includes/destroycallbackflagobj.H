@@ -6,7 +6,7 @@
 #ifndef x_destroycallbackflagobj_H
 #define x_destroycallbackflagobj_H
 
-#include <x/destroycallbackobj.H>
+#include <x/obj.H>
 #include <x/mpobj.H>
 
 namespace LIBCXX_NAMESPACE {
@@ -19,7 +19,7 @@ namespace LIBCXX_NAMESPACE {
 //! Invoke wait() to wait for destroyed() to be invoked
 //!
 
-class destroyCallbackFlagObj : public destroyCallbackObj {
+class destroyCallbackFlagObj : virtual public obj {
 
 	//! Flag, destroyed() has been invoked.
 
@@ -34,7 +34,7 @@ public:
 	~destroyCallbackFlagObj() noexcept;
 
 	//! The attached object has been destroyed
-	void destroyed() noexcept;
+	void destroyed();
 
 	//! Wait for the attached object to be destroyed
 	void wait();

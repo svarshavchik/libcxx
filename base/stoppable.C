@@ -5,7 +5,6 @@
 
 #include "libcxx_config.h"
 #include "x/stoppable.H"
-#include "x/destroycallbackobj.H"
 
 namespace LIBCXX_NAMESPACE {
 #if 0
@@ -20,7 +19,7 @@ stoppableObj::~stoppableObj() noexcept
 {
 }
 
-class LIBCXX_HIDDEN stoppableBase::groupObj::cbObj : public destroyCallbackObj {
+class LIBCXX_HIDDEN stoppableBase::groupObj::cbObj : virtual public obj {
 
  public:
 	weaklist<stoppableObj> stoppables;
@@ -34,7 +33,7 @@ class LIBCXX_HIDDEN stoppableBase::groupObj::cbObj : public destroyCallbackObj {
 	{
 	}
 
-	void destroyed() noexcept
+	void destroyed()
 	{
 		for (auto s: *stoppables)
 		{
@@ -62,7 +61,9 @@ void stoppableBase::groupObj::add(const stoppable &member)
 
 void stoppableBase::groupObj::mcguffin(const ref<obj> &mcguffin)
 {
-	mcguffin->addOnDestroy(ref<cbObj>::create(stoppables));
+	auto s=ref<cbObj>::create(stoppables);
+
+	mcguffin->ondestroy([s] { s->destroyed(); });
 }
 
 #if 0

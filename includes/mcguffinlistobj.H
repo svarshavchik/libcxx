@@ -81,7 +81,7 @@ public:
 
 		auto wrapper=mcguffin->create_wrapper();
 
-		wrapper->addOnDestroy(destroyed);
+		wrapper->ondestroy([destroyed]{destroyed->destroyed();});
 
 		destroyed->install(w->emplace(w->begin(), wrapper));
 
@@ -112,7 +112,7 @@ public:
 
 		auto wrapper=mcguffin->create_wrapper();
 
-		wrapper->addOnDestroy(destroyed);
+		wrapper->ondestroy([destroyed]{destroyed->destroyed();});
 
 		destroyed->install(w->emplace(w->end(), wrapper));
 

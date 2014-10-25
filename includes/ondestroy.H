@@ -9,7 +9,6 @@
 #include <x/ref.H>
 #include <x/ondestroyfwd.H>
 #include <x/ondestroyobj.H>
-#include <x/destroycallback.H>
 #include <x/mpobj.H>
 #include <x/namespace.h>
 
@@ -23,13 +22,14 @@ namespace LIBCXX_NAMESPACE {
 
 //! Proxy destructor callback used by onAnyDestroyed().
 
-class destroyCallbackObj::onAnyDestroyCallbackObj : virtual public obj {
+class onAnyDestroyCallbackObj : virtual public obj {
 
 public:
 
 	//! Cancellable destructor callbacks that were set up.
 
-	class cbListObj : public std::list<ondestroy>, virtual public obj {
+	class cbListObj : public std::list<LIBCXX_NAMESPACE::ondestroy>,
+			  virtual public obj {
 
 	public:
 		cbListObj();
@@ -68,17 +68,12 @@ private:
 //! the functor returns.
 
 template<typename functor_type, typename iter_type>
-destroyCallback on_any_destroyed(functor_type &&functor,
-				 iter_type b, iter_type e)
+void on_any_destroyed(functor_type &&functor,
+		      iter_type b, iter_type e)
 {
-	auto callback=destroyCallback::create(std::forward<functor_type>
-					      (functor));
+	auto cblist=ref<onAnyDestroyCallbackObj::cbListObj>::create();
 
-	auto cblist=ref<destroyCallbackObj::onAnyDestroyCallbackObj
-			::cbListObj>::create();
-
-	auto mcguffin=ref<destroyCallbackObj::onAnyDestroyCallbackObj>
-		::create(cblist);
+	auto mcguffin=ref<onAnyDestroyCallbackObj>::create(cblist);
 
 	while (b != e)
 	{
@@ -89,9 +84,7 @@ destroyCallback on_any_destroyed(functor_type &&functor,
 		++b;
 	}
 
-	mcguffin->addOnDestroy(callback);
-
-	return callback;
+	mcguffin->ondestroy([functor] { functor(); });
 }
 
 //! Base class for \ref ondestroy "destructor references."
@@ -102,7 +95,7 @@ public:
 
 	//! Real create() implementation takes a generic destroy callback
 
-	static ondestroy do_create(const destroyCallback &cb,
+	static ondestroy do_create(const ref<obj::destroyCallbackObj> &cb,
 				   const ref<obj> &objArg,
 				   bool autodestroy);
 
@@ -120,7 +113,7 @@ public:
 							const ref<obj> &objArg,
 							bool autodestroy=false)
 		{
-			return do_create(destroyCallback::create
+			return do_create(obj::create_ondestroy
 					 (std::forward<functor_type>(functor)),
 					 objArg, autodestroy);
 		}

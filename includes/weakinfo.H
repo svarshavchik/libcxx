@@ -24,7 +24,6 @@ namespace LIBCXX_NAMESPACE {
 template<class refType> class weakptr;
 
 class obj;
-class destroyCallbackObj;
 
 //! Weak pointer information.
 
@@ -94,7 +93,7 @@ class weakinfo : public obj {
 
 	//! A list of all callbacks to invoke upon destruction of object
 
-	std::list< ref<destroyCallbackObj> > callback_list;
+	std::list< ref<obj::destroyCallbackObj> > callback_list;
 
 public:
 	//! Constructor.

@@ -4,7 +4,6 @@
 */
 
 #include "libcxx_config.h"
-#include "destroycallbackobj.H"
 #include "ondestroy.H"
 #include "exception.H"
 #include <cstdlib>
@@ -15,7 +14,7 @@ namespace LIBCXX_NAMESPACE {
 };
 #endif
 
-ondestroy ondestroyBase::do_create(const destroyCallback &cb,
+ondestroy ondestroyBase::do_create(const ref<obj::destroyCallbackObj> &cb,
 				   const ref<obj> &objArg,
 				   bool autodestroy)
 {
@@ -27,7 +26,7 @@ ondestroyObj::ondestroyObj(const ref<destroyCallbackObj> &cbArg,
 			   const ref<obj> &objArg,
 			   bool autodestroyArg)
 	: cb(cbArg), wi(objArg->weak()),
-	  wi_cb_iter(objArg->addOnDestroy(cbArg)),
+	  wi_cb_iter(objArg->do_add_ondestroy(cbArg)),
 	  autodestroy(autodestroyArg)
 {
 }
@@ -70,7 +69,7 @@ void ondestroyObj::cancel()
 	}
 
 	wi=ptr<weakinfo>();
-	cb=ptr<destroyCallbackObj>();
+	cb=ptr<obj::destroyCallbackObj>();
 
 }
 #if 0

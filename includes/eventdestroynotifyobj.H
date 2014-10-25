@@ -24,7 +24,7 @@ class eventdestroynotifyBase;
 //! See #eventdestroynotify for more information.
 //!
 
-class eventdestroynotifyObj : public destroyCallbackObj {
+class eventdestroynotifyObj : virtual public obj {
 
 	//! Event file descriptor to signal
 
@@ -57,7 +57,7 @@ public:
 private:
 	//! The object was destroyed
 
-	void destroyed() noexcept;
+	void destroyed();
 
 	//! Attach this as a callback to another object's destruction
 

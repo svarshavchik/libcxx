@@ -172,7 +172,7 @@ auto run_async::run_thread(const ref<objClass, baseType> &p,
 	// the cleanup thread, when it goes out of scope.
 
         auto cb=ref<runthreadbaseObj::threadCleanupObj>::create(thr);
-        run_param->addOnDestroy(cb);
+        run_param->ondestroy([cb] { cb->destroyed(); });
 
 	std::lock_guard<std::mutex> lock(thr->objmutex);
 

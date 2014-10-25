@@ -35,10 +35,12 @@ void eventdestroynotifyObj::install(const eventfd &eventfdArg,
 {
 	notifyeventfd=eventfdArg;
 
-	objArg->addOnDestroy(ref<destroyCallbackObj>(this));
+	auto me=ref<eventdestroynotifyObj>(this);
+
+	objArg->ondestroy([me] { me->destroyed(); });
 }
 
-void eventdestroynotifyObj::destroyed() noexcept
+void eventdestroynotifyObj::destroyed()
 {
 	eventfdptr e;
 

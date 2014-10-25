@@ -205,7 +205,7 @@ runthreadbaseObj::threadCleanupObj::~threadCleanupObj() noexcept
 	}
 }
 
-void runthreadbaseObj::threadCleanupObj::destroyed() noexcept
+void runthreadbaseObj::threadCleanupObj::destroyed()
 {
 	if (!thr->thr.joinable())
 		return; // Must've been a problem starting the thread.

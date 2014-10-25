@@ -64,7 +64,9 @@ static void testdestroycallbackwait4()
 	{
 		auto t1=LIBCXX_NAMESPACE::ref<test1Obj>::create();
 
-		t1->addOnDestroy(w4::create(t1->mcguffin));
+		auto w=w4::create(t1->mcguffin);
+
+		t1->ondestroy([w] {w->destroyed();});
 	}
 
 	{
@@ -73,7 +75,9 @@ static void testdestroycallbackwait4()
 		auto mcguffin2=LIBCXX_NAMESPACE::ptr<LIBCXX_NAMESPACE::obj>
 			::create();
 
-		t1->mcguffin->addOnDestroy(w4::create(mcguffin2));
+		auto w=w4::create(mcguffin2);
+
+		t1->mcguffin->ondestroy([w] {w->destroyed();});
 
 		auto ret=LIBCXX_NAMESPACE::run(t1);
 

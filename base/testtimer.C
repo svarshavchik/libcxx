@@ -50,7 +50,7 @@ static void testtimertask() noexcept
 
 			timer->scheduleAtFixedRate(job,
 						   std::chrono::milliseconds(250));
-			job->addOnDestroy(cb);
+			job->ondestroy([cb] {cb->destroyed();});
 		}
 		cb->wait();
 	}
@@ -67,7 +67,7 @@ static void testtimertask() noexcept
 
 			timer->scheduleAtFixedRate(job,
 						   std::chrono::seconds(60));
-			job->addOnDestroy(cb);
+			job->ondestroy([cb]{cb->destroyed();});
 			job->cancel();
 		}
 		cb->wait();
@@ -83,7 +83,7 @@ static void testtimertask() noexcept
 
 			timer->scheduleAtFixedRate(job,
 						   std::chrono::seconds(60));
-			job->addOnDestroy(cb);
+			job->ondestroy([cb]{cb->destroyed();});
 		}
 
 		timer=LIBCXX_NAMESPACE::timerptr::create();
@@ -163,7 +163,7 @@ static void testtimertask3() noexcept
 		timer->scheduleAtFixedRate(counter, L"timer.rate",
 					   std::chrono::seconds(600));
 
-		counter->addOnDestroy(flag);
+		counter->ondestroy([flag]{flag->destroyed();});
 	}
 
 	flag->wait();
@@ -197,7 +197,7 @@ static void testtimertask4() noexcept
 		auto timerjob=LIBCXX_NAMESPACE::ref<timerCount>
 			::create(4, "4");
 
-		timerjob->addOnDestroy(cb1);
+		timerjob->ondestroy([cb1]{cb1->destroyed();});
 
 		timer->scheduleAtFixedRate(timerjob,
 					   std::chrono::seconds(1));
@@ -208,7 +208,7 @@ static void testtimertask4() noexcept
 
 		auto canceljob=LIBCXX_NAMESPACE::ref<selfcancel>::create();
 
-		canceljob->addOnDestroy(cb2);
+		canceljob->ondestroy([cb2]{cb2->destroyed();});
 
 		timer->schedule(canceljob,
 				std::chrono::system_clock::now()

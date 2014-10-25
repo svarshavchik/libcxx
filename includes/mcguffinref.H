@@ -9,7 +9,6 @@
 #include <x/ptr.H>
 #include <x/weakptr.H>
 #include <x/ondestroy.H>
-#include <x/destroycallbackobj.H>
 #include <x/namespace.h>
 
 #include <mutex>

@@ -36,14 +36,11 @@ include/x/csvto_to.H
 include/x/ctype.H
 include/x/dequemsgdispatcher.H
 include/x/deserialize.H
-include/x/destroycallback.H
 include/x/destroycallbackflag.H
 include/x/destroycallbackflagfwd.H
 include/x/destroycallbackflagobj.H
 include/x/destroycallbackflagwait4.H
 include/x/destroycallbackflagwait4obj.H
-include/x/destroycallbackfwd.H
-include/x/destroycallbackobj.H
 include/x/df.H
 include/x/dir.H
 include/x/dirfwd.H

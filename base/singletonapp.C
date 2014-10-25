@@ -14,7 +14,6 @@
 #include "x/eventqueuemsgdispatcher.H"
 #include "x/weaklist.H"
 #include "x/pwd.H"
-#include "x/destroycallbackobj.H"
 #include "x/sighandler.H"
 #include "x/sigset.H"
 #include "x/sighandler.H"
@@ -325,7 +324,8 @@ void singletonapp::thr::run(fd &listensock,
 	}
 }
 
-class singletonapp::destroycb : public destroyCallbackObj {
+class LIBCXX_HIDDEN
+singletonapp::destroycb : public obj::destroyCallbackObj {
 
 public:
 
@@ -334,7 +334,7 @@ public:
 	destroycb(const ref<thr> &ptrArg) : tptr(ptrArg) {}
 	~destroycb() noexcept {}
 
-	void destroyed() noexcept
+	void destroyed()
 	{
 		tptr->terminated();
 	}

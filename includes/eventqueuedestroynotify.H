@@ -112,7 +112,7 @@ public:
 //!
 
 template<typename argType>
-class eventqueuedestroynotifyObj : public destroyCallbackObj {
+class eventqueuedestroynotifyObj : virtual public obj {
 
 	//! Weak reference to the event queue that will be notified
 
@@ -165,12 +165,14 @@ private:
 
 	void install(const ref<obj> &obj)
 	{
-		obj->addOnDestroy(ref<destroyCallbackObj>(this));
+		auto me=ref<eventqueuedestroynotifyObj<argType>>(this);
+
+		obj->ondestroy([me]{me->destroyed();});
 	}
 
 	//! Destructor notification
 
-	void destroyed() noexcept
+	void destroyed()
 	{
 		eventqueueptr<argType> e;
 

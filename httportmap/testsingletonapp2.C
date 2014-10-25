@@ -67,7 +67,7 @@ public:
 	{
 		LIBCXX_NAMESPACE::destroyCallbackFlag cb=LIBCXX_NAMESPACE::destroyCallbackFlag::create();
 
-		args->addOnDestroy(cb);
+		args->ondestroy([cb]{cb->destroyed();});
 
 		args=test1argsptr();
 		cb->wait();

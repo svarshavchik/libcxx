@@ -13,7 +13,6 @@
 #include <x/stoppable.H>
 #include <x/httportmapfwd.H>
 #include <x/sighandler.H>
-#include <x/destroycallbackobj.H>
 #include <x/logger.H>
 
 #include <unistd.h>
@@ -144,8 +143,8 @@ private:
 		//! started, and its starting argument is a reference to a
 		//! \ref fd "file descriptor".
 		virtual ref<obj> newThread(const fd &fdArg,
-					   const ref<destroyCallbackObj> &cb)
-		=0;
+					   const ref<obj::destroyCallbackObj>
+					   &cb)=0;
 	};
 
 	template<typename ref_type> class start_new_thread;
@@ -176,10 +175,10 @@ private:
 				   const fd &fdArg,
 
 				   //! Destructor callback to attach to the new thread object
-				   const ref<destroyCallbackObj> &cb)
+				   const ref<obj::destroyCallbackObj> &cb)
 		{
 			auto obj=app->newThread();
-			obj->addOnDestroy(cb);
+			obj->ondestroy([cb]{cb->destroyed();});
 
 			start_new_thread<decltype(obj)>::start(obj, fdArg);
 

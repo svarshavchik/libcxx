@@ -241,7 +241,7 @@ class singletonapp::managedSingletonFactoryObj : virtual public obj {
 			{
 				ref<obj> mcguffin=ref<obj>::create();
 
-				mcguffin->addOnDestroy(cb);
+				mcguffin->ondestroy([cb]{cb->destroyed();});
 
 				this->app->instance(uid, args, ret, flag,
 						    mcguffin);

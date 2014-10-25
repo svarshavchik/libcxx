@@ -15,14 +15,16 @@ destroyCallbackFlagWait4Obj::destroyCallbackFlagWait4Obj(const ref<obj>
 							 &other_obj)
 	: flag(destroyCallbackFlag::create())
 {
-	other_obj->addOnDestroy(flag);
+	auto f=flag;
+
+	other_obj->ondestroy([f] { f->destroyed(); });
 }
 
 destroyCallbackFlagWait4Obj::~destroyCallbackFlagWait4Obj() noexcept
 {
 }
 
-void destroyCallbackFlagWait4Obj::destroyed() noexcept
+void destroyCallbackFlagWait4Obj::destroyed()
 {
 	flag->wait();
 }

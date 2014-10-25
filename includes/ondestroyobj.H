@@ -6,7 +6,7 @@
 #ifndef x_ondestroyobj_H
 #define x_ondestroyobj_H
 
-#include <x/destroycallbackobj.H>
+#include <x/obj.H>
 #include <x/ptr.H>
 #include <x/weakinfo.H>
 #include <x/namespace.h>
@@ -33,14 +33,14 @@ class ondestroyObj : virtual public obj {
 
 	//! The destructor callback
 
-	ptr<destroyCallbackObj> cb;
+	ptr<obj::destroyCallbackObj> cb;
 
 	//! The object to which the destructor callback is attached
 	ptr<weakinfo> wi;
 
 	//! The callback's iterator in the object's callback list.
 
-	std::list< ref<destroyCallbackObj> >::iterator wi_cb_iter;
+	std::list< ref<obj::destroyCallbackObj> >::iterator wi_cb_iter;
 
 	//! Automatically invoke cancel() when this object goes out of scope.
 
@@ -53,7 +53,7 @@ public:
 	//! Construct a destructor reference
 
 	ondestroyObj(//! The destructor callback object
-		     const ref<destroyCallbackObj> &cbArg,
+		     const ref<obj::destroyCallbackObj> &cbArg,
 
 		     //! The object to which the destructor callback should be added
 		     const ref<obj> &objArg,

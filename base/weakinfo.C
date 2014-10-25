@@ -5,7 +5,7 @@
 
 #include "libcxx_config.h"
 #include "weakptr.H"
-#include "destroycallbackobj.H"
+#include "obj.H"
 #include "mutex.H"
 
 #include <cstdlib>

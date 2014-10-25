@@ -103,8 +103,7 @@ std::string fdlistenerImplObj::listenerJobObj::getName() const;
 // When the number of connections is at the maximum, the listener thread
 // waits for the condition variable to get tripped.
 
-class fdlistenerImplObj::serverDestroyCallbackObj
-	: public destroyCallbackObj {
+class fdlistenerImplObj::serverDestroyCallbackObj : virtual public obj {
 
 public:
 	eventfd terminatefd;
@@ -112,7 +111,7 @@ public:
 	serverDestroyCallbackObj(const eventfd &terminatefdArg) LIBCXX_HIDDEN;
 	~serverDestroyCallbackObj() noexcept LIBCXX_HIDDEN;
 
-	void destroyed() noexcept LIBCXX_HIDDEN;
+	void destroyed() LIBCXX_HIDDEN;
 };
 
 
@@ -126,7 +125,7 @@ fdlistenerImplObj::serverDestroyCallbackObj::~serverDestroyCallbackObj() noexcep
 {
 }
 
-void fdlistenerImplObj::serverDestroyCallbackObj::destroyed() noexcept
+void fdlistenerImplObj::serverDestroyCallbackObj::destroyed()
 {
 	terminatefd->event(1);
 }
@@ -386,7 +385,11 @@ void fdlistenerImplObj::runimpl(const ref<startArgObj> &startarg)
 					     startarg->pipe.first,
 					     mask));
 
-				newthr->addOnDestroy(destroysigref);
+				newthr->ondestroy([destroysigref]
+						  {
+							  destroysigref
+								  ->destroyed();
+						  });
 				--pending_chk_count;
 
 				jobthreads->run(newthr);

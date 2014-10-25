@@ -7,7 +7,6 @@
 
 #include "x/stoppable.H"
 #include "x/mpobj.H"
-#include "x/destroycallback.H"
 #include "x/mpobj.H"
 
 #include <unistd.h>
@@ -49,18 +48,19 @@ void test1()
 
 		flag_t flag(false);
 
-		obj1->addOnDestroy(LIBCXX_NAMESPACE::destroyCallback
-				   ::create([&flag]
-					    {
-						    flag_t::lock lock(flag);
+		obj1->ondestroy([&flag]
+				{
+					{
+						flag_t::lock lock(flag);
 
-						    *lock=true;
-						    lock.notify_one();
+						*lock=true;
+						lock.notify_one();
 
-						    std::cout <<
-							    "obj1 destroyed"
-							      << std::endl;
-					    }));
+						std::cout <<
+							"obj1 destroyed"
+							  << std::endl;
+					}
+				});
 
 		obj1=amIstopped();
 

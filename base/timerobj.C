@@ -154,7 +154,7 @@ launch(const timerObj::implObj::taskinfo &newtask,
 	{
 		ref<obj> mcguffin=ref<obj>::create();
 
-		mcguffin->addOnDestroy(cb);
+		mcguffin->ondestroy([cb]{cb->destroyed();});
 		p->newtask(newtask, installedflag, mcguffin);
 	}
 

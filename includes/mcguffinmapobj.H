@@ -132,7 +132,7 @@ public:
 		if (!weakmapiteratorOps<M>::inserted(i))
 			return ptr<obj>();
 
-		wrapper->addOnDestroy(destroyed);
+		wrapper->ondestroy([destroyed]{destroyed->destroyed();});
 		destroyed->install(weakmapiteratorOps<M>::iter(i));
 		return mcguffin;
 	}

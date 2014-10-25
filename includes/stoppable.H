@@ -11,7 +11,6 @@
 #include <x/weakptr.H>
 #include <x/weaklist.H>
 #include <x/obj.H>
-#include <x/destroycallbackobj.H>
 
 namespace LIBCXX_NAMESPACE {
 

@@ -10,7 +10,6 @@
 #include "mutex.H"
 #include "weakinfo.H"
 #include "ref.H"
-#include "destroycallback.H"
 #include "logger.H"
 #include "exception.H"
 #include "messages.H"
@@ -163,7 +162,13 @@ void obj::destroy() noexcept
 
 		while (!cb_list_cpy.empty())
 		{
-			cb_list_cpy.front()->destroyed();
+			try {
+				cb_list_cpy.front()->destroyed();
+			} catch (const exception &e)
+			{
+				report_exception(e);
+			}
+
 			cb_list_cpy.pop_front();
 		}
 
@@ -187,8 +192,8 @@ ptr<weakinfo> obj::weak()
 	return weakinforef;
 }
 
-std::list< ref<destroyCallbackObj> >::iterator
-obj::addOnDestroy(const ref<destroyCallbackObj> &callback)
+std::list< ref<obj::destroyCallbackObj> >::iterator
+obj::do_add_ondestroy(const ref<destroyCallbackObj> &callback)
 {
 	std::lock_guard<std::mutex> weaklock(objmutex);
 
@@ -207,7 +212,7 @@ obj::addOnDestroy(const ref<destroyCallbackObj> &callback)
 LOG_FUNC_SCOPE_DECL(LIBCXX_NAMESPACE::destroyCallbackObj::destroyed,
 		    destroyed_exception);
 
-void destroyCallbackBase::report_exception(const exception &e)
+void obj::report_exception(const exception &e)
 {
 	LOG_FUNC_SCOPE(destroyed_exception);
 

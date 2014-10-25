@@ -4,7 +4,6 @@
 */
 
 #include "libcxx_config.h"
-#include "x/destroycallbackobj.H"
 #include "x/ondestroy.H"
 
 namespace LIBCXX_NAMESPACE {
@@ -12,33 +11,33 @@ namespace LIBCXX_NAMESPACE {
 };
 #endif
 
-destroyCallbackObj::destroyCallbackObj() noexcept
+obj::destroyCallbackObj::destroyCallbackObj() noexcept
 {
 }
 
-destroyCallbackObj::~destroyCallbackObj() noexcept
+obj::destroyCallbackObj::~destroyCallbackObj() noexcept
 {
 }
 
-destroyCallbackObj::onAnyDestroyCallbackObj::cbListObj::cbListObj()
+onAnyDestroyCallbackObj::cbListObj::cbListObj()
 {
 }
 
-destroyCallbackObj::onAnyDestroyCallbackObj::cbListObj::~cbListObj() noexcept
+onAnyDestroyCallbackObj::cbListObj::~cbListObj()
+noexcept
 {
 }
 
-destroyCallbackObj::onAnyDestroyCallbackObj
-::onAnyDestroyCallbackObj(const ref<cbListObj> &cb)
+onAnyDestroyCallbackObj::onAnyDestroyCallbackObj(const ref<cbListObj> &cb)
 {
 	*mpobj<ptr<cbListObj> >::lock(callbacks)=cb;
 }
 
-destroyCallbackObj::onAnyDestroyCallbackObj::~onAnyDestroyCallbackObj() noexcept
+onAnyDestroyCallbackObj::~onAnyDestroyCallbackObj() noexcept
 {
 }
 
-void destroyCallbackObj::onAnyDestroyCallbackObj::destroyed() noexcept
+void onAnyDestroyCallbackObj::destroyed() noexcept
 {
 	ptr<cbListObj> save;
 

@@ -506,7 +506,8 @@ public:
 		if (!weakmapiteratorOps<M>::inserted(i))
 			return false;
 
-		ptrValue->addOnDestroy(destroyed);
+		ptrValue->ondestroy([destroyed]{destroyed->destroyed();});
+
 		destroyed->install(weakmapiteratorOps<M>::iter(i));
 		return true;
 	}

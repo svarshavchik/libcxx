@@ -1520,13 +1520,15 @@ if (!origw.null())
     </para>
 
     <para>
-      Using a mcguffin makes this much easier. When the message gets received
+      A mcguffin-oriented approach is simpler. The message to a thread
+      is some kind of an object, which serves double-duty as a mcguffin.
+      When the message gets received
       by the thread, processed, and discarded, the last reference to the
       message object goes out of scope and the mcguffin gets destroyed.
       If the thread stops, presumably its message queue, together with all
       of its messages, also gets destroyed. In all cases, the message object
-      gets destroyed. The message object is now a mcguffin, so its destructor
-      callback gets invoked in all cases.
+      gets destroyed. The message object is a mcguffin, so its destructor
+      callbacks gets invoked in all cases.
     </para>
 
     <para>
@@ -1561,15 +1563,8 @@ if (!origw.null())
     <blockquote>
       <informalexample>
 	<programlisting>
-#include &lt;&ns;/destroycallback.H&gt;
-
-class myDestructorCallbackObj : public &ns;::destroyCallbackObj {
-
-public:
-      myDestructorCallbackObj();
-      ~myDestructorCallbackObj() noexcept;
-      void destroyed() noexcept override;
-};
+#include &lt;&ns;/ref.H&gt;
+#include &lt;&ns;/obj.H&gt;
 
 class mcguffinObj : virtual public &ns;::obj {
 
@@ -1577,25 +1572,17 @@ class mcguffinObj : virtual public &ns;::obj {
 
 };
 
-typedef &ns;::ref&lt;myDestructorCallbackObj&gt; myDestructorCallback;
+auto mcguffin=&ns;::ref&lt;mcguffinObj&gt;::create();
 
-myDestructorCallback mycb(myDestructorCallback::create());
+// ...
+myobj-&gt;ondestroy([]
+   {
 
-&ns;::ref&lt;mcguffinObj&gt; myobj=&ns;::ref&lt;mcguffinObj&gt;::create();
+// ...
 
-myobj-&gt;addOnDestroy(mycb);</programlisting>
+   });</programlisting>
       </informalexample>
     </blockquote>
-
-    <para>
-      Subclassing
-      <ulink url="&link-x--destroyCallbackObj;"><classname>&ns;::destroyCallbackObj</classname></ulink>,
-      defining the <methodname>destroyed</methodname>() method,
-      and attaching the subclass instance to a <quote>mcguffin</quote>
-      object results in <methodname>destroyed</methodname>() getting invoked
-      when the last &reforptr; to the mcguffin goes out of scope and the
-      mcguffin gets destroyed.
-    </para>
 
     <para>
       The above example attaches a destructor callback to
@@ -1613,91 +1600,47 @@ myobj-&gt;addOnDestroy(mycb);</programlisting>
       <classname>&ns;::ref&lt;&ns;::obj&gt;</classname>.
       An <classname>&ns;::obj</classname> is nothing more than the base class
       for reference-counted objects, and a mere reference to this object
-      has no other functionality, except serving as a convenient mcguffin,
+      has no other functionality, except serving as a convenient mcguffin
       for any occasion.
     </para>
 
     <para>
-      See the <ulink url="&link-x--ref;">&ref;
+      See the <ulink url="&link-x--ptr;">&ptr;
       documentation</ulink> for more information on destructor callbacks.
     </para>
 
     <note id="destroyednoexcept">
       <para>
-	<methodname>destroyed</methodname>() is explicitly
-	<literal>noexcept</literal> because it essentially becomes a part of
+	Destructor callbacks should not throw exceptions, because
+	it essentially becomes a part of
 	the mcguffin's destructor, and cannot throw any exceptions.
 	All <link linkend="exceptions">exceptions</link> must be caught.
       </para>
     </note>
-
-    <section id="destroycallbackfunctor">
-      <title>Using a functor as a destructor callback</title>
-
-      <para>
-	A <ulink url="&link-typedef-x-destroyCallback;">helper
-	  <function>create</function>()</ulink> template function
-	instantiates a subclass of
-	<ulink url="&link-x--destroyCallbackObj;"><classname>&ns;::destroyCallbackObj</classname></ulink>
-	whose <methodname>destroyed</methodname>() invokes a functor:
-      </para>
-
-      <blockquote>
-	<informalexample>
-	  <programlisting>
-#include &lt;&ns;/destroycallback.H&gt;
-
-class mcguffinObj;
-
-// ...
-
-&ns;::ref&lt;mcguffinObj&gt; myobj=&ns;::ref&lt;mcguffinObj&gt;::create();
-
-// ...
-myobj-&gt;addOnDestroy(&ns;::destroyCallback::create([]
-        {
-           // Functor goes here..
-        });</programlisting>
-	</informalexample>
-      </blockquote>
-
-      <para>
-	In this example, <function>create</function>() instantiates
-	an &ref; to a subclass of
-	<classname>&ns;::destroyCallbackObj</classname>
-	whose <methodname>destroyed</methodname>() invokes the functor.
-      </para>
-
-      <para>
-	Additionally, the <methodname>destroyed</methodname>() functor wrapper
-	takes care of <link linkend="destroyednoexcept">catching and
-	  logging</link> any
-	<link linkend="exceptions">exceptions</link> thrown from the
-	functor.
-      </para>
-    </section>
 
     <section id="destroycallbackflag">
       <title>A basic destructor callback</title>
 
       <para>
 	<ulink url="&link-typedef-x-destroyCallbackFlag;"><classname>&ns;::destroyCallbackFlag</classname></ulink>
-	is a reference to a simple subclass of
-	<classname>&ns;::destroyCallbackObj</classname> that implements the
-	ability to wait for another object to be destroyed, presumably by
-	some other thread, before proceeding:
+	is a simple elementation of a common design pattern where some
+	mcguffin's destruction does not itself takes any immediate action.
+	Rather, at some point later, a check is made whether the object is
+	already destroyed. If not, wait for its destruction.
       </para>
 
       <blockquote>
 	<informalexample>
 	  <programlisting>
+#include &lt;&ns;/destroycallbackflag.H&gt;
+
 &ns;::destroyCallbackFlag cb=&ns;::destroyCallbackFlag::create();
 
 // ...
 
 &ns;::ref&lt;&ns;::obj&gt; mcguffin;
 
-mcguffin-&gt;addOnDestroy(cb);
+mcguffin-&gt;ondestroy([cb] { cb->destroyed(); });
 
 // ...
 
@@ -1707,19 +1650,23 @@ cb->wait();</programlisting>
 
       <para>
 	This subclass implements a
-	<methodname>wait</methodname>(), that waits indefinitely for
-	the mcguffin to get destroyed, if it's not already has been destroyed.
+	<methodname>wait</methodname>(), that waits indefinitely until
+	its <methodname>destroyed</methodname>() gets invoked, presumably
+	by another thread.
+	<methodname>wait</methodname>() returns immediately
+	if <methodname>destroyed</methodname>() was already
+	invoked.
       </para>
 
       <note>
 	<para>
-	  <classname>&ns;::destroyCallbackFlag</classname> is one time use only,
-	  and can be attached as a callback to only one object.
+	  <classname>&ns;::destroyCallbackFlag</classname> is designed
+	  for simple one-off situations involving a single mcguffin.
 	  It's your responsibility to attach it as a destructor callback to
 	  at least one object, before invoking
 	  <methodname>wait</methodname>(). If it's not been
-	  <methodname>addOnDestroy</methodname>()ed anywhere, its
-	  <methodname>destroyed</methodname>() can never get invoked, and
+	  <methodname>ondestroy</methodname>()ed anywhere, its
+	  <methodname>destroyed</methodname>() never gets invoked, and
 	  <methodname>wait</methodname>() waits forever.
 	</para>
       </note>
@@ -1883,8 +1830,14 @@ containerObj::containerObj() : title(widget::create())
 	Attaching an ordinary destructor callback to a mcguffin is
 	an irrevocable act. The destructor callback gets attached, and it
 	gets invoked whenever the mcguffin ends up getting destroyed.
-	Use <ulink url="&link-typedef-x-ondestroy;"><classname>&ns;::ondestroy</classname></ulink>
-	to set up destructor callbacks that can be revoked:
+      </para>
+
+      <para>
+	Instead of invoking some mcguffin's <methodname>ondestroy</methodname>()
+	method to attach a destructor callback to the mcguffin,
+	construct an
+	<ulink url="&link-typedef-x-ondestroy;"><classname>&ns;::ondestroy</classname></ulink>
+	class instance:
       </para>
 
       <blockquote>
@@ -1982,7 +1935,7 @@ std::list&lt;&ns;::ref&lt;&ns;::obj&gt; &gt; objects;
 
       <para>
 	<methodname>&ns;::on_any_destroyed</methodname>() invokes a lambda
-	when any one of several objects gets destroyed.. Its parameters are
+	when any one of several objects gets destroyed. Its parameters are
 	a lambda to invoke, and a
 	a beginning and an ending input iterator for a sequence of references
 	to reference-counted object class instances.
@@ -2022,35 +1975,6 @@ std::list&lt;&ns;::ref&lt;&ns;::obj&gt; &gt; objects;
 	immediately, prior to
 	<methodname>&ns;::on_any_destroyed</methodname>() returning.
       </para>
-
-      <note>
-	<para>
-	  <methodname>onAnyDestroyed</methodname>() gets implemented
-	  by
-	  <classname>&ns;::destroyCallbackObj</classname>.
-
-	  The object referenced by
-	  <link linkend="destroycallbackflag"><classname>&ns;::destroyCallbackFlag</classname></link>
-	  is a subclass of <classname>&ns;::destroyCallbackObj</classname>.
-	  <classname>&ns;::destroyCallbackFlag</classname> works with
-	  <methodname>onAnyDestroyed</methodname>():
-	</para>
-
-	<blockquote>
-	  <informalexample>
-	    <programlisting>
-&ns;::destroyCallbackFlag cb=&ns;::destroyCallbackFlag::create();
-
-cb->onAnyDestroyed(objects.begin(), objects.end());</programlisting>
-	  </informalexample>
-	</blockquote>
-
-	<para>
-	  All other semantics of
-	  <classname>&ns;::destroyCallbackFlag</classname>
-	  remain in place.
-	</para>
-      </note>
     </section>
   </section>
 

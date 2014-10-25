@@ -6,7 +6,7 @@
 #ifndef x_destroycallbackwait4obj_H
 #define x_destroycallbackwait4obj_H
 
-#include <x/destroycallbackobj.H>
+#include <x/obj.H>
 #include <x/destroycallbackflagfwd.H>
 #include <x/namespace.h>
 
@@ -17,7 +17,7 @@ namespace LIBCXX_NAMESPACE {
 
 //! Destructor callback that waits for another object to get destroyed
 
-class destroyCallbackFlagWait4Obj : public destroyCallbackObj {
+class destroyCallbackFlagWait4Obj : virtual public obj {
 
 	//! The flag for the other object.
 	destroyCallbackFlag flag;
@@ -30,7 +30,7 @@ public:
 	~destroyCallbackFlagWait4Obj() noexcept;
 
 	//! Wait for another object to get destroyed, too.
-	void destroyed() noexcept;
+	void destroyed();
 };
 
 #if 0

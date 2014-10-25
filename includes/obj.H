@@ -8,12 +8,13 @@
 
 #include <x/namespace.h>
 #include <x/refcnt.H>
-#include <x/ptr.H>
+#include <x/ref.H>
 #include <x/notcopyableobj.H>
 
 #include <list>
 #include <string>
 #include <mutex>
+#include <type_traits>
 
 //! Extension namespace
 
@@ -28,7 +29,6 @@ namespace LIBCXX_NAMESPACE {
 
 class obj;
 class weakinfo;
-class destroyCallbackObj;
 class ondestroyObj;
 class exception;
 
@@ -128,6 +128,20 @@ public:
 			(this)
 			!= nullptr;
 	}
+
+	//! Destructor callbacks
+
+	class destroyCallbackObj;
+
+private:
+	//! Helper class for invoking destructor callback functors/lambdas
+
+	template<typename F> class functorCallbackObj;
+
+	//! An exception occured in the destructor callback functor
+
+	static void report_exception(const exception &);
+
 public:
 	template<typename baseType> friend class ptrImpl;
 	template<typename baseClass> friend class ptrBase;
@@ -151,19 +165,37 @@ public:
 
 	virtual ~obj() noexcept;
 
+	//! Helper method for constructing ondestroy() callbacks.
+
+	template<typename functor_type> static
+	ref<destroyCallbackObj> create_ondestroy(functor_type &&functor);
+
 	//! Install a destructor callback
 
 	//! Add a callback to be invoked when this object gets destroyed.
-	//! callback's ondestroy() method gets invoked when this object
-	//! gets destroyed.
+	//! The lambda functor parameter gets invoked when the last reference
+	//! to this object goes out of scope, and it gets automatically
+	//! destroyed.
 	//!
-	//! \return the iterator of the inserted callback reference, in
+	//! \return internal iterator of the inserted callback reference, in
 	//! weakinforef's \c callback_list.
-	std::list< ref<destroyCallbackObj> >::iterator
-	addOnDestroy(//! Callback
-		     const ref<destroyCallbackObj> &callback);
 
+	template<typename functor_type>
+	std::list< ref<destroyCallbackObj> >::iterator
+	ondestroy(functor_type &&functor)
+	{
+		return do_add_ondestroy(create_ondestroy(std::forward
+							 <functor_type>
+							 (functor)));
+	}
 private:
+
+	//! Install a destructor callback
+
+	std::list< ref<destroyCallbackObj> >::iterator
+	do_add_ondestroy(//! Callback
+			  const ref<destroyCallbackObj> &callback);
+
 	//! Construct a weak reference.
 
 	//! \internal This function gets invoked by the weakptr template
@@ -172,6 +204,69 @@ private:
 
 	ptr<weakinfo> weak();
 };
+
+//! Destructor callbacks
+
+class obj::destroyCallbackObj : virtual public obj {
+
+public:
+	friend class obj;
+
+	//! Default constructor
+
+	destroyCallbackObj() noexcept;
+
+	//! Default destructor
+	~destroyCallbackObj() noexcept;
+
+	//! The callback
+
+	virtual void destroyed()=0;
+};
+	//! Helper class for invoking destructor callback functors/lambdas
+
+template<typename F> class obj::functorCallbackObj
+	: public destroyCallbackObj {
+
+	//! The functor
+	F functor;
+
+public:
+	//! Constructor
+	template<typename FArg>
+	functorCallbackObj(FArg && functorArg)
+		: functor(std::forward<FArg>(functorArg))
+	{
+	}
+
+	//! Destructor
+	~functorCallbackObj() noexcept
+	{
+	}
+
+	//! The destructor callback
+
+	void destroyed() override
+	{
+		functor();
+	}
+};
+
+template<typename functor_type>
+ref<obj::destroyCallbackObj> obj::create_ondestroy(functor_type &&functor)
+{
+	// If the passed functor is itself a reference, it is
+	// a near certainty that this is wrong.
+
+	typedef typename std::enable_if<
+		! std::is_lvalue_reference<functor_type>::value &&
+		! std::is_rvalue_reference<functor_type>::value,
+		functor_type>::type functor_cannot_be_a_reference
+		__attribute__((unused));
+
+	return ref<functorCallbackObj< functor_type > >
+		::create(std::forward<functor_type>(functor));
+}
 
 #if 0
 {
@@ -202,6 +297,7 @@ inline void ptrImpl<objClass>::setRef(objClass *newRefP) noexcept
 	if (oldRef && oldRef->refcnt::refadd(-1) == 0)
 		static_cast<obj *>(oldRef)->destroy();
 }
+
 
 #if 0
 {

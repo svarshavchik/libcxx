@@ -65,7 +65,7 @@ public:
 			destroyed=ref<typename weak_container_t::cleanupObj>
 			::create(this);
 
-		ptrarg->addOnDestroy(destroyed);
+		ptrarg->ondestroy([destroyed]{destroyed->destroyed();});
 
 		destroyed->install(w->emplace(w->begin(), ptrarg));
 	}
@@ -89,7 +89,10 @@ public:
 			destroyed=ref<typename weak_container_t::cleanupObj>
 			::create(this);
 
-		ptrarg->addOnDestroy(destroyed);
+		ptrarg->ondestroy([destroyed]
+				  {
+					  destroyed->destroyed();
+				  });
 
 		destroyed->install(w->emplace(w->end(), ptrarg));
 	}

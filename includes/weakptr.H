@@ -10,7 +10,7 @@
 #include <x/exception.H>
 #include <x/weakptrfwd.H>
 #include <x/weakinfo.H>
-#include <x/destroycallbackobj.H>
+#include <x/obj.H>
 #include <x/namespace.h>
 
 namespace LIBCXX_NAMESPACE {

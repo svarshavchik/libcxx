@@ -100,7 +100,7 @@ protected:
 	//! completely from the iterator, when the object is destroyed after
 	//! all strong references go out of scope.
 
-	class cleanupObj : public destroyCallbackObj {
+	class cleanupObj : virtual public obj {
 
 	public:
 		//! The type of the reference back to my container.
@@ -141,7 +141,7 @@ protected:
 
 		//! All strong references to this object are out of scope,
 		//! remove the weak reference.
-		void destroyed() noexcept
+		void destroyed()
 		{
 			if (!installed)
 				return;

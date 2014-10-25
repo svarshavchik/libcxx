@@ -278,6 +278,14 @@ template<typename objClass2> inline const_ptr<objClass, baseClass>
 //! object gets automatically destroyed, via \c delete,
 //! and any existing \ref weakptr "weak pointers" get invalidated.
 //!
+//! An \c INSERT_LIBX_NAMESPACE::ptr can be unbound and not refer to an
+//! instance of its class, this is equivalent to a NULL pointer. Dereferencing
+//! a NULL \c INSERT_LIBX_NAMESPACE::ptr throws an exception.
+//!
+//! Additionally, a \ref ref "INSERT_LIBX_NAMESPACE::ref" template defines
+//! a non-NULL reference point, like a \ref ptr "ptr", but it always
+//! refers to some instance of its class, and can never be NULL.
+//!
 //! Reference-counting is thread-safe. Note that this doesn't mean that the
 //! objects themselves are automatically thread safe, just that the
 //! recordkeeping, of how many pointer references to the object are outstanding,
@@ -296,11 +304,13 @@ template<typename objClass2> inline const_ptr<objClass, baseClass>
 //!     ~myClassObj() noexcept;
 //! };
 //!
+//! typedef INSERT_LIBX_NAMESPACE::ref<myClassObj> myClass;
+//!
 //! typedef INSERT_LIBX_NAMESPACE::ptr<myClassObj> myClassptr;
 //!
 //! // ...
 //!
-//! myClassptr classP(myClassptr::create());
+//! myClass classP(myClass::create());
 //!
 //! classP->myMethod();  // And so on...
 //! \endcode
@@ -350,7 +360,7 @@ template<typename objClass2> inline const_ptr<objClass, baseClass>
 //! \par Unbound pointer references
 //!
 //! \code
-//! myClass classP;
+//! myClassptr classP;
 //! \endcode
 //!
 //! creates an unbound pointer
@@ -374,75 +384,45 @@ template<typename objClass2> inline const_ptr<objClass, baseClass>
 //! up having the last reference to the object go out of scope. This may not
 //! be the same thread that constructed the object.
 //!
-//! \par Destructor callbacks and mcguffins
+//! \par Destructor callbacks
 //!
 //! \code
-//! #include <destroycallbackobj.H>
-//!
-//! class myDestructorCallbackObj : public INSERT_LIBX_NAMESPACE::destroyCallbackObj {
-//!
-//! public:
-//!       myDestructorCallbackObj() noexcept;
-//!       ~myDestructorCallbackObj() noexcept;
-//!       void destroyed() noexcept;
-//! };
-//!
 //! class mcguffinObj : virtual public INSERT_LIBX_NAMESPACE::obj  {
 //!
 //! // ...
 //!
 //! };
 //!
-//! typedef INSERT_LIBX_NAMESPACE::ptr<myDestructorCallbackObj> myDestructorCallback;
-//!
-//! myDestructorCallback mycb(myDestructorCallback::create());
-//!
 //! INSERT_LIBX_NAMESPACE::<mcguffinObj> myobj=INSERT_LIBX_NAMESPACE::<mcguffinObj>::create();
 //!
-//! myobj->addOnDestroy(mycb);
+//! myobj->ondestroy([] {
+//!              //! Your lambda goes here
+//!         });
 //! \endcode
 //!
-//! This is a low-level hook mechanism that 
-//! implements a callback function which gets invoked when the last pointer
-//! reference to some object goes out of scope, and the object is about to be
+//! The \ref obj::ondestroy "ondestroy()" methods installs a functor or lambda
+//! which gets invoked when the last pointer
+//! reference to the object goes out of scope, and the object gets
 //! destroyed.
 //!
-//! There are two distinct objects here. Let's use "mcguffin" to refer to the
-//! first object. It can be any object subclassed from
-//! \ref obj "obj", doesn't really matter what it is, it can be anything.
-//! The second object is a subclass of
-//! \ref destroyCallbackObj "INSERT_LIBX_NAMESPACE::destroyCallbackObj".
-//! When the mcguffin goes
-//! out of scope, the second object's destroyed() hook method gets invoked.
-//!
-//! Define a callback by subclassing destroyCallbackObj and implementing its
-//! \c destroyed() method, then create a reference to an instance of the
-//! callback
-//! object. Finally, pass this reference to the mcguffin's
-//! \c addOnDestroy() method. When the mcguffin goes out of scope and
-//! is in process of getting destroyed, the destroyed() callback gets invoked.
+//! A destructor callback can be attached to any object derived from
+//! \ref obj "INSERT_LIBX_NAMESPACE::obj". ondestroy() may be invoked more
+//! than once, and each lambda gets invoked accordingly.
 //!
 //! Notes:
 //!
-//! - The destroyed() method gets invoked by the thread in which the last
+//! - The lambda gets invoked by the thread in which the last
 //! reference to the first object goes out of scope. This may not necessarily
 //! be the same thread that created the first object, or the callback object.
 //!
-//! - The destroyed() method may not reference the object being destroyed in
+//! - The lambda may not reference the object being destroyed in
 //! any fashion, not even through a weak reference. Doing so will may lead to
 //! a thread deadlock, or memory corruption. For all practical purposes, the
-//! original object no longer exists when destroyed() gets invoked.
+//! original object no longer exists when the lambda gets invoked.
 //!
-//! - More than one destructor callback can be attached to a mcguffin, and
-//! each destructor's destroyed() callback gets invoked when the mcguffin
-//! gets destroyed.
-//!
-//! - The mcguffin saves an internal reference to the callback object, so
-//! that the callback object will exist when the mcguffin gets destroyed.
-//!
-//! - \c addOnDestroy() returns an iterator to an internal list. The internal
+//! - \c ondestroy() returns an iterator to an internal list. The internal
 //! list is generally not visible. The return value gets used by
-//! destructor callback references.
+//! cancellable destructor callbacks.
 //!
 //! \par Simple destructor callbacks
 //!
@@ -451,10 +431,10 @@ template<typename objClass2> inline const_ptr<objClass, baseClass>
 //!
 //! INSERT_LIBX_NAMESPACE::destroyCallbackFlag cb(INSERT_LIBX_NAMESPACE::destroyCallbackFlag::create());
 //!
-//! INSERT_LIBX_NAMESPACE::pref<obj> someobj;
+//! INSERT_LIBX_NAMESPACE::ref<obj> someobj;
 //!
 //! // ...
-//! someobj->addOnDestroy(cb);
+//! someobj->ondestroy([cb]{cb->destroyed();});
 //!
 //! // ...
 //!
@@ -463,24 +443,29 @@ template<typename objClass2> inline const_ptr<objClass, baseClass>
 //! \endcode
 //!
 //! \ref destroyCallbackFlag "INSERT_LIBX_NAMESPACE::destroyCallbackFlag"
-//! is a reference to
-//! a simple, one-time use subclass of destroyCallbackObj. It may be added to
-//! one mcguffin, as a destructor callback. Invoking wait()
-//! waits until the mcguffin gets destroyed.
-//! The destroyCallbackFlag cannot be recycled after its first and only use.
+//! implements a frequent design pattern where some object's destruction
+//! does not itself takes any immediate action. Rather, at some point later,
+//! a check is made whether the object is already destroyed. If not,
+//! wait for its destruction.
+//!
+//! \c INSERT_LIBX_NAMESPACE::destroyCallbackFlag is itself a reference to
+//! a reference-counted object.
+//!
+//! Use \c ondestroy() on another object to invoke
+//! \c INSERT_LIBX_NAMESPACE::destroyCallbackFlag's destroyed() method.
+//!
+//! The \c wait() method blocks if \c destroyed() was not already invoked,
+//! until it gets invoked (presumably, by some other execution thread).
 //!
 //! \par Cancellable destructor callbacks.
 //!
-//! Adding a destructor callback to a mcguffin is irrevocable. The destructor
-//! will now be invoked whenever the mcguffin gets destroyed.
-//! Also, the mcguffin holds
-//! its own reference to the destructor callback object, which will not go
-//! out of scope, and itself be destroyed, until the mcguffin gets destroyed
-//! first.
+//! Adding a destructor callback is irrevocable. The destructor
+//! will now be invoked whenever the object gets destroyed.
 //!
 //! Using \ref ondestroy "INSERT_LIBX_NAMESPACE::ondestroy"
 //! sets up a cancellable destructor callback, which allows
-//! the destructor callback to be backed out of a mcguffin.
+//! the destructor callback to be detached from the object it was
+//! originally attached to.
 //!
 //! \code
 //! #include <ondestroy.H>
@@ -504,12 +489,14 @@ template<typename objClass2> inline const_ptr<objClass, baseClass>
 //!
 //! \endcode
 //!
-//! Instead of invoking a mcguffin's addOnDestroy() function, instantiate an
-//! \c ondestroy object, which is a reference-counted object. Its constructor
-//! takes a lambda and the mcguffin. The lambda gets invoked, as usual,
-//! when the mcguffin goes out of scope and gets destroyed.
+//! Instead of invoking an object's ondestroy() function, instantiate a
+//! standalone \c ondestroy object (which is itself a reference-counted
+//! object). ondestroy()'s first parameter is a callback lambda, and
+//! the second parameter is the object the destructor callback lambda gets
+//! attached to. The lambda gets invoked, as usual,
+//! when the object goes out of scope and gets destroyed.
 //! If, for some reason it might be necessary to detach the destructor callback
-//! from the mcguffin, use
+//! from the object, use
 //! \ref ondestroyObj::cancel() "cancel()"
 //! at the appopriate time.
 //!
@@ -518,7 +505,7 @@ template<typename objClass2> inline const_ptr<objClass, baseClass>
 //! parameter is \c true, \c cancel() gets invoked automatically when its last
 //! reference goes out of scope. Otherwise, the third parameter's default
 //! value of \c false leaves the destructor callback in place, and it gets
-//! invoked when the mcguffin gets destroyed (if it's not destroyed
+//! invoked when the object gets destroyed, as usual (if it's not destroyed
 //! already).
 //!
 //! \note
