@@ -309,6 +309,7 @@ noinst_PROGRAMS=\
 	testfmtsize                   \
 	testforkexec                  \
 	testftp                       \
+	testfunction                  \
 	testfutime                    \
 	testgetprop                   \
 	testgetpwgr                   \
@@ -398,6 +399,10 @@ testqp_LDFLAGS=$(TESTLINKTYPE)
 testftp_SOURCES=testftp.C testftp.H testftp2.C
 testftp_LDADD=libcxx.la
 testftp_LDFLAGS=$(TESTLINKTYPE)
+
+testfunction_SOURCES=testfunction.C
+testfunction_LDADD=libcxx.la
+testfunction_LDFLAGS=$(TESTLINKTYPE)
 
 testfutime_SOURCES=testfutime.C
 testfutime_LDADD=libcxx.la
@@ -874,6 +879,7 @@ check-am: $(noinst_PROGRAMS) $(noinst_DATA)
 	./testfdserverimpl
 	./testfdclientimpl
 	./testfdlistener
+	./testfunction
 	./testhttpclientauth >testhttpclientauth.tmp
 	diff $(srcdir)/testhttpclientauth.txt testhttpclientauth.tmp
 	rm -f testhttpclientauth.tmp

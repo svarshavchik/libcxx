@@ -50,6 +50,7 @@
 <!ENTITY headers SYSTEM "headers.xml">
 <!ENTITY hier SYSTEM "hier.xml">
 <!ENTITY httportmap SYSTEM "httportmap.xml">
+<!ENTITY miscfunctional SYSTEM "miscfunctional.xml">
 <!ENTITY miscstringability SYSTEM "miscstringability.xml">
 <!ENTITY miscstrtok SYSTEM "miscstrtok.xml">
 <!ENTITY misctokenizer SYSTEM "misctokenizer.xml">
@@ -154,6 +155,7 @@ See COPYING for distribution information.
   <part id="misc">
     <title>Miscellaneous classes and functions</title>
 
+    &miscfunctional;
     &miscstringability;
     &miscstrtok;
     &miscjoiniterator;

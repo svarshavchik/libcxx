@@ -1,0 +1,75 @@
+<!--
+
+Copyright 2014 Double Precision, Inc.
+See COPYING for distribution information.
+
+-->
+
+<chapter id="Functional">
+  <title>Virtual inheritance-based function objects</title>
+
+  <blockquote>
+    <informalexample>
+      <programlisting>
+#include &lt;&ns;/functional.H&gt;
+
+int method(const &ns;::function&lt;int(const char *)&gt; &amp;func)
+{
+    return func("Hello world");
+}
+
+// ...
+
+template&lt;typename functor_type&gt;
+int call_method(functor_type &amp;&amp; functor)
+{
+    auto f=&ns;::make_function&lt;int(const char *)&gt;(std::move(functor));
+
+    return method(f);
+}</programlisting>
+    </informalexample>
+  </blockquote>
+
+  <para>
+    This is a mechanism for implementing function objects that does not use
+    heap-allocated memory for storing the wrapped function pointer.
+    <ulink url="&link-x--function--return-type-Args...--;"><classname>&ns;::function&lt;return_type(Args...)&gt;</classname></ulink>
+    is a function object that implements an <methodname>operator()</methodname>
+    that takes <replaceable>Args...</replaceable> parameters and returns a
+    <replaceable>return_type</replaceable>, like
+    <classname>std::function</classname>.
+    <ulink url="&link-function-x-make-function;"><function>&ns;::make_function&lt;return_type(Args...)&gt;</function></ulink>()
+    takes a functor parameter, and returns a subclass of
+    <classname>&ns;::function&lt;return_type(Args...)&gt;</classname>
+    that implements the <methodname>operator()</methodname> by invoking
+    the functor.
+  </para>
+
+  <para>
+    The two main ways to use <classname>&ns;::function</classname>:
+  </para>
+
+  <orderedlist>
+    <listitem>
+      <para>
+	Call <function>&ns;::make_function&lt;return_type(Args...)&gt;</function>() and pass its return
+	value as a <classname>const &ns;::function&lt;return_type(Args...)&gt; &amp;</classname> parameter.
+      </para>
+    </listitem>
+
+    <listitem>
+      <para>
+	Call <function>&ns;::make_function&lt;return_type(Args...)&gt;</function>()
+	and store its return value in an <classname>auto</classname>
+	variable, that's subsequently passed as a
+	<classname>const &ns;::function&lt;return_type(Args...)&gt; &amp;</classname> function parameter.
+      </para>
+    </listitem>
+  </orderedlist>
+</chapter>
+<!--
+Local Variables:
+mode: sgml
+sgml-parent-document: ("book.xml" "part" "chapter")
+End:
+-->

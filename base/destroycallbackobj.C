@@ -19,12 +19,46 @@ obj::destroyCallbackObj::~destroyCallbackObj() noexcept
 {
 }
 
+//////////////////////////////////////////////////////////////////////////////
+//
+// Proxy destructor callback used by on_any_destroyed().
+
+class LIBCXX_HIDDEN onAnyDestroyCallbackObj : virtual public obj {
+
+public:
+
+	//! Cancellable destructor callbacks that were set up.
+
+	class cbListObj : public std::list<LIBCXX_NAMESPACE::ondestroy>,
+			  virtual public obj {
+
+	public:
+		cbListObj();
+		~cbListObj() noexcept;
+	};
+
+	//! Constructor
+	onAnyDestroyCallbackObj(const ref<cbListObj> &cb);
+
+	//! Destructor
+	~onAnyDestroyCallbackObj() noexcept;
+
+	//! One of the mcguffins went out of scope. We're done, cancel the whole show.
+	void destroyed();
+
+private:
+
+	//! Cancellable destructor callbacks that were set up
+
+	//! They get cancelled by the virtue of
+	mpobj<ptr<cbListObj> > callbacks;
+};
+
 onAnyDestroyCallbackObj::cbListObj::cbListObj()
 {
 }
 
-onAnyDestroyCallbackObj::cbListObj::~cbListObj()
-noexcept
+onAnyDestroyCallbackObj::cbListObj::~cbListObj() noexcept
 {
 }
 
@@ -37,7 +71,7 @@ onAnyDestroyCallbackObj::~onAnyDestroyCallbackObj() noexcept
 {
 }
 
-void onAnyDestroyCallbackObj::destroyed() noexcept
+void onAnyDestroyCallbackObj::destroyed()
 {
 	ptr<cbListObj> save;
 
@@ -47,6 +81,22 @@ void onAnyDestroyCallbackObj::destroyed() noexcept
 		save= *lock;
 		*lock=ptr<cbListObj>();
 	}
+}
+
+ref<obj> on_any_destroyed_mcguffin(onAnyDestroyBase &base)
+{
+	auto cblist=ref<onAnyDestroyCallbackObj::cbListObj>::create();
+	auto mcguffin=ref<onAnyDestroyCallbackObj>::create(cblist);
+
+	while (base.more())
+	{
+		cblist->push_back(ondestroy::create([mcguffin]
+						    {
+							    mcguffin->destroyed();
+						    }, base.next(), true));
+	}
+
+	return mcguffin;
 }
 
 #if 0
