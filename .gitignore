@@ -10,6 +10,7 @@ Makefile.in
 /abi.xml
 /aclocal.m4
 /autom4te.cache
+/compile
 /config.cache
 /config.guess
 /config.log

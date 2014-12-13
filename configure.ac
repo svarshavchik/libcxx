@@ -80,7 +80,7 @@ GCRYPT_CFLAGS=`$GCRYPT_CONFIG --cflags`
 AC_SUBST(GCRYPT_LIBS)
 AC_SUBST(GCRYPT_CFLAGS)
 
-CXXFLAGS="$CXXFLAGS -std=c++11 -fno-omit-frame-pointer"
+CXXFLAGS="$CXXFLAGS -std=c++1y -fno-omit-frame-pointer"
 
 AC_CHECK_PROGS(XML2_CONFIG,xml2-config,none)
 if test "$XML2_CONFIG" = "none"

@@ -503,7 +503,7 @@ void logger::handlerObj::syslogger::operator()(const std::string &message,
 	if (p != e)
 		sysloglevel=p->second;
 
-	syslog(sysloglevel, message.c_str());
+	syslog(sysloglevel, "%s", message.c_str());
 }
 
 

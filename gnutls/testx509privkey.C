@@ -23,7 +23,7 @@ void foo()
 
 static LIBCXX_NAMESPACE::gnutls::x509::privkey testrsa()
 {
-	std::string weak="weak";
+	std::string weak="medium";
 	LIBCXX_NAMESPACE::gnutls::sec_param
 		weak_param(LIBCXX_NAMESPACE::gnutls::sec_param
 			   ::fromString(weak.begin(), weak.end()));
@@ -175,7 +175,7 @@ static void createparams(LIBCXX_NAMESPACE::gnutls::x509::privkey &rsakey,
 	{
 		LIBCXX_NAMESPACE::gnutls::progress_notifier notifier;
 
-		dh->generate(1024);
+		dh->generate(2048);
 	}
 
 	{

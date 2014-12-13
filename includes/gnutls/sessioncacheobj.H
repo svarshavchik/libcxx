@@ -58,9 +58,9 @@ private:
 	//! retr() must be thread-safe in the implementing subclass.
 	virtual gnutls::datumptr_t retr(const gnutls::datum_t &key)=0;
 
-	class LIBCXX_HIDDEN basic_implObj;
-
 public:
+
+	class LIBCXX_HIDDEN basic_implObj;
 
 	//! Callback installed by gnutls_db_set_store_function
 

@@ -20,6 +20,10 @@ namespace LIBCXX_NAMESPACE {
 };
 #endif
 
+#include "gcrypt_md.h"
+
+static const gcry_md_algos gcry_algos[]={ GNUTLS_MD_ENUM };
+
 mdBase::iterator::~iterator()
 {
 }
@@ -30,20 +34,10 @@ void mdBase::enumerate(std::set<std::string> &algos)
 
 	algos.clear();
 
-	int n=0;
-
-	gcry_md_list(NULL, &n);
-
-	if (!n)
-		return;
-
-	int buffer[n];
-
-	chkerr(gcry_md_list(buffer, &n));
-
-	for (auto algo:buffer)
+	for (auto a:gcry_algos)
 	{
-		algos.insert(name((gcry_md_algos)algo));
+		if (gcry_md_test_algo(a) == 0)
+			algos.insert(name(a));
 	}
 }
 

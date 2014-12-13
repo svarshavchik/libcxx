@@ -11,8 +11,10 @@ AM_CXXFLAGS=@GNUTLS_CFLAGS@ @GCRYPT_CFLAGS@
 
 headerdir=$(includedir)/x/gnutls
 
-BUILT_SOURCES=x gettext_in.h tlsparamsgen.h tlsparamsdir.h gnutls_defs.h
-CLEANFILES=x gettext_in.h tlsparamsgen.h tlsparamsdir.h gnutls_defs.h
+BUILT_SOURCES=x gettext_in.h tlsparamsgen.h tlsparamsdir.h gnutls_defs.h \
+	gcrypt_md.h
+CLEANFILES=x gettext_in.h tlsparamsgen.h tlsparamsdir.h gnutls_defs.h \
+	gcrypt_md.h
 
 LINKTYPE=
 
@@ -32,6 +34,12 @@ gnutls_defs.h: Makefile
 	echo '#define GNUTLS_SEC_ENUM ' `$(CPP) $(AM_CPPFLAGS) $(CPPFLAGS) gnutls_defs.tmp.C | fgrep GNUTLS_SEC_PARAM | sed 's/=[^,]*//'` >gnutls_defs.h.tmp
 	rm -f gnutls_defs.tmp.C
 	mv -f gnutls_defs.h.tmp gnutls_defs.h
+
+gcrypt_md.h: Makefile
+	echo '#include <gcrypt.h>' >gcrypt_md.tmp.C
+	echo '#define GNUTLS_MD_ENUM ' `$(CPP) $(AM_CPPFLAGS) $(CPPFLAGS) gcrypt_md.tmp.C | sed '1,/enum gcry_md_algos/d;/}/,$$d' | fgrep GCRY_MD | sed 's/=[^,]*//'` >gcrypt_md.h.tmp
+	rm -f gcrypt_md.tmp.C
+	mv -f gcrypt_md.h.tmp gcrypt_md.h
 
 lib_LTLIBRARIES=libcxxtls.la
 

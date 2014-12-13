@@ -781,7 +781,7 @@ bool fdObj::send_fd(const int *fdesc_array,
 	struct iovec iov;
 	char dummy;
 
-	size_t buf_s=CMSG_SPACE(sizeof(int[fdesc_array_size]));
+	size_t buf_s=CMSG_SPACE(sizeof(int)*fdesc_array_size);
 
 	char buf[buf_s];
 
@@ -789,15 +789,15 @@ bool fdObj::send_fd(const int *fdesc_array,
 
 	memset(&msg, 0, sizeof(msg));
 	msg.msg_control=buf;
-	msg.msg_controllen=sizeof(buf);
+	msg.msg_controllen=buf_s;
 
 	cmsg=CMSG_FIRSTHDR(&msg);
 	cmsg->cmsg_level=SOL_SOCKET;
 	cmsg->cmsg_type=SCM_RIGHTS;
-	cmsg->cmsg_len=CMSG_LEN(sizeof(int[fdesc_array_size]));
+	cmsg->cmsg_len=CMSG_LEN(sizeof(int)*fdesc_array_size);
 
 	memcpy((char *)CMSG_DATA(cmsg), (const char *)fdesc_array,
-	       sizeof(int[fdesc_array_size]));
+	       sizeof(int)*fdesc_array_size);
 
 	memset(&iov, 0, sizeof(iov));
 	msg.msg_iov=&iov;
@@ -1024,11 +1024,12 @@ size_t fdObj::recv_fd(int *fdesc_array,
 	struct iovec iov;
 	char dummy;
 
-	char buf[CMSG_SPACE(sizeof(int[fdesc_array_size]))+1024];
+	size_t buf_s=CMSG_SPACE(sizeof(int)*fdesc_array_size)+1024;
+	char buf[buf_s];
 
 	memset(&msg, 0, sizeof(msg));
 	msg.msg_control=buf;
-	msg.msg_controllen=sizeof(buf);
+	msg.msg_controllen=buf_s;
 
 	msg.msg_iov=&iov;
 	msg.msg_iovlen=1;
@@ -1143,7 +1144,7 @@ bool fdObj::send_credentials(pid_t p, uid_t u, gid_t g)
 
 	memset(&msg, 0, sizeof(msg));
 	msg.msg_control=buf;
-	msg.msg_controllen=sizeof(buf);
+	msg.msg_controllen=buf_s;
 
 	cmsg=CMSG_FIRSTHDR(&msg);
 	cmsg->cmsg_level=SOL_SOCKET;

@@ -1,3 +1,4 @@
 POTFILES
 stamp-po
 remove-potcdate.sed
+libcxx.pot
