@@ -14,27 +14,26 @@ See COPYING for distribution information.
     template instantiates a class that implements a
     <quote>very important object</quote> design pattern.
     A <quote>very important object</quote> is an object paired with a list of
-    registered
-    <link linkend="eventcallback">event callbacks</link>.
-    The event callbacks get invoked when the very important object gets
+    <link linkend="callback">callbacks</link>.
+    The callbacks get invoked when the very important object gets
     <quote>modified</quote>.
     It's a very important object, after all, and everyone wants to
     know when it changes, and what its new value is.
   </para>
 
   <para>
-    <classname>&ns;::vipobj</classname> atomically registers a new handler, and
-    gives it
+    <classname>&ns;::vipobj</classname> implements an API of atomically
+    registers a new lambda callback, and gives it
     the current value of the very important object, in a single operation,
     as the callback's initial value.
     A key attribute of a <quote>very important object</quote> is that the
-    notification mechanism must be consistent when a new event callback
+    notification mechanism must be consistent when a new lambda callback
     gets registered at the same time that another thread updates the
     very important object.
     In this situation, one of two things will happen here.
-    Either the new handler gets the modified value, or it
+    Either the new lambda gets the modified value, or it
     gets the original value of the very important object, then gets notified
-    for the modified value immediately afterwards.
+    with the modified value immediately afterwards.
   </para>
 
   <para>
@@ -68,20 +67,19 @@ See COPYING for distribution information.
   </para>
 
   <para>
-    The list of registered callback handlers is implemented
-    by the
-    <link linkend="eventcallback"><classname>&ns;::eventcallback</classname></link>
-    template, and the callbacks are reference-counted objects.
-    <classname>&ns;::eventcallback</classname> keeps weak references to
-    the callback handlers. There's no formal deregistration method for a
+    Registering a lambda with a very important object returns a
+    <link linkend="callback"><classname>&ns;::callback</classname></link>
+    handle, which should be treated as a reference-counted handle for the
+    installed lambda.
+    There's no formal deregistration method for a
     handler, just a registration mechanisms. The handler
     callbacks remain registered until they go out of scope and get destroyed.
   </para>
 
   <para>
     When a callback gets registered, as part of registration
-    the callback gets invoked
-    immediately, with the current value of the very important object.
+    the callback gets optionally invoked
+    with the current value of the very important object.
     The callback
     continues to be invoked whenever the very important object is modified,
     with the modified value. In this manner, each
@@ -118,136 +116,6 @@ vip_t vip;
     <para>
       <classname>&ns;::vipobj</classname>'s constructor forwards its arguments
       to the object's constructor.
-    </para>
-  </section>
-
-  <section id="vipobjnotify">
-    <title>Very important object notification callbacks</title>
-
-    <para>
-      Callback handlers get notified whenever a very important object gets
-      modified.
-    </para>
-
-    <blockquote>
-      <informalexample>
-	<programlisting>
-class vipnotifyObj : public &ns;::eventcallback&lt;vipintvalue&gt;::baseObj {
-
-public:
-  vipnotifyObj();
-  ~vipnotifyObj() noexcept;
-
-  void event(const vipintvalue &amp;value);
-};</programlisting>
-      </informalexample>
-    </blockquote>
-
-    <para>
-      By default, <classname>&ns;::vipobj</classname> uses an event callback
-      list of weak references to a subclass
-      of <classname>eventcallback&lt;<replaceable>T</replaceable>&gt;::baseObj</classname>.
-      <classname>&ns;::vipobj</classname>'s optional second
-      template parameter overrides the callback type. In either case, the
-      callback class must be a reference-counted object.
-    </para>
-
-    <blockquote>
-      <informalexample>
-	<programlisting>
-class vipnotifyObj : virtual public &ns;::obj {
-
-public:
-  vipnotifyObj();
-  ~vipnotifyObj() noexcept;
-
-  void event(const vipintvalue &amp;value);
-};
-
-typedef &ns;::vipobj&lt;vipintvalue, vipnotifyObj&gt; vip_t;
-
-vip_t vip(2);</programlisting>
-      </informalexample>
-    </blockquote>
-
-    <para>
-      This example produces mostly the same results as the first example.
-      When the callback handler gets registered, and whenever the value
-      of the very impotant object's is deemed to have changed, the
-      handler's <methodname>event</methodname>() method gets invoked, with the
-      object's value.
-    </para>
-
-    <para>
-      It's possible to use a different method named other than
-      <methodname>event</methodname>(), or to use separate methods: one method
-      for
-      the initial value of the very important object, at registration time,
-      and another method for all subsequent updates.
-    </para>
-
-    <para>
-      This is done by using callback invocation classes, the same
-      way it's done by
-      <link linkend="customeventcallbacks">event callbacks</link>:
-    </para>
-
-    <blockquote>
-      <informalexample>
-	<programlisting>
-class viphandler : virtual public &ns;::obj {
-
-public:
-	viphandler();
-	~viphandler() noexcept;
-
-	void cbinitial(const vipintvalue &amp;initialvalue);
-
-	void cbupdate(const vipintvalue &amp;updatedvalue);
-};
-
-class invoke_initial {
-
-public:
-	static void event(const &ns;::ptr&lt;viphandler&gt; &amp;h,
-			  const vipintvalue &amp;value)
-	{
-		h-&gt;cbinitial(v);
-	}
-};
-
-class invoke_update {
-
-public:
-	static void event(const &ns;::ptr&lt;viphandler&gt; &amp;h,
-			  const vipintvalue &amp;value)
-	{
-		h-&gt;cbupdate(v);
-	}
-};
-
-typedef &ns;::vipobj&lt;vipintvalue, viphandler, invoke_update, invoke_initial&gt; vip_t;</programlisting>
-      </informalexample>
-    </blockquote>
-
-    <para>
-      The optional third parameter to <classname>&ns;::vipobj</classname>
-      specifies the callback invocation class for updates to the very important
-      object. The fourth parameter specifies the callback invocation class
-      for the initial value of the very important object at the time that
-      the callback handler gets registered, and it defaults to the third
-      template parameter class.
-    </para>
-
-    <para>
-      The callback invocation class defines a static
-      <methodname>event</methodname>() method that takes a reference to a
-      registered handler object, and a reference to the very important object's
-      value. The above example implements a callback handler whose
-      <methodname>cbinitial</methodname>() method gets invoked when the
-      callback handler gets registered, and the
-      <methodname>cbupdate</methodname>() method gets invoked when the very
-      important object value gets updated after registration.
     </para>
   </section>
 
@@ -332,7 +200,8 @@ u.notify(val);</programlisting>
       notification mechanism for very important objects.
       Only one <classname>&ns;::vipobj::updatelock</classname> may exist
       concurrently, and it blocks all other
-      <classname>&ns;::vipobj::updatelock</classname>s.
+      <classname>&ns;::vipobj::updatelock</classname>s and
+      <classname>&ns;::vipobj::handlerlock</classname>s.
       A <classname>&ns;::vipobj::updatelock</classname> is not a write lock,
       and does not offer any access to the underlying very important
       object. After instantiating a
@@ -367,7 +236,8 @@ u.notify(val);</programlisting>
     <note>
       <para>
 	An <classname>&ns;::vipobj::updatelock</classname> only blocks other
-	<classname>&ns;::vipobj::updatelock</classname>s, and does not affect
+	<classname>&ns;::vipobj::updatelock</classname>s and
+	<classname>&ns;::vipobj::handlerlock</classname>s, and does not affect
 	<classname>&ns;::vipobj::writelock</classname>s and
 	<classname>&ns;::vipobj::readlock</classname>s.
 	In particular, while an
@@ -379,7 +249,7 @@ u.notify(val);</programlisting>
 
       <para>
 	A <classname>&ns;::vipobj::updatelock</classname> merely assures that
-	reportable updates of a very important objects are synchronous.
+	reportable updates of a very important objects are synchronized.
 	In most cases, the usual convention is to always obtain an
 	<classname>&ns;::vipobj::updatelock</classname>, followed by
 	a <classname>&ns;::vipobj::writelock</classname>, use to modify the
@@ -391,6 +261,15 @@ u.notify(val);</programlisting>
 	If the very important object does not end up getting modified,
 	<methodname>notify</methodname>() does not need to get called, so
 	release both locks, and proceed on your way.
+      </para>
+
+      <para>
+	One way to think of it is that the update lock and the write lock
+	implement parallel
+	<quote>tracks</quote> for updating very important objects.
+	The update lock is for changes that must be reported to all registered
+	handlers. The write lock is for changes to the very important object
+	that do not require any notification.
       </para>
     </note>
 
@@ -449,23 +328,27 @@ u.update(val);
     <blockquote>
       <informalexample>
 	<programlisting>
-x::ref&lt;vipnotifyObj&gt; handler;
+vip_t::handlerlock hl(vip);
 
-// ...
+auto callback1=hl->install_front([]
+    (const vipintvalue &amp;v)
+    {
+        // ...
+    });
 
-{
-  vipintvalue val=*vip_t::readlock(vip);
+vipintvalue val=*vip_t::readlock(vip);
 
-  vip_t::handlerlock hl(vip);
-
-  hl.install(handler, val);
-}</programlisting>
+auto callback2=hl->install_back([]
+    (const vipintvalue &amp;v)
+    {
+        // ...
+    }, val);</programlisting>
       </informalexample>
     </blockquote>
 
     <para>
       Use <classname>&ns;::vipobj::handlerlock</classname>
-      for registering a very important object's callback handler.
+      for registering a lambda handler for a very important object.
       Instantiating a <classname>&ns;::vipobj::handlerlock</classname> blocks
       <classname>&ns;::vipobj::updatelock</classname>s, but doesn't block
       other <classname>&ns;::vipobj::handlerlock</classname>s. Multiple
@@ -474,21 +357,34 @@ x::ref&lt;vipnotifyObj&gt; handler;
     </para>
 
     <para>
-      <methodname>install</methodname>() registers a callback handler
-      for the very important object, and immediately invokes it, passing it the
-      given value as the purported initial value of the very important object.
-      The above example acquires a read lock, copies the value of the
-      very important object, releases the read lock, installs the callback
-      handler, immediately invokes it, and returns.
+      <methodname>install_front</methodname>() registers a new lambda handler,
+      and adds it to the front of the list of any existing handlers.
+      <methodname>install_back</methodname>() adds it to the back.
+      They each return a \ref callback "callback handle" that wrapped the
+      lambda into a reference-counted object. The very important object
+      keeps a weak list of all registered lambdas, and
+      <methodname>notify</methodname>() invokes them, in order.
+
+      Both <methodname>install_front</methodname>() and
+      <methodname>install_back</methodname>() take an optional value of the
+      very important object. Typically one would use a read lock to obtain
+      the value, but the value can come from anywhere. If the optional
+      value is given, the newly-registered lambda gets invoked immediately,
+      receiving this value as supposedly the initial value of the very
+      important object.
+      The second example acquires a read lock, copies the value of the
+      very important object, and releases the read lock.
     </para>
 
     <para>
-      The second parameter, the current value, is optional. If not specified,
+      The second parameter, the supposed current value, is optional.
+      If not specified,
       the newly installed callback does not get invoked after installation.
     </para>
 
     <para>
-      The above example releases the read lock before installing the handler.
+      The second example above, releases the read lock before installing the
+      new lambda.
       It's permissible to acquire, and hold, read or write locks, while
       invoking <methodname>install</methodname>(). Of course, that affects the
       callback handler's own access to the very important object. Additionally,
@@ -497,32 +393,57 @@ x::ref&lt;vipnotifyObj&gt; handler;
       remains in scope.
       The handler lock only blocks update locks. After the handler lock
       goes out of scope, official changes to the very important object get
-      reported to the installed handler by instantiating update locks and
+      reported to the installed handler by instantiating new update locks and
       invoking their <methodname>notify</methodname>() methods.
+    </para>
+
+    <para>
+      A different mechanism registers a callback that's attached to an existing
+      object, rather than returning a mcguffin:
     </para>
 
     <blockquote>
       <informalexample>
 	<programlisting>
-&ns;::eventcallbackbase&lt;vipintvalue&gt; callback=
-   hl.create_callback([]
-                     (vipintvalue n)
-                     {
-                         // ...
-                     });
+typedef &ns;::ref&lt;;my_classObj&gt; my_class_t;
 
-   hl.install(callback, val);</programlisting>
+auto my_class=my_class_t::create();
+
+vip_t::handlerlock hl(vip);
+
+auto current_value=*vip_t::readlock(vip);
+
+auto callback1=hl->attach_front(my_class, []
+    (const my_class_t &amp;my_class, const vipintvalue &amp;v)
+    {
+        // ...
+    }, current_value);</programlisting>
       </informalexample>
     </blockquote>
 
     <para>
-      The
-      <methodname>create_callback</methodname>() method takes a lambda
-      and creates a callback object, suitable for
-      <methodname>install</methodname>()ation,
-      that invokes the given lambda.
-      <methodname>crate_callback</methodname>() returns the new
-      callback object.
+      The first parameter to
+      <methodname>attach_front</methodname>() or
+      <methodname>attach_back</methodname>() is some existing reference-counted
+      object. The second parameter is a lambda to be registered as a callback.
+      The third, required parameter, is the initial value of the very important
+      object that gets reported to the callback lambda.
+    </para>
+
+    <para>
+      <methodname>attach_front</methodname>() and
+      <methodname>attach_back</methodname>() do not return a mcguffin for the
+      registered callback. Rather, the callback lambda remains registered as
+      long as the object passed as the first parameter exists. When the value
+      of the very important object gets updated, the lambda gets invoked.
+      The lambda's first parameter is the original object, and the second
+      parameter is the initial or the new value of the very important object.
+    </para>
+
+    <para>
+      This is the typical approach to have an existing object's method get
+      invoked when the very important object's value changes. The lambda
+      simply invokes the object's method, forwarding the value parameter to it.
     </para>
   </section>
 
@@ -546,6 +467,49 @@ x::ref&lt;vipnotifyObj&gt; handler;
     </para>
   </section>
 
+  <section id="vipobjparams">
+    <title>Optional template parameters</title>
+
+    <para>
+      <classname>&ns;::vipobj</classname>'s first template parameter
+      specifies the type of the very important object.
+      <classname>&ns;::vipobj</classname> has three optional template
+      parameters:
+    </para>
+
+    <itemizedlist>
+      <listitem>
+	<para>
+	  The type of the parameter passed to the callback, reporting the
+	  value of the very important object. The default value is
+	  <classname>const <replaceable>vipobj_type</replaceable>
+	    &amp;</classname>, and may be changed if
+	  <replaceable>vipobj_type</replaceable>
+	  can be type-converted to another class.
+	</para>
+      </listitem>
+
+      <listitem>
+	<para>
+	  A <classname>bool</classname> value. Setting this parameter to
+	  <literal>true</literal> catches any
+	  <classname>&ns;::exception</classname>s thrown by a callback lambda,
+	  which get logged. The default value of <literal>false</literal>
+	  does not catch any exceptions, which propagate. Note that this
+	  means that a thrown exception prevents any additional callbacks
+	  from getting invoked, as a result of a very important object update.
+	</para>
+      </listitem>
+
+      <listitem>
+	<para>
+	  The final template parameter specifies the type of the internal
+	  mutexes. This is used by the <link linkend="vipobjdebug">debugging
+	    class</link>.
+	</para>
+      </listitem>
+    </itemizedlist>
+  </section>
   <section id="vipobjdebug">
     <title>Avoiding and debugging deadlocks</title>
 

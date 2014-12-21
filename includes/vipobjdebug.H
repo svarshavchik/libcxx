@@ -90,13 +90,10 @@ public:
 //! debugging purposes.
 
 template<typename obj_type,
-	 typename handler_type=eventcallbackbaseObj<obj_type>,
-	 typename invoke_type=eventcallbackinvoke<obj_type, handler_type>,
-	 typename initial_invoke_type=invoke_type,
-	 typename arg_type=obj_type>
-class vipobjdebug : private vipobj<obj_type, handler_type, invoke_type,
-				   initial_invoke_type, arg_type,
-				   rwmutexdebug> {
+	 typename callback_arg_type=const obj_type &,
+	 bool trap_exceptions=false>
+class vipobjdebug : private vipobj<obj_type, callback_arg_type,
+				   trap_exceptions, rwmutexdebug> {
 
 	//! Identify locks by type, so that conflicting locks may be identified
 	typedef int lock_t;
@@ -161,12 +158,11 @@ public:
 	template<lock_t> friend class deadlocker;
 
 	//! The superclass
-	typedef vipobj<obj_type, handler_type, invoke_type,
-		       initial_invoke_type, arg_type, rwmutexdebug> vipobj_t;
+	typedef vipobj<obj_type, callback_arg_type,
+		       trap_exceptions, rwmutexdebug> vipobj_t;
 
 	//! This template class instance
-	typedef vipobjdebug<obj_type, handler_type, invoke_type,
-			    initial_invoke_type, arg_type> vipobjdebug_t;
+	typedef vipobjdebug<obj_type> vipobjdebug_t;
 
 	//! Default constructor
 	vipobjdebug() {}

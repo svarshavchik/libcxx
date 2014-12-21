@@ -8,7 +8,7 @@
 
 #include <x/namespace.h>
 #include <x/sipobj.H>
-#include <x/eventcallback.H>
+#include <x/callback.H>
 
 namespace LIBCXX_NAMESPACE {
 
@@ -19,70 +19,51 @@ namespace LIBCXX_NAMESPACE {
 //! A Very Important object
 
 //! Define a template for a Very ImPortant object: an object, and a list
-//! of registered callbacks, with consistent semantics for notifying the
-//! registered callbacks when the Very ImPortant object changes.
+//! of lambdas, with consistent semantics for notifying the
+//! registered lambdas when the Very ImPortant object changes.
 //!
 //! The Very Important object is a further subclass of a
 //! \ref sipobj "Somewhat Important Object", that supplements its
 //! read-write lock access mechanism with two additional locks: a handler lock
 //! and an update lock, that implements a callback-type facility.
 //!
-//! When a new callback gets registered, it gets immediately invoked and
-//! given the curren tvalue of the Very ImPortant object, then subsequent
+//! When a new lambda gets registered, it gets (optionally) invoked and
+//! given the current value of the Very ImPortant object, then subsequent
 //! changes to the objects are reported to the callback, until the callback
 //! goes out of scope.
 //!
-//! The callbacks are reference-counted objects, and
-//! the list of registered callbacks is implemented by
-//! an \ref eventcallback "eventcallback" template, which holds weak
-//! references. The callbacks remain registered and receive notifications
-//! of updates to the value of the Very ImPortant objects until they go out
-//! of scope, and get destroyed.
+//! Registering a lambda returns a \ref callback "callback objects", a
+//! reference-counted object. The lambda gets invoked until the last reference
+//! to the callback goes out of scope, and it gets destroyed. The callback
+//! objects are held in an internal \ref weaklist "weak list".
 //!
 //! Careful locking is used to provide a consistent reporting of changes to
-//! the value of the object in a multithread context. There's also a concept
+//! the value of the object in a multithreaded context. There's also a concept
 //! of obtaining write access to the object, without reporting the write
 //! access to the registered callbacks.
 //!
 //! The first template parameter specifies the Very ImPortant object class.
-//! The second parameter specifies the reference-counted handler
-//! class, that must be derived from \ref obj "obj". The class must define
-//! a member type, arg_t, that defines the type of the argument that's
-//! passed to the callback handler. Usually that should be the same as
-//! \c obj_type, however this allows the implementation of handlers that
-//! receives values that are derived from \c obj_type via a casting operator.
-//!
-//! By default, when a callback gets registered, the current value of the
-//! Very ImPortant object gets reported by invoking the callback's
-//! event() method, which also gets invoked when the Very ImPortant object's
-//! value changes. The third parameter specifies a callback invocation
-//! class (see \ref eventcallback "eventcallback") for post-registration
-//! updates, and the fourth template parameter specifies a callback invocation
-//! class for the initial value of the Very Important object, at registration
-//! time. The default invocation class invokes the callback's event() method,
-//! as described.
-//!
-//! The fifth parameter specifies the argument type that's passed to the
-//! handlers, and defaults to the first template parameter. It may be used
-//! to implement handlers that receive values that are derived by some
-//! very important object's casting operator.
-//!
-//! The sixth template parameter specifies the type of the underlying
+//! The second parameter specifies the type of the parameter passed to the
+//! callback lambdas, which defaults to "const object_type &".
+//! The optional 3rd template defaults to false. If it's true, any
+//! \ref exception "exceptions" thrown by a callback are trapped, and logged.
+//! The optional 4th template parameter specifies the type of the underlying
 //! readers-writer mutex, and defaults to
 //! \c INSERT_LIBX_NAMESPACE::rwmutex. It's not used directly, but, rather
 //! gets sets to the debug rwmutex type by using
 //! \ref vipobjdebug "INSERT_LIBX_NAMESPACE:vipobjdebug".
 
 template<typename obj_type,
-	 typename handler_type=eventcallbackbaseObj<obj_type>,
-	 typename invoke_type=eventcallbackinvoke<obj_type, handler_type>,
-	 typename initial_invoke_type=invoke_type,
-	 typename arg_type=obj_type,
+	 typename callback_arg_type=const obj_type &,
+	 bool trap_exceptions=false,
 	 typename rwmutex_type=rwmutex>
 class vipobj : public sipobj<obj_type, rwmutex_type> {
 
 	//! Container for a  list of registered callbacks.
-	typedef eventcallback<arg_type, handler_type, invoke_type> callbacks_t;
+	typedef weaklist<callbackObj<void, callback_arg_type>> callbacks_t;
+
+	//! The type of the callback used internally.
+	typedef callback<void, callback_arg_type> callback_t;
 
 	//! A list of registered callbacks
 	callbacks_t callbacks;
@@ -93,13 +74,14 @@ class vipobj : public sipobj<obj_type, rwmutex_type> {
 public:
 	//! This template class instance type
 
-	typedef vipobj<obj_type, handler_type, invoke_type,
-		       initial_invoke_type, arg_type, rwmutex_type> vipobj_t;
+	typedef vipobj<obj_type, callback_arg_type, trap_exceptions,
+		       rwmutex_type> vipobj_t;
 
 	//! Constructor
 	template<typename ...Args>
 	vipobj(Args && ...args)
-		: sipobj<obj_type, rwmutex_type>(std::forward<Args>(args)...)
+		: sipobj<obj_type, rwmutex_type>(std::forward<Args>(args)...),
+		callbacks(callbacks_t::create())
 	{
 	}
 
@@ -111,16 +93,6 @@ public:
 
 	friend class updatelock;
 	friend class handlerlock;
-
-	//! Helper template that creates a callback that invokes a lambda.
-
-	//! The returned callback
-	template<typename lambda_type>
-	static ref<handler_type> create_callback(lambda_type &&lambda)
-	{
-		return callbacks_t
-			::create_callback(std::forward<lambda_type>(lambda));
-	}
 
 	//! Update the value of the VIP object
 
@@ -154,10 +126,16 @@ public:
 		//! If a \ref sipobj::writelock "writelock" gets destroyed without any
 		//! changes to the very important object, it is not necessary
 		//! to invoke this.
-
-		void notify(const arg_type &obj)
+		template<typename notify_value_type>
+		void notify(const notify_value_type &obj)
 		{
-			objp.callbacks.event(obj);
+			if (trap_exceptions)
+			{
+				invoke_callbacks_log_exceptions
+					(objp.callbacks, obj);
+			}
+			else
+				invoke_callbacks(objp.callbacks, obj);
 		}
 
 		//! The constructor takes a vipobj_t
@@ -180,7 +158,7 @@ public:
 		//! \ref sipobj::writelock "writelock", and then
 		//! invokes notify().
 		
-		void update(const arg_type &obj)
+		void update(const obj_type &obj)
 		{
 			{
 				typename sipobj<obj_type, rwmutex_type>
@@ -224,30 +202,147 @@ public:
 
 		//! Register a new callback
 
-		//! The callback gets immediately invoked with the object
-		//! value.
-
-		void install(//! The handler being installed
-			     const ref<handler_type> &h,
-
-			     //! The alleged initial value of the very important object
-
-			     const arg_type &v)
+		//! It's added to the beginning of the list of the existing
+		//! callbacks.
+		template<typename functor_type>
+		auto install_front(//! The handler being installed
+				   functor_type &&functor)
 		{
-			objp.callbacks.install(h);
-
-			initial_invoke_type::event(h, v);
+			auto cb=callback_t::create(std::forward<functor_type>
+						   (functor));
+			
+			objp.callbacks->push_front(cb);
+			return cb;
 		}
 
-		//! Register a new callback without immediately invoking it.
+		//! Register a new callback
 
-		//! The callback gets immediately invoked with the object
-		//! value.
+		//! It's added to the beginning of the list of the existing
+		//! callbacks.
+		//! The callback gets immediately invoked with the current
+		//! value of this very important object.
 
-		void install(//! The handler being installed
-			     const ref<handler_type> &h)
+		template<typename functor_type, typename initial_value_type>
+		auto install_front(//! The handler being installed
+				   functor_type &&functor,
+
+				   //! The alleged initial value of the very important object
+
+				   const initial_value_type &v)
 		{
-			objp.callbacks.install(h);
+			auto cb=install_front(std::forward<functor_type>
+					      (functor));
+			cb->functor(v);
+
+			return cb;
+		}
+
+		//! Register a new callback
+
+		//! It's added to the end of the list of the existing
+		//! callbacks.
+		template<typename functor_type>
+		auto install_back(//! The handler being installed
+				  functor_type &&functor)
+		{
+			auto cb=callback_t::create(std::forward<functor_type>
+						   (functor));
+			
+			objp.callbacks->push_back(cb);
+
+			return cb;
+		}
+
+		//! Register a new callback
+
+		//! It's added to the end of the list of the existing
+		//! callbacks.
+		//! The callback gets immediately invoked with the current
+		//! value of this very important object.
+
+		template<typename functor_type, typename initial_value_type>
+		auto install_back(//! The handler being installed
+				  functor_type &&functor,
+
+				  //! The alleged initial value of the very important object
+
+				  const initial_value_type &v)
+		{
+			auto cb=install_back(std::forward<functor_type>
+					     (functor));
+			cb->functor(v);
+
+			return cb;
+		}
+
+		//! Attach an existing object as a callback
+
+		//! The first parameter is some existing object. The
+		//! second parameter is a lambda. The third parameter is the
+		//! current value of the very important object.
+		//! The lambda gets invoked with two parameters, the object,
+		//! and the initial or the new value of the very important
+		//! object; as long as the object itself continues to exist.
+		
+		template<typename class_type, typename base_type,
+			 typename lambda_type,
+			 typename ...Args>
+		void attach_front(const ref<class_type, base_type> &obj,
+				  lambda_type &&lambda,
+				  Args ...args)
+		{
+			auto mcguffin=install_front
+				([weakptr=weakptr<ptr<class_type, base_type>>
+				  (obj),
+				  lambda]
+				 (callback_arg_type arg)
+				 {
+					 auto obj=weakptr.getptr();
+
+					 if (obj.null())
+						 return;
+
+					 lambda(obj, arg);
+				 }, std::forward<Args>(args)...);
+
+			obj->ondestroy([mcguffin]
+				       {
+				       });
+		}
+
+		//! Attach an existing object as a callback
+
+		//! The first parameter is some existing object. The
+		//! second parameter is a lambda. The third parameter is the
+		//! current value of the very important object.
+		//! The lambda gets invoked with two parameters, the object,
+		//! and the initial or the new value of the very important
+		//! object; as long as the object itself continues to exist.
+
+		template<typename class_type, typename base_type,
+			 typename lambda_type,
+			 typename ...Args>
+		void attach_back(const ref<class_type, base_type> &obj,
+				 lambda_type &&lambda,
+				  Args ...args)
+		{
+			auto mcguffin=install_back
+				([weakptr=weakptr<ptr<class_type, base_type>>
+				  (obj),
+				  lambda]
+				 (callback_arg_type arg)
+				 {
+					 auto obj=weakptr.getptr();
+
+					 if (obj.null())
+						 return;
+
+					 lambda(obj, arg);
+				 }, std::forward<Args>(args)...);
+
+			obj->ondestroy([mcguffin]
+				       {
+				       });
 		}
 	};
 };

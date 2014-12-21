@@ -220,7 +220,7 @@ void exceptionObj::prepend(const std::string &s)
 	save();
 }
 
-LOG_FUNC_SCOPE_DECL(LIBCXX_NAMESPACE::exception, log_exception);
+LOG_FUNC_SCOPE_DECL(LIBCXX_NAMESPACE::exception, log_exception_log);
 
 void exceptionObj::log() noexcept
 {
@@ -234,7 +234,7 @@ void exceptionObj::log() noexcept
 		return;
 	}
 
-	LOG_FUNC_SCOPE(log_exception);
+	LOG_FUNC_SCOPE(log_exception_log);
 
 	LOG_DEBUG( operator std::string());
 	LOG_TRACE( backtrace );

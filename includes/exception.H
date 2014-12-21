@@ -415,7 +415,6 @@ public:
 #define CUSTOM_EXCEPTION(className, ...) \
 	(::LIBCXX_NAMESPACE::custom_exception<className>(__VA_ARGS__).log(__FILE__, __LINE__))
 
-//!
 #if 0
 {
 #endif

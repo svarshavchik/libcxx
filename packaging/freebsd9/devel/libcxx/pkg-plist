@@ -22,6 +22,9 @@ include/x/basicstreamcodecvtobj.H
 include/x/basicstreamcodecvttype.H
 include/x/basicstreamobj.H
 include/x/basicstringstreamobj.H
+include/x/callback.H
+include/x/callbackfwd.H
+include/x/callbackobj.H
 include/x/chrcasecmp.H
 include/x/codecvtiter.H
 include/x/cond.H
@@ -35,6 +38,9 @@ include/x/csvheader_to.H
 include/x/csvto_to.H
 include/x/ctype.H
 include/x/dequemsgdispatcher.H
+include/x/derivedvalue.H
+include/x/derivedvaluefwd.H
+include/x/derivedvalueobj.H
 include/x/deserialize.H
 include/x/destroycallbackflag.H
 include/x/destroycallbackflagfwd.H

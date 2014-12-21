@@ -1,15 +1,15 @@
 /*
-** Copyright 2012 Double Precision, Inc.
+** Copyright 2012-2014 Double Precision, Inc.
 ** See COPYING for distribution information.
 */
 
 #include "libcxx_config.h"
-#include "exception.H"
-#include "sysexception.H"
-#include "logger.H"
-#include "namespace.h"
-#include "property_value.H"
-#include "ptr.H"
+#include "x/exception.H"
+#include "x/sysexception.H"
+#include "x/logger.H"
+#include "x/namespace.h"
+#include "x/property_value.H"
+#include "x/ptr.H"
 #include <cstring>
 #include <cerrno>
 
@@ -112,7 +112,6 @@ void sysexception::done()
 	(*this) << ": " << strerror(errcode);
 	(*this)->log();
 }
-
 #if 0
 {
 #endif

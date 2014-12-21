@@ -55,9 +55,9 @@ See COPYING for distribution information.
   </para>
 
   <para>
-    <application>gcc 4.7</application> is required. Since this library uses
-    C++11 classes, applications must be compiled with the
-    <option>-std=c++0x</option> option, as well as
+    <application>gcc 4.9</application> is required. Since this library uses
+    C++14 classes, applications must be compiled with the
+    <option>-std=c++1y</option> option, as well as
     <option>-fno-omit-frame-pointer</option>. This is done automatically
     when <link linkend="using">using autotools</link>.
   </para>
@@ -119,7 +119,7 @@ See COPYING for distribution information.
 
       <listitem>
 	<para>
-	  <application>GCC</application> version 4.7, or a higher version if
+	  <application>GCC</application> version 4.9, or a higher version if
 	  it's the current current version of <application>GCC</application>.
 	  As new <application>GCC</application> releases improve support for
 	  C++11, this library will probably be updated to take advantage of
@@ -130,7 +130,7 @@ See COPYING for distribution information.
       <listitem>
 	<para>
 	  <application>gnutls</application>,
-	  <application>libgcrypt</application>,
+	  <application>libgcrypt</application> (at least 1.6),
 	  <application>libidn</application>,
 	  <application>libxml2</application>,
 	  <application>libxslt</application>,

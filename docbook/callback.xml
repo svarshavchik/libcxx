@@ -1,0 +1,155 @@
+<!--
+
+Copyright 2014 Double Precision, Inc.
+See COPYING for distribution information.
+
+-->
+
+<chapter id="callback">
+  <title>Reference-counted lambdas</title>
+
+  <para>
+    The <ulink url="&link-typedef-x-callback;"><classname>&ns;::callback</classname></ulink>
+    template creates a reference-counted wrapper for some arbitrary lambda.
+    The template turns a lambda into a <link linkend="refobj">generic
+      reference-counted object</link>. This is a generalized callback
+    design pattern.
+  </para>
+
+  <blockquote>
+    <informalexample>
+      <programlisting>
+&ns;::callback&lt;void, const char *, int&gt; cb=
+    &ns;::callback&lt;void, const char *, int&gt;::create(
+        []
+        (const char *str, int n)
+        {
+            std::cout &lt;&lt; str &lt;&lt; ": " &lt;&lt; n &lt;&lt; std::endl;
+        });
+
+// ...
+
+cb-&gt;invoke("Hello world", 0);</programlisting>
+    </informalexample>
+  </blockquote>
+
+  <para>
+    The first parameter to the <classname>&ns;::callback</classname> template
+    is the lambda's return type. The remaining parameters to the template
+    are the types of the arguments to the lambda (if any).
+    This constructs a reference-counted object whose invoke() method
+    invokes the lambda.
+  </para>
+
+  <section id="invoke_callbacks">
+    <title>Invoking a weak list of callbacks</title>
+
+    <para>
+      A common design pattern is to store a list of registered callbacks in
+      a <link linkend="weakcontainers">weak list</link>, so that callbacks
+      get automatically deregistered, when they go out of scope and get
+      destroyed. The following methods implement a typical mechanism to
+      invoke the callbacks:
+    </para>
+
+    <blockquote>
+      <informalexample>
+	<programlisting>
+&ns;::weaklist&lt;callbackObj&lt;void, int, const char *&gt;&gt; callbacks;
+
+invoke_callbacks(callbacks, "Hello world", 0);
+
+invoke_callbacks_log_exceptions(callbacks, "Hello world", 0);</programlisting>
+      </informalexample>
+    </blockquote>
+
+    <para>
+      <function>invoke_callbacks</function>()'s first parameter is a
+      weak list of callbacks.
+      <function>invoke_callbacks</function>() invokes each callback in the
+      weak list,
+      with its remaining arguments forwarded to each callback.
+      <function>invoke_callbacks</function>() does not catch
+      any <link linkend="exceptions"><classname>&ns;::exception</classname></link>s
+      thrown from an invoked callback. A thrown exceptions stops
+      any remaining callbacks in the list from getting invoked.
+      <function>invoke_callbacks_log_exceptions</function>()
+      catches any <classname>&ns;::exception</classname> that gets thrown
+      from an invoked callback. The caught exception is logged before
+      the next callback in the weak list gets invoked.
+    </para>
+
+    <para>
+      Callback lambdas that return non-<classname>void</classname>
+      values require two extra parameters:
+    </para>
+
+    <blockquote>
+      <informalexample>
+	<programlisting>
+&ns;::weaklist&lt;callbackObj&lt;int, int, const char *&gt;&gt; callbacks;
+
+int retval=invoke_callbacks(callbacks,
+    []
+    (int value)
+    {
+        return value &lt; 0;
+    },
+    []
+    {
+        return 0;
+    },
+    "Hello world", 0);</programlisting>
+      </informalexample>
+    </blockquote>
+ 
+    <para>
+      Using <function>invoke_callbacks</function>() and
+      <function>invoke_callbacks_log_exceptions</function>() with a weak list
+      of callbacks that return a non-<classname>void</classname> value requires
+      the following parameters:
+    </para>
+
+    <itemizedlist>
+      <listitem>
+	<para>
+	  The weak list of callbacks itself.
+	</para>
+      </listitem>
+
+      <listitem>
+	<para>
+	  A lambda that checks the return value from each callback.
+	  If the lambda returns <literal>true</literal>, callback invocation
+	  stops.
+	  Any remaining callbacks do not get invoked, and
+	  <function>invoke_callbacks</function>() or
+	  <function>invoke_callbacks_log_exceptions</function>() returns
+	  immediately, with the last callback's return value.
+	</para>
+      </listitem>
+
+      <listitem>
+	<para>
+	  A lambda that returns the value that
+	  <function>invoke_callbacks</function>() or
+	  <function>invoke_callbacks_log_exceptions</function>() itself returns
+	  if the weak list is empty, or if the first lambda returned
+	  <literal>false</literal> for every invoked callback's value.
+	</para>
+      </listitem>
+
+      <listitem>
+	<para>
+	  The remaining parameters get forwarded to each invoked callback.
+	</para>
+      </listitem>
+    </itemizedlist>
+  </section>
+</chapter>  
+<!--
+Local Variables:
+mode: sgml
+sgml-parent-document: ("book.xml" "book" "chapter")
+End:
+-->

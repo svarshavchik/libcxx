@@ -1748,6 +1748,23 @@ void testdestroyfunc6()
 		throw EXCEPTION("testdestroyfunc6, test2, failed");
 }
 
+void testdestroyfunc7()
+{
+	auto mcguffin=LIBCXX_NAMESPACE::ref<LIBCXX_NAMESPACE::obj>::create();
+
+
+	auto weakptr=LIBCXX_NAMESPACE::weakptr<LIBCXX_NAMESPACE::ptr
+					       <LIBCXX_NAMESPACE::obj>>(mcguffin);
+
+	std::cout << "Null: " << weakptr.getptr().null() << std::endl;
+	mcguffin->ondestroy([weakptr]
+			    {
+				    std::cout << "Will this work?" << std::endl;
+
+				    weakptr.getptr();
+			    });
+}
+
 class threadtestsendfd : virtual public LIBCXX_NAMESPACE::obj {
 
 	size_t nfds;
@@ -2510,6 +2527,7 @@ int main()
 	testdestroyfunc4();
 	testdestroyfunc5();
 	testdestroyfunc6();
+	testdestroyfunc7();
 	if (testsendfd(128) < 0) // Max appears to be 253 as of 2.6.38
 		exit(1);
 	alarm(30);

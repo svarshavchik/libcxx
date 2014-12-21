@@ -200,8 +200,7 @@ public:
 	//! Forward create() to the base type
 
 	template<typename... Args_t>
-	static inline ptr<objClass, baseClass>
-	create(Args_t &&...args)
+	static inline auto create(Args_t &&...args)
 	{
 		return baseClass
 			::template objfactory< ptr<objClass, baseClass> >

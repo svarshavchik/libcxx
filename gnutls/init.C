@@ -18,10 +18,6 @@
 #include <cstdlib>
 #include <iostream>
 
-extern "C" {
-	GCRY_THREAD_OPTION_PTHREAD_IMPL;
-};
-
 namespace LIBCXX_NAMESPACE {
 
 #if 0
@@ -46,8 +42,6 @@ property::value<bool> gnutls::init::logerrors(LIBCXX_NAMESPACE_WSTR
 void gnutls::init::init_impl() noexcept
 {
 	__sync_fetch_and_add(&init_flag, 1);
-
-	gcry_control(GCRYCTL_SET_THREAD_CBS, &gcry_threads_pthread);
 
 	if (!gnutls_check_version(LIBGNUTLS_VERSION))
 	{

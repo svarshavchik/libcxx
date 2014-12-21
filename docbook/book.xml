@@ -32,6 +32,7 @@
 <!ENTITY lockpool SYSTEM "lockpool.xml">
 <!ENTITY eventqueue SYSTEM "eventqueue.xml">
 <!ENTITY eventcallback SYSTEM "eventcallback.xml">
+<!ENTITY callback SYSTEM "callback.xml">
 <!ENTITY vipobj SYSTEM "vipobj.xml">
 <!ENTITY eventfactory SYSTEM "eventfactory.xml">
 <!ENTITY msgdispatcher SYSTEM "msgdispatcher.xml">
@@ -137,6 +138,7 @@ See COPYING for distribution information.
     &eventqueue;
     &eventfactory;
     &eventcallback;
+    &callback;
     &vipobj;
     &msgdispatcher;
     &lockpool;
