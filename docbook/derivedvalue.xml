@@ -1,0 +1,218 @@
+<!--
+
+Copyright 2014 Double Precision, Inc.
+See COPYING for distribution information.
+
+-->
+
+<chapter id="derived">
+  <title>Derived values</title>
+
+  <para>
+    The following templates implement a <quote>derived value</quote>.
+    A derived value is a
+    <link linkend="refobj">reference-counted</link>
+    subclass of a <link linkend="vipobj">very important
+      object</link> that sets is value based on a varying list of other
+    values. A set of functors define how a varying list of values derives
+    some value, of the same or a different type.
+  </para>
+
+  <blockquote>
+    <informalexample>
+      <programlisting>
+#include &lt;&ns;/derivedvalue.H&gt;
+
+typedef &ns;::derivedvalue&lt;int, std::string&gt; derived_t;
+
+derived_t derived=&ns;::derivedvalues&lt;int&gt;::create(
+        []
+        {
+            return (int)0;
+        },
+        []
+        (int &amp;sum, const int &amp;v)
+        {
+            sum += v;
+        },
+        []
+        (const int &amp;sum)
+        {
+             std::ostringstream o;
+
+             o &lt;&lt; sum*2;
+             return o.str();
+        });</programlisting>
+    </informalexample>
+  </blockquote>
+
+  <para>
+    This example creates a
+    <ulink url="&link-typedef-x-const-derivedvalue;"><classname>&ns;::w::derivedvalue</classname></ulink>
+    that's a <classname>std::string</classname> which is derived from a list
+    of <classname>int</classname>s.
+    <function>&ns;::derivedvalues&lt;int&gt;::create</function>()
+    creates this <link linkend="refobj">reference-counted object</link>.
+    Its template parameter specifies the type of values the derived object
+    gets derived from. Three lambdas, given as arguments to
+    <function>create</function>() calculate the derived value.
+  </para>
+
+  <itemizedlist>
+    <listitem>
+      <para>
+	The <quote>begin calculation</quote> lambda's return value returns the
+	initial value for the calculation.
+      </para>
+    </listitem>
+    <listitem>
+      <para>
+	The <quote>calculation</quote> lambda gets invoked for each value
+	that the derived value is currently based on. It is not specified in
+	which order each value is passed to the calculation lambda.
+	The lambda's first parameter is a mutable reference to the current
+	calculation value, and the second parameter is the next value that
+	the final derived value gets derived from.
+      </para>
+    </listitem>
+    <listitem>
+      <para>
+	The <quote>final value</quote> lambda gets invoked after the last
+	value,
+	that the derived value is currently based on, gets passed to the
+	calculation value, and it returns. If the list of values is empty,
+	the begin calculation lambda gets called, and then the final value
+	lambda gets called immediately afterwards.
+      </para>
+    </listitem>
+  </itemizedlist>
+
+  <para>
+    The type that the final value returns sets the type of the
+    very important derived value. The above example creates a
+    <classname>std::string</classname> from a list of
+    <classname>int</classname>s by adding them together, multiplying the
+    sum by two, and converting it to a <classname>std::string</classname>.
+  </para>
+
+  <note>
+    <para>
+      The calculated derived value gets compared to the current derived value
+      using the <literal>==</literal> operator. Only if the newly
+      calculated derived value does not compare as equal, does this
+      this still result in an update to
+      the derived value, and invocation of all the registered lambda callbacks.
+    </para>
+  </note>
+
+  <blockquote>
+    <informalexample>
+      <programlisting>
+&ns;::derivedvaluelist&lt;int&gt;::base::current_value_t
+    v=derived-&gt;create(1);
+      </programlisting>
+    </informalexample>
+  </blockquote>
+
+  <para>
+    This <methodname>create</methodname>() method adds a new value to the
+    list of values that the derived value gets calculated from.
+    <classname>current_value_t</classname> is also a reference to a
+    reference-counted object. The initial value, of the added value, gets
+    passed to <methodname>create</methodname>()'s constructor.
+    There's also an <methodname>emplace</methodname>() method that
+    constructs a new value.
+  </para>
+
+  <blockquote>
+    <informalexample>
+      <programlisting>
+	v=derived-&gt;create(1);
+      </programlisting>
+    </informalexample>
+  </blockquote>
+
+  <para>
+    The derived value gets automatically recalculated whenever:
+  </para>
+
+  <itemizedlist>
+    <listitem>
+      <para>
+	A new value gets <methodname>create</methodname>()d.
+      </para>
+    </listitem>
+
+    <listitem>
+      <para>
+	The last reference to an existing
+	<classname>current_value_t</classname> object goes out of scope,
+	and it gets destroyed.
+      </para>
+    </listitem>
+
+    <listitem>
+      <para>
+	An existing
+	<classname>current_value_t</classname>'s
+	<methodname>update</methodname>() method gets invoked, which specifies
+	a new replacement for the referenced.
+      </para>
+    </listitem>
+  </itemizedlist>
+
+  <para>
+    Any of these events result in invoking the three lambdas to calculate
+    a new derived value based on the updated list of values that the
+    derived value is based on.
+  </para>
+
+  <blockquote>
+    <informalexample>
+      <programlisting>
+typedef derived_value_t::base::vipobj_t vipobj_t;
+
+vipobj_t::handlerlock lock(*derived);
+
+std::string current_value=*vipobj_t::readlock(*derived);
+
+auto mcguffin=lock->install_back([]
+                                 (const std::string &amp;value)
+                                 {
+                                 },
+                                 current_value);</programlisting>
+    </informalexample>
+  </blockquote>
+
+  <para>
+    <classname>&ns;::derivedvalue&lt;<replaceable>value_type</replaceable>, <replaceable>derived_value_type</replaceable>&gt;::base::vipobj_t</classname>
+    gives the type of the
+    <link linkend="vipobj"><classname>&ns;::vipobj</classname></link>
+    that the derived value is based on.
+    Use a handler lock to register callback lambdas to obtain the value of
+    the derived value.
+  </para>
+
+  <note>
+    <para>
+      The derived value object takes complete responsibility for using the
+      underlying update lock and write lock, to set the new calculated value.
+      These locks should not be used explicitly.
+    </para>
+  </note>
+
+  <note>
+    <para>
+      Each <classname>current_value_t</classname> holds a reference to its
+      <classname>derivedvalue</classname>, and it's not specified
+      in which order each value gets passed to the calculation lmabda,
+      during the calculation.
+    </para>
+  </note>
+</chapter>
+<!--
+Local Variables:
+mode: sgml
+sgml-parent-document: ("book.xml" "book" "chapter")
+End:
+-->

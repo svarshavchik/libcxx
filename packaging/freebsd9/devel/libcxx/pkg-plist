@@ -64,7 +64,6 @@ include/x/epoll_def.h
 include/x/epollfwd.H
 include/x/epollobj.H
 include/x/errors.H
-include/x/eventcallback.H
 include/x/eventdestroynotify.H
 include/x/eventdestroynotifyobj.H
 include/x/eventfactory.H

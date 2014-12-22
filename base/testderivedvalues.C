@@ -16,7 +16,7 @@ static std::vector<std::string> testderivedvalue()
 	std::vector<std::string> values;
 
 	LIBCXX_NAMESPACE::derivedvalue<int, std::string> derived=
-		LIBCXX_NAMESPACE::derivedvaluelist<int>
+		LIBCXX_NAMESPACE::derivedvalues<int>
 		::create([]
 			 {
 				 return 0;
@@ -55,12 +55,62 @@ static std::vector<std::string> testderivedvalue()
 
 	{
 		LIBCXX_NAMESPACE::derivedvaluelist<int>::base::current_value_t
-			b=derived->create(2);
+			b=derived->create((int)2);
 
+		a->update(3);
 		a->update(3);
 	}
 
 	return values;
+}
+
+void make_sure_this_compiles(const LIBCXX_NAMESPACE::derivedvalue<int,
+			     std::string> &derived,
+			     LIBCXX_NAMESPACE::derivedvaluelist<int>::base
+			     ::current_value_t &value)
+
+{
+	int n=1;
+	derived->create(n);
+	derived->emplace(1);
+
+	value->update(n);
+	value->update(1);
+
+	typedef LIBCXX_NAMESPACE::derivedvalue<int, std::string>::base::vipobj_t
+		vipobj_t;
+
+	vipobj_t::handlerlock lock(*derived);
+
+	lock.install_back([]
+			  (const std::string &new_value)
+			  {
+			  },
+
+			  (std::string)*vipobj_t::readlock(*derived));
+
+
+
+
+
+	auto ptr=LIBCXX_NAMESPACE::derivedvalues<int>
+		::create([]
+			 {
+				 return 0;
+			 },
+			 []
+			 (int &sum, const int &v)
+			 {
+			 },
+			 []
+			 (const int &sum)
+			 {
+				 return sum;
+			 });
+
+	decltype(ptr)::base::vipobj_t *ptr_p;
+
+	ptr_p=&*ptr;
 }
 
 int main(int argc, char **argv)
@@ -76,4 +126,3 @@ int main(int argc, char **argv)
 	}
 	return (0);
 }
-

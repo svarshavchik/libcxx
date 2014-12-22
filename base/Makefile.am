@@ -71,7 +71,6 @@ libcxx_la_SOURCES=\
 	dispatchablebaseobj.C	\
 	epoll.C			\
 	epollobj.C		\
-	eventcallback.C		\
 	eventdestroynotify.C	\
 	eventfdobj.C		\
 	eventqueuemsgdispatcher.C \

@@ -77,6 +77,12 @@ public:
 	typedef vipobj<obj_type, callback_arg_type, trap_exceptions,
 		       rwmutex_type> vipobj_t;
 
+	//! The object in here
+	typedef obj_type obj_t;
+
+	//! The very important object parameter to handlers
+	typedef callback_arg_type callback_arg_type_t;
+
 	//! Constructor
 	template<typename ...Args>
 	vipobj(Args && ...args)

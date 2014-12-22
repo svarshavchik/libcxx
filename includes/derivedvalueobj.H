@@ -3,6 +3,7 @@
 
 #include <x/weaklistfwd.H>
 #include <x/mpobj.H>
+#include <x/functional.H>
 #include <x/vipobj.H>
 
 namespace LIBCXX_NAMESPACE {
@@ -19,24 +20,42 @@ public:
 
 	class value_fromObj;
 
-	//! The weak list of current values.
-	typedef weaklist<value_fromObj> all_values_t;
-
-	//! Current values, from which some other value is derived.
-	const all_values_t all_values;
-
 	derivedvalueListObj();
 
 	~derivedvalueListObj() noexcept;
 
+protected:
+
+	//! Container for all values.
+
+	typedef std::list<basedon_t> all_values_t;
+
+	//! All current values from which a very important value is derived from.
+
+	//! This list is accessed only while holding an update lock on the
+	//! very important object.
+	all_values_t all_values;
+
+	//! Acquire an update lock, then invoke the closure.
+
+	virtual void updated(const function<void (void)> &)=0;
+
+public:
+	friend class value_fromObj;
+
 	ref<value_fromObj> create(const basedon_t &initial_value);
 
-	//! Some value was updated, recalculate the derived value.
-	virtual void updated()=0;
+	ref<value_fromObj> create(basedon_t &&initial_value);
+
+	//! Create a new value from which some other value is derived.
+
+	template<typename ...Args>
+	ref<value_fromObj> emplace(Args && ...args);
 
 	template<typename begin_calc_functor_t,
 		 typename calc_functor_t,
 		 typename end_calc_functor_t,
+		 typename vipobj_arg_type,
 		 typename ...vipobj_type> class calcObj;
 };
 
@@ -53,23 +72,25 @@ public:
 
 	const ref<derivedvalueListObj> all_values;
 
-	//! The lates value
+private:
 
-	typedef mpobj<basedon_t> latest_value_t;
+	//! My value.
 
-	//! Latest value from which some other value is derived from (in part).
-	latest_value_t latest_value;
+	typename all_values_t::iterator iterator;
 
-	//! Use update() to update the latest_value, and recalculate the derived value.
+public:
+
+	value_fromObj(const ref<derivedvalueListObj> &all_valuesArg,
+		      all_values_t &all_values);
+
+	~value_fromObj() noexcept;
 
 	void update(const basedon_t &new_basedonvalue);
 
-	value_fromObj(const ref<derivedvalueListObj> &all_valuesArg,
-		      const basedon_t &initial_value);
+	void update(basedon_t &&new_basedonvalue);
 
 	friend class derivedvalueListObj;
 
-	~value_fromObj() noexcept;
 };
 
 //! A value derived from other values.
@@ -83,13 +104,17 @@ public:
 //! first two parameters to this template are the type of the values derived
 //! from, and the type of the derived value.
 
-template<typename basedon_t, typename ...vipobj_type>
+template<typename basedon_t, typename vipobj_type,
+	 typename vipobj_arg_type,
+	 typename ...vipobj_extra_type>
 class derivedvalueObj : public derivedvalueListObj<basedon_t>,
-			public vipobj<vipobj_type...> {
+			public vipobj<vipobj_type, vipobj_arg_type, true,
+				      vipobj_extra_type...> {
 public:
 
 	//! The very important object this is a subclass of.
-	typedef vipobj<vipobj_type...> vipobj_t;
+	typedef vipobj<vipobj_type, vipobj_arg_type, true,
+		       vipobj_extra_type...> vipobj_t;
 
 	//! Constructor
 	template<typename ...Args>
@@ -150,12 +175,14 @@ template<typename basedon_t>
 template<typename begin_calc_functor_t,
 	 typename calc_functor_t,
 	 typename end_calc_functor_t,
+	 typename vipobj_arg_type,
 	 typename ...vipobj_type>
 class derivedvalueListObj<basedon_t>::calcObj
 	: public derivedvalueObj<basedon_t,
 				 typename derivedvalue_type_calc
 				 <begin_calc_functor_t, end_calc_functor_t>
 				 ::type,
+				 vipobj_arg_type,
 				 vipobj_type...> {
 public:
 
@@ -184,7 +211,7 @@ public:
 
 	~calcObj() noexcept;
 
-	void updated() override;
+	void updated(const function<void (void)> &) override;
 };
 
 
