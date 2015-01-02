@@ -1,0 +1,54 @@
+<!--
+
+Copyright 2015 Double Precision, Inc.
+See COPYING for distribution information.
+
+-->
+
+<chapter id="ltdl">
+  <title>Loading shared libraries</title>
+
+  <blockquote>
+    <informalexample>
+      <programlisting>
+#include &lt;&ns;/ltdl.H&gt;
+
+auto shlib=&ns;::ltdl::create("libmymodule");
+
+void *sym=shlib-&gt;sym("function");
+
+auto symptr=reinterpret_cast&lt;void (*)()&gt;(sym);
+
+(*symptr)();</programlisting>
+    </informalexample>
+  </blockquote>
+
+  <para>
+    <ulink url="&link-typedef-x-ltdl;"><classname>&ns;::ltdl</classname></ulink>
+    implements a <link linkend="refobj">reference-counted</link> wrapper
+    around libtool's <application>libltdl</application> library that implements
+    dynamic loading and unloading of shared libraries.
+    <methodname>create</methodname>() loads the specified shared library,
+    after which use <methodname>sym</methodname>() to look up symbols
+    in the shared library.
+  </para>
+
+  <note>
+    <para>
+      Mangled C++ names should be used, where applicable.
+    </para>
+  </note>
+
+  <para>
+    See the
+    <ulink url="&link-x--ltdlBase;"><classname>&ns;::ltdl::base</classname></ulink>
+    documentation for more information on several options related to loading
+    shared libraries, and libtool's documentation, for more information.
+  </para>
+</chapter>
+<!--
+Local Variables:
+mode: sgml
+sgml-parent-document: ("book.xml" "book" "chapter")
+End:
+-->

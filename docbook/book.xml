@@ -84,6 +84,7 @@
 <!ENTITY httpuseragent SYSTEM "httpuseragent.xml">
 <!ENTITY httpserver SYSTEM "httpserver.xml">
 <!ENTITY ftpclient SYSTEM "ftpclient.xml">
+<!ENTITY ltdl SYSTEM "ltdl.xml">
 <!ENTITY ns "x">
 <!ENTITY ref "<classname>&ns;::ref</classname>">
 <!ENTITY ptr "<classname>&ns;::ptr</classname>">
@@ -170,6 +171,7 @@ See COPYING for distribution information.
     &miscpostponed;
     &misccsv;
     &miscdf;
+    &ltdl;
   </part>
 
   &httportmap;
@@ -363,7 +365,7 @@ See COPYING for distribution information.
       <title>Installing the &app; <acronym>SQL</acronym> library</title>
 
       <para>
-	The 
+	The
 	<ulink url="sql/index.html"><application><emphasis>LIBCXX</emphasis>
 	<acronym>SQL</acronym>
 	library</application></ulink> is a separately-installed module that

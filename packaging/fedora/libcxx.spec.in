@@ -23,6 +23,7 @@ BuildRequires: pcre-devel
 BuildRequires: libyaml-devel
 BuildRequires: file-devel
 BuildRequires: libidn-devel
+BuildRequires: libtool-ltdl-devel
 Requires(post): /bin/systemctl
 Requires(preun): /bin/systemctl
 
@@ -30,10 +31,16 @@ Requires(preun): /bin/systemctl
 The C++ class library provides many classes that are useful
 for developing C++ applications on Linux.
 
+%package ltdl
+Group: System Environment/Libraries
+Summary: libcxx libtool wrapper
+Requires: %{name} = 0:%{version}-%{release}
+
 %package devel
 Group: Development/Libraries
 Summary: libcxx development libraries
 Requires: %{name} = 0:%{version}-%{release}
+Requires: %{name}-ltdl = 0:%{version}-%{release}
 Requires: %{_datadir}/aclocal
 Requires: libxslt
 Requires: pcre-devel
@@ -43,6 +50,9 @@ Group: System Environment/Daemons
 Summary: Apache httportmap configuration
 Requires: %{name} = 0:%{version}-%{release}
 Requires: /etc/httpd/conf.d
+
+%description ltdl
+This package install the libcxxltdl wrapper for libtool's ltdl library.
 
 %description devel
 This package installs files needed to develop applications that use libcxx.
@@ -138,6 +148,10 @@ fi
 %config %{_sysconfdir}/*.dat
 %config %{_sysconfdir}/*.properties
 
+%files ltdl
+%defattr(-,root,root,-)
+%{_libdir}/libcxxltdl.so.*
+
 %files devel
 %defattr(-,root,root,-)
 %{_libdir}/*.so
@@ -152,6 +166,5 @@ fi
 /etc/httpd/conf.d/*
 
 %changelog
-* Sat Feb 23 2008 Mr. Sam <sam@email-scan.com> - 
+* Sat Feb 23 2008 Mr. Sam <sam@email-scan.com> -
 - Initial build.
-

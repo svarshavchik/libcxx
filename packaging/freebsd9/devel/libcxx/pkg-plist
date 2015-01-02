@@ -259,6 +259,10 @@ include/x/join_to5.H
 include/x/join_to6.H
 include/x/joinfwd.H
 include/x/joiniterator.H
+include/x/ltdl.H
+include/x/ltdl.H
+include/x/ltdlfwd.H
+include/x/ltdlobj.H
 include/x/locale.H
 include/x/localefwd.H
 include/x/localeobj.H
@@ -543,6 +547,9 @@ include/x/ymdhmsfwd.H
 lib/libcxx.a
 lib/libcxx.so
 lib/libcxx.so.9
+lib/libcxxltdl.a
+lib/libcxxltdl.so
+lib/libcxxltdl.so.9
 lib/libcxxtls.a
 lib/libcxxtls.so
 lib/libcxxtls.so.9

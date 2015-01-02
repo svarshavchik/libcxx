@@ -141,6 +141,12 @@ See COPYING for distribution information.
 
       <listitem>
 	<para>
+	  The <application>libtool 2.4</application>.
+	</para>
+      </listitem>
+
+      <listitem>
+	<para>
 	  <application>pkg-config</application>.
 	</para>
       </listitem>

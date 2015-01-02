@@ -7,10 +7,14 @@ AC_INIT(libcxx, 0.8, [mrsam@courier-mta.com])
 
 AC_CONFIG_SRCDIR([includes/obj.H])
 AC_CONFIG_HEADER([libcxx_config.h])
-AM_INIT_AUTOMAKE([dist-bzip2 foreign -Wno-portability])
+AM_INIT_AUTOMAKE([dist-bzip2 foreign -Wno-portability subdir-objects])
 
 # Checks for programs.
 AC_PROG_CXX
+LT_CONFIG_LTDL_DIR([libltdl])
+LT_INIT([dlopen])
+LTDL_INIT([recursive])
+
 AC_PROG_LIBTOOL
 AM_GNU_GETTEXT([external])
 AM_GNU_GETTEXT_VERSION([0.19.2])
@@ -128,7 +132,7 @@ void foo()
 }
 ])], [
      AC_DEFINE_UNQUOTED(HAVE_LINUXSYSCALLS,1,[Found Linux system calls])
-     INCLUDE_SYS_EVENTFD="#include <sys/eventfd.h>" 
+     INCLUDE_SYS_EVENTFD="#include <sys/eventfd.h>"
      INCLUDE_SYS_EPOLL="#include <sys/epoll.h>"
      INCLUDE_SYS_TIMERFD="#include <sys/timerfd.h>"
      INCLUDE_SYS_SIGNALFD="#include <sys/signalfd.h>"
@@ -154,7 +158,7 @@ void has_kqueue()
 }
 ])], [
      AC_DEFINE_UNQUOTED(HAVE_KQUEUE,1,[Found BSD kqueue()])
-     INCLUDE_SYS_EVENTFD="#include <stdint.h>" 
+     INCLUDE_SYS_EVENTFD="#include <stdint.h>"
      INCLUDE_SYS_EPOLL="#include <x/epoll_def.h>"
      INCLUDE_SYS_TIMERFD="#include <x/timerfd_def.h>"
      INCLUDE_SYS_SIGNALFD="#include <signal.h>"
@@ -668,6 +672,7 @@ AM_CONDITIONAL(HAVE_REPO, test -d ${srcdir}/docbook)
 
 AC_CONFIG_FILES([Doxyfile po/Makefile.in
 		 Makefile
+		 libltdl/Makefile
 		 includes/Makefile
 		 includes/http/Makefile
 		 includes/ftp/Makefile
@@ -706,6 +711,7 @@ AC_CONFIG_FILES([Doxyfile po/Makefile.in
 		 gnutls/Makefile
 		 gnutls/tlsparamsgen.sh
 		 yaml/Makefile
+		 cxxltdl/Makefile
 		 benchmarks/Makefile
 		 httportmap/httportmap
 		 httportmap/Makefile
