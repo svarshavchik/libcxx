@@ -202,7 +202,7 @@ public:
 					return value;
 			} catch (const exception &e)
 			{
-				e->log();
+				e->caught();
 			}
 		}
 
@@ -260,7 +260,7 @@ public:
 				cb->invoke(std::forward<invokeArgs>(args)...);
 			} catch (const exception &e)
 			{
-				e->log();
+				e->caught();
 			}
 	}
 };

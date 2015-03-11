@@ -240,6 +240,21 @@ void exceptionObj::log() noexcept
 	LOG_TRACE( backtrace );
 }
 
+void exceptionObj::caught() noexcept
+{
+	if (!logger::logger_subsystem_initialized())
+	{
+		// Exception at startup/shutdown. Bleah.
+
+		std::cerr << operator std::string() << std::endl;
+		return;
+	}
+
+	LOG_FUNC_SCOPE(log_exception_log);
+
+	LOG_ERROR( operator std::string());
+}
+
 void exceptionObj::rethrow()
 {
 	throw exception(this);

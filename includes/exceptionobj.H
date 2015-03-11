@@ -75,6 +75,11 @@ public:
 
 	void log() noexcept;
 
+	//! Log this exception when it's caught
+
+	//! Logs the exception to LOG_ERROR.
+	void caught() noexcept;
+
 	//! Obtain the assembled error message.
 
 	//! \return the collected error
@@ -97,4 +102,3 @@ public:
 #endif
 }
 #endif
-
