@@ -140,6 +140,7 @@ libcxx_la_SOURCES=\
 	localeobj.C		\
 	localscope.C		\
 	logger.C		\
+	mcguffinstash.C		\
 	messages.C		\
 	mime_contentheadercollector.C \
 	mime_encoder.C          \
@@ -372,6 +373,7 @@ noinst_PROGRAMS=\
 	testweak                      \
 	testweak2                     \
 	testweak3                     \
+	testweakcapture		      \
 	testworkerpool                \
 	testxmlescape                 \
 	testxmlparse                  \
@@ -726,6 +728,10 @@ testderivedvalues_SOURCES=testderivedvalues.C
 testderivedvalues_LDADD=libcxx.la
 testderivedvalues_LDFLAGS=$(TESTLINKTYPE)
 
+testweakcapture_SOURCES=testweakcapture.C
+testweakcapture_LDADD=libcxx.la
+testweakcapture_LDFLAGS=$(TESTLINKTYPE)
+
 propertiescli.h : propertiescli.h.tmp
 	perl -p -e 's/^#include.*//;s/\b@LIBCXX_NAMESPACE@::/LIBCXX_NAMESPACE::/g' <propertiescli.h.tmp >propertiescli.h.tmp2
 	mv propertiescli.h.tmp2 propertiescli.h
@@ -914,6 +920,7 @@ check-am: $(noinst_PROGRAMS) $(noinst_DATA)
 	./testshm
 	./testftp
 	./testderivedvalues
+	./testweakcapture
 
 $(XTEST_MO_DIR)/$(XTEST_MO_FILE): testmessages.po
 	mkdir -p $(XTEST_MO_DIR)

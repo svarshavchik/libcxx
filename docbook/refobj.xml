@@ -240,7 +240,7 @@ See COPYING for distribution information.
 
   <section id="obj">
     <title>Objects</title>
-    
+
     <para>
       In this library, all reference-counted
       objects are virtually derived from the
@@ -1455,7 +1455,7 @@ if (!origw.null())
 }</programlisting>
       </informalexample>
     </blockquote>
-    
+
     <para>
 	The
 	<ulink url="&link-x--weakptr;"><classname>weakptr</classname></ulink>
@@ -1617,6 +1617,94 @@ myobj-&gt;ondestroy([]
 	All <link linkend="exceptions">exceptions</link> must be caught.
       </para>
     </note>
+
+    <section id="mcguffinstash">
+      <title>Mcguffin stashes</title>
+
+      <blockquote>
+	<informalexample>
+	  <programlisting>
+#include &lt;&ns;/mcguffinstash.H&gt;
+
+&ns;::mcguffinstash&lt;&gt; my_mcguffins=&ns;::mcguffinstash&lt;&gt;::create();
+
+my_mcguffins->insert("callback", mcguffin);
+	  </programlisting>
+	</informalexample>
+      </blockquote>
+
+      <para>
+	<ulink url="&link-typedef-x-mcguffinstash;"><classname>&ns;::mcguffinstash</classname></ulink>
+	implements a reference-counted container for mcguffins, based on a
+	<link linkend="mpobj">mutex-protected</link>
+	<classname>std::map</classname> or a
+	<classname>std::multimap</classname>.
+
+	The optional parameters to this template are:
+      </para>
+
+      <itemizedlist>
+	<listitem>
+	  <para>
+	    The type used as a key for the map, this default to
+	    <classname>std::string</classname>. The default implementation
+	    creates a map of mcguffins, identified by a string.
+	  </para>
+	</listitem>
+
+	<listitem>
+	  <para>
+	    A <classname>bool</classname> value; the default value of
+	    <literal>false</literal> instantiates a
+	    <classname>std::map</classname> container. Overriding it to a
+	    <literal>true</literal> value instantiates a
+	    <classname>std::multimap</classname> container, for the mcguffins.
+	  </para>
+	</listitem>
+
+	<listitem>
+	  <para>
+	    The last two optional parameters are the comparator and allocator
+	    classes, that get forwarded to the
+	    <classname>std::map</classname> or the
+	    <classname>std::multimap</classname> template class.
+	  </para>
+	</listitem>
+      </itemizedlist>
+
+      <para>
+	The <ulink url="&link-x--mcguffinstashObj;">referenced object</ulink>
+	implements several common methods for
+	accessing and modifying the map with the mcguffins, like
+	<methodname>insert</methodname>() and <methodname>remove</methodname>().
+	Additionally, the reference's base class provides two typedef
+	aliases:
+      </para>
+
+      <variablelist>
+	<varlistentry>
+	  <term><classname>&ns;::mcguffinstash&lt;<replaceable>parameters</replaceable>...&gt;::base::map_t</classname></term>
+	  <listitem>
+	    <para>
+	      The <classname>std::map</classname> or the
+	      <classname>std::multimap</classname> container, in
+	      the referenced class.
+	    </para>
+	  </listitem>
+	</varlistentry>
+	<varlistentry>
+	  <term><classname>&ns;::mcguffinstash&lt;<replaceable>parameters</replaceable>...&gt;::base::container_t</classname></term>
+	  <listitem>
+	    <para>
+	      The typedef alias for the <varname>container</varname> member
+	      of the referenced object, which is a mutex-protected
+	      <link linkend="mpobj"><classname>&ns;::mpobj</classname></link>
+	      that contains the <classname>map_t</classname>.
+	    </para>
+	  </listitem>
+	</varlistentry>
+      </variablelist>
+    </section>
 
     <section id="destroycallbackflag">
       <title>A basic destructor callback</title>

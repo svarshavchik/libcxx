@@ -197,7 +197,7 @@ public:
 	//!
 	//! value=rlock->get_any_attribute("style");
 	//!
-	//! std::set<INSERT_LIBX_NAMESPACE::doc::base::attribute> attributes;
+	//! std::set<INSERT_LIBX_NAMESPACE::xml::doc::base::attribute> attributes;
 	//!
 	//! rlock->get_all_attributes(attributes);
 	//! \endcode
@@ -635,7 +635,7 @@ public:
 	//! if the XML document already has a declared \c DOCTYPE.
 	//!
 	//! The following methods add entity declarations to a document
-	//! type definition. They are typically used with an internal 
+	//! type definition. They are typically used with an internal
 	//! DOCTYPE, when creating, then saving, an XML document.
 	//!
 	//! \code

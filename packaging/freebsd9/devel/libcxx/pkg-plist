@@ -281,6 +281,9 @@ include/x/mcguffinmapobj.H
 include/x/mcguffinmultimap.H
 include/x/mcguffinmultimapfwd.H
 include/x/mcguffinref.H
+include/x/mcguffinstash.H
+include/x/mcguffinstashfwd.H
+include/x/mcguffinstashobj.H
 include/x/messages.H
 include/x/messagesfwd.H
 include/x/mime/bodystartiter.H
@@ -472,6 +475,7 @@ include/x/vectorfwd.H
 include/x/vectorobj.H
 include/x/vipobj.H
 include/x/vipobjdebug.H
+include/x/weakcapture.H
 include/x/weakcontainerobj.H
 include/x/weakinfo.H
 include/x/weaklist.H
