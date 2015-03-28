@@ -93,6 +93,8 @@ ondestroy created
 ondestroy reference released
 testdestroy reference dropped
 Dummy object released
+Null: 0
+Will this work?
 Received 128 file descriptors
 File descriptor thread returned 0
 list: empty: 1, size: 0

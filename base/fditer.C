@@ -1,12 +1,13 @@
 /*
-** Copyright 2012 Double Precision, Inc.
+** Copyright 2012-2015 Double Precision, Inc.
 ** See COPYING for distribution information.
 */
 
 #include "libcxx_config.h"
-#include "fditer.H"
-#include "fdbase.H"
-#include "ref.H"
+#include "x/fditer.H"
+#include "x/fdbase.H"
+#include "x/ref.H"
+#include "x/sysexception.H"
 
 namespace LIBCXX_NAMESPACE {
 #if 0
@@ -95,6 +96,10 @@ char fdinputiter::operator*() const
 			o.fd=cpy;
 			return o.buffer[0];
 		}
+
+		// If there was an error, throw an exception.
+		if (errno)
+			throw SYSEXCEPTION(errno);
 	}
 	return 0;
 }
@@ -174,7 +179,7 @@ void fdoutputiter::flush()
 	//! results in the iterator being knocked out of action for all
 	//! future flushes.
 
-	fdbaseptr fdSave(o.fd);
+	fdbase fdSave(o.fd);
 
 	o.fd=fdbaseptr();
 
@@ -183,13 +188,7 @@ void fdoutputiter::flush()
 
 	o.buf_ptr=0;
 
-	while (n)
-	{
-		size_t cnt=fdSave->pubwrite(p, n);
-
-		p += cnt;
-		n -= cnt;
-	}
+	fdSave->write_full(p, n);
 
 	if (o.buffer.empty())
 		o.buffer.resize(o.requested_buf_size);

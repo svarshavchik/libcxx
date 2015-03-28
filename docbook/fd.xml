@@ -66,7 +66,7 @@ See COPYING for distribution information.
 file->close();</programlisting>
     </informalexample>
   </blockquote>
-  
+
   <para>
     An explicit call to <methodname>close</methodname>() closes the underlying
     file descriptor, and throws an exception if an error occured.
@@ -209,7 +209,7 @@ std::pair&lt;&ns;::fd, std::string&gt; sock(&ns;::fd::base::tmpunixfilesock(dirn
     for more information on <classname>&ns;::fdObj</classname>'s available
     methods, once that object gets constructed.
   </para>
-  
+
   <section id="fdmisc">
     <title>Other miscellaneous file-related function</title>
 
@@ -528,6 +528,22 @@ iter.flush();
       reference on the underlying reference-counted file descriptor transport
       superclass.
     </para>
+
+    <note>
+      <para>
+	The iterators throw an exception if the underlying file
+	descriptor transport's <methodname>pubwrite</methodname>()
+	returns 0, indicating an error writing to the file descriptor.
+	An exception also gets thrown when
+	<methodname>pubread</methodname>() returns 0
+	with <varname>errno</varname> set, indicating an error reading the
+	underlying file descriptor.
+	<methodname>pubread</methodname>() returning 0
+	with <varname>errno</varname> cleared indicates an ordinary and of
+	file, and the input iterator gets set to the ending sequence
+	value.
+      </para>
+    </note>
   </section>
 
   <section id="fdtimeouts">
@@ -664,7 +680,7 @@ fd-&gt;cancel_read_timeout();</programlisting>
     <note>
       <para>
 	Formatted input and output stream operators
-	catch all exceptions thrown by the underlying 
+	catch all exceptions thrown by the underlying
 	<classname>streambuf</classname>, and set the failed bit in the stream's
 	state (which may rethrow a <classname>std::exception</classname>, if the
 	stream object is configured to do so), causing
@@ -866,7 +882,7 @@ fd_with_readlimit-&gt;set_read_limit(1000000);</programlisting>
       This example attaches an <classname>&ns;::fdtimeout</classname>
       to the file descriptor object, then attaches a
       <classname>&ns;::fdreadlimit</classname> to the timeout object.
-      Both <classname>&ns;::fdtimeout</classname>'s and 
+      Both <classname>&ns;::fdtimeout</classname>'s and
       <classname>&ns;::fdreadlimit</classname>'s <methodname>create</methodname>()
       take the <link linkend="fdbase"><classname>&ns;::fdbase</classname>
       file descriptor transport superclass</link>, and each class implements
@@ -907,7 +923,7 @@ fd_with_readlimit-&gt;set_read_limit(1000000);</programlisting>
     <title>Using sockets</title>
 
     <para>
-    The 
+    The
     <ulink url="&link-typedef-x-fd;"><classname>&ns;::fd</classname></ulink>
     reference-counted object
     provides standard wrappers for the usual socket functions,
@@ -1219,7 +1235,7 @@ fd-&gt;stat(); // The fstat() system call on an open file descriptor</programlis
     <classname>&ns;::istream</classname>,
     <classname>&ns;::ostream</classname> and
     <classname>&ns;::iostream</classname> are references, use
-    the <literal>*</literal> operator where the context calls for a 
+    the <literal>*</literal> operator where the context calls for a
     <literal>std</literal> stream:
     </para>
 

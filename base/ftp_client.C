@@ -1,5 +1,5 @@
 /*
-** Copyright 2013 Double Precision, Inc.
+** Copyright 2013-2015 Double Precision, Inc.
 ** See COPYING for distribution information.
 */
 
@@ -1034,13 +1034,7 @@ void clientObj::do_stor(const std::string &cmd,
 
 	{
 		auto conn=transfer(l, binary, config, allo.str(), cmd, resp);
-		{
-			auto stream=conn->getostream();
-
-			callback.do_stor(*stream);
-
-			(*stream) << std::flush;
-		}
+		callback.do_stor(*conn);
 		conn.shutdown();
 		conn.origsocket->pubclose();
 	}
@@ -1426,11 +1420,9 @@ struct LIBCXX_HIDDEN clientObj::put_fd_callback : public stor_callback_base {
 	{
 	}
 
-	void do_stor(std::ostream &o) override
+	void do_stor(fdbaseObj &o) override
 	{
-		auto i=filedesc->getistream();
-
-		o << &*i->rdbuf();
+		o.write(filedesc);
 	}
 
 	bool can_allo()

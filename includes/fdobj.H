@@ -1,5 +1,5 @@
 /*
-** Copyright 2012-2013 Double Precision, Inc.
+** Copyright 2012-2015 Double Precision, Inc.
 ** See COPYING for distribution information.
 */
 
@@ -641,19 +641,18 @@ public:
 	//! Read from the file descriptor.
 
 	//! \return number of bytes read from the file descriptor.
-	//! Errors are reported by throwing an %exception.
 	//!
 	//! \note
-	//! \c EAGAIN and \c EWOULDBLOCK, on a nonblocking socket, does not
-	//! throw an %exception. 0 bytes read gets returned instead.
-	//! Check \c errno if 0 is returned. An end-of-file condition gets
+	//! A read error also return 0, and sets errno.
+	//!
+	//! An end-of-file condition gets
 	//! reported with a 0 return, and with \c errno set to 0.
 
-	size_t read(//! Buffer
-		    char *buffer,
+	inline size_t read(//! Buffer
+			   char *buffer,
 
-		    //! Element count
-		    size_t cnt)
+			   //! Element count
+			   size_t cnt)
 
 	{
 	again:
@@ -670,10 +669,7 @@ public:
 			if (errno == EINTR)
 				goto again;
 
-			if (errno == EAGAIN || errno == EWOULDBLOCK)
-				return 0;
-
-			read_exception();
+			return 0;
 		}
 
 		errno=0;
@@ -682,21 +678,21 @@ public:
 
 #include <x/sys/prw64.h>
 
+	using fdbaseObj::write;
+
 	//! Write to the file descriptor.
 
 	//! \return number of bytes written.
-	//! Errors are reported by throwing an %exception.
-	//!
-	//! \note
-	//! \c EAGAIN and \c EWOULDBLOCK, on a nonblocking socket, does not
-	//! throw an %exception. 0 bytes gets returned instead.
+	//! Errors are reported by returning 0.
 
-	size_t write(//! Buffer
-		     const char *buffer,
+	inline size_t write(//! Buffer
+			    const char *buffer,
 
-		     //! Element count
-		     size_t cnt)
+			    //! Element count
+			    size_t cnt)
 	{
+		errno=0;
+
 		if (cnt == 0)
 			return 0;
 
@@ -706,96 +702,53 @@ public:
 				   0, 0);
 
 		if (n == 0)
-		{
 			errno=ENOSPC;
-			n= -1;
-		}
 
 		if (n < 0)
 		{
-			if (errno == EAGAIN || errno == EWOULDBLOCK)
-				return 0;
-
 			if (errno == EINTR)
 				goto again;
 
-			write_exception();
+			n=0;
 		}
 		return n;
 	}
 
-	//! Write the full amount of bytes to this file
-
-	void write_full(//! Buffer
-			const char *buffer,
-
-			//! Element count
-			size_t cnt);
-
-	//! Write the contents of some other file into this file
-
-	//! If the file is a regular file, its contents get copied via
-	//! pread() without affecting the file descriptor.
-
-	void write(//! The other file to write into this file
-		   const fd &otherFile);
-
-	//! Write the contents of some other file into this file
-
-	//! The other file's contents are read via pread(), so the file
-	//! cannot be a socket or a pipe.
-
-	void write(//! The other file to write into this file descriptor
-		   const fd &otherFile,
-
-		   //! Copy starting from this offset
-		   off64_t startpos,
-
-		   //! Byte count to copy
-		   off64_t cnt);
-
 	//! Write to the file descriptor.
 
 	//! This method uses the send() system call instead of write().
-	//! \return number of elements written.
-	//! Errors are reported by throwing an %exception.
-	//!
-	//! \note
-	//! \c EAGAIN and \c EWOULDBLOCK, on a nonblocking socket, does not
-	//! throw an %exception. 0 bytes read gets returned instead.
+	//! \return number of elements written, or 0 if there was a write error.,
 
-	size_t send(//! Buffer
+	inline size_t send(//! Buffer
 
-		    const char *buffer,
+			   const char *buffer,
 
-		    //! Element count
+			   //! Element count
 
-		    size_t cnt,
+			   size_t cnt,
 
-		    //! message flags
+			   //! message flags
 
-		    int flags,
+			   int flags,
 
-		    //! Destination address
+			   //! Destination address
 
-		    const struct ::sockaddr *to_addr=0,
+			   const struct ::sockaddr *to_addr=0,
 
-		    //! Size of the destination address
+			   //! Size of the destination address
 
-		    socklen_t to_len=0)
+			   socklen_t to_len=0)
 	{
 	again:
 		ssize_t n=::sendto(filedesc, buffer, cnt, flags, to_addr,
 				   to_len);
 		if (n < 0)
 		{
-			if (errno == EAGAIN || errno == EWOULDBLOCK)
-				return 0;
-
 			if (errno == EINTR)
 				goto again;
 
-			write_exception();
+
+			errno=0;
 		}
 
 		return n;
@@ -977,21 +930,6 @@ public:
 	bool recv_credentials(fd::base::credentials_t &uc)
 ;
 
-private:
-
-	//! Throw a read error %exception
-
-	//! \internal
-	//!
-	void read_exception() __attribute__((noreturn));
-
-	//! Throw a write error %exception
-
-	//! \internal
-	//!
-	void write_exception() __attribute__((noreturn));
-
-public:
 	//! Seek to a new position for the file descriptor.
 
 	//! Errors are reported by throwing an %exception.
@@ -1323,7 +1261,7 @@ private:
 		buffer.resize(get_buffer_size());
 
 		do
-		{     
+		{
 			n=filedesc < 0 ? 0:read(&buffer[0], buffer.size());
 
 			i.range(buffer.begin(), buffer.begin()+n);

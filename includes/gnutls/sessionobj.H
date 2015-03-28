@@ -1,5 +1,5 @@
 /*
-** Copyright 2012-2013 Double Precision, Inc.
+** Copyright 2012-2015 Double Precision, Inc.
 ** See COPYING for distribution information.
 */
 
@@ -38,6 +38,10 @@ namespace LIBCXX_NAMESPACE {
 
 class gnutls::sessionObj : virtual public obj, public fdbaseObj {
 
+	//! Internal mutex
+
+	mutable std::recursive_mutex session_mutex;
+
 	//! \c GNUTLS_CLIENT or \c GNUTLS_SERVER
 	unsigned mode;
 
@@ -52,6 +56,10 @@ class gnutls::sessionObj : virtual public obj, public fdbaseObj {
 	//! The underlying transport
 
 	fdbase transport;
+
+	//! Error when reading from the transport.
+
+	int transport_errno=0;
 
 	//! Whether a handshake is needed
 
@@ -126,6 +134,16 @@ private:
 	static ssize_t push_func(gnutls_transport_ptr_t ptr,
 				 const void *buf,
 				 size_t buf_s) noexcept LIBCXX_HIDDEN;
+
+	//! Stub for GnuTLS's session pull function
+
+	ssize_t pull_func(void *buf,
+			  size_t buf_s) noexcept LIBCXX_HIDDEN;
+
+	//! Stub for GnuTLS's session push function
+
+	ssize_t push_func(const void *buf,
+			  size_t buf_s) noexcept LIBCXX_HIDDEN;
 
 public:
 	//! Return the session identifier
@@ -336,9 +354,10 @@ public:
 	//! \return \c number of bytes written. If 0, check the value of
 	//! \c direction. If \c direction is non-0, poll() the underlying
 	//! file descriptor for this event, and try again. If \c direction
-	//! is 0, the peer has initiated a shutdown of this TLS session.
+	//! is 0, check errno. If errno is 0, the peer has initiated a
+	//! shutdown of this TLS session.
 	//!
-	//! An %exception gets thrown if an error occurs,
+	//! An %exception gets thrown if a GNUTLS error occurs,
 	//! including the SSL/TLS session terminated by the peer.
 
 	size_t send(//! Output buffer
@@ -360,9 +379,10 @@ public:
 
 	//! \return \c number of bytes read. If 0, check the value of
 	//! \c direction. If \c direction is non-0, poll() the underlying
-	//! file descriptor for this event, and try again.
+	//! file descriptor for this event, and try again. If \c direction is
+	//! 0, check errno.
 	//!
-	//! An %exception gets thrown if an error occurs.
+	//! An %exception gets thrown if a GNUTLS error occurs.
 	//! \ref alertexception "alertexception" gets thrown when a TLS alert
 	//! message is received.
 
@@ -379,7 +399,7 @@ public:
 		    //! \c POLLIN or \c POLLOUT indicating the required IO
 		    //! state before the handshake can proceed.
 		    int &direction
-		       
+
 		    );
 
 	//! Return a stream buffer for the session

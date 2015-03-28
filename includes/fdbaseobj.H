@@ -1,5 +1,5 @@
 /*
-** Copyright 2012 Double Precision, Inc.
+** Copyright 2012-2015 Double Precision, Inc.
 ** See COPYING for distribution information.
 */
 
@@ -146,6 +146,66 @@ public:
 				//! Element count
 
 				size_t cnt)=0;
+
+	//! Write the full amount of bytes to this file
+
+	//! An exception gets thrown if the entire amount cannot be written.
+	void write_full(//! Buffer
+			const char *buffer,
+
+			//! Element count
+			size_t cnt);
+
+	//! Write the sequence defined by the iterators to this file
+
+	template<typename iter_type>
+	void write_full(iter_type b, iter_type e)
+	{
+		size_t n=get_buffer_size();
+
+		char buf[n];
+		size_t i=0;
+
+		errno=0;
+
+		while (b != e)
+		{
+			if (i >= n)
+			{
+				write_full(buf, i);
+				i=0;
+			}
+
+			buf[i]=*b;
+			++b;
+			++i;
+		}
+
+		if (i)
+			write_full(buf, i);
+	}
+
+	//! Write the contents of some other file into this file
+
+	//! If the file is a regular file, its contents get copied via
+	//! pread() without affecting the file descriptor.
+
+	void write(//! The other file to write into this file
+		   const fd &otherFile);
+
+	//! Write the contents of some other file into this file
+
+	//! The other file's contents are read via pread(), so the file
+	//! cannot be a socket or a pipe.
+
+	void write(//! The other file to write into this file descriptor
+		   const fd &otherFile,
+
+		   //! Copy starting from this offset
+		   off64_t startpos,
+
+		   //! Byte count to copy
+		   off64_t cnt);
 
 	//! Seek to a new position for the file descriptor.
 

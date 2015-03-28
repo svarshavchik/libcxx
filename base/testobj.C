@@ -1,5 +1,5 @@
 /*
-** Copyright 2012-2013 Double Precision, Inc.
+** Copyright 2012-2015 Double Precision, Inc.
 ** See COPYING for distribution information.
 */
 
@@ -303,7 +303,7 @@ public:
 char custom_exception_base_class_works
 [sizeof(LIBCXX_NAMESPACE::custom_exception<custom_exception2>
 	::base) == sizeof(int) ? 1:-1];
-					       
+
 static void exceptiontest2()
 {
 	try {
@@ -469,18 +469,10 @@ static void fdtest2()
 		tfd->set_terminate_fd(r);
 		w->close();
 
-		bool caught=false;
+		tfd->pubread(&dummy, 1);
 
-		try {
-
-			tfd->pubread(&dummy, 1);
-		} catch(const LIBCXX_NAMESPACE::exception &e)
-		{
-			caught=true;
-		}
-
-		if (!caught)
-			throw EXCEPTION("fdtest2: Expected exception was not thrown");
+		if (errno != ETIMEDOUT)
+			throw EXCEPTION("fdtest2: Expected ETIMEDOUT didn't happen");
 	} catch(const LIBCXX_NAMESPACE::exception &e)
 	{
 		std::cerr << e << std::endl;
@@ -570,7 +562,7 @@ static void dirtest() noexcept
 					       O_CREAT|O_RDWR, 0666);
 
 		{
-			LIBCXX_NAMESPACE::dirwalk 
+			LIBCXX_NAMESPACE::dirwalk
 				dirwalk=LIBCXX_NAMESPACE::dirwalk
 				::create("testdir");
 
@@ -752,7 +744,7 @@ void rthread::run(const LIBCXX_NAMESPACE::ref<rwlocktestinfo> &rwti)
 {
 	std::cout << "Starting read lock thread" << std::endl
 		  << std::flush;
-	
+
 
 	LIBCXX_NAMESPACE::rwlock::base::rlock rlock=rwti->rwl->readlock();
 
@@ -1142,7 +1134,7 @@ static void testeventfd() noexcept
 
 		if (poll(&pfd, 1, 0) != 0)
 			throw EXCEPTION("eventfd failed (test 6)");
-		
+
 		bool caught=false;
 
 		try {
@@ -2176,7 +2168,7 @@ void dotestweakmap3()
 		  << std::endl;
 }
 
-typedef LIBCXX_NAMESPACE::weakmultimap< std::string, 
+typedef LIBCXX_NAMESPACE::weakmultimap< std::string,
 				      testweakcontainerObj > testweakmultimap;
 
 void dotestweakmap4()
@@ -2390,18 +2382,12 @@ static void testtimer()
 
 			bool flag=false;
 
-			try {
-				std::string line;
+			std::string line;
 
-				std::getline(*i, line);
-			} catch (const LIBCXX_NAMESPACE::sysexception &e)
-			{
-				if (e.getErrorCode() == ETIMEDOUT)
-					flag=true;
-			}
+			std::getline(*i, line);
 
-			if (!flag)
-				throw EXCEPTION("istream status not timeout");
+			if (errno != ETIMEDOUT)
+				throw EXCEPTION("errno not set to ETIMEDOUT");
 
 		}
 
@@ -2421,23 +2407,18 @@ static void testtimer()
 
 			bool flag=false;
 
-			try {
-				std::string line;
+			std::string line;
 
-				std::getline(*i, line);
-			} catch (const LIBCXX_NAMESPACE::sysexception &e)
-			{
-				if (e.getErrorCode() == EOVERFLOW)
-					flag=true;
-			}
+			std::getline(*i, line);
 
-			if (!flag)
+			if (errno != EOVERFLOW)
 				throw EXCEPTION("read_limit did not work");
 		}
 	} catch(const LIBCXX_NAMESPACE::exception &e)
 	{
 		std::cout << "testtimer: "
 			  << e << std::endl;
+		exit(1);
 	}
 }
 

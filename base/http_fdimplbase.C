@@ -36,13 +36,13 @@ size_t fdimplbase::input_iter_t::pubread(const fdbase &fdref, char *ptr,
 {
 	size_t n;
 
-	try {
-		n=fd::base::inputiter::pubread(fdref, ptr, cnt);
-	} catch (const sysexception &e)
+	n=fd::base::inputiter::pubread(fdref, ptr, cnt);
+
+	if (n == 0 && errno)
 	{
-		if (e.getErrorCode() == ETIMEDOUT)
+		if (errno == ETIMEDOUT)
 			throw_request_timeout();
-		throw;
+		throw SYSEXCEPTION(errno);
 	}
 	return n;
 }

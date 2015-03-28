@@ -1,5 +1,5 @@
 /*
-** Copyright 2012 Double Precision, Inc.
+** Copyright 2012-2015 Double Precision, Inc.
 ** See COPYING for distribution information.
 */
 
@@ -34,9 +34,14 @@ namespace LIBCXX_NAMESPACE {
 };
 #endif
 
+#define LOCK_SESSION std::unique_lock<std::recursive_mutex> session_mutex_lock(session_mutex)
+
 static property::value<hms> session_cache_expiration
 ( LIBCXX_NAMESPACE_WSTR L"::gnutls::session_cache::expiration",
   hms(1,0,0));
+
+static property::value<bool> ignore_premature_termination
+( LIBCXX_NAMESPACE_WSTR L"::gnutls::ignore_premature_termination_error", false);
 
 gnutls::sessionObj::factoryObj::factoryObj()
 {
@@ -60,11 +65,13 @@ gnutls::session gnutls::sessionObj::factoryObj
 	sess->set_default_priority();
 	sess->set_private_extensions();
 
-	{
-		std::lock_guard<std::mutex> lock(mutex);
+	auto cred_copy=({
+			std::unique_lock<std::mutex> lock(mutex);
 
-		sess->credentials_set(cred);
-	}
+			cred;
+		});
+	sess->credentials_set(cred_copy);
+
 	return sess;
 }
 
@@ -78,8 +85,10 @@ gnutls::sessionObj::sessionObj(unsigned modeArg,
 	chkerr(gnutls_init(&sess, mode), "gnutls_init");
 	gnutls_session_set_ptr(sess, this);
 	gnutls_transport_set_ptr2(sess,
-				  (gnutls_transport_ptr_t) &transport,
-				  (gnutls_transport_ptr_t) &transport);
+				  reinterpret_cast<gnutls_transport_ptr_t>
+				  (this),
+				  reinterpret_cast<gnutls_transport_ptr_t>
+				  (this));
 
 	gnutls_transport_set_pull_function(sess, (gnutls_pull_func)
 					   &gnutls::sessionObj::pull_func);
@@ -113,28 +122,55 @@ ssize_t gnutls::sessionObj::pull_func(gnutls_transport_ptr_t ptr,
 				      void *buf,
 				      size_t buf_s) noexcept
 {
+	sessionObj *me=reinterpret_cast<sessionObj *>(ptr);
+
+	return me->pull_func(buf, buf_s);
+}
+
+ssize_t gnutls::sessionObj::pull_func(void *buf,
+				      size_t buf_s) noexcept
+{
+	// If an error already occured here, reset errno, and do nothing.
+
+	{
+		LOCK_SESSION;
+
+		if (transport_errno)
+		{
+			errno=transport_errno;
+			return (ssize_t)-1;
+		}
+	}
+
 	size_t n;
 
 	try {
-		n=(*(fdbase *)ptr)->pubread( (char *)buf, buf_s);
+		n=transport->pubread( (char *)buf, buf_s);
 	} catch (const sysexception &e)
 	{
 		errno=e.getErrorCode();
-		return (ssize_t)-1;
+		n=0;
 	} catch (...)
 	{
 		errno=EIO;
-		return (ssize_t)-1;
+		n=0;
 	}
 
 	if (n == 0)
 	{
-		if (!errno)
-		{
-			return 0; // EOF
-		}
+		if (errno == 0)
+			return 0; // End of file
 
-		return (ssize_t)-1; // EAGAIN or EWOULDBLOCK
+		// These two are used for non-blocking mode, and are not
+		// fatal.
+
+		if (errno != EAGAIN || errno != EWOULDBLOCK)
+		{
+			LOCK_SESSION;
+
+			transport_errno=errno;
+		}
+		return -1; // EOF
 	}
 
 	return n;
@@ -144,25 +180,54 @@ ssize_t gnutls::sessionObj::push_func(gnutls_transport_ptr_t ptr,
 				      const void *buf,
 				      size_t buf_s) noexcept
 {
-	std::streamsize n;
+	sessionObj *me=reinterpret_cast<sessionObj *>(ptr);
+
+	return me->push_func(buf, buf_s);
+}
+
+ssize_t gnutls::sessionObj::push_func(const void *buf,
+				      size_t buf_s) noexcept
+{
+	size_t n;
+
+	// If an error already occured here, reset errno, and do nothing.
+
+	{
+		LOCK_SESSION;
+
+		if (transport_errno)
+		{
+			errno=transport_errno;
+			return (ssize_t)-1;
+		}
+	}
 
 	try {
-		n=(*(fdbase *)ptr)->pubwrite( (const char *)buf, buf_s);
+		n=transport->pubwrite( (const char *)buf, buf_s);
 	} catch (const sysexception &e)
 	{
 		errno=e.getErrorCode();
-		return (ssize_t)-1;
+		n=0;
 	} catch (...)
 	{
 		errno=EIO;
-		return (ssize_t)-1;
+		n=0;
 	}
 
 	if (n == 0)
 	{
 		if (!errno)
-			errno=ENOSPC;
+			errno=ECONNRESET; // Something must've happened
 
+		// These two are used for non-blocking mode, and are not
+		// fatal.
+
+		if (errno != EAGAIN || errno != EWOULDBLOCK)
+		{
+			LOCK_SESSION;
+
+			transport_errno=errno;
+		}
 		return (ssize_t)-1;
 	}
 
@@ -179,6 +244,8 @@ gnutls::sessionObj::~sessionObj() noexcept
 void gnutls::sessionObj::credentials_set(const credentials::certificate &cert)
 
 {
+	LOCK_SESSION;
+
 	chkerr(gnutls_credentials_set(sess, GNUTLS_CRD_CERTIFICATE,
 				      cert->cred),
 	       "gnutls_credentials_set");
@@ -188,18 +255,24 @@ void gnutls::sessionObj::credentials_set(const credentials::certificate &cert)
 
 void gnutls::sessionObj::credentials_clear()
 {
+	LOCK_SESSION;
+
 	certificateCred=credentials::certificateptr();
 	gnutls_credentials_clear(sess);
 }
 
 void gnutls::sessionObj::set_private_extensions(bool flag)
 {
+	LOCK_SESSION;
+
 	gnutls_handshake_set_private_extensions(sess, flag ? 1:0);
 }
 
 void gnutls::sessionObj::set_server_name(const std::string &hostname)
 
 {
+	LOCK_SESSION;
+
 	chkerr(gnutls_server_name_set(sess, GNUTLS_NAME_DNS, hostname.c_str(),
 				      hostname.size()),
 	       "gnutls_server_name_set");
@@ -234,6 +307,8 @@ bool gnutls::sessionObj::handshake(int &direction)
 
 void gnutls::sessionObj::set_session_data(const datum_t &session_dataArg)
 {
+	LOCK_SESSION;
+
 	chkerr(gnutls_session_set_data(sess,
 				       &*session_dataArg->begin(),
 				       session_dataArg->size()),
@@ -250,6 +325,8 @@ void gnutls::sessionObj::session_cache(const sessioncache &cacheArg)
 void gnutls::sessionObj::session_cache(const sessioncache &cacheArg,
 				       time_t expiration)
 {
+	LOCK_SESSION;
+
 	gnutls_db_set_cache_expiration(sess, expiration);
 
 	tempdatum temp_datum(cacheArg->ticket);
@@ -269,7 +346,7 @@ void gnutls::sessionObj::session_cache(const sessioncache &cacheArg,
 bool gnutls::sessionObj::handshake(bool force,
 				   int &direction)
 {
-	std::lock_guard<std::mutex> lock(objmutex);
+	LOCK_SESSION;
 
 	if (force)
 		handshake_needed=true;
@@ -319,6 +396,8 @@ bool gnutls::sessionObj::handshake(bool force,
 
 bool gnutls::sessionObj::rehandshake(int &direction)
 {
+	LOCK_SESSION;
+
 	direction=0;
 	errno=0;
 	int err=gnutls_rehandshake(sess);
@@ -343,6 +422,8 @@ bool gnutls::sessionObj::rehandshake(int &direction)
 void gnutls::sessionObj::verify_peer_internal(const std::string *hostname)
 
 {
+	LOCK_SESSION;
+
 	unsigned int flags=0;
 
 	chkerr(gnutls_certificate_verify_peers2(sess, &flags),
@@ -380,6 +461,8 @@ void gnutls::sessionObj::verify_peer_internal(const std::string *hostname)
 void gnutls::sessionObj::verify_peers_x509(const std::string *hostname)
 
 {
+	LOCK_SESSION;
+
 	std::list<x509::crt> peercerts;
 
 	get_peer_certificates(peercerts);
@@ -399,27 +482,37 @@ void gnutls::sessionObj::verify_peers_x509(const std::string *hostname)
 
 gnutls_cipher_algorithm_t gnutls::sessionObj::getCipher() const
 {
+	LOCK_SESSION;
+
 	return gnutls_cipher_get(sess);
 }
 
 gnutls_kx_algorithm_t gnutls::sessionObj::getKx() const
 {
+	LOCK_SESSION;
+
 	return gnutls_kx_get(sess);
 }
 
 gnutls_mac_algorithm_t gnutls::sessionObj::getMac() const
 {
+	LOCK_SESSION;
+
 	return gnutls_mac_get(sess);
 }
 
 gnutls_compression_method_t gnutls::sessionObj::getCompression()
 	const
 {
+	LOCK_SESSION;
+
 	return gnutls_compression_get(sess);
 }
 
 std::string gnutls::sessionObj::getSuite() const
 {
+	LOCK_SESSION;
+
 	gnutls_compression_method_t comp=getCompression();
 
 	return gnutls::session::base::get_cipher_name(getCipher()) + "/"
@@ -432,7 +525,13 @@ std::string gnutls::sessionObj::getSuite() const
 bool gnutls::sessionObj::bye(int &direction,
 			     gnutls_close_request_t how)
 {
-	std::lock_guard<std::mutex> lock(objmutex);
+	LOCK_SESSION;
+
+	if (transport_errno)
+	{
+		errno=transport_errno;
+		throw SYSEXCEPTION(transport_errno);
+	}
 
 	direction=0;
 
@@ -445,10 +544,11 @@ bool gnutls::sessionObj::bye(int &direction,
 		return false;
 	}
 
+	errno=transport_errno;
 	// Propagate ETIMEDOUT, because gnutls complains about packet length instead
 
 	if (err && errno == ETIMEDOUT)
-		throw SYSEXCEPTION("gnutls_rehandshake");
+		throw SYSEXCEPTION("gnutls_bye");
 
 	chkerr(err, "gnutls_bye");
 	session_remove_needed=false;
@@ -457,17 +557,23 @@ bool gnutls::sessionObj::bye(int &direction,
 
 size_t gnutls::sessionObj::read_pending() const
 {
+	LOCK_SESSION;
+
 	return gnutls_record_check_pending(sess);
 }
 
 void gnutls::sessionObj::set_max_size(size_t recsize)
 {
+	LOCK_SESSION;
+
 	chkerr(gnutls_record_set_max_size(sess, recsize),
 	       "gnutls_record_set_max_size");
 }
 
 size_t gnutls::sessionObj::get_max_size() const noexcept
 {
+	LOCK_SESSION;
+
 	return gnutls_record_get_max_size(sess);
 }
 
@@ -476,16 +582,30 @@ LOG_FUNC_SCOPE_DECL(LIBCXX_NAMESPACE::gnutls::sessionObj::recv,sendLog);
 size_t gnutls::sessionObj::send(const void *data, size_t cnt, int &direction)
 
 {
-	if (!handshake(false, direction))
-	{
-		errno=EAGAIN;
-		return 0;
-	}
-
 	LOG_FUNC_SCOPE(sendLog);
 
-	direction=0;
-	errno=0;
+	{
+		LOCK_SESSION;
+
+		if (transport_errno)
+		{
+			// An error already occured
+
+			errno=transport_errno;
+			direction=0;
+			return 0;
+		}
+
+		if (!handshake(false, direction))
+		{
+			errno=EAGAIN;
+			return 0;
+		}
+
+		direction=0;
+		errno=0;
+	}
+
 	ssize_t n=gnutls_record_send(sess, data, cnt);
 
 	LOG_TRACE("gnutls_record_send: " << n);
@@ -507,10 +627,27 @@ size_t gnutls::sessionObj::send(const void *data, size_t cnt, int &direction)
 		return 0;
 	}
 
-	// Propagate ETIMEDOUT, because gnutls complains about packet length instead
+	LOCK_SESSION;
 
-	if (errno == ETIMEDOUT || errno == EPIPE)
-		throw SYSEXCEPTION("gnutls_record_send");
+	errno=transport_errno;
+
+	// Ignore GnuTLS's gripes, if the transport broke because of our own
+	// doing (read/write limits, time outs, etc...)
+
+	switch (errno) {
+	case ETIMEDOUT:
+	case EPIPE:
+		direction=0;
+		return 0;
+	}
+
+	if (n == GNUTLS_E_PREMATURE_TERMINATION &&
+	    ignore_premature_termination.getValue())
+	{
+		errno=0;
+		direction=0;
+		return 0;
+	}
 
 	chkerr(n, "gnutls_record_send");
 
@@ -528,15 +665,30 @@ size_t gnutls::sessionObj::recv(void *data, size_t cnt, int &direction)
 {
 	LOG_FUNC_SCOPE(recvLog);
 
-	if (!handshake(false, direction))
 	{
-		errno=EAGAIN;
-		return 0;
+		LOCK_SESSION;
+
+		if (transport_errno)
+		{
+			// An error already occured
+
+			errno=transport_errno;
+			direction=0;
+			return 0;
+		}
+
+		if (!handshake(false, direction))
+		{
+			errno=EAGAIN;
+			return 0;
+		}
 	}
 
 	ssize_t n=gnutls_record_recv(sess, data, cnt);
 
 	LOG_TRACE("gnutls_record_recv: " << n);
+
+	LOCK_SESSION;
 
 	if (n >= 0)
 	{
@@ -559,16 +711,31 @@ size_t gnutls::sessionObj::recv(void *data, size_t cnt, int &direction)
 		return 0;
 	}
 
+	errno=transport_errno;
+
+	// Ignore GnuTLS's gripes, if the transport broke because of our own
+	// doing (read/write limits, time outs, etc...)
+
+	switch (errno) {
+	case ETIMEDOUT:
+	case EOVERFLOW:
+		direction=0;
+		return 0;
+	}
+
+	if (n == GNUTLS_E_PREMATURE_TERMINATION &&
+	    ignore_premature_termination.getValue())
+	{
+		errno=0;
+		direction=0;
+		return 0;
+	}
+
 	if (n == GNUTLS_E_WARNING_ALERT_RECEIVED)
 		throw alertexception(false, gnutls_alert_get(sess));
 
 	if (n == GNUTLS_E_FATAL_ALERT_RECEIVED)
 		throw alertexception(true, gnutls_alert_get(sess));
-
-	// Propagate ETIMEDOUT, because gnutls complains about packet length instead
-
-	if (errno == ETIMEDOUT)
-		throw SYSEXCEPTION("gnutls_record_recv");
 
 	chkerr(n, "gnutls_record_recv");
 	LOG_ERROR("gnutls_record_recv: default error handler invoked");
@@ -580,6 +747,8 @@ size_t gnutls::sessionObj::recv(void *data, size_t cnt, int &direction)
 gnutls_certificate_type_t gnutls::sessionObj::certificate_type_get()
 	const
 {
+	LOCK_SESSION;
+
 	gnutls_certificate_type_t t;
 
 	chkerr((t=gnutls_certificate_type_get(sess)),
@@ -591,6 +760,8 @@ void gnutls::sessionObj
 ::get_peer_certificates(std::list<gnutls::x509::crt> &certList)
 	const
 {
+	LOCK_SESSION;
+
 	if (certificate_type_get() != GNUTLS_CRT_X509)
 		throw EXCEPTION("Unknown certificate type");
 
@@ -631,6 +802,8 @@ void gnutls::sessionObj
 ::server_set_certificate_request(gnutls_certificate_request_t req)
 
 {
+	LOCK_SESSION;
+
 	gnutls_certificate_server_set_request(sess, req);
 }
 
@@ -641,6 +814,8 @@ void gnutls::sessionObj::set_default_priority()
 
 void gnutls::sessionObj::set_priority(const std::string &priorityStr)
 {
+	LOCK_SESSION;
+
 	chkerr(gnutls_priority_set_direct(sess, priorityStr.c_str(), NULL),
 	       "gnutls_priority_set_direct");
 }
@@ -649,6 +824,8 @@ bool gnutls::sessionObj::alert_send(gnutls_alert_level_t level,
 				    gnutls_alert_description_t desc,
 				    int &direction)
 {
+	LOCK_SESSION;
+
 	direction=0;
 	errno=0;
 
@@ -673,6 +850,8 @@ bool gnutls::sessionObj::alert_send(gnutls_alert_level_t level,
 
 ref<fdstreambufObj> gnutls::sessionObj::getStreamBuffer()
 {
+	LOCK_SESSION;
+
 	size_t s=get_max_size();
 
 	if (s < BUFSIZ)
@@ -684,6 +863,8 @@ ref<fdstreambufObj> gnutls::sessionObj::getStreamBuffer()
 
 gnutls::datum_t gnutls::sessionObj::get_session_id() const
 {
+	LOCK_SESSION;
+
 	gnutls_datum_t session_id;
 
 	chkerr(gnutls_session_get_id2(sess, &session_id),
@@ -694,6 +875,8 @@ gnutls::datum_t gnutls::sessionObj::get_session_id() const
 
 gnutls::datum_t gnutls::sessionObj::get_session_data() const
 {
+	LOCK_SESSION;
+
 	gnutls_datum_t session_data;
 
 	chkerr(gnutls_session_get_data2(sess, &session_data),
@@ -704,16 +887,22 @@ gnutls::datum_t gnutls::sessionObj::get_session_data() const
 
 bool gnutls::sessionObj::session_resumed() const
 {
+	LOCK_SESSION;
+
 	return gnutls_session_is_resumed(sess) ? true:false;
 }
 
 iostream gnutls::sessionObj::getiostream()
 {
+	LOCK_SESSION;
+
 	return ref<basic_streamObj<std::iostream> >::create(getStreamBuffer());
 }
 
 int gnutls::sessionObj::getFd() const noexcept
 {
+	LOCK_SESSION;
+
 	return transport->getFd();
 }
 
@@ -727,8 +916,6 @@ size_t gnutls::sessionObj::pubread(char *buffer, size_t cnt)
 
 	if (n == 0)
 	{
-		errno=0;
-
 		if (direction)
 		{
 			if (direction & POLLOUT)
@@ -746,6 +933,8 @@ size_t gnutls::sessionObj::pubread(char *buffer, size_t cnt)
 
 size_t gnutls::sessionObj::pubread_pending() const
 {
+	LOCK_SESSION;
+
 	return read_pending();
 }
 
@@ -760,8 +949,6 @@ size_t gnutls::sessionObj::pubwrite(const char *buffer, size_t cnt)
 
 	if (n == 0)
 	{
-		errno=0;
-
 		if (direction)
 		{
 			if (direction & POLLIN)
@@ -805,4 +992,3 @@ fdptr gnutls::sessionObj::pubaccept(//! Connected peer's address
 {
 #endif
 };
-

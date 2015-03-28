@@ -1,5 +1,5 @@
 /*
-** Copyright 2012 Double Precision, Inc.
+** Copyright 2012-2015 Double Precision, Inc.
 ** See COPYING for distribution information.
 */
 
@@ -18,7 +18,7 @@ public:
 	~myServer() noexcept
 	{
 	}
-	
+
 	void received(const LIBCXX_NAMESPACE::http::requestimpl &req,
 		      bool bodyflag);
 };
@@ -123,7 +123,7 @@ static void testfdlistener()
 
 	std::cout << "GET:" << std::endl;
 	resp.toString(std::ostreambuf_iterator<char>(std::cout));
-	
+
 	std::copy(client.begin(), client.end(),
 		  std::ostreambuf_iterator<char>(std::cout));
 
@@ -133,6 +133,15 @@ static void testfdlistener()
 int main(int argc, char **argv)
 {
 	try {
+		// We have one side of a tls connection bail out and close
+		// the socket. It's not an error for the second side of the
+		// the tls connection to get a GNUTLS_E_PREMATURE_TERMINATION.
+
+		LIBCXX_NAMESPACE::property::load_property
+			(LIBCXX_NAMESPACE_WSTR
+			 "::gnutls::ignore_premature_termination_error",
+			 L"true", true, true);
+
 		LIBCXX_NAMESPACE::option::list
 			options(LIBCXX_NAMESPACE::option::list::create());
 
@@ -158,4 +167,3 @@ int main(int argc, char **argv)
 	}
 	return 0;
 }
-

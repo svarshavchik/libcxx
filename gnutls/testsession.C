@@ -707,7 +707,7 @@ static void testreadabort()
 		while ((rc=sess->recv(&dummy, 1, direction)) == 0)
 		{
 			struct pollfd pfd;
-			
+
 			pfd.fd= b->getFd();
 			pfd.events=direction;
 			poll(&pfd, 1, -1);
@@ -758,6 +758,11 @@ void writeAbortThread::run(const LIBCXX_NAMESPACE::fd &fd)
 
 	while ((rc=sess->recv(&dummy, 1, direction)) == 0)
 	{
+		if (direction == 0)
+		{
+			dummy=0;
+			break;
+		}
 		struct pollfd pfd;
 
 		pfd.fd= fd->getFd();
@@ -773,6 +778,9 @@ void writeAbortThread::run(const LIBCXX_NAMESPACE::fd &fd)
 
 	while ((rc=sess->send("B", 1, direction)) == 0)
 	{
+		if (direction == 0)
+			break;
+
 		struct pollfd pfd;
 
 		pfd.fd= fd->getFd();
@@ -842,22 +850,20 @@ static void testwriteabort()
 
 	server_thread->wait();
 
-	try {
-		while ((rc=sess->send("C", 1, direction)) == 0)
-		{
-			struct pollfd pfd;
-
-			pfd.fd= b->getFd();
-			pfd.events=direction;
-			poll(&pfd, 1, -1);
-		}
-	} catch (LIBCXX_NAMESPACE::exception &e)
+	while ((rc=sess->send("C", 1, direction)) == 0)
 	{
-		std::cout << "write abort correctly handled" << std::endl;
-		return;
+		if (direction == 0)
+			break;
+
+		struct pollfd pfd;
+
+		pfd.fd= b->getFd();
+		pfd.events=direction;
+		poll(&pfd, 1, -1);
 	}
 
-	throw EXCEPTION("Write abort did not happen");
+	if (errno != EPIPE)
+		throw EXCEPTION("Write abort did not happen");
 }
 
 int main(int argc, char **argv)
@@ -885,4 +891,3 @@ int main(int argc, char **argv)
 	}
 	return 0;
 }
-

@@ -1,5 +1,5 @@
 /*
-** Copyright 2012-2013 Double Precision, Inc.
+** Copyright 2012-2015 Double Precision, Inc.
 ** See COPYING for distribution information.
 */
 
@@ -50,6 +50,73 @@ namespace LIBCXX_NAMESPACE {
 property::value<size_t> fdbaseObj::buffer_size(LIBCXX_NAMESPACE_WSTR
 					       L"::fd::buffer_size",
 					       BUFSIZ);
+
+void fdbaseObj::write_full(const char *buffer,
+			   size_t cnt)
+{
+	while (cnt)
+	{
+		errno=ENOSPC;
+		size_t n=pubwrite(buffer, cnt);
+
+		if (n == 0)
+			throw SYSEXCEPTION("write");
+
+		buffer += cnt;
+		cnt -= n;
+	}
+}
+
+void fdbaseObj::write(const fd &otherFile)
+{
+	filestat st(otherFile->stat());
+
+	if (S_ISREG(st->st_mode))
+	{
+		off64_t n=st->st_size;
+
+		if (n == st->st_size) // Unlikely overflow
+		{
+			write(otherFile, 0, n);
+			return;
+		}
+	}
+
+	size_t n=get_buffer_size();
+
+	char buf[n];
+	size_t i;
+
+	while ((i=otherFile->read(&buf[0], n)) > 0)
+		write_full(&buf[0], i);
+}
+
+void fdbaseObj::write(const fd &otherFile,
+		      off64_t startpos,
+		      off64_t cnt)
+{
+	size_t n=get_buffer_size();
+
+	char buf[n];
+
+	while (cnt > 0)
+	{
+		size_t i=n;
+
+		if ((off64_t)i > cnt)
+			i=cnt;
+
+		i=otherFile->pread(startpos, &buf[0], i);
+
+		if (i == 0)
+			throw EXCEPTION("end of file while copying file contents");
+
+		write_full(&buf[0], i);
+
+		startpos += i;
+		cnt -= i;
+	}
+}
 
 std::string fdBase::cwd()
 {
@@ -627,16 +694,6 @@ void fdObj::epoll_add(uint32_t newEvents,
 	new_epoll_set->epoll_ctl(EPOLL_CTL_ADD, this, newEvents);
 	epoll_set=new_epoll_set;
 	epoll_callback=new_epoll_callback;
-}
-
-void fdObj::read_exception()
-{
-	throw SYSEXCEPTION("read");
-}
-
-void fdObj::write_exception()
-{
-	throw SYSEXCEPTION("write");
 }
 
 off64_t fdObj::seek(off64_t offset,
@@ -1463,78 +1520,6 @@ size_t fdObj::pubwrite(const char *buffer, size_t cnt)
 off64_t fdObj::pubseek(off64_t offset, int whence)
 {
 	return seek(offset, whence);
-}
-
-void fdObj::write_full(const char *buffer,
-		       size_t cnt)
-{
-	while (cnt)
-	{
-		errno=ENOSPC;
-		size_t n=write(buffer, cnt);
-
-		if (n == 0)
-			throw SYSEXCEPTION("write");
-
-		buffer += cnt;
-		cnt -= n;
-	}
-}
-
-void fdObj::write(const fd &otherFile)
-{
-	filestat st(otherFile->stat());
-
-	if (S_ISREG(st->st_mode))
-	{
-		off64_t n=st->st_size;
-
-		if (n == st->st_size) // Unlikely overflow
-		{
-			write(otherFile, 0, n);
-			return;
-		}
-	}
-
-	size_t n=get_buffer_size();
-
-	std::vector<char> buf;
-
-	buf.resize(n);
-
-	size_t i;
-
-	while ((i=otherFile->read(&buf[0], n)) > 0)
-		write_full(&buf[0], i);
-}
-
-void fdObj::write(const fd &otherFile,
-		  off64_t startpos,
-		  off64_t cnt)
-{
-	size_t n=get_buffer_size();
-
-	std::vector<char> buf;
-
-	buf.resize(n);
-
-	while (cnt > 0)
-	{
-		size_t i=n;
-
-		if ((off64_t)i > cnt)
-			i=cnt;
-
-		i=otherFile->pread(startpos, &buf[0], i);
-
-		if (i == 0)
-			throw EXCEPTION("end of file while copying file contents");
-
-		write_full(&buf[0], i);
-
-		startpos += i;
-		cnt -= i;
-	}
 }
 
 // =========================================================================

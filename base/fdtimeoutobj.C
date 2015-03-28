@@ -141,15 +141,15 @@ size_t fdtimeoutObj::pubread(char *buffer, size_t cnt)
 			if ((n=ptr->pubread(buffer, cnt)) > 0)
 				break;
 
-			if (errno == 0)
-				break; // EOF
+			if (errno != EAGAIN && errno != EWOULDBLOCK)
+				return 0;
 		}
 	}
 
 	if (timedout_read)
 	{
 		errno=ETIMEDOUT;
-		throw SYSEXCEPTION("read");
+		return 0;
 	}
 
 	if (periodic_read_timeout != 0)
@@ -183,13 +183,16 @@ size_t fdtimeoutObj::pubwrite(const char *buffer, size_t cnt)
 
 			if ((n=ptr->pubwrite(buffer, cnt)) > 0)
 				break;
+
+			if (errno != EAGAIN && errno != EWOULDBLOCK)
+				return 0;
 		}
 	}
 
 	if (timedout_write)
 	{
 		errno=ETIMEDOUT;
-		throw SYSEXCEPTION("write");
+		return 0;
 	}
 
 	if (periodic_write_timeout != 0)
@@ -312,7 +315,7 @@ fdptr fdtimeoutObj::pubaccept(sockaddrptr &peername)
 		}
 
 		errno=ETIMEDOUT;
-		throw SYSEXCEPTION("read");
+		throw SYSEXCEPTION("pubaccept");
 	} catch (...) {
 		fcntl(getFd(), F_SETFL, fm);
 		throw;

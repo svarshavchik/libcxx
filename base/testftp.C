@@ -1,5 +1,5 @@
 /*
-** Copyright 2013 Double Precision, Inc.
+** Copyright 2013-2015 Double Precision, Inc.
 ** See COPYING for distribution information.
 */
 
@@ -91,6 +91,8 @@ void dummy_server_process(const accept_server_socket_ret_t &sock,
 	std::string cmd,line;
 	LIBCXX_NAMESPACE::fdptr dataconn;
 	LIBCXX_NAMESPACE::sockaddrptr dataconnaddr;
+	LIBCXX_NAMESPACE::fdptr openconn;
+
 	bool received_allo=false;
 
 	auto make_conn=[&]
@@ -328,6 +330,7 @@ void dummy_server_process(const accept_server_socket_ret_t &sock,
 				if (line.substr(4, 8) == " timeout")
 				{
 					// Wait for the ABOR
+					openconn=conn;
 					continue;
 				}
 
@@ -342,6 +345,7 @@ void dummy_server_process(const accept_server_socket_ret_t &sock,
 
 		if (line.substr(0, 4) == "ABOR")
 		{
+			openconn=LIBCXX_NAMESPACE::fdptr();
 			(*stream) << "226 Ok\r\n" << std::flush;
 		}
 		else
@@ -395,7 +399,7 @@ void connect_test(const char *ip, bool passive)
 	conn->login("anonymous", "nobody@example.com");
 	conn->chdir("pub");
 	conn->cdup();
-	
+
 	std::set<std::string> list;
 
 	conn->nlst(std::insert_iterator<std::set<std::string>>(list,
@@ -413,7 +417,7 @@ void connect_test(const char *ip, bool passive)
 			conn->nlst(std::insert_iterator<std::set<std::string>>
 				   (list,
 				    list.end()),
-				   "error");	
+				   "error");
 		} catch (const LIBCXX_NAMESPACE::ftp::exception &e)
 		{
 			if (e->status_code == 400)
@@ -687,7 +691,7 @@ void connect_timeout_test()
 	try {
 		auto conn=new_client(conn_fd, timeout_fd);
 
-	} catch (const LIBCXX_NAMESPACE::sysexception &e)
+	} catch (const LIBCXX_NAMESPACE::exception &e)
 	{
 		std::cout << "Exception caught: " << e << std::endl;
 	}
@@ -739,6 +743,8 @@ void retr_timeout_test()
 	auto conn=new_client(conn_fd, timeout_fd);
 
 	try {
+		errno=0;
+
 		std::string s;
 		conn->get(std::back_insert_iterator<std::string>(s),
 			  "timeout",
@@ -754,9 +760,11 @@ void retr_timeout_test()
 				   timeout->set_write_timeout(2);
 				   return timeout;
 			   }));
-	} catch (const LIBCXX_NAMESPACE::sysexception &e)
+	} catch (const LIBCXX_NAMESPACE::exception &e)
 	{
-		std::cout << "Exception caught: " << e << std::endl;
+		if (errno != ETIMEDOUT)
+			throw e;
+		std::cout << "Caught RETR timeout exception" << std::endl;
 	}
 }
 
@@ -799,6 +807,8 @@ void stor_timeout_test()
 	auto conn=new_client(conn_fd, timeout_fd);
 
 	try {
+		errno=0;
+
 		conn->put("timeout", stor_timeout_iter(),
 			  stor_timeout_iter(),
 			  LIBCXX_NAMESPACE::make_fdtimeoutconfig
@@ -813,9 +823,9 @@ void stor_timeout_test()
 				   timeout->set_write_timeout(2);
 				   return timeout;
 			   }));
-	} catch (const LIBCXX_NAMESPACE::sysexception &e)
+	} catch (const LIBCXX_NAMESPACE::exception &e)
 	{
-		std::cout << "Exception caught: " << e << std::endl;
+		std::cout << "Caught STOR timeout exception: " << e << std::endl;
 	}
 }
 
@@ -1025,6 +1035,11 @@ int main(int argc, char **argv)
 {
 	alarm(120);
 	try {
+		LIBCXX_NAMESPACE::property::load_property
+			(LIBCXX_NAMESPACE_WSTR
+			 "::gnutls::ignore_premature_termination_error",
+			 L"true", true, true);
+
 		LIBCXX_NAMESPACE::option::bool_value
 			test(LIBCXX_NAMESPACE::option::bool_value::create());
 

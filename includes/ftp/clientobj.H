@@ -1,5 +1,5 @@
 /*
-** Copyright 2013 Double Precision, Inc.
+** Copyright 2013-2015 Double Precision, Inc.
 ** See COPYING for distribution information.
 */
 
@@ -8,6 +8,7 @@
 
 #include <x/fdfwd.H>
 #include <x/fditer.H>
+#include <x/fdbaseobj.H>
 #include <x/obj.H>
 #include <x/netaddrfwd.H>
 #include <x/fdbasefwd.H>
@@ -651,7 +652,7 @@ private:
 		~stor_callback_base() noexcept;
 
 		//! Write new file to this output stream
-		virtual void do_stor(std::ostream &o)=0;
+		virtual void do_stor(fdbaseObj &o)=0;
 
 		//! Whether this file's size is known
 		virtual bool can_allo()=0;
@@ -888,7 +889,7 @@ public:
 	void unlink(const std::string &file);
 
 	//! Rename a file
-	
+
 	void rename(const std::string &from_file,
 		    const std::string &to_file);
 
@@ -1054,9 +1055,9 @@ public:
 	}
 
 	//! Write new contents to the output iterator
-	void do_stor(std::ostream &o) override
+	void do_stor(fdbaseObj &o) override
 	{
-		std::copy(this->b, this->e, std::ostreambuf_iterator<char>(o));
+		o.write_full(this->b, this->e);
 	}
 };
 

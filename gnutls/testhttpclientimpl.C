@@ -1,5 +1,5 @@
 /*
-** Copyright 2012 Double Precision, Inc.
+** Copyright 2012-2015 Double Precision, Inc.
 ** See COPYING for distribution information.
 */
 
@@ -290,6 +290,11 @@ static void dorequest(const std::string &url,
 
 int main(int argc, char **argv)
 {
+	LIBCXX_NAMESPACE::property::load_property
+		(LIBCXX_NAMESPACE_WSTR
+		 "::gnutls::ignore_premature_termination_error",
+		 L"true", true, true);
+
 	LIBCXX_NAMESPACE::option::string_value
 		proxy_value(LIBCXX_NAMESPACE::option::string_value::create());
 
@@ -344,4 +349,3 @@ int main(int argc, char **argv)
 	alarm(0);
 	return 0;
 }
-

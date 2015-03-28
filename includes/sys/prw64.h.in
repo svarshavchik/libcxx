@@ -7,16 +7,15 @@
 
 //! Read from the file descriptor, at a given offset
 
-//! \return number of elements read from the file descriptor.
-//! Errors are reported by throwing an %exception.
+//! \return number of bytes read from the file descriptor.
 //!
 //! \note
-//! \c EAGAIN and \c EWOULDBLOCK, on a nonblocking socket, does not
-//! throw an %exception. 0 bytes read gets returned instead.
-//! Check \c errno if 0 is returned. An end-of-file condition gets
+//! A read error also return 0, and sets errno.
+//!
+//! An end-of-file condition gets
 //! reported with a 0 return, and with \c errno set to 0.
 
-size_t pread(//! Starting file position offset
+inline size_t pread(//! Starting file position offset
 
 	     off64_t offset,
 
@@ -35,8 +34,7 @@ size_t pread(//! Starting file position offset
 	{
 		if (errno == EINTR)
 			goto again;
-
-		read_exception();
+		n=0;
 	}
 
 	return n;
@@ -44,12 +42,8 @@ size_t pread(//! Starting file position offset
 
 //! Write to the file descriptor, starting at a given offset.
 
-//! \return number of elements written.
-//! Errors are reported by throwing an %exception.
-//!
-//! \note
-//! \c EAGAIN and \c EWOULDBLOCK, on a nonblocking socket, does not
-//! throw an %exception. 0 bytes read gets returned instead.
+//! \return number of bytes written.
+//! Errors are reported by returning 0.
 
 size_t pwrite(//! Starting offset
 	      off64_t offset,
@@ -70,7 +64,7 @@ size_t pwrite(//! Starting offset
 		if (errno == EINTR)
 			goto again;
 
-		write_exception();
+		n=0;
 	}
 
 	return n;

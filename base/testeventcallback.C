@@ -108,7 +108,7 @@ void test4()
 	} catch (const LIBCXX_NAMESPACE::exception &e)
 	{
 		std::cerr << e << std::endl;
-	}		
+	}
 }
 
 void test5()
@@ -161,12 +161,12 @@ void test6()
 			       *vip_t::readlock(v));
 
 		h.attach_back(mcguffin,
-			       [&latest]
+			       [&latest2]
 			       (const LIBCXX_NAMESPACE::ref<LIBCXX_NAMESPACE
 				::obj> &mcguffin,
 				int value)
 			       {
-				       latest=value;
+				       latest2=value;
 			       },
 			       *vip_t::readlock(v));
 	}

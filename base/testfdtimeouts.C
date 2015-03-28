@@ -1,5 +1,5 @@
 /*
-** Copyright 2012-2013 Double Precision, Inc.
+** Copyright 2012-2015 Double Precision, Inc.
 ** See COPYING for distribution information.
 */
 
@@ -40,9 +40,9 @@ static void testtimers()
 		try {
 			while(1)
 				*o << '\0';
-		} catch (const LIBCXX_NAMESPACE::sysexception &e)
+		} catch (const std::exception &e)
 		{
-			if (e.getErrorCode() != ETIMEDOUT)
+			if (errno != ETIMEDOUT)
 				throw;
 		}
 	}
@@ -54,14 +54,11 @@ static void testtimers()
 		LIBCXX_NAMESPACE::istream i(to->getistream());
 		to->set_read_timeout(10, 2);
 
-		try {
-			while(1)
-				i->get();
-		} catch (const LIBCXX_NAMESPACE::sysexception &e)
-		{
-			if (e.getErrorCode() != ETIMEDOUT)
-				throw;
-		}
+		while (i->get() != -1)
+			;
+
+		if (errno != ETIMEDOUT)
+			throw EXCEPTION("Did not get ETIMEDOUT on read");
 	}
 }
 
@@ -201,7 +198,7 @@ int main()
 		testwrite2();
 		testtimers();
 		testaccept();
-	} catch (LIBCXX_NAMESPACE::exception &e)
+	} catch (const LIBCXX_NAMESPACE::exception &e)
 	{
 		std::cerr << e << std::endl;
 		exit(1);

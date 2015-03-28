@@ -41,7 +41,7 @@ size_t fdreadlimitObj::pubread(char *buffer, size_t cnt)
 	err:
 		errno=EOVERFLOW;
 
-		throw SYSEXCEPTION(exceptionmsg);
+		return 0;
 	}
 
 	size_t n=ptr->pubread(buffer, cnt);

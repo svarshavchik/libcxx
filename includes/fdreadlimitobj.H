@@ -1,5 +1,5 @@
 /*
-** Copyright 2012-2013 Double Precision, Inc.
+** Copyright 2012-2015 Double Precision, Inc.
 ** See COPYING for distribution information.
 */
 
@@ -21,8 +21,8 @@ namespace LIBCXX_NAMESPACE {
 //! Implement read limits on a file descriptor.
 
 //! This reference-counted class
-//! takes a fdbaseObj, and implements another fdbaseObj that throws an
-//! %exception if the number of bytes read from the original fdbaseObj
+//! takes a fdbaseObj, and implements another fdbaseObj that return 0
+//! after the number of bytes read from the original fdbaseObj
 //! exceeds a preset maximum. The read limit can be turned on and off.
 //! When the read limit is off, reading from this fdbaseObj carries no
 //! other effects.

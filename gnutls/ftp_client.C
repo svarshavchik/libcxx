@@ -1,5 +1,5 @@
 /*
-** Copyright 2013 Double Precision, Inc.
+** Copyright 2013-2015 Double Precision, Inc.
 ** See COPYING for distribution information.
 */
 
@@ -44,8 +44,17 @@ void clientObj::impl_tls_extraObj::shutdown()
 void clientObj::impl_tls_extraObj::shutdown(const fdbase &socket)
 {
 	int ignore;
+	bool flag;
 
-	if (!gnutls::session(socket)->bye(ignore))
+	// If the transport is broken, ignore any further exceptions in bye().
+
+	try {
+		flag=gnutls::session(socket)->bye(ignore);
+	} catch (...) {
+		flag=true;
+	}
+
+	if (!flag)
 		throw EXCEPTION("TLS shutdown did not complete");
 }
 
@@ -127,4 +136,3 @@ void clientObj::auth_tls(const fdbase &connArg,
 #endif
 	}
 }
-

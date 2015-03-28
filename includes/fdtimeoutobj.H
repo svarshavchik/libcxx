@@ -1,5 +1,5 @@
 /*
-** Copyright 2012-2013 Double Precision, Inc.
+** Copyright 2012-2015 Double Precision, Inc.
 ** See COPYING for distribution information.
 */
 
@@ -22,8 +22,14 @@ namespace LIBCXX_NAMESPACE {
 //! Implement timeouts on a file descriptor.
 
 //! This reference-counted class takes a fdbaseObj, and implements
-//! another fdbaseObj that throws an %exception if the read or the write
+//! another fdbaseObj that returns 0 bytes read or written
+//! if the read or the write
 //! operation on a file descriptor times out.
+//!
+//! Note that when 0 bytes read is returned, \c errno can be used to
+//! discriminate between timeouts (errno will be ETIMEDOUT) and an ordinary
+//! end of file operation (errno will bne 0)
+//!
 //! The read and write timeouts can be individually turned on or off.
 //! When the timeout is off, this object simply passes through the read/write
 //! request to the real file descriptor.
@@ -57,14 +63,13 @@ namespace LIBCXX_NAMESPACE {
 //! \endcode
 //!
 //! In this example, if the timer expires before the line is read from the
-//! socket, the internal pubread() function throws an %exception, aborting the
-//! getline().
+//! socket, the internal pubread() function returns 0, aborting getline().
 //!
 //! set_read_timeout() sets a timer. The second parameter is actually a
 //! \ref timespecAnchor "timespec". The timer, once set, remains in place until
 //! it is cancelled, or goes off. If pubread()
 //! completes before the timer goes off, the next call to pubread() will still
-//! timeout and throw an %exception when the timer expires (or if it is
+//! timeout and return 0 when the timer expires (or if it is
 //! already expired).
 //!
 //! cancel_read_timer() cancels the read timer.
@@ -80,8 +85,8 @@ namespace LIBCXX_NAMESPACE {
 //! descriptor, until the file descriptor is ready for reading or writing,
 //! or until the respective timer expires.
 //!
-//! A read or a write timeout results in a thrown \c ETIMEDOUT
-//! \ref sysexception "INSERT_LIBX_NAMESPACE::sysexception".
+//! A read or a write timeout results in a 0-byte read/write result with
+//! an \c ETIMEDOUT errno.
 //!
 //! \par Periodic read and write timers
 //!
