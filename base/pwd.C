@@ -4,8 +4,8 @@
 */
 
 #include "libcxx_config.h"
-#include "pwd.H"
-#include "sysexception.H"
+#include "x/pwd.H"
+#include "x/sysexception.H"
 #include <unistd.h>
 #include <cstring>
 

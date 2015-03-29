@@ -4,10 +4,10 @@
 */
 
 #include "libcxx_config.h"
-#include "xlocale.H"
-#include "locale.H"
-#include "exception.H"
-#include "globlocale.H"
+#include "x/xlocale.H"
+#include "x/locale.H"
+#include "x/exception.H"
+#include "x/globlocale.H"
 
 #include <cstdlib>
 

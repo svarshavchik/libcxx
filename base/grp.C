@@ -4,8 +4,8 @@
 */
 
 #include "libcxx_config.h"
-#include "grp.H"
-#include "sysexception.H"
+#include "x/grp.H"
+#include "x/sysexception.H"
 #include <unistd.h>
 #include <cstring>
 #include <algorithm>

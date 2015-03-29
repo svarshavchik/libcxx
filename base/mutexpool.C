@@ -4,7 +4,7 @@
 */
 
 #include "libcxx_config.h"
-#include "lockpool.H"
+#include "x/lockpool.H"
 
 namespace LIBCXX_NAMESPACE {
 #if 0

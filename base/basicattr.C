@@ -4,10 +4,10 @@
 */
 
 #include "libcxx_config.h"
-#include "fileattr.H"
-#include "sysexception.H"
-#include "fdobj.H"
-#include "fileattrobj.H"
+#include "x/fileattr.H"
+#include "x/sysexception.H"
+#include "x/fdobj.H"
+#include "x/fileattrobj.H"
 #if HAVE_XATTR
 #include <sys/xattr.h>
 #endif

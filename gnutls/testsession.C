@@ -4,12 +4,12 @@
 */
 
 #include "libcxx_config.h"
-#include "gnutls/exceptions.H"
-#include "gnutls/session.H"
-#include "gnutls/rdn.H"
-#include "fd.H"
-#include "exception.H"
-#include "gnutls/x509_crtobj.H"
+#include "x/gnutls/exceptions.H"
+#include "x/gnutls/session.H"
+#include "x/gnutls/rdn.H"
+#include "x/fd.H"
+#include "x/exception.H"
+#include "x/gnutls/x509_crtobj.H"
 #include "x/options.H"
 #include <iostream>
 #include <fstream>

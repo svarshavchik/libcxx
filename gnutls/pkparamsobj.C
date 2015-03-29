@@ -4,13 +4,13 @@
 */
 
 #include "libcxx_config.h"
-#include "gnutls/pkparamsobj.H"
-#include "gnutls/init.H"
-#include "gnutls/x509_privkey.H"
-#include "gnutls/dhparams.H"
-#include "gnutls/datumwrapper.H"
-#include "pwd.H"
-#include "grp.H"
+#include "x/gnutls/pkparamsobj.H"
+#include "x/gnutls/init.H"
+#include "x/gnutls/x509_privkey.H"
+#include "x/gnutls/dhparams.H"
+#include "x/gnutls/datumwrapper.H"
+#include "x/pwd.H"
+#include "x/grp.H"
 #include "tlsparamsdir.h"
 #include "gettext_in.h"
 

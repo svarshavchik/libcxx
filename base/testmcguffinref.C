@@ -4,8 +4,8 @@
 */
 
 #include "libcxx_config.h"
-#include "exception.H"
-#include "mcguffinref.H"
+#include "x/exception.H"
+#include "x/mcguffinref.H"
 #include <iostream>
 #include <unistd.h>
 #include <cstdlib>

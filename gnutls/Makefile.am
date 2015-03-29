@@ -3,7 +3,7 @@
 # See COPYING for distribution information.
 #
 
-include $(shell pwd)/../includes/libcxx.mk
+include $(shell pwd)/../includes/x/libcxx.mk
 
 AM_CPPFLAGS=-I . -I $(srcdir) -I $(srcdir)/../includes -I ../includes
 
@@ -11,15 +11,12 @@ AM_CXXFLAGS=@GNUTLS_CFLAGS@ @GCRYPT_CFLAGS@
 
 headerdir=$(includedir)/x/gnutls
 
-BUILT_SOURCES=x gettext_in.h tlsparamsgen.h tlsparamsdir.h gnutls_defs.h \
+BUILT_SOURCES=gettext_in.h tlsparamsgen.h tlsparamsdir.h gnutls_defs.h \
 	gcrypt_md.h
-CLEANFILES=x gettext_in.h tlsparamsgen.h tlsparamsdir.h gnutls_defs.h \
+CLEANFILES=gettext_in.h tlsparamsgen.h tlsparamsdir.h gnutls_defs.h \
 	gcrypt_md.h
 
 LINKTYPE=
-
-x:
-	ln -s $(srcdir)/../includes x
 
 gettext_in.h:
 	ln -s $(srcdir)/../base/gettext_in.h gettext_in.h
@@ -184,4 +181,3 @@ uninstall-hook:
 	fgrep -q '>>>DEFAULT PARAMETERS' $(DESTDIR)@localstatedir@/tlsparams/system.dh || exit 0; rm -f $(DESTDIR)@localstatedir@/tlsparams/system.dh
 	-rmdir $(DESTDIR)@localstatedir@/tlsparams 2>/dev/null
 	-rmdir $(DESTDIR)@sysconfdir@/tlsparams 2>/dev/null
-

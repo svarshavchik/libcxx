@@ -4,9 +4,9 @@
 */
 
 #include "libcxx_config.h"
-#include "gnutls/sec_param.H"
+#include "x/gnutls/sec_param.H"
 #include "gettext_in.h"
-#include "messages.H"
+#include "x/messages.H"
 
 #include "gnutls_defs.h"
 

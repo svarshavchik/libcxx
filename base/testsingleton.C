@@ -4,9 +4,9 @@
 */
 
 #include "libcxx_config.h"
-#include "obj.H"
-#include "ptr.H"
-#include "singleton.H"
+#include "x/obj.H"
+#include "x/ptr.H"
+#include "x/singleton.H"
 
 #include <iostream>
 

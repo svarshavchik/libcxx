@@ -4,11 +4,11 @@
 */
 
 #include "libcxx_config.h"
-#include "http/cgiimpl.H"
-#include "http/form.H"
-#include "mime/structured_content_header.H"
-#include "sockaddr.H"
-#include "fd.H"
+#include "x/http/cgiimpl.H"
+#include "x/http/form.H"
+#include "x/mime/structured_content_header.H"
+#include "x/sockaddr.H"
+#include "x/fd.H"
 
 #include <cstdlib>
 #include <cctype>
@@ -32,10 +32,10 @@ namespace LIBCXX_NAMESPACE {
 
 #define LIBCXX_TEMPLATE_DECL
 #define LIBCXX_TEMPLATE_CLIENT_INPUT_ITER cgiimpl::iterator
-#include "http/clientimpl_to.H"
+#include "x/http/clientimpl_to.H"
 #undef LIBCXX_TEMPLATE_CLIENT_INPUT_ITER
 
-#include "http/cgiimpl_t.H"
+#include "x/http/cgiimpl_t.H"
 #undef LIBCXX_TEMPLATE_DECL
 
 std::string get_cgi_query_string() LIBCXX_INTERNAL;

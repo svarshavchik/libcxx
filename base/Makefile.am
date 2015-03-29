@@ -3,7 +3,7 @@
 # See COPYING for distribution information.
 #
 
-include $(shell pwd)/../includes/libcxx.mk
+include $(shell pwd)/../includes/x/libcxx.mk
 
 AM_CPPFLAGS=-I . -I $(srcdir)/../includes -I ../includes $(LIBXML2_CFLAGS)
 
@@ -227,17 +227,14 @@ $(call MSGDISPATCHER_GEN,singletonapp.msgs,all)
 
 $(call MSGDISPATCHER_GEN,timerobj.msgs,def decl)
 
-BUILT_SOURCES=x ymd_grdjd.h mksiglist.h mksigtab.h testoptgen.h maillogs.h propertiescli.h sysconfdir.h srcdir.h xml_parser_options.h xml_element_type.h
-CLEANFILES=x ymd_grdjd.h mksiglist.h mksigtab.h testoptgen.h maillogs.h propertiescli.h sysconfdir.h srcdir.h xml_parser_options.h xml_element_type.h effective_tld_names.dat.timestamp
+BUILT_SOURCES=ymd_grdjd.h mksiglist.h mksigtab.h testoptgen.h maillogs.h propertiescli.h sysconfdir.h srcdir.h xml_parser_options.h xml_element_type.h
+CLEANFILES=ymd_grdjd.h mksiglist.h mksigtab.h testoptgen.h maillogs.h propertiescli.h sysconfdir.h srcdir.h xml_parser_options.h xml_element_type.h effective_tld_names.dat.timestamp
 
 XTEST_MO_DIR=xtest/en_US/LC_MESSAGES
 XTEST_MO_FILE=xtest.mo
 
 clean-local:
 	rm -rf xtest
-
-x:
-	ln -s $(srcdir)/../includes x
 
 ymd_grdjd.h: mkgrdjd
 	./mkgrdjd >ymd_grdjd.h.tmp
@@ -606,7 +603,7 @@ testshm_SOURCES=testshm.C
 testshm_LDADD=libcxx.la
 testshm_LDFLAGS=$(TESTLINKTYPE)
 
-$(call OPTIONS_GEN,testoptgen.h.tmp,$(srcdir)/../includes/optgen.sample.xml)
+$(call OPTIONS_GEN,testoptgen.h.tmp,$(srcdir)/../includes/x/optgen.sample.xml)
 
 testoptgen.h: testoptgen.h.tmp
 	perl -p -e 's/^#include.*//;s/\b@LIBCXX_NAMESPACE@::/LIBCXX_NAMESPACE::/g' <testoptgen.h.tmp >testoptgen.h.tmp2

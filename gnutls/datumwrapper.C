@@ -4,8 +4,8 @@
 */
 
 #include "libcxx_config.h"
-#include "gnutls/datumwrapper.H"
-#include "sysexception.H"
+#include "x/gnutls/datumwrapper.H"
+#include "x/sysexception.H"
 
 #include <algorithm>
 

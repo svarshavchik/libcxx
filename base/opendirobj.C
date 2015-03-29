@@ -4,7 +4,7 @@
 */
 
 #include "libcxx_config.h"
-#include "opendirobj.H"
+#include "x/opendirobj.H"
 
 namespace LIBCXX_NAMESPACE {
 #if 0

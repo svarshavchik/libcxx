@@ -4,8 +4,8 @@
 */
 
 #include "libcxx_config.h"
-#include "gnutls/rdn.H"
-#include "gnutls/init.H"
+#include "x/gnutls/rdn.H"
+#include "x/gnutls/init.H"
 
 #include <gnutls/x509.h>
 

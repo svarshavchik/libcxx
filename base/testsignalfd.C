@@ -4,8 +4,8 @@
 */
 
 #include "libcxx_config.h"
-#include "signalfd.H"
-#include "sighandler.H"
+#include "x/signalfd.H"
+#include "x/sighandler.H"
 
 static void testsignalfd()
 {

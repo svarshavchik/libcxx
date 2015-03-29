@@ -4,8 +4,8 @@
 */
 
 #include "libcxx_config.h"
-#include "dirwalktreeobj.H"
-#include "sysexception.H"
+#include "x/dirwalktreeobj.H"
+#include "x/sysexception.H"
 #include <dirent.h>
 #include <cerrno>
 

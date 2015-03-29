@@ -4,7 +4,7 @@
 */
 
 #include "libcxx_config.h"
-#include "dispatchablebaseobj.H"
+#include "x/dispatchablebaseobj.H"
 
 namespace LIBCXX_NAMESPACE {
 #if 0

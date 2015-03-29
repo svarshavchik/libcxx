@@ -4,8 +4,8 @@
 */
 
 #include "libcxx_config.h"
-#include "vectorobj.H"
-#include "sysexception.H"
+#include "x/vectorobj.H"
+#include "x/sysexception.H"
 
 namespace LIBCXX_NAMESPACE {
 #if 0

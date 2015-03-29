@@ -4,10 +4,10 @@
 */
 
 #include "libcxx_config.h"
-#include "option_parser.H"
-#include "tostring.H"
+#include "x/option_parser.H"
+#include "x/tostring.H"
 #include "gettext_in.h"
-#include "messages.H"
+#include "x/messages.H"
 #include <cwchar>
 #include <cctype>
 #include <sstream>

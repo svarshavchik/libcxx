@@ -5,8 +5,8 @@
 
 #include "../base/testfdclientimpl.h"
 #include "testtlsimpl.h"
-#include "threads/run.H"
-#include "http/fdtlsclient.H"
+#include "x/threads/run.H"
+#include "x/http/fdtlsclient.H"
 #include <iostream>
 
 class myFakeErrorProxy : virtual public LIBCXX_NAMESPACE::obj {

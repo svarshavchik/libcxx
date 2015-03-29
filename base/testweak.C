@@ -4,9 +4,9 @@
 */
 
 #include "libcxx_config.h"
-#include "mutex.H"
-#include "threads/run.H"
-#include "weakptr.H"
+#include "x/mutex.H"
+#include "x/threads/run.H"
+#include "x/weakptr.H"
 #include <iostream>
 #include <condition_variable>
 

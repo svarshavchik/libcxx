@@ -4,10 +4,10 @@
 */
 
 #include "libcxx_config.h"
-#include "http/clientimpl.H"
-#include "http/fdclient.H"
-#include "http/fdserver.H"
-#include "threads/run.H"
+#include "x/http/clientimpl.H"
+#include "x/http/fdclient.H"
+#include "x/http/fdserver.H"
+#include "x/threads/run.H"
 #include <algorithm>
 
 typedef LIBCXX_NAMESPACE::http::clientimpl

@@ -1,8 +1,8 @@
 #include "libcxx_config.h"
-#include "gnutls/session.H"
-#include "http/fdtlsserver.H"
-#include "http/fdtlsclientimpl.H"
-#include "http/clientopts_t.H"
+#include "x/gnutls/session.H"
+#include "x/http/fdtlsserver.H"
+#include "x/http/fdtlsclientimpl.H"
+#include "x/http/clientopts_t.H"
 
 class testsessionfactory :
 	public LIBCXX_NAMESPACE::gnutls::sessionObj::factoryObj {

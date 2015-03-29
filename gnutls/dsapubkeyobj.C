@@ -4,7 +4,7 @@
 */
 
 #include "libcxx_config.h"
-#include "gnutls/dsapubkey.H"
+#include "x/gnutls/dsapubkey.H"
 
 namespace LIBCXX_NAMESPACE {
 #if 0

@@ -5,7 +5,7 @@
 AC_PREREQ(2.61)
 AC_INIT(libcxx, 0.8, [mrsam@courier-mta.com])
 
-AC_CONFIG_SRCDIR([includes/obj.H])
+AC_CONFIG_SRCDIR([includes/x/obj.H])
 AC_CONFIG_HEADER([libcxx_config.h])
 AM_INIT_AUTOMAKE([dist-bzip2 foreign -Wno-portability subdir-objects])
 
@@ -652,40 +652,40 @@ AM_CONDITIONAL(HAVE_REPO, test -d ${srcdir}/docbook)
 AC_CONFIG_FILES([Doxyfile po/Makefile.in
 		 Makefile
 		 libltdl/Makefile
-		 includes/Makefile
-		 includes/http/Makefile
-		 includes/ftp/Makefile
-		 includes/gcrypt/Makefile
-		 includes/gnutls/Makefile
-		 includes/mime/Makefile
-		 includes/param/Makefile
-		 includes/threads/Makefile
-		 includes/xml/Makefile
-		 includes/yaml/Makefile
-		 includes/epoll_def.h
-		 includes/namespace.h
-		 includes/libcxx.mk
-		 includes/libcxx.m4
-		 includes/optgen.xsl
-		 includes/globlocale.H
-		 includes/signal_def.h
-		 includes/sys/Makefile
-		 includes/sys/clockt.h
-		 includes/sys/credentialssys.h
-		 includes/sys/epollsys.h
-		 includes/sys/eventfdsys.h
-		 includes/sys/eventfdt.h
-		 includes/sys/kqueuenb.h
-		 includes/sys/offt.h
-		 includes/sys/prw64.h
-		 includes/sys/signalfdsys.h
-		 includes/sys/tidtsys.h
-		 includes/sys/timerfdsys.h
-		 includes/sys/timerfdpriv.h
-		 includes/sys/valueimpl64sys.h
-		 includes/sys/xattrsys.h
-		 includes/xlocale.H
-		 includes/msgdispatcher.xsl
+		 includes/x/Makefile
+		 includes/x/http/Makefile
+		 includes/x/ftp/Makefile
+		 includes/x/gcrypt/Makefile
+		 includes/x/gnutls/Makefile
+		 includes/x/mime/Makefile
+		 includes/x/param/Makefile
+		 includes/x/threads/Makefile
+		 includes/x/xml/Makefile
+		 includes/x/yaml/Makefile
+		 includes/x/epoll_def.h
+		 includes/x/namespace.h
+		 includes/x/libcxx.mk
+		 includes/x/libcxx.m4
+		 includes/x/optgen.xsl
+		 includes/x/globlocale.H
+		 includes/x/signal_def.h
+		 includes/x/sys/Makefile
+		 includes/x/sys/clockt.h
+		 includes/x/sys/credentialssys.h
+		 includes/x/sys/epollsys.h
+		 includes/x/sys/eventfdsys.h
+		 includes/x/sys/eventfdt.h
+		 includes/x/sys/kqueuenb.h
+		 includes/x/sys/offt.h
+		 includes/x/sys/prw64.h
+		 includes/x/sys/signalfdsys.h
+		 includes/x/sys/tidtsys.h
+		 includes/x/sys/timerfdsys.h
+		 includes/x/sys/timerfdpriv.h
+		 includes/x/sys/valueimpl64sys.h
+		 includes/x/sys/xattrsys.h
+		 includes/x/xlocale.H
+		 includes/x/msgdispatcher.xsl
                  base/Makefile
 		 gnutls/Makefile
 		 gnutls/tlsparamsgen.sh

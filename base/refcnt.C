@@ -4,9 +4,9 @@
 */
 
 #include "libcxx_config.h"
-#include "ptr.H"
-#include "property_value.H"
-#include "exception.H"
+#include "x/ptr.H"
+#include "x/property_value.H"
+#include "x/exception.H"
 
 #include <cstring>
 #include <cstdlib>

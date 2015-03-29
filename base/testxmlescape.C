@@ -4,7 +4,7 @@
 */
 
 #include "libcxx_config.h"
-#include "xml/escape.H"
+#include "x/xml/escape.H"
 
 #include <iostream>
 #include <cstdlib>

@@ -4,9 +4,9 @@
 */
 
 #include "libcxx_config.h"
-#include "http/fdserver.H"
-#include "http/fdclientimpl.H"
-#include "threads/run.H"
+#include "x/http/fdserver.H"
+#include "x/http/fdclientimpl.H"
+#include "x/threads/run.H"
 
 #ifndef FORCE_PROP
 #define FORCE_PROP(n, v)						\
@@ -133,7 +133,7 @@ void testhttp10() throw(LIBCXX_NAMESPACE::exception)
 		req=LIBCXX_NAMESPACE::http::requestimpl();
 		req.setVersion(LIBCXX_NAMESPACE::http::httpver_t::http10);
 		req.setURI("http://example.com");
-	
+
 		if (cl.send(req, resp))
 			throw EXCEPTION("testhttp10: message sent when it should not have been");
 	}

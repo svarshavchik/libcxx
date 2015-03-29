@@ -4,11 +4,11 @@
 */
 
 #include "libcxx_config.h"
-#include "gnutls/init.H"
-#include "gnutls/x509_crt.H"
-#include "gnutls/rsapubkey.H"
-#include "gnutls/dsapubkey.H"
-#include "sysexception.H"
+#include "x/gnutls/init.H"
+#include "x/gnutls/x509_crt.H"
+#include "x/gnutls/rsapubkey.H"
+#include "x/gnutls/dsapubkey.H"
+#include "x/sysexception.H"
 
 #include <sys/time.h>
 

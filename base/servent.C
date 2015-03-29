@@ -4,8 +4,8 @@
 */
 
 #include "libcxx_config.h"
-#include "servent.H"
-#include "sysexception.H"
+#include "x/servent.H"
+#include "x/sysexception.H"
 #include <cstring>
 
 namespace LIBCXX_NAMESPACE {

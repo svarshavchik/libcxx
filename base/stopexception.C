@@ -4,8 +4,8 @@
 */
 
 #include "libcxx_config.h"
-#include "stopexception.H"
-#include "messages.H"
+#include "x/stopexception.H"
+#include "x/messages.H"
 #include "gettext_in.h"
 
 namespace LIBCXX_NAMESPACE {

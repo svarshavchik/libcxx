@@ -4,8 +4,8 @@
 */
 
 #include "libcxx_config.h"
-#include "timerfd.H"
-#include "sysexception.H"
+#include "x/timerfd.H"
+#include "x/sysexception.H"
 #if HAVE_KQUEUE
 #include <sys/types.h>
 #include <sys/event.h>

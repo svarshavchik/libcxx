@@ -4,8 +4,8 @@
 */
 
 #include "libcxx_config.h"
-#include "gnutls/rsaprivkeyobj.H"
-#include "gnutls/x509_privkey.H"
+#include "x/gnutls/rsaprivkeyobj.H"
+#include "x/gnutls/x509_privkey.H"
 
 namespace LIBCXX_NAMESPACE {
 #if 0

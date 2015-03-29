@@ -4,9 +4,9 @@
 */
 
 #include "libcxx_config.h"
-#include "eventqueuemsgdispatcher.H"
-#include "threadeventqueuemsgdispatcher.H"
-#include "threads/run.H"
+#include "x/eventqueuemsgdispatcher.H"
+#include "x/threadeventqueuemsgdispatcher.H"
+#include "x/threads/run.H"
 
 #include <vector>
 

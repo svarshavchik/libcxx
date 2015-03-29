@@ -4,9 +4,9 @@
 */
 
 #include "libcxx_config.h"
-#include "vipobjdebug.H"
-#include "messages.H"
-#include "property_value.H"
+#include "x/vipobjdebug.H"
+#include "x/messages.H"
+#include "x/property_value.H"
 #include "gettext_in.h"
 #include <cstdlib>
 

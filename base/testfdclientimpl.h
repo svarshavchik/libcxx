@@ -1,7 +1,7 @@
 #include "libcxx_config.h"
-#include "http/fdserver.H"
-#include "http/fdclientimpl.H"
-#include "threads/run.H"
+#include "x/http/fdserver.H"
+#include "x/http/fdclientimpl.H"
+#include "x/threads/run.H"
 
 #ifndef FORCE_PROP
 #define FORCE_PROP(n, v)						\
@@ -340,7 +340,7 @@ void testrequest() throw(LIBCXX_NAMESPACE::exception)
 
 		if (!cl.send(req, resp))
 			throw EXCEPTION("Send failed");
-		
+
 		if (req.responseHasMessageBody(resp))
 		{
 			std::copy(cl.begin(), cl.end(),

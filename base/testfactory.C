@@ -4,8 +4,8 @@
 */
 
 #include "libcxx_config.h"
-#include "eventfactory.H"
-#include "exception.H"
+#include "x/eventfactory.H"
+#include "x/exception.H"
 #include <iostream>
 
 class inteventhandlerObj : public LIBCXX_NAMESPACE::eventhandlerObj<int> {

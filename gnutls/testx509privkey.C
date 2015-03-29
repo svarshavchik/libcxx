@@ -4,10 +4,10 @@
 */
 
 #include "libcxx_config.h"
-#include "property_properties.H"
-#include "gnutls/x509_privkey.H"
-#include "gnutls/dhparams.H"
-#include "exception.H"
+#include "x/property_properties.H"
+#include "x/gnutls/x509_privkey.H"
+#include "x/gnutls/dhparams.H"
+#include "x/exception.H"
 
 #include <iostream>
 #include <fstream>

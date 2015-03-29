@@ -897,9 +897,9 @@ void load_file(const std::string &filename,
 }
 
 #define LIBCXX_TEMPLATE_DECL
-#include "property_save_t.H"
-#include "property_properties_t.H"
-#include "property_list_t.H"
+#include "x/property_save_t.H"
+#include "x/property_properties_t.H"
+#include "x/property_list_t.H"
 
 #if 0
 {

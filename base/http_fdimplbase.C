@@ -4,11 +4,11 @@
 */
 
 #include "libcxx_config.h"
-#include "http/fdimplbase.H"
-#include "http/responseimpl.H"
-#include "fd.H"
-#include "ref.H"
-#include "sysexception.H"
+#include "x/http/fdimplbase.H"
+#include "x/http/responseimpl.H"
+#include "x/fd.H"
+#include "x/ref.H"
+#include "x/sysexception.H"
 
 namespace LIBCXX_NAMESPACE {
 	namespace http {

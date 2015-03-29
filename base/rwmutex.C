@@ -4,7 +4,7 @@
 */
 
 #include "libcxx_config.h"
-#include "rwmutex.H"
+#include "x/rwmutex.H"
 
 namespace LIBCXX_NAMESPACE {
 #if 0

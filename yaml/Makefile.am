@@ -3,17 +3,14 @@
 # See COPYING for distribution information.
 #
 
-include $(shell pwd)/../includes/libcxx.mk
+include $(shell pwd)/../includes/x/libcxx.mk
 
 AM_CPPFLAGS=$(YAMLCPPFLAGS) -I . -I $(srcdir) -I $(srcdir)/../includes -I ../includes
 
-BUILT_SOURCES=x gettext_in.h
-CLEANFILES=x gettext_in.h
+BUILT_SOURCES=gettext_in.h
+CLEANFILES=gettext_in.h
 
 LINKTYPE=
-
-x:
-	ln -s $(srcdir)/../includes x
 
 gettext_in.h:
 	ln -s $(srcdir)/../base/gettext_in.h gettext_in.h
@@ -57,4 +54,3 @@ libcxxyaml_la_SOURCES=\
 	parserobj.C                                                     \
 	writer.C							\
 	yaml_internal.H
-

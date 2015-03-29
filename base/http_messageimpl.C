@@ -4,8 +4,8 @@
 */
 
 #include "libcxx_config.h"
-#include "http/messageimpl.H"
-#include "http/responseimpl.H"
+#include "x/http/messageimpl.H"
+#include "x/http/responseimpl.H"
 #include "gettext_in.h"
 #include <cstring>
 #include <cctype>

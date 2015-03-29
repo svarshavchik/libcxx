@@ -4,8 +4,8 @@
 */
 
 #include "libcxx_config.h"
-#include "gnutls/pubkey.H"
-#include "exception.H"
+#include "x/gnutls/pubkey.H"
+#include "x/exception.H"
 
 namespace LIBCXX_NAMESPACE {
 #if 0

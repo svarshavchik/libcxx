@@ -4,10 +4,10 @@
 */
 
 #include "libcxx_config.h"
-#include "obj.H"
-#include "ptr.H"
-#include "fd.H"
-#include "timespec.H"
+#include "x/obj.H"
+#include "x/ptr.H"
+#include "x/fd.H"
+#include "x/timespec.H"
 
 int main()
 {

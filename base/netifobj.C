@@ -4,9 +4,9 @@
 */
 
 #include "libcxx_config.h"
-#include "netif.H"
-#include "strtok.H"
-#include "sysexception.H"
+#include "x/netif.H"
+#include "x/strtok.H"
+#include "x/sysexception.H"
 #include <fstream>
 #include <sstream>
 #include <algorithm>

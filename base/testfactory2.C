@@ -4,7 +4,7 @@
 */
 
 #include "libcxx_config.h"
-#include "fd.H"
+#include "x/fd.H"
 
 static LIBCXX_NAMESPACE::fdptr r, w;
 
@@ -22,9 +22,9 @@ static LIBCXX_NAMESPACE::fdptr r, w;
 		std::cout << "In event()" << std::endl;			\
 		} while(0)
 
-#include "eventfactory.H"
-#include "exception.H"
-#include "threads/run.H"
+#include "x/eventfactory.H"
+#include "x/exception.H"
+#include "x/threads/run.H"
 #include <iostream>
 
 

@@ -8,8 +8,8 @@
 #include <iomanip>
 #include <vector>
 #include <cstring>
-#include "basiciofiltercodecvtin.H"
-#include "basicstreamcodecvtobj.H"
+#include "x/basiciofiltercodecvtin.H"
+#include "x/basicstreamcodecvtobj.H"
 
 static void testctow(const char *wcstr, const LIBCXX_NAMESPACE::locale &l,
 		     size_t inbufsize, size_t outbufsize)

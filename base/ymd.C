@@ -5,13 +5,13 @@
 
 #include "libcxx_config.h"
 #include "addoverflow.h"
-#include "sysexception.H"
-#include "ymd.H"
-#include "strtok.H"
-#include "ctype.H"
-#include "messages.H"
-#include "tostring.H"
-#include "interval.H"
+#include "x/sysexception.H"
+#include "x/ymd.H"
+#include "x/strtok.H"
+#include "x/ctype.H"
+#include "x/messages.H"
+#include "x/tostring.H"
+#include "x/interval.H"
 #include "gettext_in.h"
 
 #include <time.h>

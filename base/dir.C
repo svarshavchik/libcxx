@@ -4,10 +4,10 @@
 */
 
 #include "libcxx_config.h"
-#include "dir.H"
-#include "dirobj.H"
-#include "opendirobj.H"
-#include "sysexception.H"
+#include "x/dir.H"
+#include "x/dirobj.H"
+#include "x/opendirobj.H"
+#include "x/sysexception.H"
 
 #include <list>
 

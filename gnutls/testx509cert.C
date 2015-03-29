@@ -4,10 +4,10 @@
 */
 
 #include "libcxx_config.h"
-#include "gnutls/x509_crt.H"
-#include "gnutls/datumwrapper.H"
-#include "property_properties.H"
-#include "exception.H"
+#include "x/gnutls/x509_crt.H"
+#include "x/gnutls/datumwrapper.H"
+#include "x/property_properties.H"
+#include "x/exception.H"
 
 #include <iostream>
 #include <fstream>

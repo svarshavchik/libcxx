@@ -4,7 +4,7 @@
 */
 
 #include "libcxx_config.h"
-#include "interval.H"
+#include "x/interval.H"
 
 #include "gettext_in.h"
 

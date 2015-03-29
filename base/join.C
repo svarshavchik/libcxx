@@ -4,7 +4,7 @@
 */
 
 #include "libcxx_config.h"
-#include "join.H"
+#include "x/join.H"
 
 namespace LIBCXX_NAMESPACE {
 #if 0
@@ -13,7 +13,7 @@ namespace LIBCXX_NAMESPACE {
 
 #define LIBCXX_TEMPLATE_DECL
 #define LIBCXX_TEMPLATE_SPEC
-#include "join_t.H"
+#include "x/join_t.H"
 #undef LIBCXX_TEMPLATE_SPEC
 #undef LIBCXX_TEMPLATE_DECL
 

@@ -4,8 +4,8 @@
 */
 
 #include "libcxx_config.h"
-#include "threads/workerpoolobj.H"
-#include "threads/runthreadobj.H"
+#include "x/threads/workerpoolobj.H"
+#include "x/threads/runthreadobj.H"
 #include "gettext_in.h"
 #include <exception>
 

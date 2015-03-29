@@ -4,8 +4,8 @@
 */
 
 #include "libcxx_config.h"
-#include "semaphore.H"
-#include "weakptr.H"
+#include "x/semaphore.H"
+#include "x/weakptr.H"
 
 LOG_CLASS_INIT(LIBCXX_NAMESPACE::semaphoreObj);
 

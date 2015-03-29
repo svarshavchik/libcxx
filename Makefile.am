@@ -4,7 +4,7 @@
 #
 
 AUTOMAKE_OPTIONS=dist-bzip2 -Wno-portability
-SUBDIRS=includes libltdl base yaml gnutls httportmap cxxltdl packaging/fedora po
+SUBDIRS=includes/x libltdl base yaml gnutls httportmap cxxltdl packaging/fedora po
 
 define reverse
 $(if $(1), $(call reverse,$(wordlist 2,$(words $(1)),$(1))) $(firstword $(1)))
@@ -31,7 +31,7 @@ EXTRA_DIST=config.rpath DoxygenLayout.xml abi.xml.in $(man_MANS) \
 	   $(wildcard $(srcdir)/packaging/freebsd10/devel/libcxx/files/patch*C) \
         )
 
-DOCS_SRC = $(shell find includes -name '*.H' -print)
+DOCS_SRC = $(shell find includes/x -name '*.H' -print)
 
 docs: html/index.html html/book.css html/logo.png html/robots.txt html/.htaccess html/frame.js html/icon.gif $(patsubst %,html/%,$(notdir $(wildcard $(srcdir)/docbook/*.png)))
 
@@ -94,8 +94,8 @@ header.html: Doxyfile
 .PHONY: rpm
 
 dist-hook:
-	rm -f $(distdir)/includes/namespace.h
-	rm -f $(distdir)/includes/msgdispatcher.xsl
+	rm -f $(distdir)/includes/x/namespace.h
+	rm -f $(distdir)/includes/x/msgdispatcher.xsl
 
 rpm:
 	make dist

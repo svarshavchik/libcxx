@@ -4,15 +4,15 @@
 */
 
 #include "libcxx_config.h"
-#include "uuid.H"
-#include "netif.H"
-#include "exception.H"
-#include "fd.H"
-#include "dir.H"
-#include "locale.H"
-#include "ctype.H"
-#include "strtok.H"
-#include "netif.H"
+#include "x/uuid.H"
+#include "x/netif.H"
+#include "x/exception.H"
+#include "x/fd.H"
+#include "x/dir.H"
+#include "x/locale.H"
+#include "x/ctype.H"
+#include "x/strtok.H"
+#include "x/netif.H"
 
 #include <sys/ioctl.h>
 #include <net/if.h>

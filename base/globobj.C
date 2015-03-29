@@ -4,9 +4,9 @@
 */
 
 #include "libcxx_config.h"
-#include "glob.H"
-#include "ref.H"
-#include "messages.H"
+#include "x/glob.H"
+#include "x/ref.H"
+#include "x/messages.H"
 #include "gettext_in.h"
 
 namespace LIBCXX_NAMESPACE {

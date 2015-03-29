@@ -11,7 +11,7 @@
 #include "x/tokens.H"
 #include "x/qp.H"
 #include "x/base64.H"
-#include "chrcasecmp.H"
+#include "x/chrcasecmp.H"
 #include <algorithm>
 #include <map>
 #include "gettext_in.h"

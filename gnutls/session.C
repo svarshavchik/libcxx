@@ -4,8 +4,8 @@
 */
 
 #include "libcxx_config.h"
-#include "gnutls/session.H"
-#include "gnutls/init.H"
+#include "x/gnutls/session.H"
+#include "x/gnutls/init.H"
 
 namespace LIBCXX_NAMESPACE {
 

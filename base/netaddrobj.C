@@ -4,9 +4,9 @@
 */
 
 #include "libcxx_config.h"
-#include "netaddrobj.H"
-#include "strtok.H"
-#include "fd.H"
+#include "x/netaddrobj.H"
+#include "x/strtok.H"
+#include "x/fd.H"
 #include <x/exception.H>
 #include <cstring>
 #include <sstream>

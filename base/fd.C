@@ -4,15 +4,15 @@
 */
 
 #include "libcxx_config.h"
-#include "fd.H"
-#include "fdbase.H"
-#include "epoll.H"
-#include "attr.H"
-#include "uuid.H"
-#include "sysexception.H"
-#include "serialization.H"
+#include "x/fd.H"
+#include "x/fdbase.H"
+#include "x/epoll.H"
+#include "x/attr.H"
+#include "x/uuid.H"
+#include "x/sysexception.H"
+#include "x/serialization.H"
 #include "gettext_in.h"
-#include <sys/eventfdsys.h>
+#include "x/sys/eventfdsys.h"
 #include <sys/mman.h>
 #include <cstring>
 

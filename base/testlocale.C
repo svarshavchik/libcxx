@@ -4,12 +4,12 @@
 */
 
 #include "libcxx_config.h"
-#include "ctype.H"
-#include "exception.H"
-#include "tostring.H"
-#include "strftime.H"
-#include "strtok.H"
-#include "strsplit.H"
+#include "x/ctype.H"
+#include "x/exception.H"
+#include "x/tostring.H"
+#include "x/strftime.H"
+#include "x/strtok.H"
+#include "x/strsplit.H"
 #include <iostream>
 #include <sstream>
 #include <iterator>

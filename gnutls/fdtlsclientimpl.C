@@ -4,11 +4,11 @@
 */
 
 #include "libcxx_config.h"
-#include "http/fdtlsclientimpl.H"
-#include "http/responseimpl.H"
-#include "servent.H"
-#include "timerfd.H"
-#include "hms.H"
+#include "x/http/fdtlsclientimpl.H"
+#include "x/http/responseimpl.H"
+#include "x/servent.H"
+#include "x/timerfd.H"
+#include "x/hms.H"
 #include <sstream>
 
 namespace LIBCXX_NAMESPACE {

@@ -3,16 +3,11 @@
 # See COPYING for distribution information.
 #
 
-include $(shell pwd)/../includes/libcxx.mk
+include $(shell pwd)/../includes/x/libcxx.mk
 
 AM_CPPFLAGS=$(LTDLINC) -I . -I $(srcdir) -I $(srcdir)/../includes -I ../includes
-BUILT_SOURCES=x
-CLEANFILES=x
 
 LINKTYPE=
-
-x:
-	ln -s $(srcdir)/../includes x
 
 lib_LTLIBRARIES=libcxxltdl.la
 libcxxltdl_la_DEPENDENCIES=$(LTDLDEPS)

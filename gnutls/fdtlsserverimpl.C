@@ -4,9 +4,9 @@
 */
 
 #include "libcxx_config.h"
-#include "http/fdtlsserverimpl.H"
-#include "timerfd.H"
-#include "hms.H"
+#include "x/http/fdtlsserverimpl.H"
+#include "x/timerfd.H"
+#include "x/hms.H"
 
 namespace LIBCXX_NAMESPACE {
 

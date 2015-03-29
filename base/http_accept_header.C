@@ -4,8 +4,8 @@
 */
 
 #include "libcxx_config.h"
-#include "http/accept_header.H"
-#include "http/requestimpl.H"
+#include "x/http/accept_header.H"
+#include "x/http/requestimpl.H"
 #include "gettext_in.h"
 
 namespace LIBCXX_NAMESPACE {

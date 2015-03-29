@@ -5,11 +5,11 @@
 
 #include "libcxx_config.h"
 #include "addoverflow.h"
-#include "hms.H"
-#include "strtok.H"
-#include "ctype.H"
-#include "messages.H"
-#include "interval.H"
+#include "x/hms.H"
+#include "x/strtok.H"
+#include "x/ctype.H"
+#include "x/messages.H"
+#include "x/interval.H"
 #include "gettext_in.h"
 
 #include <cstring>

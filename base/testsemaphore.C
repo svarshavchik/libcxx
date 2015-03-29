@@ -4,8 +4,8 @@
 */
 
 #include "libcxx_config.h"
-#include "semaphore.H"
-#include "fixed_semaphore.H"
+#include "x/semaphore.H"
+#include "x/fixed_semaphore.H"
 
 #include <vector>
 #include <iostream>

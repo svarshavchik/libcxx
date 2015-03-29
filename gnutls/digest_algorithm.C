@@ -86,7 +86,7 @@ template class settable<gnutls_digest_algorithm_t,
 #define LIBCXX_TEMPLATE_DECL
 #define LIBCXX_SETTABLE_CLASS LIBCXX_NAMESPACE::gnutls::digest_algorithm
 #define LIBCXX_TEMPLATE_DECLARE
-#include "param/settable_t.H"
+#include "x/param/settable_t.H"
 #undef LIBCXX_TEMPLATE_DECLARE
 #undef LIBCXX_SETTABLE_CLASS
 #undef LIBCXX_TEMPLATE_DECL

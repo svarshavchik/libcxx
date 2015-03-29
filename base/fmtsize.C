@@ -4,9 +4,9 @@
 */
 
 #include "libcxx_config.h"
-#include "fmtsize.H"
-#include "locale.H"
-#include "ctype.H"
+#include "x/fmtsize.H"
+#include "x/locale.H"
+#include "x/ctype.H"
 #include "gettext_in.h"
 
 #include <sstream>

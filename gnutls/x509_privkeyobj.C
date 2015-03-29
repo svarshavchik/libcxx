@@ -4,12 +4,12 @@
 */
 
 #include "libcxx_config.h"
-#include "gnutls/init.H"
-#include "gnutls/x509_privkeyobj.H"
-#include "gnutls/x509_privkey.H"
-#include "gnutls/dhparams.H"
-#include "gnutls/datumwrapper.H"
-#include "exception.H"
+#include "x/gnutls/init.H"
+#include "x/gnutls/x509_privkeyobj.H"
+#include "x/gnutls/x509_privkey.H"
+#include "x/gnutls/dhparams.H"
+#include "x/gnutls/datumwrapper.H"
+#include "x/exception.H"
 #include <gnutls/gnutls.h>
 #include <cstring>
 

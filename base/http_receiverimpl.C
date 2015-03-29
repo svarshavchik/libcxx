@@ -4,10 +4,10 @@
 */
 
 #include "libcxx_config.h"
-#include "http/receiverimpl.H"
-#include "http/requestimpl.H"
-#include "http/responseimpl.H"
-#include "chrcasecmp.H"
+#include "x/http/receiverimpl.H"
+#include "x/http/requestimpl.H"
+#include "x/http/responseimpl.H"
+#include "x/chrcasecmp.H"
 
 #include "gettext_in.h"
 

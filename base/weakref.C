@@ -4,9 +4,9 @@
 */
 
 #include "libcxx_config.h"
-#include "weakptr.H"
-#include "mutex.H"
-#include "ref.H"
+#include "x/weakptr.H"
+#include "x/mutex.H"
+#include "x/ref.H"
 
 namespace LIBCXX_NAMESPACE {
 #if 0

@@ -4,8 +4,8 @@
 */
 
 #include "libcxx_config.h"
-#include "option_definitionusageobj.H"
-#include "option_parserobj.H"
+#include "x/option_definitionusageobj.H"
+#include "x/option_parserobj.H"
 #include <string>
 #include <iostream>
 #include <cwctype>

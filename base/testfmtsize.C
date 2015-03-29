@@ -4,10 +4,10 @@
 */
 
 #include "libcxx_config.h"
-#include "grp.H"
-#include "fmtsize.H"
-#include "fd.H"
-#include "df.H"
+#include "x/grp.H"
+#include "x/fmtsize.H"
+#include "x/fd.H"
+#include "x/df.H"
 #include <iostream>
 #include <iomanip>
 

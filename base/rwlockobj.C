@@ -4,8 +4,8 @@
 */
 
 #include "libcxx_config.h"
-#include "rwlock.H"
-#include "exception.H"
+#include "x/rwlock.H"
+#include "x/exception.H"
 #include <iostream>
 
 namespace LIBCXX_NAMESPACE {

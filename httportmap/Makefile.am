@@ -1,6 +1,6 @@
-include $(shell pwd)/../includes/libcxx.mk
+include $(shell pwd)/../includes/x/libcxx.mk
 
-AM_CPPFLAGS=-I . -I $(srcdir) -I ..
+AM_CPPFLAGS=-I . -I $(srcdir) -I $(srcdir)/../includes -I ../includes
 
 sbin_PROGRAMS=httportmapd
 
@@ -24,8 +24,8 @@ httportmapd_SOURCES=\
 httportmapd_LDADD=../base/libcxx.la
 httportmapd_LDFLAGS=$(TESTLINKTYPE)
 
-BUILT_SOURCES=x localstatedir.h portmapdatadir.h httportmap_server.opts.h
-CLEANFILES=x localstatedir.h portmapdatadir.h httportmap_server.opts.h
+BUILT_SOURCES=localstatedir.h portmapdatadir.h httportmap_server.opts.h
+CLEANFILES=localstatedir.h portmapdatadir.h httportmap_server.opts.h
 
 $(call OPTIONS_GEN,httportmap_server.opts.h,httportmap_server.opts.xml)
 
@@ -34,9 +34,6 @@ localstatedir.h:
 
 portmapdatadir.h:
 	echo "#define PORTMAPDATADIR \"$(portmapdatadir)\"" >portmapdatadir.h
-
-x:
-	ln -s $(srcdir)/../includes x
 
 testhttportmap_SOURCES=testhttportmap.C
 testhttportmap_LDADD=../base/libcxx.la

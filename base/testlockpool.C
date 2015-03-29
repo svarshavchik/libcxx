@@ -7,9 +7,9 @@
 static void debug_lockpool_hook();
 #define LIBCXX_LOCKPOOL_DEBUG debug_lockpool_hook
 
-#include "lockpool.H"
-#include "exception.H"
-#include "threads/run.H"
+#include "x/lockpool.H"
+#include "x/exception.H"
+#include "x/threads/run.H"
 
 #include <iostream>
 #include <thread>

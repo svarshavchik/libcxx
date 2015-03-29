@@ -4,11 +4,11 @@
 */
 
 #include "libcxx_config.h"
-#include "option_definitionpropertiesobj.H"
-#include "option_parserobj.H"
-#include "property_properties.H"
-#include "tostring.H"
-#include "messages.H"
+#include "x/option_definitionpropertiesobj.H"
+#include "x/option_parserobj.H"
+#include "x/property_properties.H"
+#include "x/tostring.H"
+#include "x/messages.H"
 #include "gettext_in.h"
 #include <string>
 #include <iostream>

@@ -4,9 +4,9 @@
 */
 
 #include "libcxx_config.h"
-#include "weakptr.H"
-#include "obj.H"
-#include "mutex.H"
+#include "x/weakptr.H"
+#include "x/obj.H"
+#include "x/mutex.H"
 
 #include <cstdlib>
 #include <iostream>

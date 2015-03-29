@@ -4,8 +4,8 @@
 */
 
 #include "libcxx_config.h"
-#include "mutex.H"
-#include "exception.H"
+#include "x/mutex.H"
+#include "x/exception.H"
 #include <iostream>
 
 namespace LIBCXX_NAMESPACE {

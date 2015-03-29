@@ -4,9 +4,9 @@
 */
 
 #include "libcxx_config.h"
-#include "iconviofilter.H"
-#include "messages.H"
-#include "sysexception.H"
+#include "x/iconviofilter.H"
+#include "x/messages.H"
+#include "x/sysexception.H"
 #include "gettext_in.h"
 
 #include <algorithm>

@@ -10,10 +10,10 @@
 #include <string>
 #include <algorithm>
 
-#include "locale.H"
-#include "basiciofiltercodecvtout.H"
-#include "basicstreamcodecvtobj.H"
-#include "exception.H"
+#include "x/locale.H"
+#include "x/basiciofiltercodecvtout.H"
+#include "x/basicstreamcodecvtobj.H"
+#include "x/exception.H"
 
 static void testwtoc_codecvt(const wchar_t *wcstr,
 			     const LIBCXX_NAMESPACE::const_locale &l,

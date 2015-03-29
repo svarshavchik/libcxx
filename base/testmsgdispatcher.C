@@ -3,7 +3,7 @@
 ** See COPYING for distribution information.
 */
 
-#include "msgdispatcher.H"
+#include "x/msgdispatcher.H"
 
 class testclass1 : public LIBCXX_NAMESPACE::msgdispatcherObj {
 

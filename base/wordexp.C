@@ -4,7 +4,7 @@
 */
 
 #include "libcxx_config.h"
-#include "wordexp.H"
+#include "x/wordexp.H"
 #include "gettext_in.h"
 
 namespace LIBCXX_NAMESPACE {

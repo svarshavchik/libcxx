@@ -4,8 +4,8 @@
 */
 
 #include "libcxx_config.h"
-#include "gnutls/privkey.H"
-#include "exception.H"
+#include "x/gnutls/privkey.H"
+#include "x/exception.H"
 
 namespace LIBCXX_NAMESPACE {
 #if 0

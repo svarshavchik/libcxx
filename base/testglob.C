@@ -4,8 +4,8 @@
 */
 
 #include "libcxx_config.h"
-#include "glob.H"
-#include "dir.H"
+#include "x/glob.H"
+#include "x/dir.H"
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <fcntl.h>

@@ -4,11 +4,11 @@
 */
 
 #include "libcxx_config.h"
-#include "gnutls/sessionobj.H"
-#include "gnutls/credentials_callbackobj.H"
-#include "gnutls/datumwrapper.H"
-#include "gnutls/init.H"
-#include "sysexception.H"
+#include "x/gnutls/sessionobj.H"
+#include "x/gnutls/credentials_callbackobj.H"
+#include "x/gnutls/datumwrapper.H"
+#include "x/gnutls/init.H"
+#include "x/sysexception.H"
 #include <iostream>
 
 namespace LIBCXX_NAMESPACE {

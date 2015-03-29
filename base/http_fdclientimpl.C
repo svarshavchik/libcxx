@@ -4,8 +4,8 @@
 */
 
 #include "libcxx_config.h"
-#include "http/fdclientimpl.H"
-#include "ref.H"
+#include "x/http/fdclientimpl.H"
+#include "x/ref.H"
 
 namespace LIBCXX_NAMESPACE {
 	namespace http {

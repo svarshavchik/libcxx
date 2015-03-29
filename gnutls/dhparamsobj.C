@@ -4,9 +4,9 @@
 */
 
 #include "libcxx_config.h"
-#include "sysexception.H"
-#include "gnutls/dhparamsobj.H"
-#include "gnutls/init.H"
+#include "x/sysexception.H"
+#include "x/gnutls/dhparamsobj.H"
+#include "x/gnutls/init.H"
 
 namespace LIBCXX_NAMESPACE {
 #if 0

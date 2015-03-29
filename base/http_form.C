@@ -21,7 +21,7 @@
 #include "gettext_in.h"
 
 #define LIBCXX_TEMPLATE_DECL
-#include <http/useragentobj_t.H>
+#include "x/http/useragentobj_t.H"
 #undef LIBCXX_TEMPLATE_DECL
 
 namespace LIBCXX_NAMESPACE {
@@ -34,7 +34,7 @@ namespace LIBCXX_NAMESPACE {
 #endif
 
 #define LIBCXX_TEMPLATE_DECL
-#include "http/form_t.H"
+#include "x/http/form_t.H"
 #undef LIBCXX_TEMPLATE_DECL
 
 property::value<size_t> LIBCXX_HIDDEN

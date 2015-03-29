@@ -4,15 +4,15 @@
 */
 
 #include "libcxx_config.h"
-#include "chrcasecmp.H"
-#include "http/requestimpl.H"
-#include "http/responseimpl.H"
-#include "http/senderimpl.H"
-#include "http/receiverimpl.H"
-#include "http/accept_header.H"
-#include "http/exception.H"
-#include "mime/structured_content_header.H"
-#include "strtok.H"
+#include "x/chrcasecmp.H"
+#include "x/http/requestimpl.H"
+#include "x/http/responseimpl.H"
+#include "x/http/senderimpl.H"
+#include "x/http/receiverimpl.H"
+#include "x/http/accept_header.H"
+#include "x/http/exception.H"
+#include "x/mime/structured_content_header.H"
+#include "x/strtok.H"
 #include <iostream>
 #include <iterator>
 

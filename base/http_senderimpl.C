@@ -4,8 +4,8 @@
 */
 
 #include "libcxx_config.h"
-#include "http/senderimpl.H"
-#include "property_properties.H"
+#include "x/http/senderimpl.H"
+#include "x/property_properties.H"
 #include "gettext_in.h"
 
 namespace LIBCXX_NAMESPACE {
@@ -43,7 +43,7 @@ bool senderimpl_encode::wait_continue::operator()()
 }
 
 #define LIBCXX_TEMPLATE_DECL
-#include "http/senderimpl_t.H"
+#include "x/http/senderimpl_t.H"
 #undef LIBCXX_TEMPLATE_DECL
 
 #if 0

@@ -4,7 +4,7 @@
 */
 
 #include "libcxx_config.h"
-#include "fileattr.H"
+#include "x/fileattr.H"
 
 #if HAVE_XATTR
 #include <sys/xattr.h>

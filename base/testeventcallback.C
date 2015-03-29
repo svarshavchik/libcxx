@@ -4,8 +4,8 @@
 */
 
 #include "libcxx_config.h"
-#include "vipobj.H"
-#include "vipobjdebug.H"
+#include "x/vipobj.H"
+#include "x/vipobjdebug.H"
 #include <iostream>
 #include <cstdlib>
 

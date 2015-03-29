@@ -4,9 +4,9 @@
 */
 
 #include "libcxx_config.h"
-#include "dirobj.H"
-#include "opendirobj.H"
-#include "sysexception.H"
+#include "x/dirobj.H"
+#include "x/opendirobj.H"
+#include "x/sysexception.H"
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <cstddef>

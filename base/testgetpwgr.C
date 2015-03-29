@@ -4,9 +4,9 @@
 */
 
 #include "libcxx_config.h"
-#include "grp.H"
-#include "pwd.H"
-#include "servent.H"
+#include "x/grp.H"
+#include "x/pwd.H"
+#include "x/servent.H"
 #include <iostream>
 #include <netinet/in.h>
 #include <arpa/inet.h>

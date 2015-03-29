@@ -4,8 +4,8 @@
 */
 
 #include "libcxx_config.h"
-#include "netif.H"
-#include "sysexception.H"
+#include "x/netif.H"
+#include "x/sysexception.H"
 #include <arpa/inet.h>
 #include <iostream>
 #include <iomanip>

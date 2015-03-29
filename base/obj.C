@@ -4,15 +4,15 @@
 */
 
 #include "libcxx_config.h"
-#include "obj.H"
-#include "exception.H"
-#include "namespace.h"
-#include "mutex.H"
-#include "weakinfo.H"
-#include "ref.H"
-#include "logger.H"
-#include "exception.H"
-#include "messages.H"
+#include "x/obj.H"
+#include "x/exception.H"
+#include "x/namespace.h"
+#include "x/mutex.H"
+#include "x/weakinfo.H"
+#include "x/ref.H"
+#include "x/logger.H"
+#include "x/exception.H"
+#include "x/messages.H"
 
 #include <cstdlib>
 #include <iostream>

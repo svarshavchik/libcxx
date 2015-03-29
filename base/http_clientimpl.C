@@ -4,7 +4,7 @@
 */
 
 #include "libcxx_config.h"
-#include "http/clientimpl.H"
+#include "x/http/clientimpl.H"
 
 namespace LIBCXX_NAMESPACE {
 	namespace http {
@@ -14,7 +14,7 @@ namespace LIBCXX_NAMESPACE {
 #endif
 
 #define LIBCXX_TEMPLATE_DECL
-#include "http/clientimpl_t.H"
+#include "x/http/clientimpl_t.H"
 #undef LIBCXX_TEMPLATE_DECL
 #if 0
 {

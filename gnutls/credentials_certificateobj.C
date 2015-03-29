@@ -4,12 +4,12 @@
 */
 
 #include "libcxx_config.h"
-#include "gnutls/session.H"
-#include "gnutls/credentials.H"
-#include "gnutls/dhparams.H"
-#include "gnutls/x509_crt.H"
-#include "gnutls/init.H"
-#include "logger.H"
+#include "x/gnutls/session.H"
+#include "x/gnutls/credentials.H"
+#include "x/gnutls/dhparams.H"
+#include "x/gnutls/x509_crt.H"
+#include "x/gnutls/init.H"
+#include "x/logger.H"
 #include "gettext_in.h"
 
 namespace LIBCXX_NAMESPACE {
