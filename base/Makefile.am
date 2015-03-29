@@ -194,6 +194,7 @@ libcxx_la_SOURCES=\
 	sigset.C		\
 	singletonapp.C		\
 	sockaddrobj.C		\
+	string_argument.C	\
 	stopexception.C		\
 	stoppable.C		\
 	timerfdobj.C		\

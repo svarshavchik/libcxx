@@ -35,6 +35,7 @@
 #include "x/eventqueuedestroynotify.H"
 #include "x/dirwalk.H"
 #include "x/destroycallbackflagobj.H"
+#include "x/string_argument.H"
 #include <iostream>
 #include <algorithm>
 #include <vector>
@@ -42,6 +43,27 @@
 #include <unistd.h>
 #include <sys/types.h>
 #include <sys/wait.h>
+
+void string_argument()
+{
+	const char *str="abc";
+
+	static const char arr[]="def";
+
+	std::string stds="ghi";
+
+	std::vector<char> vec={'j','k','l'};
+
+	if (LIBCXX_NAMESPACE::basic_string_argument(str) +
+	    LIBCXX_NAMESPACE::basic_string_argument(arr) +
+	    LIBCXX_NAMESPACE::basic_string_argument(stds) +
+	    LIBCXX_NAMESPACE::basic_string_argument(vec)
+	    != "abcdefghijkl")
+	{
+		std::cerr << "string_argument test failed" << std::endl;
+		exit(1);
+	}
+};
 
 class cl1 : virtual public LIBCXX_NAMESPACE::obj {
 
@@ -2479,6 +2501,7 @@ static void testfditer()
 int main()
 {
 	alarm(60);
+	string_argument();
 	objtest();
 	exceptiontest();
 	exceptiontest2();
