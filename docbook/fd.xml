@@ -375,6 +375,102 @@ eventfd_t cnt=ev-&gt;event();
 
   </section>
 
+  <section id="inotify">
+    <title>Linux Inotify implementation</title>
+
+    <blockquote>
+      <informalexample>
+	<programlisting>
+auto i=&ns;::inotify::create();
+
+&ns;::ref&lt;&ns;::obj&gt;
+    w=i-&gt;create(".", &ns;::inotify_create | &ns;::inotify_delete,
+                []
+                (uint32_t mask, uint32_t cookie, const char *name)
+                {
+                    // Do something
+                });
+
+i-&gt;read();</programlisting>
+      </informalexample>
+    </blockquote>
+
+    <para>
+      The
+      <citerefentry><refentrytitle>inotify</refentrytitle><manvolnum>7</manvolnum></citerefentry>
+      API is a mechanism for applications to monitor the contents
+      of a directory or a file, and be notified when it changes.
+      The <ulink url="&link-typedef-x-inotify;"><classname>&ns;::inotify</classname></ulink>
+      handle is a file descriptor handle. A single
+      <classname>&ns;::inotify</classname> handle may be used to monitor
+      multiple files or directories.
+    </para>
+
+    <para>
+      <classname>&ns;::inotify</classname> handle's
+      <methodname>create</methodname>() method begins monitoring a new directory
+      or a file. Its first parameter specifies the directory or the file
+      to monitor.
+    </para>
+
+    <para>
+      The second parameter is a set of one or more flags:
+      <ulink url='&link-variable-x-inotify-access;'><literal>&ns;::inotify_access</literal></ulink>,
+      <ulink url='&link-variable-x-inotify-attrib;'><literal>&ns;::inotify_attrib</literal></ulink>,
+      <ulink url='&link-variable-x-inotify-close;'><literal>&ns;::inotify_close</literal></ulink>,
+      <ulink url='&link-variable-x-inotify-close-nowrite;'><literal>&ns;::inotify_close_nowrite</literal></ulink>,
+      <ulink url='&link-variable-x-inotify-close-write;'><literal>&ns;::inotify_close_write</literal></ulink>,
+      <ulink url='&link-variable-x-inotify-create;'><literal>&ns;::inotify_create</literal></ulink>,
+      <ulink url='&link-variable-x-inotify-delete;'><literal>&ns;::inotify_delete</literal></ulink>,
+      <ulink url='&link-variable-x-inotify-delete-self;'><literal>&ns;::inotify_delete_self</literal></ulink>,
+      <ulink url='&link-variable-x-inotify-dont-follow;'><literal>&ns;::inotify_dont_follow</literal></ulink>,
+      <ulink url='&link-variable-x-inotify-excl-unlink;'><literal>&ns;::inotify_excl_unlink</literal></ulink>,
+      <ulink url='&link-variable-x-inotify-modify;'><literal>&ns;::inotify_modify</literal></ulink>,
+      <ulink url='&link-variable-x-inotify-move;'><literal>&ns;::inotify_move</literal></ulink>,
+      <ulink url='&link-variable-x-inotify-move-self;'><literal>&ns;::inotify_move_self</literal></ulink>,
+      <ulink url='&link-variable-x-inotify-moved-from;'><literal>&ns;::inotify_moved_from</literal></ulink>,
+      <ulink url='&link-variable-x-inotify-moved-to;'><literal>&ns;::inotify_moved_to</literal></ulink>, and
+      <ulink url='&link-variable-x-inotify-open;'><literal>&ns;::inotify_open</literal></ulink>;
+      this selects which events to report.
+    </para>
+
+    <para>
+      The third parameter is a lambda that gets invoked when the
+      selected event occured. The first parameter is one of the events that
+      have occured; additionally
+      <ulink url='&link-variable-x-inotify-ignored;'><literal>&ns;::inotify_ignored</literal></ulink>,
+      <ulink url='&link-variable-x-inotify-isdir;'><literal>&ns;::inotify_isdir</literal></ulink>,
+      or
+      <ulink url='&link-variable-x-inotify-unmount;'><literal>&ns;::inotify_unmount</literal></ulink>
+      could be reported too.
+      The second parameter is an event cookie (this is used mostly to
+      link together the
+      <literal>&ns;::inotify_moved_from</literal> and
+      <literal>&ns;::inotify_moved_to</literal> events.
+      The third parameter is the file or the directory pathname whose event
+      is reported.
+    </para>
+
+    <para>
+      <methodname>create</methodname>() return a
+      <link linkend="ondestroy">mcguffin</link> handle for the events being
+      monitored.
+      <classname>&ns;::inotify</classname>'s <methodname>read</methodname>()
+      reads one or more events from the underlying file descriptors, and
+      invokes the appropriate lambdas. There is no explicit call to
+      stop monitoring, when the last reference to the
+      mcguffin handle goes out of scope, and it gets destroyed, the monitoring
+      stops automatically.
+    </para>
+
+    <para>
+      The <classname>&ns;::inotify</classname> handle is a blocking file
+      descriptor by default.
+      Use <methodname>nonblock</methodname>() to put the inotify handle
+      into non-blocking mode.
+    </para>
+  </section>
+
   <section id="fdbase">
     <title>The file descriptor transport superclass</title>
 
@@ -1548,7 +1644,7 @@ fd->truncate(1024);
 	<programlisting>
 struct X;
 
-&ns;::mmap&lt;X&gt; mapped=INSERT_LIBX_NAMESPACE::mmap&lt;X&gt;::create(fd, PROT_READ|PROT_WRITE);
+&ns;::mmap&lt;X&gt; mapped=&ns;::mmap&lt;X&gt;::create(fd, PROT_READ|PROT_WRITE);
 
 X *instance=mapped->object();
 

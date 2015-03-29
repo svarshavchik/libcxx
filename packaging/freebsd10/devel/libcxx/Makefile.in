@@ -21,6 +21,7 @@ LIB_DEPENDS=		libpcre.so:${PORTSDIR}/devel/pcre \
 			libidn.so:${PORTSDIR}/dns/libidn \
 			libltdl.so:${PORTSDIR}/devel/libtool \
 			libxml2.so:${PORTSDIR}/textproc/libxml2 \
+			libinotify.so:${PORTSDIR}/devel/libinotify \
 			libyaml.so:${PORTSDIR}/textproc/libyaml
 
 RUN_DEPENDS=		gnutls>=3.3.13:${PORTSDIR}/security/gnutls3
@@ -39,7 +40,7 @@ USE_BZIP2=1
 GNU_CONFIGURE=1
 USE_PKGCONFIG=both
 
-CONFIGURE_ARGS=		--sbindir=${PREFIX}/libexec/libcxx CPPFLAGS="-I/usr/local/include/gnutls3 -DDEFAULTSOCKET=\\\"${PREFIX}/var/httportmap\\\"" --with-mime-types=${PREFIX}/share/libcxx/mime.types --disable-xlocale LINKLIBICONV='$$(LTLIBICONV)'
+CONFIGURE_ARGS=		--sbindir=${PREFIX}/libexec/libcxx CPPFLAGS="-I/usr/local/include/gnutls3 -DDEFAULTSOCKET=\\\"${PREFIX}/var/httportmap\\\"" --with-mime-types=${PREFIX}/share/libcxx/mime.types --disable-xlocale EXTRACXXLIBS='$$(LTLIBICONV) -linotify'
 MAN1=			maillogs.1 properties.1
 MAN8=			httportmapd.8
 

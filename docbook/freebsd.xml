@@ -127,6 +127,16 @@ See COPYING for distribution information.
 
     <listitem>
       <para>
+	The <application>libinotify</application> package emulates the
+	<link linkend="inotify">inotify</link> API. Not all
+	<literal>&ns;::inotify_</literal><replaceable>mask</replaceable> masks
+	are implemented; the ones that are not are set to
+	<literal>0</literal>.
+      </para>
+    </listitem>
+
+    <listitem>
+      <para>
 	Applications should use
 	<ulink url="&link-function-x-fork;"><methodname>&ns;::fork</methodname></ulink>,
 	instead

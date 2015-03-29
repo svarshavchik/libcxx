@@ -21,7 +21,8 @@ See COPYING for distribution information.
 	  C++ classes for implementing Linux kernel-specific interfaces,
 	  such as <link linkend="eventfd">event</link>,
 	  <link linkend="timerfd">timer</link>, and
-	  <link linkend="signalfd">signal</link> file descriptors.
+	  <link linkend="signalfd">signal</link> file descriptors, and
+	  the <link linkend="inotify">inotify</link> API.
 	</para>
       </listitem>
 

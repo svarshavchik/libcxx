@@ -445,7 +445,7 @@ const char *foo(const char *domain, const char *msgid)
 LIBS="$save_LIBS"
 
 AC_SUBST(LINKLIBINTL)
-AC_SUBST(LINKLIBICONV)
+AC_SUBST(EXTRACXXLIBS)
 
 AC_COMPILE_IFELSE([AC_LANG_SOURCE([
 #include <sys/types.h>

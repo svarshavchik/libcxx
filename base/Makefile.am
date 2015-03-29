@@ -134,6 +134,7 @@ libcxx_la_SOURCES=\
 	httportmap.C		\
 	iconviofilter.C		\
 	idn.C			\
+	inotify.C               \
 	interval.C		\
 	join.C			\
 	kqueuenb_internal.h	\
@@ -283,7 +284,7 @@ effective_tld_names.dat.timestamp:
 	touch effective_tld_names.dat.timestamp
 endif
 
-libcxx_la_LIBADD=-lpthread -lrt -lpcre -lmagic -lxml2 @LIBEXTRAPATH@ @LIBUNWIND@ @LINKLIBICONV@ @LINKLIBINTL@ @LIBIDN@ @LIBXML2_CFLAGS@
+libcxx_la_LIBADD=-lpthread -lrt -lpcre -lmagic -lxml2 @LIBEXTRAPATH@ @LIBUNWIND@ @EXTRACXXLIBS@ @LINKLIBINTL@ @LIBIDN@ @LIBXML2_CFLAGS@
 
 libcxx_la_LDFLAGS=-version-info @VERSION_INFO@
 
@@ -321,6 +322,7 @@ noinst_PROGRAMS=\
 	testhttpserverimpl            \
 	testiconviofilter             \
 	testidn			      \
+	testinotify                   \
 	testinpseq                    \
 	testjoin                      \
 	testlocale                    \
@@ -729,6 +731,10 @@ testweakcapture_SOURCES=testweakcapture.C
 testweakcapture_LDADD=libcxx.la
 testweakcapture_LDFLAGS=$(TESTLINKTYPE)
 
+testinotify_SOURCES=testinotify.C
+testinotify_LDADD=libcxx.la
+testinotify_LDFLAGS=$(TESTLINKTYPE)
+
 propertiescli.h : propertiescli.h.tmp
 	perl -p -e 's/^#include.*//;s/\b@LIBCXX_NAMESPACE@::/LIBCXX_NAMESPACE::/g' <propertiescli.h.tmp >propertiescli.h.tmp2
 	mv propertiescli.h.tmp2 propertiescli.h
@@ -918,6 +924,7 @@ check-am: $(noinst_PROGRAMS) $(noinst_DATA)
 	./testftp
 	./testderivedvalues
 	./testweakcapture
+	./testinotify
 
 $(XTEST_MO_DIR)/$(XTEST_MO_FILE): testmessages.po
 	mkdir -p $(XTEST_MO_DIR)
