@@ -23,7 +23,8 @@ See COPYING for distribution information.
 	<application>libxml2</application>,
 	<application>libxslt</application>,
 	<application>libyaml</application>,
-	<application>gnutls</application>,
+	<application>gnutls</application> (port must be updated to 3.3.13, or
+	higher),
 	<application>libgcrypt</application>,
 	<application>gettext</application>,
 	<application>libunwind</application>,
@@ -69,6 +70,13 @@ See COPYING for distribution information.
 	scope, the original locale gets restored.
 	On Linux this class is declared as an inline no-op, and will hopefully
 	get optimized away.
+      </para>
+
+      <para>
+	Even with this workaround, some things are still not working
+	correctly; namely <link linkend="codecvt">wide/narrow character
+	  conversion</link> classes do not appear to handle the system
+	environment locale correctly.
       </para>
     </listitem>
 
@@ -119,22 +127,19 @@ See COPYING for distribution information.
 
     <listitem>
       <para>
-	As documented in <xref linkend="fd" />, all file descriptor objects
-	get created with their close-on-exec set by default, using
-	Linux-specific APIs.
-	This is emulated by using regular POSIX APIs and then manually setting
-	the close-on-exec flag immediately
-	upon creation, while holding a global application lock.
 	Applications should use
 	<ulink url="&link-function-x-fork;"><methodname>&ns;::fork</methodname></ulink>,
-	which calls
+	instead
 	<citerefentry>
 	  <refentrytitle>fork</refentrytitle>
 	  <manvolnum>2</manvolnum>
-	</citerefentry>
-	while holding the same lock. This prevents child process from
-	inheriting the file descriptor created by some other thread, before its
-	close-on-exec bit gets set.
+	</citerefentry>.
+	Some Linux locale-emulation code acquires an internal application
+	lock
+	(a <ulink url="&link-x--globlock;"><classname>&ns;::globlock</classname></ulink>)
+	for the duration of temporarily setting a global application
+	locale; <methodname>&ns;::fork</methodname>() acquires the same lock,
+	thus preventing locale leakage to child processes.
       </para>
 
       <para>
@@ -164,6 +169,10 @@ See COPYING for distribution information.
 	Extract the tarball's contents into a temporary directory, then from
 	the &freebsdverdir; subdirectory run
 	<command>make makesum</command> followed by
+	<command>make</command>.
+	Run <command>make plist</command> and save its output, to create a
+	packaging list (after remove the header line from
+	<filename>pkg-plist</filename>'s output); then run
 	<command>make install</command> (or <command>make package</command>).
       </para>
     </listitem>

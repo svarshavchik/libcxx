@@ -126,7 +126,6 @@ int main(int argc, char **argv)
 						  errh, cloc);
 		}
 
-		
 		for (std::list<std::string>::iterator
 			     b(p->args.begin()),
 			     e(p->args.end()); b != e; ++b)

@@ -4,7 +4,7 @@
 #
 
 AUTOMAKE_OPTIONS=dist-bzip2 -Wno-portability
-SUBDIRS= po includes libltdl base yaml gnutls httportmap cxxltdl packaging/fedora
+SUBDIRS=includes libltdl base yaml gnutls httportmap cxxltdl packaging/fedora po
 
 define reverse
 $(if $(1), $(call reverse,$(wordlist 2,$(words $(1)),$(1))) $(firstword $(1)))
@@ -22,14 +22,13 @@ EXTRA_DIST=config.rpath DoxygenLayout.xml abi.xml.in $(man_MANS) \
 	   $(wildcard $(srcdir)/examples/*/configure.ac) \
 	   $(wildcard $(srcdir)/examples/*/Makefile.am) \
 	   $(wildcard $(srcdir)/examples/*/*.C) \
-	   $(srcdir)/packaging/freebsd9/devel/libcxx/Makefile \
-	   $(srcdir)/packaging/freebsd9/devel/libcxx/pkg-deinstall \
-	   $(srcdir)/packaging/freebsd9/devel/libcxx/pkg-descr \
-	   $(srcdir)/packaging/freebsd9/devel/libcxx/pkg-install \
-	   $(srcdir)/packaging/freebsd9/devel/libcxx/pkg-message \
-	   $(srcdir)/packaging/freebsd9/devel/libcxx/pkg-plist \
-	   $(wildcard $(srcdir)/packaging/freebsd9/devel/libcxx/files/*.in) \
-	   $(wildcard $(srcdir)/packaging/freebsd9/devel/libcxx/files/patch*C) \
+	   $(srcdir)/packaging/freebsd10/devel/libcxx/Makefile.in \
+	   $(srcdir)/packaging/freebsd10/devel/libcxx/pkg-deinstall \
+	   $(srcdir)/packaging/freebsd10/devel/libcxx/pkg-descr \
+	   $(srcdir)/packaging/freebsd10/devel/libcxx/pkg-install \
+	   $(srcdir)/packaging/freebsd10/devel/libcxx/pkg-message \
+	   $(wildcard $(srcdir)/packaging/freebsd10/devel/libcxx/files/*.in) \
+	   $(wildcard $(srcdir)/packaging/freebsd10/devel/libcxx/files/patch*C) \
         )
 
 DOCS_SRC = $(shell find includes -name '*.H' -print)
@@ -55,7 +54,7 @@ html/icon.gif: html/index.html docbook/icon.gif
 	$(INSTALL) -m 0644 $(srcdir)/docbook/icon.gif html/icon.gif
 
 html/index.html: html/ref/index.html $(wildcard docbook/*.xml) docbook/xmllinks.xsl
-	cd ../libcxxsql && $(MAKE) docs
+	-cd ../libcxxsql && $(MAKE) docs
 	mkdir -p docbook
 	xsltproc $(srcdir)/docbook/xmllinks.xsl xml/index.xml >docbook/entities
 	rm -rf html.tmp
@@ -75,7 +74,7 @@ html/index.html: html/ref/index.html $(wildcard docbook/*.xml) docbook/xmllinks.
 	echo 'ForceType text/plain' >html/examples/.htaccess
 	rm -rf html/stasher html/sql
 	ln -s ../stasher html
-	rsync -a ../libcxxsql/html/. html/sql
+	rsync -a ../libcxxsql/html/. html/sql || exit 0
 	links -dump -no-numbering -no-references html/INSTALL.html >INSTALL.tmp
 	mv -f INSTALL.tmp INSTALL
 

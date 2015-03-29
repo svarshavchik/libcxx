@@ -16,6 +16,12 @@
 #include <sys/mman.h>
 #include <cstring>
 
+#if HAVE_KQUEUE
+#include <sys/types.h>
+#include <sys/event.h>
+#include <sys/time.h>
+#endif
+
 namespace LIBCXX_NAMESPACE {
 #if 0
 };
@@ -30,26 +36,7 @@ fd fdBase::open(const char *filename,
 		int flags,
 		mode_t mode)
 {
-#ifdef O_CLOEXEC
 	int nfd= ::open(filename, flags | O_CLOEXEC, mode);
-#else
-	int nfd;
-
-	{
-		globlock lock;
-
-		nfd= ::open(filename, flags, mode);
-
-		if (nfd >= 0)
-		{
-			if (fcntl(nfd, F_SETFD, FD_CLOEXEC) < 0)
-			{
-				::close(nfd);
-				nfd= -1;
-			}
-		}
-	}
-#endif
 
 	if (nfd < 0)
 		throw SYSEXCEPTION(filename);
@@ -112,31 +99,10 @@ fdptr fdBase::lockf(const std::string &filename, int lockmode,
 
 fd fdBase::socket(int domain, int type, int protocol)
 {
-#ifdef SOCK_CLOEXEC
 	int nfd= ::socket(domain,
 			  SOCK_CLOEXEC |
 			  type,
 			  protocol);
-#else
-	int nfd;
-
-	{
-		globlock lock;
-
-		nfd = ::socket(domain,
-			       type,
-			       protocol);
-
-		if (nfd >= 0)
-		{
-			if (fcntl(nfd, F_SETFD, FD_CLOEXEC) < 0)
-			{
-				::close(nfd);
-				nfd=-1;
-			}
-		}
-	}
-#endif
 
 	if (nfd < 0)
 		throw SYSEXCEPTION("socket");
@@ -154,26 +120,9 @@ std::pair<fd, fd> fdBase::pipe()
 {
 	int pipefd[2];
 
-#if HAVE_PIPE2
 	if (::pipe2(pipefd, O_CLOEXEC) < 0)
 		throw SYSEXCEPTION("pipe");
-#else
 
-	{
-		globlock lock;
-
-		if (::pipe(pipefd) < 0)
-			throw SYSEXCEPTION("pipe");
-
-		if (fcntl(pipefd[0], F_SETFD, FD_CLOEXEC) < 0 ||
-		    fcntl(pipefd[1], F_SETFD, FD_CLOEXEC) < 0)
-		{
-			::close(pipefd[0]);
-			::close(pipefd[1]);
-			throw SYSEXCEPTION("fcntl");
-		}
-	}
-#endif
 	return pipesocket_common(pipefd);
 }
 
@@ -181,31 +130,11 @@ std::pair<fd, fd> fdBase::socketpair()
 {
 	int pipefd[2];
 
-#ifdef SOCK_CLOEXEC
 	if (::socketpair(AF_UNIX,
 			 SOCK_CLOEXEC |
 			 SOCK_STREAM,
 			 0, pipefd) < 0)
 		throw SYSEXCEPTION("socketpair");
-#else
-
-	{
-		globlock lock;
-
-		if (::socketpair(AF_UNIX,
-				 SOCK_STREAM,
-				 0, pipefd) < 0)
-			throw SYSEXCEPTION("socketpair");
-
-		if (fcntl(pipefd[0], F_SETFD, FD_CLOEXEC) < 0 ||
-		    fcntl(pipefd[1], F_SETFD, FD_CLOEXEC) < 0)
-		{
-			::close(pipefd[0]);
-			::close(pipefd[1]);
-			throw SYSEXCEPTION("fcntl");
-		}
-	}
-#endif
 
 	return pipesocket_common(pipefd);
 }
@@ -288,10 +217,6 @@ fd fdBase::tmpfile(const std::string &dirname)
 
 		strcat(strcat(strcpy(fn, dirname.c_str()), "/"), tmpfilename);
 
-#ifndef O_CLOEXEC
-		globlock lock;
-#endif
-
 		nfd=::open(fn,
 			   O_CREAT | O_TRUNC | O_EXCL | O_RDWR
 #ifdef O_LARGEFILE
@@ -302,28 +227,20 @@ fd fdBase::tmpfile(const std::string &dirname)
 			   | O_NOATIME
 #endif
 
-#ifdef O_CLOEXEC
 			   | O_CLOEXEC
-#endif
+
 			   , 0600);
 
 		if (nfd >= 0)
 		{
 			unlink(fn);
-#ifndef O_CLOEXEC
-			if (fcntl(nfd, F_SETFD, FD_CLOEXEC) < 0)
-			{
-				::close(nfd);
-				throw SYSEXCEPTION("fcntl");
-			}
-#endif
 			break;
 		}
 
 		if (errno != EEXIST)
 			throw EXCEPTION(&fn[0]);
 	}
-	
+
 	try {
 		return adopt(nfd);
 	} catch (...)
@@ -340,12 +257,15 @@ fd fdBase::dup(const fd &ofiledesc)
 
 fd fdBase::dup(int ofiledesc)
 {
-#if HAVE_DUP3
 	int nfiledesc=::open("/dev/null", O_RDWR | O_CLOEXEC);
 
+#if HAVE_LINUXSYSCALLS
 	if (nfiledesc < 0)
 		nfiledesc=::eventfd(0, EFD_CLOEXEC); // chroot jail hack
-
+#else
+	if (nfiledesc < 0)
+		nfiledesc=kqueue(); // chroot jail hack
+#endif
 	if (nfiledesc < 0)
 		throw SYSEXCEPTION("eventfd");
 
@@ -354,24 +274,6 @@ fd fdBase::dup(int ofiledesc)
 	if (ofiledesc < 0)
 		::close(nfiledesc);
 
-#else
-
-	{
-		globlock lock;
-
-		ofiledesc=::dup(ofiledesc);
-
-		if (ofiledesc >= 0)
-		{
-			if (fcntl(ofiledesc, F_SETFD, FD_CLOEXEC) < 0)
-			{
-				::close(ofiledesc);
-				ofiledesc= -1;
-			}
-		}
-	}
-#endif
-	
 	if (ofiledesc < 0)
 	{
 		throw SYSEXCEPTION("dup");

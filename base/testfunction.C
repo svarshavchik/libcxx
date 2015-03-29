@@ -7,6 +7,7 @@
 #include "x/functional.H"
 #include "x/exception.H"
 #include <iostream>
+#include <cstdlib>
 
 using namespace LIBCXX_NAMESPACE;
 

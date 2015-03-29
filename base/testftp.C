@@ -19,6 +19,7 @@
 #include <set>
 #include <sstream>
 #include <algorithm>
+#include <cstdio>
 
 #include "testftp.H"
 

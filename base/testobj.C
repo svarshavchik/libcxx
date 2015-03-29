@@ -1787,7 +1787,6 @@ void threadtestsendfd::run(const LIBCXX_NAMESPACE::fd &sockFd)
 int testsendfd(size_t cnt)
 {
 	try {
-#ifdef SOCK_CLOEXEC
 		{
 			int pipefd[2];
 
@@ -1808,9 +1807,7 @@ int testsendfd(size_t cnt)
 			close(pipefd[0]);
 			close(pipefd[1]);
 		}
-#endif
 
-#if HAVE_PIPE2
 		{
 			int pipefd[2];
 
@@ -1834,7 +1831,6 @@ int testsendfd(size_t cnt)
 			close(pipefd[0]);
 			close(pipefd[1]);
 		}
-#endif
 
 		LIBCXX_NAMESPACE::fdptr s1, s2;
 

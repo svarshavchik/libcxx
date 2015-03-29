@@ -139,20 +139,12 @@ void localeObj::throw_locale_exception(const std::string &what)
 
 void localeObj::global() const noexcept
 {
-#if HAVE_XLOCALE
-	std::locale::global(locale);
-#else
-	setlocale(LC_ALL, x.h.c_str());
-#endif
+	setlocale(LC_ALL, x.n.c_str());
 }
 
 std::string localeObj::name() const noexcept
 {
-#if HAVE_XLOCALE
-	return locale.name();
-#else
-	return x.h;
-#endif
+	return x.n;
 }
 
 template std::string fromutf8string(const std::string &,

@@ -17,7 +17,7 @@ LTDL_INIT([recursive])
 
 AC_PROG_LIBTOOL
 AM_GNU_GETTEXT([external])
-AM_GNU_GETTEXT_VERSION([0.19.2])
+AM_GNU_GETTEXT_VERSION([0.19.4])
 AC_LANG(C++)
 
 XGETTEXT_EXTRA_OPTIONS="--keyword=_txt --keyword=_txtw --keyword=_txtn:1,2 --keyword=_txtnw:1,2 \`cd \$(top_srcdir); echo gnutls/*.C base/*.C yaml/*.C\`"
@@ -105,7 +105,7 @@ AC_CHECK_HEADERS(endian.h sys/endian.h)
 AC_SYS_LARGEFILE
 # Checks for library functions.
 
-AC_CHECK_FUNCS(futimens ppoll dup3 accept4 pipe2 ftruncate64 mmap64)
+AC_CHECK_FUNCS(futimens ppoll ftruncate64 mmap64)
 
 changequote(<,>)
 
@@ -288,11 +288,8 @@ void foo(locale_t l)
 if test "$xlocale" = "yes"
 then
      AC_DEFINE_UNQUOTED(HAVE_XLOCALE,1,[locale_t and uselocale() exists])
-     LIBCXX_LOCALE_T=locale_t
      HAVE_XLOCALE=1
 else
-     LIBCXX_LOCALE_T='std::string'
-     LIBCXX_LOCALE_SAVE_ENV_T='std::string oldenv;'
      HAVE_XLOCALE=0
      LIBCXX_LOCALE_T_GLOBLOCK=' : private globlock'
 fi
@@ -361,25 +358,7 @@ char **p=environ;
 ]))
 
 save_LIBS="$LIBS"
-
-AC_CHECK_FUNC([iconv], [ : ],
-		     [
-		     LINKLIBICONV="-liconv"
-		     LIBS="$LINKLIBICONV $LIBS"
-		     AC_TRY_LINK( [ ], [ ],
-		     		  [ : ],
-				  [ LIBICONVPATH="-L/usr/local/lib -R/usr/local/lib"
-				    LIBS="$LIBICONVPATH $LIBS"
-
-				    AC_TRY_LINK( [ ], [ ],
-				    		 [
-						 LIBEXTRAPATH="$LIBICONVPATH $LIBEXTRAPATH"
-						 ],
-						 [
-						 AC_MSG_ERROR([Cannot find the libiconv library])
-])
-			])
-			])
+LIBS="$LIBS $LIBCONV"
 
 AC_COMPILE_IFELSE([AC_LANG_SOURCE([
 #include <iconv.h>
@@ -405,7 +384,6 @@ size_t foo(iconv_t cd, char **inbuf, size_t *inbytesleft,
 ])
 
 LIBS="$save_LIBS"
-AC_SUBST(LINKLIBICONV)
 AC_DEFINE_UNQUOTED(ICONV_INBUF_ARG,$iconv_in_type,[type of third argument to iconv()])
 
 LIBS="$save_LIBS -lidn"
@@ -467,6 +445,7 @@ const char *foo(const char *domain, const char *msgid)
 LIBS="$save_LIBS"
 
 AC_SUBST(LINKLIBINTL)
+AC_SUBST(LINKLIBICONV)
 
 AC_COMPILE_IFELSE([AC_LANG_SOURCE([
 #include <sys/types.h>
@@ -720,5 +699,6 @@ AC_CONFIG_FILES([Doxyfile po/Makefile.in
 		 packaging/fedora/libcxx.spec
 		 packaging/fedora/sysinit
 		 packaging/fedora/Makefile
+		 packaging/freebsd10/devel/libcxx/Makefile
 		 ])
 AC_OUTPUT

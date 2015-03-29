@@ -523,38 +523,22 @@ fdptr fdObj::accept(sockaddrptr &peername)
 
 	int nfd;
 
-#ifndef HAVE_ACCEPT4
 
+	if ((nfd=accept4(filedesc, (struct ::sockaddr *)&ss,
+			 &sslen, SOCK_CLOEXEC)) < 0)
 	{
-		globlock lock;
+		if (errno == EAGAIN || errno == EWOULDBLOCK)
+			return newFd;
 
-		if ((nfd=::accept(filedesc,
-				  (struct ::sockaddr *)&ss,
-				  &sslen)) < 0)
-#else
-
-			if ((nfd=accept4(filedesc, (struct ::sockaddr *)&ss,
-					 &sslen, SOCK_CLOEXEC)) < 0)
-#endif
-		{
-			if (errno == EAGAIN || errno == EWOULDBLOCK)
-				return newFd;
-
-			throw SYSEXCEPTION("accept");
-		}
-
-		try {
-			newFd=fd::base::adopt(nfd);
-		} catch (...) {
-			::close(filedesc);
-			throw;
-		}
-
-#ifndef HAVE_ACCEPT4
-		newFd->closeonexec(true);
-
+		throw SYSEXCEPTION("accept");
 	}
-#endif
+
+	try {
+		newFd=fd::base::adopt(nfd);
+	} catch (...) {
+		::close(filedesc);
+		throw;
+	}
 
 	newFd->setsigpipe(nfd);
 	newFd->nonblock(false);
@@ -1093,13 +1077,7 @@ size_t fdObj::recv_fd(int *fdesc_array,
 	iov.iov_base=&dummy;
 	iov.iov_len=1;
 
-#ifdef MSG_CMSG_CLOEXEC
 	ssize_t rc=recvmsg(filedesc, &msg, MSG_CMSG_CLOEXEC);
-#else
-	globlock lock;
-
-	ssize_t rc=recvmsg(filedesc, &msg, 0);
-#endif
 
 	if (rc < 0 && (errno == EAGAIN || errno == EWOULDBLOCK))
 		return 0;
@@ -1111,24 +1089,7 @@ size_t fdObj::recv_fd(int *fdesc_array,
 		throw SYSEXCEPTION("recvmsg");
 	}
 
-	size_t n=recvmsg_helper()(&msg, fdesc_array, fdesc_array_size);
-
-#ifndef MSG_CMSG_CLOEXEC
-	for (size_t i=0; i<n; ++i)
-	{
-		if (fcntl(fdesc_array[i], F_SETFD, FD_CLOEXEC) < 0)
-		{
-			while (i)
-			{
-				--i;
-				::close(fdesc_array[i]);
-			}
-			throw SYSEXCEPTION("fcntl");
-		}
-	}
-#endif
-
-	return n;
+	return recvmsg_helper()(&msg, fdesc_array, fdesc_array_size);
 }
 
 size_t fdObj::recv_fd(fdptr *fdesc_array,

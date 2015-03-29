@@ -33,18 +33,13 @@ static void testtimers()
 		LIBCXX_NAMESPACE::fdtimeout
 			to(LIBCXX_NAMESPACE::fdtimeout::create(w));
 
-		LIBCXX_NAMESPACE::ostream o(to->getostream());
-
 		to->set_write_timeout(10, 2);
 
-		try {
-			while(1)
-				*o << '\0';
-		} catch (const std::exception &e)
-		{
-			if (errno != ETIMEDOUT)
-				throw;
-		}
+		while(to->pubwrite("XXXXXXXXX", 8))
+			;
+
+		if (errno != ETIMEDOUT)
+			throw EXCEPTION("Testtimer failed");
 	}
 
 	{
