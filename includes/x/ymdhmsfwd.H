@@ -279,16 +279,31 @@ public:
 			const;
 	};
 
-	//! Format this date/time as a string, using the default format
-	formatter format() const
+	//! Helper class used by short_format()
+
+	class short_formatter : public formatter {
+
+	public:
+		//! Constructor
+
+		short_formatter(const ymdhms &objArg);
+		inline ~short_formatter() {}
+	};
+
+	//! Format this date/time object using a short string
+
+	//! For date/times within the last 6 months, use
+	//! "%b %d %H:%M", otherwise "%b %d  %Y".
+
+	inline short_formatter format() const
 	{
-		return formatter(*this);
+		return short_formatter(*this);
 	}
 
 	//! Format this date/time as a string, using a custom format
 
 	template<typename format_type>
-	formatter format(const format_type &format_type_arg) const
+	inline formatter format(const format_type &format_type_arg) const
 	{
 		return formatter(*this, basic_string_argument(format_type_arg));
 	}

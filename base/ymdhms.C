@@ -139,6 +139,23 @@ ymdhms::operator std::wstring() const
 	return towstring(format());
 }
 
+static std::string pick_short_format(const ymdhms &objArg)
+{
+	ymdhms now(time(0), objArg.getTimezone());
+
+	ymdhms six_months_before=now;
+
+	static_cast<ymd &>(six_months_before) -= ymd::interval(180);
+
+	return objArg <= now && objArg >= six_months_before
+		? "%b %d %H:%M":"%b %d  %Y";
+}
+
+ymdhms::short_formatter::short_formatter(const ymdhms &objArg)
+	: formatter(objArg, pick_short_format(objArg))
+{
+}
+
 #if 0
 {
 #endif
