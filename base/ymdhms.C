@@ -122,6 +122,23 @@ void ymdhms::cannot_parse_time()
 	throw EXCEPTION(libmsg(_txt("Cannot parse time value")));
 }
 
+
+ymdhms::formatter::formatter(const ymdhms &objArg)
+	: obj(objArg),
+	  format_string("%a, %d %b %Y %H:%M:%S %z")
+{
+}
+
+ymdhms::operator std::string() const
+{
+	return tostring(format());
+}
+
+ymdhms::operator std::wstring() const
+{
+	return towstring(format());
+}
+
 #if 0
 {
 #endif

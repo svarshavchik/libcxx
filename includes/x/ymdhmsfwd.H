@@ -11,6 +11,8 @@
 #include <x/locale.H>
 #include <x/facet.H>
 #include <x/ctype.H>
+#include <x/value_stringable.H>
+#include <x/string_argument.H>
 #include <iostream>
 #include <type_traits>
 #include <x/namespace.h>
@@ -230,54 +232,74 @@ public:
 		return tz;
 	}
 
+	//! Helper class used by format()
+	class formatter {
 
-	//! Convert this date and time value to a string
+	public:
 
-	//! \overload
-	//!
+		//! The date/time
+		const ymdhms &obj;
 
-	template<typename OutputIterator>
-	OutputIterator toString(//! Output iterator
-				OutputIterator iter,
+		//! Format string to use
+		const std::string format_string;
 
-				//! Locale
-				const const_locale &localeRef=locale::base::global(),
+		//! Constructor
+		inline formatter(const ymdhms &objArg,
+				 const std::string &format_stringArg)
+			: obj(objArg), format_string(format_stringArg)
+		{
+		}
 
-				//! strftime(3) format to use
+		//! Constructor, default date time format
+		formatter(const ymdhms &objArg);
 
-				const typename OutputIterator::char_type
-				*formatString=0)
-		const;
+		//! Destructor
+		inline ~formatter() noexcept {}
 
-	//! Convert this date and time value to a string
+		//! This class implements both toString and toWideString
+		static const stringable_t stringable=class_toboth;
 
-	//! \overload
-	//!
-	template<typename char_type>
-	std::basic_string<char_type>
-	toString(const const_locale &localeRef,
-		 const char_type *formatString)
-		const;
+		//! Convert to a string
+		template<typename OutputIterator>
+		inline OutputIterator toString(//! Output iterator
+					       OutputIterator iter,
 
-	//! Convert this date and time value to a string
+					       //! Locale
+					       const const_locale &localeRef
+					       =locale::base::global()) const;
 
-	//! \overload
-	//!
+		//! Convert to a wide string
+		template<typename OutputIterator>
+		inline OutputIterator toWideString(//! Output iterator
+						   OutputIterator iter,
 
-	std::string toString(const const_locale &localeRef)
-		const
+						   //! Locale
+						   const const_locale &localeRef
+						   =locale::base::global())
+			const;
+	};
+
+	//! Format this date/time as a string, using the default format
+	formatter format() const
 	{
-		return toString<char>(localeRef, 0);
+		return formatter(*this);
+	}
+
+	//! Format this date/time as a string, using a custom format
+
+	template<typename format_type>
+	formatter format(const format_type &format_type_arg) const
+	{
+		return formatter(*this, basic_string_argument(format_type_arg));
 	}
 
 	//! Convert this date and time value to a string
 
-	//! \overload
-	//!
+	operator std::string() const;
 
-	template<typename char_type>
-	operator std::basic_string<char_type>()
-		const;
+	//! Convert this date and time value to a wide string
+
+	operator std::wstring() const;
 
 	//! Convert this date/time value back to calendar time.
 

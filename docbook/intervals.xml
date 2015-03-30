@@ -286,13 +286,25 @@ time_t t=time(NULL);
       a C library <classname>tm</classname> structure.
     </para>
 
+    <blockquote>
+      <informalexample>
+	<programlisting>
+std::string now_s=&ns;::tostring(now.format());
+std::string now_s=&ns;::tostring(now.format("%d-%b-%Y %H:%M:%S %z"));</programlisting>
+      </informalexample>
+    </blockquote>
+
     <para>
-      <classname>&ns;::ymdhms</classname> implements a convenience
-      <methodname>toString</methodname>() method
-      that instantiates a
+      The <methodname>format</methodname>() method returns an intermediate
+      object that can be converted by
+      <link linkend="tostring"><function>&ns;::tostring</function></link>(), by
+      instantiating a
       <link linkend="strftime"><classname>&ns;::strftime</classname></link>
-      object, and uses it to format the <classname>&ns;::ymdhms</classname>,
+      object, and using it to format the <classname>&ns;::ymdhms</classname>,
       accordingly.
+      <methodname>format</methodname>() takes an optional date/time format
+      string, which defaults to
+      <quote>%a, %d %b %Y %H:%M:%S %z</quote>.
     </para>
 
     <para>

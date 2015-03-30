@@ -97,6 +97,9 @@ template<typename valueType> class value_tofromstring<class_towstring,
 template<typename valueType> class value_tofromstring<class_tostring,
 						      valueType>;
 
+template<typename valueType> class value_tofromstring<class_toboth,
+						      valueType>;
+
 template<typename valueType> class value_tofromstring<class_tostring_utf8,
 						      valueType>;
 
@@ -139,9 +142,9 @@ template<typename valueType> class value_tofromstring<class_tostring_utf8,
 //!
 //! \code
 //! class customObj {
-//! 
+//!
 //! public:
-//! 
+//!
 //!     std::string foo;
 //!
 //!     static const stringable_t stringable=class_tostring;
@@ -152,8 +155,8 @@ template<typename valueType> class value_tofromstring<class_tostring_utf8,
 //!     {
 //!         return (std::copy(foo.begin(), foo.end(), iter));
 //!     }
-//! 
-//! 
+//!
+//!
 //!     template<typename InputIterator>
 //!     static customObj fromString(InputIterator beg_iter,
 //!                                 InputIterator end_iter,
@@ -161,7 +164,7 @@ template<typename valueType> class value_tofromstring<class_tostring_utf8,
 //!
 //!     {
 //!         customObj c;
-//! 
+//!
 //!         c.foo=std::string(beg_iter, end_iter);
 //!         return c;
 //!     }
@@ -264,7 +267,7 @@ public:
 
 //! A \c std::wstring %value
 
-//! 
+//!
 
 template<> class value_string<std::wstring> {
 
@@ -755,6 +758,59 @@ public:
 			::toString(s, locale);
 
 		return valueType::fromString(w.begin(), w.end(), locale);
+	}
+};
+
+
+//! The class implements both toString() and toWideString()
+
+template<typename valueType> class value_tofromstring<class_toboth,
+						      valueType> {
+public:
+
+	//! Convert the value to a string representation.
+
+	static std::string toString(const valueType &v,
+				    const const_locale &locale)
+
+	{
+		std::string s;
+
+		v.toString(std::back_insert_iterator<std::string>(s), locale);
+
+		return s;
+	}
+
+	//! Convert the value from a string represantion
+
+	static valueType fromString(const std::string &w,
+				    const const_locale &locale)
+
+	{
+		return valueType::fromString(w.begin(), w.end(), locale);
+	}
+
+	//! Convert the value to a string representation.
+
+	static std::wstring toWideString(const valueType &v,
+					const const_locale &locale)
+
+	{
+		std::wstring s;
+
+		v.toWideString(std::back_insert_iterator<std::wstring>(s),
+			       locale);
+
+		return s;
+	}
+
+	//! Convert the value from a string represantion
+
+	static valueType fromWideString(const std::wstring &w,
+					const const_locale &locale)
+
+	{
+		return valueType::fromWideString(w.begin(), w.end(), locale);
 	}
 };
 

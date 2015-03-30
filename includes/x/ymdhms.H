@@ -16,44 +16,23 @@ namespace LIBCXX_NAMESPACE {
 #endif
 
 template<typename OutputIterator>
-OutputIterator ymdhms::toString(OutputIterator iter,
-				const const_locale &localeRef,
-				const typename OutputIterator::char_type
-				*formatString)
-		const
-{
-	typedef typename OutputIterator::char_type CharT;
-
-	std::basic_string<CharT> formatBuf(toString(localeRef, formatString));
-
-	return std::copy(formatBuf.begin(),
-			 formatBuf.end(), iter);
-}
-
-template<typename char_type>
-std::basic_string<char_type>
-ymdhms::toString(const const_locale &localeRef,
-		 const char_type *formatString)
+inline OutputIterator ymdhms::formatter::toString(OutputIterator iter,
+						  const const_locale &localeRef)
 	const
 {
-	const char_type deffmt[]=
-		{'%', 'a', ',', ' ', '%', 'd', ' ', '%', 'b', ' ', '%', 'Y', ' ', '%', 'H', ':', '%', 'M', ':', '%', 'S', ' ', '%', 'z', 0};
+	std::string s=basic_strftime<char>(obj, localeRef)(format_string);
 
-	if (!formatString)
-		formatString=deffmt;
-
-	return basic_strftime<char_type>(*this, localeRef)(formatString);
+	return std::copy(s.begin(), s.end(), iter);
 }
 
-//! Convert this date and time value to a string
-//! \overload
-//!
-
-template<typename char_type>
-ymdhms::operator std::basic_string<char_type>()
+template<typename OutputIterator>
+OutputIterator ymdhms::formatter::toWideString(OutputIterator iter,
+					       const const_locale &localeRef)
 	const
 {
-	return toString<char_type>(locale::base::global(), 0);
+	std::string s=basic_strftime<char>(obj, localeRef)(format_string);
+
+	return std::copy(s.begin(), s.end(), iter);
 }
 
 #if 0
@@ -61,4 +40,3 @@ ymdhms::operator std::basic_string<char_type>()
 #endif
 }
 #endif
-

@@ -87,8 +87,8 @@ OutputIterator tzfileObj::debugDump(OutputIterator iter,
 
 				o << "Error converting ";
 
-				date.toString(std::ostreambuf_iterator<char>
-					      (o.rdbuf()));
+				o << LIBCXX_NAMESPACE
+					::tostring(date.format());
 				o << " to a time_t value, got "
 				  << date_time_t
 				  << ", expecting " << val;
@@ -105,17 +105,18 @@ OutputIterator tzfileObj::debugDump(OutputIterator iter,
 
 				o << "Error verifying date/time, got ";
 
-				datechk.toString(std::ostreambuf_iterator<char>
-						 (o.rdbuf()));
+				o << LIBCXX_NAMESPACE::tostring
+					(datechk.format());
 
 				o << ", expected ";
-				date.toString(std::ostreambuf_iterator<char>
-					      (o));
+				o << LIBCXX_NAMESPACE::tostring
+					(date.format());
 				throw EXCEPTION(o.str());
 			}
 
-			iter=date.toString(iter);
-			return iter;
+			auto s=LIBCXX_NAMESPACE::tostring(date.format());
+
+			return std::copy(s.begin(), s.end(), iter);
 		}
 	};
 
@@ -286,7 +287,11 @@ OutputIterator tzfileObj::debugDump(OutputIterator iter,
 				}
 				else
 				{
-					iter=date_chk.toString(iter);
+					auto s=LIBCXX_NAMESPACE::tostring
+						(date_chk.format());
+
+					iter=std::copy(s.begin(), s.end(),
+						       iter);
 
 					*iter++ = (CharT) ' ';
 					*iter++ = (CharT) '(';

@@ -137,10 +137,9 @@ void responseimpl::throw_redirect(const uriimpl &uri, int status_code)
 void responseimpl::setCurrentDate()
 {
 	replace("Date",
-		ymdhms(time(NULL), tzfile::base::utc())
-		.toString(locale::create("C"),
-			  "%a, %d %b %Y %H:%M:%S GMT")
-		);
+		tostring(ymdhms(time(NULL), tzfile::base::utc())
+			 .format("%a, %d %b %Y %H:%M:%S GMT"),
+			 locale::create("C")));
 }
 
 ymdhms responseimpl::getCurrentDate() const
@@ -516,7 +515,7 @@ void responseimpl::getCookies(std::list<cookie> &cookies) const
 			{
 				c.expiration=expires_given;
 			}
-			cookies.push_back(c);			
+			cookies.push_back(c);
 		} catch (const exception &e)
 		{
 			LOG_WARNING(e);

@@ -461,9 +461,9 @@ void testallcookies()
 	testallcookiestest("http://subdomain.example.com/",
 			   "test20=value20; domain=.subdomain.example.com; "
 			   "Expires=\""
-			   + yesterday.toString(LIBCXX_NAMESPACE::locale
-						::create("C"),
-						"%a, %d %b %Y %H:%M:%S GMT")
+			   + LIBCXX_NAMESPACE::tostring
+			   (yesterday.format("%a, %d %b %Y %H:%M:%S GMT"),
+			    LIBCXX_NAMESPACE::locale::create("C"))
 			   + "\"",
 			   "http://subdomain.example.com/",
 			   "");
@@ -471,9 +471,9 @@ void testallcookies()
 	testallcookiestest("http://subdomain.example.com/",
 			   "test22=value22; domain=.subdomain.example.com; "
 			   "Expires=\""
-			   + tomorrow.toString(LIBCXX_NAMESPACE::locale
-					       ::create("C"),
-					       "%a, %d %b %Y %H:%M:%S GMT")
+			   + LIBCXX_NAMESPACE::tostring
+			   (tomorrow.format("%a, %d %b %Y %H:%M:%S GMT"),
+			    LIBCXX_NAMESPACE::locale::create("C"))
 			   + "\"",
 			   "http://subdomain.example.com/",
 			   "test22=value22|");
@@ -561,7 +561,7 @@ void testcookieiter()
 		       "http://domain.com/images/subdir",
 		       "name4=value4; domain=.domain.com; expires=\"01 Jan 1960 00:00:00 GMT");
 	checkcookiejar(jar, "name1=value1|name2=value2|name3=value3|");
-		       
+
 }
 
 void testcookielimits()
@@ -668,4 +668,3 @@ int main(int argc, char **argv)
 	}
 	return (0);
 }
-
