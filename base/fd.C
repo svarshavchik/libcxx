@@ -66,6 +66,26 @@ fd fdBase::newobj::create(const std::string &filename, mode_t mode)
 	return newfd;
 }
 
+std::string fdBase::realpath(const std::string &pathname)
+{
+	std::string ret;
+
+	char *p=::realpath(pathname.c_str(), NULL);
+
+	if (p)
+	{
+		try {
+			ret=p;
+		} catch (...) {
+			free(p);
+			throw;
+		}
+		free(p);
+	}
+
+	return ret;
+}
+
 fdptr fdBase::lockf(const std::string &filename, int lockmode,
 		    mode_t mode)
 {

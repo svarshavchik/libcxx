@@ -294,6 +294,10 @@ public:
 	//!
 	static fd adopt(int filedesc) LIBCXX_HIDDEN;
 
+	//! C++-friendly realpath()
+
+	static std::string realpath(const std::string &pathname);
+
 	//! Common code for pipe() and socketpair()
 
 	//! \internal

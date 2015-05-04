@@ -88,7 +88,7 @@ OutputIterator tzfileObj::debugDump(OutputIterator iter,
 				o << "Error converting ";
 
 				o << LIBCXX_NAMESPACE
-					::tostring(date.format());
+					::tostring(date.short_format());
 				o << " to a time_t value, got "
 				  << date_time_t
 				  << ", expecting " << val;
@@ -106,15 +106,15 @@ OutputIterator tzfileObj::debugDump(OutputIterator iter,
 				o << "Error verifying date/time, got ";
 
 				o << LIBCXX_NAMESPACE::tostring
-					(datechk.format());
+					(datechk.short_format());
 
 				o << ", expected ";
 				o << LIBCXX_NAMESPACE::tostring
-					(date.format());
+					(date.short_format());
 				throw EXCEPTION(o.str());
 			}
 
-			auto s=LIBCXX_NAMESPACE::tostring(date.format());
+			auto s=LIBCXX_NAMESPACE::tostring(date.short_format());
 
 			return std::copy(s.begin(), s.end(), iter);
 		}
@@ -288,7 +288,7 @@ OutputIterator tzfileObj::debugDump(OutputIterator iter,
 				else
 				{
 					auto s=LIBCXX_NAMESPACE::tostring
-						(date_chk.format());
+						(date_chk.short_format());
 
 					iter=std::copy(s.begin(), s.end(),
 						       iter);
@@ -384,6 +384,9 @@ static void testtzfile(int argc, char **argv)
 	std::cout << LIBCXX_NAMESPACE::strftime(nyc20090101)(rfc822) << std::endl;
 
 	LIBCXX_NAMESPACE::ymdhms nyc20090801(LIBCXX_NAMESPACE::ymd(2009, 8, 1), LIBCXX_NAMESPACE::hms(12, 0, 0), nyctz);
+
+	std::cout << LIBCXX_NAMESPACE::tostring(nyc20090101.short_format(nyc20090801))
+		  << std::endl;
 
 	std::cout << LIBCXX_NAMESPACE::strftime(nyc20090801)(rfc822) << std::endl;
 

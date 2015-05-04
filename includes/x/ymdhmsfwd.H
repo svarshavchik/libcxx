@@ -287,6 +287,8 @@ public:
 		//! Constructor
 
 		short_formatter(const ymdhms &objArg);
+		short_formatter(const ymdhms &objArg,
+				const ymdhms &reference);
 		inline ~short_formatter() {}
 	};
 
@@ -295,9 +297,25 @@ public:
 	//! For date/times within the last 6 months, use
 	//! "%b %d %H:%M", otherwise "%b %d  %Y".
 
-	inline short_formatter format() const
+	inline short_formatter short_format() const
 	{
 		return short_formatter(*this);
+	}
+
+	//! Format this date/time object using a short string
+
+	//! \overload
+	inline short_formatter short_format(const ymdhms &reference) const
+	{
+		return short_formatter(*this, reference);
+	}
+
+	//! Format this date/time as a string, using a custom format
+
+	template<typename format_type>
+	inline formatter format() const
+	{
+		return formatter(*this);
 	}
 
 	//! Format this date/time as a string, using a custom format

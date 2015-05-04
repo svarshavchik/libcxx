@@ -289,15 +289,17 @@ time_t t=time(NULL);
     <blockquote>
       <informalexample>
 	<programlisting>
-std::string now_s=&ns;::tostring(now.format());
+std::string now_s=&ns;::tostring(now.short_format());
 std::string now_s=&ns;::tostring(now.format("%d-%b-%Y %H:%M:%S %z"));</programlisting>
       </informalexample>
     </blockquote>
 
     <para>
-      The <methodname>format</methodname>() method returns an intermediate
+      <methodname>format</methodname>() and
+      <methodname>short_format</methodname>() methods return an intermediate
       object that can be converted by
-      <link linkend="tostring"><function>&ns;::tostring</function></link>(), by
+      <link linkend="tostring"><function>&ns;::tostring</function></link>()
+      into a text string. This is done by
       instantiating a
       <link linkend="strftime"><classname>&ns;::strftime</classname></link>
       object, and using it to format the <classname>&ns;::ymdhms</classname>,

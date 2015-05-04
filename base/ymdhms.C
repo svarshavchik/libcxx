@@ -131,18 +131,17 @@ ymdhms::formatter::formatter(const ymdhms &objArg)
 
 ymdhms::operator std::string() const
 {
-	return tostring(format());
+	return tostring(formatter(*this));
 }
 
 ymdhms::operator std::wstring() const
 {
-	return towstring(format());
+	return towstring(formatter(*this));
 }
 
-static std::string pick_short_format(const ymdhms &objArg)
+static std::string pick_short_format(const ymdhms &objArg,
+				     const ymdhms &now)
 {
-	ymdhms now(time(0), objArg.getTimezone());
-
 	ymdhms six_months_before=now;
 
 	static_cast<ymd &>(six_months_before) -= ymd::interval(180);
@@ -152,7 +151,14 @@ static std::string pick_short_format(const ymdhms &objArg)
 }
 
 ymdhms::short_formatter::short_formatter(const ymdhms &objArg)
-	: formatter(objArg, pick_short_format(objArg))
+	: short_formatter(objArg,
+			  ymdhms(time(0), objArg.getTimezone()))
+{
+}
+
+ymdhms::short_formatter::short_formatter(const ymdhms &objArg,
+					 const ymdhms &reference)
+	: formatter(objArg, pick_short_format(objArg, reference))
 {
 }
 

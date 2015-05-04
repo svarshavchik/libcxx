@@ -1,5 +1,5 @@
 /*
-** Copyright 2012 Double Precision, Inc.
+** Copyright 2012-2015 Double Precision, Inc.
 ** See COPYING for distribution information.
 */
 
@@ -7,6 +7,7 @@
 #include "x/pidinfo.H"
 #include "x/exception.H"
 #include "x/sysexception.H"
+#include "x/fd.H"
 #include <iostream>
 #include <sys/types.h>
 #include <sys/wait.h>
@@ -78,4 +79,5 @@ int main(int argc, char **argv)
 int main(int argc, char **argv)
 {
 	std::cout << LIBCXX_NAMESPACE::exename() << std::endl;
+	std::cout << LIBCXX_NAMESPACE::fd::base::realpath(".") << std::endl;
 }
