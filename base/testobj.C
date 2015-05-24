@@ -2498,6 +2498,86 @@ static void testfditer()
 	}
 }
 
+void testequality()
+{
+	auto ra=LIBCXX_NAMESPACE::ref<LIBCXX_NAMESPACE::obj>::create(),
+		rb=LIBCXX_NAMESPACE::ref<LIBCXX_NAMESPACE::obj>::create();
+
+	LIBCXX_NAMESPACE::const_ref<LIBCXX_NAMESPACE::obj> cra=ra, crb=rb;
+
+	LIBCXX_NAMESPACE::ptr<LIBCXX_NAMESPACE::obj> pa=ra, pb=rb, pc;
+
+	LIBCXX_NAMESPACE::ptr<LIBCXX_NAMESPACE::obj> cpa=ra, cpb=rb, cpc;
+
+#define COMPARE(x) if (!(x)) { std::cout <<  "Test failed: " #x << std::endl; exit(1); }
+
+	COMPARE(ra == ra);
+	COMPARE(ra != rb);
+	COMPARE(ra == cra);
+	COMPARE(ra != crb);
+	COMPARE(ra == pa);
+	COMPARE(ra != pb);
+	COMPARE(ra != pc);
+	COMPARE(ra == cpa);
+	COMPARE(ra != cpb);
+	COMPARE(ra != cpc);
+
+	COMPARE(cra == ra);
+	COMPARE(cra != rb);
+	COMPARE(cra == cra);
+	COMPARE(cra != crb);
+	COMPARE(cra == pa);
+	COMPARE(cra != pb);
+	COMPARE(cra != pc);
+	COMPARE(cra == cpa);
+	COMPARE(cra != cpb);
+	COMPARE(cra != cpc);
+
+	COMPARE(pa == ra);
+	COMPARE(pa != rb);
+	COMPARE(pa == cra);
+	COMPARE(pa != crb);
+	COMPARE(pa == pa);
+	COMPARE(pa != pb);
+	COMPARE(pa != pc);
+	COMPARE(pa == cpa);
+	COMPARE(pa != cpb);
+	COMPARE(pa != cpc);
+
+	COMPARE(cpa == ra);
+	COMPARE(cpa != rb);
+	COMPARE(cpa == cra);
+	COMPARE(cpa != crb);
+	COMPARE(cpa == pa);
+	COMPARE(cpa != pb);
+	COMPARE(cpa != pc);
+	COMPARE(cpa == cpa);
+	COMPARE(cpa != cpb);
+	COMPARE(cpa != cpc);
+
+	COMPARE(pc != ra);
+	COMPARE(pc != rb);
+	COMPARE(pc != cra);
+	COMPARE(pc != crb);
+	COMPARE(pc != pa);
+	COMPARE(pc != pb);
+	COMPARE(pc == pc);
+	COMPARE(pc != cpa);
+	COMPARE(pc != cpb);
+	COMPARE(pc == cpc);
+
+	COMPARE(cpc != ra);
+	COMPARE(cpc != rb);
+	COMPARE(cpc != cra);
+	COMPARE(cpc != crb);
+	COMPARE(cpc != pa);
+	COMPARE(cpc != pb);
+	COMPARE(cpc == pc);
+	COMPARE(cpc != cpa);
+	COMPARE(cpc != cpb);
+	COMPARE(cpc == cpc);
+}
+
 int main()
 {
 	alarm(60);
@@ -2570,5 +2650,6 @@ int main()
 
 	alarm(0);
 	testfditer();
+	testequality();
 	return 0;
 }

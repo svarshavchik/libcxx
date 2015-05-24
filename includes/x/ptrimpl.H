@@ -134,7 +134,7 @@ public:
 
 		   //! If this reference is bound to an instance of \c objClass,
 		   //! its reference count gets incremented.
-	    
+
 		   const ptrImpl<objClass> &o)
 		noexcept __attribute__((artificial))
 	{
@@ -147,7 +147,7 @@ public:
 
 	ptrImpl<objClass> inline
 	&operator=(//! An existing reference.
-	    
+
 		   ptrImpl<objClass> &&o)
 		noexcept __attribute__((artificial))
 	{

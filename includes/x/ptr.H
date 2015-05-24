@@ -53,7 +53,7 @@ public:
 	//! Define this pointer's object class.
 
 	typedef objClass obj_type;
-					      
+
 	//! Initialize a constant reference.
 	//! \see ptr
 
@@ -178,7 +178,7 @@ public:
 	friend class const_ptr;
 
 	//! Construct from a reference to a subclass or a superclass
-	
+
 	template<typename objClass2>
 	inline const_ptr(const ptrImpl<objClass2> &o)
 		__attribute__((artificial));
@@ -206,6 +206,65 @@ public:
 			::template objfactory< ptr<objClass, baseClass> >
 			::create(std::forward<Args_t>(args)...);
 	}
+
+	//! Comparison operator
+
+	//! C++11 allows pointer comparisons.
+	//!
+	//! \note
+	//! A pair of null pointers do not compare as equal.
+	template<typename objClass2, typename baseClass2>
+	inline bool operator==(const const_ptr<objClass2, baseClass2> &o)
+		const noexcept
+	{
+		obj *a=this->refP;
+		obj *b=o.refP;
+
+		return a == b;
+	}
+
+	//! Comparison operator
+
+	//! C++11 allows pointer comparisons.
+	//!
+	//! \note
+	//! A pair of null pointers do not compare as equal.
+
+	template<typename objClass2, typename baseClass2>
+	inline bool operator!=(const const_ptr<objClass2, baseClass2> &o)
+		const noexcept
+	{
+		return !operator==(o);
+	}
+
+
+	//! Comparison operator
+
+	//! C++11 allows pointer comparisons.
+	//!
+	//! \note
+	//! A pair of null pointers do not compare as equal.
+	template<typename objClass2, typename baseClass2>
+	inline bool operator==(const const_ref<objClass2, baseClass2> &o)
+		const noexcept
+	{
+		return operator==(const_ptr<objClass2, baseClass2>(o));
+	}
+
+	//! Comparison operator
+
+	//! C++11 allows pointer comparisons.
+	//!
+	//! \note
+	//! A pair of null pointers do not compare as equal.
+
+	template<typename objClass2, typename baseClass2>
+	inline bool operator!=(const const_ref<objClass2, baseClass2> &o)
+		const noexcept
+	{
+		return !operator==(o);
+	}
+
 };
 
 template<typename objClass, typename baseClass>
@@ -273,7 +332,7 @@ template<typename objClass2> inline const_ptr<objClass, baseClass>
 //! \ref const_ptr "const_ptr" template class that dereferences to a constant
 //! instance of an object. When the last
 //! \ref ptr "ptr" or \ref const_ptr "const_ptr"
-//! to a given object goes out of scope, the 
+//! to a given object goes out of scope, the
 //! object gets automatically destroyed, via \c delete,
 //! and any existing \ref weakptr "weak pointers" get invalidated.
 //!
@@ -658,7 +717,7 @@ public:
 
 		   //! If this reference is bound to an instance of \c objClass,
 		   //! its reference count gets incremented.
-	    
+
 		   const ptr<objClass, baseClass> &o)
 		noexcept __attribute__((artificial))
 	{
@@ -674,7 +733,7 @@ public:
 
 		   //! If this reference is bound to an instance of \c objClass,
 		   //! its reference count gets incremented.
-	    
+
 		   ptr<objClass, baseClass> &&o)
 		noexcept __attribute__((artificial))
 	{
@@ -683,12 +742,14 @@ public:
 		return *this;
 	}
 
+	using const_ptr<objClass, baseClass>::operator==;
+	using const_ptr<objClass, baseClass>::operator!=;
 
 	//! A ref of one type is friends with refs of all other types.
 	template<typename objClass2, typename baseClass2> friend class ptr;
 
 	//! Construct from a reference to a subclass or a superclass.
-	
+
 	//! \overload
 	//! This constructor allows getting a reference to this
 	//! object type's superclass or subclass.
@@ -701,7 +762,7 @@ public:
 	    const ptr<objClass2, baseClass2> &o) __attribute__((artificial));
 
 	//! Move constructor from a subclass or a superclass.
-	
+
 	template<typename objClass2, typename baseClass2> inline
 	ptr(//! Some other subclass or a superclass of this object.
 

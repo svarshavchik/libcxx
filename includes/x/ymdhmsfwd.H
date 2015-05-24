@@ -287,8 +287,12 @@ public:
 		//! Constructor
 
 		short_formatter(const ymdhms &objArg);
+
+		//! Constructor
 		short_formatter(const ymdhms &objArg,
 				const ymdhms &reference);
+
+		//! Destructor
 		inline ~short_formatter() {}
 	};
 

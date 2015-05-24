@@ -1,5 +1,5 @@
 /*
-** Copyright 2012 Double Precision, Inc.
+** Copyright 2012-2015 Double Precision, Inc.
 ** See COPYING for distribution information.
 */
 
@@ -132,7 +132,7 @@ public:
 
 		   //! If this reference is bound to an instance of \c objClass,
 		   //! its reference count gets incremented.
-	    
+
 		   const const_ref<objClass, baseClass> &o)
 		noexcept __attribute__((artificial))
 	{
@@ -149,7 +149,7 @@ public:
 
 		   //! If this reference is bound to an instance of \c objClass,
 		   //! its reference count gets incremented.
-	    
+
 		   const_ref<objClass, baseClass> &&o)
 		noexcept __attribute__((artificial))
 	{
@@ -183,19 +183,19 @@ public:
 	}
 
 	//! Construct from a reference to a subclass or a superclass
-	
+
 	template<typename objClass2>
 	inline const_ref(const ptrImpl<objClass2> &o)
 		__attribute__((artificial));
 
 	//! Move from a reference to a subclass or a superclass
-	
+
 	template<typename objClass2>
 	inline const_ref(ptrImpl<objClass2> &&o)
 		__attribute__((artificial));
 
 	//! Construct from a reference to a subclass or a superclass
-	
+
 	template<typename objClass2, typename baseClass2>
 	inline const_ref(const const_ref<objClass2, baseClass2> &o)
 		__attribute__((artificial));
@@ -227,6 +227,42 @@ public:
 	inline operator const const_ptr<objClass2, baseClass2>() const
 	{
 		return this->p;
+	}
+
+	//! Comparison operator
+
+	//! C++11 allows pointer comparisons.
+	template<typename objClass2, typename baseClass2>
+	inline bool operator==(const const_ptr<objClass2, baseClass2> &o)
+		const noexcept
+	{
+		return p == o;
+	}
+
+	//! C++11 allows pointer comparisons.
+	template<typename objClass2, typename baseClass2>
+	inline bool operator!=(const const_ptr<objClass2, baseClass2> &o)
+		const noexcept
+	{
+		return p != o;
+	}
+
+	//! Comparison operator
+
+	//! C++11 allows pointer comparisons.
+	template<typename objClass2, typename baseClass2>
+	inline bool operator==(const const_ref<objClass2, baseClass2> &o)
+		const noexcept
+	{
+		return p == o;
+	}
+
+	//! C++11 allows pointer comparisons.
+	template<typename objClass2, typename baseClass2>
+	inline bool operator!=(const const_ref<objClass2, baseClass2> &o)
+		const noexcept
+	{
+		return p != o;
 	}
 
 	//! Forward create() to the base type
@@ -431,10 +467,13 @@ public:
 		return *this;
 	}
 
+	using const_ref<objClass, baseClass>::operator==;
+	using const_ref<objClass, baseClass>::operator!=;
+
 	template<typename objClass2, typename baseClass2> friend class ref;
 
 	//! Construct from a pointer to a superclass or a subclass of the referenced object class.
-	
+
 	template<typename objClass2, typename baseClass2> inline
 	ref(//! A reference to another subclass or a superclass of this object.
 
