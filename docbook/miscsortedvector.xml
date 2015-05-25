@@ -1,0 +1,240 @@
+<!--
+
+Copyright 2015 Double Precision, Inc.
+See COPYING for distribution information.
+
+-->
+
+<chapter id="sortedvector">
+  <title>Sorted vectors</title>
+
+  <blockquote>
+    <informalexample>
+      <programlisting>
+#include &lt;&ns;/sorted_vector.H&gt;
+
+class metadata_t;
+
+typedef &ns;::sorted_vector&lt;size_t, metadata_t&gt; metadata_vector_t;
+
+metadata_vector_t metadata_vector;
+
+metadata_vector.insert_value(0, metadata_t());
+
+metadata_vector.insert_value(10, metadata_t());
+
+metadata_vector_t::iterator iter=metadata_vector.find(5);
+
+if (iter != metadata_vector.end())
+    std::cout &lt;&lt; metadata_vector->second.info();
+      </programlisting>
+    </informalexample>
+  </blockquote>
+
+  <para>
+    The <ulink url="&link-x--sorted-vector;"><classname>&ns;::sorted_vector</classname></ulink>
+    template
+    implements a subclass of a <classname>std::vector</classname> with
+    some <classname>std::set</classname>-like semantics.
+    Its intended to maintain ordered key/value metadata for
+    some larger
+    object, which can grow and shrink, with the ordered metadata getting
+    adjusted accordingly. It's optimized for a medium-sized collection of
+    metadata, with a logarithmic lookup, and linear complexity for key
+    adjustment.
+  </para>
+
+  <para>
+    The first <classname>&ns;::sorted_vector</classname> template parameter
+    is a key type, the second template parameter is a value type.
+    The <classname>&ns;::sorted_vector</classname>'s values are a tuple
+    whose <varname>first</varname> member is not modifiable, and can only
+    be casted to the key type; the <varname>second</varname> member is
+    an instance of the value type. An optional third template parameter
+    specifies the comparator class for the key type, defaulting to a
+    <classname>std::less</classname>.
+  </para>
+
+  <para>
+    A second template parameter of <classname>void</classname> results in
+    a vector of a tuples containing only a <varname>first</varname> member.
+  </para>
+
+  <para>
+    The values in the <classname>&ns;::sorted_vector</classname> are always
+    kept sorted according to each value's key. Insertion takes linear
+    complexity.
+    <methodname>find</methodname>() searches the
+    <classname>&ns;::sorted_vector</classname> for the requested key, and
+    returns an iterator to either the value for the key, if it exists, or
+    to the immediately preceding key, if the specified key value does not
+    exist. In the example above, <methodname>find</methodname>() returns
+    the iterator for the value of the 0 key, since there is no value with the
+    key of 5, and this is the immediately preceding key in the
+    <classname>&ns;::sorted_vector</classname>.
+  </para>
+
+  <para>
+    <classname>&ns;::sorted_vector</classname> exports all methods and
+    members of its <classname>std::vector</classname> superclass, except
+    for modifiers. Only <classname>&ns;::sorted_vector</classname>'s methods
+    must be used to modify the sorted list.
+  </para>
+
+  <section id="miscsortedvectormodifiers">
+    <title>Modifiers</title>
+
+    <blockquote>
+      <informalexample>
+	<programlisting>
+metadata_vector.duplicate(key);</programlisting>
+      </informalexample>
+    </blockquote>
+
+    <para>
+      <methodname>duplicate</methodname>() searches for the value with the
+      given key. If one does not exist, the value for the nearest lower
+      key gets copied for the specified key.
+      <methodname>duplicate</methodname>() returns
+      <literal>true</literal> if the key already existed, or was created
+      by copying the value from the nearest lowest key.
+      <methodname>duplicate</methodname>() returns
+      <literal>false</literal> if the requested key does not exist
+      because the sorted vector is empty, or the
+      key was less than the first value's key.
+    </para>
+
+    <blockquote>
+      <informalexample>
+	<programlisting>
+metadata_vector.uniq();</programlisting>
+      </informalexample>
+    </blockquote>
+
+    <para>
+      <methodname>uniq</methodname>() removes consecutive equal values
+      from the sorted vector.
+      <methodname>uniq</methodname>() takes an optional comparator parameter,
+      which defaults to <classname>std::equal_to</classname> that compares
+      two consecutive values in the sorted vector.
+      Only consecutive equal values are removed, equal values with
+      non-equal intervening values, in key order, are not removed.
+      The first value that compares equal to the following value is kept,
+      all subsequent, consecutive values, in key order, are removed from the
+      sorted vector.
+    </para>
+
+    <blockquote>
+      <informalexample>
+	<programlisting>
+metadata_vector.remove(lower_bound, upper_bound);</programlisting>
+      </informalexample>
+    </blockquote>
+
+    <para>
+      <methodname>remove</methodname>() removes values whose keys are
+      equal or greater than <replaceable>lower_bound</replaceable>, but
+      less than <replaceable>upper_bound</replaceable>.
+      <methodname>remove</methodname>() returns <literal>false</literal>
+      in two situations, indicating invalid parameters:
+      <replaceable>lower_bound</replaceable> is greater than
+      <replaceable>upper_bound</replaceable>, or
+      <replaceable>upper_bound</replaceable> is not greater than the first
+      key in the sorted vector (this is automatically the case when the
+      sorted vector is empty).
+    </para>
+
+    <para>
+      Otherwise any values with the keys in the given range are removed from
+      the sorted vector.
+    </para>
+
+    <blockquote>
+      <informalexample>
+	<programlisting>
+metadata_vector.remove_range(lower_bound, upper_bound);</programlisting>
+      </informalexample>
+    </blockquote>
+
+    <para>
+      <methodname>remove_range</methodname>()
+      is similar to <methodname>remove</methodname>(), but with the following
+      differences.
+      Before removing any keys, <methodname>duplicate</methodname>()
+      gets invoked, ensuring
+      that the <replaceable>upper_bound</replaceable> key exists.
+      Then, in addition to removing the keys in the given range,
+      the difference <quote>upper_bound-lower_bound</quote> gets subtracted
+      from all key values
+      after the range (including the <replaceable>upper_bound</replaceable>
+      key).
+    </para>
+
+    <para>
+      For example, the sorted vector contains values with these keys:
+      0, 5, 10, 15, 20.
+      <quote>remove_range(3, 14)</quote> results in a sorted vector with the
+      following keys: 0, 3, 4, 9. Before removal, 10's value gets copied to the
+      14 key, then the keys 5 and 10 get removed, and the keys 14, 15, and 20
+      get 11 subtracted from them (the difference 14-3).
+    </para>
+
+    <para>
+      <methodname>remove_range</methodname>() returns
+      <literal>false</literal> indicating an error if the given
+      upper bound is less than the lower bound, or the upper bound is
+      not greater than or equal to the first key in the sorted vector
+      (which is also case when the sorted vector is empty).
+      If the lower bound and the upper bound are equal,
+      <methodname>remove_range</methodname>() returns <literal>true</literal>
+      without doing anything. Otherwise
+      <methodname>remove_range</methodname>() returns <literal>true</literal>
+      after finishing the removal of the specified range.
+    </para>
+
+    <blockquote>
+      <informalexample>
+	<programlisting>
+metadata_vector.insert_range(lower_bound, range, value);</programlisting>
+      </informalexample>
+    </blockquote>
+    <para>
+      <methodname>insert_range</methodname>() calls
+      <methodname>duplicate</methodname>() to create a key for the
+      given <replaceable>lower_bound</replaceable>, if needed, then
+      <replaceable>range</replaceable> gets added to all keys in the
+      sorted vector that are equal to or greater than
+      <replaceable>lower_bound</replaceable> (including the
+      newly-duplicated key, possibly). Finally,
+      the specified <varname>value</varname> gets added to the sorted
+      vector, with the key of <replaceable>lower_bound</replaceable>.
+    </para>
+
+    <para>
+      For example, the sorted vector contains values with these keys:
+      0, 5, 15, 20.
+      <quote>remove_range(8, 2, value)</quote> results in a sorted vector with
+      the following keys: 0, 5, 8, 10, 17, 20.
+      The value for the key 5 gets initially duplicated with the key of 8,
+      then 2 gets added to it, and the following keys; becoming 10, 17, and
+      20; finally the new value gets inserted with the key of 8.
+    </para>
+
+    <para>
+      <methodname>insert_range</methodname>() returns
+      <literal>false</literal> indicating an error if
+      <replaceable>range</replaceable> is less than 1,
+      or if <replaceable>lower_bound</replaceable> was less than
+      the first value in the sorted vector.
+      Otherwise,
+      <methodname>insert_range</methodname>() returns
+      <literal>true</literal> after completing the insert.
+    </para>
+  </section>
+</chapter>
+<!--
+Local Variables:
+mode: sgml
+sgml-parent-document: ("book.xml" "part" "chapter")
+End:
+-->

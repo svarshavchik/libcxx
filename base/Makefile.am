@@ -361,6 +361,7 @@ noinst_PROGRAMS=\
 	testshm			      \
 	testsignalfd                  \
 	testsingleton                 \
+	testsortedvector	      \
 	teststoppable                 \
 	testthreadlocal               \
 	testthreadmsgdispatcher       \
@@ -736,6 +737,10 @@ testinotify_SOURCES=testinotify.C
 testinotify_LDADD=libcxx.la
 testinotify_LDFLAGS=$(TESTLINKTYPE)
 
+testsortedvector_SOURCES=testsortedvector.C
+testsortedvector_LDADD=libcxx.la
+testsortedvector_LDFLAGS=$(TESTLINKTYPE)
+
 propertiescli.h : propertiescli.h.tmp
 	perl -p -e 's/^#include.*//;s/\b@LIBCXX_NAMESPACE@::/LIBCXX_NAMESPACE::/g' <propertiescli.h.tmp >propertiescli.h.tmp2
 	mv propertiescli.h.tmp2 propertiescli.h
@@ -926,6 +931,7 @@ check-am: $(noinst_PROGRAMS) $(noinst_DATA)
 	./testderivedvalues
 	./testweakcapture
 	./testinotify
+	./testsortedvector
 
 $(XTEST_MO_DIR)/$(XTEST_MO_FILE): testmessages.po
 	mkdir -p $(XTEST_MO_DIR)

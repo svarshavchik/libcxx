@@ -59,6 +59,7 @@
 <!ENTITY misctimespec SYSTEM "misctimespec.xml">
 <!ENTITY miscfmtsize SYSTEM "miscfmtsize.xml">
 <!ENTITY miscvector SYSTEM "miscvector.xml">
+<!ENTITY miscsortedvector SYSTEM "miscsortedvector.xml">
 <!ENTITY misccsv SYSTEM "misccsv.xml">
 <!ENTITY miscjoiniterator SYSTEM "miscjoiniterator.xml">
 <!ENTITY miscorderedcache SYSTEM "miscorderedcache.xml">
@@ -168,6 +169,7 @@ See COPYING for distribution information.
     &misctimespec;
     &miscfmtsize;
     &miscvector;
+    &miscsortedvector;
     &miscpostponed;
     &misccsv;
     &miscdf;
