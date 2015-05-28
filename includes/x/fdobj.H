@@ -298,6 +298,11 @@ public:
 
 	static std::string realpath(const std::string &pathname);
 
+	//! Combine two paths.
+
+	static std::string combinepath(const std::string &reference,
+				       const std::string &combined);
+
 	//! Common code for pipe() and socketpair()
 
 	//! \internal

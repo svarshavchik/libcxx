@@ -17,6 +17,7 @@
 /sysconfdir.h
 /testcgiimpl
 /testcodecvt
+/testcombinepath
 /testcredentials
 /testcsv
 /testderivedvalues

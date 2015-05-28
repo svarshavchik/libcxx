@@ -230,6 +230,28 @@ std::string dir=&ns;::fd::base::cwd();</programlisting>
       <methodname>cwd</methodname>() returns the process's current working
       directory.
     </para>
+
+    <blockquote>
+      <informalexample>
+	<programlisting>
+std::string s=&ns;::fd::base::realpath(".");
+
+std::string s=&ns;::fd::base::combinepath("subdir1", "subdir2");</programlisting>
+      </informalexample>
+    </blockquote>
+
+    <para>
+      <methodname>realpath</methodname>() expands all symbolic links,
+      references to <quote>.</quote>, <quote>..</quote>, etc, and
+      translates its parameter to an absolute pathname.
+      <methodname>combinepath</methodname>() combines two paths together.
+      The paths may or may not exist.
+      <methodname>combinepath</methodname>>() operates on its parameters only.
+      <literal>combinepath("/home", "me")</literal> returns
+      <quote>/home/me</quote>,
+      <literal>combinepath("/home/user/bin", "..")</literal> returns
+      <quote>/home/user</quote>, and so on.
+    </para>
   </section>
 
   <section id="epoll">

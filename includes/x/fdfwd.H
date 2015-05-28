@@ -181,7 +181,7 @@ class fdBase;
 //!
 //! \par Current working directory
 //!
-//! \ref fdBase::cwd "fd::cwd"() returns the current working
+//! \ref fdBase::cwd "LIBCXX_NAMESPACE::fd::base::cwd"() returns the current working
 //! directory.
 //!
 //! \par Updating the file timestamp
@@ -228,6 +228,22 @@ class fdBase;
 //! memory segment. Its parameters get passed to the shm_open(2) system call.
 //! shm_unlink() is also just a wrapper around the shm_unlink(2) system call,
 //! implement for completeness' sake.
+//!
+//! \par Miscellanous filename operations.
+//!
+//! \code
+//! std::string s=LIBCXX_NAMESPACE::fd::base::realpath(".");
+//!
+//! std::string s=LIBCXX_NAMESPACE::fd::base::combinepath("subdir1", "subdir2");
+//! \endcode
+//!
+//! realpath() expands all symbolic links, references to ".", "..", etc, and
+//! translates its parameter to an absolute pathname.
+//!
+//! combinepath() combines two paths together. The paths may or may not exist.
+//! combinepath() operates on its parameters only.
+//! combinepath("/home", "me") returns "/home/me",
+//! combinepath("/home/user/bin", "..") returns "/home/user", and so on.
 
 typedef ptr<fdObj, fdBase> fdptr;
 

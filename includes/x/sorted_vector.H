@@ -158,6 +158,8 @@ template<typename K,
 	using vec_t::clear;
 	using vec_t::empty;
 
+	using vec_t::operator[];
+
 protected:
 
 	//! Internal search

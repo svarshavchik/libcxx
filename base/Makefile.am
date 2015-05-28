@@ -295,6 +295,7 @@ noinst_PROGRAMS=\
 	mksigtab                      \
 	testcgiimpl                   \
 	testcodecvt                   \
+	testcombinepath		      \
 	testcredentials               \
 	testcsv                       \
 	testderivedvalues	      \
@@ -741,6 +742,10 @@ testsortedvector_SOURCES=testsortedvector.C
 testsortedvector_LDADD=libcxx.la
 testsortedvector_LDFLAGS=$(TESTLINKTYPE)
 
+testcombinepath_SOURCES=testcombinepath.C
+testcombinepath_LDADD=libcxx.la
+testcombinepath_LDFLAGS=$(TESTLINKTYPE)
+
 propertiescli.h : propertiescli.h.tmp
 	perl -p -e 's/^#include.*//;s/\b@LIBCXX_NAMESPACE@::/LIBCXX_NAMESPACE::/g' <propertiescli.h.tmp >propertiescli.h.tmp2
 	mv propertiescli.h.tmp2 propertiescli.h
@@ -932,6 +937,7 @@ check-am: $(noinst_PROGRAMS) $(noinst_DATA)
 	./testweakcapture
 	./testinotify
 	./testsortedvector
+	./testcombinepath
 
 $(XTEST_MO_DIR)/$(XTEST_MO_FILE): testmessages.po
 	mkdir -p $(XTEST_MO_DIR)

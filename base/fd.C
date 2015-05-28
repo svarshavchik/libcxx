@@ -86,6 +86,82 @@ std::string fdBase::realpath(const std::string &pathname)
 	return ret;
 }
 
+std::string fdBase::combinepath(const std::string &reference,
+				const std::string &combined)
+{
+	std::string path=reference;
+
+	if (combined.substr(0, 1) == "/")
+		path="/";
+
+	for (auto b=combined.begin(), e=combined.end(); b != e; )
+	{
+		if (*b == '/')
+		{
+			++b;
+			continue;
+		}
+
+		auto p=b;
+
+		while (b != e && *b != '/')
+			++b;
+
+		auto component=std::string(p, b);
+
+		if (component == ".")
+			continue;
+
+		if (component == "..")
+		{
+			auto last=path.rfind('/');
+
+			if (last == std::string::npos)
+			{
+				if (path == ".")
+				{
+					path="..";
+					continue;
+				}
+
+				if (path != "..")
+				{
+					path=".";
+					continue;
+				}
+			}
+
+			if (path.substr(last+1) == "..")
+			{
+				path += "/..";
+				continue;
+			}
+
+			if (last == 0)
+				path="/";
+
+			while (last > 0)
+			{
+				if (path[last-1] != '/')
+				{
+					path=path.substr(0, last);
+					break;
+				}
+				--last;
+			}
+			continue;
+		}
+
+		if (path == ".")
+			path="";
+		else if (path != "/")
+			path += '/';
+
+		path += component;
+	}
+	return path;
+}
+
 fdptr fdBase::lockf(const std::string &filename, int lockmode,
 		    mode_t mode)
 {
