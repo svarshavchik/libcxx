@@ -158,7 +158,7 @@ template<typename K,
 	using vec_t::clear;
 	using vec_t::empty;
 
-	using vec_t::operator[];
+	using vec_t::at;
 
 protected:
 
@@ -312,6 +312,7 @@ protected:
 		}
 
 		vec_t::erase(b, ep);
+		return true;
 	}
 
 	//! Make sure that the value for the given key exists

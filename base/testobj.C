@@ -2398,8 +2398,6 @@ static void testtimer()
 			LIBCXX_NAMESPACE::istream
 				i(to->getistream());
 
-			bool flag=false;
-
 			std::string line;
 
 			std::getline(*i, line);
@@ -2422,8 +2420,6 @@ static void testtimer()
 			i->seekg(0);
 
 			rl->set_read_limit(5, "Test timeout");
-
-			bool flag=false;
 
 			std::string line;
 
