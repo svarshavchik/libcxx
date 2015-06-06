@@ -179,8 +179,7 @@ iter_type save_properties(//! Properties
 			  //! Output iterator
 			  iter_type iter,
 			  //! Locale for parsing
-			  const const_locale &locale=
-			  locale::base::environment())
+			  const const_locale &locale)
 {
 	return save_properties_impl<char_type>
 		::save_impl(properties, iter, locale);

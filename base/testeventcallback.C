@@ -26,6 +26,22 @@ public:
 	~testviphandler() noexcept {}
 };
 
+template<typename vip_t>
+auto lock_and_return(vip_t &vip,
+		     const LIBCXX_NAMESPACE::ref<testviphandler> &seen)
+{
+	typedef typename vip_t::handlerlock handlerlock;
+	typedef typename vip_t::readlock readlock;
+
+	handlerlock l(vip);
+
+	return l.install_front([=]
+			       (const testvip &v)
+			       {
+				       seen->seen.push_back(v.n);
+			       } , *readlock(vip));
+}
+
 template<typename vip_t> void test4_pass()
 {
 	vip_t vip(2);
@@ -41,15 +57,7 @@ template<typename vip_t> void test4_pass()
 	auto seen=LIBCXX_NAMESPACE::ref<testviphandler>::create();
 	auto seen2=LIBCXX_NAMESPACE::ref<testviphandler>::create();
 
-	auto cb1=({
-			handlerlock l(vip);
-
-			l.install_front([=]
-					(const testvip &v)
-					{
-						seen->seen.push_back(v.n);
-					} , *readlock(vip));
-		});
+	auto cb1=lock_and_return(vip, seen);
 
 	if (seen->seen.size() != 1 ||
 	    seen->seen.front().n != 2)
@@ -65,15 +73,7 @@ template<typename vip_t> void test4_pass()
 	    seen->seen.back().n != 4)
 		throw EXCEPTION("test4 failed (3)");
 
-	auto cb2=({
-			handlerlock l(vip);
-
-			l.install_front([=]
-					(const testvip &v)
-					{
-						seen2->seen.push_back(v.n);
-					} , *readlock(vip));
-		});
+	auto cb2=lock_and_return(vip, seen2);
 
 	if (seen->seen.size() != 2 ||
 	    seen2->seen.size() != 1 ||

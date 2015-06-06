@@ -512,7 +512,7 @@ void logger::handlerObj::syslogger::operator()(const std::string &message,
 //! \internal
 //! This objects holds some internal data when the configuration
 //! file is getting parsed.
-	
+
 class logger::initstate {
 
 public:
@@ -640,7 +640,7 @@ short logger::debuglevelpropstr::fromstr(const property::propvalue &s,
 			logger::logconfig->loglevels.find(logconfig->
 							  default_ctype
 							  .toupper(s));
-	
+
 		if (iter != logger::logconfig->loglevels.end())
 			return iter->second;
 	}
@@ -890,7 +890,7 @@ logger::scopebase::scopebase(inheritObj &inherit)
 			e->prepend(tostring(property::combinepropname
 					    (inherit.hier)));
 
-			LOGGING_FAILURE(*e);
+			LOGGING_FAILURE(e);
 		}
 	}
 }
@@ -992,7 +992,7 @@ logger::logconfig_init::logconfig_init() noexcept
 			LOG_NAMESPACE "::logger::handler::stderr=@2\n"
 			LOG_NAMESPACE "::logger::handler::syslog=@syslog DEBUG=DEBUG INFO=INFO WARNING=WARNING ERR=ERROR CRIT=FATAL\n"
 			LOG_NAMESPACE "::logger::syslog::facility=USER\n"
-						      
+
 			LOG_NAMESPACE "::logger::log::level=error\n"
 			LOG_NAMESPACE "::logger::log::handler::default=stderr\n"
 			LOG_NAMESPACE "::logger::log::handler::default::format=brief\n";
