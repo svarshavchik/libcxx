@@ -30,7 +30,7 @@ namespace LIBCXX_NAMESPACE {
 extern property::value<unsigned int> lockf_attempts LIBCXX_HIDDEN;
 
 property::value<unsigned int>
-lockf_attempts(LIBCXX_NAMESPACE_WSTR L"::fd::lockf::count", 1000);
+lockf_attempts(LIBCXX_NAMESPACE_STR "::fd::lockf::count", 1000);
 
 fd fdBase::open(const char *filename,
 		int flags,

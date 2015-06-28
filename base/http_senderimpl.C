@@ -16,8 +16,8 @@ namespace LIBCXX_NAMESPACE {
 #endif
 
 property::value<size_t>
-senderimpl_encode::chunksize(LIBCXX_NAMESPACE_WSTR
-			     L"::http::chunksize", 8192);
+senderimpl_encode::chunksize(LIBCXX_NAMESPACE_STR
+			     "::http::chunksize", 8192);
 
 void senderimpl_encode::expected_message_body()
 {

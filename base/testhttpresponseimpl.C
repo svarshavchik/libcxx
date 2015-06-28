@@ -567,12 +567,12 @@ void testcookieiter()
 void testcookielimits()
 {
 	LIBCXX_NAMESPACE::property::load_property
-		(LIBCXX_NAMESPACE_WSTR L"::http::cookiejar::domainmax", L"2",
+		(LIBCXX_NAMESPACE_STR "::http::cookiejar::domainmax", "2",
 		 true, true);
 
 	LIBCXX_NAMESPACE::property::load_property
-		(LIBCXX_NAMESPACE_WSTR L"::http::cookiejar::cookiebytesmax",
-		 L"50", true, true);
+		(LIBCXX_NAMESPACE_STR "::http::cookiejar::cookiebytesmax",
+		 "50", true, true);
 
 	auto jar=LIBCXX_NAMESPACE::http::cookiejar::create();
 
@@ -624,8 +624,8 @@ int main(int argc, char **argv)
 {
 	try {
 		LIBCXX_NAMESPACE::property::load_property
-			(LIBCXX_NAMESPACE_WSTR L"::http::effective_tld_names",
-			 WSRCDIR L"/effective_tld_names.dat", true, true);
+			(LIBCXX_NAMESPACE_STR "::http::effective_tld_names",
+			 SRCDIR "/effective_tld_names.dat", true, true);
 
 		LIBCXX_NAMESPACE::option::string_value
 			uri(LIBCXX_NAMESPACE::option::string_value::create());

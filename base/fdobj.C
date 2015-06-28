@@ -47,8 +47,8 @@ namespace LIBCXX_NAMESPACE {
 };
 #endif
 
-property::value<size_t> fdbaseObj::buffer_size(LIBCXX_NAMESPACE_WSTR
-					       L"::fd::buffer_size",
+property::value<size_t> fdbaseObj::buffer_size(LIBCXX_NAMESPACE_STR
+					       "::fd::buffer_size",
 					       BUFSIZ);
 
 void fdbaseObj::write_full(const char *buffer,

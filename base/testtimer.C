@@ -146,10 +146,7 @@ static void testtimertask3() noexcept
 	std::cout << "testtimer3task" << std::endl;
 
 	LIBCXX_NAMESPACE::property
-		::load_properties(LIBCXX_NAMESPACE::stringize
-				  <LIBCXX_NAMESPACE::property::propvalue,
-				   std::string>
-				  ::tostr("timer.rate=1 second\n"),
+		::load_properties("timer.rate=1 second\n",
 				  true, true,
 				  LIBCXX_NAMESPACE::property::errhandler::errthrow(),
 				  LIBCXX_NAMESPACE::locale::create("C"));
@@ -160,7 +157,7 @@ static void testtimertask3() noexcept
 	{
 		auto counter=LIBCXX_NAMESPACE::ptr<timerCount>::create(3, "3");
 
-		timer->scheduleAtFixedRate(counter, L"timer.rate",
+		timer->scheduleAtFixedRate(counter, "timer.rate",
 					   std::chrono::seconds(600));
 
 		counter->ondestroy([flag]{flag->destroyed();});
@@ -354,7 +351,7 @@ void testtimertask7()
 }
 
 static LIBCXX_NAMESPACE::timer::base::duration_property_t
-dummy(L"duration", std::chrono::seconds(2));
+dummy("duration", std::chrono::seconds(2));
 
 int main()
 {

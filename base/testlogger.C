@@ -22,9 +22,7 @@ LOG_FUNC_SCOPE_DECL(testlogger::loglevelupdate, testlogger_loglevelupdate);
 
 #define UPD(str)							\
 	LIBCXX_NAMESPACE::property::load_properties			\
-	(LIBCXX_NAMESPACE::stringize<LIBCXX_NAMESPACE::property::propvalue,	\
-				   std::string>::tostr(str),		\
-		true, true,						\
+	(str, true, true,						\
 	 LIBCXX_NAMESPACE::property::errhandler::errthrow(),		\
 	 LIBCXX_NAMESPACE::locale::create("C"))
 
@@ -100,7 +98,7 @@ static void testlogger()
 		LOG_WARNING("test property update 3");
 	}
 }
-			     
+
 int main(int argc, char **argv)
 {
 	try {

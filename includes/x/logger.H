@@ -654,11 +654,11 @@ class LIBCXX_HIDDEN logger {
 	public:
 
 		//! Return the log level setting
-		static property::propvalue tostr(short n, const const_locale &l)
+		static std::string tostr(short n, const const_locale &l)
 			LIBCXX_INTERNAL;
 
 		//! Set the log level by name
-		static short fromstr(const property::propvalue &str,
+		static short fromstr(const std::string &str,
 			      const const_locale &l)
 			LIBCXX_INTERNAL;
 	};
@@ -741,7 +741,7 @@ private:
 		property::value<short, debuglevelpropstr> debuglevel;
 
 		//! Container for log handlers
-		typedef std::map<property::propvalue,
+		typedef std::map<std::string,
 				 ref<scopedestObj> > handlers_t;
 
 		//! Log handlers
@@ -756,17 +756,17 @@ private:
 		//! Internal function
 
 		static ptr<inheritObj> getscope(const std::string &name)
- LIBCXX_INTERNAL ;
+			LIBCXX_INTERNAL;
 
 		//! Internal function
-		static property::propvalue
+		static std::string
 		get_debuglevel_propname(inheritObj &inherit)
- LIBCXX_INTERNAL;
+			LIBCXX_INTERNAL;
 
 		//! Internal function
 		static short
 		get_debuglevel_propvalue(inheritObj &inherit)
- LIBCXX_INTERNAL;
+			LIBCXX_INTERNAL;
 
 	};
 
@@ -961,7 +961,7 @@ public:
 			(std::stringstream &)xx_s << txt;		\
 			xx_l(xx_s.str(), xx_v);				\
 		} } while(0)
-		
+
 
 //! Internal macro
 

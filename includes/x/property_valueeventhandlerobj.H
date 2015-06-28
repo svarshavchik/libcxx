@@ -30,7 +30,7 @@ class nodeObj;
 //! property %value container: a pointer to the requested property %value,
 //! and a locale for interpreting the %value.
 
-typedef std::pair<propvalue *, const_locale> propvalueset_t;
+typedef std::pair<std::string *, const_locale> propvalueset_t;
 
 //! Base class for %property change notification
 
@@ -90,31 +90,31 @@ protected:
 
 	//! Install the property callback
 
-	void install(const propvalue::value_type *namestr, //!< Property name
-		     const propvalue &initvalue, //!< Initial property value
+	void install(const char *namestr, //!< Property name
+		     const std::string &initvalue, //!< Initial property value
 		     const const_locale &locale) //!< Locale
 ;
 
 	//! Install the property callback
 
 	void install(const ptr<listObj> &props, //!< Property list
-		     const propvalue::value_type *namestr, //!< Property name
-		     const propvalue &initvalue, //!< Initial property value
+		     const char *namestr, //!< Property name
+		     const std::string &initvalue, //!< Initial property value
 		     const const_locale &locale) //!< Locale
 ;
 
 	//! Install the property callback
 
-	void install(const propvalue &namestr, //!< Property name
-		     const propvalue &initvalue, //!< Initial property value
+	void install(const std::string &namestr, //!< Property name
+		     const std::string &initvalue, //!< Initial property value
 		     const const_locale &locale) //!< Locale
 ;
 
 	//! Install the property callback
 
 	void install(const ref<listObj> &props, //!< Property list
-		     const propvalue &namestr, //!< Property name
-		     const propvalue &initvalue, //!< Initial property value
+		     const std::string &namestr, //!< Property name
+		     const std::string &initvalue, //!< Initial property value
 		     const const_locale &locale) //!< Locale
 ;
 

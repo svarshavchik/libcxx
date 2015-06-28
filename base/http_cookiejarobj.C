@@ -25,10 +25,10 @@ namespace LIBCXX_NAMESPACE {
 #endif
 
 static property::value<size_t>
-maxdomaincookiesprop(LIBCXX_NAMESPACE_WSTR "::http::cookiejar::domainmax", 50);
+maxdomaincookiesprop(LIBCXX_NAMESPACE_STR "::http::cookiejar::domainmax", 50);
 
 static property::value<size_t>
-maxbytesprop(LIBCXX_NAMESPACE_WSTR "::http::cookiejar::cookiebytesmax", 4096);
+maxbytesprop(LIBCXX_NAMESPACE_STR "::http::cookiejar::cookiebytesmax", 4096);
 
 cookiejarObj::cookiejarObj() : cookiedomainhier(cookiedomainhier_t::create())
 {

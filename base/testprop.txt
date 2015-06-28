@@ -17,6 +17,6 @@ bool value: 0
 4916 bytes
 4.8 Kb
 [foo=bar]
-[foo::bar=foo bar]
-[foo::bar=\ foo bar\ ]
+[foo::bar=foo\ bar]
+[foo::bar=\ foo\ bar\ ]
 [foo::bar=foo\nbar\\foo\#bar\nfoo\tbar\13foo]

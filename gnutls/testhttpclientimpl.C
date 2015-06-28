@@ -291,9 +291,9 @@ static void dorequest(const std::string &url,
 int main(int argc, char **argv)
 {
 	LIBCXX_NAMESPACE::property::load_property
-		(LIBCXX_NAMESPACE_WSTR
+		(LIBCXX_NAMESPACE_STR
 		 "::gnutls::ignore_premature_termination_error",
-		 L"true", true, true);
+		 "true", true, true);
 
 	LIBCXX_NAMESPACE::option::string_value
 		proxy_value(LIBCXX_NAMESPACE::option::string_value::create());

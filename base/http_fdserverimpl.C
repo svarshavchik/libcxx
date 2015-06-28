@@ -18,21 +18,21 @@ namespace LIBCXX_NAMESPACE {
 #endif
 
 property::value<hms>
-fdserverimpl::pipeline_timeout(LIBCXX_NAMESPACE_WSTR
-			       L"::http::server::pipeline_timeout",
+fdserverimpl::pipeline_timeout(LIBCXX_NAMESPACE_STR
+			       "::http::server::pipeline_timeout",
 			       30),
-	fdserverimpl::headers_timeout(LIBCXX_NAMESPACE_WSTR
-				     L"::http::server::headers::timeout", 60),
-	fdserverimpl::body_timeout(LIBCXX_NAMESPACE_WSTR
-				   L"::http::server::body_timeout", 60);
+	fdserverimpl::headers_timeout(LIBCXX_NAMESPACE_STR
+				     "::http::server::headers::timeout", 60),
+	fdserverimpl::body_timeout(LIBCXX_NAMESPACE_STR
+				   "::http::server::body_timeout", 60);
 
 property::value<size_t>
-fdserverimpl::headers_maxsize(LIBCXX_NAMESPACE_WSTR L"::http::server::headers::maxsize",
+fdserverimpl::headers_maxsize(LIBCXX_NAMESPACE_STR "::http::server::headers::maxsize",
 			   1024 * 1024),
-	fdserverimpl::headers_limit(LIBCXX_NAMESPACE_WSTR L"::http::server::headers::limit",
+	fdserverimpl::headers_limit(LIBCXX_NAMESPACE_STR "::http::server::headers::limit",
 			   1024),
-	fdserverimpl::body_timeout_cnt(LIBCXX_NAMESPACE_WSTR
-				       L"::http::server::body_timeout_cnt",
+	fdserverimpl::body_timeout_cnt(LIBCXX_NAMESPACE_STR
+				       "::http::server::body_timeout_cnt",
 				       65536);
 
 fdserverimpl::fdserverimpl() : superclass_t(headers_limit.getValue())

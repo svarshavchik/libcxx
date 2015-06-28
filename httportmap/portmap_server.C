@@ -20,7 +20,7 @@
 LOG_CLASS_INIT(portmap_server);
 
 static LIBCXX_NAMESPACE::property::value<size_t>
-maxregs(LIBCXX_NAMESPACE_WSTR L"::httportmap::maxclient", 10);
+maxregs(LIBCXX_NAMESPACE_STR "::httportmap::maxclient", 10);
 
 struct portmap_server::clientinfoObj : virtual public LIBCXX_NAMESPACE::obj {
 
@@ -822,4 +822,3 @@ void portmap_server::stop()
 {
 	stop_pipe.second->close();
 }
-

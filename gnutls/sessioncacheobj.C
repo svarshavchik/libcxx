@@ -38,7 +38,7 @@ gnutls::sessioncacheObj::~sessioncacheObj() noexcept
 }
 
 static property::value<size_t> cache_size_property
-(LIBCXX_NAMESPACE_WSTR "::gnutls::session_cache::size", 500);
+(LIBCXX_NAMESPACE_STR "::gnutls::session_cache::size", 500);
 
 class LIBCXX_HIDDEN gnutls::sessioncacheObj::basic_implObj
 	: public sessioncacheObj {
@@ -160,4 +160,3 @@ gnutls_datum_t gnutls::sessioncacheObj::retr_func(void *ptr, gnutls_datum_t key)
 {
 #endif
 };
-

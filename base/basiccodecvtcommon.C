@@ -36,7 +36,7 @@ void basic_codecvt_common::in_failed(const std::string &localeName)
 }
 
 property::value<size_t> iofilter_bufsizeprop LIBCXX_INTERNAL
-(LIBCXX_NAMESPACE_WSTR L"::iofilter::defaultsize", 1024);
+(LIBCXX_NAMESPACE_STR "::iofilter::defaultsize", 1024);
 
 size_t iofilter_bufsize()
 {
@@ -44,7 +44,7 @@ size_t iofilter_bufsize()
 }
 
 property::value<size_t> iofilter_codecvtbufsizeprop LIBCXX_INTERNAL
-(LIBCXX_NAMESPACE_WSTR L"::iofilter::codecvtsize", 1024);
+(LIBCXX_NAMESPACE_STR "::iofilter::codecvtsize", 1024);
 
 size_t iofilter_codecvtbufsize()
 {

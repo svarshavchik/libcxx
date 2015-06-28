@@ -30,14 +30,14 @@ std::once_flag gnutls::init::once_init;
 
 int gnutls::init::init_flag=0, gnutls::init::randseed_flag=0;
 
-property::value<std::string> gnutls::init::high_random_prop(LIBCXX_NAMESPACE_WSTR
-							    L"::gnutls::random",
+property::value<std::string> gnutls::init::high_random_prop(LIBCXX_NAMESPACE_STR
+							    "::gnutls::random",
 							    "low");
-property::value<int> gnutls::init::loglevel(LIBCXX_NAMESPACE_WSTR
-					     L"::gnutls::loglevel", 0);
+property::value<int> gnutls::init::loglevel(LIBCXX_NAMESPACE_STR
+					     "::gnutls::loglevel", 0);
 
-property::value<bool> gnutls::init::logerrors(LIBCXX_NAMESPACE_WSTR
-					      L"::gnutls::logerrors", false);
+property::value<bool> gnutls::init::logerrors(LIBCXX_NAMESPACE_STR
+					      "::gnutls::logerrors", false);
 
 void gnutls::init::init_impl() noexcept
 {

@@ -49,9 +49,7 @@ int definitionSetPropertyObj::set(parserObj &parserArg,
 	LOG_FUNC_SCOPE(setLogger);
 
 	try {
-		property::load_properties(stringize<property::propvalue,
-					  std::string>
-					  ::tostr(valueArg + "\n", localeArg),
+		property::load_properties(valueArg + "\n",
 					  true, true,
 					  property::errhandler::errlog(),
 					  localeArg);

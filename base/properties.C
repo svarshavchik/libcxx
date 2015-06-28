@@ -106,16 +106,16 @@ void errhandler::errlog::operator()(const std::string &location,
 	LOG_ERROR(location << ": " << errtxt);
 }
 
-const propvalue::value_type propname_delim[3]={':', ':', 0};
+const char propname_delim[3]={':', ':', 0};
 
-propvalue combinepropname(const std::list<propvalue> &prophier)
+std::string combinepropname(const std::list<std::string> &prophier)
 {
-	propvalue n;
+	std::string n;
 
-	const propvalue::value_type *p=propname_delim+
+	const auto *p=propname_delim+
 		sizeof(propname_delim)/sizeof(propname_delim[0])-1;
 
-	for (std::list<propvalue>::const_iterator b=prophier.begin(),
+	for (std::list<std::string>::const_iterator b=prophier.begin(),
 		     e=prophier.end(); b != e; ++b)
 	{
 		n += p;
@@ -126,26 +126,26 @@ propvalue combinepropname(const std::list<propvalue> &prophier)
 	return n;
 }
 
-bool islibraryprop(const propvalue &value)
+bool islibraryprop(const std::string &value)
 {
-	std::list<propvalue> hier;
+	std::list<std::string> hier;
 
 	parsepropname(value.begin(), value.end(), hier);
 
 	if (hier.empty())
 		return false;
 
-	if (hier.front() == LIBCXX_NAMESPACE_WSTR)
+	if (hier.front() == LIBCXX_NAMESPACE_STR)
 		return true;
 
-	for (std::list<propvalue>::iterator b=hier.begin(), e=hier.end();
+	for (std::list<std::string>::iterator b=hier.begin(), e=hier.end();
 	     b != e; ++b)
-		if (*b == L"@log")
+		if (*b == "@log")
 			return true;
 	return false;
 }
 
-nodeObj::nodeObj(const propvalue &valArg,
+nodeObj::nodeObj(const std::string &valArg,
 		 const ref<nodehierObj> hierpArg)
 	: val(valArg), hierp(hierpArg), callbacks(callbacks_t::create())
 {
@@ -174,7 +174,7 @@ listObj::~listObj() noexcept
 {
 }
 
-void listObj::load(const propvalue &properties,
+void listObj::load(const std::string &properties,
 		   bool update,
 		   bool create,
 		   const errhandler &errh,
@@ -184,7 +184,7 @@ void listObj::load(const propvalue &properties,
 	      update, create, errh, l);
 }
 
-void listObj::load(propistream &i,
+void listObj::load(std::istream &i,
 		   const std::string &location,
 		   bool update,
 		   bool create,
@@ -192,33 +192,26 @@ void listObj::load(propistream &i,
 		   const const_locale &l
 		   )
 {
-	std::basic_string<propvalue::value_type> s;
+	typedef std::istreambuf_iterator<char> iter_t;
 
-	typedef std::istreambuf_iterator<propvalue::value_type> iter_t;
-
-	{
-		imbue<propistream> im(l, i);
-
-		s=std::basic_string<propvalue::value_type>
-			(iter_t(i), iter_t());
-	}
+	auto s=std::string(iter_t(i), iter_t());
 
 	parse(s.begin(), s.end(), location, update, create, errh, l);
 }
 
-void listObj::load(const propvalue &n,
-		   const propvalue &v,
+void listObj::load(const std::string &n,
+		   const std::string &v,
 		   bool do_update,
 		   bool do_create,
 		   const errhandler &errh,
 		   const const_locale &l)
 {
-	std::list<propvalue> hier;
+	std::list<std::string> hier;
 
 	parsepropname(n.begin(), n.end(), hier, l);
 
 	if (hier.empty())
-		throw EXCEPTION("Invalid property propvalue");
+		throw EXCEPTION("Invalid property name");
 
 	loaded_t parsed;
 	{
@@ -236,7 +229,7 @@ void listObj::load_file(const std::string &filename,
 			const const_locale &l
 			)
 {
-	std::basic_ifstream<propvalue::value_type> i;
+	std::ifstream i;
 
 	i.open(filename.c_str());
 
@@ -246,7 +239,7 @@ void listObj::load_file(const std::string &filename,
 	load_file(i, filename, update, create, errh, l);
 }
 
-void listObj::load_file(std::basic_ifstream<propvalue::value_type> &i,
+void listObj::load_file(std::ifstream &i,
 			const std::string &filename,
 			bool update,
 			bool create,
@@ -257,14 +250,13 @@ void listObj::load_file(std::basic_ifstream<propvalue::value_type> &i,
 	const_locale parse_locale=l;
 
 	{
-		std::basic_string<propvalue::value_type> line;
+		std::string line;
 
-		basic_ctype<propvalue::value_type> ct(l);
+		basic_ctype<char> ct(l);
 
 		while (!std::getline(i, line).eof())
 		{
-			std::list<std::basic_string<propvalue::value_type> >
-				words;
+			std::list<std::string> words;
 
 			ct.strtok_is(line, words);
 
@@ -274,7 +266,7 @@ void listObj::load_file(std::basic_ifstream<propvalue::value_type> &i,
 			if (*words.front().c_str() != '#')
 				break;
 
-			if (words.front() == L"#LOCALE")
+			if (words.front() == "#LOCALE")
 			{
 				words.pop_front();
 
@@ -290,18 +282,18 @@ void listObj::load_file(std::basic_ifstream<propvalue::value_type> &i,
 	load(i, filename, update, create, errh, parse_locale);
 }
 
-ref<nodehierObj> listObj::findhier_locked(const std::list<propvalue> &hier,
-					  propvalue &n)
+ref<nodehierObj> listObj::findhier_locked(const std::list<std::string> &hier,
+					  std::string &n)
 
 {
 	n.clear();
 
 	ref<nodehierObj> p=rootnode;
 
-	const propvalue::value_type *sep=propname_delim+
+	const auto *sep=propname_delim+
 		sizeof(propname_delim)/sizeof(propname_delim[0])-1;
 
-	for (std::list<propvalue>::const_iterator b=hier.begin(),
+	for (std::list<std::string>::const_iterator b=hier.begin(),
 		     e=hier.end(); b != e; ++b)
 	{
 		n += sep;
@@ -327,13 +319,13 @@ ref<nodehierObj> listObj::findhier_locked(const std::list<propvalue> &hier,
 	return p;
 }
 
-void listObj::update_locked(const std::list<propvalue> &hier,
-			    const propvalue &v,
+void listObj::update_locked(const std::list<std::string> &hier,
+			    const std::string &v,
 			    loaded_t &parsed,
 			    bool update,
 			    bool create)
 {
-	propvalue n;
+	std::string n;
 
 	ptr<nodehierObj> p=findhier_locked(hier, n);
 
@@ -396,21 +388,21 @@ void listObj::update(const loaded_t &loaded,
 
 ref<nodeObj>
 listObj::install(const ref<eventhandlerObj<propvalueset_t> > &callback,
-		 const propvalue &propname,
-		 const propvalue &initialvalue,
+		 const std::string &propname,
+		 const std::string &initialvalue,
 		 const const_locale &l)
 {
-	std::list<propvalue> hier;
+	std::list<std::string> hier;
 
 	parsepropname(propname.begin(), propname.end(), hier, l);
 
 	ptr<nodeObj> value;
 
-	propvalue canonname=combinepropname(hier);
+	std::string canonname=combinepropname(hier);
 
 	{
 		std::lock_guard<std::mutex> lock(objmutex);
-		propvalue n;
+		std::string n;
 		ptr<nodehierObj> node;
 
 		if (!hier.empty()) // Empty means it's a private value, this shouldn't happen
@@ -450,7 +442,7 @@ listObj::install(const ref<eventhandlerObj<propvalueset_t> > &callback,
 }
 
 listObj::iteratorObj::iteratorObj(const list &lArg,
-				  const propvalue &nodenameArg,
+				  const std::string &nodenameArg,
 				  const ptr<nodehierObj> &pArg)
 	: l(lArg), nodename(nodenameArg), p(pArg)
 {
@@ -470,14 +462,14 @@ listObj::iterator listObj::root()
 	std::lock_guard<std::mutex> lock(objmutex);
 
 	return iterator(ref<iteratorObj>::create(list(this),
-						 LIBCXX_PROPERTY_NAME(""),
+						 "",
 						 rootnode));
 }
 
-listObj::iterator listObj::find_internal(const propvalue &propname,
+listObj::iterator listObj::find_internal(const std::string &propname,
 					 const const_locale &l)
 {
-	std::list<propvalue> hier;
+	std::list<std::string> hier;
 
 	parsepropname(propname.begin(), propname.end(), hier, l);
 
@@ -495,17 +487,17 @@ listObj::iterator listObj::find_internal(const propvalue &propname,
 	return p;
 }
 
-propvalue listObj::iterator::propname() const
+std::string listObj::iterator::propname() const
 {
 	return iter->nodename;
 }
 
-std::pair<propvalue, bool> listObj::iterator::value() const
+std::pair<std::string, bool> listObj::iterator::value() const
 {
 	ptr<nodeObj> node=iter->p->value.getptr();
 
 	if (node.null())
-		return std::make_pair(propvalue(), true);
+		return std::make_pair(std::string(), true);
 
 	std::lock_guard<std::mutex> lock(node->objmutex);
 
@@ -514,7 +506,7 @@ std::pair<propvalue, bool> listObj::iterator::value() const
 
 void listObj::iterator::children(children_t &childrenArg) const
 {
-	propvalue n=propname();
+	std::string n=propname();
 
 	if (n.size() > 0)
 		n += propname_delim;
@@ -538,10 +530,10 @@ void listObj::iterator::children(children_t &childrenArg) const
 	}
 }
 
-listObj::iterator listObj::iterator::get(const propvalue &childname)
+listObj::iterator listObj::iterator::get(const std::string &childname)
 	const
 {
-	propvalue n=propname();
+	std::string n=propname();
 
 	if (n.size() > 0)
 		n += propname_delim;
@@ -560,21 +552,21 @@ listObj::iterator listObj::iterator::get(const propvalue &childname)
 	}
 
 	return iterator(ref<iteratorObj>::create(iter->l,
-						 LIBCXX_PROPERTY_NAME(""),
+						 "",
 						 ptr<nodehierObj>()));
 }
 
-void listObj::enumerate(std::map<propvalue, propvalue> &properties)
+void listObj::enumerate(std::map<std::string, std::string> &properties)
 
 {
 	enumerate(properties, root());
 }
 
-void listObj::enumerate(std::map<propvalue, propvalue> &properties,
+void listObj::enumerate(std::map<std::string, std::string> &properties,
 			const iterator &iter)
 
 {
-	std::pair<propvalue, bool> value(iter.value());
+	std::pair<std::string, bool> value(iter.value());
 
 	if (!value.second)
 		properties.insert(std::make_pair(iter.propname(), value.first));
@@ -632,7 +624,7 @@ globalListObj::globalListObj()
 
 	if (exename.size() > 0)
 	{
-		std::basic_ifstream<propvalue::value_type> i;
+		std::ifstream i;
 
 		i.open(exename.c_str());
 
@@ -735,10 +727,10 @@ public:
 		     const list &props,
 
 		     //! This property's name
-		     const propvalue &propname,
+		     const std::string &propname,
 
 		     //! The initial %value of this property
-		     const propvalue &initialvalue,
+		     const std::string &initialvalue,
 
 		     //! Value's locale
 		     const const_locale &l);
@@ -752,8 +744,8 @@ propvaluebaseObj::propvaluebaseObj() : p(NULL)
 }
 
 void propvaluebaseObj::install(const list &props,
-			       const propvalue &propname,
-			       const propvalue &initialvalue,
+			       const std::string &propname,
+			       const std::string &initialvalue,
 			       const const_locale &l)
 {
 	node=props->install( ref<eventhandlerObj<propvalueset_t> >(this),
@@ -798,25 +790,25 @@ void propvaluesetbase::uninstall()
 {
 	handler->setValueBase(0);
 }
-void propvaluesetbase::install(const propvalue::value_type *namestr,
-			       const propvalue &initvalue,
+void propvaluesetbase::install(const char *namestr,
+			       const std::string &initvalue,
 			       const const_locale &localeArg)
 
 {
-	install(propvalue(namestr), initvalue, localeArg);
+	install(std::string(namestr), initvalue, localeArg);
 }
 
 void propvaluesetbase::install(const listptr &props,
-			       const propvalue::value_type *namestr,
-			       const propvalue &initvalue,
+			       const char *namestr,
+			       const std::string &initvalue,
 			       const const_locale &localeArg)
 
 {
-	install(props, propvalue(namestr), initvalue, localeArg);
+	install(props, std::string(namestr), initvalue, localeArg);
 }
 
-void propvaluesetbase::install(const propvalue &namestr,
-			       const propvalue &initvalue,
+void propvaluesetbase::install(const std::string &namestr,
+			       const std::string &initvalue,
 			       const const_locale &localeArg)
 
 {
@@ -824,8 +816,8 @@ void propvaluesetbase::install(const propvalue &namestr,
 }
 
 void propvaluesetbase::install(const list &props,
-			       const propvalue &namestr,
-			       const propvalue &initvalue,
+			       const std::string &namestr,
+			       const std::string &initvalue,
 			       const const_locale &localeArg)
 
 {
@@ -844,7 +836,7 @@ void propvaluesetbase::installNotify(const notify &notifyRef)
 	handler->install(notifyRef);
 }
 
-void load_properties(const propvalue &default_properties,
+void load_properties(const std::string &default_properties,
 		     bool update,
 		     bool create,
 		     const errhandler &errh,
@@ -856,7 +848,7 @@ void load_properties(const propvalue &default_properties,
 
 }
 
-void load_properties(propistream &default_properties,
+void load_properties(std::istream &default_properties,
 		     const std::string &filename,
 		     bool update,
 		     bool create,
@@ -868,14 +860,14 @@ void load_properties(propistream &default_properties,
 				update, create, errh, localeRef);
 }
 
-void enumerate_properties(std::map<propvalue, propvalue> &properties)
+void enumerate_properties(std::map<std::string, std::string> &properties)
 
 {
 	listObj::global()->enumerate(properties);
 }
 
-void load_property(const propvalue &propnamestr,
-		   const propvalue &propvaluestr,
+void load_property(const std::string &propnamestr,
+		   const std::string &propvaluestr,
 		   bool update,
 		   bool create,
 		   const errhandler &errh,

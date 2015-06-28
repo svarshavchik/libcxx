@@ -21,10 +21,10 @@ static void checkPublicSuffix(const std::string &domain,
 
 static void testeffectivetldnames()
 {
-	LIBCXX_NAMESPACE::property::load_property(LIBCXX_NAMESPACE_WSTR
-						  L"::http::effective_tld_names",
-						  WSRCDIR
-						  L"/effective_tld_names.dat",
+	LIBCXX_NAMESPACE::property::load_property(LIBCXX_NAMESPACE_STR
+						  "::http::effective_tld_names",
+						  SRCDIR
+						  "/effective_tld_names.dat",
 						  true, true);
 	// http://publicsuffix.org/list/
 

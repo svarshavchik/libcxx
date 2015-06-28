@@ -115,7 +115,7 @@ static void testfdlistener()
 
 	std::cout << "GET:" << std::endl;
 	resp.toString(std::ostreambuf_iterator<char>(std::cout));
-	
+
 	std::copy(client.begin(), client.end(),
 		  std::ostreambuf_iterator<char>(std::cout));
 
@@ -182,15 +182,9 @@ int main(int argc, char **argv)
 		alarm(10);
 		testfdlistener();
 		LIBCXX_NAMESPACE::property::load_property
-			(LIBCXX_NAMESPACE::stringize<LIBCXX_NAMESPACE
-						   ::property::propvalue,
-						   std::string>
-			 ::tostr(LIBCXX_NAMESPACE_STR
-				 "::http::server::pipeline_timeout"),
-			 LIBCXX_NAMESPACE::stringize<LIBCXX_NAMESPACE
-						   ::property::propvalue,
-						   std::string>
-			 ::tostr("2"), true, true);
+			(LIBCXX_NAMESPACE_STR
+			 "::http::server::pipeline_timeout",
+			 "2", true, true);
 		alarm(10);
 		testpipelinetimeout();
 		alarm(0);

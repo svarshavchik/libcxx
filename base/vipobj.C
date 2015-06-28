@@ -17,8 +17,8 @@ namespace LIBCXX_NAMESPACE {
 };
 #endif
 
-property::value<bool> vipobjdebug_base::abort_prop(LIBCXX_NAMESPACE_WSTR
-						   L"::vipobjdebugbase::abort",
+property::value<bool> vipobjdebug_base::abort_prop(LIBCXX_NAMESPACE_STR
+						   "::vipobjdebugbase::abort",
 						   false);
 
 std::string vipobjdebug_base::deadlock_detected_msg()
@@ -41,7 +41,7 @@ void vipobjdebug_base::deadlock_detected(const std::string &lock1,
 
 	throw EXCEPTION(deadlock_detected_msg());
 }
-	
+
 #if 0
 {
 #endif

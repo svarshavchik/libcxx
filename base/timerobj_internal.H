@@ -7,7 +7,7 @@ class timerObj::repeatinfoObj : public repeatinfo, virtual public obj {
 
 public:
 
-	repeatinfoObj(const property::propvalue &repeatPropertyArg,
+	repeatinfoObj(const std::string &repeatPropertyArg,
 		      const duration_t &defaultRepeatDurationArg,
 		      const const_locale &localeArg) LIBCXX_HIDDEN
 		: repeatinfo(repeatPropertyArg,

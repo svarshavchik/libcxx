@@ -10,7 +10,7 @@ LIBCXX_TEMPLATE_DECL template
 listObj::parsepropname_iter<LIBCXX_TEMPLATE_ITER>
 parsepropname(listObj::parsepropname_iter<LIBCXX_TEMPLATE_ITER>,
 	      listObj::parsepropname_iter<LIBCXX_TEMPLATE_ITER>,
-	      std::list<propvalue> &,
+	      std::list<std::string> &,
 	      const const_locale &);
 
 LIBCXX_TEMPLATE_DECL template class

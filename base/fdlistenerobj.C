@@ -15,7 +15,7 @@ fdlistenerObj::fdlistenerObj(const fdlistenerImplObj::listenon &listenonArg,
 			     size_t maxthreadsArg,
 			     size_t minthreadsArg,
 			     const std::string &jobnameArg,
-			     const property::propvalue &propnameArg
+			     const std::string &propnameArg
 			     )
 	: impl(ref<fdlistenerImplObj>::create(listenonArg,
 					      maxthreadsArg, minthreadsArg,

@@ -145,16 +145,16 @@ public:
 template<typename iter_type>
 iter_type parsepropname(iter_type b, //!< Beginning iterator
 			iter_type e, //!< Ending iterator
-			std::list<propvalue> &prophier, //!< Parsed %property name
+			std::list<std::string> &prophier, //!< Parsed %property name
 			const const_locale &locale=
 			const_locale::base::environment() //!< Locale for parsing
 			)
 {
 	prophier.clear();
 
-	basic_ctype<propvalue::value_type> ct(locale);
+	basic_ctype<char> ct(locale);
 
-	propvalue cur_name;
+	std::string cur_name;
 
 	while (1)
 	{
@@ -185,22 +185,18 @@ iter_type parsepropname(iter_type b, //!< Beginning iterator
 
 //! Combine a parsed %property name into a string, using "::" as delimiters
 
-propvalue combinepropname(const std::list<propvalue> &prophier);
+std::string combinepropname(const std::list<std::string> &prophier);
 
 //! Return true if this property is owned by this library
 
 //! \return true if the property is in the \c INSERT_LIBX_NAMESPACE hierarchy
 //! or if it contains an "@log" component somewhere in it.
 
-bool islibraryprop(const propvalue &value);
+bool islibraryprop(const std::string &value);
 
 //! Enumerate existing properties
 
-void enumerate_properties(std::map<propvalue, propvalue> &properties);
-
-//! Stream type for reading properties
-
-typedef std::basic_istream<propvalue::value_type> propistream;
+void enumerate_properties(std::map<std::string, std::string> &properties);
 
 //! Load global properties from a file
 
@@ -241,7 +237,7 @@ void load_file(//! Filename, for error reporting purposes
 //! already specified in the %property file.
 
 void load_properties(//! Properties are read from this input stream
-		     propistream &propertyfile,
+		     std::istream &propertyfile,
 
 		     //! Filename, for error reporting purposes
 		     const std::string &filename,
@@ -273,7 +269,7 @@ void load_properties(//! Properties are read from this input stream
 //! defined.
 
 void load_properties(//! Literal %properties
-		     const std::basic_string<propvalue::value_type> &default_properties,
+		     const std::string &default_properties,
 		     //! Whether existing properties should be overriden
 		     bool update,
 
@@ -290,16 +286,16 @@ void load_properties(//! Literal %properties
 //! Update a single %property value
 
 //! \code
-//! property::load_property(L"main.window.width", L"400", true, true);
+//! property::load_property("main.window.width", "400", true, true);
 //! \endcode
 //!
 //! Set a value of a single %property, the value specified by a string value.
 
 void load_property(//! %Property name
-		   const propvalue &propnamestr,
+		   const std::string &propnamestr,
 
 		   //! %Property value
-		   const propvalue &valuestr,
+		   const std::string &valuestr,
 
 		   //! Whether existing properties should be overriden
 		   bool update,
@@ -311,12 +307,11 @@ void load_property(//! %Property name
 		   const errhandler &errh=errhandler::errlog(),
 
 		   //! Locale for interpreting the %property value
-		   const const_locale &localeRef=const_locale::base::global())
-;
+		   const const_locale &localeRef=const_locale::base::global());
 
 template<typename char_type, typename iter_type>
 iter_type save_properties(//! Properties
-			  const std::map<propvalue, propvalue> &properties,
+			  const std::map<std::string, std::string> &properties,
 
 			  //! Output iterator
 			  iter_type iter,

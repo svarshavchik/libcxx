@@ -8,6 +8,6 @@
 LIBCXX_TEMPLATE_DECL template
 LIBCXX_TEMPLATE_ITER parsepropname(LIBCXX_TEMPLATE_ITER,
 				 LIBCXX_TEMPLATE_ITER,
-				 std::list<propvalue> &,
+				 std::list<std::string> &,
 				 const const_locale &);
 #endif

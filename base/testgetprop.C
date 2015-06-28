@@ -12,7 +12,7 @@
 #include <cstring>
 #include <cerrno>
 
-LIBCXX_NAMESPACE::property::value<int> int_value(L"intvalue", 0);
+LIBCXX_NAMESPACE::property::value<int> int_value("intvalue", 0);
 
 int main(int argc, char **argv)
 {
@@ -69,8 +69,7 @@ int main(int argc, char **argv)
 			     b(load_file_list->values.begin()),
 			     e(load_file_list->values.end()); b != e; ++b)
 		{
-			std::basic_ifstream<LIBCXX_NAMESPACE::property::propvalue
-					    ::value_type> i(b->c_str());
+			std::ifstream i(b->c_str());
 
 			if (!i.is_open())
 			{
@@ -88,10 +87,7 @@ int main(int argc, char **argv)
 			     e(load_val_list->values.end()); b != e; ++b)
 		{
 			LIBCXX_NAMESPACE::property
-				::load_properties(LIBCXX_NAMESPACE::stringize
-						  <LIBCXX_NAMESPACE::property
-						   ::propvalue, std::string>
-						  ::tostr(*b), false, true,
+				::load_properties(*b, false, true,
 						  errh, cloc);
 		}
 
@@ -99,8 +95,7 @@ int main(int argc, char **argv)
 			     b(upd_file_list->values.begin()),
 			     e(upd_file_list->values.end()); b != e; ++b)
 		{
-			std::basic_ifstream<LIBCXX_NAMESPACE::property::propvalue
-					    ::value_type> i(b->c_str());
+			std::ifstream i(b->c_str());
 
 			if (!i.is_open())
 			{
@@ -118,10 +113,7 @@ int main(int argc, char **argv)
 			     e(upd_val_list->values.end()); b != e; ++b)
 		{
 			LIBCXX_NAMESPACE::property
-				::load_properties(LIBCXX_NAMESPACE::stringize
-						  <LIBCXX_NAMESPACE::property
-						   ::propvalue, std::string>
-						  ::tostr(*b),
+				::load_properties(*b,
 						  true, true,
 						  errh, cloc);
 		}
@@ -132,10 +124,7 @@ int main(int argc, char **argv)
 		{
 			std::cout <<
 				LIBCXX_NAMESPACE::property::value<std::string>
-				(LIBCXX_NAMESPACE::towstring(*b,
-							   LIBCXX_NAMESPACE::
-							   locale::base::environment()),
-				 "").getValue() << std::endl;
+				(*b, "").getValue() << std::endl;
 		}
 	} catch (LIBCXX_NAMESPACE::exception &e)
 	{

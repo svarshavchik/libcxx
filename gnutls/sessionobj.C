@@ -37,11 +37,11 @@ namespace LIBCXX_NAMESPACE {
 #define LOCK_SESSION std::unique_lock<std::recursive_mutex> session_mutex_lock(session_mutex)
 
 static property::value<hms> session_cache_expiration
-( LIBCXX_NAMESPACE_WSTR L"::gnutls::session_cache::expiration",
+( LIBCXX_NAMESPACE_STR "::gnutls::session_cache::expiration",
   hms(1,0,0));
 
 static property::value<bool> ignore_premature_termination
-( LIBCXX_NAMESPACE_WSTR L"::gnutls::ignore_premature_termination_error", false);
+( LIBCXX_NAMESPACE_STR "::gnutls::ignore_premature_termination_error", false);
 
 gnutls::sessionObj::factoryObj::factoryObj()
 {

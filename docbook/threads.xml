@@ -281,7 +281,7 @@ std::lock_guard&lt;&ns;::rwmutex::wmutex&gt; lock(rw.w);
       and an <link linkend="exceptions">exception gets thrown</link>,
       for good measure.
     </para>
-  </section> 
+  </section>
 
   <section id="mutex">
     <title>Mutex objects</title>
@@ -382,7 +382,7 @@ if (lock.null())
       This example waits half a second for the lock to be acquired, before
       giving up.
     </para>
-  </section> 
+  </section>
 
   <section id="cond">
     <title>Condition variable objects</title>
@@ -428,7 +428,7 @@ c-&gt;notify_all();</programlisting>
       <function>notify_all</function>() which are analogous to its
       thin, non-reference counted cousin.
     </para>
-  </section> 
+  </section>
 
   <section id="rwlock">
     <title>Readers-writer lock objects</title>
@@ -487,7 +487,7 @@ c-&gt;notify_all();</programlisting>
       reference pointer to the acquired lock, which is null if the lock
       cannot be acquired.
     </para>
-  </section> 
+  </section>
 
   <section id="ethreads">
     <title>Execution threads</title>
@@ -1156,17 +1156,17 @@ bTimer-&gt;scheduleAtFixedRate(doSomethingTask, std::chrono::seconds(30));</prog
       <informalexample>
 	<programlisting>
 class cacheObj : virtual public &ns;::obj {
-   
+
 // ...
-   
+
 typedef &ns;::ref&lt;cacheObj&gt; cache;
-   
+
 typedef &ns;::ptr&lt;cacheObj&gt; cacheptr;
-   
+
 // ...
-   
+
 cache item=cache::create();
-   
+
 &ns;::weakthreadlocalObj&lt;cacheObj&gt; weakitem=&ns;::makeweakthreadlocal(item);</programlisting>
       </informalexample>
     </blockquote>
@@ -1329,7 +1329,7 @@ public:
 
 typedef &ns;::workerpool&lt;spaceshipObj&gt; fleet_t;
 
-fleet_t fleet=fleet_t::create(4, 8, "starship", L"army");
+fleet_t fleet=fleet_t::create(4, 8, "starship", "army");
 
 // ...
 
@@ -1425,7 +1425,7 @@ typedef &ns;::workerpool&lt;&gt; fleet_t;
 
 spaceship enterprise=spaceship::create();
 
-fleet_t fleet=fleet_t::create(4, 8, "starship", L"army");
+fleet_t fleet=fleet_t::create(4, 8, "starship", "army");
 
 // ...
 
@@ -1682,7 +1682,7 @@ typedef &ns;::ref&lt;testownerObj&gt; testowner;
 
 testowner owner=testowner::create();
 
-&ns;::property::value&lt;size_t&gt; maxjobs(L"maxjobs", 10);
+&ns;::property::value&lt;size_t&gt; maxjobs("maxjobs", 10);
 
 &ns;::semaphore sem(&ns;::semaphore::create(maxjobs));
 

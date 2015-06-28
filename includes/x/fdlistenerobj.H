@@ -71,7 +71,7 @@ class fdlistenerObj : virtual public obj {
 	};
 
 public:
-	
+
 	//! Specify the file descriptor(s) to listen on.
 
 	//! This type defines the second parameter to constructor, and specifies
@@ -115,7 +115,7 @@ public:
 		      //! parameters specify
 		      //! the default values, if not set in
 		      //! the property file.
-		      const property::propvalue &propname=L"");
+		      const std::string &propname="");
 
 	//! Destructor
 	~fdlistenerObj() noexcept;

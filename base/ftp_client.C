@@ -33,23 +33,23 @@ namespace LIBCXX_NAMESPACE {
 #endif
 
 property::value<hms>
-read_timeout LIBCXX_HIDDEN (LIBCXX_NAMESPACE_WSTR
-		     L"::ftp::client::timeout::read",
+read_timeout LIBCXX_HIDDEN (LIBCXX_NAMESPACE_STR
+		     "::ftp::client::timeout::read",
 		     hms(0,5,0)),
-	write_timeout LIBCXX_HIDDEN (LIBCXX_NAMESPACE_WSTR
-		      L"::ftp::client::timeout::write",
+	write_timeout LIBCXX_HIDDEN (LIBCXX_NAMESPACE_STR
+		      "::ftp::client::timeout::write",
 		      hms(0,5,0));
 
 property::value<size_t>
-read_timeout_bytes LIBCXX_HIDDEN (LIBCXX_NAMESPACE_WSTR
-				  L"::ftp::client::timeout::read_bytes", 8192),
-	write_timeout_bytes LIBCXX_HIDDEN (LIBCXX_NAMESPACE_WSTR
-					   L"::ftp::client::timeout::write_bytes", 8192),
+read_timeout_bytes LIBCXX_HIDDEN (LIBCXX_NAMESPACE_STR
+				  "::ftp::client::timeout::read_bytes", 8192),
+	write_timeout_bytes LIBCXX_HIDDEN (LIBCXX_NAMESPACE_STR
+					   "::ftp::client::timeout::write_bytes", 8192),
 
-	read_response_max_lines LIBCXX_HIDDEN(LIBCXX_NAMESPACE_WSTR
-					      L"::ftp::client::response::maxlines", 16),
-	read_response_max_linesize LIBCXX_HIDDEN(LIBCXX_NAMESPACE_WSTR
-						 L"::ftp::client::response::maxlinesize", 2048);
+	read_response_max_lines LIBCXX_HIDDEN(LIBCXX_NAMESPACE_STR
+					      "::ftp::client::response::maxlines", 16),
+	read_response_max_linesize LIBCXX_HIDDEN(LIBCXX_NAMESPACE_STR
+						 "::ftp::client::response::maxlinesize", 2048);
 
 //
 // Set up a default timeout configuration for a data channel.
@@ -503,8 +503,8 @@ void clientObj::greeting()
 
 	noop_timer_thread->setTimerName("ftp_noop_keepalive");
 	noop_timer_thread->scheduleAtFixedRate(noop_task,
-					       LIBCXX_NAMESPACE_WSTR
-					       L"::ftp::client::noop_interval",
+					       LIBCXX_NAMESPACE_STR
+					       "::ftp::client::noop_interval",
 					       std::chrono::minutes(1));
 }
 

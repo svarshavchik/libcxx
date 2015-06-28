@@ -18,13 +18,13 @@ namespace LIBCXX_NAMESPACE {
 #endif
 
 property::value<hms>
-gnutls::http::fdtlsclientimpl::handshake_timeout(LIBCXX_NAMESPACE_WSTR
-						 L"::https::client::handshake_timeout",
+gnutls::http::fdtlsclientimpl::handshake_timeout(LIBCXX_NAMESPACE_STR
+						 "::https::client::handshake_timeout",
 						 hms(0,5,0));
 
 property::value<hms>
-gnutls::http::fdtlsclientimpl::bye_timeout(LIBCXX_NAMESPACE_WSTR
-					   L"::https::client::bye_timeout",
+gnutls::http::fdtlsclientimpl::bye_timeout(LIBCXX_NAMESPACE_STR
+					   "::https::client::bye_timeout",
 					   30);
 
 gnutls::http::fdtlsclientimpl::fdtlsclientimpl()

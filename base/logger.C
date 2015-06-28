@@ -529,25 +529,25 @@ logger::initstate::initstate()
 class logger::configmeta {
 public:
 	//! Mapping of names of log levels to their numerical values
-	std::map<property::propvalue, short> loglevels;
+	std::map<std::string, short> loglevels;
 
 	//! Reverse mapping
-	std::map<short, property::propvalue> loglevelsrev;
+	std::map<short, std::string> loglevelsrev;
 
 	//! Known log formats
 
-	std::map<property::propvalue, property::propvalue> logformats;
+	std::map<std::string, std::string> logformats;
 
 	//! Known handlers
 
-	std::map<property::propvalue, handler> loghandlers;
+	std::map<std::string, handler> loghandlers;
 
 	//! Default locale
 	locale default_locale;
 
 	//! Default character conversion locale
 
-	basic_ctype<property::propvalue::value_type> default_ctype;
+	basic_ctype<char> default_ctype;
 
 	configmeta() noexcept;
 	~configmeta() noexcept;
@@ -604,14 +604,12 @@ bool logger::logger_subsystem_initialized() noexcept
 	return logger_subsystem_initialized_flag;
 }
 
-property::propvalue logger::debuglevelpropstr
-::tostr(short n, const const_locale &l)
-
+std::string logger::debuglevelpropstr::tostr(short n, const const_locale &l)
 {
 	{
 		logger::logconfig_lock lock;
 
-		std::map<short, property::propvalue>::iterator iter=
+		std::map<short, std::string>::iterator iter=
 			logger::logconfig->loglevelsrev.find(n);
 
 		if (iter != logger::logconfig->loglevelsrev.end())
@@ -619,24 +617,20 @@ property::propvalue logger::debuglevelpropstr
 				(iter->second);
 	}
 
-	std::basic_ostringstream<property::propvalue::value_type> o;
-
-	imbue<std::basic_ostringstream<property::propvalue::value_type> >
-		i(l, o);
+	std::ostringstream o;
 
 	o << n;
 
 	return o.str();
 }
 
-short logger::debuglevelpropstr::fromstr(const property::propvalue &s,
+short logger::debuglevelpropstr::fromstr(const std::string &s,
 					 const const_locale &l)
-
 {
 	{
 		logger::logconfig_lock lock;
 
-		std::map<property::propvalue, short>::iterator iter=
+		std::map<std::string, short>::iterator iter=
 			logger::logconfig->loglevels.find(logconfig->
 							  default_ctype
 							  .toupper(s));
@@ -647,14 +641,9 @@ short logger::debuglevelpropstr::fromstr(const property::propvalue &s,
 
 	short n=0;
 
-	std::basic_istringstream<property::propvalue::value_type> i(s);
+	std::istringstream i(s);
 
-	{
-		imbue< std::basic_istringstream<property::propvalue::value_type
-						> > im(l, i);
-
-		i >> n;
-	}
+	i >> n;
 
 	if (!i.fail())
 		return n;
@@ -665,13 +654,13 @@ short logger::debuglevelpropstr::fromstr(const property::propvalue &s,
 class logger::handlername {
 
 public:
-	property::propvalue n;
+	std::string n;
 	handlerptr h;
 
 	handlername();
 	~handlername() noexcept;
 
-	handlername(const property::propvalue &,
+	handlername(const std::string &,
 		    const const_locale &);
 
 	static const stringable_t stringable=class_towstring;
@@ -691,7 +680,7 @@ public:
 					  const const_locale &localeRef)
 
 	{
-		property::propvalue val=value_string<property::propvalue>
+		std::string val=value_string<std::string>
 			::fromWideString(std::wstring(beg_iter,
 						      end_iter),
 					 localeRef);
@@ -707,13 +696,13 @@ logger::handlername::~handlername() noexcept
 {
 }
 
-logger::handlername::handlername(const property::propvalue &name,
+logger::handlername::handlername(const std::string &name,
 				 const const_locale &localeRef)
 {
 	{
 		logger::logconfig_lock lock;
 
-		std::map<property::propvalue, handler>::iterator
+		std::map<std::string, handler>::iterator
 			iter=logconfig->loghandlers.find(logger::logconfig->
 							 default_ctype
 							 .toupper(name));
@@ -732,13 +721,13 @@ logger::handlername::handlername(const property::propvalue &name,
 class logger::handlerfmt {
 
 public:
-	property::propvalue n;
-	property::propvalue fmt;
+	std::string n;
+	std::string fmt;
 
 	handlerfmt();
 	~handlerfmt() noexcept;
 
-	handlerfmt(const property::propvalue &, const const_locale &);
+	handlerfmt(const std::string &, const const_locale &);
 
 	static const stringable_t stringable=class_towstring;
 
@@ -756,7 +745,7 @@ public:
 					 const const_locale &localeRef)
 
 	{
-		return handlerfmt(stringize<property::propvalue, std::wstring>
+		return handlerfmt(stringize<std::string, std::wstring>
 				  ::tostr(std::wstring(beg_iter, end_iter),
 					  localeRef), localeRef);
 	}
@@ -771,13 +760,13 @@ logger::handlerfmt::~handlerfmt() noexcept
 {
 }
 
-logger::handlerfmt::handlerfmt(const property::propvalue &name,
+logger::handlerfmt::handlerfmt(const std::string &name,
 			       const const_locale &localeRef)
 {
 	{
 		logger::logconfig_lock lock;
 
-		std::map<property::propvalue, property::propvalue>::iterator
+		std::map<std::string, std::string>::iterator
 			iter=logconfig->logformats.find(logger::logconfig->
 							default_ctype
 							.toupper(name));
@@ -799,19 +788,19 @@ public:
 	property::value<handlername> name;
 	property::value<handlerfmt> fmt;
 
-	scopedestObj(const property::propvalue &handlerpropname,
-		     const property::propvalue &handlernamestr,
-		     const property::propvalue &fmtpropname,
-		     const property::propvalue &fmtnamestr,
+	scopedestObj(const std::string &handlerpropname,
+		     const std::string &handlernamestr,
+		     const std::string &fmtpropname,
+		     const std::string &fmtnamestr,
 
 		     const const_locale &localeRef);
 	~scopedestObj() noexcept;
 };
 
-logger::scopedestObj::scopedestObj(const property::propvalue &handlerpropname,
-				   const property::propvalue &handlernamestr,
-				   const property::propvalue &fmtpropname,
-				   const property::propvalue &fmtnamestr,
+logger::scopedestObj::scopedestObj(const std::string &handlerpropname,
+				   const std::string &handlernamestr,
+				   const std::string &fmtpropname,
+				   const std::string &fmtnamestr,
 				   const const_locale &localeRef)
  : name(handlerpropname,
 				handlername(handlernamestr, localeRef)),
@@ -837,13 +826,13 @@ public:
 
 	// Value: pair<handler name,format name>
 
-	typedef std::map<property::propvalue,
-			 std::pair<property::propvalue,
-				   property::propvalue> > handlers_t;
+	typedef std::map<std::string,
+			 std::pair<std::string,
+				   std::string> > handlers_t;
 
 	handlers_t handlers;
 
-	std::list<property::propvalue> hier;
+	std::list<std::string> hier;
 };
 
 logger::inheritObj::inheritObj()
@@ -865,12 +854,12 @@ logger::scopebase::scopebase(inheritObj &inherit)
 	{
 		inherit.hier.push_back(b->first);
 
-		property::propvalue handlerpropname=
+		std::string handlerpropname=
 			property::combinepropname(inherit.hier);
 
-		inherit.hier.push_back(LIBCXX_PROPERTY_NAME("format"));
+		inherit.hier.push_back("format");
 
-		property::propvalue fmtpropname=
+		std::string fmtpropname=
 			property::combinepropname(inherit.hier);
 		inherit.hier.pop_back();
 		inherit.hier.pop_back();
@@ -899,15 +888,14 @@ logger::scopebase::~scopebase() noexcept
 {
 }
 
-property::propvalue
+std::string
 logger::scopebase::get_debuglevel_propname (inheritObj &inherit)
-
 {
-	std::list<property::propvalue> hier=inherit.hier;
+	std::list<std::string> hier=inherit.hier;
 
 	if (!hier.empty()) // Should end in @log::handler
 
-		hier.back()=L"level";
+		hier.back()="level";
 
 	return property::combinepropname(hier);
 }
@@ -924,7 +912,7 @@ short logger::scopebase::get_debuglevel_propvalue(inheritObj &inherit)
 
 		property::listObj::iterator child=(*e).child(L"level");
 
-		property::propvalue name=child.propname();
+		std::string name=child.propname();
 
 		if (name.size() > 0)
 		{
@@ -997,8 +985,7 @@ logger::logconfig_init::logconfig_init() noexcept
 			LOG_NAMESPACE "::logger::log::handler::default=stderr\n"
 			LOG_NAMESPACE "::logger::log::handler::default::format=brief\n";
 
-		globprops->load(stringize<property::propvalue, std::string>
-				::tostr(default_log_props), false, true,
+		globprops->load(default_log_props, false, true,
 				property::errhandler::errstream(),
 				global_locale);
 	}
@@ -1006,7 +993,7 @@ logger::logconfig_init::logconfig_init() noexcept
 	{
 		// Retrieve logger::level::NAME=LEVEL pairs
 
-		std::map<property::propvalue, property::propvalue>
+		std::map<std::string, std::string>
 			xlogger_level_map;
 
 		{
@@ -1021,12 +1008,12 @@ logger::logconfig_init::logconfig_init() noexcept
 				     e=children.end(); b != e;
 			     ++b)
 			{
-				property::propvalue n=logconfig->default_ctype
+				std::string n=logconfig->default_ctype
 					.toupper(b->first);
 
-				property::propvalue v=b->second.value().first;
+				std::string v=b->second.value().first;
 
-				std::basic_istringstream<property::propvalue
+				std::basic_istringstream<std::string
 							 ::value_type>
 					parsen(v);
 
@@ -1052,7 +1039,7 @@ logger::logconfig_init::logconfig_init() noexcept
 		{
 			bool parsed=false;
 
-			for (std::map<property::propvalue, property::propvalue>
+			for (std::map<std::string, std::string>
 				     ::iterator
 				     b=xlogger_level_map.begin(),
 				     e=xlogger_level_map.end(), p;
@@ -1060,7 +1047,7 @@ logger::logconfig_init::logconfig_init() noexcept
 			{
 				p=b; ++p;
 
-				std::map<property::propvalue, short>::iterator
+				std::map<std::string, short>::iterator
 					l=logconfig->loglevels
 					.find(b->second);
 
@@ -1077,7 +1064,7 @@ logger::logconfig_init::logconfig_init() noexcept
 				break;
 		}
 
-		for (std::map<property::propvalue, property::propvalue>
+		for (std::map<std::string, std::string>
 			     ::iterator
 			     b=xlogger_level_map.begin(),
 			     e=xlogger_level_map.end(); b != e; ++b)
@@ -1090,7 +1077,7 @@ logger::logconfig_init::logconfig_init() noexcept
 	{
 		// Retrieve logger::format::NAME=string pairs
 
-		std::map<property::propvalue, property::propvalue>
+		std::map<std::string, std::string>
 			xlogger_format_map;
 
 		{
@@ -1105,10 +1092,10 @@ logger::logconfig_init::logconfig_init() noexcept
 				     e=children.end(); b != e;
 			     ++b)
 			{
-				property::propvalue n=logconfig->default_ctype
+				std::string n=logconfig->default_ctype
 					.toupper(b->first);
 
-				property::propvalue val=b->second.value().first;
+				std::string val=b->second.value().first;
 
 				if (*val.c_str() == '$')
 				{
@@ -1128,7 +1115,7 @@ logger::logconfig_init::logconfig_init() noexcept
 		{
 			bool parsed=false;
 
-			for (std::map<property::propvalue, property::propvalue>
+			for (std::map<std::string, std::string>
 				     ::iterator
 				     b=xlogger_format_map.begin(),
 				     e=xlogger_format_map.end(), p;
@@ -1136,7 +1123,7 @@ logger::logconfig_init::logconfig_init() noexcept
 			{
 				p=b; ++p;
 
-				std::map<property::propvalue, property::propvalue>
+				std::map<std::string, std::string>
 					::iterator
 					l=logconfig->logformats
 					.find(b->second);
@@ -1153,7 +1140,7 @@ logger::logconfig_init::logconfig_init() noexcept
 				break;
 		}
 
-		for (std::map<property::propvalue, property::propvalue>
+		for (std::map<std::string, std::string>
 			     ::iterator
 			     b=xlogger_format_map.begin(),
 			     e=xlogger_format_map.end(); b != e; ++b)
@@ -1166,7 +1153,7 @@ logger::logconfig_init::logconfig_init() noexcept
 	{
 		// Retrieve logger::handler::NAME=string pairs
 
-		std::map<property::propvalue, property::propvalue>
+		std::map<std::string, std::string>
 			xlogger_handler_map;
 
 		{
@@ -1181,10 +1168,10 @@ logger::logconfig_init::logconfig_init() noexcept
 				     e=children.end(); b != e;
 			     ++b)
 			{
-				property::propvalue n=logconfig->default_ctype
+				std::string n=logconfig->default_ctype
 					.toupper(b->first);
 
-				property::propvalue v=b->second.value().first;
+				std::string v=b->second.value().first;
 
 				if (*v.c_str() == '$')
 				{
@@ -1194,13 +1181,13 @@ logger::logconfig_init::logconfig_init() noexcept
 					continue;
 				}
 
-				if (v.substr(0, 7) == LIBCXX_PROPERTY_NAME("@syslog"))
+				if (v.substr(0, 7) == "@syslog")
 				{
 					v=v.substr(7);
 
 					std::map<short, int> syslog_map;
 
-					property::propvalue::iterator
+					std::string::iterator
 						b=v.begin(), e=v.end();
 
 					while (b != e)
@@ -1213,7 +1200,7 @@ logger::logconfig_init::logconfig_init() noexcept
 							continue;
 						}
 
-						property::propvalue::iterator
+						std::string::iterator
 							p=b;
 
 						while (b != e)
@@ -1227,25 +1214,25 @@ logger::logconfig_init::logconfig_init() noexcept
 							++b;
 						}
 
-						property::propvalue w(p, b);
+						std::string w(p, b);
 
 						size_t eq=w.find('=');
 
 						if (eq == w.npos)
 							continue;
 
-						property::propvalue
+						std::string
 							sysn=logconfig
 							->default_ctype
 							.toupper(w.substr(0,
 									  eq));
-						property::propvalue
+						std::string
 							l=logconfig
 							->default_ctype
 							.toupper(w.substr(++eq)
 								 );
 
-						std::map<property::propvalue,
+						std::map<std::string,
 							 short>::iterator i
 							=logconfig->loglevels
 							.find(l);
@@ -1261,21 +1248,21 @@ logger::logconfig_init::logconfig_init() noexcept
 
 						int loglevel;
 
-						if (sysn == LIBCXX_PROPERTY_NAME("EMERG"))
+						if (sysn == "EMERG")
 							loglevel=LOG_EMERG;
-						else if (sysn == LIBCXX_PROPERTY_NAME("ALERT"))
+						else if (sysn == "ALERT")
 							loglevel=LOG_ALERT;
-						else if (sysn == LIBCXX_PROPERTY_NAME("CRIT"))
+						else if (sysn == "CRIT")
 							loglevel=LOG_CRIT;
-						else if (sysn == LIBCXX_PROPERTY_NAME("ERR"))
+						else if (sysn == "ERR")
 							loglevel=LOG_ERR;
-						else if (sysn == LIBCXX_PROPERTY_NAME("WARNING"))
+						else if (sysn == "WARNING")
 							loglevel=LOG_WARNING;
-						else if (sysn == LIBCXX_PROPERTY_NAME("NOTICE"))
+						else if (sysn == "NOTICE")
 							loglevel=LOG_NOTICE;
-						else if (sysn == LIBCXX_PROPERTY_NAME("INFO"))
+						else if (sysn == "INFO")
 							loglevel=LOG_INFO;
-						else if (sysn == LIBCXX_PROPERTY_NAME("DEBUG"))
+						else if (sysn == "DEBUG")
 							loglevel=LOG_DEBUG;
 						else
 						{
@@ -1299,10 +1286,7 @@ logger::logconfig_init::logconfig_init() noexcept
 				{
 					int fd;
 
-					std::basic_istringstream<property
-								 ::propvalue
-								 ::value_type>
-
+					std::istringstream
 						ifd(v.substr(1));
 
 					ifd >> fd;
@@ -1323,7 +1307,7 @@ logger::logconfig_init::logconfig_init() noexcept
 				}
 
 				size_t keep=0;
-				std::pair<property::propvalue, bool>
+				std::pair<std::string, bool>
 					keepValue, rotateValue;
 
 				property::listObj::iterator keepProp
@@ -1344,10 +1328,7 @@ logger::logconfig_init::logconfig_init() noexcept
 					}
 					else
 					{
-						std::basic_istringstream
-							<property
-							 ::propvalue
-							 ::value_type>
+						std::istringstream
 							i(keepValue.first);
 
 						i >> keep;
@@ -1378,7 +1359,7 @@ logger::logconfig_init::logconfig_init() noexcept
 		{
 			bool parsed=false;
 
-			for (std::map<property::propvalue, property::propvalue>
+			for (std::map<std::string, std::string>
 				     ::iterator
 				     b=xlogger_handler_map.begin(),
 				     e=xlogger_handler_map.end(), p;
@@ -1386,7 +1367,7 @@ logger::logconfig_init::logconfig_init() noexcept
 			{
 				p=b; ++p;
 
-				std::map<property::propvalue, handler>::iterator
+				std::map<std::string, handler>::iterator
 					l=logconfig->loghandlers
 					.find(b->second);
 
@@ -1404,7 +1385,7 @@ logger::logconfig_init::logconfig_init() noexcept
 				break;
 		}
 
-		for (std::map<property::propvalue, property::propvalue>
+		for (std::map<std::string, std::string>
 			     ::iterator
 			     b=xlogger_handler_map.begin(),
 			     e=xlogger_handler_map.end(); b != e; ++b)
@@ -1421,7 +1402,7 @@ logger::logconfig_init::logconfig_init() noexcept
 
 		if (facility.propname().size() > 0)
 		{
-			property::propvalue v=
+			std::string v=
 				logconfig->default_ctype
 				.toupper(facility.value().first);
 
@@ -1468,9 +1449,7 @@ logger::logconfig_init::logconfig_init() noexcept
 
 			for (n=0; n<sizeof(facilities)/sizeof(facilities[0]);
 			     n++)
-				if (v == stringize<property::propvalue,
-						   std::string>
-				    ::tostr(facilities[n]))
+				if (v == facilities[n])
 					break;
 
 			if (n >= sizeof(facilities)/sizeof(facilities[0]))
@@ -1522,7 +1501,7 @@ ptr<logger::inheritObj> logger::scopebase::getscope(const std::string &name)
 
 	iter=globprops->root();
 
-	for (std::list<property::propvalue>::iterator b=h->hier.begin(),
+	for (std::list<std::string>::iterator b=h->hier.begin(),
 		     e=h->hier.end(); b != e; ++b)
 	{
 		iter=iter.child(*b, global);
@@ -1530,8 +1509,7 @@ ptr<logger::inheritObj> logger::scopebase::getscope(const std::string &name)
 		if (iter.propname().size() == 0)
 			break; // No more properties at this hierarchy
 
-		property::listObj::iterator atlog=iter.child(LIBCXX_PROPERTY_NAME("@log"),
-							     global);
+		property::listObj::iterator atlog=iter.child("@log", global);
 
 		if (atlog.propname().size() > 0)
 			h->scope.push_back(atlog);
@@ -1541,8 +1519,8 @@ ptr<logger::inheritObj> logger::scopebase::getscope(const std::string &name)
 		     b=h->scope.begin(), e=h->scope.end(); b != e; ++b)
 	{
 		{
-			property::propvalue inherit=(*b).child(LIBCXX_PROPERTY_NAME("inherit"),
-							       global)
+			std::string inherit=(*b).child("inherit",
+						       global)
 				.propname();
 
 			if (inherit.size() > 0)
@@ -1559,7 +1537,7 @@ ptr<logger::inheritObj> logger::scopebase::getscope(const std::string &name)
 
 		{
 			property::listObj::iterator
-				handlers=(*b).child(LIBCXX_PROPERTY_NAME("handler"), global);
+				handlers=(*b).child("handler", global);
 
 			if (handlers.propname().size() == 0)
 				continue;
@@ -1571,14 +1549,14 @@ ptr<logger::inheritObj> logger::scopebase::getscope(const std::string &name)
 			     b=children.begin(), e=children.end();
 		     b != e; ++b)
 		{
-			std::pair<property::propvalue, bool>
+			std::pair<std::string, bool>
 				v=b->second.value();
 
 			if (!v.second)
 				h->handlers[b->first].first=v.first;
 
 			property::listObj::iterator format=
-				b->second.child(LIBCXX_PROPERTY_NAME("format"), global);
+				b->second.child("format", global);
 
 			if (format.propname().size() == 0)
 				continue;
@@ -1591,10 +1569,10 @@ ptr<logger::inheritObj> logger::scopebase::getscope(const std::string &name)
 
 	}
 
-	h->hier.push_back(LIBCXX_PROPERTY_NAME("@log"));
-	h->hier.push_back(LIBCXX_PROPERTY_NAME("handler"));
+	h->hier.push_back("@log");
+	h->hier.push_back("handler");
 
-	property::propvalue propbase=property::combinepropname(h->hier);
+	std::string propbase=property::combinepropname(h->hier);
 
 	for (inheritObj::handlers_t::iterator
 		     b=h->handlers.begin(),

@@ -80,15 +80,15 @@ protected:
 	workers_t workers;
 
 	//! Constructor
-	workerpoolbase(const property::propvalue &prophier,
+	workerpoolbase(const std::string &prophier,
 		       size_t default_minthreadcount,
 		       size_t default_maxthreadcount,
 		       const std::string &threadnameArg);
 
 	//! Construct a property name for one of the used properties.
-	static property::propvalue
-	getpropname(const property::propvalue &prophier,
-		    const property::propvalue &name) LIBCXX_INTERNAL;
+	static std::string
+	getpropname(const std::string &prophier,
+		    const std::string &name) LIBCXX_INTERNAL;
 
 	//! A run() terminated with an exception, log it.
 	static void captured_exception(const exception &e);
@@ -293,7 +293,7 @@ public:
 		      //! maximum, and "prophier::name" gives their name, for
 		      //! logging purposes; the above become the default values
 		      //! if the corresponding property is not set.
-		      const property::propvalue &prophier=L"")
+		      const std::string &prophier="")
 		: workerpoolbase(prophier, default_minthreadcount,
 				 default_maxthreadcount, threadnameArg),
 		  jobqueue(ref<jobqueueObj>::create())

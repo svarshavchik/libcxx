@@ -38,7 +38,7 @@ namespace LIBCXX_NAMESPACE {
 #undef LIBCXX_TEMPLATE_DECL
 
 property::value<size_t> LIBCXX_HIDDEN
-formmaxsize(LIBCXX_NAMESPACE_WSTR "::http::form::maxsize", 1024 * 1024 * 10);
+formmaxsize(LIBCXX_NAMESPACE_STR "::http::form::maxsize", 1024 * 1024 * 10);
 
 size_t getformmaxsize()
 {

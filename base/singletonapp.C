@@ -78,13 +78,13 @@ public:
 #pragma GCC visibility pop
 
 property::value<std::string>
-singletonapp::impl::signallistprop(LIBCXX_NAMESPACE_WSTR
-				   L"::singletonapp::termsigs",
+singletonapp::impl::signallistprop(LIBCXX_NAMESPACE_STR
+				   "::singletonapp::termsigs",
 				   "SIGINT SIGTERM SIGQUIT SIGHUP");
 
 property::value<size_t>
-singletonapp::impl::credtimeoutprop(LIBCXX_NAMESPACE_WSTR
-				    L"::singletonapp::credtimeout", 30);
+singletonapp::impl::credtimeoutprop(LIBCXX_NAMESPACE_STR
+				    "::singletonapp::credtimeout", 30);
 
 #pragma GCC visibility push(hidden)
 

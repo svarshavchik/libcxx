@@ -15,19 +15,19 @@ namespace LIBCXX_NAMESPACE {
 #endif
 
 property::value<hms>
-fdclientimpl::response_timeout(LIBCXX_NAMESPACE_WSTR
-			       L"::http::client::response_timeout",
+fdclientimpl::response_timeout(LIBCXX_NAMESPACE_STR
+			       "::http::client::response_timeout",
 			       hms(0, 15, 0));
 
 property::value<hms>
-fdclientimpl::timeout(LIBCXX_NAMESPACE_WSTR L"::http::client::timeout", 60);
+fdclientimpl::timeout(LIBCXX_NAMESPACE_STR "::http::client::timeout", 60);
 
 property::value<size_t>
-fdclientimpl::timeout_cnt(LIBCXX_NAMESPACE_WSTR L"::http::client::timeout_cnt",
+fdclientimpl::timeout_cnt(LIBCXX_NAMESPACE_STR "::http::client::timeout_cnt",
 			  65536),
-	fdclientimpl::headers_maxsize(LIBCXX_NAMESPACE_WSTR L"::http::client::headers::maxsize",
+	fdclientimpl::headers_maxsize(LIBCXX_NAMESPACE_STR "::http::client::headers::maxsize",
 				      1024 * 1024),
-	fdclientimpl::headers_limit(LIBCXX_NAMESPACE_WSTR L"::http::client::headers::limit",
+	fdclientimpl::headers_limit(LIBCXX_NAMESPACE_STR "::http::client::headers::limit",
 				    1024);
 
 fdclientimpl::fdclientimpl() : superclass_t(headers_limit.getValue())

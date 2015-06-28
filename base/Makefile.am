@@ -255,7 +255,6 @@ sysconfdir.h:
 
 srcdir.h:
 	echo '#define SRCDIR "$(srcdir)"' >srcdir.h
-	echo '#define WSRCDIR L"$(srcdir)"' >>srcdir.h
 
 xml_parser_options.h:
 	echo '#include <libxml/parser.h>' >xml_parser_options.tmp.c
@@ -813,9 +812,6 @@ check-am: $(noinst_PROGRAMS) $(noinst_DATA)
 	./testgetprop --load-files testgetprop.propfile
 	./testgetprop --update-string 'intvalue=foo' || exit 0; exit 1
 	./testgetprop --update-files testgetprop.propfile || exit 0; exit 1
-	echo '#LOCALE en_US.ISO8859-1' >testgetprop.propfile
-	echo 'hello=world' | tr 'o' '\363' >>testgetprop.propfile
-	test "`PROPERTIES=testgetprop.propfile LANG=en_US.UTF-8  ./testgetprop helló`" = "wórld"
 	rm -f testgetprop.propfile testgetprop.propfile2
 	./testinpseq 2>test.inpseq.tmp >&2
 	diff $(srcdir)/testinpseq.tst test.inpseq.tmp

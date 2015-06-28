@@ -879,8 +879,8 @@ void noop_test()
 	std::cout << "noop_test" << std::endl;
 
 	LIBCXX_NAMESPACE::property::load_property
-		(LIBCXX_NAMESPACE_WSTR L"::ftp::client::noop_interval",
-		 L"2", true, true);
+		(LIBCXX_NAMESPACE_STR "::ftp::client::noop_interval",
+		 "2", true, true);
 
 	auto conn_fd=LIBCXX_NAMESPACE::netaddr::create("localhost",
 						       server_socket.second)
@@ -1037,9 +1037,9 @@ int main(int argc, char **argv)
 	alarm(120);
 	try {
 		LIBCXX_NAMESPACE::property::load_property
-			(LIBCXX_NAMESPACE_WSTR
+			(LIBCXX_NAMESPACE_STR
 			 "::gnutls::ignore_premature_termination_error",
-			 L"true", true, true);
+			 "true", true, true);
 
 		LIBCXX_NAMESPACE::option::bool_value
 			test(LIBCXX_NAMESPACE::option::bool_value::create());

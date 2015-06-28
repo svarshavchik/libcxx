@@ -40,17 +40,17 @@ http::useragent useragentBase::global()
 }
 
 property::value<size_t> useragentObj::maxconn
-(LIBCXX_NAMESPACE_WSTR L"::http::useragent::pool::maxconn", 20),
+(LIBCXX_NAMESPACE_STR "::http::useragent::pool::maxconn", 20),
 	useragentObj::maxhostconn
-	(LIBCXX_NAMESPACE_WSTR
-	 L"::http::useragent::pool::maxhostconn", 4),
+	(LIBCXX_NAMESPACE_STR
+	 "::http::useragent::pool::maxhostconn", 4),
 	useragentObj::maxredirects
-	(LIBCXX_NAMESPACE_WSTR
-	 L"::http::useragent::maxredirects", 20);
+	(LIBCXX_NAMESPACE_STR
+	 "::http::useragent::maxredirects", 20);
 
 property::value<std::string>
-useragentObj::user_agent_header(LIBCXX_NAMESPACE_WSTR
-				L"::http::useragent",
+useragentObj::user_agent_header(LIBCXX_NAMESPACE_STR
+				"::http::useragent",
 				PACKAGE_NAME "/" PACKAGE_VERSION);
 
 useragentObj::sip::sip() : epollfd(epoll::create()),
@@ -566,7 +566,7 @@ bool useragentObj::process_challenges(const clientauth &authorizations,
 				    default:
 					    break;
 				    }
-				    
+
 				    if (p.null())
 					    return;
 

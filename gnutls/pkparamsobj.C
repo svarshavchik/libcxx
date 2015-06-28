@@ -56,8 +56,8 @@ gnutls::pkparamsObj::~pkparamsObj() noexcept
 }
 
 property::value<std::string> LIBCXX_HIDDEN
-tlsparamsdir(LIBCXX_NAMESPACE_WSTR
-	     L"::gnutls::tlsparamsdir", TLSPARAMSDIR);
+tlsparamsdir(LIBCXX_NAMESPACE_STR
+	     "::gnutls::tlsparamsdir", TLSPARAMSDIR);
 
 gnutls::datum_t gnutls::pkparamsObj::open_default(const std::string &suffix)
 
@@ -100,4 +100,3 @@ gnutls::datum_t gnutls::pkparamsObj::open_default(const std::string &suffix)
 {
 #endif
 };
-

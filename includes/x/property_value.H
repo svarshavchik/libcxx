@@ -78,7 +78,7 @@ namespace LIBCXX_NAMESPACE {
 //! \par Getting properties
 //!
 //! \code
-//! static INSERT_LIBX_NAMESPACE::property::value<int> window_width(L"main::window::width", 400);
+//! static INSERT_LIBX_NAMESPACE::property::value<int> window_width("main::window::width", 400);
 //!
 //! // ...
 //!
@@ -118,10 +118,10 @@ namespace LIBCXX_NAMESPACE {
 //!
 //! // Code:
 //!
-//! static INSERT_LIBX_NAMESPACE::property::value<INSERT_LIBX_NAMESPACE::hms> cleanup(L"main::interval",
+//! static INSERT_LIBX_NAMESPACE::property::value<INSERT_LIBX_NAMESPACE::hms> cleanup("main::interval",
 //!                                           INSERT_LIBX_NAMESPACE::hms("06:00:00"));
-//! 
-//! static INSERT_LIBX_NAMESPACE::property::value<INSERT_LIBX_NAMESPACE::ymd::interval> expiration(L"expiration::interval",
+//!
+//! static INSERT_LIBX_NAMESPACE::property::value<INSERT_LIBX_NAMESPACE::ymd::interval> expiration("expiration::interval",
 //!                                                       INSERT_LIBX_NAMESPACE::ymd::interval("2 weeks"));
 //!
 //! \endcode
@@ -184,8 +184,8 @@ namespace LIBCXX_NAMESPACE {
 //! \par Alternatives to %property::load_file()
 //!
 //! %property::load_properties() is an alternative that loads properties
-//! \ref load_properties(propistream &,const std::string &,bool,bool,const errhandler &,const const_locale &) "from an arbitrary input stream" or
-//! \ref load_properties(const std::basic_string<propvalue::value_type> &,bool,bool,const errhandler &,const const_locale &) "from a wide string literal".
+//! \ref load_properties(std::istream &,const std::string &,bool,bool,const errhandler &,const const_locale &) "from an arbitrary input stream" or
+//! \ref load_properties(const std::string &,bool,bool,const errhandler &,const const_locale &) "from a string literal".
 //! \ref load_property() "property::load_property()" explicitly sets a value
 //! of a single property.
 //!
@@ -220,7 +220,7 @@ namespace LIBCXX_NAMESPACE {
 //! \par Property change notifications
 //!
 //! \code
-//!    INSERT_LIBX_NAMESPACE::property::value<int> intprop(L"propertyname", 0);
+//!    INSERT_LIBX_NAMESPACE::property::value<int> intprop("propertyname", 0);
 //!
 //! class mynotifycb : public INSERT_LIBX_NAMESPACE::property::notifyObj {
 //!
@@ -261,7 +261,7 @@ namespace LIBCXX_NAMESPACE {
 //!
 //! // ...
 //!
-//! INSERT_LIBX_NAMESPACE::property::value<int> intprop(props, L"propertyname", 0);
+//! INSERT_LIBX_NAMESPACE::property::value<int> intprop(props, "propertyname", 0);
 //!
 //! // ...
 //!
@@ -316,7 +316,7 @@ public:
 	//! Initialize the %property %value
 
 	value(//! The name of the %property
-	      const propvalue::value_type *propname,
+	      const char *propname,
 
 	      //! The default %property value, if not specified
 	      const argType &initValue=value_string<argType>::initialValue(),
@@ -334,7 +334,7 @@ public:
 	      const ptr<listObj> &props,
 
 	      //! The name of the %property
-	      const propvalue::value_type *propname,
+	      const char *propname,
 
 	      //! The default %property value, if not specified
 	      argType initValue=value_string<argType>::initialValue(),
@@ -350,7 +350,7 @@ public:
 	//! Initialize the %property %value
 
 	value(//! The name of the %property
-	      const propvalue &propname,
+	      const std::string &propname,
 
 	      //! The default %property value, if not specified
 	      const argType &initValue=value_string<argType>::initialValue(),
@@ -368,7 +368,7 @@ public:
 	      const ptr<listObj> &props,
 
 	      //! The name of the %property
-	      const propvalue &propname,
+	      const std::string &propname,
 
 	      //! The default %property value, if not specified
 	      argType initValue=value_string<argType>::initialValue(),

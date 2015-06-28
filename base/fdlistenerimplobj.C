@@ -183,7 +183,7 @@ fdlistenerImplObj::fdlistenerImplObj(const fdlistenerImplObj::listenon
 				     size_t maxthreadsArg,
 				     size_t minthreadsArg,
 				     const std::string &jobnameArg,
-				     const property::propvalue &propnameArg
+				     const std::string &propnameArg
 				     )
 	: listeners(listenonArg.fdlist),
 	  maxthreads(maxthreadsArg),

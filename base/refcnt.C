@@ -17,12 +17,12 @@ namespace LIBCXX_NAMESPACE {
 };
 #endif
 
-static property::value<bool> invalid_cast_exception(LIBCXX_NAMESPACE_WSTR
-						    L"::exception::abort::cast",
+static property::value<bool> invalid_cast_exception(LIBCXX_NAMESPACE_STR
+						    "::exception::abort::cast",
 						    false);
 
-static property::value<bool> null_ptr_exception(LIBCXX_NAMESPACE_WSTR
-						L"::exception::abort::null",
+static property::value<bool> null_ptr_exception(LIBCXX_NAMESPACE_STR
+						"::exception::abort::null",
 						false);
 
 void invalid_cast(const char *fromTypeArg,
@@ -73,7 +73,7 @@ void null_ptr_deref()
 
 	throw EXCEPTION(msg);
 }
-		
+
 #if 0
 {
 #endif

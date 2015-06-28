@@ -45,11 +45,11 @@ int definitionPropertiesObj::set(parserObj &parserArg,
 {
 	bool all=valueArg == libmsg(_txt("all"));
 
-	std::map<property::propvalue, property::propvalue> properties;
+	std::map<std::string, std::string> properties;
 
 	property::enumerate_properties(properties);
 
-	std::map<property::propvalue, property::propvalue>::iterator b, e;
+	std::map<std::string, std::string>::iterator b, e;
 
 	for (b=properties.begin(), e=properties.end(); b != e; ++b)
 	{

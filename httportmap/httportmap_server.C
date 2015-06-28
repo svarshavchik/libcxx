@@ -408,7 +408,7 @@ void httportmap_server::startup(const std::string &sockname,
 		LIBCXX_NAMESPACE::fdptr lockfile=
 			LIBCXX_NAMESPACE::fd::base::lockf(sockname + ".lock",
 							F_TLOCK, 0600);
-	  
+
 		if (lockfile.null())
 			throw EXCEPTION("httportmap is already running");
 
@@ -489,7 +489,7 @@ void httportmap_server::startup_frommeta(bool daemonize,
 			::create(meta.sockets[(int)startup_metainfo
 					      ::sock_http], 10, 0,
 				 "externserver",
-				 L"httpserver");
+				 "httpserver");
 
 	portmap_thread->listen_sockets=
 		meta.sockets[(int)startup_metainfo::sock_portmap];
@@ -686,7 +686,7 @@ public:
 	}
 };
 
-				     
+
 static void start(const args &a)
 {
 	LOG_FUNC_SCOPE(startup_logger);
@@ -823,7 +823,7 @@ static void systemd_start(const args &a,
 	LIBCXX_NAMESPACE::fdptr lockfile=
 		LIBCXX_NAMESPACE::fd::base::lockf(lockfilename,
 						F_TLOCK, 0600);
-	  
+
 	if (lockfile.null())
 		throw EXCEPTION("httportmap is already running");
 

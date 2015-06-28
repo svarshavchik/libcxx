@@ -70,7 +70,7 @@ private:
 
 		//! Constructor
 		repeatinfo(//! Property that specifies the repeat interval
-			   const property::propvalue &repeatPropertyArg,
+			   const std::string &repeatPropertyArg,
 			   //! If the property is not set, the default value.
 			   const duration_t &defaultRepeatDurationArg,
 			   //! The locale the property is parsed with
@@ -78,7 +78,7 @@ private:
 
 		//! Constructor
 		repeatinfo(//! Property that specifies the repeat interval
-			   const property::propvalue &repeatPropertyArg,
+			   const std::string &repeatPropertyArg,
 			   //! If the property is not set, the default value.
 			   const duration_t &defaultRepeatDurationArg);
 
@@ -102,7 +102,7 @@ private:
 
 	void do_schedule(const timertask &task,
 			 const time_point_t &run_time,
-			 const property::propvalue &repeatProperty,
+			 const std::string &repeatProperty,
 			 const duration_t &default_duration,
 			 const const_locale &locale);
 
@@ -151,7 +151,7 @@ public:
 		 //! Repeat the task every so often
 		 const Duration &repeat_time)
 	{
-		schedule(task, start_time, property::propvalue(),
+		schedule(task, start_time, std::string(),
 			 repeat_time);
 	}
 
@@ -168,7 +168,7 @@ public:
 		 const std::chrono::time_point<Clock, Duration> &start_time,
 
 		 //! Repeat the task every so often
-		 const property::propvalue &repeatProperty,
+		 const std::string &repeatProperty,
 
 		 //! Default value if the property is not set
 		 const Duration &default_repeat_time,
@@ -211,8 +211,8 @@ public:
 
 		      //! Instead of specifying repeat_time, take it from a property
 
-		      const property::propvalue &repeatProperty=
-		      property::propvalue(),
+		      const std::string &repeatProperty=
+		      std::string(),
 
 		      //! Locale for parsing the repeat property
 		      const const_locale &locale=locale::base::global())
@@ -260,7 +260,7 @@ public:
 				 const timertask &task,
 
 				 //! Repeat the task every so often
-				 const property::propvalue &repeatProperty,
+				 const std::string &repeatProperty,
 
 				 //! Default value if the property is not set
 				 const duration_type &default_repeat_time,

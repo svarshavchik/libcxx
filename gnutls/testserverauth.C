@@ -387,7 +387,7 @@ class httpauth_factoryObj : virtual public LIBCXX_NAMESPACE::obj {
 
 public:
 	LIBCXX_NAMESPACE::http::serverauth auth;
-	
+
 	httpauth_factoryObj()
 		: auth(LIBCXX_NAMESPACE::http::serverauth
 		       ::create("Test Realm",
@@ -850,12 +850,11 @@ void testserverauth_digest_fallback_basic()
 		throw EXCEPTION("Test failed");
 }
 
-void testserverauth_sha1_digest_preferred(const LIBCXX_NAMESPACE::property
-					  ::propvalue &algorithms)
+void testserverauth_sha1_digest_preferred(const std::string &algorithms)
 {
 	LIBCXX_NAMESPACE::property
-		::load_property(LIBCXX_NAMESPACE_WSTR
-				L"::http::serverauth::algorithms", algorithms,
+		::load_property(LIBCXX_NAMESPACE_STR
+				"::http::serverauth::algorithms", algorithms,
 				true, true);
 
 	if (testbasicdigestauth<basicdigestauth_serverObj>()
@@ -1059,14 +1058,14 @@ int main(int argc, char **argv)
 	}
 
 	try {
-		testserverauth_sha1_digest_preferred(L"MD5 SHA1");
+		testserverauth_sha1_digest_preferred("MD5 SHA1");
 	} catch (const LIBCXX_NAMESPACE::exception &e) {
 		std::cout << "testserverauth_sha1_digest_preferred(MD5 SHA1): "
 			  << e << std::endl;
 	}
 
 	try {
-		testserverauth_sha1_digest_preferred(L"SHA1 MD5");
+		testserverauth_sha1_digest_preferred("SHA1 MD5");
 	} catch (const LIBCXX_NAMESPACE::exception &e) {
 		std::cout << "testserverauth_sha1_digest_preferred(SHA1 MD5): "
 			  << e << std::endl;
@@ -1074,4 +1073,3 @@ int main(int argc, char **argv)
 
 	return 0;
 }
-

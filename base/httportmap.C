@@ -22,9 +22,9 @@ namespace LIBCXX_NAMESPACE {
 };
 #endif
 
-property::value<int> LIBCXX_HIDDEN default_portmaport_prop(LIBCXX_NAMESPACE_WSTR
-							 L"::httportmap::port",
-							 80);
+property::value<int> LIBCXX_HIDDEN default_portmaport_prop(LIBCXX_NAMESPACE_STR
+							   "::httportmap::port",
+							   80);
 
 const char httportmapBase::portmap_service[]="httportmap.libcxx";
 const char httportmapBase::pid2exe_service[]="pid2exe.libcxx";

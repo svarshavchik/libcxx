@@ -19,7 +19,7 @@ namespace LIBCXX_NAMESPACE {
 #endif
 
 property::value<std::string> gnutls::credentials::certificateObj
-::calist(LIBCXX_NAMESPACE_WSTR L"::gnutls::calist", LIBCXX_CACERTS);
+::calist(LIBCXX_NAMESPACE_STR "::gnutls::calist", LIBCXX_CACERTS);
 
 gnutls::credentials::certificateObj::certificateObj()
 {

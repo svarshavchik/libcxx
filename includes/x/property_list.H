@@ -36,7 +36,7 @@ typedef ptr<listObj> listptr;
 
 class nodeObj : virtual public obj {
 
-	propvalue val; //!< Current value of the property
+	std::string val; //!< Current value of the property
 
 	ref<nodehierObj> hierp; //!< Its node in the hierarchical property tree
 
@@ -55,7 +55,7 @@ public:
 	//! Constructor
 
 	nodeObj(//! Initial value
-		const propvalue &valArg,
+		const std::string &valArg,
 
 		//! The entry in the hierarchical property tree
 		const ref<nodehierObj> hierpArg);
@@ -78,7 +78,7 @@ public:
 
 	//! It should be a weakmap, except for the occasion where a destroyed
 	//! map entry isn't purged yet.
-	typedef weakmultimap<propvalue, nodehierObj> children_t;
+	typedef weakmultimap<std::string, nodehierObj> children_t;
 
 	//! All children of this node, in the hierarchical tree
 	children_t children;
@@ -99,21 +99,21 @@ class listObj : virtual public obj {
 	ref<nodehierObj> rootnode;
 
 	//! A container for a map of all nodes in the hierarchical property tree
-	typedef weakmap<propvalue, nodehierObj> prophier_t;
+	typedef weakmap<std::string, nodehierObj> prophier_t;
 
 	//! A map of all nodes in the hierarchical property tree
 	prophier_t prophier;
 
 	//! Find a node
 
-	ref<nodehierObj> findhier_locked(const std::list<propvalue> &hier,
+	ref<nodehierObj> findhier_locked(const std::list<std::string> &hier,
 					 //!< Hierarchical name,
 
-					 propvalue &n //!< Reconstituted name
+					 std::string &n //!< Reconstituted name
 					 );
 
 	//! A container for all loaded properties
-	typedef std::map<propvalue,ref<nodeObj> > loaded_t;
+	typedef std::map<std::string,ref<nodeObj> > loaded_t;
 
 	//! All loaded properties
 	loaded_t loaded;
@@ -126,7 +126,7 @@ class listObj : virtual public obj {
 
 	template<typename iter_type>
 	class parsepropname_iter : std::iterator<std::input_iterator_tag,
-						 typename propvalue::value_type,
+						 char,
 						 void, void, void> {
 
 		//! Current iterator value
@@ -266,7 +266,7 @@ public:
 	}
 
 	//! Load properties from a string
-	void load(const propvalue &properties, //!< Property string to parse
+	void load(const std::string &properties, //!< Property string to parse
 
 		  bool update, //!< Whether existing properties should be overriden
 
@@ -280,7 +280,7 @@ public:
 		  );
 
 	//! Load properties from a stream
-	void load(propistream &i,
+	void load(std::istream &i,
 		  //!< Stream to parse
 
 		  const std::string &location, //!< Name of stream, the filename
@@ -316,7 +316,7 @@ protected:
 
 	//! \internal
 	//!
-	void load_file(std::basic_ifstream<propvalue::value_type> &i,
+	void load_file(std::ifstream &i,
 		       const std::string &filename,
 		       bool update,
 		       bool create,
@@ -325,8 +325,8 @@ protected:
 
 public:
 	//! Set a single, explicit property
-	void load(const propvalue &n, //!< Property name
-		  const propvalue &v, //!< Property value
+	void load(const std::string &n, //!< Property name
+		  const std::string &v, //!< Property value
 		  bool update, //!< Whether existing properties should be overriden
 
 		  bool create,	//!< Whether nonexisting properties should be created
@@ -341,7 +341,7 @@ public:
 	friend class lockObj;
 
 	//! Enumerate existing properties
-	void enumerate(std::map<propvalue, propvalue> &properties)
+	void enumerate(std::map<std::string, std::string> &properties)
 ;
 
 	class iterator;
@@ -356,14 +356,14 @@ private:
 		list l;
 
 		//! Name of this node
-		propvalue nodename;
+		std::string nodename;
 
 		//! Node pointer
 		ptr<nodehierObj> p;
 
 		//! Constructor
 		iteratorObj(const list &lArg,
-			    const propvalue &nodenameArg,
+			    const std::string &nodenameArg,
 			    const ptr<nodehierObj> &pArg) LIBCXX_INTERNAL;
 
 		~iteratorObj() noexcept LIBCXX_INTERNAL;
@@ -383,9 +383,9 @@ public:
 	public:
 		friend class listObj;
 
-		//! Return this node's propvalue
+		//! Return this node's name
 
-		propvalue propname() const;
+		std::string propname() const;
 
 		//! Return this node's value
 
@@ -393,10 +393,10 @@ public:
 		//! second - a bool, \c true if the property is not set (and
 		//! first is an empty string).
 
-		std::pair<propvalue, bool> value() const;
+		std::pair<std::string, bool> value() const;
 
 		//! The container of this property's children properties
-		typedef std::map<propvalue, iterator> children_t;
+		typedef std::map<std::string, iterator> children_t;
 
 		//! Return this property's children properties
 		void children(children_t &childrenArg) const;
@@ -410,13 +410,13 @@ public:
 			       const const_locale &localeArg=locale::base::global())
 			const
 		{
-			return get(stringize<property::propvalue, arg_type>
+			return get(stringize<std::string, arg_type>
 				   ::tostr(arg, localeArg));
 		}
 
 	private:
 		//! Retrieve the given children
-		iterator get(const propvalue &childname)
+		iterator get(const std::string &childname)
 			const;
 	};
 
@@ -436,7 +436,7 @@ public:
 		      const const_locale &l=locale::base::global())
 
 	{
-		return find_internal(stringize<propvalue, arg_type>
+		return find_internal(stringize<std::string, arg_type>
 				     ::tostr(propname, l), l);
 	}
 
@@ -446,17 +446,17 @@ private:
 	//! The returned iterator's propname() is empty if the property is not
 	//! set.
 	iterator find_internal(//! Property name
-			       const propvalue &propname,
-		      
+			       const std::string &propname,
+
 			       //! Locale for parsing the property value
 			       const const_locale &l);
 
 	//! Enumerate existing properties
-	void enumerate(std::map<propvalue, propvalue> &properties,
+	void enumerate(std::map<std::string, std::string> &properties,
 		       const iterator &iter);
 
 	//! Parse a sequence that defines properties while this object is locked
-	
+
 	template<typename iter_type> iter_type
 	lock_parse(iter_type beg_iter,
 		   iter_type end_iter,
@@ -469,7 +469,7 @@ private:
 	{
 		std::lock_guard<std::mutex> lock(objmutex);
 
-		basic_ctype<propvalue::value_type> ct(l);
+		basic_ctype<char> ct(l);
 
 		size_t linenum=0;
 
@@ -479,10 +479,10 @@ private:
 		{
 			++linenum;
 
-			std::list<propvalue> hier;
+			std::list<std::string> hier;
 			ptr<nodehierObj> p;
-			propvalue n;
-			propvalue v;
+			std::string n;
+			std::string v;
 			size_t nonspcpos=0;
 
 			// Parse name+value, first
@@ -519,11 +519,11 @@ private:
 			       *beg_iter != '\n' &&
 			       *beg_iter != '#')
 			{
-				propvalue::value_type c=*beg_iter++;
+				auto c=*beg_iter++;
 
 				if (c == '\\' && beg_iter != end_iter)
 				{
-					propvalue::value_type c= *beg_iter++;
+					auto c= *beg_iter++;
 
 					if (c == 'n')
 					{
@@ -578,10 +578,10 @@ private:
 
 	//! Main meat of parsed()
 
-	void update_locked(const std::list<propvalue> &hier,
+	void update_locked(const std::list<std::string> &hier,
 			   //!< Hierarchical name
 
-			   const propvalue &v, //!< Parsed value
+			   const std::string &v, //!< Parsed value
 
 			   loaded_t &parsed, //!< Parsed value accumulator
 
@@ -612,9 +612,9 @@ public:
 	install(const ref<eventhandlerObj<propvalueset_t> > &callback,
 		//!< Callback to install
 
-		const propvalue &propname, //!< Property name
+		const std::string &propname, //!< Property name
 
-		const propvalue &initialvalue,
+		const std::string &initialvalue,
 		//!< Default property value. If the property exists, the
 		//!< callback gets invoked immediately. If the property
 		//!< does not exist, it gets created with the given value

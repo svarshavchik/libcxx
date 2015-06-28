@@ -53,7 +53,7 @@ timespec timespec::getclock(clockid_t clock_id)
 
 #include "timerobj.msgs.def.H"
 
-timerObj::repeatinfo::repeatinfo(const property::propvalue &repeatPropertyArg,
+timerObj::repeatinfo::repeatinfo(const std::string &repeatPropertyArg,
 				 const duration_t &defaultRepeatDurationArg,
 				 const const_locale &localeArg)
 	: repeatProperty(repeatPropertyArg, hms(), localeArg),
@@ -61,7 +61,7 @@ timerObj::repeatinfo::repeatinfo(const property::propvalue &repeatPropertyArg,
 {
 }
 
-timerObj::repeatinfo::repeatinfo(const property::propvalue &repeatPropertyArg,
+timerObj::repeatinfo::repeatinfo(const std::string &repeatPropertyArg,
 				 const duration_t &defaultRepeatDurationArg)
 	: repeatProperty(repeatPropertyArg, hms(),
 			 locale::base::environment()),
@@ -147,7 +147,7 @@ launch(const timerObj::implObj::taskinfo &newtask,
 			return destroyCallbackFlagptr();
 		}
 	}
-			
+
 	// Send the new task to the timer thread.
 	destroyCallbackFlag cb=destroyCallbackFlag::create();
 
@@ -177,7 +177,7 @@ launch(const timerObj::implObj::taskinfo &newtask,
 
 void timerObj::do_schedule(const timertask &task,
 			   const time_point_t &run_time,
-			   const property::propvalue &repeatProperty,
+			   const std::string &repeatProperty,
 			   const duration_t &default_duration,
 			   const const_locale &locale)
 {

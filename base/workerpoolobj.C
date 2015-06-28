@@ -16,15 +16,15 @@ namespace LIBCXX_NAMESPACE {
 };
 #endif
 
-workerpoolbase::workerpoolbase(const property::propvalue &prophier,
+workerpoolbase::workerpoolbase(const std::string &prophier,
 			       size_t default_minthreadcount,
 			       size_t default_maxthreadcount,
 			       const std::string &threadnameArg)
-	: minthreadcount_prop(getpropname(prophier, L"min"),
+	: minthreadcount_prop(getpropname(prophier, "min"),
 			      default_minthreadcount),
-	  maxthreadcount_prop(getpropname(prophier, L"max"),
+	  maxthreadcount_prop(getpropname(prophier, "max"),
 			      default_maxthreadcount),
-	  threadnames_prop(getpropname(prophier, L"name"), threadnameArg),
+	  threadnames_prop(getpropname(prophier, "name"), threadnameArg),
 	  workers(workers_t::create())
 {
 }
@@ -49,16 +49,16 @@ std::string workerpoolbase::workerbaseObj::getName() const
 	return name;
 }
 
-property::propvalue
-workerpoolbase::getpropname(const property::propvalue &prophier,
-			    const property::propvalue &name)
+std::string
+workerpoolbase::getpropname(const std::string &prophier,
+			    const std::string &name)
 {
-	std::list<property::propvalue> hier;
+	std::list<std::string> hier;
 
 	property::parsepropname(prophier.begin(), prophier.end(), hier);
 
 	if (hier.empty())
-		return property::propvalue();
+		return std::string();
 
 	hier.push_back(name);
 

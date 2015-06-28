@@ -183,7 +183,7 @@ void myfdserverObj::received(const LIBCXX_NAMESPACE::http::requestimpl &req,
 			ptr->waiting_cond.notify_all();
 		}
 
-		
+
 		ptr->semaphore_cond.wait(lock, [this] {
 				return !ptr->semaphore;
 			});
@@ -902,7 +902,7 @@ void formpost()
 		throw EXCEPTION("Multipart parsing failed (4): " + got);
 
 	LIBCXX_NAMESPACE::property::load_property
-		(LIBCXX_NAMESPACE_WSTR "::http::form::maxsize", L"1000",
+		(LIBCXX_NAMESPACE_STR "::http::form::maxsize", "1000",
 		 true, true);
 
 	resp=ua->request(LIBCXX_NAMESPACE::http::POST,
@@ -969,7 +969,7 @@ void formpost()
 		throw EXCEPTION("Form limit test 4 failed");
 
 	LIBCXX_NAMESPACE::property::load_property
-		(LIBCXX_NAMESPACE_WSTR "::http::form::maxsize", L"10000000",
+		(LIBCXX_NAMESPACE_STR "::http::form::maxsize", "10000000",
 		 true, true);
 
 	{
@@ -1496,7 +1496,7 @@ public:
 			       .setPath("/")
 			       .setSecure()
 			       .setExpiresIn(24 * 60 * 60));
- 
+
 		resp.addCookie(LIBCXX_NAMESPACE::http::cookie("name3", "value3")
 			       .setDomain("localhost")
 			       .setPath("/")

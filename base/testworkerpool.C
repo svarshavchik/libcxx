@@ -72,7 +72,7 @@ void test1()
 {
 	LIBCXX_NAMESPACE::workerpoolptr<> pool=
 		LIBCXX_NAMESPACE::workerpoolptr<>::
-		create(4, 6, "worker", L"workerpool");
+		create(4, 6, "worker", "workerpool");
 
 	auto job=LIBCXX_NAMESPACE::ref<testjob>::create();
 
@@ -89,8 +89,8 @@ void test1()
 	}
 	std::cout << "Reached 4 workers" << std::endl;
 
-	LIBCXX_NAMESPACE::property::load_property(L"workerpool::min", L"2",
-						true, true);
+	LIBCXX_NAMESPACE::property::load_property("workerpool::min", "2",
+						  true, true);
 
 	pool->run(job);
 
@@ -118,7 +118,7 @@ void test1()
 	}
 
 	pool=LIBCXX_NAMESPACE::workerpoolptr<>::create(4, 6, "worker",
-						     L"workerpool");
+						       "workerpool");
 
 	for (size_t i=0; i<3; ++i)
 		pool->run(job, false);

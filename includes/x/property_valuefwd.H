@@ -17,16 +17,8 @@ namespace LIBCXX_NAMESPACE {
 };
 #endif
 
-//! Property name type
-typedef std::wstring propvalue;
-
-//! For internal use
-
-#define LIBCXX_PROPERTY_NAME(n) L ## n
-
-
 template<typename argType,
-	 typename stringType=stringize<propvalue, argType> > class value;
+	 typename stringType=stringize<std::string, argType> > class value;
 
 #if 0
 {

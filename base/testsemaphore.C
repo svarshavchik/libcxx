@@ -61,7 +61,7 @@ typedef LIBCXX_NAMESPACE::ref<testowner> own;
 void testsemaphore1()
 {
 	static LIBCXX_NAMESPACE::property::value<size_t>
-		three(L"two", 2);
+		three("two", 2);
 
 	LIBCXX_NAMESPACE::semaphore sem(LIBCXX_NAMESPACE::semaphore::create(three));
 
@@ -81,7 +81,7 @@ void testsemaphore1()
 void testsemaphore2()
 {
 	static LIBCXX_NAMESPACE::property::value<size_t>
-		three(L"two", 2);
+		three("two", 2);
 
 	LIBCXX_NAMESPACE::semaphore sem(LIBCXX_NAMESPACE::semaphore::create(three));
 

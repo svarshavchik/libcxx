@@ -36,13 +36,13 @@ std::string serverauthBase::compute_a1(gcry_md_algos algorithm,
 }
 
 static property::value<hms>
-default_nonce_expiration(LIBCXX_NAMESPACE_WSTR
-			 L"::http::serverauth::nonce_expiration",
+default_nonce_expiration(LIBCXX_NAMESPACE_STR
+			 "::http::serverauth::nonce_expiration",
 			 hms(0, 1, 0));
 
 static property::value<std::string>
-default_algorithms(LIBCXX_NAMESPACE_WSTR
-		   L"::http::serverauth::algorithms", "MD5");
+default_algorithms(LIBCXX_NAMESPACE_STR
+		   "::http::serverauth::algorithms", "MD5");
 
 serverauthObj::serverauthObj(const std::string &realmArg,
 			     const std::set<uriimpl> &domainArg)
@@ -420,4 +420,3 @@ auth serverauthObj::doDigestScheme(const requestimpl &req,
 #endif
 	};
 };
-

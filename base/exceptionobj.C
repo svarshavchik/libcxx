@@ -29,8 +29,8 @@ namespace LIBCXX_NAMESPACE {
 };
 #endif
 
-static property::value<bool> show_filename(LIBCXX_NAMESPACE_WSTR
-					   L"::exception::fileline", false);
+static property::value<bool> show_filename(LIBCXX_NAMESPACE_STR
+					   "::exception::fileline", false);
 
 exceptionObj::exceptionObj() noexcept
 {

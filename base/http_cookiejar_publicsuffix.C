@@ -25,8 +25,8 @@ namespace LIBCXX_NAMESPACE {
 #endif
 
 static property::value<std::string>
-effective_tld_names_filename(LIBCXX_NAMESPACE_WSTR
-			     L"::http::effective_tld_names",
+effective_tld_names_filename(LIBCXX_NAMESPACE_STR
+			     "::http::effective_tld_names",
 			     SYSCONFDIR "/effective_tld_names.dat");
 
 class LIBCXX_HIDDEN tldnamesObj : virtual public obj {
@@ -79,9 +79,9 @@ public:
 			std::string s;
 
 			// Each line is only read up to the first whitespace;
-			// entire lines can also be commented using //. 
+			// entire lines can also be commented using //.
 			// Each line which is not entirely whitespace or begins
-			// with a comment contains a rule. 
+			// with a comment contains a rule.
 
 			std::getline(i, s);
 

@@ -50,7 +50,7 @@ class fdlistenerImplObj : virtual public obj {
 	std::string jobname;
 
 	//! Property that specifies the default values for thread configuration parameters
-	property::propvalue propname;
+	std::string propname;
 
 	//! The thread's signal mask
 
@@ -138,7 +138,7 @@ public:
 			  //! parameters specify
 			  //! the default values, if not set in
 			  //! the property file.
-			  const property::propvalue &propname=L"");
+			  const std::string &propname="");
 
 	//! Destructor
 	~fdlistenerImplObj() noexcept;

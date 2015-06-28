@@ -10,8 +10,8 @@
 #include "x/property_value.H"
 
 LIBCXX_NAMESPACE::property::value<std::string>
-cert(L"testftpcert", "testrsa1.crt"),
-	domain(L"domain", "example.com");
+cert("testftpcert", "testrsa1.crt"),
+	domain("domain", "example.com");
 
 bool plain()
 {

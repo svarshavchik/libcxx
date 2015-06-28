@@ -5,15 +5,7 @@
 
 #ifndef FORCE_PROP
 #define FORCE_PROP(n, v)						\
-	LIBCXX_NAMESPACE::property					\
-	::load_property(LIBCXX_NAMESPACE::stringize			\
-			<LIBCXX_NAMESPACE::property::propvalue,		\
-			std::string>					\
-			::tostr(n),					\
-			LIBCXX_NAMESPACE::stringize			\
-			<LIBCXX_NAMESPACE::property::propvalue,		\
-			std::string>					\
-			::tostr(v), true, true);
+	LIBCXX_NAMESPACE::property::load_property(n, v, true, true);
 #endif
 
 template<typename conn_type>

@@ -20,15 +20,9 @@ void test1()
 	std::wstring wcs;
 
 	LIBCXX_NAMESPACE::property
-		::load_property(LIBCXX_NAMESPACE::stringize
-				<LIBCXX_NAMESPACE::property::propvalue,
-				 std::string>
-				::tostr(LIBCXX_NAMESPACE_STR
-					"::iofilter::codecvtsize"),
-				LIBCXX_NAMESPACE::stringize
-				<LIBCXX_NAMESPACE::property::propvalue,
-				 std::string>
-				::tostr("256"), true, true);
+		::load_property(LIBCXX_NAMESPACE_STR
+				"::iofilter::codecvtsize",
+				"256", true, true);
 
 	typedef LIBCXX_NAMESPACE::ocodecvtiter<std::back_insert_iterator
 					     <std::wstring> >::ctow_iter_t
@@ -39,7 +33,7 @@ void test1()
 						    char, wchar_t>::iter_t
 		towiter2_t;
 
-	{	
+	{
 		towiter_t::iter cvtin=towiter_t
 			::create(std::back_insert_iterator<std::wstring>
 				 (wcs), LIBCXX_NAMESPACE::locale::base::utf8());
@@ -59,7 +53,7 @@ void test1()
 
 	wcs.clear();
 
-	{	
+	{
 		towiter2_t::iter cvtin=towiter2_t
 			::create(std::back_insert_iterator<std::wstring>
 				 (wcs), LIBCXX_NAMESPACE::locale::base::utf8());
@@ -171,7 +165,7 @@ public:
 	}
 };
 
-template<typename class_t> 
+template<typename class_t>
 void test2_test(const std::string &str)
 {
 	std::string msg="H\xc3\xb3\xc3\xb3la";
