@@ -6,13 +6,12 @@ template<typename foo> int Foo(const foo &f)
 {
 	int val=0;
 
-	if (LIBCXX_NAMESPACE::get_weak_capture
-	    (f, [&val]
-	     (const LIBCXX_NAMESPACE::ref<LIBCXX_NAMESPACE::obj> &a,
-	      const LIBCXX_NAMESPACE::ref<LIBCXX_NAMESPACE::obj> &b)
-	     {
-		     val |= 1;
-	     }))
+	if (f.get([&val]
+		  (const LIBCXX_NAMESPACE::ref<LIBCXX_NAMESPACE::obj> &a,
+		   const LIBCXX_NAMESPACE::ref<LIBCXX_NAMESPACE::obj> &b)
+		  {
+			  val |= 1;
+		  }))
 	{
 		val |= 2;
 	}

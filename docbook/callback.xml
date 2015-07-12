@@ -277,11 +277,11 @@ public:
         auto cb=&ns;::callback&lt;void&gt;::create(
 	    [refs=&ns;::make_weak_capture(a(this))]
 	  {
-              &ns;::get_weak_capture(refs,[]
-	          (const a &amp;me)
-	          {
-	              me-&gt;do_something();
-	          });
+              refs.get([]
+	               (const a &amp;me)
+	               {
+	                    me-&gt;do_something();
+	               });
           });
         </programlisting>
       </informalexample>
@@ -290,19 +290,16 @@ public:
     <para>
       <ulink url="&link-function-x-make-weak-capture;"><function>&ns;::make_weak_capture</function></ulink>()
       takes a variadic list of <classname>&ns;::ref</classname>s to any
-      object, and returns an opaque container (a
-      <classname>std::tuple</classname>, actually, but that's subject to
-      change with no further notice), with weak references to all the
+      object, and returns an opaque container of weak references to all the
       referenced objects.
       This ends up being captured by this lambda.
     </para>
 
     <para>
-      The first parameter to
-      <ulink url="&link-function-x-get-weak-capture;"><function>&ns;::get_weak_capture</function></ulink>()
-      is the returned container from
-      <function>&ns;::make_weak_capture</function>().
-      If <function>&ns;::get_weak_capture</function>() can
+      The opaque container's <methodname>get</methodname>()
+      method recovers the strong references from the weakly-referenced
+      objects, and invokes the lambda parameter, passing them as its arguments.
+      If <methodname>get</methodname>() can
       <link linkend="weakcontainers">getptr</link>() back all
       weak pointer, <function>&ns;::get_weak_capture</function>()
       invokes the lambda it receives as its second parameter, forwarding
@@ -310,12 +307,12 @@ public:
     </para>
 
     <para>
-      <function>&ns;::get_weak_capture</function>() returns
+      <methodname>get</methodname>()() returns
       <literal>true</literal>, if
-      <function>&ns;::get_weak_capture</function>() was able to
+      <methodname>get</methodname>()() was able to
       recover strong references from all weak references, and invoke
       the lambda,
-      <function>&ns;::get_weak_capture</function>() returns
+      <methodname>get</methodname>()() returns
       <literal>false</literal>, and does not invoke the lambda,
       if one or more weakly-referenced object already went out of scope
       and got destroyed.

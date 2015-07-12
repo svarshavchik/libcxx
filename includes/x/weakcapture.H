@@ -32,55 +32,6 @@ class ref_to_weak<ref<obj_class, base_class>> {
 	typedef weakptr<ptr<obj_class, base_class>> type;
 };
 
-//! Take a list of strong references, and return a tuple of their weak pointers.
-
-//! make_weak_capture() takes a variadic list of \ref ref "refs". Only
-//! refs can be passed to make_weak_capture(). make_weak_capture() returns
-//! a tuple of weak pointers to the referenced objects.
-//!
-//! At some later point in time, all of the objects can be recovered
-//! by get_weak_capture().
-//!
-//! This a design pattern that's often used with callbacks:
-//!
-//! \code
-//! class aObj;
-//! class bObj;
-//!
-//! INSERT_LIBX_NAMESPACE::ref<aObj> a;
-//! INSERT_LIBX_NAMESPACE::ref<bObj> b;
-//!
-//! auto callback=INSERT_LIBX_NAMESPACE::callback<void>::create
-//!  ( [ captured_refs=INSERT_LIBX_NAMESPACE::make_weak_capture(a, b) ]
-//!    {
-//!       INSERT_LIBX_NAMESPACE::get_weak_capture(captured_refs,
-//!                          []
-//!                          (const INSERT_LIBX_NAMESPACE::ref<aObj> &a,
-//!                           const INSERT_LIBX_NAMESPACE::ref<bObj> &b)
-//!                          {
-//!                                // ....
-//!                          });
-//!    });
-//! \endcode
-//!
-//! At the time the \ref callback "callback" object gets created, the
-//! two strong refs are weakly captured. The callback object does not keep
-//! a strong reference to the captured objects.
-//!
-//! When the callback gets invoked, get_weak_capture() recovers the strong
-//! references to the objects, if they still exist, and forwards them to the
-//! inner lambda.
-//!
-//! If any captured object already went out of scope and got destroyed,
-//! get_weak_capture() returns without invoking the inner lambda.
-
-template<typename ...Args>
-auto make_weak_capture(Args && ...args)
-{
-	return std::tuple<typename ref_to_weak<typename
-					       std::decay<Args>::type>::type...>
-		(std::forward<Args>(args)...);
-}
 
 //! Template for converting a \ref weakptr "weak pointer" to a strong pointer.
 
@@ -130,12 +81,14 @@ template<typename opaque> class get_captured_weak_pointer;
 
 //! Convert a tuple of weak pointers to a param pack of getptr().
 
-//! Used by get_weak_capture().
+//! Used by \ref weak_capture "INSERT_LIBX_NAMESPACE::weak_capture".
 //!
 //! This specialization gets invoked with a tuple of weak pointers,
 //! and uses \ref tuple_2_param_pack "tuple_2_param_pack" to grab the
 //! weak pointers from the tuple, convert them to a string pointers,
 //! and forward them to a lambda.
+//!
+//! \internal
 
 template<size_t ...n>
 class get_captured_weak_pointer<x::tuple_param_pack<n...>> {
@@ -147,7 +100,7 @@ class get_captured_weak_pointer<x::tuple_param_pack<n...>> {
 	//! This converts all weak ptrs to strong ptrs.
 
 	template<typename tuple_type>
-		static auto get_weak_pointers(const tuple_type &tuple)
+		static inline auto get_weak_pointers(const tuple_type &tuple)
 	{
 		return std::make_tuple(std::get<n>(tuple).getptr()...);
 	}
@@ -155,7 +108,7 @@ class get_captured_weak_pointer<x::tuple_param_pack<n...>> {
 	//! Check that all weak pointers were recovered to strong ptrs.
 
 	template<typename tuple_type>
-		static bool got_all_weak_pointers(const tuple_type &tuple)
+		static inline bool got_all_weak_pointers(const tuple_type &tuple)
 	{
 		return recaptured_weak_pointers(std::get<n>(tuple)...);
 	}
@@ -163,47 +116,123 @@ class get_captured_weak_pointer<x::tuple_param_pack<n...>> {
 	//! And now forward everything to a lambda.
 
 	template<typename tuple_type, typename functor_type>
-		static void call_functor(const tuple_type &tuple,
-					 functor_type &&functor)
+		static inline void call_functor(const tuple_type &tuple,
+						functor_type &&functor)
 	{
 		functor(std::get<n>(tuple)...);
 	}
 };
 
-//! Recover previously captured refs.
 
-//! The first parameter is the tuple returned by make_weak_capture().
-//! The second parameter is a lambda.
-//!
-//! A strong pointer is recovered from each weak pointer in the tuple.
-//! If all strong pointers were recovered, the lambda passed by the second
-//! pointer is invoked, with all strongly-recovered pointers passed as its
-//! argument, and get_weak_capture() returns \c true.
-//!
-//! If at least one weak pointer could not be recovered, the referenced
-//! object went out of scope and got destroyed, the lambda does not
-//! get invoked, and get_weak_capture() returns \c false.
+//! Internal object used by make_weak_capture()
 
-template<typename functor_type, typename ...Args>
-bool get_weak_capture(const std::tuple<Args...> &weak_pointers,
-		      functor_type &&functor)
+//! \internal
+
+template<typename ...Args>
+class weak_capture {
+
+	//! Weakly-captured references.
+
+	std::tuple<Args...> weak_refs;
+public:
+
+	//! Constructor.
+	template<typename ...constructorArgs>
+	inline weak_capture(constructorArgs && ...args)
+		: weak_refs(std::forward<constructorArgs>(args)...)
+	{
+	}
+
+
+	//! Recover previously captured refs.
+
+	//! Invokes the lamba with recaptured weak pointers.
+	//!
+	//! A strong pointer is recovered from each weak pointer in the tuple.
+	//! If all strong pointers were recovered, the passed lambda gets
+	//! invoked, with all strongly-recovered pointers passed as its
+	//! arguments, and get() returns \c true.
+	//!
+	//! If at least one weak pointer could not be recovered, the referenced
+	//! object went out of scope and got destroyed, the lambda does not
+	//! get invoked, and get() returns \c false.
+
+	template<typename functor_type>
+	inline bool get(functor_type &&functor) const
+	{
+		auto pointers=
+			get_captured_weak_pointer<typename
+						  tuple_2_param_pack
+						  <sizeof...(Args)>
+						  ::type>
+			::template get_weak_pointers(weak_refs);
+
+		if (!get_captured_weak_pointer<typename
+		    tuple_2_param_pack<sizeof...(Args)>
+		    ::type>
+		    ::template got_all_weak_pointers(pointers))
+			return false;
+
+		get_captured_weak_pointer<typename tuple_2_param_pack
+					  <sizeof...(Args)>
+					  ::type>
+			::template call_functor(pointers,
+						std::forward<functor_type>
+						(functor));
+		return true;
+	}
+};
+
+//! Take a list of strong references, and return a tuple of their weak pointers.
+
+//! make_weak_capture() takes a variadic list of \ref ref "refs". Only
+//! refs can be passed to make_weak_capture(). make_weak_capture() returns
+//! essentially a tuple of weak pointers to the referenced objects.
+//!
+//! The class returned by make_weak_capture implements a get() method.
+//!
+//! At some later point in time, all of the objects can be recovered
+//! by the get() method.
+//!
+//! This a design pattern that's often used with callbacks:
+//!
+//! \code
+//! class aObj;
+//! class bObj;
+//!
+//! INSERT_LIBX_NAMESPACE::ref<aObj> a;
+//! INSERT_LIBX_NAMESPACE::ref<bObj> b;
+//!
+//! auto callback=INSERT_LIBX_NAMESPACE::callback<void>::create
+//!  ( [ captured_refs=INSERT_LIBX_NAMESPACE::make_weak_capture(a, b) ]
+//!    {
+//!       captured_refs.get([]
+//!                         (const INSERT_LIBX_NAMESPACE::ref<aObj> &a,
+//!                          const INSERT_LIBX_NAMESPACE::ref<bObj> &b)
+//!                         {
+//!                               // ....
+//!                         });
+//!    });
+//! \endcode
+//!
+//! At the time the \ref callback "callback" object gets created, the
+//! two strong refs are weakly captured. The callback object does not keep
+//! a strong reference to the captured objects.
+//!
+//! When the callback gets invoked, the get() method recovers the strong
+//! references to the objects, if they still exist, and forwards them to the
+//! inner lambda, then returns \c true.
+//!
+//! If any captured object already went out of scope and got destroyed,
+//! get() returns \c false without invoking the inner lambda.
+
+template<typename ...Args>
+inline auto make_weak_capture(Args && ...args)
 {
-	auto pointers= get_captured_weak_pointer<typename
-					 tuple_2_param_pack<sizeof...(Args)>
-					 ::type>
-		::template get_weak_pointers(weak_pointers);
-
-	if (!get_captured_weak_pointer<typename
-	    tuple_2_param_pack<sizeof...(Args)>
-	    ::type>
-	    ::template got_all_weak_pointers(pointers))
-		return false;
-
-	get_captured_weak_pointer<typename tuple_2_param_pack<sizeof...(Args)>
-				  ::type>
-		::template call_functor(pointers,
-					std::forward<functor_type>(functor));
-	return true;
+	return weak_capture<typename
+			    ref_to_weak<typename
+					std::decay<Args>::type>::type...>
+		(std::forward<Args>(args)...);
 }
 
 #if 0
