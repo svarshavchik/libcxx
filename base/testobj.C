@@ -2505,73 +2505,80 @@ void testequality()
 
 	LIBCXX_NAMESPACE::ptr<LIBCXX_NAMESPACE::obj> cpa=ra, cpb=rb, cpc;
 
+#define COMPAREOP(a,op,b)						\
+	do {								\
+		COMPARE(a op b);					\
+		COMPARE(a < b || a >= b);				\
+		COMPARE(a > b || a <= b);				\
+	} while (0)
+
 #define COMPARE(x) if (!(x)) { std::cout <<  "Test failed: " #x << std::endl; exit(1); }
 
-	COMPARE(ra == ra);
-	COMPARE(ra != rb);
-	COMPARE(ra == cra);
-	COMPARE(ra != crb);
-	COMPARE(ra == pa);
-	COMPARE(ra != pb);
-	COMPARE(ra != pc);
-	COMPARE(ra == cpa);
-	COMPARE(ra != cpb);
-	COMPARE(ra != cpc);
+	COMPAREOP(ra , == , ra);
+	COMPAREOP(ra , != , rb);
+	COMPAREOP(ra , == , cra);
+	COMPAREOP(ra , != , crb);
+	COMPAREOP(ra , == , pa);
+	COMPAREOP(ra , != , pb);
+	COMPAREOP(ra , != , pc);
+	COMPAREOP(ra , == , cpa);
+	COMPAREOP(ra , != , cpb);
+	COMPAREOP(ra , != , cpc);
 
-	COMPARE(cra == ra);
-	COMPARE(cra != rb);
-	COMPARE(cra == cra);
-	COMPARE(cra != crb);
-	COMPARE(cra == pa);
-	COMPARE(cra != pb);
-	COMPARE(cra != pc);
-	COMPARE(cra == cpa);
-	COMPARE(cra != cpb);
-	COMPARE(cra != cpc);
+	COMPAREOP(cra , == , ra);
+	COMPAREOP(cra , != , rb);
+	COMPAREOP(cra , == , cra);
+	COMPAREOP(cra , != , crb);
+	COMPAREOP(cra , == , pa);
+	COMPAREOP(cra , != , pb);
+	COMPAREOP(cra , != , pc);
+	COMPAREOP(cra , == , cpa);
+	COMPAREOP(cra , != , cpb);
+	COMPAREOP(cra , != , cpc);
 
-	COMPARE(pa == ra);
-	COMPARE(pa != rb);
-	COMPARE(pa == cra);
-	COMPARE(pa != crb);
-	COMPARE(pa == pa);
-	COMPARE(pa != pb);
-	COMPARE(pa != pc);
-	COMPARE(pa == cpa);
-	COMPARE(pa != cpb);
-	COMPARE(pa != cpc);
+	COMPAREOP(pa , == , ra);
+	COMPAREOP(pa , != , rb);
+	COMPAREOP(pa , == , cra);
+	COMPAREOP(pa , != , crb);
+	COMPAREOP(pa , == , pa);
+	COMPAREOP(pa , != , pb);
+	COMPAREOP(pa , != , pc);
+	COMPAREOP(pa , == , cpa);
+	COMPAREOP(pa , != , cpb);
+	COMPAREOP(pa , != , cpc);
 
-	COMPARE(cpa == ra);
-	COMPARE(cpa != rb);
-	COMPARE(cpa == cra);
-	COMPARE(cpa != crb);
-	COMPARE(cpa == pa);
-	COMPARE(cpa != pb);
-	COMPARE(cpa != pc);
-	COMPARE(cpa == cpa);
-	COMPARE(cpa != cpb);
-	COMPARE(cpa != cpc);
+	COMPAREOP(cpa , == , ra);
+	COMPAREOP(cpa , != , rb);
+	COMPAREOP(cpa , == , cra);
+	COMPAREOP(cpa , != , crb);
+	COMPAREOP(cpa , == , pa);
+	COMPAREOP(cpa , != , pb);
+	COMPAREOP(cpa , != , pc);
+	COMPAREOP(cpa , == , cpa);
+	COMPAREOP(cpa , != , cpb);
+	COMPAREOP(cpa , != , cpc);
 
-	COMPARE(pc != ra);
-	COMPARE(pc != rb);
-	COMPARE(pc != cra);
-	COMPARE(pc != crb);
-	COMPARE(pc != pa);
-	COMPARE(pc != pb);
-	COMPARE(pc == pc);
-	COMPARE(pc != cpa);
-	COMPARE(pc != cpb);
-	COMPARE(pc == cpc);
+	COMPAREOP(pc , != , ra);
+	COMPAREOP(pc , != , rb);
+	COMPAREOP(pc , != , cra);
+	COMPAREOP(pc , != , crb);
+	COMPAREOP(pc , != , pa);
+	COMPAREOP(pc , != , pb);
+	COMPAREOP(pc , == , pc);
+	COMPAREOP(pc , != , cpa);
+	COMPAREOP(pc , != , cpb);
+	COMPAREOP(pc , == , cpc);
 
-	COMPARE(cpc != ra);
-	COMPARE(cpc != rb);
-	COMPARE(cpc != cra);
-	COMPARE(cpc != crb);
-	COMPARE(cpc != pa);
-	COMPARE(cpc != pb);
-	COMPARE(cpc == pc);
-	COMPARE(cpc != cpa);
-	COMPARE(cpc != cpb);
-	COMPARE(cpc == cpc);
+	COMPAREOP(cpc , != , ra);
+	COMPAREOP(cpc , != , rb);
+	COMPAREOP(cpc , != , cra);
+	COMPAREOP(cpc , != , crb);
+	COMPAREOP(cpc , != , pa);
+	COMPAREOP(cpc , != , pb);
+	COMPAREOP(cpc , == , pc);
+	COMPAREOP(cpc , != , cpa);
+	COMPAREOP(cpc , != , cpb);
+	COMPAREOP(cpc , == , cpc);
 }
 
 int main()

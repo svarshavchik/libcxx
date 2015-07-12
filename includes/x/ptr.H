@@ -19,6 +19,7 @@ object.
 #include <x/ptrimpl.H>
 #include <utility>
 #include <typeinfo>
+#include <functional>
 
 namespace LIBCXX_NAMESPACE {
 
@@ -210,25 +211,17 @@ public:
 	//! Comparison operator
 
 	//! C++11 allows pointer comparisons.
-	//!
-	//! \note
-	//! A pair of null pointers do not compare as equal.
+
 	template<typename objClass2, typename baseClass2>
 	inline bool operator==(const const_ptr<objClass2, baseClass2> &o)
 		const noexcept
 	{
-		obj *a=this->refP;
-		obj *b=o.refP;
-
-		return a == b;
+		return this->refP == o.refP;
 	}
 
 	//! Comparison operator
 
 	//! C++11 allows pointer comparisons.
-	//!
-	//! \note
-	//! A pair of null pointers do not compare as equal.
 
 	template<typename objClass2, typename baseClass2>
 	inline bool operator!=(const const_ptr<objClass2, baseClass2> &o)
@@ -265,6 +258,104 @@ public:
 		return !operator==(o);
 	}
 
+	//! Comparison operator
+
+	//! C++11 allows pointer comparisons.
+
+	template<typename objClass2, typename baseClass2>
+	inline bool operator<(const const_ptr<objClass2, baseClass2> &o)
+		const noexcept
+	{
+		return std::less<obj *>()(this->refP, o.refP);
+	}
+
+	//! Comparison operator
+
+	//! C++11 allows pointer comparisons.
+
+	template<typename objClass2, typename baseClass2>
+	inline bool operator>=(const const_ptr<objClass2, baseClass2> &o)
+		const noexcept
+	{
+		return !operator<(o);
+	}
+
+	//! Comparison operator
+
+	//! C++11 allows pointer comparisons.
+	//!
+	//! \note
+	//! A pair of null pointers do not compare as equal.
+	template<typename objClass2, typename baseClass2>
+	inline bool operator<(const const_ref<objClass2, baseClass2> &o)
+		const noexcept
+	{
+		return operator<(const_ptr<objClass2, baseClass2>(o));
+	}
+
+	//! Comparison operator
+
+	//! C++11 allows pointer comparisons.
+	//!
+	//! \note
+	//! A pair of null pointers do not compare as equal.
+
+	template<typename objClass2, typename baseClass2>
+	inline bool operator>=(const const_ref<objClass2, baseClass2> &o)
+		const noexcept
+	{
+		return !operator<(o);
+	}
+
+	//! Comparison operator
+
+	//! C++11 allows pointer comparisons.
+
+	template<typename objClass2, typename baseClass2>
+	inline bool operator>(const const_ptr<objClass2, baseClass2> &o)
+		const noexcept
+	{
+		return std::greater<obj *>()(this->refP, o.refP);
+	}
+
+	//! Comparison operator
+
+	//! C++11 allows pointer comparisons.
+
+	template<typename objClass2, typename baseClass2>
+	inline bool operator<=(const const_ptr<objClass2, baseClass2> &o)
+		const noexcept
+	{
+		return !operator>(o);
+	}
+
+
+	//! Comparison operator
+
+	//! C++11 allows pointer comparisons.
+	//!
+	//! \note
+	//! A pair of null pointers do not compare as equal.
+	template<typename objClass2, typename baseClass2>
+	inline bool operator>(const const_ref<objClass2, baseClass2> &o)
+		const noexcept
+	{
+		return operator>(const_ptr<objClass2, baseClass2>(o));
+	}
+
+	//! Comparison operator
+
+	//! C++11 allows pointer comparisons.
+	//!
+	//! \note
+	//! A pair of null pointers do not compare as equal.
+
+	template<typename objClass2, typename baseClass2>
+	inline bool operator<=(const const_ref<objClass2, baseClass2> &o)
+		const noexcept
+	{
+		return !operator>(o);
+	}
 };
 
 template<typename objClass, typename baseClass>

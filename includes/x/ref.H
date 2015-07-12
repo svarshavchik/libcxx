@@ -265,6 +265,78 @@ public:
 		return p != o;
 	}
 
+	//! Comparison operator
+
+	//! C++11 allows pointer comparisons.
+	template<typename objClass2, typename baseClass2>
+	inline bool operator<(const const_ptr<objClass2, baseClass2> &o)
+		const noexcept
+	{
+		return p < o;
+	}
+
+	//! C++11 allows pointer comparisons.
+	template<typename objClass2, typename baseClass2>
+	inline bool operator>=(const const_ptr<objClass2, baseClass2> &o)
+		const noexcept
+	{
+		return p >= o;
+	}
+
+	//! Comparison operator
+
+	//! C++11 allows pointer comparisons.
+	template<typename objClass2, typename baseClass2>
+	inline bool operator<(const const_ref<objClass2, baseClass2> &o)
+		const noexcept
+	{
+		return p < o;
+	}
+
+	//! C++11 allows pointer comparisons.
+	template<typename objClass2, typename baseClass2>
+	inline bool operator>=(const const_ref<objClass2, baseClass2> &o)
+		const noexcept
+	{
+		return p >= o;
+	}
+
+	//! Comparison operator
+
+	//! C++11 allows pointer comparisons.
+	template<typename objClass2, typename baseClass2>
+	inline bool operator>(const const_ptr<objClass2, baseClass2> &o)
+		const noexcept
+	{
+		return p > o;
+	}
+
+	//! C++11 allows pointer comparisons.
+	template<typename objClass2, typename baseClass2>
+	inline bool operator<=(const const_ptr<objClass2, baseClass2> &o)
+		const noexcept
+	{
+		return p <= o;
+	}
+
+	//! Comparison operator
+
+	//! C++11 allows pointer comparisons.
+	template<typename objClass2, typename baseClass2>
+	inline bool operator>(const const_ref<objClass2, baseClass2> &o)
+		const noexcept
+	{
+		return p < o;
+	}
+
+	//! C++11 allows pointer comparisons.
+	template<typename objClass2, typename baseClass2>
+	inline bool operator<=(const const_ref<objClass2, baseClass2> &o)
+		const noexcept
+	{
+		return p >= o;
+	}
+
 	//! Forward create() to the base type
 
 	template<typename... Args_t>
