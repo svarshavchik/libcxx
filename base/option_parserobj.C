@@ -62,7 +62,10 @@ int parserObj::parseArgv(int argc,
 	while (argc)
 	{
 		--argc;
-		(this->*next_func)(*argv++);
+		(this->*next_func)(unicode::iconvert
+				   ::convert(*argv++,
+					     unicode_default_chset(),
+					     unicode::utf_8));
 	}
 
 	(this->*cleanup_func)();
@@ -80,7 +83,10 @@ int parserObj::parseArgv(int argc, const char * const *argv,
 	while (argc)
 	{
 		--argc;
-		(this->*next_func)(*argv++);
+		(this->*next_func)(unicode::iconvert
+				   ::convert(*argv++,
+					     unicode_default_chset(),
+					     unicode::utf_8));
 	}
 	(this->*cleanup_func)();
 	return err_status;
@@ -97,21 +103,23 @@ int parserObj::parseArgv(const std::vector<std::string> &argv,
 
 	while (b != e)
 	{
-		(this->*next_func)(*b++);
+		(this->*next_func)(unicode::iconvert
+				   ::convert(*b++,
+					     unicode_default_chset(),
+					     unicode::utf_8));
 	}
 	(this->*cleanup_func)();
 	return err_status;
 }
 
-int parserObj::parseString(std::string argstring) noexcept
+int parserObj::parseString(const std::string &argstring) noexcept
 {
 	std::vector<std::string> words_vec;
 
 	{
 		std::list<std::string> words;
 
-		std::string::iterator b=argstring.begin(),
-			e=argstring.end();
+		auto b=argstring.begin(), e=argstring.end();
 
 		while (b != e)
 		{
@@ -125,7 +133,7 @@ int parserObj::parseString(std::string argstring) noexcept
 
 			int inquote=0;
 
-			std::string::iterator p=b;
+			auto p=b;
 
 			while (b != e && (inquote || !isspace(*b)))
 			{
@@ -184,8 +192,10 @@ void parserObj::cleanup_none() noexcept
 {
 }
 
-void parserObj::collect_optname(const std::string &argstring) noexcept
+void parserObj::collect_optname(const std::string &argstring_arg) noexcept
 {
+	auto argstring=argstring_arg;
+
 	if (argstring.substr(0, 1) == "@")
 	{
 		std::ifstream ifs(argstring.substr(1).c_str());
@@ -201,6 +211,9 @@ void parserObj::collect_optname(const std::string &argstring) noexcept
 
 		while (!std::getline(ifs, line).eof())
 		{
+			line=unicode::iconvert::convert(line,
+							unicode_default_chset(),
+							unicode::utf_8);
 			parseString(line);
 			line="";
 			if (err_status)
@@ -210,9 +223,7 @@ void parserObj::collect_optname(const std::string &argstring) noexcept
 		return;
 	}
 
-	std::wstring wargstring=towstring(argstring, l);
-
-	if (wargstring == L"--")
+	if (argstring == "--")
 	{
 		(this->*cleanup_func)();
 		cleanup_func= &parserObj::cleanup_none;
@@ -222,7 +233,7 @@ void parserObj::collect_optname(const std::string &argstring) noexcept
 
 	cleanup_func= &parserObj::cleanup_none;
 
-	if (wargstring.substr(0, 1) != L"-")
+	if (argstring.substr(0, 1) != "-")
 	{
 		args.push_back(argstring);
 		return;
@@ -233,33 +244,34 @@ void parserObj::collect_optname(const std::string &argstring) noexcept
 
 	std::list<ref<definitionbaseObj> >::const_iterator b, e;
 
-	std::wstring argvalue;
+	std::string argvalue;
 
-	size_t equal_pos=wargstring.find('=');
+	size_t equal_pos=argstring.find('=');
 
-	if (equal_pos != wargstring.npos)
+	if (equal_pos != argstring.npos)
 	{
-		argvalue=wargstring.substr(equal_pos+1);
-		wargstring=wargstring.substr(0, equal_pos);
+		argvalue=argstring.substr(equal_pos+1);
+		argstring=argstring.substr(0, equal_pos);
 	}
 
-	if (wargstring.substr(0, 2) == L"--")
+	if (argstring.substr(0, 2) == "--")
 	{
-		wargstring=wargstring.substr(2);
+		argstring=argstring.substr(2);
 
 		b=options.begin();
 		e=options.end();
 
 		while (b != e)
 		{
-			if ((*b)->longname == wargstring)
+			if ((*b)->longname == argstring)
 				break;
 			++b;
 		}
 
 		if (b == e)
 		{
-			error(parser::base::err_invalidoption, argstring);
+			error(parser::base::err_invalidoption,
+			      argstring_arg);
 			return;
 		}
 
@@ -267,11 +279,11 @@ void parserObj::collect_optname(const std::string &argstring) noexcept
 
 		if (argvalue.size() > 0)
 		{
-			int rc=(*b)->set(*this, tostring(argvalue), l);
+			int rc=(*b)->set(*this, argvalue);
 
 			if (rc)
 			{
-				error(rc, argstring);
+				error(rc, argstring_arg);
 				return;
 			}
 			return;
@@ -285,7 +297,7 @@ void parserObj::collect_optname(const std::string &argstring) noexcept
 
 			if (rc)
 			{
-				error(rc, argstring);
+				error(rc, argstring_arg);
 				return;
 			}
 			return;
@@ -296,8 +308,10 @@ void parserObj::collect_optname(const std::string &argstring) noexcept
 		// Single "-" options that take no values can be specified
 		// together.
 
-		std::wstring::iterator sb=wargstring.begin()+1, // Skip the -
-			se=wargstring.end();
+		auto opts=unicode::iconvert::tou::convert(argstring.substr(1),
+							  unicode::utf_8).first;
+
+		auto sb=opts.begin(), se=opts.end();
 
 		while (sb != se)
 		{
@@ -343,7 +357,7 @@ void parserObj::collect_optname(const std::string &argstring) noexcept
 				error(parser::base::err_invalidoption, argstring);
 				return;
 			}
-				      
+
 			return; // All no-value options parsed
 		}
 
@@ -357,9 +371,7 @@ void parserObj::collect_optname(const std::string &argstring) noexcept
 			{
 				// And we have a value
 
-				int rc=(*b)->set(*this,
-						 tostring(argvalue, l),
-						 l);
+				int rc=(*b)->set(*this, argvalue);
 
 				if (rc)
 				{
@@ -378,8 +390,10 @@ void parserObj::collect_optname(const std::string &argstring) noexcept
 			++sb;
 			if (argvalue.size() > 0 || // What's this?
 			    (rc=(*b)->set(*this,
-					  tostring(std::wstring(sb, se), l),
-					  l))
+					  unicode::iconvert::fromu
+					  ::convert
+					  (std::vector<unicode_char>(sb, se),
+					   unicode::utf_8).first))
 			    != 0)
 			{
 				error(rc, argstring);
@@ -392,7 +406,7 @@ void parserObj::collect_optname(const std::string &argstring) noexcept
 	// Wait for the value to come in
 
 	optname= *b;
-	optname_s=argstring;
+	optname_s=argstring_arg;
 
 	next_func=&parserObj::collect_optvalue;
 	cleanup_func=&parserObj::cleanup_optname;
@@ -407,7 +421,7 @@ void parserObj::collect_optvalue(const std::string &argstring) noexcept
 	next_func=&parserObj::collect_optname;
 	cleanup_func=&parserObj::cleanup_none;
 
-	int rc=opt->set(*this, argstring, l);
+	int rc=opt->set(*this, argstring);
 
 	if (rc)
 	{
@@ -454,13 +468,26 @@ int parserObj::validate() noexcept
 			if ((*b)->flags & list::base::required &&
 			    !(*b)->isSet())
 			{
-				error(parser::base::err_missingoption,
-				      tostring((*b)->shortname ?
-					       std::wstring(L"-") +
-					       std::wstring(&(*b)->shortname,
-							    &(*b)->shortname+1):
-					       std::wstring(L"--")
-					       + (*b)->longname, l));
+				std::ostringstream o;
+
+				if ( (*b)->shortname)
+				{
+					std::vector<unicode_char> buf;
+
+					buf.push_back('-');
+					buf.push_back( (*b)->shortname );
+
+					o << unicode::iconvert
+						::fromu
+						::convert(buf, unicode::utf_8)
+						.first;
+				}
+				else
+				{
+					o << "--" << (*b)->longname;
+				}
+
+				error(parser::base::err_missingoption, o.str());
 				break;
 			}
 		}
@@ -502,13 +529,13 @@ std::string parserObj::errmessage() const noexcept
 	return o.str();
 }
 
-void parserObj::help(std::wostream &o, size_t w) noexcept
+void parserObj::help(std::ostream &o, size_t w) noexcept
 {
 	current_options->help(o, w);
 	error(option::parser::base::err_builtin, "--help");
 }
 
-void parserObj::usage(std::wostream &o, size_t w) noexcept
+void parserObj::usage(std::ostream &o, size_t w) noexcept
 {
 	current_options->usage(o, w);
 }

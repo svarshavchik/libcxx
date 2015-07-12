@@ -15,6 +15,7 @@ Source0: %{name}-%{version}.tar.bz2
 %define _hardened_build 1
 
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root
+BuildRequires: courier-unicode-devel
 BuildRequires: gettext
 BuildRequires: gnutls-devel
 BuildRequires: %{__perl}
@@ -44,6 +45,7 @@ Requires: %{name}-ltdl = 0:%{version}-%{release}
 Requires: %{_datadir}/aclocal
 Requires: libxslt
 Requires: pcre-devel
+Requires: courier-unicode-devel
 
 %package httpd
 Group: System Environment/Daemons

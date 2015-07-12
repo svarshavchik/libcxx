@@ -30,10 +30,10 @@ class definitionHelpObj : public definitionbaseObj {
 
 	//! Output stream for the help and usage %messages
 
-	std::wostream &helpStream;
+	std::ostream &helpStream;
 public:
 	//! Default constructor
-	definitionHelpObj(std::wostream &helpStreamArg) noexcept;
+	definitionHelpObj(std::ostream &helpStreamArg) noexcept;
 
 	//! Default destructor
 	~definitionHelpObj() noexcept;
@@ -54,10 +54,7 @@ public:
 		 parserObj &parserArg,
 
 		 //! The value for this option
-		 const std::string &valueArg,
-
-		 //! Value's locale
-		 const const_locale &localeArg) const noexcept;
+		 const std::string &valueArg) const noexcept override;
 
 	//! Dummy isSet() function
 
@@ -65,7 +62,7 @@ public:
 
 	//! Dummy usage() function
 
-	bool usage(std::wostream &o,
+	bool usage(std::ostream &o,
 		   size_t indentlevel,
 		   size_t width);
 
@@ -75,7 +72,7 @@ public:
 
 	//! Dummy help() function
 
-	void help(std::wostream &o,
+	void help(std::ostream &o,
 		  size_t indentlevel,
 		  size_t width);
 };

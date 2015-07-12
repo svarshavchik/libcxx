@@ -34,32 +34,32 @@ int main(int argc, char **argv)
 		options(LIBCXX_NAMESPACE::option::list::create());
 
 	options->add(reg_values,
-		     0, L"register",
+		     0, "register",
 		     LIBCXX_NAMESPACE::option::list::base::hasvalue,
-		     L"Register port for debugging purposes",
-		     L"port")
+		     "Register port for debugging purposes",
+		     "port")
 		.add(dereg_values,
-		     0, L"deregister",
+		     0, "deregister",
 		     LIBCXX_NAMESPACE::option::list::base::hasvalue,
-		     L"Then deregister this port for debugging purposes",
-		     L"port")
+		     "Then deregister this port for debugging purposes",
+		     "port")
 		.add(reg_values2,
-		     0, L"register2",
+		     0, "register2",
 		     LIBCXX_NAMESPACE::option::list::base::hasvalue,
-		     L"Register a second port for debugging",
-		     L"port")
+		     "Register a second port for debugging",
+		     "port")
 		.add(svcname_value,
-		     0, L"name",
+		     0, "name",
 		     LIBCXX_NAMESPACE::option::list::base::hasvalue,
-		     L"Service name for test registration")
+		     "Service name for test registration")
 		.add(svcexcl_value,
-		     0, L"exclusive",
+		     0, "exclusive",
 		     0,
-		     L"Register exclusive services")
+		     "Register exclusive services")
 		.add(pid2exe_value,
-		     0, L"pid2exe",
+		     0, "pid2exe",
 		     0,
-		     L"Test pid2exe()")
+		     "Test pid2exe()")
 		.addDefaultOptions();
 
 	LIBCXX_NAMESPACE::option::parser

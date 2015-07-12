@@ -30,10 +30,10 @@ class definitionPropertiesObj : public definitionbaseObj {
 
 	//! Output stream for the help and usage %messages
 
-	std::wostream &outputStream;
+	std::ostream &outputStream;
 public:
 	//! Default constructor
-	definitionPropertiesObj(std::wostream &outputStreamArg) noexcept;
+	definitionPropertiesObj(std::ostream &outputStreamArg) noexcept;
 
 	//! Default destructor
 	~definitionPropertiesObj() noexcept;
@@ -49,10 +49,8 @@ public:
 		 parserObj &parserArg,
 
 		 //! The value for this option
-		 const std::string &valueArg,
-
-		 //! Value's locale
-		 const const_locale &localeArg) const noexcept LIBCXX_HIDDEN;
+		 const std::string &valueArg) const
+		noexcept override LIBCXX_HIDDEN;
 
 	//! Dummy isSet() function
 

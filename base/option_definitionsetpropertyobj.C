@@ -23,10 +23,10 @@ namespace LIBCXX_NAMESPACE {
 #endif
 definitionSetPropertyObj::definitionSetPropertyObj()
 	noexcept
-	: definitionbaseObj(0, L"set-property",
+	: definitionbaseObj(0, "set-property",
 			    option::list::base::hasvalue,
-			    wlibmsg(_txt("Set application property \"name\" to \"value\"")),
-			    wlibmsg(_txt("\"name=value\"")))
+			    libmsg(_txt("Set application property \"name\" to \"value\"")),
+			    libmsg(_txt("\"name=value\"")))
 {
 }
 
@@ -43,8 +43,7 @@ LOG_FUNC_SCOPE_DECL(LIBCXX_NAMESPACE::property::definitionSetPropertyObj,
 		    setLogger);
 
 int definitionSetPropertyObj::set(parserObj &parserArg,
-				  const std::string &valueArg,
-				  const const_locale &localeArg) const noexcept
+				  const std::string &valueArg) const noexcept
 {
 	LOG_FUNC_SCOPE(setLogger);
 
@@ -52,7 +51,7 @@ int definitionSetPropertyObj::set(parserObj &parserArg,
 		property::load_properties(valueArg + "\n",
 					  true, true,
 					  property::errhandler::errlog(),
-					  localeArg);
+					  locale::base::utf8());
 	} catch (exception &e)
 	{
 		LOG_ERROR(valueArg << ": " << e);

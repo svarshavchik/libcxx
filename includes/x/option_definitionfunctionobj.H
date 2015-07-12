@@ -32,10 +32,10 @@ class definitionfuncbaseObj : public definitionbaseObj {
 public:
 	//! Define an option that's processed by a function
 	definitionfuncbaseObj(//! Option short name
-			      wchar_t shortnameArg,
+			      unicode_char shortnameArg,
 
 			      //! Option long name
-			      const std::wstring &longnameArg,
+			      const std::string &longnameArg,
 
 			      //! \c Flags
 
@@ -44,10 +44,10 @@ public:
 			      int flagsArg,
 
 			      //! Description of this option
-			      const std::wstring &descriptionArg,
+			      const std::string &descriptionArg,
 
 			      //! Description of this option's argument
-			      const std::wstring &argDescriptionArg,
+			      const std::string &argDescriptionArg,
 
 			      //! The function to call
 			      func_type funcArg)
@@ -94,16 +94,14 @@ private:
 		 parserObj &parserArg,
 
 		 //! The value for this option
-		 const std::string &valueArg,
-
-		 //! Value's locale
-		 const const_locale &localeArg) const
+		 const std::string &valueArg) const override
 	{
 		int rc=option::parser::base::err_invalidoption;
 
 		try {
 			rc=set_explicit(value_string<arg_type>
-					::fromString(valueArg, localeArg));
+					::fromString(valueArg,
+						     locale::base::utf8()));
 		} catch (exception &e)
 		{
 		}
@@ -165,10 +163,10 @@ class definitionfuncvalueObj
 public:
 	//! Define an option that's processed by a function
 	definitionfuncvalueObj(//! Option short name
-			      wchar_t shortnameArg,
+			      unicode_char shortnameArg,
 
 			      //! Option long name
-			      const std::wstring &longnameArg,
+			      const std::string &longnameArg,
 
 			      //! \c Flags
 
@@ -177,10 +175,10 @@ public:
 			      int flagsArg,
 
 			      //! Description of this option
-			      const std::wstring &descriptionArg,
+			      const std::string &descriptionArg,
 
 			      //! Description of this option's argument
-			      const std::wstring &argDescriptionArg,
+			      const std::string &argDescriptionArg,
 
 			      //! Function
 			      int (*optfuncvalArg)(value_type)) noexcept
@@ -226,10 +224,10 @@ class definitionfunccrvalueObj
 public:
 	//! Define an option that's processed by a function
 	definitionfunccrvalueObj(//! Option short name
-				 wchar_t shortnameArg,
+				 unicode_char shortnameArg,
 
 				 //! Option long name
-				 const std::wstring &longnameArg,
+				 const std::string &longnameArg,
 
 				 //! \c Flags
 
@@ -238,10 +236,10 @@ public:
 				 int flagsArg,
 
 				 //! Description of this option
-				 const std::wstring &descriptionArg,
+				 const std::string &descriptionArg,
 
 				 //! Description of this option's argument
-				 const std::wstring &argDescriptionArg,
+				 const std::string &argDescriptionArg,
 
 				 //! Function
 				 int (*optfuncvalArg)(const value_type &))
@@ -283,10 +281,10 @@ class definitionfuncvoidObj
 public:
 	//! Define an option that's processed by a function
 	definitionfuncvoidObj(//! Option short name
-			      wchar_t shortnameArg,
+			      unicode_char shortnameArg,
 
 			      //! Option long name
-			      const std::wstring &longnameArg,
+			      const std::string &longnameArg,
 
 			      //! \c Flags
 
@@ -295,10 +293,10 @@ public:
 			      int flagsArg,
 
 			      //! Description of this option
-			      const std::wstring &descriptionArg,
+			      const std::string &descriptionArg,
 
 			      //! Description of this option's argument
-			      const std::wstring &argDescriptionArg,
+			      const std::string &argDescriptionArg,
 
 			      //! Function
 			      int (*optfuncvalArg)(void)

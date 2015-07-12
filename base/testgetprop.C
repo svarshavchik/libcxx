@@ -23,22 +23,22 @@ int main(int argc, char **argv)
 
 	LIBCXX_NAMESPACE::option::list options(LIBCXX_NAMESPACE::option::list::create());
 
-	options->add(load_file_list, 0, L"load-files",
+	options->add(load_file_list, 0, "load-files",
 		     LIBCXX_NAMESPACE::option::list::base::hasvalue,
-		     L"Property files to pass to load_properties()",
-		     L"filename")
-		.add(load_val_list, 0, L"load-string",
+		     "Property files to pass to load_properties()",
+		     "filename")
+		.add(load_val_list, 0, "load-string",
 		     LIBCXX_NAMESPACE::option::list::base::hasvalue,
-		     L"Property literal settings to pass to load_properties()",
-		     L"name=value")
-		.add(upd_file_list, 0, L"update-files",
+		     "Property literal settings to pass to load_properties()",
+		     "name=value")
+		.add(upd_file_list, 0, "update-files",
 		     LIBCXX_NAMESPACE::option::list::base::hasvalue,
-		     L"Property files to pass to update_properties()",
-		     L"filename")
-		.add(upd_val_list, 0, L"update-string",
+		     "Property files to pass to update_properties()",
+		     "filename")
+		.add(upd_val_list, 0, "update-string",
 		     LIBCXX_NAMESPACE::option::list::base::hasvalue,
-		     L"Property literal settings to pass to update_properties()",
-		     L"name=value")
+		     "Property literal settings to pass to update_properties()",
+		     "name=value")
 		.addDefaultOptions();
 
 	LIBCXX_NAMESPACE::option::parser

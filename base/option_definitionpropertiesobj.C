@@ -21,11 +21,11 @@ namespace LIBCXX_NAMESPACE {
 	};
 };
 #endif
-definitionPropertiesObj::definitionPropertiesObj(std::wostream &outputStreamArg)
+definitionPropertiesObj::definitionPropertiesObj(std::ostream &outputStreamArg)
 	noexcept
-	: definitionbaseObj(0, L"properties", 0,
-			    wlibmsg(_txt("List application properties (\"=all\" - show hidden options)")),
-			    L""),
+	: definitionbaseObj(0, "properties", 0,
+			    libmsg(_txt("List application properties (\"=all\" - show hidden options)")),
+			    ""),
 	  outputStream(outputStreamArg)
 {
 }
@@ -36,12 +36,11 @@ definitionPropertiesObj::~definitionPropertiesObj() noexcept
 
 int definitionPropertiesObj::set(parserObj &parserArg) const noexcept
 {
-	return set(parserArg, "", locale::base::global());
+	return set(parserArg, "");
 }
 
 int definitionPropertiesObj::set(parserObj &parserArg,
-				 const std::string &valueArg,
-				 const const_locale &localeArg) const noexcept
+				 const std::string &valueArg) const noexcept
 {
 	bool all=valueArg == libmsg(_txt("all"));
 
@@ -55,8 +54,7 @@ int definitionPropertiesObj::set(parserObj &parserArg,
 	{
 		if (!all && b->first.find('@') != b->first.npos)
 			continue;
-		outputStream << towstring(b->first, localeArg)
-			+ L"=" + towstring(b->second, localeArg) << std::endl;
+		outputStream << b->first << "=" << b->second << std::endl;
 	}
 	return option::parser::base::err_builtin;
 }

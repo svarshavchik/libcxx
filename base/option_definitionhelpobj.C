@@ -17,8 +17,8 @@ namespace LIBCXX_NAMESPACE {
 	};
 };
 #endif
-definitionHelpObj::definitionHelpObj(std::wostream &helpStreamArg) noexcept
-	: definitionbaseObj(0, L"help", 0, L"", L""), helpStream(helpStreamArg)
+definitionHelpObj::definitionHelpObj(std::ostream &helpStreamArg) noexcept
+	: definitionbaseObj(0, "help", 0, "", ""), helpStream(helpStreamArg)
 {
 }
 
@@ -33,8 +33,7 @@ int definitionHelpObj::set(parserObj &parserArg) const noexcept
 }
 
 int definitionHelpObj::set(parserObj &parserArg,
-			   const std::string &valueArg,
-			   const const_locale &localeArg) const noexcept
+			   const std::string &valueArg) const noexcept
 {
 	size_t w=0;
 
@@ -49,7 +48,7 @@ bool definitionHelpObj::isSet() const noexcept
 	return false;
 }
 
-bool definitionHelpObj::usage(std::wostream &o,
+bool definitionHelpObj::usage(std::ostream &o,
 			      size_t indentlevel,
 			      size_t width)
 {
@@ -60,7 +59,7 @@ void definitionHelpObj::reset() noexcept
 {
 }
 
-void definitionHelpObj::help(std::wostream &o,
+void definitionHelpObj::help(std::ostream &o,
 			     size_t indentlevel,
 			     size_t width)
 {

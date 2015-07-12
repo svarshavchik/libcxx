@@ -21,11 +21,11 @@ namespace LIBCXX_NAMESPACE {
 };
 #endif
 
-definitionbaseObj::definitionbaseObj(wchar_t shortnameArg,
-				     const std::wstring &longnameArg,
+definitionbaseObj::definitionbaseObj(unicode_char shortnameArg,
+				     const std::string &longnameArg,
 				     int flagsArg,
-				     const std::wstring &descriptionArg,
-				     const std::wstring &argDescriptionArg)
+				     const std::string &descriptionArg,
+				     const std::string &argDescriptionArg)
 	noexcept
 	: shortname(shortnameArg),
 	  longname(longnameArg),
@@ -46,7 +46,7 @@ bool definitionbaseObj::multiple() const
 	return false;
 }
 
-bool definitionbaseObj::usage(std::wostream &o,
+bool definitionbaseObj::usage(std::ostream &o,
 			      size_t indentlevel,
 			      size_t width) const
 {
@@ -54,78 +54,92 @@ bool definitionbaseObj::usage(std::wostream &o,
 		return false;
 
 	if (!(flags & option::list::base::required))
-		o << L'[';
+		o << '[';
+
+	std::vector<unicode_char> shortname_v;
+
+	shortname_v.push_back('-');
+	shortname_v.push_back(shortname);
 
 	if (shortname)
-		o << L'-' << shortname;
+		o << unicode::iconvert::fromu::convert(shortname_v,
+						       unicode::utf_8)
+			.first;
 
 	if (shortname && longname.size() > 0)
-		o << L'|';
+		o << '|';
 
 	if (longname.size() > 0)
-		o << L"--" << longname;
+		o << "--" << longname;
 
 	if (flags & option::list::base::hasvalue)
-		o << L'='
-		  << (argDescription.size() > 0 ? argDescription:L"value");
+		o << "=" << (argDescription.size() > 0
+			     ? argDescription:"value");
 
 	if (!(flags & option::list::base::required))
-		o << L']';
+		o << ']';
 	if (multiple())
-		o << L"...";
+		o << "...";
 	return false;
 }
 
-void definitionbaseObj::help(std::wostream &o,
+void definitionbaseObj::help(std::ostream &o,
 			     size_t indentlevel,
 			     size_t width) const
 {
 	if (description.size() == 0)
 		return;
 
-	std::wstring optname;
+	std::string optname;
 
 	{
-		std::wostringstream optname_s;
+		std::ostringstream optname_s;
 
-		optname_s << std::setw(indentlevel) << L"";
+		optname_s << std::setw(indentlevel) << "";
+
+		std::vector<unicode_char> shortname_v;
+
+		shortname_v.push_back('-');
+		shortname_v.push_back(shortname);
 
 		if (shortname)
-			optname_s << L'-' << shortname;
+			optname_s << unicode::iconvert::fromu
+				::convert(shortname_v,
+					  unicode::utf_8)
+				.first;
 
 		if (shortname && longname.size() > 0)
-			optname_s << L", ";
+			optname_s << ", ";
 
 		if (longname.size() > 0)
-			optname_s << L"--" << longname;
+			optname_s << "--" << longname;
 
 		if (flags & option::list::base::hasvalue)
-			optname_s << L'='
+			optname_s << "="
 				  << (argDescription.size() > 0
-				      ? argDescription:L"value");
+				      ? argDescription:"value");
 		optname=optname_s.str();
 	}
 
 	size_t descrColumn=width/2;
 
-	// Technically, we can't pass a ptr to somewhere in a wstring to
-	// wcwidth, since wstring may not necessary hold its contents in a
-	// single buffer.
+	// Convert to unicode.
 
-	std::vector<wchar_t> descriptionBuf;
+	auto descriptionBuf=
+		unicode::iconvert::tou::convert(description,
+						unicode::utf_8).first;
 
-	descriptionBuf.resize(description.size());
-	std::copy(description.begin(), description.end(),
-		  descriptionBuf.begin());
-
-	std::vector<wchar_t>::iterator b=descriptionBuf.begin(),
+	std::vector<unicode_char>::iterator b=descriptionBuf.begin(),
 		e=descriptionBuf.end(), p, q;
 
 	bool shown_option=false;
 
+	auto optname_u=
+		unicode::iconvert::tou::convert(optname, unicode::utf_8).first;
+
 	while (b != e)
 	{
-		if (iswspace(*b))
+		if (unicode_isspace(*b))
 		{
 			++b;
 			continue;
@@ -135,17 +149,15 @@ void definitionbaseObj::help(std::wostream &o,
 
 		while (1)
 		{
-			if (b == e || iswspace(*b))
+			if (b == e || unicode_isspace(*b))
 			{
 				if (p == q)
-					q=b;
+					q=b; // At least one word.
 
-				size_t w=b-p;
+				size_t w=0;
 
-				int wint=wcswidth(&*p, b-p);
-
-				if (wint > 0)
-					w=(size_t)wint;
+				for (auto ptr=p; ptr != b; ++ptr)
+					w += unicode_wcwidth(*ptr);
 
 				if (w >= width-descrColumn)
 					break;
@@ -159,38 +171,42 @@ void definitionbaseObj::help(std::wostream &o,
 
 		if (!shown_option)
 		{
-			size_t optW=optname.size();
-			int optWn=wcswidth(optname.c_str(), optname.size());
+			size_t optW=0;
 
-			if (optWn > 0)
-				optW=(size_t)optWn;
+			for (auto c:optname_u)
+				optW += unicode_wcwidth(c);
 
+			o << unicode::iconvert::fromu
+				::convert(optname_u,
+					  unicode::utf_8)
+				.first;
 
 			if (optW >= descrColumn)
 			{
-				o << optname << std::endl
-				  << std::setw(descrColumn) << L""
+				o << std::endl
+				  << std::setw(descrColumn) << ""
 				  << std::setw(0);
 			}
 			else
 			{
-				o << optname
-				  << std::setw(descrColumn-optW) << L""
+				o << std::setw(descrColumn-optW) << ""
 				  << std::setw(0);
 			}
 			shown_option=true;
 		}
 		else
 		{
-			o << std::setw(descrColumn) << L""
+			o << std::setw(descrColumn) << ""
 			  << std::setw(0);
 		}
-		o << std::wstring(p, q) << std::endl;
+		o << std::string(p, q) << std::endl;
 		b=q;
 	}
 
 	if (!shown_option)
-		o << optname << std::endl;
+		o << unicode::iconvert::fromu
+			::convert(optname_u, unicode::utf_8).first
+		  << std::endl;
 }
 
 template<>
@@ -218,11 +234,11 @@ int definitionfuncbaseObj<int (*)(const bool &), bool>::set(parserObj &obj)
 }
 
 definitionfuncvoidObj
-::definitionfuncvoidObj(wchar_t shortnameArg,
-			const std::wstring &longnameArg,
+::definitionfuncvoidObj(unicode_char shortnameArg,
+			const std::string &longnameArg,
 			int flagsArg,
-			const std::wstring &descriptionArg,
-			const std::wstring &argDescriptionArg,
+			const std::string &descriptionArg,
+			const std::string &argDescriptionArg,
 			int (*optfuncvalArg)(void)) noexcept
 	: definitionfuncbaseObj<int (*)(void), bool> (shortnameArg,
 						      longnameArg,

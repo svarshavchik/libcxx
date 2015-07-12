@@ -1022,7 +1022,7 @@ static int main2(int argc, char **argv)
 		exit(0);
 	}
 
-	optionParser->usage(std::wcout);
+	optionParser->usage(std::cout);
 	exit(1);
 }
 

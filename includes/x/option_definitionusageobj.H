@@ -30,11 +30,11 @@ class definitionUsageObj : public definitionbaseObj {
 
 	//! Output stream for the help and usage %messages
 
-	std::wostream &helpStream;
+	std::ostream &helpStream;
 
 public:
 	//! Default constructor
-	definitionUsageObj(std::wostream &helpStreamArg) noexcept;
+	definitionUsageObj(std::ostream &helpStreamArg) noexcept;
 
 	//! Default destructor
 	~definitionUsageObj() noexcept;
@@ -55,10 +55,8 @@ public:
 		 parserObj &parserArg,
 
 		 //! The value for this option
-		 const std::string &valueArg,
-
-		 //! Value's locale
-		 const const_locale &localeArg) const noexcept LIBCXX_HIDDEN;
+		 const std::string &valueArg) const noexcept
+		override LIBCXX_HIDDEN;
 
 	//! Dummy isSet() function
 
@@ -66,7 +64,7 @@ public:
 
 	//! Dummy usage() function
 
-	bool usage(std::wostream &o,
+	bool usage(std::ostream &o,
 		   size_t indentlevel,
 		   size_t width) LIBCXX_HIDDEN;
 
@@ -76,7 +74,7 @@ public:
 
 	//! Dummy usage() function
 
-	void help(std::wostream &o,
+	void help(std::ostream &o,
 		  size_t indentlevel,
 		  size_t width) LIBCXX_HIDDEN;
 };

@@ -1002,8 +1002,8 @@ int main(int argc, char **argv)
 	LIBCXX_NAMESPACE::option::bool_value
 		testserver(LIBCXX_NAMESPACE::option::bool_value::create());
 
-	options->add(testserver, 0, L"server", 0,
-		     L"Run a test server");
+	options->add(testserver, 0, "server", 0,
+		     "Run a test server");
 
 	options->addDefaultOptions();
 

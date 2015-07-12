@@ -14,6 +14,7 @@
 #include <string>
 #include <cctype>
 #include <iostream>
+#include <courier-unicode.h>
 
 namespace LIBCXX_NAMESPACE {
 	namespace option {
@@ -33,29 +34,29 @@ class definitionbaseObj : virtual public obj {
 
 public:
 	//! Option's short name
-	wchar_t shortname;
+	unicode_char shortname;
 
 	//! Option's long name
-	std::wstring longname;
+	std::string longname;
 
 	//! %Option flags
 	int flags;
 
 	//! Option's description
 
-	std::wstring description;
+	std::string description;
 
 	//! Option's argument description
 
-	std::wstring argDescription;
+	std::string argDescription;
 
 	//! Default constructor
 
-	definitionbaseObj(wchar_t shortnameArg,
-			  const std::wstring &longnameArg,
+	definitionbaseObj(unicode_char shortnameArg,
+			  const std::string &longnameArg,
 			  int flagsArg,
-			  const std::wstring &descriptionArg,
-			  const std::wstring &argDescriptionArg) noexcept;
+			  const std::string &descriptionArg,
+			  const std::string &argDescriptionArg) noexcept;
 
 	//! Default destructor
 
@@ -80,11 +81,7 @@ public:
 			parserObj &parserArg,
 
 			//! The value for this option
-			const std::string &valueArg,
-
-			//! Value's locale
-			const const_locale &localeArg
-			) const=0;
+			const std::string &valueArg) const=0;
 
 	//! Reset the option to the initial default
 
@@ -102,7 +99,7 @@ public:
 	//! \return \c true if this is a complex multiline format,
 	//! \c false otherwise.
 
-	virtual bool usage(std::wostream &o,
+	virtual bool usage(std::ostream &o,
 			   size_t indentlevel,
 			   size_t width) const;
 
@@ -117,7 +114,7 @@ public:
 	//! The option is generally formatted as \c -s, --longname=value
 	//! followed by an indented description.
 
-	virtual void help(std::wostream &o,
+	virtual void help(std::ostream &o,
 			  size_t indentlevel,
 			  size_t width) const;
 };

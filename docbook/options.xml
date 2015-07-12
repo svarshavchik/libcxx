@@ -1,6 +1,6 @@
 <!--
 
-Copyright 2012 Double Precision, Inc.
+Copyright 2012-2015 Double Precision, Inc.
 See COPYING for distribution information.
 
 -->
@@ -20,9 +20,9 @@ See COPYING for distribution information.
 
 &ns;::option::list options(option::list::create());
 
-options-&gt;add(verbose_value, L'v', L"verbose",
+options-&gt;add(verbose_value, 'v', "verbose",
              0,
-             L"Verbose messages");
+             "Verbose messages");
 
 options-&gt;addDefaultOptions();
 
@@ -64,7 +64,7 @@ if (verbose_value-&gt;value)
   <para>
     First, objects representing values of individual options get instantiated,
     then assembled into an option list.
-    Default options, with an internal implemention of those options,
+    Default options, <quote>--help</quote> and <quote>--usage</quote>,
     get added to the list, if
     desired.
     A parser object gets instantiated which takes the list of options, and
@@ -112,7 +112,7 @@ if (verbose_value-&gt;value)
     <required />
   </arg>
 
-  <defaultoptions />  
+  <defaultoptions />
 </optclass>
 ]]></programlisting>
       </informalexample>
@@ -190,7 +190,7 @@ int main(int argc, char **argv)
       returns the resulting <classname>&ns;::option::parser</classname>,
       whose <varname>args</varname> member is the list of command line arguments
       with all the options removed.
-    </para>      
+    </para>
 
     <para>
       The options get parsed into the members of the option class whose names
@@ -289,7 +289,7 @@ int main(int argc, char **argv)
       locale),
       <literal>hms</literal>,
       <literal>ymd</literal>,
-      <literal>ymd_interval</literal> (<link linkend="intervals"><classname>&ns;::hms</classname>, <classname>&ns;::ymd</classname>, and <classname>&ns;::ymd::interval</classname></link> classes), 
+      <literal>ymd_interval</literal> (<link linkend="intervals"><classname>&ns;::hms</classname>, <classname>&ns;::ymd</classname>, and <classname>&ns;::ymd::interval</classname></link> classes),
       <literal>uri</literal> (a <link linkend="uri"><classname>&ns;::uriimpl</classname></link> object),
       <literal>memsize</literal> (a
       <ulink url="&link-x--memsize;"><classname>&ns;::memsize</classname></ulink>
@@ -333,7 +333,7 @@ class customOptClass {
 public:
 
 	std::string s;
- 
+
         static const]]> &ns;::stringable_t stringable=&ns;::class_tostring;<![CDATA[
 
 	template<typename InputIterator>
@@ -355,7 +355,7 @@ public:
 	{
 		return (std::copy(s.begin(), s.end(), iter));
 	}
- 
+
 };
 
 #include "testoptions.h"
@@ -1115,7 +1115,7 @@ int main(int argc, char **argv)
 	Note that <tag class='element'>value</tag> only selects the singular or
 	the plural form of the localized string.
 	Once selected, the localized string still has a parameter that
-	gets replaces by the 
+	gets replaces by the
 	<tag class='element'>param</tag>.
       </para>
     </section>

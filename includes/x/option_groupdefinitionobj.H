@@ -43,10 +43,10 @@ public:
 			   //! Option's short name
 
 			   //! This may be 0, if there is no shortname
-			   wchar_t shortnameArg,
+			   unicode_char shortnameArg,
 
 			   //! Option's long name
-			   std::wstring longnameArg,
+			   std::string longnameArg,
 
 			   //! The group's %options
 
@@ -55,10 +55,10 @@ public:
 			   //! Option's description
 
 			   //! This should be a brief sentence.
-			   std::wstring descriptionArg,
+			   std::string descriptionArg,
 
 			   //! This should be a single word
-			   std::wstring argDescriptionArg) noexcept;
+			   std::string argDescriptionArg) noexcept;
 
 	~groupdefinitionObj() noexcept;
 
@@ -94,7 +94,7 @@ private:
 	//! help() for the group's options, with a slightly larger indent
 	//! level.
 
-	void help(std::wostream &o,
+	void help(std::ostream &o,
 		  size_t indentlevel,
 		  size_t width) const LIBCXX_HIDDEN;
 
@@ -104,7 +104,7 @@ private:
 	//! usage() for the group's options, with a slightly larger indent
 	//! level.
 
-	bool usage(std::wostream &o,
+	bool usage(std::ostream &o,
 		   size_t indentlevel,
 		   size_t width) const LIBCXX_HIDDEN;
 

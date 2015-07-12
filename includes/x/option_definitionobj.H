@@ -43,10 +43,10 @@ public:
 		      //! Option's short name
 
 		      //! This may be 0, if there is no shortname
-		      wchar_t shortnameArg,
+		      unicode_char shortnameArg,
 
 		      //! Option's long name
-		      const std::wstring &longnameArg,
+		      const std::string &longnameArg,
 
 		      //! Flags
 
@@ -57,10 +57,10 @@ public:
 
 		      //! This should be a brief sentence.
 		      //!
-		      const std::wstring &descriptionArg,
+		      const std::string &descriptionArg,
 
 		      //! This should be a single word
-		      const std::wstring &argDescriptionArg) noexcept;
+		      const std::string &argDescriptionArg) noexcept;
 
 	~definitionObj() noexcept;
 
@@ -75,11 +75,8 @@ public:
 		 parserObj &parserArg,
 
 		 //! The value for this option
-		 const std::string &valueArg,
-
-		 //! Value's locale
-		 const const_locale &localeArg)
-		const LIBCXX_HIDDEN;
+		 const std::string &valueArg)
+		const override LIBCXX_HIDDEN;
 
 	void reset() LIBCXX_HIDDEN;
 

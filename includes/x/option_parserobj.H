@@ -95,7 +95,7 @@ public:
 
 	//! The given string is split into individual words, and gets parsed
 	//! accordingly.
-	int parseString(std::string argstring) noexcept;
+	int parseString(const std::string &utf8_string) noexcept;
 
 	//! Validate (for missing options, and such)
 
@@ -120,10 +120,10 @@ public:
 	std::list<std::string> args;
 
 	//! Generate the help message
-	void help(std::wostream &o, size_t w=0) noexcept;
+	void help(std::ostream &o, size_t w=0) noexcept;
 
 	//! Generate the usage message
-	void usage(std::wostream &o, size_t w=0) noexcept;
+	void usage(std::ostream &o, size_t w=0) noexcept;
 
 private:
 

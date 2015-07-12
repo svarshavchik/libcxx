@@ -21,11 +21,11 @@ namespace LIBCXX_NAMESPACE {
 };
 #endif
 groupdefinitionObj::groupdefinitionObj(ptr<valuebaseObj> valueArg,
-				       wchar_t shortnameArg,
-				       std::wstring longnameArg,
+				       unicode_char shortnameArg,
+				       std::string longnameArg,
 				       list groupOptionsArg,
-				       std::wstring descriptionArg,
-				       std::wstring argDescriptionArg) noexcept
+				       std::string descriptionArg,
+				       std::string argDescriptionArg) noexcept
 	: definitionObj(valueArg, shortnameArg, longnameArg, 0,
 			descriptionArg, argDescriptionArg),
 	  groupOptions(groupOptionsArg)
@@ -65,22 +65,22 @@ bool groupdefinitionObj::multiple() const noexcept
 	return false;
 }
 
-bool groupdefinitionObj::usage(std::wostream &o,
+bool groupdefinitionObj::usage(std::ostream &o,
 			       size_t indentlevel,
 			       size_t width) const
 {
-	std::wostringstream tmpO;
+	std::ostringstream tmpO;
 
 	definitionObj::usage(tmpO, indentlevel, width);
 
 	o << tmpO.str() << std::endl;
 
-	groupOptions->usage_internal(o, L"", width, indentlevel+2);
+	groupOptions->usage_internal(o, "", width, indentlevel+2);
 
 	return true;
 }
 
-void groupdefinitionObj::help(std::wostream &o,
+void groupdefinitionObj::help(std::ostream &o,
 			      size_t indentlevel,
 			      size_t width) const
 {

@@ -29,33 +29,33 @@ static void testoptions1()
 
 	LIBCXX_NAMESPACE::option::list options(LIBCXX_NAMESPACE::option::list::create());
 
-	options->setAppName(L"testoptions");
+	options->setAppName("testoptions");
 	options->add(retries_value,
-		     'r', L"retries",
+		     'r', "retries",
 		     LIBCXX_NAMESPACE::option::list::base::hasvalue,
-		     L"How many times to retry",
-		     L"count")
+		     "How many times to retry",
+		     "count")
 		.add(filename_values,
-		     'f', L"",
+		     'f', "",
 		     LIBCXX_NAMESPACE::option::list::base::hasvalue,
-		     L"Filename to process",
-		     L"filename")
+		     "Filename to process",
+		     "filename")
 		.add(debug_alloc_value,
 		     0,
-		     L"debug-alloc",
+		     "debug-alloc",
 		     0,
-		     L"Debug allocations")
+		     "Debug allocations")
 		.add(debug_auth_value,
 		     0,
-		     L"debug-auth",
+		     "debug-auth",
 		     0,
-		     L"Debug authentication")
-		.addArgument(L"flag", LIBCXX_NAMESPACE::option::list::base::required)
-		.addArgument(L"filename", LIBCXX_NAMESPACE::option::list::base::repeated);
+		     "Debug authentication")
+		.addArgument("flag", LIBCXX_NAMESPACE::option::list::base::required)
+		.addArgument("filename", LIBCXX_NAMESPACE::option::list::base::repeated);
 
-	options->usage(std::wcout, 40);
-	options->help(std::wcout, 40);
-	std::wcout << std::flush;
+	options->usage(std::cout, 40);
+	options->help(std::cout, 40);
+	std::cout << std::flush;
 }
 
 static void testoptions2()
@@ -71,65 +71,63 @@ static void testoptions2()
 	LIBCXX_NAMESPACE::option::string_value g_value(LIBCXX_NAMESPACE::option::string_value::create());
 
 	LIBCXX_NAMESPACE::option::list options(LIBCXX_NAMESPACE::option::list::create());
-	options->setAppName(L"testoptions");
+	options->setAppName("testoptions");
 
 	options->add(a_value,
-		     'a', L"",
+		     'a', "",
 		     0,
-		     L"A parameter")
+		     "A parameter")
 		.add(b_value,
-		     'b', L"",
+		     'b', "",
 		     0,
-		     L"B parameter")
+		     "B parameter")
 		.add(c_value,
-		     'c', L"",
+		     'c', "",
 		     0,
-		     L"C parameter")
+		     "C parameter")
 		.add(d_value,
-		     'd', L"",
+		     'd', "",
 		     0,
-		     L"D parameter")
+		     "D parameter")
 		.add(e_value,
-		     'e', L"",
+		     'e', "",
 		     LIBCXX_NAMESPACE::option::list::base::hasvalue,
-		     L"E parameter")
+		     "E parameter")
 		.add(f_value,
-		     'f', L"",
+		     'f', "",
 		     0,
-		     L"F parameter")
+		     "F parameter")
 		.add(g_value,
-		     'g', L"",
+		     'g', "",
 		     LIBCXX_NAMESPACE::option::list::base::hasvalue,
-		     L"G parameter");
+		     "G parameter");
 
 	LIBCXX_NAMESPACE::option::parser p(LIBCXX_NAMESPACE::option::parser::create());
 
 	p->setOptions(options);
 	p->parseString(" -abc word1 -de=earg word2 -fg garg word3 -- -z word4");
 
-	std::wcout << L"test2: "
+	std::cout << "test2: "
 		  << p->validate()
 		  << std::endl;
 
 	LIBCXX_NAMESPACE::locale l(LIBCXX_NAMESPACE::locale::base::environment());
 
-	std::wcout << "A: " << (a_value->value ? 1:0) << std::endl;
-	std::wcout << "B: " << (b_value->value ? 1:0) << std::endl;
-	std::wcout << "C: " << (c_value->value ? 1:0) << std::endl;
-	std::wcout << "D: " << (d_value->value ? 1:0) << std::endl;
-	std::wcout << "E: " << LIBCXX_NAMESPACE::towstring(e_value->value, l)
-		   << std::endl;
-	std::wcout << "F: " << (f_value->value ? 1:0) << std::endl;
-	std::wcout << "G: " << LIBCXX_NAMESPACE::towstring(g_value->value, l)
-		   << std::endl;
+	std::cout << "A: " << (a_value->value ? 1:0) << std::endl;
+	std::cout << "B: " << (b_value->value ? 1:0) << std::endl;
+	std::cout << "C: " << (c_value->value ? 1:0) << std::endl;
+	std::cout << "D: " << (d_value->value ? 1:0) << std::endl;
+	std::cout << "E: " << e_value->value << std::endl;
+	std::cout << "F: " << (f_value->value ? 1:0) << std::endl;
+	std::cout << "G: " << g_value->value << std::endl;
 
 	std::list<std::string>::iterator b=p->args.begin(),
 		e=p->args.end();
 
 	while (b != e)
 	{
-		std::wcout << L"Param: "
-			   << LIBCXX_NAMESPACE::towstring(*b++, l) << std::endl;
+		std::cout << "Param: "
+			   << *b++ << std::endl;
 	}
 }
 
@@ -139,11 +137,11 @@ static void testoptions31()
 
 	LIBCXX_NAMESPACE::option::list options(LIBCXX_NAMESPACE::option::list::create());
 
-	options->setAppName(L"testoptions");
+	options->setAppName("testoptions");
 	options->add(a_value,
-		     0, L"a",
+		     0, "a",
 		     LIBCXX_NAMESPACE::option::list::base::hasvalue,
-		     L"A parameter");
+		     "A parameter");
 
 	LIBCXX_NAMESPACE::option::parser p(LIBCXX_NAMESPACE::option::parser::create());
 
@@ -151,11 +149,11 @@ static void testoptions31()
 
 	p->parseString("--a=31");
 
-	std::wcout << L"test3.1: "
+	std::cout << "test3.1: "
 		  << p->validate()
 		  << std::endl;
 
-	std::wcout << "A: " << a_value->value << std::endl;
+	std::cout << "A: " << a_value->value << std::endl;
 }
 
 static void testoptions32()
@@ -164,11 +162,11 @@ static void testoptions32()
 
 	LIBCXX_NAMESPACE::option::list options(LIBCXX_NAMESPACE::option::list::create());
 
-	options->setAppName(L"testoptions");
+	options->setAppName("testoptions");
 	options->add(a_value,
-		     0, L"a",
+		     0, "a",
 		     LIBCXX_NAMESPACE::option::list::base::hasvalue,
-		     L"A parameter");
+		     "A parameter");
 
 	LIBCXX_NAMESPACE::option::parser p(LIBCXX_NAMESPACE::option::parser::create());
 
@@ -176,11 +174,11 @@ static void testoptions32()
 
 	p->parseString("--a 32");
 
-	std::wcout << L"test3.2: "
+	std::cout << "test3.2: "
 		  << p->validate()
 		  << std::endl;
 
-	std::wcout << "A: " << a_value->value << std::endl;
+	std::cout << "A: " << a_value->value << std::endl;
 }
 
 static void testoptions33()
@@ -189,11 +187,11 @@ static void testoptions33()
 
 	LIBCXX_NAMESPACE::option::list options(LIBCXX_NAMESPACE::option::list::create());
 
-	options->setAppName(L"testoptions");
+	options->setAppName("testoptions");
 	options->add(a_value,
-		     0, L"a",
+		     0, "a",
 		     LIBCXX_NAMESPACE::option::list::base::hasvalue,
-		     L"A parameter");
+		     "A parameter");
 
 	LIBCXX_NAMESPACE::option::parser p(LIBCXX_NAMESPACE::option::parser::create());
 
@@ -201,24 +199,22 @@ static void testoptions33()
 
 	p->parseString("--a x");
 
-	std::wcout << L"test3.3: "
-		   << p->validate() << L": ";
+	std::cout << "test3.3: "
+		   << p->validate() << ": ";
 
-	std::wcout << LIBCXX_NAMESPACE::towstring(p->err_option,
-						LIBCXX_NAMESPACE::locale::base::environment())
-		   << std::endl;
+	std::cout << p->err_option << std::endl;
 }
 
 static int function_opt() noexcept
 {
-	std::wcout << L"--function option invoked" << std::endl;
+	std::cout << "--function option invoked" << std::endl;
 	return 0;
 }
 
 static int intfunction_opt(int arg) noexcept
 {
-	std::wcout << L"--intfunction=" << arg
-		   << L" option invoked" << std::endl;
+	std::cout << "--intfunction=" << arg
+		   << " option invoked" << std::endl;
 	return 0;
 }
 
@@ -233,35 +229,35 @@ static void testoptions4()
 
 	LIBCXX_NAMESPACE::option::list options(LIBCXX_NAMESPACE::option::list::create());
 
-	options->setAppName(L"testoptions");
+	options->setAppName("testoptions");
 	options->add(a_value,
-		     'a', L"A",
+		     'a', "A",
 		     0,
-		     L"A parameter")
+		     "A parameter")
 		.add(b_value,
-		     'b', L"B",
+		     'b', "B",
 		     LIBCXX_NAMESPACE::option::list::base::hasvalue,
-		     L"B parameter")
+		     "B parameter")
 		.add(c_value,
-		     'c', L"C",
+		     'c', "C",
 		     LIBCXX_NAMESPACE::option::list::base::hasvalue,
-		     L"C parameter")
+		     "C parameter")
 		.add(d_value,
-		     'd', L"D",
+		     'd', "D",
 		     0,
-		     L"D parameter")
+		     "D parameter")
 		.add(e_value,
-		     'e', L"E",
+		     'e', "E",
 		     LIBCXX_NAMESPACE::option::list::base::hasvalue,
-		     L"E parameter")
+		     "E parameter")
 		.add(f_value,
-		     'f', L"F",
+		     'f', "F",
 		     LIBCXX_NAMESPACE::option::list::base::hasvalue,
-		     L"F parameter")
+		     "F parameter")
 		.add(&function_opt,
-		     0, L"function")
+		     0, "function")
 		.add(&intfunction_opt,
-		     0, L"intfunction");
+		     0, "intfunction");
 
 	LIBCXX_NAMESPACE::option::parser p(LIBCXX_NAMESPACE::option::parser::create());
 
@@ -269,26 +265,25 @@ static void testoptions4()
 
 	p->parseString("--function --intfunction=2 --A --B bval --C=cval --D word1 -eearg --F");
 
-	std::wcout << L"test4: "
+	std::cout << "test4: "
 		  << p->validate()
 		  << std::endl;
 
 	LIBCXX_NAMESPACE::locale l(LIBCXX_NAMESPACE::locale::base::environment());
 
-	std::wcout << "A: " << LIBCXX_NAMESPACE::towstring(a_value->value, l) << std::endl;
-	std::wcout << "B: " << LIBCXX_NAMESPACE::towstring(b_value->value, l) << std::endl;
-	std::wcout << "C: " << LIBCXX_NAMESPACE::towstring(c_value->value, l) << std::endl;
-	std::wcout << "D: " << LIBCXX_NAMESPACE::towstring(d_value->value, l) << std::endl;
-	std::wcout << "E: " << LIBCXX_NAMESPACE::towstring(e_value->value, l) << std::endl;
-	std::wcout << "F: " << LIBCXX_NAMESPACE::towstring(f_value->value, l) << std::endl;
+	std::cout << "A: " << a_value->value << std::endl;
+	std::cout << "B: " << b_value->value << std::endl;
+	std::cout << "C: " << c_value->value << std::endl;
+	std::cout << "D: " << d_value->value << std::endl;
+	std::cout << "E: " << e_value->value << std::endl;
+	std::cout << "F: " << f_value->value << std::endl;
 
 	std::list<std::string>::iterator b=p->args.begin(),
 		e=p->args.end();
 
 	while (b != e)
 	{
-		std::wcout << L"Param: "
-			   << LIBCXX_NAMESPACE::towstring(*b++, l) << std::endl;
+		std::cout << "Param: " << *b++ << std::endl;
 	}
 }
 
@@ -298,12 +293,12 @@ static void testoptions5()
 
 	LIBCXX_NAMESPACE::option::list options(LIBCXX_NAMESPACE::option::list::create());
 
-	options->setAppName(L"testoptions");
+	options->setAppName("testoptions");
 
 	options->add(a_value,
-		     0, L"a",
+		     0, "a",
 		     LIBCXX_NAMESPACE::option::list::base::hasvalue,
-		     L"A parameter");
+		     "A parameter");
 
 	std::ofstream o("testoptions0.tmp");
 
@@ -319,11 +314,11 @@ static void testoptions5()
 
 	p->parseString("@testoptions0.tmp");
 
-	std::wcout << L"test5: "
+	std::cout << "test5: "
 		  << p->validate()
 		  << std::endl;
 	unlink("testoptions0.tmp");
-	std::wcout << "A: " << a_value->value << std::endl;
+	std::cout << "A: " << a_value->value << std::endl;
 }
 
 static void testoptions6()
@@ -334,20 +329,20 @@ static void testoptions6()
 
 	LIBCXX_NAMESPACE::option::list options(LIBCXX_NAMESPACE::option::list::create());
 
-	options->setAppName(L"testoptions");
+	options->setAppName("testoptions");
 
 	options->add(a_value,
-		     0, L"a",
+		     0, "a",
 		     LIBCXX_NAMESPACE::option::list::base::hasvalue | LIBCXX_NAMESPACE::option::list::base::required,
-		     L"A parameter", L"avalue")
+		     "A parameter", "avalue")
 		.add(b_value,
-		     'b', L"",
+		     'b', "",
 		     LIBCXX_NAMESPACE::option::list::base::hasvalue | LIBCXX_NAMESPACE::option::list::base::required,
-		     L"B parameter", L"bvalue")
+		     "B parameter", "bvalue")
 		.add(c_value,
-		     0, L"c",
+		     0, "c",
 		     LIBCXX_NAMESPACE::option::list::base::hasvalue,
-		     L"C parameter")
+		     "C parameter")
 		.addDefaultOptions();
 
 	LIBCXX_NAMESPACE::option::parser p(LIBCXX_NAMESPACE::option::parser::create());
@@ -356,22 +351,20 @@ static void testoptions6()
 
 	p->parseString("--a=1");
 
-	std::wcout << L"test6: "
-		   << p->validate() << L": ";
+	std::cout << "test6: "
+		   << p->validate() << ": ";
 
-	std::wcout << LIBCXX_NAMESPACE::towstring(p->err_option,
-						LIBCXX_NAMESPACE::locale::create())
-		   << std::endl;
-	std::wcout << "A: " << a_value->value << std::endl;
-	std::wcout << "B: " << b_value->value << std::endl;
-	std::wcout << "C: " << c_value->value << std::endl;
+	std::cout << p->err_option << std::endl;
+	std::cout << "A: " << a_value->value << std::endl;
+	std::cout << "B: " << b_value->value << std::endl;
+	std::cout << "C: " << c_value->value << std::endl;
 	p->setOptions(options);
 	p->parseString("--help=40");
-	std::wcout << L"test6.2: "
+	std::cout << "test6.2: "
 		   << p->validate() << std::endl;
 	p->setOptions(options);
 	p->parseString("--usage=40");
-	std::wcout << L"test6.3: "
+	std::cout << "test6.3: "
 		   << p->validate() << std::endl;
 }
 
@@ -414,39 +407,39 @@ static void testoptions7()
 	LIBCXX_NAMESPACE::option::list sprocket_options(LIBCXX_NAMESPACE::option::list::create());
 
 	sprocket_options->add(add_sprocket,
-			      0, L"add", 0, L"Add a sprocket")
+			      0, "add", 0, "Add a sprocket")
 		.add(del_sprocket,
-		     0, L"del", 0, L"Delete a sprocket")
+		     0, "del", 0, "Delete a sprocket")
 		.add(grok_sprocket,
-		     0, L"grok", 0, L"Grok a sprocket")
+		     0, "grok", 0, "Grok a sprocket")
 		.add(frob_sprocket,
-		     0, L"from", 0, L"From a sprocket");
+		     0, "from", 0, "From a sprocket");
 
 	LIBCXX_NAMESPACE::option::list spricket_options(LIBCXX_NAMESPACE::option::list::create());
 
 	spricket_options->add(add_spricket,
-			      0, L"add", 0, L"Add a spricket")
+			      0, "add", 0, "Add a spricket")
 		.add(del_spricket,
-		     0, L"del", 0, L"Delete a spricket");
+		     0, "del", 0, "Delete a spricket");
 
 	LIBCXX_NAMESPACE::option::int_value do_groz(LIBCXX_NAMESPACE::option::int_value::create());
 
 	LIBCXX_NAMESPACE::option::list groz_options(LIBCXX_NAMESPACE::option::list::create());
 
-	groz_options->addArgument(L"grozA", 0)
-		.addArgument(L"grozB", 0);
+	groz_options->addArgument("grozA", 0)
+		.addArgument("grozB", 0);
 
 	LIBCXX_NAMESPACE::option::list main_options(LIBCXX_NAMESPACE::option::list::create());
 
 	main_options->setAppName("testoptions");
 
-	main_options->add(do_sprockets, 0, L"sprockets", sprocket_options,
-		     L"Do something with sprockets")
-		.add(do_sprickets, 0, L"sprickets", spricket_options,
-		     L"Do something with sprickets")
-		.add(do_groz, 0, L"groz", groz_options,
-		     L"Do something with grozes")
-		.add(do_gadget, 'g', L"", 0, L"Dummy flag")
+	main_options->add(do_sprockets, 0, "sprockets", sprocket_options,
+		     "Do something with sprockets")
+		.add(do_sprickets, 0, "sprickets", spricket_options,
+		     "Do something with sprickets")
+		.add(do_groz, 0, "groz", groz_options,
+		     "Do something with grozes")
+		.add(do_gadget, 'g', "", 0, "Dummy flag")
 		.addDefaultOptions();
 
 	LIBCXX_NAMESPACE::option::parser opt_parser(LIBCXX_NAMESPACE::option::parser::create());
@@ -460,22 +453,22 @@ static void testoptions7()
 	opt_parser->validate();
 	opt_parser->reset();
 
-	std::wcout << "Status before: " << STATUS_ALL << std::endl;
+	std::cout << "Status before: " << STATUS_ALL << std::endl;
 
 	if (opt_parser->parseString("--sprickets --del") == 0 &&
 	    opt_parser->validate() == 0)
 	{
-		std::wcout << "Status after --sprickets --del: "
+		std::cout << "Status after --sprickets --del: "
 			   << STATUS_ALL << std::endl;
 	}
 
 	opt_parser->reset();
-	std::wcout << "Status before: " << STATUS_ALL << std::endl;
+	std::cout << "Status before: " << STATUS_ALL << std::endl;
 
 	if (opt_parser->parseString("--sprockets --add") == 0 &&
 	    opt_parser->validate() == 0)
 	{
-		std::wcout << "Status after --spoickets --add: "
+		std::cout << "Status after --spoickets --add: "
 			   << STATUS_ALL << std::endl;
 	}
 }
@@ -491,33 +484,33 @@ static void testoptions8()
 
 	LIBCXX_NAMESPACE::option::list opts(LIBCXX_NAMESPACE::option::list::create());
 
-	opts->setAppName(L"testoptions");
+	opts->setAppName("testoptions");
 
-	opts->add(a, 'a', L"", 0, L"Option A")
-		.add(b, 'b', L"", 0, L"Option B");
+	opts->add(a, 'a', "", 0, "Option A")
+		.add(b, 'b', "", 0, "Option B");
 
 	LIBCXX_NAMESPACE::option::parser opt_parser(LIBCXX_NAMESPACE::option::parser::create());
 
 	opt_parser->setOptions(opts);
 
 	opt_parser->parseString("-a");
-	std::wcout << L"Mutex test 1: " << opt_parser->validate()
-		   << L", a=" << a->value
-		   << L", b=" << b->value << std::endl;
+	std::cout << "Mutex test 1: " << opt_parser->validate()
+		   << ", a=" << a->value
+		   << ", b=" << b->value << std::endl;
 
 	opt_parser->reset();
 
 	opt_parser->parseString("-b");
-	std::wcout << L"Mutex test 2: " << opt_parser->validate()
-		   << L", a=" << a->value
-		   << L", b=" << b->value << std::endl;
+	std::cout << "Mutex test 2: " << opt_parser->validate()
+		   << ", a=" << a->value
+		   << ", b=" << b->value << std::endl;
 
 	opt_parser->reset();
 	opt_parser->parseString("-a -b");
 
-	std::wcout << L"Mutex test 2: " << opt_parser->validate()
-		   << L", a=" << a->value
-		   << L", b=" << b->value << std::endl;
+	std::cout << "Mutex test 2: " << opt_parser->validate()
+		   << ", a=" << a->value
+		   << ", b=" << b->value << std::endl;
 
 }
 
@@ -535,17 +528,17 @@ static void testoptions9()
 
 	LIBCXX_NAMESPACE::option::list opts(LIBCXX_NAMESPACE::option::list::create());
 
-	opts->setAppName(L"testoptions");
+	opts->setAppName("testoptions");
 
-	opts->add(hms_value, 't', L"",
+	opts->add(hms_value, 't', "",
 		  LIBCXX_NAMESPACE::option::list::base::hasvalue,
-		  L"Time")
-		.add(ymd_value, 'd', L"",
-		     LIBCXX_NAMESPACE::option::list::base::hasvalue, L"Date")
-		.add(ymd_interval_value, 'i', L"",
-		     LIBCXX_NAMESPACE::option::list::base::hasvalue, L"Interval")
-		.add(uri_value, 'u', L"",
-		     LIBCXX_NAMESPACE::option::list::base::hasvalue, L"URI");
+		  "Time")
+		.add(ymd_value, 'd', "",
+		     LIBCXX_NAMESPACE::option::list::base::hasvalue, "Date")
+		.add(ymd_interval_value, 'i', "",
+		     LIBCXX_NAMESPACE::option::list::base::hasvalue, "Interval")
+		.add(uri_value, 'u', "",
+		     LIBCXX_NAMESPACE::option::list::base::hasvalue, "URI");
 
 	LIBCXX_NAMESPACE::option::parser opt_parser(LIBCXX_NAMESPACE::option::parser::create());
 
@@ -554,33 +547,22 @@ static void testoptions9()
 	opt_parser->parseString("-t \"1 hour\" -d 2010-05-01 -i \"1 week\""
 				" -u http://localhost/cgi-bin/test.cgi");
 
-	std::ostreambuf_iterator<wchar_t> o(std::wcout.rdbuf());
+	std::ostreambuf_iterator<char> o(std::cout.rdbuf());
 
-	std::wcout << "Time: ";
+	std::cout << "Time: ";
 
 	hms_value->value.toString(o);
 
-	std::wcout << std::endl << "Date: ";
-	
-	ymd_value->value.toWideString(o);
+	std::cout << std::endl << "Date: ";
 
-	std::wcout << std::endl << "Interval: ";
+	ymd_value->value.toString(o);
 
-	auto w=LIBCXX_NAMESPACE::towstring(ymd_interval_value->value);
+	std::cout << std::endl << "Interval: ";
 
-	std::copy(w.begin(), w.end(), o);
+	ymd_interval_value->value.toString(o);
 
-	std::wcout << std::endl << "URI path: ";
-
-	{
-		std::wstring w;
-		const std::string &s=uri_value->value.getPath();
-
-		std::copy(s.begin(), s.end(),
-			  std::back_insert_iterator<std::wstring>(w));
-
-		std::wcout << w << std::endl;
-	}
+	std::cout << std::endl << "URI path: "
+		  << uri_value->value.getPath() << std::endl;
 }
 
 static void testoptions10()
@@ -597,17 +579,17 @@ static void testoptions10()
 
 	LIBCXX_NAMESPACE::option::list opts(LIBCXX_NAMESPACE::option::list::create());
 
-	opts->setAppName(L"testoptions");
+	opts->setAppName("testoptions");
 
-	opts->add(hms_list, 't', L"",
+	opts->add(hms_list, 't', "",
 		  LIBCXX_NAMESPACE::option::list::base::hasvalue,
-		  L"Time")
-		.add(ymd_list, 'd', L"",
-		     LIBCXX_NAMESPACE::option::list::base::hasvalue, L"Date")
-		.add(ymd_interval_list, 'i', L"",
-		     LIBCXX_NAMESPACE::option::list::base::hasvalue, L"Interval")
-		.add(uri_list, 'u', L"",
-		     LIBCXX_NAMESPACE::option::list::base::hasvalue, L"URI");
+		  "Time")
+		.add(ymd_list, 'd', "",
+		     LIBCXX_NAMESPACE::option::list::base::hasvalue, "Date")
+		.add(ymd_interval_list, 'i', "",
+		     LIBCXX_NAMESPACE::option::list::base::hasvalue, "Interval")
+		.add(uri_list, 'u', "",
+		     LIBCXX_NAMESPACE::option::list::base::hasvalue, "URI");
 
 	LIBCXX_NAMESPACE::option::parser opt_parser(LIBCXX_NAMESPACE::option::parser::create());
 
@@ -624,15 +606,15 @@ static void testoptions11()
 
 	LIBCXX_NAMESPACE::option::list options(LIBCXX_NAMESPACE::option::list::create());
 
-	options->setAppName(L"testoptions");
+	options->setAppName("testoptions");
 
-	options->add(memsize, L's', L"memsize",
+	options->add(memsize, L's', "memsize",
 		     LIBCXX_NAMESPACE::option::list::base::hasvalue,
-		     L"Memory size",
-		     L"size");
+		     "Memory size",
+		     "size");
 
-	options->usage(std::wcout, 40);
-	options->help(std::wcout, 40);
+	options->usage(std::cout, 40);
+	options->help(std::cout, 40);
 
 	LIBCXX_NAMESPACE::option::parser p(LIBCXX_NAMESPACE::option::parser::create());
 
@@ -640,7 +622,7 @@ static void testoptions11()
 
 	p->parseString("--memsize=4KB");
 
-	std::wcout << L"bytes: " << memsize->value.bytes << std::endl;
+	std::cout << "bytes: " << memsize->value.bytes << std::endl;
 }
 
 static void testoptions12()
@@ -650,15 +632,15 @@ static void testoptions12()
 
 	LIBCXX_NAMESPACE::option::list options(LIBCXX_NAMESPACE::option::list::create());
 
-	options->setAppName(L"testoptions");
+	options->setAppName("testoptions");
 
-	options->add(wstring, L's', L"wstring",
+	options->add(wstring, L's', "wstring",
 		     LIBCXX_NAMESPACE::option::list::base::hasvalue,
-		     L"Wide string",
-		     L"string");
+		     "Wide string",
+		     "string");
 
-	options->usage(std::wcout, 40);
-	options->help(std::wcout, 40);
+	options->usage(std::cout, 40);
+	options->help(std::cout, 40);
 
 	LIBCXX_NAMESPACE::option::parser p(LIBCXX_NAMESPACE::option::parser::create());
 
@@ -690,8 +672,7 @@ int main(int argc, char **argv)
 		testoptions11();
 		testoptions12();
 	} catch (const LIBCXX_NAMESPACE::exception &e) {
-		std::wcout << LIBCXX_NAMESPACE::towstring((std::string)*e,
-							LIBCXX_NAMESPACE::locale::create()) << std::endl;
+		std::cout << e << std::endl;
 	}
 	return 0;
 }

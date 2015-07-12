@@ -309,19 +309,19 @@ int main(int argc, char **argv)
 		options(LIBCXX_NAMESPACE::option::list::create());
 
 	options->add(noverifypeer_value, 0,
-		     L"noverifypeer",
+		     "noverifypeer",
 		     0,
-		     L"Do not verify TLS peer's certificate's name")
+		     "Do not verify TLS peer's certificate's name")
 		.add(noverifycert_value, 0,
-		     L"noverifycert",
+		     "noverifycert",
 		     0,
-		     L"Do not verify TLS peer's certificate at all")
+		     "Do not verify TLS peer's certificate at all")
 		.add(proxy_value, 0,
-		     L"proxy",
+		     "proxy",
 		     LIBCXX_NAMESPACE::option::list::base::hasvalue,
-		     L"Set the proxy",
-		     L"host:port")
-		.addArgument(L"url", 0)
+		     "Set the proxy",
+		     "host:port")
+		.addArgument("url", 0)
 		.addDefaultOptions();
 
 	LIBCXX_NAMESPACE::option::parser

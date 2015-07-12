@@ -17,8 +17,8 @@ static int main2(int argc, char **argv)
 	LIBCXX_NAMESPACE::messages
 		msgs(LIBCXX_NAMESPACE::messages::create(locale, LIBCXX_DOMAIN));
 
-	propertiescli args(LIBCXX_NAMESPACE::wmessages::create(locale,
-							     LIBCXX_DOMAIN));
+	propertiescli args(LIBCXX_NAMESPACE::messages::create(locale,
+							      LIBCXX_DOMAIN));
 	std::list<std::string> files(args.parse(argc, argv, locale)->args);
 
 	if (args.setvalue->isSet())

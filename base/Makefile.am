@@ -284,7 +284,7 @@ effective_tld_names.dat.timestamp:
 	touch effective_tld_names.dat.timestamp
 endif
 
-libcxx_la_LIBADD=-lpthread -lrt -lpcre -lmagic -lxml2 @LIBEXTRAPATH@ @LIBUNWIND@ @EXTRACXXLIBS@ @LINKLIBINTL@ @LIBIDN@ @LIBXML2_CFLAGS@
+libcxx_la_LIBADD=-lpthread -lrt -lpcre -lmagic -lxml2 @LIBEXTRAPATH@ @LIBUNWIND@ @EXTRACXXLIBS@ @LINKLIBINTL@ @LIBIDN@ @LIBXML2_CFLAGS@ -lcourier-unicode
 
 libcxx_la_LDFLAGS=-version-info @VERSION_INFO@
 

@@ -47,21 +47,21 @@ See COPYING for distribution information.
   <xsl:template name="lstringfmt">
     <xsl:choose>
       <xsl:when test="singular">
-	<xsl:text>getoptmsg(msgcat, NN_(L"</xsl:text>
+	<xsl:text>getoptmsg(msgcat, NN_("</xsl:text>
 	<xsl:value-of select="singular" />
-	<xsl:text>", L"</xsl:text>
+	<xsl:text>", "</xsl:text>
 	<xsl:value-of select="plural" />
 	<xsl:text>"), </xsl:text>
 	<xsl:value-of select="value" />
 	<xsl:text>)</xsl:text>
       </xsl:when>
       <xsl:when test=".">
-	<xsl:text>getoptmsg(msgcat, N_(L"</xsl:text>
+	<xsl:text>getoptmsg(msgcat, N_("</xsl:text>
 	<xsl:value-of select="." />
 	<xsl:text>"))</xsl:text>
       </xsl:when>
       <xsl:otherwise>
-	<xsl:text>L""</xsl:text>
+	<xsl:text>""</xsl:text>
       </xsl:otherwise>
     </xsl:choose>
   </xsl:template>
@@ -279,7 +279,7 @@ See COPYING for distribution information.
       <xsl:text>, </xsl:text>
     </xsl:if>
 
-    <xsl:text>const @LIBCXX_NAMESPACE@::wmessagesptr &amp;msgcat=@LIBCXX_NAMESPACE@::wmessagesptr())
+    <xsl:text>const @LIBCXX_NAMESPACE@::messagesptr &amp;msgcat=@LIBCXX_NAMESPACE@::messagesptr())
  : </xsl:text>
     <xsl:if test="superclassinit">
       <xsl:value-of select="superclassinit" />
@@ -295,18 +295,18 @@ See COPYING for distribution information.
         init(msgcat);
     }
 
-    static std::wstring getoptmsg(const @LIBCXX_NAMESPACE@::wmessagesptr &amp;msgcat, const wchar_t *str)
+    static std::string getoptmsg(const @LIBCXX_NAMESPACE@::messagesptr &amp;msgcat, const char *str)
     {
         return (!msgcat.null() ? msgcat-&gt;get(str):str);
     }
 
     template&lt;typename int_type&gt;
-    static std::wstring getoptmsg(const x::wmessagesptr &amp;msgcat, const wchar_t *singular, const wchar_t *plural, int_type value)
+    static std::string getoptmsg(const x::messagesptr &amp;msgcat, const char *singular, const char *plural, int_type value)
     {
         return (!msgcat.null() ? msgcat-&gt;get(singular, plural, value): value == 1 ? singular:plural);
     }
 
-    void init(const @LIBCXX_NAMESPACE@::wmessagesptr &amp;msgcat)
+    void init(const @LIBCXX_NAMESPACE@::messagesptr &amp;msgcat)
     {&#10;</xsl:text>
     <xsl:for-each select=".//mutex">
       <xsl:text>        </xsl:text>
@@ -355,7 +355,7 @@ See COPYING for distribution information.
 	    </xsl:otherwise>
 	  </xsl:choose>
 
-	  <xsl:text>-&gt;add(</xsl:text>
+	  <xsl:text>-&gt;add_option(</xsl:text>
 	  <xsl:if test="type='function'">
 	    <xsl:text>&amp;</xsl:text>
 	  </xsl:if>
@@ -366,12 +366,12 @@ See COPYING for distribution information.
 
 	  <xsl:choose>
 	    <xsl:when test="opt">
-	      <xsl:text>L'</xsl:text>
+	      <xsl:text>"</xsl:text>
 	      <xsl:value-of select="opt" />
-	      <xsl:text>'</xsl:text>
+	      <xsl:text>"</xsl:text>
 	    </xsl:when>
 	    <xsl:otherwise>
-	      <xsl:text>0</xsl:text>
+	      <xsl:text>""</xsl:text>
 	    </xsl:otherwise>
 	  </xsl:choose>
 
@@ -384,7 +384,7 @@ See COPYING for distribution information.
 	      </xsl:for-each>
 	    </xsl:when>
 	    <xsl:otherwise>
-	      <xsl:text>L""</xsl:text>
+	      <xsl:text>""</xsl:text>
 	    </xsl:otherwise>
 	  </xsl:choose>
 	  <xsl:text>, </xsl:text>
@@ -418,7 +418,7 @@ See COPYING for distribution information.
 	      </xsl:for-each>
 	    </xsl:when>
 	    <xsl:otherwise>
-	      <xsl:text>L""</xsl:text>
+	      <xsl:text>""</xsl:text>
 	    </xsl:otherwise>
 	  </xsl:choose>
 
@@ -451,7 +451,7 @@ See COPYING for distribution information.
 	    </xsl:for-each>
 	  </xsl:when>
 	  <xsl:otherwise>
-	    <xsl:text>L""</xsl:text>
+	    <xsl:text>""</xsl:text>
 	  </xsl:otherwise>
 	</xsl:choose>
 

@@ -129,6 +129,13 @@ See COPYING for distribution information.
 
       <listitem>
 	<para>
+	  <ulink url="http://www.courier-mta.org/unicode/">The Courier Unicode
+	    Library</ulink>.
+	</para>
+      </listitem>
+
+      <listitem>
+	<para>
 	  <application>gnutls</application>,
 	  <application>libgcrypt</application> (at least 1.6),
 	  <application>libidn</application>,

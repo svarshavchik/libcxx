@@ -59,23 +59,19 @@ void listObj::reset()
 	}
 }
 
-void listObj::setAppName(const std::wstring &applicationNameArg)
+void listObj::setAppName(const std::string &applicationNameArg)
 {
-	applicationName=applicationNameArg;
-}
-
-void listObj::setAppName(const std::string &applicationNameArg,
-			 const const_locale &l)
-{
-	applicationName=towstring(applicationNameArg, l);
+	applicationName=unicode::iconvert::convert(applicationNameArg,
+						   unicode_default_chset(),
+						   unicode::utf_8);
 }
 
 listObj &listObj::add (const ref<valuebaseObj> &valueArg,
-		       wchar_t shortnameArg,
-		       const std::wstring &longnameArg,
+		       unicode_char shortnameArg,
+		       const std::string &longnameArg,
 		       int flagsArg,
-		       const std::wstring &descriptionArg,
-		       const std::wstring &argDescriptionArg)
+		       const std::string &descriptionArg,
+		       const std::string &argDescriptionArg)
 {
 	auto newDef(ref<definitionObj>::create(valueArg, shortnameArg,
 					       longnameArg, flagsArg,
@@ -87,11 +83,11 @@ listObj &listObj::add (const ref<valuebaseObj> &valueArg,
 }
 
 listObj &listObj::add(int (*optfunc)(),
-		      wchar_t shortnameArg,
-		      const std::wstring &longnameArg,
+		      unicode_char shortnameArg,
+		      const std::string &longnameArg,
 		      int flagsArg,
-		      const std::wstring &descriptionArg,
-		      const std::wstring &argDescriptionArg)
+		      const std::string &descriptionArg,
+		      const std::string &argDescriptionArg)
 {
 	options.insert(first_group_option,
 		       ref<definitionfuncvoidObj>
@@ -102,11 +98,11 @@ listObj &listObj::add(int (*optfunc)(),
 }
 
 listObj &listObj::add(const ref<valuebaseObj> &valueArg,
-		      wchar_t shortnameArg,
-		      const std::wstring &longnameArg,
+		      unicode_char shortnameArg,
+		      const std::string &longnameArg,
 		      const list &groupOptionsArg,
-		      const std::wstring &descriptionArg,
-		      const std::wstring &argDescriptionArg)
+		      const std::string &descriptionArg,
+		      const std::string &argDescriptionArg)
 {
 	options.push_back(ref<groupdefinitionObj>
 			  ::create(valueArg, shortnameArg,
@@ -120,7 +116,7 @@ listObj &listObj::add(const ref<valuebaseObj> &valueArg,
 	return *this;
 }
 
-listObj &listObj::addDefaultOptions(std::wostream &o)
+listObj &listObj::addDefaultOptions(std::ostream &o)
 {
 	options.insert(first_group_option,
 		       ref<definitionPropertiesObj>::create(o));
@@ -135,47 +131,59 @@ listObj &listObj::addDefaultOptions(std::wostream &o)
 	return *this;
 }
 
-listObj &listObj::addArgument(const std::wstring &nameArg,
+listObj &listObj::addArgument(const std::string &nameArg,
 			      int flags)
 {
-	std::wstring name(nameArg);
+	auto name=nameArg;
 
 	if (flags & option::list::base::repeated)
-		name += L"...";
+		name += "...";
 
 	if (!(flags & option::list::base::required))
-		name = L"[" + name + L"]";
+		name = "[" + name + "]";
 
 	arguments.push_back(name);
 	return *this;
 }
 
+unicode_char listObj::option_unicodechar(const std::string &shortName)
+{
+	auto ubuf=unicode::iconvert::tou
+		::convert(shortName, unicode::utf_8).first;
+	ubuf.push_back(0);
+
+	return *ubuf.begin();
+}
+
 // Generate a usage message
 
-void listObj::usage(std::wostream &o, size_t width)
+void listObj::usage(std::ostream &o, size_t width)
 {
 	if (width == 0)
 		width=getTtyWidth();
 
-	std::wstring p=towstring(_("Usage: "),
-				 locale::base::environment()) + applicationName;
+	auto p=_("Usage: ") + applicationName;
 
 	usage_internal(o, p, width, 16);
 }
 
-void listObj::usage_internal(std::wostream &o,
-			     const std::wstring &pArg,
+void listObj::usage_internal(std::ostream &output,
+			     const std::string &pArg,
 			     size_t width, size_t indent)
 {
-	std::wstring p(pArg);
+	std::ostringstream o; // UTF-8 collected_here.
 
-	size_t w=p.size();
+	size_t w=0;
 
-	int n=wcswidth(p.c_str(), p.size());
+	auto p_name=unicode::iconvert::tou::convert(pArg,
+						    unicode::utf_8).first;
 
-	if (n > 0)
-		w=n;
-	o << p;
+	for (auto c:p_name)
+		w += unicode_wcwidth(c);
+
+	auto p_width=w;
+
+	o << pArg;
 
 	std::list<ref<definitionbaseObj> >::const_iterator
 		b=options.begin(),
@@ -183,14 +191,14 @@ void listObj::usage_internal(std::wostream &o,
 
 	for (; b != e; ++b)
 	{
-		std::wstringstream descr;
+		std::stringstream descr;
 		bool flag=(*b)->usage(descr, indent, width);
 
 		if (!flag)
 		{
 			bool nospc=false;
 
-			p=descr.str();
+			auto p=descr.str();
 
 			if (p.size() == 0)
 				continue;
@@ -203,11 +211,15 @@ void listObj::usage_internal(std::wostream &o,
 				nospc=true;
 			}
 
-			size_t nw=p.size();
-			int nn=wcswidth(p.c_str(), p.size());
+			size_t nw=0;
 
-			if (nn > 0)
-				nw=nn;
+			{
+				auto descr_u=unicode::iconvert::tou
+					::convert(p, unicode::utf_8).first;
+
+				for (auto c:descr_u)
+					nw += unicode_wcwidth(c);
+			}
 
 			if (w + nw + (w?1:0) >= width)
 			{
@@ -220,7 +232,7 @@ void listObj::usage_internal(std::wostream &o,
 
 			if (!nospc)
 			{
-				o << L' ';
+				o << ' ';
 				++w;
 			}
 
@@ -239,18 +251,19 @@ void listObj::usage_internal(std::wostream &o,
 		w=0;
 	}
 
-	std::list<std::wstring>::iterator argb=arguments.begin(),
-		arge=arguments.end();
+	auto argb=arguments.begin(), arge=arguments.end();
 
 	while (argb != arge)
 	{
-		std::wstring &p= *argb++;
+		size_t nw=0;
 
-		size_t nw=p.size();
-		int nn=wcswidth(p.c_str(), p.size());
+		std::string &p= *argb++;
 
-		if (nn > 0)
-			nw=nn;
+		auto p_u=unicode::iconvert::tou::convert(p,
+							 unicode::utf_8).first;
+
+		for (auto c:p_u)
+			nw += unicode_wcwidth(c);
 
 		if (w == 0)
 		{
@@ -263,7 +276,7 @@ void listObj::usage_internal(std::wostream &o,
 
 		if (w)
 			++nw;
-		
+
 		if (w + nw >= width && w)
 		{
 			--nw;
@@ -274,7 +287,7 @@ void listObj::usage_internal(std::wostream &o,
 		}
 		else
 		{
-			if (w) o << L' ';
+			if (w) o << ' ';
 			w += nw;
 		}
 		o << p;
@@ -282,28 +295,32 @@ void listObj::usage_internal(std::wostream &o,
 
 	if (w)
 		o << std::endl;
+
+	output << unicode::iconvert::convert(o.str(),
+					     unicode::utf_8,
+					     unicode_default_chset());
 }
 
 //! Generate a help message
 
-void listObj::help(std::wostream &o, size_t width)
+void listObj::help(std::ostream &o, size_t width)
 {
 	if (width == 0)
 		width=getTtyWidth();
 
-	locale l(locale::base::environment());
-
-	o << towstring(_("Usage: "), l) << applicationName
-	  << towstring(_(" [OPTION]..."), l)
+	o << _("Usage: ") << applicationName
+	  << _(" [OPTION]...")
 	  << std::endl;
 
 	help_internal(o, width, 2);
 }
 
-void listObj::help_internal(std::wostream &o,
+void listObj::help_internal(std::ostream &output,
 			    size_t width,
 			    size_t indent)
 {
+	std::ostringstream o;
+
 	std::list<ref<definitionbaseObj> >::iterator
 		b=options.begin(),
 		e=options.end();
@@ -312,6 +329,10 @@ void listObj::help_internal(std::wostream &o,
 	{
 		(*b)->help(o, indent, width);
 	}
+
+	output << unicode::iconvert::convert(o.str(),
+					     unicode::utf_8,
+					     unicode_default_chset());
 }
 
 

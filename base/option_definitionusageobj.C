@@ -17,8 +17,8 @@ namespace LIBCXX_NAMESPACE {
 	};
 };
 #endif
-definitionUsageObj::definitionUsageObj(std::wostream &helpStreamArg) noexcept
-	: definitionbaseObj(0, L"usage", 0, L"", L""), helpStream(helpStreamArg)
+definitionUsageObj::definitionUsageObj(std::ostream &helpStreamArg) noexcept
+	: definitionbaseObj(0, "usage", 0, "", ""), helpStream(helpStreamArg)
 {
 }
 
@@ -33,8 +33,7 @@ int definitionUsageObj::set(parserObj &parserArg) const noexcept
 }
 
 int definitionUsageObj::set(parserObj &parserArg,
-			    const std::string &valueArg,
-			    const const_locale &localeArg) const noexcept
+			    const std::string &valueArg) const noexcept
 {
 	size_t w=0;
 
@@ -53,14 +52,14 @@ void definitionUsageObj::reset() noexcept
 {
 }
 
-bool definitionUsageObj::usage(std::wostream &o,
+bool definitionUsageObj::usage(std::ostream &o,
 			       size_t indentlevel,
 			       size_t width)
 {
 	return false;
 }
 
-void definitionUsageObj::help(std::wostream &o,
+void definitionUsageObj::help(std::ostream &o,
 			      size_t indentlevel,
 			      size_t width)
 {

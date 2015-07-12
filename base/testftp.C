@@ -1047,7 +1047,7 @@ int main(int argc, char **argv)
 		LIBCXX_NAMESPACE::option::list
 			options(LIBCXX_NAMESPACE::option::list::create());
 
-		options->add(test, 't', L"test", 0, L"Run internal test");
+		options->add(test, 't', "test", 0, "Run internal test");
 		options->addDefaultOptions();
 
 		LIBCXX_NAMESPACE::option::parser

@@ -121,7 +121,7 @@ public:
 			std::vector<std::string> argv;
 
 			argv.reserve(recipients.size()+4);
-			
+
 			{
 				const char *p=getenv("SENDMAIL");
 
@@ -176,7 +176,7 @@ public:
 		if (status)
 			throw EXCEPTION(sendmail + " exited with " +
 					LIBCXX_NAMESPACE::tostring(status));
-	}				
+	}
 };
 
 static void searchlogs(outputbase &output,
@@ -295,8 +295,8 @@ int main2(int argc, char **argv)
 	LIBCXX_NAMESPACE::messages
 		msgs(LIBCXX_NAMESPACE::messages::create(locale, LIBCXX_DOMAIN));
 
-	maillogs args(LIBCXX_NAMESPACE::wmessages::create(locale,
-							  LIBCXX_DOMAIN));
+	maillogs args(LIBCXX_NAMESPACE::messages::create(locale,
+							 LIBCXX_DOMAIN));
 
 	std::list<std::string> files(args.parse(argc, argv, locale)->args);
 

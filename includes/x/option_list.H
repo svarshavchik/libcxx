@@ -131,30 +131,30 @@ namespace LIBCXX_NAMESPACE {
 //! INSERT_LIBX_NAMESPACE::option::valueObj template. Subsequently, this option value may be used
 //! as any other option value (see below for more information):
 //!
-//! \code 
+//! \code
 //! int main(int argc, char **argv)
 //! {
 //!     custom_value custom(custom_value::create());
-//! 
+//!
 //!     INSERT_LIBX_NAMESPACE::option::list l(INSERT_LIBX_NAMESPACE::option::list::create());
-//! 
-//!     l->add(custom, L'c', L"custom",
+//!
+//!     l->add(custom, 'c', "custom",
 //!            INSERT_LIBX_NAMESPACE::option::list::hasvalue,
-//!            L"Custom option",
-//!            L"value");
+//!            "Custom option",
+//!            "value");
 //!     l->addDefaultOptions();
-//! 
+//!
 //!     INSERT_LIBX_NAMESPACE::option::parser
 //!         optionParser(INSERT_LIBX_NAMESPACE::option::parser::create(locale::base::environment(""))));
-//! 
-//! 
+//!
+//!
 //!     optionParser->setOptions(l);
-//! 
+//!
 //!     int err=optionParser->parseArgv(argc, argv);
-//! 
+//!
 //!     if (err == 0)
 //!         err=optionParser->validate();
-//! 
+//!
 //!     switch (err) {
 //!     case 0:
 //!         break;
@@ -165,7 +165,7 @@ namespace LIBCXX_NAMESPACE {
 //!         std::cerr << optionParser-&gt;errmessage();
 //!         exit(1);
 //!     }
-//! 
+//!
 //!     std::cout << "Option value is " << custom->value.foo << std::endl;
 //!     return (0);
 //! }
@@ -288,14 +288,14 @@ namespace LIBCXX_NAMESPACE {
 //! \code
 //! INSERT_LIBX_NAMESPACE::option::list options(INSERT_LIBX_NAMESPACE::option::list::create());
 //!
-//! options->add(retries_value, L'r', L"retries",
+//! options->add(retries_value, 'r', "retries",
 //!              INSERT_LIBX_NAMESPACE::option::list::hasvalue,
-//!              L"How many times to retry",
-//!              L"count")
-//!         .add(filename_values, L'f', L"",
+//!              "How many times to retry",
+//!              "count")
+//!         .add(filename_values, 'f', "",
 //!              INSERT_LIBX_NAMESPACE::option::list::hasvalue,
-//!              L"Filename to process",
-//!              L"filename");
+//!              "Filename to process",
+//!              "filename");
 //! \endcode
 //!
 //! An INSERT_LIBX_NAMESPACE::option::list object holds all options and their descriptions.
@@ -312,7 +312,8 @@ namespace LIBCXX_NAMESPACE {
 //! - the option's argument's description, this should be one or two words
 //!
 //! Note that the option's long name, description, and argument description
-//! are wide character strings.
+//! must be encoded in UTF-8.
+//!
 //! Specify 0 for the flag, if none of the following flags are needed.
 //! Combine multiple flags by \c OR -ing them together:
 //!
@@ -364,8 +365,8 @@ namespace LIBCXX_NAMESPACE {
 //! \par Define non-option arguments
 //!
 //! \code
-//! options->addArgument(L"mode", INSERT_LIBX_NAMESPACE::option::list::required)
-//!         .addArgument(L"filename", INSERT_LIBX_NAMESPACE::option::list::repeated);
+//! options->addArgument("mode", INSERT_LIBX_NAMESPACE::option::list::required)
+//!         .addArgument("filename", INSERT_LIBX_NAMESPACE::option::list::repeated);
 //! \endcode
 //!
 //! The addArgument() method defines non-option arguments
@@ -404,10 +405,10 @@ namespace LIBCXX_NAMESPACE {
 //!
 //! ...
 //!
-//! options->add(&set_verbose, L'v', L"enable-verbose", 0,
-//!                           L"Produce verbose output")
-//!         .add(&set_debug_level, L'd', L"debug-level", INSERT_LIBX_NAMESPACE::option::list::hasvalue,
-//!                           L"Set debugging level");
+//! options->add(&set_verbose, 'v', "enable-verbose", 0,
+//!                           "Produce verbose output")
+//!         .add(&set_debug_level, 'd', "debug-level", INSERT_LIBX_NAMESPACE::option::list::hasvalue,
+//!                           "Set debugging level");
 //!
 //! \endcode
 //!

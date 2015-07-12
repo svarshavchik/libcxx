@@ -271,10 +271,10 @@ int main(int argc, char **argv)
 
 		LIBCXX_NAMESPACE::option::list options(LIBCXX_NAMESPACE::option::list::create());
 
-		options->add(uri, 'u', L"uri",
+		options->add(uri, 'u', "uri",
 			     LIBCXX_NAMESPACE::option::list::base::hasvalue,
-			     L"uri",
-			     L"uri");
+			     "uri",
+			     "uri");
 
 		options->addDefaultOptions();
 

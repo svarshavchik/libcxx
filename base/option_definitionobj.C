@@ -22,11 +22,11 @@ namespace LIBCXX_NAMESPACE {
 };
 #endif
 definitionObj::definitionObj(ptr<valuebaseObj> valueArg,
-			     wchar_t shortnameArg,
-			     const std::wstring &longnameArg,
+			     unicode_char shortnameArg,
+			     const std::string &longnameArg,
 			     int flagsArg,
-			     const std::wstring &descriptionArg,
-			     const std::wstring &argDescriptionArg) noexcept
+			     const std::string &descriptionArg,
+			     const std::string &argDescriptionArg) noexcept
 	: definitionbaseObj(shortnameArg, longnameArg, flagsArg,
 			    descriptionArg,
 			    argDescriptionArg), value(valueArg)
@@ -43,10 +43,9 @@ int definitionObj::set(parserObj &parserArg) const
 }
 
 int definitionObj::set(parserObj &parserArg,
-		       const std::string &valueArg,
-		       const const_locale &localeArg) const
+		       const std::string &valueArg) const
 {
-	return value->pubset(valueArg, localeArg);
+	return value->pubset(valueArg, locale::base::utf8());
 }
 
 bool definitionObj::isSet() const

@@ -15,6 +15,7 @@
 #include <x/option_definitionfunctionobj.H>
 #include <list>
 #include <iostream>
+#include <courier-unicode.h>
 
 namespace LIBCXX_NAMESPACE {
 
@@ -34,7 +35,7 @@ class listObj : virtual public obj {
 
 	//! Define application name
 
-	std::wstring applicationName;
+	std::string applicationName;
 public:
 	//! All defined options
 
@@ -49,7 +50,7 @@ public:
 
 	//! Non-option arguments
 
-	std::list<std::wstring> arguments;
+	std::list<std::string> arguments;
 
 	//! Default constructor
 	listObj();
@@ -63,12 +64,7 @@ public:
 
 	//! Set application's name
 
-	void setAppName(const std::wstring &applicationNameArg);
-
-	//! Set application's name
-
-	void setAppName(const std::string &applicationNameArg,
-			const const_locale &l=locale::base::global());
+	void setAppName(const std::string &applicationNameArg);
 
 	//! Define a new %option
 
@@ -79,10 +75,10 @@ public:
 
 		     //! This may be 0, if there is no shortname
 		     //!
-		     wchar_t shortnameArg,
+		     unicode_char shortnameArg,
 
 		     //! Option's long name
-		     const std::wstring &longnameArg,
+		     const std::string &longnameArg,
 
 		     //! Flags
 
@@ -94,10 +90,10 @@ public:
 
 		     //! This should be a brief sentence.
 		     //!
-		     const std::wstring &descriptionArg=L"",
+		     const std::string &descriptionArg="",
 
 		     //! This should be a single word
-		     const std::wstring &argDescriptionArg=L"");
+		     const std::string &argDescriptionArg="");
 
 
 	//! Define a new %option group
@@ -112,10 +108,10 @@ public:
 
 		     //! This may be 0, if there is no shortname
 		     //!
-		     wchar_t shortnameArg,
+		     unicode_char shortnameArg,
 
 		     //! Option's long name
-		     const std::wstring &longnameArg,
+		     const std::string &longnameArg,
 
 		     //! The replacement %option group.
 
@@ -127,10 +123,10 @@ public:
 
 		     //! This should be a brief sentence.
 		     //!
-		     const std::wstring &descriptionArg=L"",
+		     const std::string &descriptionArg="",
 
 		     //! This should be a single word
-		     const std::wstring &argDescriptionArg=L"");
+		     const std::string &argDescriptionArg="");
 
 	//! Define a new %option that's handled by a function
 
@@ -147,10 +143,10 @@ public:
 
 		     //! This may be 0, if there is no shortname
 		     //!
-		     wchar_t shortnameArg,
+		     unicode_char shortnameArg,
 
 		     //! Option's long name
-		     const std::wstring &longnameArg,
+		     const std::string &longnameArg,
 
 		     //! Flags
 
@@ -162,10 +158,10 @@ public:
 
 		     //! This should be a brief sentence.
 		     //!
-		     const std::wstring &descriptionArg=L"",
+		     const std::string &descriptionArg="",
 
 		     //! This should be a single word
-		     const std::wstring &argDescriptionArg=L"");
+		     const std::string &argDescriptionArg="");
 
 	//! Define a new %option that's handled by a function that takes a value
 
@@ -183,10 +179,10 @@ public:
 
 		     //! This may be 0, if there is no shortname
 		     //!
-		     wchar_t shortnameArg,
+		     unicode_char shortnameArg,
 
 		     //! Option's long name
-		     const std::wstring &longnameArg,
+		     const std::string &longnameArg,
 
 		     //! Flags
 
@@ -198,10 +194,10 @@ public:
 
 		     //! This should be a brief sentence.
 		     //!
-		     const std::wstring &descriptionArg=L"",
+		     const std::string &descriptionArg="",
 
 		     //! This should be a single word
-		     const std::wstring &argDescriptionArg=L"")
+		     const std::string &argDescriptionArg="")
 	{
 		flagsArg |= option::list::base::hasvalue; /* Always */
 
@@ -229,10 +225,10 @@ public:
 
 		     //! This may be 0, if there is no shortname
 		     //!
-		     wchar_t shortnameArg,
+		     unicode_char shortnameArg,
 
 		     //! Option's long name
-		     const std::wstring &longnameArg,
+		     const std::string &longnameArg,
 
 		     //! Flags
 
@@ -244,10 +240,10 @@ public:
 
 		     //! This should be a brief sentence.
 		     //!
-		     const std::wstring &descriptionArg=L"",
+		     const std::string &descriptionArg="",
 
 		     //! This should be a single word
-		     const std::wstring &argDescriptionArg=L"")
+		     const std::string &argDescriptionArg="")
 	{
 		flagsArg |= option::list::base::hasvalue; /* Always */
 
@@ -259,18 +255,36 @@ public:
 		return *this;
 	}
 
+	//! Alternatively, pass the shortname option as a UTF-8 string.
+
+	//! This is used by optgen.xsl
+
+	template<typename firstArgType, typename ...Args>
+	listObj &add_option(firstArgType &&firstArg,
+			    const std::string &shortName,
+			    Args ...args)
+	{
+		return add(std::forward<firstArgType>(firstArg),
+			   option_unicodechar(shortName),
+			   std::forward<Args>(args)...);
+	}
+
+	//! Converts option short name to a unicod character.
+
+	static unicode_char option_unicodechar(const std::string &shortName);
+
 	//! Add definitions of standard options
 
 	//! This method adds the definition of the \c --help, \c --usage,
 	//! \c --properties and \c --set-property options.
 
 	listObj &addDefaultOptions(//! Output stream for text produced by these options
-				   std::wostream &o=std::wcout);
+				   std::ostream &o=std::cout);
 
 	//! Add a non-option argument
 
 	listObj &addArgument(//! Non-option argument's name
-			     const std::wstring &name,
+			     const std::string &name,
 
 			     //! Flags
 
@@ -282,7 +296,7 @@ public:
 	//! Generate a usage message
 
 	void usage(//! Output stream
-		   std::wostream &o=std::wcout,
+		   std::ostream &o=std::cout,
 
 		   //! Output width
 
@@ -292,7 +306,7 @@ public:
 	//! Generate a help message
 
 	void help(//! Output stream
-		  std::wostream &o=std::wcout,
+		  std::ostream &o=std::cout,
 
 		  //! Output width
 
@@ -307,13 +321,13 @@ private:
 	size_t getTtyWidth() LIBCXX_INTERNAL;
 
 	//! Internal usage formatter
-	void usage_internal(std::wostream &o,
-			    const std::wstring &ipfix,
+	void usage_internal(std::ostream &o,
+			    const std::string &ipfix,
 			    size_t width,
 			    size_t indent) LIBCXX_HIDDEN;
 
 	//! Internal help formatter
-	void help_internal(std::wostream &o,
+	void help_internal(std::ostream &o,
 			   size_t width,
 			   size_t indent) LIBCXX_HIDDEN;
 
