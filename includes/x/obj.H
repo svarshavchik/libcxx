@@ -298,10 +298,22 @@ inline void ptrImpl<objClass>::setRef(objClass *newRefP) noexcept
 		static_cast<obj *>(oldRef)->destroy();
 }
 
+template<typename objClass>
+inline void ptrImpl<objClass>::setRef_noconscheck(objClass *newRefP) noexcept
+{
+	if (newRefP)
+		newRefP->refcnt::refadd(1);
+
+	objClass *oldRef=refP;
+
+	refP=newRefP;
+
+	if (oldRef && oldRef->refcnt::refadd(-1) == 0)
+		static_cast<obj *>(oldRef)->destroy();
+}
 
 #if 0
 {
 #endif
 }
 #endif
-

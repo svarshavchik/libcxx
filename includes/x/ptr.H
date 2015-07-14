@@ -382,7 +382,7 @@ template<typename objClass2> inline const_ptr<objClass, baseClass>
 				     typeid(objClass).name());
 	}
 
-	this->setRef(newRefP);
+	this->setRef_noconscheck(newRefP);
 	return *this;
 }
 

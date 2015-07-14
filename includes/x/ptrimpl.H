@@ -63,7 +63,7 @@ public:
 
 	inline ~ptrImpl() noexcept __attribute__((artificial))
 	{
-		setRef(nullptr);
+		setRef_noconscheck(nullptr);
 	}
 
 	//! The default copy constructor
@@ -75,7 +75,7 @@ public:
 		       const ptrImpl<objClass> &o )
 		noexcept __attribute__((artificial)) : refP(nullptr)
 	{
-		setRef(o.refP);
+		setRef_noconscheck(o.refP);
 	}
 
 	//! Copy constructor from a known non-NULL reference
@@ -138,7 +138,7 @@ public:
 		   const ptrImpl<objClass> &o)
 		noexcept __attribute__((artificial))
 	{
-		setRef(o.refP);
+		setRef_noconscheck(o.refP);
 
 		return *this;
 	}
@@ -170,6 +170,17 @@ protected:
 	//! gets repointed to the new object.
 	inline void setRef(//! New object, may be \c NULL
 		    objClass *newRefP) noexcept __attribute__((artificial));
+
+	//! Update reference pointer
+
+	//! \internal
+	//!
+	//! Same as setRef(), except that newRefP is from another ptr or
+	//! ref, and not a raw pointer, so we don't need to do the
+	//! ref_in_constructor() check.
+
+	inline void setRef_noconscheck(objClass *newRefP)
+		noexcept __attribute__((artificial));
 
 };
 
