@@ -312,6 +312,30 @@ inline void ptrImpl<objClass>::setRef_noconscheck(objClass *newRefP) noexcept
 		static_cast<obj *>(oldRef)->destroy();
 }
 
+template<typename objClass>
+inline ptrImpl<objClass>::ptrImpl(objClass *pArg)
+	noexcept
+	: refP(pArg)
+{
+	if (refP && refP->refcnt::refadd(1) == 0)
+		ref_in_constructor(refP);
+}
+
+template<typename objClass>
+inline ptrImpl<objClass>::~ptrImpl() noexcept
+{
+	if (refP && refP->refcnt::refadd(-1) == 0)
+		static_cast<obj *>(refP)->destroy();
+}
+
+template<typename objClass>
+inline ptrImpl<objClass>::ptrImpl(const ptrImpl<objClass> &o )
+	noexcept : refP(o.refP)
+{
+	if (refP)
+		refP->refcnt::refadd(1);
+}
+
 #if 0
 {
 #endif

@@ -51,20 +51,12 @@ public:
 
 	//! Default constructor
 
-	inline ptrImpl(//! If pArg is not NULL, the object's reference count gets incremented.
-		       //! When pArg is NULL, this is an unbound reference.
-		       objClass *pArg) noexcept __attribute__((artificial))
-		: refP(nullptr)
-	{
-		setRef(pArg);
-	}
+	ptrImpl(//! If pArg is not NULL, the object's reference count gets incremented.
+		//! When pArg is NULL, this is an unbound reference.
+		objClass *pArg) noexcept;
 
 	//! Default destructor
-
-	inline ~ptrImpl() noexcept __attribute__((artificial))
-	{
-		setRef_noconscheck(nullptr);
-	}
+	~ptrImpl() noexcept;
 
 	//! The default copy constructor
 
@@ -72,11 +64,7 @@ public:
 
 		       //! If this reference is bound to an instance of
 		       //! \c objClass, its reference count gets incremented.
-		       const ptrImpl<objClass> &o )
-		noexcept __attribute__((artificial)) : refP(nullptr)
-	{
-		setRef_noconscheck(o.refP);
-	}
+		       const ptrImpl<objClass> &o ) noexcept;
 
 	//! Copy constructor from a known non-NULL reference
 
