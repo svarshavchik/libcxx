@@ -59,9 +59,9 @@ static void testserialize1()
 	serializer(nine);
 
 	serializer("One");
-	serializer(L"One");
+	serializer("One");
 	serializer(std::string("One"));
-	serializer(std::wstring(L"One"));
+	serializer(std::string("One"));
 	serializer(pairchar);
 	serializer(strmap);
 
@@ -117,11 +117,11 @@ static void testserialize1()
 
 	std::cout << "std::string(\"One\")=" << string1 << std::endl;
 
-	std::vector<wchar_t> string2;
+	std::vector<char> string2;
 
 	deserializer(string2);
 
-	std::cout << "std::wstring(\"One\")=";
+	std::cout << "std::string(\"One\")=";
 
 	std::copy(string2.begin(), string2.end(),
 		  std::ostreambuf_iterator<char>(std::cout.rdbuf()));
@@ -136,7 +136,7 @@ static void testserialize1()
 		  std::ostreambuf_iterator<char>(std::cout.rdbuf()));
 	std::cout << std::endl;
 
-	std::set<wchar_t> string4;
+	std::set<char> string4;
 
 	deserializer(string4);
 	std::cout << "std::set(\"One\")=";

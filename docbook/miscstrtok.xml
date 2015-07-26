@@ -27,9 +27,8 @@ std::list&lt;std::string&gt; container;
   </blockquote>
 
   <para>
-    <ulink url="&link-function-x-strtok-str;"><methodname>strtok_str</methodname>()</ulink>
-    works with either narrow or wide
-    character strings. The second argument sets the list of delimiter
+    <ulink url="&link-function-x-strtok-str;"><methodname>strtok_str</methodname>()</ulink>'s
+    second argument sets the list of delimiter
     characters.
     Consecutive sequences of characters in the first
     parameter are delimited by characters in the delimiter character list.

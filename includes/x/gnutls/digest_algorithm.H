@@ -1,5 +1,5 @@
 /*
-** Copyright 2012 Double Precision, Inc.
+** Copyright 2012-2015 Double Precision, Inc.
 ** See COPYING for distribution information.
 */
 
@@ -10,7 +10,6 @@
 #include <x/param/getnameenum.H>
 #include <x/param/getenumerationntl.H>
 #include <x/param/settable.H>
-#include <x/value_stringable.H>
 #include <gnutls/gnutls.h>
 
 namespace LIBCXX_NAMESPACE {
@@ -28,10 +27,10 @@ class digest_algorithm_base :
 public:
 
 	//! Call gnutls_mac_list()
-	static const gnutls_mac_algorithm_t *get_ntl() LIBCXX_HIDDEN;
+	static const gnutls_mac_algorithm_t *get_ntl();
 
 	//! Always returns false
-	static bool donotenumerate(gnutls_mac_algorithm_t) LIBCXX_HIDDEN;
+	static bool donotenumerate(gnutls_mac_algorithm_t);
 };
 
 //! A gnutls_digest_algorithm_t that can be specified by value, or a name.
@@ -71,8 +70,7 @@ typedef LIBCXX_NAMESPACE::param::settable<
 	gnutls_digest_algorithm_t,
 	LIBCXX_NAMESPACE::param
 	::getenumerationntl<digest_algorithm_base>,
-	GNUTLS_DIG_UNKNOWN,
-	class_tostring_utf8> digest_algorithm;
+	GNUTLS_DIG_UNKNOWN> digest_algorithm;
 
 #if 0
 {
@@ -91,8 +89,7 @@ extern template class LIBCXX_NAMESPACE::param
 ::settable<gnutls_digest_algorithm_t,
 	   LIBCXX_NAMESPACE::param::getenumerationntl<
 		   LIBCXX_NAMESPACE::gnutls::digest_algorithm_base>,
-	   GNUTLS_DIG_UNKNOWN,
-	   LIBCXX_NAMESPACE::class_tostring_utf8>;
+	   GNUTLS_DIG_UNKNOWN>;
 
 namespace LIBCXX_NAMESPACE {
 	namespace param {

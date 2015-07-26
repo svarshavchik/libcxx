@@ -7,7 +7,6 @@
 #include "x/options.H"
 #include "x/locale.H"
 #include "x/messages.H"
-#include "x/value_stringable.H"
 
 #include <iterator>
 #include <algorithm>
@@ -18,8 +17,6 @@ public:
 
 	std::string s;
 
-	static const LIBCXX_NAMESPACE::stringable_t stringable=LIBCXX_NAMESPACE::class_tostring;
-
 	template<typename OutputIterator>
 	OutputIterator toString(OutputIterator iter,
 				const LIBCXX_NAMESPACE::const_locale &localeRef)
@@ -27,8 +24,8 @@ public:
 	{
 		return (std::copy(s.begin(), s.end(), iter));
 	}
- 
- 
+
+
 	template<typename InputIterator>
 	static outputFormatClass fromString(InputIterator beg_iter,
 					    InputIterator end_iter,

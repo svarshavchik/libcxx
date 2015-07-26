@@ -26,8 +26,7 @@ template class getenumerationarr<onlygetname<gnutls_sec_param_t> >;
 template class settable<gnutls_sec_param_t,
 			getenumerationarr<
 				onlygetname<gnutls_sec_param_t> >,
-			GNUTLS_SEC_PARAM_UNKNOWN,
-			LIBCXX_NAMESPACE::class_tostring_utf8>;
+			GNUTLS_SEC_PARAM_UNKNOWN>;
 
 template<>
 const gnutls_sec_param_t

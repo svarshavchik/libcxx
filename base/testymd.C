@@ -91,7 +91,7 @@ void Testymd::test()
 	CHECK_NLY(1602);
 	CHECK_NLY(1603);
 	CHECK_LY(1604);
-		 
+
 	CHECK_LY(1700);
 	CHECK_NLY(1701);
 	CHECK_NLY(1702);
@@ -166,26 +166,12 @@ void Testymd::testdateput()
 				    en_us) << std::endl;
 
 	std::cout << (std::string)ymd << std::endl;
-	std::cout << LIBCXX_NAMESPACE::tostring((std::wstring)ymd,
-					      en_us) << std::endl;
 
 	std::cout <<
 		ymd.formatDate(std::string("std=%C %d %F %j %m %u %w %y %Y %a %A %b %B%n"
 					   "alt%%=%EC %Od %Om %Ou %Ow %Ey %EY"),
 			       en_us) << std::endl;
 
-	std::wostringstream w1, w2;
-
-	w1 << ymd.formatDate(L"std=%C %d %F %j %m %u %w %y %Y %a %A %b %B%n"
-			     "alt%%=%EC %Od %Om %Ou %Ow %Ey %EY",
-			     en_us) << std::endl;
-
-	w2 << ymd.formatDate(std::wstring(L"std=%C %d %F %j %m %u %w %y %Y %a %A %b %B%n"
-					  "alt%%=%EC %Od %Om %Ou %Ow %Ey %EY"),
-			     en_us) << std::endl;
-
-	std::cout << LIBCXX_NAMESPACE::tostring(w1.str(), en_us)
-		  << LIBCXX_NAMESPACE::tostring(w2.str(), en_us);
 	std::cout << LIBCXX_NAMESPACE::ymd(2009,1,1).formatDate("%U%n", en_us);
 	std::cout << LIBCXX_NAMESPACE::ymd(2009,1,3).formatDate("%U%n", en_us);
 	std::cout << LIBCXX_NAMESPACE::ymd(2009,1,4).formatDate("%U%n", en_us);
@@ -213,7 +199,7 @@ void Testymd::testdateput()
 		{2010,1,2,2009,53,6},
 		{2010,1,3,2009,53,7},
 		{2010,1,4,2010,1,1},
-		
+
 		{2008,12,28,2008,52,7},
 		{2008,12,29,2009,1,1},
 		{2008,12,30,2009,1,2},
@@ -242,17 +228,11 @@ void Testymd::testdateput()
 		}
 	}
 
-	LIBCXX_NAMESPACE::ymd::parser<char> cp;
-	LIBCXX_NAMESPACE::ymd::parser<wchar_t> wcp;
+	LIBCXX_NAMESPACE::ymd::parser cp;
 
 	std::cout << (std::string)cp.parse("3-aug-2009") << std::endl;
-	std::cout << (std::string)wcp.parse(L"august 3, 2009") << std::endl;
 	std::cout << (std::string)LIBCXX_NAMESPACE::ymd("3/8/2009", false, en_us) << std::endl;
-	std::cout << (std::string)LIBCXX_NAMESPACE::ymd(L"2009-8-3", false) << std::endl;
-	std::cout << (std::string)wcp.mdy().parse(L"08/03/2009") << std::endl;
 	std::cout << (std::string)LIBCXX_NAMESPACE::ymd(std::string("2009-8-3"), false, en_us)
-		  << std::endl;
-	std::cout << (std::string)LIBCXX_NAMESPACE::ymd(std::wstring(L"2009-W2-3"))
 		  << std::endl;
 	std::cout << (std::string)LIBCXX_NAMESPACE::ymd::iso8601(cp.parse("2009-W2-3")) << std::endl;
 }
@@ -269,51 +249,47 @@ int main(int argc, char **argv)
 		LIBCXX_NAMESPACE::ymd::interval
 			inter("years 4, 1 month, 2 w, 3 days");
 
-		std::cout << inter.toString<char>(LIBCXX_NAMESPACE::locale::create("en_US.UTF-8"))
+		std::cout << LIBCXX_NAMESPACE::tostring
+			(inter, LIBCXX_NAMESPACE::locale::create("en_US.UTF-8"))
 			  << std::endl;
-		std::wstring s(inter);
 
 		LIBCXX_NAMESPACE::hms hms("hour 1, 59 minutes, 70 seconds");
 
-		std::cout << hms.verboseString<char>() << std::endl;
+		std::cout << hms.verboseString() << std::endl;
 
-		std::cout << LIBCXX_NAMESPACE::hms(hms.verboseString<wchar_t>())
-			.verboseString<char>()
-			  << std::endl;
-
-		std::cout << LIBCXX_NAMESPACE::hms("10 minute -7 seconds").verboseString<char>()
+		std::cout << LIBCXX_NAMESPACE::hms("10 minute -7 seconds").verboseString()
 			  << std::endl;
 
-		std::cout << LIBCXX_NAMESPACE::hms("10 minute -77 seconds").verboseString<char>()
+		std::cout << LIBCXX_NAMESPACE::hms("10 minute -77 seconds").verboseString()
 			  << std::endl;
 
-		std::cout << LIBCXX_NAMESPACE::hms("-10 minute -7 seconds").verboseString<char>()
+		std::cout << LIBCXX_NAMESPACE::hms("-10 minute -7 seconds").verboseString()
 			  << std::endl;
-		std::cout << LIBCXX_NAMESPACE::hms("67").verboseString<char>()
+		std::cout << LIBCXX_NAMESPACE::hms("67").verboseString()
 			  << std::endl;
 
-		std::cout << LIBCXX_NAMESPACE::hms("00:01").verboseString<char>()
+		std::cout << LIBCXX_NAMESPACE::hms("00:01").verboseString()
 			  << std::endl;
-		std::cout << LIBCXX_NAMESPACE::hms("04:01:30").verboseString<char>()
+		std::cout << LIBCXX_NAMESPACE::hms("04:01:30").verboseString()
 			  << std::endl;
 
 		std::cout << (LIBCXX_NAMESPACE::hms("00:58:30")+
-			      LIBCXX_NAMESPACE::hms("00:01:40")).verboseString<char>()
+			      LIBCXX_NAMESPACE::hms("00:01:40")).verboseString()
 			  << std::endl;
 
 		std::cout << (LIBCXX_NAMESPACE::hms("00:58:30")-
-			      LIBCXX_NAMESPACE::hms("00:01:40")).verboseString<char>()
+			      LIBCXX_NAMESPACE::hms("00:01:40")).verboseString()
 			  << std::endl;
 		std::cout << (LIBCXX_NAMESPACE::hms("00:58:30")-
-			      LIBCXX_NAMESPACE::hms("01:00:40")).verboseString<char>()
+			      LIBCXX_NAMESPACE::hms("01:00:40")).verboseString()
 			  << std::endl;
 		std::cout << LIBCXX_NAMESPACE::hms("1h1m1s").seconds()
 			  << std::endl;
 
-		std::cout << 
-			LIBCXX_NAMESPACE::hms(LIBCXX_NAMESPACE::ymd::interval("1 week 2 days")).verboseString<char>()
+		std::cout <<
+			LIBCXX_NAMESPACE::hms(LIBCXX_NAMESPACE::ymd::interval("1 week 2 days")).verboseString()
 			  << std::endl;
-		std::cout << LIBCXX_NAMESPACE::hms("1 week 2 days -1 hour").verboseString<char>()
+		std::cout << LIBCXX_NAMESPACE::hms("1 week 2 days -1 hour").verboseString()
 			  << std::endl;
 
 		LIBCXX_NAMESPACE::hms testTime("19:23:30");

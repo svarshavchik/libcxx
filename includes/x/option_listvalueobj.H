@@ -1,5 +1,5 @@
 /*
-** Copyright 2012 Double Precision, Inc.
+** Copyright 2012-2015 Double Precision, Inc.
 ** See COPYING for distribution information.
 */
 
@@ -110,9 +110,6 @@ typedef ref<listvalueObj<unsigned long long> > ulonglong_list;
 
 //! A reference to an untyped (a string) %option values
 typedef ref<listvalueObj<std::string> > string_list;
-
-//! A reference to an untyped (a wide string) %option values
-typedef ref<valueObj<std::wstring> > wstring_list;
 
 //! A reference to an int16_t %option values
 typedef ref<listvalueObj<int16_t> > int16_list;

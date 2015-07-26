@@ -1,5 +1,5 @@
 /*
-** Copyright 2012 Double Precision, Inc.
+** Copyright 2012-2015 Double Precision, Inc.
 ** See COPYING for distribution information.
 */
 
@@ -20,17 +20,7 @@ inline OutputIterator ymdhms::formatter::toString(OutputIterator iter,
 						  const const_locale &localeRef)
 	const
 {
-	std::string s=basic_strftime<char>(obj, localeRef)(format_string);
-
-	return std::copy(s.begin(), s.end(), iter);
-}
-
-template<typename OutputIterator>
-OutputIterator ymdhms::formatter::toWideString(OutputIterator iter,
-					       const const_locale &localeRef)
-	const
-{
-	std::string s=basic_strftime<char>(obj, localeRef)(format_string);
+	std::string s=strftime(obj, localeRef)(format_string);
 
 	return std::copy(s.begin(), s.end(), iter);
 }

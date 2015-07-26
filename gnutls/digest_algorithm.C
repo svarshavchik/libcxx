@@ -73,8 +73,7 @@ template class getenumerationntl<LIBCXX_NAMESPACE::gnutls::
 template class settable<gnutls_digest_algorithm_t,
 			getenumerationntl<LIBCXX_NAMESPACE::gnutls
 					  ::digest_algorithm_base>,
-			GNUTLS_DIG_UNKNOWN,
-			LIBCXX_NAMESPACE::class_tostring_utf8>;
+			GNUTLS_DIG_UNKNOWN>;
 
 #if 0
 {

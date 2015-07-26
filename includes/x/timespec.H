@@ -1,5 +1,5 @@
 /*
-** Copyright 2012 Double Precision, Inc.
+** Copyright 2012-2015 Double Precision, Inc.
 ** See COPYING for distribution information.
 */
 
@@ -14,7 +14,6 @@ a few value-added conveniences.
 
 #include <x/namespace.h>
 #include <x/exception.H>
-#include <x/value_stringable.H>
 #include <x/locale.H>
 
 #include <iostream>
@@ -208,9 +207,6 @@ public:
 		}
 		return *this;
 	}
-
-	//! This class implements toString() and fromString()
-	static const stringable_t stringable=class_tostring;
 
 	//! Convert this timespec class to a string
 

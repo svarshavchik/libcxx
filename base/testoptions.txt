@@ -110,8 +110,3 @@ Usage: testoptions [OPTION]...
   -s, --memsize=size
                     Memory size
 bytes: 4096
-Usage: testoptions
-                [-s|--wstring=string]
-Usage: testoptions [OPTION]...
-  -s, --wstring=string
-                    Wide string

@@ -1,5 +1,5 @@
 /*
-** Copyright 2012 Double Precision, Inc.
+** Copyright 2012-2015 Double Precision, Inc.
 ** See COPYING for distribution information.
 */
 
@@ -16,18 +16,7 @@ namespace LIBCXX_NAMESPACE {
 };
 #endif
 
-template<typename char_type,
-	 typename traits_type=std::char_traits<char_type>,
-	 typename alloc_type=std::allocator<char_type> >
-class basic_messagesObj;
-
-//! Narrow character message catalog implementation.
-
-typedef basic_messagesObj<char> messagesObj;
-
-//! Wide character message catalog implementation.
-
-typedef basic_messagesObj<wchar_t> wmessagesObj;
+class messagesObj;
 
 //! Message catalogs
 
@@ -60,7 +49,7 @@ typedef basic_messagesObj<wchar_t> wmessagesObj;
 //! std::string txt=msgcat->get("Yes");
 //! \endcode
 //!
-//! \ref basic_messagesObj<char, traits_type, alloc_type>::get() "get()"
+//! \ref messagesObj::get() "get()"
 //! retrieves the message
 //! from the catalog, using the usual semantics of gettext().
 //!
@@ -81,43 +70,11 @@ typedef basic_messagesObj<wchar_t> wmessagesObj;
 
 typedef ref<messagesObj> messages;
 
-//! Wide character message catalogs
-
-//! \code
-//! locale l;
-//!
-//! wmessages msgcat(wmessages::create(l, "libx"));
-//!
-//! std::wstring txt=msgcat->get(L"Yes");
-//! \endcode
-//!
-//! This is the wide character version of the #messages catalog. get()
-//! get() returns wide character strings.
-//!
-//! The underlying gettext() API still uses narrow characters. This wide
-//! character implementation converts wide character strings to narrow
-//! character strings using the given locale (the keys should contain Latin
-//! characters only, anyway), and the locallized strings get converted back
-//! to wide character strings, using the same locale. As such, this is
-//! slower than the narrow characters messages implementation, but exists
-//! for convenience when the application primarily handles wide character
-//! strings.
-//!
-//! \see gettextmsg()
-
-typedef ref<wmessagesObj> wmessages;
-
 //! A constant messages reference
 
 //! \see #messages
 
 typedef const_ref<messagesObj> const_messages;
-
-//! A constant wmessages reference
-
-//! \see #messages
-
-typedef const_ref<wmessagesObj> const_wmessages;
 
 //! A pointer to a reference-counted locale messages object.
 
@@ -128,19 +85,7 @@ typedef ptr<messagesObj> messagesptr;
 //! A pointer to a reference-counted locale messages object.
 
 //! \see #messages
-
-typedef ptr<wmessagesObj> wmessagesptr;
-
-//! A pointer to a reference-counted locale messages object.
-
-//! \see #messages
 typedef const_ptr<messagesObj> const_messagesptr;
-
-//! A pointer to a reference-counted locale messages object.
-
-//! \see #messages
-
-typedef const_ptr<wmessagesObj> const_wmessagesptr;
 
 //! Retrieve internal catalog
 
@@ -148,24 +93,11 @@ typedef const_ptr<wmessagesObj> const_wmessagesptr;
 
 messages libmsg();
 
-//! Retrieve internal catalog
-
-//! \internal
-
-wmessages wlibmsg();
-
-
 //! Retrieve a message from a catalog
 
 //! \internal
 //!
 std::string libmsg(const char *str) LIBCXX_HIDDEN;
-
-//! Retrieve a message from a catalog
-
-//! \internal
-//!
-std::wstring wlibmsg(const char *str) LIBCXX_HIDDEN;
 
 #if 0
 {

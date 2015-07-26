@@ -284,9 +284,6 @@ int main(int argc, char **argv)
       <literal>uint64</literal>,
       <literal>string</literal> (a <classname>std::string</classname>,
       the value is a generic string that's not intepreted any further),
-      <literal>wstring</literal> (a <classname>std::wstring</classname>,
-      the value is a generic wide string, parsed using the system environment
-      locale),
       <literal>hms</literal>,
       <literal>ymd</literal>,
       <literal>ymd_interval</literal> (<link linkend="intervals"><classname>&ns;::hms</classname>, <classname>&ns;::ymd</classname>, and <classname>&ns;::ymd::interval</classname></link> classes),
@@ -300,7 +297,7 @@ int main(int argc, char **argv)
 
     <para>
       <tag class='element'>list /</tag> can be specified for any of the
-      above numerical types, and the narrow and the wide string type.
+      above numerical types, and the string type.
       This declares an option list of the given type,
       see <ulink url="&namespace-x--option;">option reference</ulink>
       for more information.
@@ -390,16 +387,6 @@ int main(int argc, char **argv)
       output iterator for a character sequence, a locale object, and converts
       the class to a string form, the opposite of
       <methodname>fromString</methodname>().
-      The class must also declare the <varname>stringable</varname>
-      static constant member, as in the example above.
-    </para>
-
-    <para>
-      The class has the option of implementing
-      <methodname>fromWideString</methodname>() and
-      <methodname>toWideString</methodname>(), and setting
-      <varname>stringable</varname> to <literal>&ns;::towstring</literal>,
-      instead.
     </para>
 
     <para>
@@ -944,7 +931,7 @@ public:
 
 // ...
       testoptions(<emphasis>int argc, char **argv</emphasis>,
-                  const &ns;::wmessagesptr &amp;msgcat=&ns;::wmessagesptr())
+                  const &ns;::messagesptr &amp;msgcat=&ns;::messagesptr())
           : <emphasis>testoptions_superclass(argc, argv, msgcat),</emphasis>
             // ...</programlisting>
       </informalexample>
@@ -973,7 +960,7 @@ int main(int argc, char **argv)
 {
     &ns;::locale locale(&ns;::locale::base::environment());
 
-    &ns;::wmessages msgcat(&ns;::wmessages::create(locale, "testprog"));
+    &ns;::messages msgcat(&ns;::messages::create(locale, "testprog"));
 
     testoptions opts(msgcat);
 
@@ -987,7 +974,7 @@ int main(int argc, char **argv)
       <filename>optgen.xsl</filename> contains localizable strings.
       A localized output from the default <quote>--help</quote> and
       <quote>--usage</quote> options is produced by passing
-      a <link linkend="msgcatalogs">wide message catalog</link> to the
+      a <link linkend="msgcatalogs">message catalog</link> to the
       option class constructor, and the
       <link linkend="localeobj">locale object</link> as the third parameter
       to <methodname>parse</methodname>().
@@ -1078,13 +1065,6 @@ int main(int argc, char **argv)
 	might be a member from the option parser object's
 	<link linkend="optgensubclass">superclass</link>.
       </para>
-
-      <note>
-	<para>
-	  <tag class='element'>descr</tag> is a wide character string, and
-	  the localized string is a wide character string.
-	</para>
-      </note>
 
       <blockquote>
 	<informalexample>

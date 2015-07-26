@@ -8,6 +8,7 @@
 #include "x/tostring.H"
 #include "x/iconviofilter.H"
 #include <idna.h>
+#include <courier-unicode.h>
 
 namespace LIBCXX_NAMESPACE {
 #if 0
@@ -16,27 +17,17 @@ namespace LIBCXX_NAMESPACE {
 
 std::string idn::to_ascii(const std::string &str, int flags)
 {
-	return to_ascii(str, locale::base::environment(), flags);
-}
+	std::vector<unicode_char> u32;
 
-std::string idn::to_ascii(const std::string &str,
-			  const const_locale &locale,
-			  int flags)
-{
-	return to_ascii(towstring(str, locale), flags);
-}
+	unicode::iconvert::convert(str, unicode::utf_8, u32);
 
-std::string idn::to_ascii(const std::wstring &str, int flags)
-{
-	auto u32=iconviofilter::to_u32string(tostring(str,
-						      locale::base::utf8()),
-					     "UTF-8");
+	u32.push_back(0);
 
 	char *p;
 
 	Idna_rc rc=(Idna_rc)
 		idna_to_ascii_4z(reinterpret_cast<const uint32_t *>
-				 (u32.c_str()),	&p, flags);
+				 (&u32[0]), &p, flags);
 
 	if (rc)
 		throw EXCEPTION(std::string("to_ascii: ") +
@@ -49,35 +40,27 @@ std::string idn::to_ascii(const std::wstring &str, int flags)
 
 std::string idn::from_ascii(const std::string &str, int flags)
 {
-	return from_ascii(str, locale::base::environment(), flags);
-}
+	std::vector<unicode_char> u(str.begin(), str.end());
 
-std::string idn::from_ascii(const std::string &str,
-			    const const_locale &locale,
-			    int flags)
-{
-	return tostring(from_ascii_tow(str, flags), locale);
-}
-
-std::wstring idn::from_ascii_tow(const std::string &str, int flags)
-{
-	std::u32string u32=iconviofilter::to_u32string(str, "UTF-8");
+	u.push_back(0);
 
 	uint32_t *output=0;
 
 	Idna_rc rc=(Idna_rc)
 		idna_to_unicode_4z4z(reinterpret_cast<const uint32_t *>
-				     (u32.c_str()), &output, flags);
+				     (&u[0]), &output, flags);
 
 	if (rc)
 		throw EXCEPTION(std::string("from_ascii: ") +
 				idna_strerror(rc));
 
-	u32=reinterpret_cast<const char32_t *>(output);
+	size_t n;
+	for (n=0; output[n]; ++n)
+		;
+	u=std::vector<unicode_char>(output, output+n);
 	free(output);
 
-	return towstring(iconviofilter::from_u32string(u32, "UTF-8"),
-			 locale::base::utf8());
+	return unicode::iconvert::convert(u, unicode::utf_8);
 }
 
 #if 0

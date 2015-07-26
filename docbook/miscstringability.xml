@@ -18,8 +18,6 @@ See COPYING for distribution information.
 
 std::string s;
 
-std::wstring ws;
-
 short n;
 
 // ...
@@ -28,15 +26,7 @@ s=&ns;::value_string&lt;short&gt;::toString(n, l);
 
 // ...
 
-n=&ns;::value_string&lt;short&gt;::fromString(s.begin(), s.end(), l);
-
-// ...
-
-ws=&ns;::value_string&lt;short&gt;::toWideString(n, l);
-
-// ...
-
-n=&ns;::value_string&lt;short&gt;::fromWideString(ws.begin(), ws.end(), l);</programlisting>
+n=&ns;::value_string&lt;short&gt;::fromString(s.begin(), s.end(), l);</programlisting>
 
     </informalexample>
   </blockquote>
@@ -70,18 +60,6 @@ n=&ns;::value_string&lt;short&gt;::fromWideString(ws.begin(), ws.end(), l);</pro
 	</para>
       </listitem>
     </varlistentry>
-
-    <varlistentry>
-      <term><methodname>toWideString</methodname>() and <methodname>fromWideString</methodname>()</term>
-      <listitem>
-	<para>
-	  These functions are wide-character versions of
-	  <methodname>toString</methodname>()
-	  and
-	  <methodname>fromString</methodname>()
-	</para>
-      </listitem>
-    </varlistentry>
   </variablelist>
 
   <para>
@@ -91,18 +69,6 @@ n=&ns;::value_string&lt;short&gt;::fromWideString(ws.begin(), ws.end(), l);</pro
     The template parameter may also be a <classname>std::string</classname>,
     which results in a <methodname>fromString</methodname>() and
     <methodname>toString</methodname>() that are effectively no-ops.
-    For a <classname>std::wstring</classname>,
-    <methodname>fromString</methodname>() and
-    <methodname>toString</methodname>() uses the
-    <link linkend="localeobj">locale object</link> to implement conversion
-    between narrow and wide characters.
-
-    Similarly, if the template parameter is a
-    <classname>std::wstring</classname>,
-    which results in a <methodname>fromWideString</methodname>() and
-    <methodname>toWideString</methodname>() are effective no-ops, and
-    for a <classname>std::string</classname> the conversion gets implemented
-    via the locale object.
   </para>
 
   <section id="customstringability">
@@ -118,8 +84,7 @@ n=&ns;::value_string&lt;short&gt;::fromWideString(ws.begin(), ws.end(), l);</pro
       <link linkend="uuid"><classname>&ns;::uuid</classname></link> classes.
 
       To implement <classname>&ns;::value_string</classname> for any class,
-      define the <varname>stringable</varname> class member, and several
-      member templates.
+      define several member templates, as described below.
 
       This is done for the purpose of converting an object into
       some human readable form.
@@ -131,15 +96,11 @@ n=&ns;::value_string&lt;short&gt;::fromWideString(ws.begin(), ws.end(), l);</pro
     <blockquote>
       <informalexample>
 	<programlisting>
-#include &lt;&ns;/value_stringable.H&gt;
-
 // ...
 
 class Widget {
 
 public:
-
-    static const &ns;::stringable_t stringable=&ns;::class_toboth;
 
     template&lt;typename OutputIterator&gt;
     OutputIterator toString(OutputIterator iter,
@@ -150,35 +111,12 @@ public:
 
         return iter;
     }
-      
+
 
     template&lt;typename InputIterator&gt;
     static Widget fromString(InputIterator beg_iter,
                               InputIterator end_iter,
                               const const_locale &amp;localeArg)
-    {
-        Widget w;
-
-        //
-
-        return w;
-    }
-
-    template&lt;typename OutputIterator&gt;
-    OutputIterator toWideString(OutputIterator iter,
-                                const &ns;::const_locale &amp;localeRef)
-		const
-    {
-        //
-
-        return iter;
-    }
-      
-
-    template&lt;typename InputIterator&gt;
-    static Widget fromWideString(InputIterator beg_iter,
-                                 InputIterator end_iter,
-                                 const const_locale &amp;localeArg)
     {
         Widget w;
 
@@ -200,97 +138,27 @@ std::string s=&ns;::value_string&lt;Winder&gt;::toString(wInstance, l);
     </blockquote>
 
     <para>
-      The stringable class defines <methodname>toString</methodname>() and
-      <methodname>fromString</methodname>(); and/or
-      <methodname>toWideString</methodname>() and
-      <methodname>fromWideString</methodname>().
-
-    </para>
-
-    <para>
-      The static const <varname>stringable</varname> member, in the example
-      above, must be set to one of the following values:
-    </para>
-
-    <variablelist>
-      <varlistentry>
-	<term><literal>&ns;::class_tostring</literal></term>
-	<listitem>
-	  <para>
-	    This class defines the
-	    <methodname>toString</methodname>() and
-	    <methodname>fromString</methodname>() template methods.
-	  </para>
-	</listitem>
-      </varlistentry>
-      <varlistentry>
-	<term><literal>&ns;::class_tostring_utf8</literal></term>
-	<listitem>
-	  <para>
-	    This class defines the
-	    <methodname>toString</methodname>() and
-	    <methodname>fromString</methodname>() template methods, that ignore
-	    their locale argument, and always use the <quote>UTF-8</quote>
-	    codeset.
-	  </para>
-	</listitem>
-      </varlistentry>
-      <varlistentry>
-	<term><literal>&ns;::class_towstring</literal></term>
-	<listitem>
-	  <para>
-	    This class defines the
-	    <methodname>toWideString</methodname>() and
-	    <methodname>fromWideString</methodname>() template methods.
-	  </para>
-	</listitem>
-      </varlistentry>
-      <varlistentry>
-	<term><literal>&ns;::class_toboth</literal></term>
-	<listitem>
-	  <para>
-	    This class defines all four template methods.
-	  </para>
-	</listitem>
-      </varlistentry>
-    </variablelist>
-
-    <para>
-      The <methodname>toString</methodname>() and
-      <methodname>toWideString</methodname>() const template methods take an output
+      The <methodname>toString</methodname>() template methods takes an output
       iterator and a <link linkend="localeobj">locale object</link>
-      (which they may ignore, if it's irrelevant for this class), write the
-      string (in <methodname>toString</methodname>()'s case) or the
-      wide string (in <methodname>toWideString</methodname>()'s case)
-      representation of the object into the output iterator, and
+      (which they may ignore, if it's irrelevant for this class), writes the
+      string representation of the object into the output iterator, and
       returns the new iterator value.
 
-      <methodname>fromString</methodname>() and
-      <methodname>fromWideString</methodname>()
-      must be a static methods that take
+      <methodname>fromString</methodname>()
+      must be a static method that takes
       a pair of iterators. The pair
-      specifies the beginning and the end of a character or a wide character
+      specifies the beginning and the end of a character or a character
       sequence. The third argument is a
       locale object.
-      <methodname>fromString</methodname>()
-      and <methodname>fromWideString</methodname>() convert the character
+      <methodname>fromString</methodname>() converts the character
       sequence to a new object instance, and return it.
     </para>
 
     <para>
-      <classname>&ns;::value_string</classname>'s methods invoke the appropriate
-      class methods, automatically converting between narrow and wide characters
-      if the requested
-      <classname>&ns;::value_string</classname> method is not directly
-      supported by the class.
-    </para>
-
-    <para>
-      <methodname>fromString</methodname>() and
-      <methodname>fromWideString</methodname>()
-      should throw an exception if they cannot parse the string.
+      <methodname>fromString</methodname>()
+      should throw an exception it can't parse the string.
       Furthermore, the beginning and ending iterator sequence should define
-      the complete parsable sequence, and an exception should be thrown
+      the complete parsable sequence, and an exception should get thrown
       if the object gets converted without consuming the entire input
       sequence (however, the methods can allow this, if they want to).
     </para>
@@ -313,45 +181,13 @@ Widget w;
 
 // ...
 
-std::string s=&ns;::tostring(w, l);
-
-std::string s=&ns;::towstring(w, l);</programlisting>
+std::string s=&ns;::tostring(w, l);</programlisting>
 	</informalexample>
       </blockquote>
 
       <para>
-	<methodname>&ns;::tostring</methodname>() and
-	<methodname>&ns;::towstring</methodname>() are convenience functions
-	that invoke
-	<methodname>&ns;::value_string&lt;class&gt;::toString</methodname>() and
-	<methodname>&ns;::value_string&lt;class&gt;::toWideString</methodname>().
-	They are also overloaded for native character and wide character
-	pointers, which become either effective no-ops, or
-	a conversion call between narrow and wide characters, in the
-	specified locale.
-      </para>
-
-      <blockquote>
-	<informalexample>
-	  <programlisting>
-#include &lt;&ns;/tostring.H&gt;
-
-&ns;::locale l;
-
-std::string s;
-
-std::string s_utf8=&ns;::toutf8string(s, l);
-
-s=&ns;::fromutf8string(s, l);</programlisting>
-	</informalexample>
-      </blockquote>
-
-      <para>
-	<methodname>&ns;::toutf8string</methodname>() and
-	<methodname>&ns;::fromutf8string</methodname>() convert a string to
-	or from the UTF-8 codeset. The second parameter specifies the
-	string's codeset, as a locale. The second parameter is optional.
-	It defaults to <methodname>&ns;::local::base::globa()</methodname>.
+	<methodname>&ns;::tostring</methodname>() invokes
+	<methodname>&ns;::value_string&lt;class&gt;::toString</methodname>().
       </para>
     </section>
   </section>

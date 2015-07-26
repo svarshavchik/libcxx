@@ -1,5 +1,5 @@
 /*
-** Copyright 2012 Double Precision, Inc.
+** Copyright 2012-2015 Double Precision, Inc.
 ** See COPYING for distribution information.
 */
 
@@ -35,12 +35,11 @@ template<class streamType> class basic_stringstreamObj;
 //! Two constructors are provided, one that takes a string parameter that
 //! sets the initial contents of the string, and one that does not.
 //!
-//! \see istringstream, ostringstream, stringstream, wistringstream,
-//! wostringstream, wstringstream.
+//! \see istringstream, ostringstream, stringstream
 
 template<class streamType>
 class basic_stringstreamObj : public streamType, virtual public obj {
-	
+
 public:
 
 	//! Constructor -- a string stream with initial contents
@@ -90,30 +89,6 @@ typedef ref<basic_stringstreamObj< std::ostringstream > > ostringstream;
 
 typedef ref<basic_stringstreamObj< std::stringstream > > stringstream;
 
-//! A reference-counted \c std::wistringstream
-
-//! \code
-//! wistringstream wis(wistringstream::create(L"Hello world"));
-//! \endcode
-
-typedef ref<basic_stringstreamObj< std::wistringstream > > wistringstream;
-
-//! A reference-counted \c std::wostringstream
-
-//! \code
-//! wostringstream wos(wostringstream::create());
-//! \endcode
-
-typedef ref<basic_stringstreamObj< std::wostringstream > > wostringstream;
-
-//! A reference-counted \c std::wstringstream
-
-//! \code
-//! wstringstream wios(wstringstream::create());
-//! \endcode
-
-typedef ref<basic_stringstreamObj< std::wstringstream > > wstringstream;
-
 //! A pointer to a reference-counted \c std::istringstream
 
 //! \see istringstream
@@ -131,23 +106,6 @@ typedef ptr<basic_stringstreamObj< std::ostringstream > > ostringstreamptr;
 //! \see stringstream
 
 typedef ptr<basic_stringstreamObj< std::stringstream > > stringstreamptr;
-
-//! A pointer to a reference-counted \c std::wistringstream
-
-//! \see wistringstream
-typedef ptr<basic_stringstreamObj< std::wistringstream > > wistringstreamptr;
-
-//! A pointer to a reference-counted \c std::wostringstream
-
-//! \see wostringstream
-
-typedef ptr<basic_stringstreamObj< std::wostringstream > > wostringstreamptr;
-
-//! A pointer to a reference-counted \c std::wstringstream
-
-//! \see wstringstream
-
-typedef ptr<basic_stringstreamObj< std::wstringstream > > wstringstreamptr;
 
 #if 0
 {

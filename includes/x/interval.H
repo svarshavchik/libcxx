@@ -1,5 +1,5 @@
 /*
-** Copyright 2012 Double Precision, Inc.
+** Copyright 2012-2015 Double Precision, Inc.
 ** See COPYING for distribution information.
 */
 
@@ -89,7 +89,7 @@ class interval : public interval_base {
 	std::vector<int_type> values;
 
 	//! Message catalog
-	const_wmessages catalog;
+	const_messages catalog;
 
 public:
 	//! The parser constructor
@@ -108,9 +108,8 @@ public:
 		 //! it a minute, and \c 2 a second.
 		 size_t default_valueArg,
 
-		 //! The message catalog for localized names. Note that this
-		 //! is a wide character catalog
-		 const const_wmessages &catalogArg)
+		 //! The message catalog for localized names.
+		 const const_messages &catalogArg)
 
 		: sp(spArg),
 		  default_value(default_valueArg),
@@ -152,10 +151,10 @@ public:
 		bool has_word=false;
 		bool has_value=false;
 
-		std::wstring word;
+		std::string word;
 		int_type value;
 
-		std::vector<std::wstring> lookup; // Cache localized words
+		std::vector<std::string> lookup; // Cache localized words
 
 		std::vector<bool> lookup_flag; // Seen this word
 
@@ -163,7 +162,7 @@ public:
 		lookup_flag.resize(values.size());
 		std::fill(lookup_flag.begin(), lookup_flag.end(), false);
 
-		wctype ct(catalog->getLocale());
+		ctype ct(catalog->getLocale());
 
 		while (b != e)
 		{
@@ -203,7 +202,7 @@ public:
 				if (has_value)
 					syntax_error(); // Already did
 
-				std::wstring w;
+				std::string w;
 
 				if (*b == '-')
 					w.push_back(*b++);
@@ -212,13 +211,13 @@ public:
 				    !ct.is(*b, std::ctype_base::digit))
 					syntax_error();
 
-				while (b != e && 
+				while (b != e &&
 				       ct.is(*b, std::ctype_base::digit))
 				{
 					w.push_back(*b++);
 				}
 
-				std::wistringstream i(w);
+				std::istringstream i(w);
 
 				i >> value;
 
@@ -283,20 +282,10 @@ public:
 
 	//! \overload
 	//!
-	const std::vector<int_type> &parse(const std::wstring &str)
-
-	{
-		return parse(str.begin(), str.end());
-	}
-
-	//! Parse a character string
-
-	//! \overload
-	//!
 	const std::vector<int_type> &parse(const std::string &str)
 
 	{
-		return parse(towstring(str, catalog->getLocale()));
+		return parse(str.begin(), str.end());
 	}
 };
 
@@ -305,4 +294,3 @@ public:
 #endif
 }
 #endif
-

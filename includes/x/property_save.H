@@ -1,5 +1,5 @@
 /*
-** Copyright 2012 Double Precision, Inc.
+** Copyright 2012-2015 Double Precision, Inc.
 ** See COPYING for distribution information.
 */
 
@@ -8,7 +8,6 @@
 
 #include <x/namespace.h>
 #include <x/property_properties.H>
-#include <x/codecvtiter.H>
 #include <type_traits>
 #include <iterator>
 
@@ -23,12 +22,8 @@ namespace LIBCXX_NAMESPACE {
 
 //! The properties are formatted and written into the specified output iterator,
 //! so that load_properties() can restore them, later.
-//!
-//! The first mandatory template parameter must be either \c wchar_t or
-//! \c char which specifies whether the properties get written to a wide
-//! character stream, or converted to \c chars using the specified locale.
 
-template<typename char_type, typename iter_type>
+template<typename iter_type>
 iter_type save_properties(//! Properties
 			  const std::map<std::string, std::string> &properties,
 
@@ -37,7 +32,7 @@ iter_type save_properties(//! Properties
 			  //! Locale for parsing
 			  const const_locale &locale)
 {
-	basic_ctype<char> ct(locale);
+	ctype ct(locale);
 
 	std::string name=locale->name();
 

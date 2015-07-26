@@ -1,5 +1,5 @@
 /*
-** Copyright 2012 Double Precision, Inc.
+** Copyright 2012-2015 Double Precision, Inc.
 ** See COPYING for distribution information.
 */
 
@@ -31,7 +31,7 @@ namespace LIBCXX_NAMESPACE {
 //!
 //! The constructor specifies the filename whose status and extended attributes
 //! are used. The second parameter is optional. It gets ignored unless
-//! the filename refers to a symbolic links. If the filename is a symbolic link
+//! the filename refers to a symbolic link. If the filename is a symbolic link
 //! and the second parameter is \c true (default), the symbolic link's
 //! extended attributes get manipulated, if \c false the file that the symbolic
 //! link points to has its extended attributes manipulated.

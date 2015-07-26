@@ -13,7 +13,6 @@ namespace LIBCXX_NAMESPACE {
 #endif
 
 template std::string string_argument(const char * const &);
-template std::wstring string_argument(const wchar_t * const &);
 
 #if 0
 {

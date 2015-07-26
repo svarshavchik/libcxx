@@ -1,5 +1,5 @@
 /*
-** Copyright 2012 Double Precision, Inc.
+** Copyright 2012-2015 Double Precision, Inc.
 ** See COPYING for distribution information.
 */
 
@@ -30,24 +30,6 @@ void getenumerationarr<base_type>
 			continue;
 
 		labels.push_back(base_type::get_name(value, localeRef));
-	}
-}
-
-template <typename base_type>
-void getenumerationarr<base_type>
-::enumerate(std::vector<std::wstring> &labels,
-	    const const_locale &localeRef)
-{
-	std::vector<std::string> buf;
-
-	enumerate(buf, localeRef);
-
-	labels.clear();
-	labels.reserve(buf.size());
-
-	for (auto l:buf)
-	{
-		labels.push_back(towstring(l, localeRef));
 	}
 }
 

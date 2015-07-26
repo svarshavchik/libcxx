@@ -1,5 +1,5 @@
 /*
-** Copyright 2012 Double Precision, Inc.
+** Copyright 2012-2015 Double Precision, Inc.
 ** See COPYING for distribution information.
 */
 
@@ -18,19 +18,16 @@ namespace LIBCXX_NAMESPACE {
 };
 #endif
 
-//! A template for a reference-counted stream buffer
+//! A reference-counted stream buffer
 
-//! This template defines a subclass of \c std::basic_streambuf and \c obj.
-//! The template implements
-//! reference-counted stream buffers. This object gets accessed through a
+//! A subclass of \c std::streambuf and \c obj.
+//! This object gets accessed through a
 //! reference. When the last reference goes out of scope, this object gets
 //! destroyed.
 //!
-//! \see ::streambuf, ::wstreambuf
+//! \see ::streambuf,
 
-template<class charT, class traits= std::char_traits<charT> >
-
-class basic_streambufObj : virtual public std::basic_streambuf<charT, traits>,
+class basic_streambufObj : virtual public std::streambuf,
 			   virtual public obj {
 
 public:
@@ -47,29 +44,14 @@ public:
 //! This is a reference to a \c std::streambuf object that stores characters.
 //!
 
-typedef ref<basic_streambufObj<char> > streambuf;
-
-//! A reference to a wide character \c std::streambuf
-
-//! This is a reference to a \c std::streambuf object that stores wide
-//! characters.
-
-typedef ref<basic_streambufObj<wchar_t> > wstreambuf;
+typedef ref<basic_streambufObj> streambuf;
 
 //! A pointer to a \c std::streambuf
 
 //! This is a pointer to a \c std::streambuf object that stores characters.
 //!
 
-typedef ptr<basic_streambufObj<char> > streambufptr;
-
-//! A pointer to a wide character \c std::streambuf
-
-//! This is a pointer to a \c std::streambuf object that stores wide
-//! characters.
-
-typedef ptr<basic_streambufObj<wchar_t> > wstreambufptr;
-
+typedef ptr<basic_streambufObj> streambufptr;
 
 #if 0
 {

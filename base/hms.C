@@ -10,6 +10,7 @@
 #include "x/ctype.H"
 #include "x/messages.H"
 #include "x/interval.H"
+#include "x/strftime.H"
 #include "gettext_in.h"
 
 #include <cstring>
@@ -65,12 +66,6 @@ hms::hms(const std::string &intervalStr,
 	construct(intervalStr.begin(), intervalStr.end(), l);
 }
 
-hms::hms(const std::wstring &intervalStr,
-	 const const_locale &l)
-{
-	construct(intervalStr.begin(), intervalStr.end(), l);
-}
-
 hms::hms(const char *intervalStr,
 	 const const_locale &l)
 {
@@ -81,10 +76,6 @@ hms::hms(const char *intervalStr,
 
 template void hms::construct(std::string::const_iterator,
 			     std::string::const_iterator,
-			     const const_locale &);
-
-template void hms::construct(std::wstring::const_iterator,
-			     std::wstring::const_iterator,
 			     const const_locale &);
 
 template<typename int_type>
@@ -280,49 +271,45 @@ void hms::parsing_error()
 	throw EXCEPTION(_("Invalid time interval specification"));
 }
 
-template<typename CharT>
-std::basic_string<CharT>
-hms::verboseString(const const_locale &l) const
+std::string hms::verboseString(const const_locale &l) const
 {
-	ptr<basic_messagesObj<CharT> >
-		wm(ptr<basic_messagesObj<CharT> >::create(l,
-								LIBCXX_DOMAIN));
+	auto msgs=messages::create(l, LIBCXX_DOMAIN);
 
-	std::basic_string<CharT> hours_str, minute_str, seconds_str;
+	std::string hours_str, minute_str, seconds_str;
 
 	{
-		std::basic_ostringstream<CharT> ow;
+		std::ostringstream o;
 
-		ow << gettextmsg(wm->get(_txtn("%1% hour",
-					       "%1% hours"), h), h);
+		o << gettextmsg(msgs->get(_txtn("%1% hour",
+						"%1% hours"), h), h);
 
-		hours_str=ow.str();
+		hours_str=o.str();
 	}
 
 	{
-		std::basic_ostringstream<CharT> ow;
+		std::ostringstream o;
 
-		ow << gettextmsg(wm->get(_txtn("%1% minute",
-					       "%1% minutes"), m), m);
+		o << gettextmsg(msgs->get(_txtn("%1% minute",
+						"%1% minutes"), m), m);
 
-		minute_str=ow.str();
+		minute_str=o.str();
 	}
 
 	{
-		std::basic_ostringstream<CharT> ow;
+		std::ostringstream o;
 
-		ow << gettextmsg(wm->get(_txtn("%1% second",
-					       "%1% seconds"), s), s);
+		o << gettextmsg(msgs->get(_txtn("%1% second",
+						"%1% seconds"), s), s);
 
-		seconds_str=ow.str();
+		seconds_str=o.str();
 	}
 
-	std::basic_ostringstream<CharT> o;
+	std::ostringstream o;
 
-	const CharT sepzero=0;
-	const CharT sepcomma[]={',', ' ', 0};
+	const char sepzero=0;
+	const char sepcomma[]=", ";
 
-	const CharT *sep=&sepzero;
+	const char *sep=&sepzero;
 
 	if (h)
 	{
@@ -344,13 +331,23 @@ hms::verboseString(const const_locale &l) const
 	return o.str();
 }
 
-template
-std::basic_string<char>
-hms::verboseString<char>(const const_locale &l) const;
+std::string hms::hhmmss(const char *pattern,
+			const const_locale &localeRef)
+	const
+{
+	const char def_time[]="%X";
 
-template
-std::basic_string<wchar_t>
-hms::verboseString<wchar_t>(const const_locale &l) const;
+	if (!pattern)
+		pattern=def_time;
+
+	return strftime(*this, localeRef)(pattern);
+}
+
+std::string hms::hhmmss(const std::string &pattern,
+			const const_locale &localeRef) const
+{
+	return hhmmss(pattern.c_str(), localeRef);
+}
 
 #if 0
 {

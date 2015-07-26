@@ -60,33 +60,11 @@ void dumpwhex(std::wstring s)
 	std::cout << std::endl;
 }
 
-void testwmessages(std::string localeName)
-{
-	LIBCXX_NAMESPACE::locale l(LIBCXX_NAMESPACE::locale::create(localeName));
-
-	LIBCXX_NAMESPACE::wmessages cmsgs(LIBCXX_NAMESPACE::wmessages::create(l, "xtest", "xtest"));
-
-	dumpwhex(cmsgs->get("test1"));
-	dumpwhex(cmsgs->get("test2"));
-
-	std::wostringstream wo;
-
-	wo << LIBCXX_NAMESPACE::gettextmsg(cmsgs->get("%ignore%[%% %3%: %1%%2%]"),
-					 std::dec, 20, L"counters");
-
-	std::cout << LIBCXX_NAMESPACE::tostring(wo.str(), l) << std::endl;
-
-	std::cout << LIBCXX_NAMESPACE::tostring(std::wstring(LIBCXX_NAMESPACE::gettextmsg(cmsgs->get("test1"))),
-					      l) << std::endl;
-}
-
 int main(int argc, char *argv[])
 {
 	try {
 		testmessages("en_US.UTF-8");
 		testmessages("en_US.ISO8859-1");
-		testwmessages("en_US.UTF-8");
-		testwmessages("en_US.ISO8859-1");
 	} catch (LIBCXX_NAMESPACE::exception &e)
 	{
 		std::cout << e << std::endl;

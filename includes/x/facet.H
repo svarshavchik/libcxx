@@ -1,5 +1,5 @@
 /*
-** Copyright 2012 Double Precision, Inc.
+** Copyright 2012-2015 Double Precision, Inc.
 ** See COPYING for distribution information.
 */
 
@@ -29,33 +29,12 @@ template<class FacetType> class facetObj;
 
 namespace facetObjs {
 
-	//! A \c std::codecvt&lt;char, \c char, \c std::mbstate_t&gt; facet object implementation.
-
-	//! \internal
-	//! \see facets::codecvt
-
-	typedef facetObj< std::codecvt<char, char, std::mbstate_t> > codecvt;
-
-	//! A \c std::codecvt&lt;wchar_t, \c char, \c std::mbstate_t&gt; facet implementation.
-
-	//! \internal
-	//! \see facets::wcodecvt
-
-	typedef facetObj< std::codecvt<wchar_t, char, std::mbstate_t> > wcodecvt;
-
 	//! A \c std::ctype&lt;char&gt; facet implementation
 
 	//! \internal
 	//! \see facets::ctype
 
 	typedef facetObj< std::ctype<char> > ctype;
-
-	//! A \c std::ctype&lt;wchar_t&gt; facet implementation
-
-	//! \internal
-	//! \see facets::wctype
-
-	typedef facetObj< std::ctype<wchar_t> > wctype;
 
 	//! A \c std::time_put facet implementation
 
@@ -103,11 +82,7 @@ namespace facetObjs {
 //! \code
 //! locale myLocale("en_US.utf-8");
 //!
-//! facets::wcodecvt_facet wcharConvert=myLocale->get_facet<facets::wcodecvt>();
-//!
-//! const std::codecvt<wchar_t, char_t, std::mbstate_t> &conv=wcharConvert->getFacetConstRef();
-//!
-//! // Now, do what you normally do with a std::codecvt.
+//! facets::time_get_facet time_get=myLocale->get_facet<facets::time_get_facet>();
 //! \endcode
 //!
 //! The above implementation if for informational purposes only. There are
@@ -117,32 +92,9 @@ namespace facetObjs {
 namespace facets {
 
 
-	//! Define a wrapper for the \c std::codecvt&lt;char, \c char, \c std::mbstate_t&gt; facet.
-
-	//! See the above example, in the facets namespace documentation,
-	//! for more information.
-	typedef ref< facetObjs::codecvt > codecvt_facet;
-
-	//! A pointer to a reference-counted codecvt facet
-
-	//! \see codecvt_facet
-
-	typedef ptr< facetObjs::codecvt > codecvt_facetptr;
-
-	//! Define a wrapper for the \c std::codecvt&lt;wchar_t, \c char, \c std::mbstate_t&gt; facet.
-
-	//! See the above example, in the facets namespace documentation,
-	//! for more information.
-	typedef ref< facetObjs::wcodecvt > wcodecvt_facet;
-
-	//! A pointer to a reference-counted wcodecvt facet
-
-	//! \see wcodecvt_facet
-	typedef ptr< facetObjs::wcodecvt > wcodecvt_facetptr;
-
 	//! Define a wrapper for the \c std::ctype&lt;char&gt; facet.
 
-	//! See also: \link ::ctype ctype\endlink.
+	//! See also: \ref ctype "ctype".
 
 	typedef ref< facetObjs::ctype> ctype_facet;
 
@@ -151,21 +103,9 @@ namespace facets {
 	//! \see ctype_facet
 	typedef ptr< facetObjs::ctype> ctype_facetptr;
 
-	//! Define a wrapper for the \c std::wctype&lt;char&gt; facet.
-
-	//! See also: \link ::wctype wctype\endlink.
-
-	typedef ref< facetObjs::wctype> wctype_facet;
-
-	//! A pointer to a reference-counted wctype facet
-
-	//! \see wctype_facet
-	typedef ptr< facetObjs::wctype> wctype_facetptr;
-
 	//! Define a wrapper for the \c std::time_put facet.
 
-	//! See also: \link ::strftime strftime\endlink, 
-	//! \link ::wstrftime wstrftime\endlink.
+	//! See also: \ref strftime "strftime".
 
 	template<typename charT,
 		 typename OutputIterator=std::ostreambuf_iterator<charT> >

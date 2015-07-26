@@ -1,14 +1,20 @@
 /*
-** Copyright 2012 Double Precision, Inc.
+** Copyright 2012-2015 Double Precision, Inc.
 ** See COPYING for distribution information.
 */
 
 #ifndef x_strftime_H
 #define x_strftime_H
 
-#include <x/strftimefwd.H>
-#include <x/ymdhmsfwd.H>
-#include <x/imbue.H>
+#include <x/exception.H>
+#include <x/localeobj.H>
+#include <x/tzfile.H>
+#include <x/facet.H>
+#include <x/ptr.H>
+#include <time.h>
+
+#include <string>
+
 #include <x/namespace.h>
 
 namespace LIBCXX_NAMESPACE {
@@ -17,191 +23,280 @@ namespace LIBCXX_NAMESPACE {
 };
 #endif
 
-template<typename char_type>
-basic_strftime_base<char_type>::basic_strftime_base(const const_locale &lArg)
-	: l(lArg),
-	  ios(NULL),
-	  facetRef(l->get_facet< basic_strftime_ref_t >()),
-	  facetRefImpl(facetRef->getFacetConstRef())
-{
-	ios.clear();
-}
+class ymdhms;
+class ymd;
+class hms;
 
-template<typename char_type>
-basic_strftime_base<char_type>::~basic_strftime_base() noexcept
-{
-}
+//! Common locale-related functions used by \ref strftime "strftime".
 
-template<typename char_type>
-basic_strftime<char_type>::basic_strftime(const const_tzfile &tzArg,
-					  const const_locale &lArg)
-	: basic_strftime_base<char_type>(lArg), tz(tzArg)
-{
-	operator()(time(0), tzArg);
-}
+class strftime_base : public notcopyableObj {
 
-template<typename char_type>
-basic_strftime<char_type>::basic_strftime(const ymdhms &datetime,
-					  const const_locale &lArg)
-	: basic_strftime_base<char_type>(lArg),
-	  tz(datetime.getTimezone())
-{
-	operator()(datetime);
-}
+protected:
 
-template<typename char_type>
-basic_strftime<char_type>::basic_strftime(const ymd &dateValue,
-					  const const_locale &lArg,
-					  const const_tzfile &tzArg)
-	: basic_strftime_base<char_type>(lArg), tz(tzArg)
-{
-	operator()(dateValue, tzArg);
-}
+	//! Locale for the time format
+	const_locale l;
 
-template<typename char_type>
-basic_strftime<char_type>::basic_strftime(const hms &time,
-					  const const_locale &lArg)
-	: basic_strftime_base<char_type>(lArg),
-	  tz(tzfile::base::local())
-{
-	operator()(time);
-}
-		       
-template<typename char_type>
-basic_strftime<char_type>::basic_strftime(time_t t,
-					  const const_tzfile &tzArg,
-					  const const_locale &lArg)
-	: basic_strftime_base<char_type>(lArg), tz(tzArg)
-{
-	operator()(t, tzArg);
-}
+	//! IOS formatting flags with the imbued locale
+	std::ios ios;
 
-template<typename char_type>
-basic_strftime<char_type>::basic_strftime(const struct tm *tmArg,
-					  const const_locale &lArg)
-	: basic_strftime_base<char_type>(lArg),
-	  tz(tzfile::base::local())
-{
-	operator()(tmArg);
-}
+	//! Shortcut for the locale facet reference.
+	typedef ref<facetObj< std::time_put<char> > >
+	strftime_ref_t;
 
-template<typename char_type>
-basic_strftime<char_type>::~basic_strftime() noexcept
-{
-}
+	//! Reference to the std::time_put locale.
+	strftime_ref_t facetRef;
 
-template<typename char_type>
-basic_strftime<char_type> &
-basic_strftime<char_type>::operator()(const struct tm *tm_cpy) noexcept
-{
-	tm= *tm_cpy;
-	return *this;
-}
+	//! Shortcut for the locale facet nullable pointer.
+	typedef ptr<facetObj< std::time_put<char> > >
+	strftime_ptr_t;
 
-template<typename char_type>
-basic_strftime<char_type> &
-basic_strftime<char_type>::operator()(time_t timeVal)
+	//! Nullable pointer to the std::time_put locale.
+	strftime_ptr_t facetPtr;
 
-{
-	return operator()(timeVal, tz);
-}
+	//! Direct reference to the native C++ library facet object.
 
-template<typename char_type>
-basic_strftime<char_type> &
-basic_strftime<char_type>::operator()(time_t timeVal,
-				      const const_tzfile &tzArg)
+	const std::time_put<char> &facetRefImpl;
 
-{
-	return operator()(ymdhms(timeVal, tzArg));
-}
+	//! Initialize facets
 
-template<typename char_type>
-basic_strftime<char_type> &
-basic_strftime<char_type>::operator()(const ymdhms &datetime)
+	strftime_base(const const_locale &lArg);
 
-{
-	tm=datetime;
-	tm_tz=tm.tm_zone;
-	tm.tm_zone=
-		const_cast<char *>(tm_tz.c_str());
-	// Make sure we own the buffer this points to
+	//! Destructor
+	~strftime_base() noexcept;
+};
 
-	tz=datetime.getTimezone();
-	return *this;
-}
+//! Date and time formatting
 
-template<typename char_type>
-basic_strftime<char_type> &
-basic_strftime<char_type>::operator()(const ymd &date)
+//! \code
+//! locale l(locale::create("en_US.utf8"));
+//!
+//! std::cout << "Current time is " << strftime()("%Y-%m-%d %H:%M:%S") << std::endl;
+//!
+//! tzfile nyc(tzfile::create("America/New_York"));
+//!
+//! std::cout << "Happy New Year, New York: "
+//!           << strftime(ymdhms(ymd(2000, 1, 1), hms(0, 0, 0), nyc))
+//!                       ("%Y-%m-%d %H:%M:%S") << std::endl;
+//! \endcode
+//!
+//! This objects formats a date and/or time of day using a \c strftime(3) format
+//! string. The date/time may be specified in a number of ways:
+//!
+//! - a \c time_t calendar time. A timezone specification converts the
+//! \c time_t value to a date and time. The calendar time defaults to the
+//! current time, and the timezone defaults to the system default timezone.
+//!
+//! - a \c tm structure. This is the traditional parameter to
+//! strftime(3)
+//!
+//! - a ymdhms object that defines the date and the time of day.
+//!
+//! - a ymd object that defines the date component only. Only date-related
+//! conversion specifications in the \c strftime(3)
+//! format string produce meaningful results,
+//! the time of day component is fixed to midnight on the given date.
+//!
+//! - a hms object that defines the time of day component only. Only time
+//! of day-related conversion specifications in the \c strftime(3) conversion
+//! string produce meaningful results.
+//!
+//! The date/time specification is passed to the constructor, together with
+//! the timezone specification (if applicable), and the governing locale for
+//! the format string (this defaults to the current global locale).
+//!
+//! The format string gets passed to the constructed object using the
+//! \c () operator, which returns the formatted date and time.
+//! Another format string can be passed again, resulting in another
+//! formatted date and time, that references the saved date/time value.
+//! The constructed object may be recycled: another date/time specification
+//! may be passed to the \c () operator, which replaces the saved date and time
+//! for subsequent format strings.
 
-{
-	return operator()(date, tz);
-}
+class strftime : public strftime_base {
 
-template<typename char_type>
-basic_strftime<char_type> &
-basic_strftime<char_type>::operator()(const ymd &date,
-				      const const_tzfile &tzArg)
+	//! The time to be formatted.
+	struct tm tm;
 
-{
-	return operator()(ymdhms(date, hms(0, 0, 0), tzArg));
-}
+	//! Buffer for the timezone pointer.
+	std::string tm_tz;
 
-template<typename char_type>
-basic_strftime<char_type> &
-basic_strftime<char_type>::operator()(const hms &time)
+	//! Governing timezone definition
+	const_tzfile tz;
 
-{
-	return operator()(ymdhms(ymdhms::epoch(), time, tzfile::base::utc()));
-}
+public:
 
-template<typename char_type>
-std::basic_string<char_type>
-basic_strftime<char_type>::operator()(const std::basic_string<char_type> &str)
+	//! Default constructor
 
-{
-	return operator()(str.c_str());
-}
+	//! The constructor set the time conversion locale, and initializes
+	//! the time value to the current time.
 
-template<typename char_type>
-std::basic_string<char_type>
-basic_strftime<char_type>::operator()(const char_type *str)
+	strftime(//! Timezone for conversion
+		 const const_tzfile &tzArg=tzfile::base::local(),
 
-{
-	std::basic_ostringstream<char_type> o;
+		 //! Time conversion locale
+		 const const_locale &lArg=locale::base::global());
 
-	this->operator()(str, o);
+	//! Constructor
 
-	return o.str();
-}
+	//! \overload
+	//!
+	strftime(//! Date and time to format
+		 const ymdhms &datetime,
 
-template<typename char_type>
-basic_strftime<char_type> &
-basic_strftime<char_type>::operator()(const std::basic_string<char_type> &str,
-		std::basic_ostream<char_type> &o)
+		 //! Effective locale
 
-{
-	return this->operator()(str.c_str(), o);
-}
+		 const const_locale &lArg=locale::base::global());
 
-template<typename char_type>
-basic_strftime<char_type> &
-basic_strftime<char_type>::operator()(const char_type *str,
-				      std::basic_ostream<char_type> &o)
+	//! Constructor
 
-{
-	const char_type *strend;
+	//! \overload
+	//!
+	strftime(//! Date and time to format
+		 const ymd &dateValue,
 
-	for (strend=str; *strend; ++strend)
-		;
+		 //! Effective locale
+		 const const_locale &lArg=locale::base::global(),
 
-	imbue<std::basic_ios<char_type> > im(this->l, this->ios);
+		 //! Effective timezone
+		 const const_tzfile &tzArg=tzfile::base::local());
 
-	basic_strftime_base<char_type>::
-		facetRefImpl.put( std::ostreambuf_iterator<char_type>(o),
-				  this->ios, ' ', &this->tm, str, strend);
-	return *this;
-}
+	//! Constructor
+
+	//! \overload
+	//!
+	strftime(//! Date and time to format
+		 const hms &time,
+
+		 //! Effective locale
+
+		 const const_locale &lArg=locale::base::global());
+
+	//! Constructor
+
+	//! \overload
+	//!
+	strftime(//! Use this time value for formatting.
+		 time_t t,
+		 //! Use the following timezone
+		 const const_tzfile &tzArg=tzfile::base::local(),
+		 //! Time conversion locale
+		 const const_locale &lArg=locale::base::global());
+
+	//! Constructor
+
+	//! \overload
+	//!
+	strftime(//! Use this time value for formatting.
+		 const struct tm *tmArg,
+
+		 //! Time conversion locale
+		 const const_locale &lArg=locale::base::global());
+
+	//! Destructor
+	~strftime() noexcept;
+
+	//! Specify what date/time is to be formatted
+
+	//! \return a reference to this object.
+	//!
+	strftime &operator()(//! Format this time
+			     const struct tm *tm_cpy) noexcept;
+
+	//! Specify what date/time is to be formatted
+
+	//! \overload
+	//!
+
+	strftime &operator()(//! Format this time
+			     time_t timeVal);
+
+	//! Specify what date/time is to be formatted
+
+	//! \overload
+	//!
+
+	strftime &operator()(//! Format this time
+			     time_t timeVal,
+
+			     //! Effective timezone
+
+			     const const_tzfile &tzArg);
+
+	//! Specify what date/time is to be formatted
+
+	//! \overload
+	//!
+
+	strftime &operator()(//! Format this time
+			     const ymdhms &datetime);
+
+	//! Specify what date/time is to be formatted
+
+	//! \overload
+	//!
+
+	strftime &operator()(//! Format this time
+			     const ymd &date);
+
+	//! Specify what date/time is to be formatted
+
+	//! \overload
+	//!
+
+	strftime &operator()(//! Format this time
+			     const ymd &date,
+
+			     //! Timezone for conversion
+			     const const_tzfile &tzArg);
+
+	//! Specify what date/time is to be formatted
+
+	//! \overload
+	//!
+
+	strftime &operator()(//! Format this time
+			     const hms &time);
+
+	//! Format the specified time
+
+	//! \return the formatted string for the previously specified time
+	//! value, as a string.
+	std::string operator()(//! Time format string
+
+			       //! See \c strftime(3) for more
+			       //! information on the time format
+			       //! template string.
+			       const std::string &str);
+
+	//! Format the specified time
+
+	//! \overload
+	//!
+
+	std::string operator()(//! Time format string
+			       const char *str);
+
+	//! Format the specified time
+
+	//! \overload
+	//! Rather than returning the formatted time, as a string, it
+	//! gets written to an output stream.
+
+	strftime &operator()(//! Time format string
+			     const std::string &str,
+
+			     //! Formatted time gets written to this stream
+			     std::ostream &o);
+
+	//! Format the specified time
+
+	//! \overload
+	//!
+	strftime &operator()(//! Time format string
+			     const char *str,
+			     //! Formatted time gets written to this stream
+			     std::ostream &o);
+};
 
 #if 0
 {

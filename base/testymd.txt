@@ -1,11 +1,6 @@
 std=20 01 2009-01-01 001 01 4 4 09 2009 Thu Thursday Jan January
 alt%=20 01 01 4 4 09 2009
 01-Jan-2009
-01-Jan-2009
-std=20 01 2009-01-01 001 01 4 4 09 2009 Thu Thursday Jan January
-alt%=20 01 01 4 4 09 2009
-std=20 01 2009-01-01 001 01 4 4 09 2009 Thu Thursday Jan January
-alt%=20 01 01 4 4 09 2009
 std=20 01 2009-01-01 001 01 4 4 09 2009 Thu Thursday Jan January
 alt%=20 01 01 4 4 09 2009
 00
@@ -16,13 +11,8 @@ alt%=20 01 01 4 4 09 2009
 03-Aug-2009
 03-Aug-2009
 03-Aug-2009
-03-Aug-2009
-03-Aug-2009
-03-Aug-2009
-07-Jan-2009
 2009-W02-3
 4 years, 1 month, 2 weeks, 3 days
-2 hours, 10 seconds
 2 hours, 10 seconds
 9 minutes, 53 seconds
 8 minutes, 43 seconds

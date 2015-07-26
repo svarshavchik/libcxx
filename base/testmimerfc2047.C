@@ -154,7 +154,7 @@ void testmimerfc2047()
 	if (pair.first != "EN")
 		throw EXCEPTION("Did not get EN");
 
-	if (LIBCXX_NAMESPACE::iconviofilter::from_u32string(pair.second, "UTF-8")
+	if (unicode::iconvert::convert(pair.second, unicode::utf_8)
 	    != "O\xc2\xa0k")
 		throw EXCEPTION("Did not transcode");
 

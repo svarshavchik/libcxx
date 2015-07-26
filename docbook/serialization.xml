@@ -79,8 +79,7 @@ See COPYING for distribution information.
 	  suitable containers are:
 	  <classname>std::basic_string</classname> (including native
 	  string literals,
-	  <classname>const char *</classname>
-	  and <classname>const wchar_t *</classname>);
+	  <classname>const char *</classname>);
 	  <classname>std::list</classname>,
 	  <classname>std::deque</classname>,
 	  <classname>std::vector</classname>,
@@ -130,7 +129,7 @@ See COPYING for distribution information.
       inserted into its container.
     </para>
 
-    <para>	
+    <para>
       All floating point types are converted to strings before
       serialization, so floating point objects are structurally
       compatible
@@ -144,7 +143,7 @@ See COPYING for distribution information.
       floating value.
     </para>
 
-    <para>	
+    <para>
       Native character string literals are structurally compatible to their
       corresponding <classname>std::basic_string</classname> types.
       Although native
@@ -169,9 +168,9 @@ int intvalue;
 std::vector&lt;std::string&gt; strarray;
 
 // ...
-	
+
 std::ofstream ofs("object.dat");
-	
+
 std::ostreambuf_iterator&lt;char&gt; ofs_iter(ofs.rdbuf());
 
 &ns;::serialize::iterator&lt;std::ostreambuf_iterator&lt;char&gt; &gt;
@@ -318,19 +317,19 @@ o_iter.range(begin_iter, end_iter);</programlisting>
 std::vector&lt;std::string&gt; strarray;
 
 // ...
-	
+
 &ns;::serialize::sizeof_iterator cnt;
-	
+
 cnt(strarray);
-	
+
 std::vector&lt;char&gt; buffer;
-	
+
 buffer.resize(cnt.counter());
-	
+
 char *ptr=&amp;buffer[0];
 
 &ns;::serialize::iterator&lt;char *&gt; o_iter(ptr);
-	
+
 o_iter(strarray);
 	</programlisting>
       </informalexample>
@@ -351,7 +350,7 @@ o_iter(strarray);
       as an output iterator.
     </para>
 
-    <para>	
+    <para>
       It goes without saying that the
       serialized objects cannot be modified between
       the first and the second serialization pass in a manner that
@@ -368,13 +367,13 @@ o_iter(strarray);
 #include &lt;&ns;/serialize.H&gt;
 
 std::vector&lt;std::string&gt; strarray;
-	
+
 // ...
-	
+
 std::vector&lt;char&gt; buffer;
-	
+
 buffer.resize(&ns;::serialize::object(strarray));
-	
+
 char *ptr=&amp;buffer[0];
 
 &ns;::serialize::object(strarray, ptr);</programlisting>
@@ -391,7 +390,7 @@ char *ptr=&amp;buffer[0];
       and returns the resulting byte count.
     </para>
 
-    <para>	
+    <para>
       The two argument version of <methodname>object</methodname>() constructs an
       instance of
       <link linkend="serializetoiter"><classname>iterator</classname></link>
@@ -401,7 +400,7 @@ char *ptr=&amp;buffer[0];
 
   <section id="deserialization">
     <title>Deserializing an object</title>
-	
+
     <blockquote>
       <informalexample>
 	<programlisting>
@@ -418,7 +417,7 @@ std::istreambuf_iterator&lt;char&gt; beg(ifs.rdbuf()), end;
 typedef &ns;::deserialize::iterator&lt;std::istreambuf_iterator&lt;char&gt; &gt; deser_t;
 
 deser_t deser(beg, end);
-	
+
 deser(intvalue);
 deser(strarray);</programlisting>
       </informalexample>
@@ -462,7 +461,7 @@ deser(intvalue)(strarray);</programlisting>
       </informalexample>
     </blockquote>
 
-    <para>	
+    <para>
       An exception gets thrown if the type of objects that were
       serialized does not match the type of objects to
       deserialize (but see below).
@@ -752,11 +751,11 @@ any_deser();</programlisting>
 #include &lt;&ns;/deserialize.H&gt;
 
 std::vector&lt;std::string&gt; strarray;
-	
+
 // ...
-	
+
 std::vector&lt;char&gt; charbuf;
-	
+
 // ...
 
 &ns;::deserialize::object(strarray, charbuf.begin(), charbuf.end());</programlisting>

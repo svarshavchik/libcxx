@@ -1,5 +1,5 @@
 /*
-** Copyright 2012 Double Precision, Inc.
+** Copyright 2012-2015 Double Precision, Inc.
 ** See COPYING for distribution information.
 */
 
@@ -83,8 +83,6 @@ public:
 	virtual void filter()=0;
 };
 
-extern template class iofilter<char, wchar_t>;
-extern template class iofilter<wchar_t, char>;
 extern template class iofilter<char, char>;
 
 //! Default buffer size used by iofilteradapterObj
@@ -152,7 +150,7 @@ public:
 		input_type *p=&inbuf[0];
 
 		this->next_in=p;
-		
+
 		std::copy(cp, cp+this->avail_in, p);
 
 		this->outp=this->next_out=&outbuf[0];
@@ -160,8 +158,6 @@ public:
 	}
 };
 
-extern template class iofilteradapterObj<char, wchar_t>;
-extern template class iofilteradapterObj<wchar_t, char>;
 extern template class iofilteradapterObj<char, char>;
 
 #if 0

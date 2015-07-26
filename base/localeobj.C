@@ -147,20 +147,6 @@ std::string localeObj::name() const noexcept
 	return x.n;
 }
 
-template std::string fromutf8string(const std::string &,
-				    const const_locale &);
-template std::string fromutf8string(std::string &&,
-				    const const_locale &);
-template std::string fromutf8string(const std::string &);
-template std::string fromutf8string(std::string &&);
-
-template std::string toutf8string(const std::string &,
-				  const const_locale &);
-template std::string toutf8string(std::string &&,
-				  const const_locale &);
-template std::string toutf8string(const std::string &);
-template std::string toutf8string(std::string &&);
-
 #if 0
 {
 #endif

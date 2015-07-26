@@ -169,8 +169,7 @@ void save_prop(const std::string &name,
 		=std::string(value.begin(), value.end());
 
 	LIBCXX_NAMESPACE::property
-		::save_properties<char>(props,
-					std::ostreambuf_iterator<char>(ss));
+		::save_properties(props, std::ostreambuf_iterator<char>(ss));
 
 	ss.seekg(0);
 
@@ -271,7 +270,7 @@ int main(int argc, char **argv)
 						   LIBCXX_NAMESPACE::hms(),
 						   LIBCXX_NAMESPACE::locale::create("C")
 						   ).getValue()
-			.verboseString<char>()
+			.verboseString()
 			  << std::endl;
 
 		std::cout << (std::string)

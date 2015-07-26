@@ -625,34 +625,6 @@ static void testoptions11()
 	std::cout << "bytes: " << memsize->value.bytes << std::endl;
 }
 
-static void testoptions12()
-{
-	LIBCXX_NAMESPACE::option::wstring_value
-		wstring=LIBCXX_NAMESPACE::option::wstring_value::create();
-
-	LIBCXX_NAMESPACE::option::list options(LIBCXX_NAMESPACE::option::list::create());
-
-	options->setAppName("testoptions");
-
-	options->add(wstring, L's', "wstring",
-		     LIBCXX_NAMESPACE::option::list::base::hasvalue,
-		     "Wide string",
-		     "string");
-
-	options->usage(std::cout, 40);
-	options->help(std::cout, 40);
-
-	LIBCXX_NAMESPACE::option::parser p(LIBCXX_NAMESPACE::option::parser::create());
-
-	p->setOptions(options);
-
-	p->parseString("--wstring=foo");
-
-	if (wstring->value != L"foo")
-		throw EXCEPTION("test12 failed");
-}
-
-
 int main(int argc, char **argv)
 {
 	try {
@@ -670,7 +642,6 @@ int main(int argc, char **argv)
 		testoptions9();
 		testoptions10();
 		testoptions11();
-		testoptions12();
 	} catch (const LIBCXX_NAMESPACE::exception &e) {
 		std::cout << e << std::endl;
 	}

@@ -1344,11 +1344,7 @@ fd-&gt;stat(); // The fstat() system call on an open file descriptor</programlis
     These references point to an object that's derived from its
     namesake in the <literal>std</literal> namespace, and
     <link linkend="refobj"><classname>&ns;::obj</classname></link>.
-    There are no equivalent for wide-character streams. &app;
-    implements wide character support differently. The C++ library implements
-    conversion between narrow and wide characters in the stream buffer.
-    &app; uses the IO filters framework to handle wide character conversion
-    as a separate layer.
+    There are no equivalent for wide-character streams.
     Note that because
     <classname>&ns;::istream</classname>,
     <classname>&ns;::ostream</classname> and
@@ -1396,12 +1392,8 @@ fd-&gt;stat(); // The fstat() system call on an open file descriptor</programlis
       Reference-counted versions of string stream objects:
       <ulink url="&link-typedef-x-istringstream;"><classname>&ns;::istringstream</classname></ulink>,
       <ulink url="&link-typedef-x-ostringstream;"><classname>&ns;::ostringstream</classname></ulink>,
-      <ulink url="&link-typedef-x-stringstream;"><classname>&ns;::stringstream</classname></ulink>,
-      and their wide character counterparts,
-      <ulink url="&link-typedef-x-wistringstream;"><classname>&ns;::wistringstream</classname></ulink>,
-      <ulink url="&link-typedef-x-wostringstream;"><classname>&ns;::wostringstream</classname></ulink>,
-      <ulink url="&link-typedef-x-wstringstream;"><classname>&ns;::wstringstream</classname></ulink>,
-      examples:
+      <ulink url="&link-typedef-x-stringstream;"><classname>&ns;::stringstream</classname></ulink>.
+      Examples:
     </para>
 
     <blockquote>

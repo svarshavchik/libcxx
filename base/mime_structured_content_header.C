@@ -158,7 +158,7 @@ struct LIBCXX_HIDDEN structured_content_header::format_words_wrap :
 		curwidth=3;
 	}
 };
-	
+
 template class LIBCXX_HIDDEN structured_content_header
 ::format_words_wrap<headersbase::crlf_endl>;
 
@@ -569,7 +569,7 @@ std::string structured_content_header::decode_utf8(const std::string &name,
 
 		bool encoded=true;
 		int n=0;
-			
+
 		std::string suffix=
 			param.second.name.substr(rfc2231_prefix.size());
 
@@ -643,12 +643,11 @@ std::string structured_content_header::decode_utf8(const std::string &name,
 
 		if (b != e) ++b;
 
-		value=iconviofilter::from_u32string
-			(iconviofilter::to_u32string(std::string(b, e),
-						     charset),
-			 "UTF-8");
+		value=unicode::iconvert::convert(std::string(b, e),
+						 charset,
+						 unicode::utf_8);
 	}
-			
+
 	return value;
 }
 

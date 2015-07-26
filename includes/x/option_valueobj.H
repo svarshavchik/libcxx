@@ -132,9 +132,6 @@ typedef ref<valueObj<unsigned long long> > ulonglong_value;
 //! A reference to an untyped (a string) %option value
 typedef ref<valueObj<std::string> > string_value;
 
-//! A reference to an untyped (a wide string) %option value
-typedef ref<valueObj<std::wstring> > wstring_value;
-
 //! A reference to an int16_t %option value
 typedef ref<valueObj<int16_t> > int16_value;
 
@@ -191,9 +188,6 @@ typedef ptr<valueObj<unsigned long long> > ulonglong_valueptr;
 
 //! A nullable pointer to an untyped (a string) %option value
 typedef ptr<valueObj<std::string> > string_valueptr;
-
-//! A nullable pointer to an untyped (a wide string) %option value
-typedef ptr<valueObj<std::wstring> > wstring_valueptr;
 
 //! A nullable pointer to an int16_t %option value
 typedef ptr<valueObj<int16_t> > int16_valueptr;

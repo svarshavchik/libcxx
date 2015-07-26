@@ -18,7 +18,6 @@ EXTRA_DIST=\
 	testgetprop.tst \
 	testhttpclientauth.txt \
 	testhttpmessageimpl.txt \
-	testinpseq.tst \
 	testlocale.txt \
 	testlockpool.tst \
 	testlogger.tst \
@@ -30,9 +29,7 @@ EXTRA_DIST=\
 	testoptgen.sh \
 	testoptgen.txt \
 	testoptions.txt \
-	testoutpseq.tst \
 	testprop.txt \
-	testseq.tst \
 	testserialize.txt \
 	testsingleton.tst \
 	testtzfile.txt \
@@ -54,11 +51,11 @@ libcxx_la_SOURCES=\
 	xml_internal.h		\
 \
 	basicattr.C		\
-	basiccodecvtcommon.C	\
 	callback.C		\
 	chrcasecmp.C		\
 	condobj.C		\
 	csv.C			\
+	ctype.C			\
 	dequemsgdispatcher.C	\
 	destroycallbackflagobj.C \
 	destroycallbackflagwait4obj.C \
@@ -136,6 +133,7 @@ libcxx_la_SOURCES=\
 	idn.C			\
 	inotify.C               \
 	interval.C		\
+	iofilter.C		\
 	join.C			\
 	kqueuenb_internal.h	\
 	localeobj.C		\
@@ -194,6 +192,7 @@ libcxx_la_SOURCES=\
 	sigset.C		\
 	singletonapp.C		\
 	sockaddrobj.C		\
+	strftime.C		\
 	string_argument.C	\
 	stopexception.C		\
 	stoppable.C		\
@@ -293,7 +292,6 @@ noinst_PROGRAMS=\
 	mksiglist                     \
 	mksigtab                      \
 	testcgiimpl                   \
-	testcodecvt                   \
 	testcombinepath		      \
 	testcredentials               \
 	testcsv                       \
@@ -324,7 +322,6 @@ noinst_PROGRAMS=\
 	testiconviofilter             \
 	testidn			      \
 	testinotify                   \
-	testinpseq                    \
 	testjoin                      \
 	testlocale                    \
 	testlockpool                  \
@@ -344,7 +341,6 @@ noinst_PROGRAMS=\
 	testoptgen                    \
 	testoptions                   \
 	testorderer		      \
-	testoutpseq                   \
 	testpcre                      \
 	testpidinfo                   \
 	testpostponedcall	      \
@@ -356,7 +352,6 @@ noinst_PROGRAMS=\
 	testrwmutex                   \
 	testsemaphore                 \
 	testsendrecvfd                \
-	testseq                       \
 	testserialize                 \
 	testshm			      \
 	testsignalfd                  \
@@ -412,14 +407,6 @@ testfutime_SOURCES=testfutime.C
 testfutime_LDADD=libcxx.la
 testfutime_LDFLAGS=$(TESTLINKTYPE)
 
-testinpseq_SOURCES=testinpseq.C
-testinpseq_LDADD=libcxx.la
-testinpseq_LDFLAGS=$(TESTLINKTYPE)
-
-testoutpseq_SOURCES=testoutpseq.C
-testoutpseq_LDADD=libcxx.la
-testoutpseq_LDFLAGS=$(TESTLINKTYPE)
-
 testweak_SOURCES=testweak.C
 testweak_LDADD=libcxx.la
 testweak_LDFLAGS=-static
@@ -431,10 +418,6 @@ testweak2_LDFLAGS=$(TESTLINKTYPE)
 testweak3_SOURCES=testweak3.C
 testweak3_LDADD=libcxx.la
 testweak3_LDFLAGS=$(TESTLINKTYPE)
-
-testseq_SOURCES=testseq.C
-testseq_LDADD=libcxx.la
-testseq_LDFLAGS=$(TESTLINKTYPE)
 
 testlogger_SOURCES=testlogger.C
 testlogger_LDADD=libcxx.la
@@ -625,10 +608,6 @@ testmcguffinref_SOURCES=testmcguffinref.C
 testmcguffinref_LDADD=libcxx.la
 testmcguffinref_LDFLAGS=$(TESTLINKTYPE)
 
-testcodecvt_SOURCES=testcodecvt.C
-testcodecvt_LDADD=libcxx.la
-testcodecvt_LDFLAGS=$(TESTLINKTYPE)
-
 testsignalfd_SOURCES=testsignalfd.C
 testsignalfd_LDADD=libcxx.la
 testsignalfd_LDFLAGS=$(TESTLINKTYPE)
@@ -813,12 +792,6 @@ check-am: $(noinst_PROGRAMS) $(noinst_DATA)
 	./testgetprop --update-string 'intvalue=foo' || exit 0; exit 1
 	./testgetprop --update-files testgetprop.propfile || exit 0; exit 1
 	rm -f testgetprop.propfile testgetprop.propfile2
-	./testinpseq 2>test.inpseq.tmp >&2
-	diff $(srcdir)/testinpseq.tst test.inpseq.tmp
-	rm test.inpseq.tmp
-	./testoutpseq 2>test.outpseq.tmp >&2
-	diff $(srcdir)/testoutpseq.tst test.outpseq.tmp
-	rm test.outpseq.tmp
 	./testweak 2>test.weak.tmp >&2
 	diff $(srcdir)/testweak.tst test.weak.tmp
 	rm test.weak.tmp
@@ -828,9 +801,6 @@ check-am: $(noinst_PROGRAMS) $(noinst_DATA)
 	./testweak3 2>test.weak3.tmp >&2
 	diff $(srcdir)/testweak3.tst test.weak3.tmp
 	rm test.weak3.tmp
-	./testseq 2>test.seq.tmp >&2
-	diff $(srcdir)/testseq.tst test.seq.tmp
-	rm test.seq.tmp
 	rm -rf testlogdir; PROPERTIES=$(srcdir)/testlogger.txt ./testlogger 2>testlogger.tst.tmp >&2
 	diff $(srcdir)/testlogger.tst testlogger.tst.tmp
 	rm testlogger.tst.tmp
@@ -908,7 +878,6 @@ check-am: $(noinst_PROGRAMS) $(noinst_DATA)
 	./testcsv
 	./testeventcallback
 	./testmcguffinref
-	./testcodecvt
 	@SHELL@ $(srcdir)/testcgiimpl.tst 2>&1 | diff $(srcdir)/testcgiimpl.txt -
 	@SHELL@ $(srcdir)/testoptgen.sh | diff $(srcdir)/testoptgen.txt -
 	./testsemaphore

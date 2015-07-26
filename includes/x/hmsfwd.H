@@ -1,5 +1,5 @@
 /*
-** Copyright 2012 Double Precision, Inc.
+** Copyright 2012-2015 Double Precision, Inc.
 ** See COPYING for distribution information.
 */
 
@@ -11,7 +11,6 @@
 #include <x/locale.H>
 #include <x/exception.H>
 #include <x/ymdfwd.H>
-#include <x/value_stringable.H>
 #include <string>
 #include <algorithm>
 #include <type_traits>
@@ -103,25 +102,7 @@ public:
 
 	//! Construct from a descriptive string
 
-	//! \overload
-	//!
-	hms(//! The %interval
-	    const std::wstring &intervalStr,
-
-	    //! The locale of the given string
-	    const const_locale &l=locale::base::global());
-
-	//! Construct from a descriptive string
-
 	hms(const char *intervalStr,
-	    const const_locale &l=locale::base::global());
-
-	//! Construct from a descriptive string
-
-	hms(//! The %interval
-	    const wchar_t *intervalStr,
-
-	    //! The locale of the given string
 	    const const_locale &l=locale::base::global());
 
 	//! Construct from a beginning and ending iterator
@@ -204,38 +185,31 @@ public:
 
 	//! Convert this %interval to a descriptive string
 
-	template<typename CharT>
-	std::basic_string<CharT> verboseString(const const_locale &l=
-					       locale::base::environment())
+	std::string verboseString(const const_locale &l=
+				  locale::base::environment())
 		const;
 
 	//! Convert to hh:mm:ss
 
-	template<typename char_type>
-	std::basic_string<char_type> hhmmss(//! Pattern for the conversion
-					    const char_type *pattern=0,
-					    //! Locale for the conversion
-					    const const_locale
-					    &localeRef=locale::base::global())
+	std::string hhmmss(//! Pattern for the conversion
+			   const char *pattern=0,
+			   //! Locale for the conversion
+			   const const_locale
+			   &localeRef=locale::base::global())
 		const;
 
 	//! Convert to hh:mm:ss
 
-	template<typename char_type>
-	std::basic_string<char_type> hhmmss(//! Pattern for the conversion
-					    const std::basic_string<char_type>
-					    &pattern,
-					    //! Locale for the conversion
-					    const const_locale
-					    &localeRef=locale::base::global())
+	std::string hhmmss(//! Pattern for the conversion
+			   const std::string &pattern,
+			   //! Locale for the conversion
+			   const const_locale
+			   &localeRef=locale::base::global())
 		const;
 
 	//! Convert to "x hours, x minutes, x seconds"
 	std::string toIntervalString(const const_locale &localeRef=locale::base::global())
 		const;
-
-	//! This class implements toString() and fromString()
-	static const stringable_t stringable=class_tostring;
 
 	//! The stock toString() uses toIntervalString()
 
@@ -254,7 +228,7 @@ public:
 
 	//! Convert to a strftime-formatted string
 
-	template<typename OutputIterator, typename char_type>
+	template<typename OutputIterator>
 	OutputIterator toString(//! Output iterator
 				OutputIterator iter,
 
@@ -262,12 +236,12 @@ public:
 				const const_locale &localeRef,
 
 				//! Pattern for the conversion
-				const char_type *pattern)
+				const char *pattern)
 		const;
 
 	//! Convert to a strftime-formatted string
 
-	template<typename OutputIterator, typename char_type>
+	template<typename OutputIterator>
 	OutputIterator toString(//! Output iterator
 				OutputIterator iter,
 
@@ -275,7 +249,7 @@ public:
 				const const_locale &localeRef,
 
 				//! Pattern for the conversion
-				const std::basic_string<char_type> &pattern)
+				const std::string &pattern)
 		const;
 
 	//! Create an interval from a string
@@ -397,7 +371,7 @@ private:
 
 public:
 	//! Serialization function
-		
+
 	template<typename iter_type>
 	void serialize(iter_type &i)
 	{

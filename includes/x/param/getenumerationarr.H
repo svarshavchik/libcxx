@@ -1,5 +1,5 @@
 /*
-** Copyright 2012 Double Precision, Inc.
+** Copyright 2012-2015 Double Precision, Inc.
 ** See COPYING for distribution information.
 */
 
@@ -43,18 +43,6 @@ public:
 
 	static void enumerate(//! This vector gets initialized with the string values
 			      std::vector<std::string> &labels,
-
-			      //! Locale for the enumerated labels
-			      const const_locale &localeRef=
-			      locale::base::global());
-
-	//! Enumerate into a wide string container
-
-	//! Enumerate a string vector, then convert the strings to wide
-	//! strings.
-
-	static void enumerate(//! This vector gets initialized with the string values
-			      std::vector<std::wstring> &labels,
 
 			      //! Locale for the enumerated labels
 			      const const_locale &localeRef=

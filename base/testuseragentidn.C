@@ -115,9 +115,7 @@ static void test1req()
 	LIBCXX_NAMESPACE::http::useragent::base::response
 		resp=ua->request(LIBCXX_NAMESPACE::http::GET,
 				 LIBCXX_NAMESPACE
-				 ::uriimpl(serveraddr,
-					   LIBCXX_NAMESPACE::locale::base
-					   ::utf8()));
+				 ::uriimpl(serveraddr));
 
 	std::string body=std::string(resp->begin(), resp->end());
 

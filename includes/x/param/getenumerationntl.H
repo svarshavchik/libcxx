@@ -1,5 +1,5 @@
 /*
-** Copyright 2012 Double Precision, Inc.
+** Copyright 2012-2015 Double Precision, Inc.
 ** See COPYING for distribution information.
 */
 
@@ -64,27 +64,6 @@ public:
 			labels.push_back(base_type::get_name((enum_t)
 							     ntl[i],
 							     localeRef));
-		}
-	}
-
-	//! Enumerate into a wide string container
-
-	//! Enumerate a string vector, then convert the strings to wide
-	//! strings.
-	static void enumerate(std::vector<std::wstring> &labels,
-			      const const_locale &localeRef=
-			      locale::base::global())
-	{
-		std::vector<std::string> buf;
-
-		enumerate(buf, localeRef);
-
-		labels.clear();
-		labels.reserve(buf.size());
-
-		for (auto l:buf)
-		{
-			labels.push_back(towstring(l, localeRef));
 		}
 	}
 };

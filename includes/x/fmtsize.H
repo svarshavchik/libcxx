@@ -1,12 +1,11 @@
 /*
-** Copyright 2012 Double Precision, Inc.
+** Copyright 2012-2015 Double Precision, Inc.
 ** See COPYING for distribution information.
 */
 
 #ifndef x_fmtsize_H
 #define x_fmtsize_H
 
-#include <x/value_stringable.H>
 #include <x/locale.H>
 #include <x/namespace.h>
 #include <string>
@@ -131,9 +130,6 @@ public:
 
 	//! Destructor
 	~memsize() noexcept {}
-
-	//! This class implements toString() and fromString()
-	static const stringable_t stringable=class_tostring;
 
 	//! Format the memory size via fmtstring
 

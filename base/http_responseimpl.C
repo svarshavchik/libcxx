@@ -24,6 +24,7 @@
 #include <cctype>
 #include <algorithm>
 #include <type_traits>
+#include <courier-unicode.h>
 
 namespace LIBCXX_NAMESPACE {
 	namespace http {
@@ -403,18 +404,15 @@ void responseimpl::getCookies(std::list<cookie> &cookies) const
 
 	auto current_date=getCurrentDate();
 
-	auto utf8=locale::base::utf8();
-
 	for (auto cookie_headers=equal_range(set_cookie);
 	     cookie_headers.first != cookie_headers.second;
 	     ++cookie_headers.first)
 	{
-		try {
-			(void)towstring(std::string(cookie_headers.first
-						    ->second.begin(),
-						    cookie_headers.first
-						    ->second.end()), utf8);
-		} catch (...)
+		std::vector<unicode_char> u;
+
+		if (!unicode::iconvert::convert(cookie_headers.first->second
+						.value(),
+						unicode::utf_8, u))
 		{
 			LOG_WARNING("Set-Cookie: header cannot be parsed as a UTF-8 string");
 			continue;

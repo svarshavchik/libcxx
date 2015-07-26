@@ -1,5 +1,5 @@
 /*
-** Copyright 2013 Double Precision, Inc.
+** Copyright 2013-2015 Double Precision, Inc.
 ** See COPYING for distribution information.
 */
 
@@ -35,57 +35,21 @@ public:
 
 	//! Convert domain name to ASCII compatible encoding used by DNS
 
-	static std::string to_ascii(//! i18n domain in environment's locale
+	static std::string to_ascii(//! i18n domain in the UTF-8 locale.
 				    const std::string &str,
 
-				    //! libidn flags, \c IDNA_ALLOW_UNASSIGNED or \c IDNA_USE_STD3_ASCII_RULES 
+				    //! libidn flags, \c IDNA_ALLOW_UNASSIGNED or \c IDNA_USE_STD3_ASCII_RULES
 				    int flags=0);
 
-	//! Convert domain name to ASCII compatible encoding used by DNS
 
-	static std::string to_ascii(//! i18n domain
-				    const std::string &str,
 
-				    //! Domain's locale
-				    const const_locale &locale,
-
-				    //! libidn flags, \c IDNA_ALLOW_UNASSIGNED or \c IDNA_USE_STD3_ASCII_RULES 
-				    int flags=0);
-
-	//! Convert domain name to ASCII compatible encoding used by DNS
-
-	static std::string to_ascii(//! i18n domain
-				    const std::wstring &str,
-
-				    //! libidn flags, \c IDNA_ALLOW_UNASSIGNED or \c IDNA_USE_STD3_ASCII_RULES 
-				    int flags=0);
-
-	//! Convert domain name from ASCII compatible encoding used by DNS to the encoding used by the system environment locale
+	//! Convert domain name from ASCII compatible encoding used by DNS to UTF-8
 
 	static std::string from_ascii(//! Domain name, using ASCII compatible encoding
 
 				      const std::string &str,
 
-				      //! libidn flags, \c IDNA_ALLOW_UNASSIGNED or \c IDNA_USE_STD3_ASCII_RULES 
-				      int flags=0);
-
-	//! Convert domain name from ASCII compatible encoding used by DNS to a wide string.
-
-	static std::wstring from_ascii_tow(//! Domain name, using ASCII compatible encoding
-					   const std::string &str,
-
-					   //! libidn flags, \c IDNA_ALLOW_UNASSIGNED or \c IDNA_USE_STD3_ASCII_RULES 
-					   int flags=0);
-
-	//! Convert domain name from ASCII compatible encoding used by DNS to an encoding used by a particular locale
-
-	static std::string from_ascii(//! Domain name, using ASCII compatible encoding
-				      const std::string &str,
-
-				      //! Convert domain name to the encoding used in this locale.
-
-				      const const_locale &locale,
-				      //! libidn flags, \c IDNA_ALLOW_UNASSIGNED or \c IDNA_USE_STD3_ASCII_RULES 
+				      //! libidn flags, \c IDNA_ALLOW_UNASSIGNED or \c IDNA_USE_STD3_ASCII_RULES
 				      int flags=0);
 };
 

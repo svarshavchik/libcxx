@@ -13,6 +13,8 @@
 #include "x/chrcasecmp.H"
 #include "x/exception.H"
 
+#include "gettext_in.h"
+
 #include <sstream>
 
 namespace LIBCXX_NAMESPACE {
@@ -46,13 +48,13 @@ class LIBCXX_HIDDEN rfc2047_std_encoding : public rfc2047_encode_base {
 	}
 };
 
-std::string to_rfc2047(const std::u32string &str)
+std::string to_rfc2047(const std::vector<unicode_char> &str)
 {
 	return to_rfc2047("", str);
 }
 
 std::string to_rfc2047(const std::string &language,
-		       const std::u32string &str)
+		       const std::vector<unicode_char> &str)
 {
 #pragma GCC visibility push(hidden)
 
@@ -68,9 +70,9 @@ std::string to_rfc2047(const std::string &language,
 
 #define WHITESPACE(c) ((c) == ' ' || (c) == '\t')
 
-std::u32string::const_iterator
-rfc2047_encode_base::next_word(std::u32string::const_iterator b,
-			       std::u32string::const_iterator e,
+std::vector<unicode_char>::const_iterator
+rfc2047_encode_base::next_word(std::vector<unicode_char>::const_iterator b,
+			       std::vector<unicode_char>::const_iterator e,
 			       bool &encode_it)
 {
 	encode_it=false;
@@ -224,18 +226,19 @@ std::string rfc2047_encode_base::do_base64(const std::string &utf8_str,
 	return o.str();
 }
 
-std::string rfc2047_encode_base::to_utf8(std::u32string::const_iterator b,
-					 std::u32string::const_iterator e)
+std::string rfc2047_encode_base::to_utf8(std::vector<unicode_char>::const_iterator b,
+					 std::vector<unicode_char>::const_iterator e)
 {
-	return iconviofilter::from_u32string(std::u32string(b, e), UTF8);
+	return unicode::iconvert::convert
+		(std::vector<unicode_char>(b, e), unicode::utf_8);
 }
 
 void rfc2047_encode_base::encode(const std::string &language,
-				 const std::u32string &text)
+				 const std::vector<unicode_char> &text)
 {
 	std::ostringstream o;
 
-	std::u32string::const_iterator b=text.begin(), e=text.end();
+	std::vector<unicode_char>::const_iterator b=text.begin(), e=text.end();
 
 	size_t overhead=sizeof("=?" UTF8 "?Q?" "?=")
 		+ (language.size() ? language.size()+1:0);
@@ -254,7 +257,7 @@ void rfc2047_encode_base::encode(const std::string &language,
 			continue;
 		}
 
-		std::u32string::const_iterator p=b;
+		std::vector<unicode_char>::const_iterator p=b;
 		bool encode_it;
 
 		b=next_word(b, e, encode_it);
@@ -267,7 +270,7 @@ void rfc2047_encode_base::encode(const std::string &language,
 			// If the following word will also get encoded,
 			// it must be merged together with this word.
 
-			std::u32string::const_iterator q=b;
+			std::vector<unicode_char>::const_iterator q=b;
 
 			while (b != e)
 			{
@@ -304,21 +307,21 @@ void rfc2047_encode_base::encode(const std::string &language,
 
 // --------------------------------------------------------------------------
 
-std::u32string from_rfc2047(const std::string &string,
-			    const std::string &native_charset)
+std::vector<unicode_char> from_rfc2047(const std::string &string,
+				       const std::string &native_charset)
 {
 	return from_rfc2047_lang(string, native_charset).second;
 }
 
-std::pair<std::string, std::u32string>
+std::pair<std::string, std::vector<unicode_char>>
 from_rfc2047_lang(const std::string &string,
 		  const std::string &native_charset)
 {
-	std::vector<std::pair<std::string, std::u32string> > res;
+	std::vector<std::pair<std::string, std::vector<unicode_char>> > res;
 
 	from_rfc2047(string, native_charset, res);
 
-	std::pair<std::string, std::u32string> ret;
+	std::pair<std::string, std::vector<unicode_char>> ret;
 
 	size_t size=0;
 
@@ -334,26 +337,26 @@ from_rfc2047_lang(const std::string &string,
 
 	for (const auto &fragment:res)
 	{
-		ret.second += fragment.second;
+		ret.second.insert(ret.second.end(),
+				  fragment.second.begin(),
+				  fragment.second.end());
 	}
 
 	return ret;
 }
 
 static void transcode(const std::string &str,
-		      std::u32string &ret,
+		      std::vector<unicode_char> &ret,
 		      const std::string &charset)
 {
-	try {
-		ret=iconviofilter::to_u32string(str, charset);
-	} catch (const x::exception &e)
+	if (!unicode::iconvert::convert(str, charset, ret))
 	{
 		std::stringstream o;
 
-		o << "[" << e << "]";
+		o << libmsg(_txt("Invalid character sequence"));
 
-		ret=std::u32string(std::istreambuf_iterator<char>(o),
-				   std::istreambuf_iterator<char>());
+		ret=std::vector<unicode_char>(std::istreambuf_iterator<char>(o),
+					      std::istreambuf_iterator<char>());
 	}
 }
 
@@ -376,7 +379,7 @@ static inline std::string::const_iterator
 decode_next_word(std::string::const_iterator b,
 		 std::string::const_iterator e,
 		 std::string &next_lang,
-		 std::u32string &next_str,
+		 std::vector<unicode_char> &next_str,
 		 const std::string &native_charset)
 {
 	auto start=b;
@@ -470,7 +473,7 @@ decode_next_word(std::string::const_iterator b,
 
 void from_rfc2047(const std::string &string,
 		  const std::string &native_charset,
-		  std::vector<std::pair<std::string, std::u32string> > &res)
+		  std::vector<std::pair<std::string, std::vector<unicode_char>> > &res)
 {
 	bool previous_word_was_decoded=false;
 
@@ -491,7 +494,7 @@ void from_rfc2047(const std::string &string,
 			b=p; // Drop whitespace between encoded words.
 
 		std::string next_lang;
-		std::u32string next_str;
+		std::vector<unicode_char> next_str;
 
 		if (!next_word_is_encoded)
 		{
@@ -522,7 +525,11 @@ void from_rfc2047(const std::string &string,
 
 		if (!res.empty() && res.back().first == next_lang)
 		{
-			res.back().second += next_str;
+			auto &last=res.back().second;
+
+			last.insert(last.end(),
+				    next_str.begin(),
+				    next_str.end());
 		}
 		else
 			res.push_back(std::make_pair(next_lang, next_str));
@@ -532,9 +539,9 @@ void from_rfc2047(const std::string &string,
 std::string from_rfc2047_as_utf8(const std::string &string,
 				 const std::string &native_charset)
 {
-	return iconviofilter::from_u32string(from_rfc2047(string,
-							  native_charset),
-				      "UTF-8");
+	auto ret=from_rfc2047(string, native_charset);
+
+	return unicode::iconvert::convert(ret, unicode::utf_8);
 }
 
 #if 0

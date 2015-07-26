@@ -252,7 +252,7 @@ void listObj::load_file(std::ifstream &i,
 	{
 		std::string line;
 
-		basic_ctype<char> ct(l);
+		ctype ct(l);
 
 		while (!std::getline(i, line).eof())
 		{

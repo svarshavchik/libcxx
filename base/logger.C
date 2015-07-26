@@ -17,7 +17,6 @@
 #include "x/singleton.H"
 #include "x/filestat.H"
 #include "x/threads/runfwd.H"
-#include "x/value_stringable.H"
 #include <cstdlib>
 #include <sstream>
 #include <fstream>
@@ -547,7 +546,7 @@ public:
 
 	//! Default character conversion locale
 
-	basic_ctype<char> default_ctype;
+	ctype default_ctype;
 
 	configmeta() noexcept;
 	~configmeta() noexcept;
@@ -663,28 +662,20 @@ public:
 	handlername(const std::string &,
 		    const const_locale &);
 
-	static const stringable_t stringable=class_towstring;
-
 	template<typename iter_type>
-	iter_type toWideString(iter_type iter, const const_locale &l)
+	iter_type toString(iter_type iter, const const_locale &l)
 		const
 	{
-		std::wstring s=towstring(n);
-
-		return std::copy(s.begin(), s.end(), iter);
+		return std::copy(n.begin(), n.end(), iter);
 	}
 
 	template<typename iter_type>
-	static handlername fromWideString(iter_type beg_iter,
-					  iter_type end_iter,
-					  const const_locale &localeRef)
-
+	static handlername fromString(iter_type beg_iter,
+				      iter_type end_iter,
+				      const const_locale &localeRef)
 	{
-		std::string val=value_string<std::string>
-			::fromWideString(std::wstring(beg_iter,
-						      end_iter),
-					 localeRef);
-		return handlername(val, localeRef);
+		return handlername(std::string(beg_iter, end_iter),
+				   localeRef);
 	}
 };
 
@@ -729,25 +720,21 @@ public:
 
 	handlerfmt(const std::string &, const const_locale &);
 
-	static const stringable_t stringable=class_towstring;
-
 	template<typename iter_type>
-	iter_type toWideString(iter_type iter, const const_locale &l)
+	iter_type toString(iter_type iter, const const_locale &l)
 		const
 	{
-		std::wstring s=towstring(n, l);
-		return std::copy(s.begin(), s.end(), iter);
+		return std::copy(n.begin(), n.end(), iter);
 	}
 
 	template<typename iter_type>
-	static handlerfmt fromWideString(iter_type beg_iter,
-					 iter_type end_iter,
-					 const const_locale &localeRef)
+	static handlerfmt fromString(iter_type beg_iter,
+				     iter_type end_iter,
+				     const const_locale &localeRef)
 
 	{
-		return handlerfmt(stringize<std::string, std::wstring>
-				  ::tostr(std::wstring(beg_iter, end_iter),
-					  localeRef), localeRef);
+		return handlerfmt(std::string(beg_iter, end_iter),
+				  localeRef);
 	}
 
 };
@@ -910,7 +897,7 @@ short logger::scopebase::get_debuglevel_propvalue(inheritObj &inherit)
 	{
 		--e;
 
-		property::listObj::iterator child=(*e).child(L"level");
+		property::listObj::iterator child=(*e).child("level");
 
 		std::string name=child.propname();
 
@@ -1311,13 +1298,13 @@ logger::logconfig_init::logconfig_init() noexcept
 					keepValue, rotateValue;
 
 				property::listObj::iterator keepProp
-					=b->second.child(L"keep");
+					=b->second.child("keep");
 
 				if (keepProp.propname().size() != 0 &&
 				    !(keepValue=keepProp.value()).second)
 				{
 					property::listObj::iterator rotateProp
-						=b->second.child(L"rotate");
+						=b->second.child("rotate");
 
 					if (rotateProp.propname().size() == 0 ||
 					    (rotateValue=rotateProp.value())

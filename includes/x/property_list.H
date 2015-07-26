@@ -1,5 +1,5 @@
 /*
-** Copyright 2012 Double Precision, Inc.
+** Copyright 2012-2015 Double Precision, Inc.
 ** See COPYING for distribution information.
 */
 
@@ -410,7 +410,7 @@ public:
 			       const const_locale &localeArg=locale::base::global())
 			const
 		{
-			return get(stringize<std::string, arg_type>
+			return get(stringize<arg_type>
 				   ::tostr(arg, localeArg));
 		}
 
@@ -436,7 +436,7 @@ public:
 		      const const_locale &l=locale::base::global())
 
 	{
-		return find_internal(stringize<std::string, arg_type>
+		return find_internal(stringize<arg_type>
 				     ::tostr(propname, l), l);
 	}
 
@@ -469,7 +469,7 @@ private:
 	{
 		std::lock_guard<std::mutex> lock(objmutex);
 
-		basic_ctype<char> ct(l);
+		ctype ct(l);
 
 		size_t linenum=0;
 

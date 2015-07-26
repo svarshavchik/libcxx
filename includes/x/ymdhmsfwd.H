@@ -1,5 +1,5 @@
 /*
-** Copyright 2012 Double Precision, Inc.
+** Copyright 2012-2015 Double Precision, Inc.
 ** See COPYING for distribution information.
 */
 
@@ -11,7 +11,6 @@
 #include <x/locale.H>
 #include <x/facet.H>
 #include <x/ctype.H>
-#include <x/value_stringable.H>
 #include <x/string_argument.H>
 #include <iostream>
 #include <type_traits>
@@ -188,12 +187,23 @@ public:
 	//! An exception gets thrown if the string cannot be parsed, as such.
 
 	template<typename iter_type>
-	static time_t to_time_t(iter_type b, iter_type e,
-				const const_locale &l);
+	static inline time_t to_time_t(iter_type b, iter_type e,
+				       const const_locale &l)
+	{
+		return do_to_time_t
+			(make_function<bool ()>([&]{ return b == e; }),
+			 make_function<char ()>([&]{ return *b; }),
+			 make_function<void ()>([&]{ ++b; }), l);
+	}
 
-	//! Throw an %exception, the date and time cannot be parsed from a string.
+	//! Type-erased to_time_t
 
-	static void cannot_parse_time() __attribute__((noreturn));
+	//! \internal
+
+	static time_t do_to_time_t(const function<bool()> &eof_func,
+				   const function<char ()> &curchar_func,
+				   const function<void ()> &nextchar_func,
+				   const const_locale &l);
 
 	//! Instantiate from a string
 
@@ -206,9 +216,8 @@ public:
 	//!
 	//! An exception gets thrown if the string cannot be parsed, as such.
 
-	template<typename char_type>
 	ymdhms(//! Formatted string
-	       const std::basic_string<char_type> &timeValue,
+	       const std::string &timeValue,
 
 	       //! Timezone specification
 	       const const_tzfile &tzfileArg=tzfile::base::local(),
@@ -256,9 +265,6 @@ public:
 		//! Destructor
 		inline ~formatter() noexcept {}
 
-		//! This class implements both toString and toWideString
-		static const stringable_t stringable=class_toboth;
-
 		//! Convert to a string
 		template<typename OutputIterator>
 		inline OutputIterator toString(//! Output iterator
@@ -267,16 +273,6 @@ public:
 					       //! Locale
 					       const const_locale &localeRef
 					       =locale::base::global()) const;
-
-		//! Convert to a wide string
-		template<typename OutputIterator>
-		inline OutputIterator toWideString(//! Output iterator
-						   OutputIterator iter,
-
-						   //! Locale
-						   const const_locale &localeRef
-						   =locale::base::global())
-			const;
 	};
 
 	//! Helper class used by short_format()
@@ -333,10 +329,6 @@ public:
 	//! Convert this date and time value to a string
 
 	operator std::string() const;
-
-	//! Convert this date and time value to a wide string
-
-	operator std::wstring() const;
 
 	//! Convert this date/time value back to calendar time.
 
@@ -397,135 +389,6 @@ public:
 			*this=ymdhms(*this, *this, tzfile::create(name));
 	}
 };
-
-#ifndef DOXYGEN_FIXME
-
-template<typename iter_type>
-time_t ymdhms::to_time_t(iter_type b, iter_type e,
-			 const const_locale &l)
-{
-	typedef typename std::decay<decltype(*b)>::type char_t;
-
-	auto time_get=l->get_facet<facets::time_get_facet<char_t> >();
-
-	basic_ctype<char_t> ct(l);
-
-	std::vector<int> numbers;
-
-	numbers.reserve(5);
-	int tz=0;
-	int month=0;
-
-	while (b != e)
-	{
-		if (ct.is(*b, std::ctype_base::space))
-		{
-			++b;
-			continue;
-		}
-
-		int plusminus=0;
-
-		if (*b == '-' || *b == '+')
-		{
-			plusminus=*b;
-
-			if (++b == e)
-				break;
-		}
-
-		if (*b >= '0' && *b <= '9')
-		{
-			int n=0;
-
-			while (b != e && *b >= '0' && *b <= '9')
-			{
-				n = n * 10 + (*b-'0');
-				++b;
-			}
-
-			if (b != e)
-			{
-				if (*b == ':')
-					++b;   // Handle %H:%M:%S
-				else if (*b == '-')
-					++b;   // Handle the %d in %d-%b-%Y
-			}
-
-			if (plusminus)
-				tz=((n % 100) + (n / 100) * 60)
-					* (plusminus == '-' ? -60:60);
-			else
-				numbers.push_back(n);
-			continue;
-		}
-
-		std::basic_stringstream<char_t> ss;
-
-		while (b != e)
-		{
-			if (ct.is(*b, std::ctype_base::space))
-				break;
-
-			if (*b == '-')
-			{
-				// Handle the %b in %d-%b-%Y
-				++b;
-				break;
-			}
-			ss << *b;
-			++b;
-		}
-
-		tm tmp=tm();
-
-		tmp.tm_mon= -1;
-
-		std::ios_base::iostate s;
-
-		time_get->getFacetConstRef()
-			.get_monthname(std::istreambuf_iterator<char_t>(ss),
-				       std::istreambuf_iterator<char_t>(),
-				       ss, s, &tmp);
-		if (tmp.tm_mon >= 0 && tmp.tm_mon < 12)
-		{
-			month=tmp.tm_mon+1;
-		}
-	}
-
-	if (numbers.size() != 5 || month == 0)
-		ymdhms::cannot_parse_time();
-
-	auto year=numbers[1];
-	auto day=numbers[0];
-
-	auto hour=numbers[2];
-	auto minute=numbers[3];
-	auto second=numbers[4];
-
-	if (second > 1900)
-	{
-		// "%a %b %d %H:%M:%S %Y".
-
-		auto year_save=second;
-
-		second=minute;
-		minute=hour;
-		hour=year;
-		year=year_save;
-	}
-
-	if (year < 50)
-		year += 2000;
-	if (year < 100)
-		year += 1900;
-
-	return (time_t)ymdhms( ymd(year, month, day),
-			       hms(hour, minute, second),
-			       tzfile::base::utc())
-		- tz;
-}
-#endif
 
 #if 0
 {

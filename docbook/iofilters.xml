@@ -178,46 +178,6 @@ int main()
     reads from it ends up reading from the string buffer and
     filtering. The output from this example is <quote>75629</quote>.
   </para>
-
-  <para>
-    Finally,
-    <ulink url="&link-x--basic-iostreambufiofilter;"><classname>&ns;::basic_iostreambufiofilter</classname></ulink>
-    subclasses from <classname>&ns;::basic_istreambufiofilter</classname> and
-    <classname>&ns;::basic_ostreambufiofilter</classname>, implementing
-    a <classname>std::streambuf</classname> that could, theoretically,
-    read and write from another
-    input/output stream using an IO filter.
-  </para>
-
-  <para>
-    Practically, it is not generally useful. This is because implementing
-    read/write functionality requires two IO filters: one to convert sequences
-    when reading, and a second one to convert sequences when writing.
-    Since IO filters must use virtual inheritance, and the same class can
-    only be virtually inherited once, this means that an
-    <classname>&ns;::basic_iostreambufiofilter</classname> can be used only
-    for converting to and from different types, which ends up instantiating
-    two different IO filters: <classname>&ns;::iofilter&lt;A,B&gt;</classname>
-    and <classname>&ns;::iofilter&lt;B,A&gt;</classname>, which requires
-    elaborate class inheritance in order to implement it.
-  </para>
-
-  <para>
-    Given that the C++ library implements stream buffers for only two
-    fundamental types: <classname>char</classname> and
-    <classname>wchar_t</classname>, the only practical use of
-    <classname>&ns;::basic_iostreambufiofilter</classname> is for converting
-    between narrow characters and wide characters, and there is already
-    an implementation for that:
-
-    <ulink url="&link-typedef-x-ctow-ostreambuf;"><classname>&ns;::ctow_ostreambuf</classname></ulink>,
-    <ulink url="&link-typedef-x-wtoc-ostreambuf;"><classname>&ns;::wtoc_ostreambuf</classname></ulink>,
-    <ulink url="&link-typedef-x-ctow-istreambuf;"><classname>&ns;::ctow_istreambuf</classname></ulink>,
-    <ulink url="&link-typedef-x-wtoc-istreambuf;"><classname>&ns;::wtoc_istreambuf</classname></ulink>,
-    <ulink url="&link-typedef-x-ctow-iostreambuf;"><classname>&ns;::ctow_iostreambuf</classname></ulink>,
-    and
-    <ulink url="&link-typedef-x-wtoc-iostreambuf;"><classname>&ns;::wtoc_iostreambuf</classname></ulink>.
-  </para>
 </chapter>
 
 <!--

@@ -1,5 +1,5 @@
 /*
-** Copyright 2012 Double Precision, Inc.
+** Copyright 2012-2015 Double Precision, Inc.
 ** See COPYING for distribution information.
 */
 
@@ -18,7 +18,7 @@ namespace LIBCXX_NAMESPACE {
 #endif
 
 template<typename argType,
-	 typename stringType=stringize<std::string, argType> > class value;
+	 typename stringType=stringize<argType> > class value;
 
 #if 0
 {

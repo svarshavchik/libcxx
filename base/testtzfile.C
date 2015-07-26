@@ -21,43 +21,40 @@ namespace LIBCXX_NAMESPACE {
 
 template<typename OutputIterator>
 OutputIterator tzfileObj::tzinfo::toString(OutputIterator iter,
-					   basic_ctype<typename
-					   OutputIterator::char_type> ct)
+					   const ctype &ct)
 	const
 {
-	typedef typename OutputIterator::char_type CharT;
+	std::ostringstream o;
 
-	std::basic_ostringstream<CharT> o;
-
-	o << ct.widen(tzname)
-	  << (CharT)':'
+	o << tzname
+	  << ':'
 	  << std::setiosflags(std::ios_base::showpos)
 	  << offset
 	  << std::resetiosflags(std::ios_base::showpos)
-	  << ct.widen("@");
+	  << '@';
 
 	switch (start_format) {
 	case 'J':
-		o << ct.widen("J") << d;
+		o << "J" << d;
 		break;
 	case 'M':
-		o << ct.widen("M") << m << ct.widen(".") << w
-		  << ct.widen(".") << d;
+		o << "M" << m << "." << w
+		  << "." << d;
 		break;
 	default:
 		o << d;
 	}
-	o << ct.widen("/")
-	  << std::setw(2) << std::setfill((CharT)'0')
+	o << "/"
+	  << std::setw(2) << std::setfill('0')
 	  << tod / (60 * 60)
-	  << ct.widen(":")
-	  << std::setw(2) << std::setfill((CharT)'0')
+	  << ":"
+	  << std::setw(2) << std::setfill('0')
 	  << (tod % (60 * 60)) / 60
-	  << ct.widen(":")
-	  << std::setw(2) << std::setfill((CharT)'0')
+	  << ":"
+	  << std::setw(2) << std::setfill('0')
 	  << tod % 60;
 
-	std::basic_string<CharT> os(o.str());
+	std::string os(o.str());
 
 	return std::copy(os.begin(), os.end(), iter);
 }
@@ -120,19 +117,17 @@ OutputIterator tzfileObj::debugDump(OutputIterator iter,
 		}
 	};
 
-	typedef typename OutputIterator::char_type CharT;
-
-	std::basic_string<CharT> endl;
+	std::string endl;
 
 	{
-		std::basic_ostringstream<CharT> ss;
+		std::ostringstream ss;
 
 		ss << std::endl;
 
 		endl=ss.str();
 	}
 
-	basic_ctype<CharT> ct(locale);
+	ctype ct(locale);
 
 	{
 		std::vector<struct ttinfo_s>::iterator b, e;
@@ -141,16 +136,16 @@ OutputIterator tzfileObj::debugDump(OutputIterator iter,
 		for (b=ttinfo->begin(), e=ttinfo->end(), i=0; b != e;
 		     ++b, ++i)
 		{
-			std::basic_ostringstream<CharT> o;
+			std::ostringstream o;
 
-			o << ct.widen("tz[") << i
+			o << "tz[" << i
 			  << "]: gmtoff=" << b->tt_gmtoff
 			  << ", dst=" << b->tt_isdst
 			  << ", name=" << b->tz_str
 			  << ", isstd=" << b->isstd
 			  << ", isgmt=" << b->isgmt << std::endl;
 
-			std::basic_string<CharT> os(o.str());
+			std::string os(o.str());
 
 			iter=std::copy(os.begin(), os.end(), iter);
 		}
@@ -159,26 +154,22 @@ OutputIterator tzfileObj::debugDump(OutputIterator iter,
 	{
 		std::vector<leaps_s>::iterator b, e;
 
-		std::basic_string<CharT> pfix(ct.widen("leaps="));
+		std::string pfix("leaps=");
 
 		iter=std::copy(pfix.begin(), pfix.end(), iter);
 
-		{
-			CharT null=0;
-
-			pfix= &null;
-		}
+		pfix="";
 
 		for (b=leaps->begin(), e=leaps->end(); b != e; ++b)
 		{
-			std::basic_ostringstream<CharT> o;
+			std::ostringstream o;
 
-			o << b->first << ct.widen("=") << b->second;
+			o << b->first << "=" << b->second;
 
 			pfix += o.str();
 
 			iter=std::copy(pfix.begin(), pfix.end(), iter);
-			pfix = ct.widen(", ");
+			pfix = ", ";
 		}
 
 		iter=std::copy(endl.begin(), endl.end(), iter);
@@ -189,14 +180,14 @@ OutputIterator tzfileObj::debugDump(OutputIterator iter,
 
 		for (i=0; i<n; i++)
 		{
-			std::basic_ostringstream<CharT> o;
+			std::ostringstream o;
 
-			o << ct.widen("transition[") << i
-			  << ct.widen("]=") << (*transitions)[i]
-			  << ct.widen(", ") << (int)(*ttinfo_idx)[i]
+			o << "transition[" << i
+			  << "]=" << (*transitions)[i]
+			  << ", " << (int)(*ttinfo_idx)[i]
 			  << std::endl;
 
-			std::basic_string<CharT> os(o.str());
+			std::string os(o.str());
 
 			iter=std::copy(os.begin(), os.end(), iter);
 		}
@@ -265,19 +256,19 @@ OutputIterator tzfileObj::debugDump(OutputIterator iter,
 		{
 			if (bb->second)
 			{
-				*iter++ = (CharT)'\t';
+				*iter++ = '\t';
 				iter=dump_time_t::dump(iter, ios,
 						       bb->first-1, ltz);
 				iter=std::copy(endl.begin(), endl.end(), iter);
 
-				*iter++ = (CharT)'\t';
+				*iter++ = '\t';
 				iter=dump_time_t::dump(iter, ios,
 						       bb->first, ltz);
 				iter=std::copy(endl.begin(), endl.end(), iter);
 
 				ymdhms date_chk(bb->first, ltz);
 
-				*iter++ = (CharT)'\t';
+				*iter++ = '\t';
 
 				if (date_chk.s > 59)
 				{
@@ -293,10 +284,10 @@ OutputIterator tzfileObj::debugDump(OutputIterator iter,
 					iter=std::copy(s.begin(), s.end(),
 						       iter);
 
-					*iter++ = (CharT) ' ';
-					*iter++ = (CharT) '(';
-					*iter++ = (CharT) '*';
-					*iter++ = (CharT) ')';
+					*iter++ =  ' ';
+					*iter++ =  '(';
+					*iter++ =  '*';
+					*iter++ =  ')';
 				}
 				iter=std::copy(endl.begin(), endl.end(), iter);
 			}
@@ -304,18 +295,18 @@ OutputIterator tzfileObj::debugDump(OutputIterator iter,
 			{
 				iter=dump_time_t::dump(iter, ios,
 						       bb->first-1, utc);
-				*iter++ = (CharT)' ';
-				*iter++ = (CharT)'=';
-				*iter++ = (CharT)' ';
+				*iter++ = ' ';
+				*iter++ = '=';
+				*iter++ = ' ';
 				iter=dump_time_t::dump(iter, ios,
 						       bb->first-1, ltz);
 				iter=std::copy(endl.begin(), endl.end(), iter);
 
 				iter=dump_time_t::dump(iter, ios,
 						       bb->first, utc);
-				*iter++ = (CharT)' ';
-				*iter++ = (CharT)'=';
-				*iter++ = (CharT)' ';
+				*iter++ = ' ';
+				*iter++ = '=';
+				*iter++ = ' ';
 				iter=dump_time_t::dump(iter, ios,
 						       bb->first, ltz);
 				iter=std::copy(endl.begin(), endl.end(), iter);
@@ -326,23 +317,21 @@ OutputIterator tzfileObj::debugDump(OutputIterator iter,
 	return iter;
 }
 
-template<typename CharT>
-std::basic_string<CharT> tzfileObj::debugDump(const const_locale &locale)
+std::string tzfileObj::debugDump(const const_locale &locale)
 	const
 {
-	std::basic_ostringstream<CharT> o;
+	std::ostringstream o;
 
-	debugDump(std::ostreambuf_iterator<CharT>(o.rdbuf()), o, locale);
+	debugDump(std::ostreambuf_iterator<char>(o.rdbuf()), o, locale);
 
 	return o.str();
 }
 
-template<typename CharT>
-std::basic_ostream<CharT> &tzfileObj::debugDump(std::basic_ostream<CharT> &o,
-						const const_locale &locale)
+std::ostream &tzfileObj::debugDump(std::ostream &o,
+				   const const_locale &locale)
 	const
 {
-	debugDump(std::ostreambuf_iterator<CharT>(o.rdbuf()), o, locale);
+	debugDump(std::ostreambuf_iterator<char>(o.rdbuf()), o, locale);
 	return o;
 }
 
@@ -351,27 +340,27 @@ std::basic_ostream<CharT> &tzfileObj::debugDump(std::basic_ostream<CharT> &o,
 #endif
 }
 
-template<typename stream_type>
-static void dump(const std::string &tzname, stream_type &str)
+static void dump(const std::string &tzname, std::ostream &str)
 
 {
 	std::string hdr("NAME: " + tzname);
 
-	std::basic_string<typename stream_type::char_type>
-		whdr(hdr.begin(), hdr.end());
+	std::string whdr(hdr.begin(), hdr.end());
 
 	str << whdr << std::endl;
 
 	LIBCXX_NAMESPACE::tzfile tz(LIBCXX_NAMESPACE::tzfile::create(tzname));
 
-	tz->debugDump(str);
-
+	try {
+		tz->debugDump(str);
+	} catch (const LIBCXX_NAMESPACE::exception &e)
+	{
+	}
 	LIBCXX_NAMESPACE::ymdhms now( time(NULL), tz);
 
 	LIBCXX_NAMESPACE::ymd now_ymd(now);
 	LIBCXX_NAMESPACE::hms now_hms(now);
-	str << std::basic_string<typename stream_type::char_type>(now)
-	    << std::endl;
+	str << std::string(now) << std::endl;
 }
 
 static void testtzfile(int argc, char **argv)

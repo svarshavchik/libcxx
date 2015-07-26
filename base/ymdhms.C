@@ -67,6 +67,141 @@ ymdhms::~ymdhms() noexcept
 {
 }
 
+time_t ymdhms::do_to_time_t(const function<bool ()> &eof,
+			    const function<char ()> &curchar,
+			    const function<void ()> &nextchar,
+			    const const_locale &l)
+{
+	auto time_get=l->get_facet<facets::time_get_facet<char> >();
+
+	ctype ct(l);
+
+	std::vector<int> numbers;
+
+	numbers.reserve(5);
+	int tz=0;
+	int month=0;
+
+	while (!eof())
+	{
+		auto c=curchar();
+
+		if (ct.is(c, std::ctype_base::space))
+		{
+			nextchar();
+			continue;
+		}
+
+		int plusminus=0;
+
+		if (c == '-' || c == '+')
+		{
+			plusminus=c;
+
+			nextchar();
+
+			if (eof())
+				break;
+			c=curchar();
+		}
+
+		if (c >= '0' && c <= '9')
+		{
+			int n=0;
+
+			while (!eof() && (c=curchar()) >= '0' && c <= '9')
+			{
+				n = n * 10 + (c-'0');
+				nextchar();
+			}
+
+			c=curchar();
+			if (!eof())
+			{
+				if (c == ':')
+					nextchar();   // Handle %H:%M:%S
+				else if (c == '-')
+					nextchar();   // Handle the %d in %d-%b-%Y
+			}
+
+			if (plusminus)
+				tz=((n % 100) + (n / 100) * 60)
+					* (plusminus == '-' ? -60:60);
+			else
+				numbers.push_back(n);
+			continue;
+		}
+
+		std::stringstream ss;
+
+		while (!eof())
+		{
+			c=curchar();
+
+			if (ct.is(c, std::ctype_base::space))
+				break;
+
+			if (c == '-')
+			{
+				// Handle the %b in %d-%b-%Y
+				nextchar();
+				break;
+			}
+			ss << c;
+			nextchar();
+		}
+
+		tm tmp=tm();
+
+		tmp.tm_mon= -1;
+
+		std::ios_base::iostate s;
+
+		time_get->getFacetConstRef()
+			.get_monthname(std::istreambuf_iterator<char>(ss),
+				       std::istreambuf_iterator<char>(),
+				       ss, s, &tmp);
+		if (tmp.tm_mon >= 0 && tmp.tm_mon < 12)
+		{
+			month=tmp.tm_mon+1;
+		}
+	}
+
+	if (numbers.size() != 5 || month == 0)
+	{
+		throw EXCEPTION(libmsg(_txt("Cannot parse time value")));
+	}
+
+	auto year=numbers[1];
+	auto day=numbers[0];
+
+	auto hour=numbers[2];
+	auto minute=numbers[3];
+	auto second=numbers[4];
+
+	if (second > 1900)
+	{
+		// "%a %b %d %H:%M:%S %Y".
+
+		auto year_save=second;
+
+		second=minute;
+		minute=hour;
+		hour=year;
+		year=year_save;
+	}
+
+	if (year < 50)
+		year += 2000;
+	if (year < 100)
+		year += 1900;
+
+	return (time_t)ymdhms( ymd(year, month, day),
+			       hms(hour, minute, second),
+			       tzfile::base::utc())
+		- tz;
+}
+
 bool ymdhms::operator<(const ymdhms &o) const
 {
 	if (getUTCoffset() != o.getUTCoffset())
@@ -117,12 +252,6 @@ bool ymdhms::operator>=(const ymdhms &o) const
 	return !operator<(o);
 }
 
-void ymdhms::cannot_parse_time()
-{
-	throw EXCEPTION(libmsg(_txt("Cannot parse time value")));
-}
-
-
 ymdhms::formatter::formatter(const ymdhms &objArg)
 	: obj(objArg),
 	  format_string("%a, %d %b %Y %H:%M:%S %z")
@@ -132,11 +261,6 @@ ymdhms::formatter::formatter(const ymdhms &objArg)
 ymdhms::operator std::string() const
 {
 	return tostring(formatter(*this));
-}
-
-ymdhms::operator std::wstring() const
-{
-	return towstring(formatter(*this));
 }
 
 static std::string pick_short_format(const ymdhms &objArg,

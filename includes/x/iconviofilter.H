@@ -1,5 +1,5 @@
 /*
-** Copyright 2012 Double Precision, Inc.
+** Copyright 2012-2015 Double Precision, Inc.
 ** See COPYING for distribution information.
 */
 
@@ -48,20 +48,6 @@ public:
 
 	//! Convert between character sets
 	void filter();
-
-	//! Either UCS-4LE or UCS-4BE
-
-	static const char ucs4[];
-
-	//! We'll use this until wstring_convert is here.
-
-	static std::u32string to_u32string(const std::string &string,
-					   const std::string &charset);
-
-	//! We'll use this until wstring_convert is here.
-
-	static std::string from_u32string(const std::u32string &u32string,
-					  const std::string &charset);
 
 private:
 

@@ -35,7 +35,7 @@ void ymdhmsBase::internal_overflow() const
 	  << getDay();
 
 	throw EXCEPTION(gettextmsg(libmsg(_txt("Time arithmetic overflow for %1% %2%")),
-				   o.str(), hms::hhmmss<char>()));
+				   o.str(), hms::hhmmss()));
 }
 
 time_t ymdhmsBase::start_of_day_time_t_utc() const

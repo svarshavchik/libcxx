@@ -1,5 +1,5 @@
 /*
-** Copyright 2012 Double Precision, Inc.
+** Copyright 2012-2015 Double Precision, Inc.
 ** See COPYING for distribution information.
 */
 
@@ -21,43 +21,20 @@ namespace LIBCXX_NAMESPACE {
 };
 #endif
 
-template<typename char_type>
-std::basic_string<char_type> hms::hhmmss(const char_type *pattern,
-					 const const_locale &localeRef)
-	const
-{
-	const char_type def_time[]={(char_type)'%', (char_type)'X', 0};
-
-	if (!pattern)
-		pattern=def_time;
-
-	return basic_strftime<char_type>(*this, localeRef)(pattern);
-}
-
-template<typename char_type>
-std::basic_string<char_type> hms::hhmmss(const std::basic_string<char_type>
-					 &pattern,
-					 const const_locale
-					 &localeRef) const
-{
-	return hhmmss(pattern.c_str(), localeRef);
-}
-
-template<typename OutputIterator, typename char_type>
+template<typename OutputIterator>
 OutputIterator hms::toString(OutputIterator iter,
 			     const const_locale &localeRef,
-			     const char_type *pattern) const
+			     const char *pattern) const
 {
-	std::basic_string<char_type>
-		str(this->hhmmss(pattern, localeRef));
+	std::string str(this->hhmmss(pattern, localeRef));
 
 	return std::copy(str.begin(), str.end(), iter);
 }
 
-template<typename OutputIterator, typename char_type>
+template<typename OutputIterator>
 OutputIterator hms::toString(OutputIterator iter,
 			     const const_locale &localeRef,
-			     const std::basic_string<char_type> &pattern)
+			     const std::string &pattern)
 	const
 {
 	return toString(iter, localeRef, pattern.c_str());
@@ -139,7 +116,7 @@ void hms::construct(InputIterator beg_iter,
 	}
 	else
 	{
-		interval<int32_t> parser(interval_descr, 2, wlibmsg());
+		interval<int32_t> parser(interval_descr, 2, libmsg());
 
 		std::vector<int32_t> vec=parser.parse(str);
 
@@ -157,11 +134,6 @@ void hms::construct(InputIterator beg_iter,
 extern template
 void hms::construct(std::string::const_iterator,
 		    std::string::const_iterator,
-		    const const_locale &);
-
-extern template
-void hms::construct(std::wstring::const_iterator,
-		    std::wstring::const_iterator,
 		    const const_locale &);
 #endif
 

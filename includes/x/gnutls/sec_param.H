@@ -1,5 +1,5 @@
 /*
-** Copyright 2012 Double Precision, Inc.
+** Copyright 2012-2015 Double Precision, Inc.
 ** See COPYING for distribution information.
 */
 
@@ -26,8 +26,7 @@ extern template class LIBCXX_NAMESPACE::param
 	   LIBCXX_NAMESPACE::param::getenumerationarr<
 		   LIBCXX_NAMESPACE::param::onlygetname<gnutls_sec_param_t>
 		   >,
-	   GNUTLS_SEC_PARAM_UNKNOWN,
-	   LIBCXX_NAMESPACE::class_tostring_utf8>;
+	   GNUTLS_SEC_PARAM_UNKNOWN>;
 
 namespace LIBCXX_NAMESPACE {
 	namespace gnutls {
@@ -72,8 +71,7 @@ typedef LIBCXX_NAMESPACE::param::settable<
 	LIBCXX_NAMESPACE::param::getenumerationarr<
 		LIBCXX_NAMESPACE::param::onlygetname<gnutls_sec_param_t>
 		>,
-	GNUTLS_SEC_PARAM_UNKNOWN,
-	class_tostring_utf8> sec_param;
+	GNUTLS_SEC_PARAM_UNKNOWN> sec_param;
 
 #if 0
 {

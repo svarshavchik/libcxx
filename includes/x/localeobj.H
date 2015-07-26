@@ -1,5 +1,5 @@
 /*
-** Copyright 2012 Double Precision, Inc.
+** Copyright 2012-2015 Double Precision, Inc.
 ** See COPYING for distribution information.
 */
 
@@ -152,8 +152,8 @@ public:
 	//! facets namespace. Example:
 	//!
 	//! \code
-	//! facets::wcodecvt myCodeCvt codecvt=
-	//!     myLocale->get_facet<facets::wcodecvt>();
+	//! facets::time_get_facetrs time_get
+	//!     myLocale->get_facet<time_get_facet>();
 	//! \endcode
 	//! \return a reference to a facetObj instance.
 
@@ -162,7 +162,7 @@ public:
 	{
 		try {
 			globlocale switch_locale(const_ptr<localeObj>(this));
-			
+
 			const typename ref_type::obj_type::facet_type
 				&f=std::use_facet<typename ref_type::obj_type::facet_type>(locale);
 
@@ -182,4 +182,3 @@ public:
 #endif
 }
 #endif
-

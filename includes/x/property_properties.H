@@ -1,5 +1,5 @@
 /*
-** Copyright 2012 Double Precision, Inc.
+** Copyright 2012-2015 Double Precision, Inc.
 ** See COPYING for distribution information.
 */
 
@@ -152,7 +152,7 @@ iter_type parsepropname(iter_type b, //!< Beginning iterator
 {
 	prophier.clear();
 
-	basic_ctype<char> ct(locale);
+	ctype ct(locale);
 
 	std::string cur_name;
 
@@ -309,7 +309,7 @@ void load_property(//! %Property name
 		   //! Locale for interpreting the %property value
 		   const const_locale &localeRef=const_locale::base::global());
 
-template<typename char_type, typename iter_type>
+template<typename iter_type>
 iter_type save_properties(//! Properties
 			  const std::map<std::string, std::string> &properties,
 

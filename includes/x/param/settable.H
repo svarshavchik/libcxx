@@ -1,5 +1,5 @@
 /*
-** Copyright 2012 Double Precision, Inc.
+** Copyright 2012-2015 Double Precision, Inc.
 ** See COPYING for distribution information.
 */
 
@@ -51,8 +51,7 @@ namespace LIBCXX_NAMESPACE {
 
 template<typename enum_type,
 	 typename base_type,
-	 enum_type defaultValue,
-	 stringable_t stringable_class>
+	 enum_type defaultValue>
 class settable : public base_type {
 
 	//! The initialized value
@@ -89,10 +88,6 @@ public:
 	{
 	}
 
-	//! class_tostring or class_tostring_utf8
-
-	static const stringable_t stringable=stringable_class;
-
 	//! Convert this object to a string.
 
 	template<typename OutputIterator>
@@ -111,8 +106,7 @@ public:
 	//! Create a sec_param object from a string.
 
 	template<typename InputIterator>
-	static settable<enum_type, base_type, defaultValue,
-			      stringable_class>
+	static settable<enum_type, base_type, defaultValue>
 	fromString(//! Beginning iterator
 		   InputIterator beg_iter,
 
@@ -122,8 +116,7 @@ public:
 		   //! Locale
 		   const const_locale &localeArg=locale::base::global())
 	{
-		return settable<enum_type, base_type, defaultValue,
-				stringable_class>
+		return settable<enum_type, base_type, defaultValue>
 			(std::string(beg_iter, end_iter));
 	}
 };

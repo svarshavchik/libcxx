@@ -1,5 +1,5 @@
 /*
-** Copyright 2012 Double Precision, Inc.
+** Copyright 2012-2015 Double Precision, Inc.
 ** See COPYING for distribution information.
 */
 
@@ -28,7 +28,7 @@ namespace LIBCXX_NAMESPACE {
 //! This reference-counted \c std::streambuf subclass implements
 //! \c std::streambuf semantics for fd objects.
 
-class fdstreambufObj : public basic_streambufObj<char> {
+class fdstreambufObj : public basic_streambufObj {
 
 	//! The underlying file descriptor reference
 	fdbase fdref;

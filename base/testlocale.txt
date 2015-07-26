@@ -2,10 +2,6 @@ HELLO WORLD
 HELLO WORLD
 hello world
 hello world
-HELLO WORLD
-HELLO WORLD
-hello world
-hello world
 strtok1: ab:cd
 strtok2: ab:cd
 strtok3: ab:cd

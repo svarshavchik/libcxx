@@ -18,17 +18,12 @@ static void testidn()
 		"s\xc2\xaa"
 		".example";
 
-	std::string s=LIBCXX_NAMESPACE::idn::to_ascii(utf8_string,
-						      LIBCXX_NAMESPACE
-						      ::locale::base::utf8());
+	std::string s=LIBCXX_NAMESPACE::idn::to_ascii(utf8_string);
 
 	if (s != "www.xn--rksmrgsa-0zap8p.example")
 		throw EXCEPTION("to_ascii failed: " + s);
 
-	std::string fa=LIBCXX_NAMESPACE::idn::from_ascii(s,
-							 LIBCXX_NAMESPACE
-							 ::locale::base::utf8()
-							 );
+	std::string fa=LIBCXX_NAMESPACE::idn::from_ascii(s);
 
 	if (fa != "www.r\xc3\xa4"
 	    "ksm\xc3\xb6"

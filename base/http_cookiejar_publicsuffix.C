@@ -106,7 +106,7 @@ public:
 				s=s.substr(1);
 			}
 
-			s=idn::to_ascii(s, utf8);
+			s=idn::to_ascii(s);
 			std::transform(s.begin(),
 				       s.end(),
 				       s.begin(),

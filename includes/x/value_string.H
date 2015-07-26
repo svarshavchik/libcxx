@@ -1,5 +1,5 @@
 /*
-** Copyright 2012 Double Precision, Inc.
+** Copyright 2012-2015 Double Precision, Inc.
 ** See COPYING for distribution information.
 */
 
@@ -14,8 +14,6 @@
 #include <x/is_float.H>
 #include <x/locale.H>
 #include <x/imbue.H>
-#include <x/codecvtiter.H>
-#include <x/value_stringable.H>
 #include <x/namespace.h>
 
 namespace LIBCXX_NAMESPACE {
@@ -29,10 +27,6 @@ namespace LIBCXX_NAMESPACE {
 void value_conversion_error(const std::string &value)
 	__attribute__((noreturn));
 
-//! Value conversion error exception
-
-void value_conversion_error(const std::wstring &value)
-	__attribute__((noreturn));
 
 //! No default value for custom classes
 
@@ -44,68 +38,9 @@ class value_stringimpl;
 
 template<typename valueType> class value_string;
 
-//! The class implements toString(), fromString(),
-//! toWideString(), fromWideString().
-
-template<stringable_t, typename valueType> class value_tofromstring {
-
-public:
-
-	//! Convert the value to a string representation.
-	static std::string toString(const valueType &v,
-				    const const_locale &locale)
-	{
-
-		std::string s;
-
-		v.toString(std::back_insert_iterator<std::string>(s), locale);
-		return s;
-	}
-
-	//! Convert the value from a string represantion
-	static valueType fromString(const std::string &s,
-				    const const_locale &locale)
-	{
-		return valueType::fromString(s.begin(), s.end(), locale);
-	}
-
-	//! Convert the value to a string representation.
-	static std::wstring toWideString(const valueType &v,
-					 const const_locale &locale)
-
-	{
-
-		std::wstring s;
-
-		v.toWideString(std::back_insert_iterator<std::wstring>(s),
-			       locale);
-		return s;
-	}
-
-	//! Convert the value from a string represantion
-	static valueType fromWideString(const std::wstring &s,
-					const const_locale &locale)
-
-	{
-		return valueType::fromWideString(s.begin(), s.end(), locale);
-	}
-};
-
-template<typename valueType> class value_tofromstring<class_towstring,
-						      valueType>;
-
-template<typename valueType> class value_tofromstring<class_tostring,
-						      valueType>;
-
-template<typename valueType> class value_tofromstring<class_toboth,
-						      valueType>;
-
-template<typename valueType> class value_tofromstring<class_tostring_utf8,
-						      valueType>;
-
 //! Convert a %value to or from a string representation.
 
-//! This template defined a class with four static methods.
+//! This template defined a class with two static methods.
 //!
 //! - toString(): takes two parameters, the template type value and a locale.
 //! The value gets converted to a string representation.
@@ -147,8 +82,6 @@ template<typename valueType> class value_tofromstring<class_tostring_utf8,
 //!
 //!     std::string foo;
 //!
-//!     static const stringable_t stringable=class_tostring;
-//!
 //!     template<typename OutputIterator>
 //!     OutputIterator toString(OutputIterator iter,
 //!                             const const_locale &localeRef) const
@@ -171,42 +104,27 @@ template<typename valueType> class value_tofromstring<class_tostring_utf8,
 //! };
 //! \endcode
 //!
-//! - The custom class must define the static constant stringable. See
-//! \ref stringable_t "stringable_t" that specifies what kind of stringification
-//! methods it implements.
-//!
-//! The toString() and toWideString methods in this template invokes the class
+//! The toString() method in this template invokes the class
 //! instance's
 //! %toString() method, and passes a
 //! \c std::back_insert_iterator for the iterator, however
 //! any output iterator may be used in the future.
-//! Therefore, the class should define its %toString() and/or %toWideString()
+//! Therefore, the class should define its %toString()
 //! as a template that accepts any output iterator.
 //!
-//! - The custom class must have a static %fromString() and/or
-//! %toWideString() method that takes a
+//! - The custom class must have a static %fromString() method that takes a
 //! beginning and an ending iterator, and a locale reference,
 //! then constructs and returns an object
 //! using the human-readable string representation of the custom object's value.
 //!
 //! The current implementation always passes string iterators,
 //! however eny beginning and ending input iterator may be used in the future,
-//! so the class fromString() and/or fromWideString()
+//! so the class fromString()
 //! should be defined as a template.
 //!
 //! - The custom class should implement a default constructor. initialValue()
 //! constructs an object using the default constructor. defaultValue() throws
 //! an exception.
-//!
-//! The following classes in this library implement the required semantics:
-//!
-//! - \ref hms "hms": converts to "HH:MM:SS".
-//!
-//! - \ref ymd "ymd": converts to "YYYY-MM-DD".
-//!
-//! - ymd::interval: converts between localized "x years, y months..." strings.
-//!
-//! - \ref uriimpl "uriimpl": converts to string representation of a generic URI
 
 template<typename valueType> class value_string
 	: public value_stringimpl<valueType,
@@ -238,18 +156,6 @@ public:
 		return s;
 	}
 
-	//! Convert the value to a string representation.
-
-	static std::wstring toWideString(const std::string &v,
-					 const const_locale &locale)
-;
-
-	//! Convert the value from a string represantion
-
-	static std::string fromWideString(const std::wstring &s,
-					  const const_locale &locale)
-;
-
 	//! The initial value, an empty string.
 
 	static std::string initialValue()
@@ -262,59 +168,6 @@ public:
 	static std::string defaultValue()
 	{
 		return "";
-	}
-};
-
-//! A \c std::wstring %value
-
-//!
-
-template<> class value_string<std::wstring> {
-
-public:
-
-	//! Convert a wide character string to a character string
-
-	static std::string toString(const std::wstring &v,
-				    const const_locale &locale)
-;
-
-	//! Convert a narrow character string into a wide character string.
-
-	static std::wstring fromString(const std::string &s,
-				       const const_locale &locale)
-;
-
-	//! Convert the value to a string representation.
-
-	static std::wstring toWideString(const std::wstring &v,
-					 const const_locale &locale)
-
-	{
-		return v;
-	}
-
-	//! Convert the value from a string represantion
-
-	static std::wstring fromWideString(const std::wstring &v,
-					   const const_locale &locale)
-
-	{
-		return v;
-	}
-
-	//! The initial value, an empty wide string.
-
-	static std::wstring initialValue()
-	{
-		return L"";
-	}
-
-	//! The default value.
-
-	static std::wstring defaultValue()
-	{
-		return L"";
 	}
 };
 
@@ -332,26 +185,13 @@ public:
 	//! Convert the value to a string representation.
 
 	static std::string toString(bool v,
-				    const const_locale &locale)
-;
+				    const const_locale &locale);
 
 	//! Convert the value from a string represantion
 
 	static bool fromString(const std::string &s,
-			       const const_locale &locale)
-;
+			       const const_locale &locale);
 
-	//! Convert the value to a string representation.
-
-	static std::wstring toWideString(bool v,
-					const const_locale &locale)
-;
-
-	//! Convert the value from a string represantion
-
-	static bool fromWideString(const std::wstring &s,
-				   const const_locale &locale)
-;
 
 	//! The initial value, an empty string.
 
@@ -384,8 +224,11 @@ public:
 					   const const_locale &locale)
 
 	{
-		return value_tofromstring<valueType::stringable, valueType>
-			::toString(v, locale);
+		std::string s;
+
+		v.toString(std::back_insert_iterator<std::string>(s), locale);
+
+		return s;
 	}
 
 	//! Convert the value from a string represantion
@@ -393,30 +236,8 @@ public:
 	static valueType fromString(const std::string &s,
 				    const const_locale &locale)
 	{
-		return value_tofromstring<valueType::stringable, valueType>
-			::fromString(s, locale);
+		return valueType::fromString(s.begin(), s.end(), locale);
 	}
-
-	//! Convert the value to a string representation.
-
-	static inline std::wstring toWideString(const valueType &v,
-					       const const_locale &locale)
-
-	{
-		return value_tofromstring<valueType::stringable, valueType>
-			::toWideString(v, locale);
-	}
-
-	//! Convert the value from a string represantion
-
-	static valueType fromWideString(const std::wstring &s,
-					const const_locale &locale)
-
-	{
-		return value_tofromstring<valueType::stringable, valueType>
-			::fromWideString(s, locale);
-	}
-
 
 	//! The initial value, a default constructor
 
@@ -470,45 +291,6 @@ public:
 
 		{
 			imbue<std::istringstream> im(locale, i);
-
-			i >> n;
-		}
-
-		if (i.fail())
-			value_conversion_error(s);
-
-		return n;
-	}
-
-	//! Return the value of this property, as a string
-
-	//! Convert the value to a string representation.
-
-	static std::wstring toWideString(valueType v,
-					 const const_locale &locale)
-
-	{
-		std::wostringstream o;
-
-		imbue<std::wostringstream> im(locale, o);
-
-		o << v;
-
-		return o.str();
-	}
-
-	//! Convert the value from a string represantion
-
-	static valueType fromWideString(const std::wstring &s,
-					const const_locale &locale)
-
-	{
-		valueType n;
-
-		std::wistringstream i(s);
-
-		{
-			imbue<std::wistringstream> im(locale, i);
 
 			i >> n;
 		}
@@ -584,50 +366,6 @@ public:
 		return v;
 	}
 
-	//! Return the value of this property, as a string
-
-	//! Convert the value to a string representation.
-
-	static std::wstring toWideString(valueType v,
-					 const const_locale &locale)
-
-	{
-		std::wostringstream o;
-
-		o << std::setprecision(std::numeric_limits<valueType>::digits10
-				       +2); // See serialize.H
-
-		{
-			imbue<std::wostringstream> im(locale, o);
-
-			o << v;
-		}
-
-		return o.str();
-	}
-
-	//! Convert the value from a string represantion
-
-	static valueType fromWideString(const std::wstring &s,
-					const const_locale &locale)
-
-	{
-		std::wistringstream i(s);
-
-		valueType v;
-
-		{
-			imbue<std::wistringstream> im(locale, i);
-
-			i >> v;
-		}
-
-		if (i.fail())
-			value_conversion_error(s);
-
-		return v;
-	}
-
 	//! The initial value, zero;
 
 	static valueType initialValue()
@@ -640,238 +378,6 @@ public:
 	static valueType defaultValue()
 	{
 		return 1;
-	}
-};
-
-//! The class does not implement toString() and fromString(), but implements toWideString() and fromWideString()
-
-template<typename valueType> class value_tofromstring<class_towstring,
-						      valueType> {
-public:
-
-	//! Convert the value to a string representation.
-
-	static std::string toString(const valueType &v,
-				    const const_locale &locale)
-	{
-		std::string s;
-
-		typedef std::back_insert_iterator<std::string> ins_iter;
-
-		typedef ocodecvtiter<ins_iter>::wtoc_iter_t wtoc_ins_iter;
-
-		v.toWideString(wtoc_ins_iter::create(ins_iter(s), locale),
-			       locale).flush();
-
-		return s;
-	}
-
-	//! Convert the value from a string represantion
-
-	static valueType fromString(const std::string &s,
-				    const const_locale &locale)
-	{
-		std::wstring w=value_string<std::wstring>
-			::fromString(s, locale);
-
-		return valueType::fromWideString(w.begin(), w.end(), locale);
-	}
-
-	//! Convert the value to a string representation.
-
-	static std::wstring toWideString(const valueType &v,
-					const const_locale &locale)
-
-	{
-		std::wstring s;
-
-		v.toWideString(std::back_insert_iterator<std::wstring>(s),
-			       locale);
-
-		return s;
-	}
-
-	//! Convert the value from a string represantion
-
-	static valueType fromWideString(const std::wstring &w,
-					const const_locale &locale)
-
-	{
-		return valueType::fromWideString(w.begin(), w.end(), locale);
-	}
-};
-
-//! This class does not implement toWideString() or fromWideString(), but implements toString() and fromString()
-
-template<typename valueType> class value_tofromstring<class_tostring,
-						      valueType> {
-public:
-
-	//! Convert the value to a string representation.
-
-	static std::string toString(const valueType &v,
-				    const const_locale &locale)
-
-	{
-		std::string s;
-
-		v.toString(std::back_insert_iterator<std::string>(s), locale);
-
-		return s;
-	}
-
-	//! Convert the value from a string represantion
-
-	static valueType fromString(const std::string &w,
-				    const const_locale &locale)
-
-	{
-		return valueType::fromString(w.begin(), w.end(), locale);
-	}
-
-	//! Convert the value to a string representation.
-
-	static std::wstring toWideString(const valueType &v,
-					 const const_locale &locale)
-
-	{
-		std::wstring s;
-
-		typedef std::back_insert_iterator<std::wstring> ins_iter;
-
-		typedef ocodecvtiter<ins_iter>::ctow_iter_t ctow_ins_iter;
-
-		v.toString(ctow_ins_iter::create(ins_iter(s), locale),
-			   locale).flush();
-
-		return s;
-	}
-
-	//! Convert the value from a string represantion
-
-	static valueType fromWideString(const std::wstring &s,
-					const const_locale &locale)
-
-	{
-
-		std::string w=value_string<std::wstring>
-			::toString(s, locale);
-
-		return valueType::fromString(w.begin(), w.end(), locale);
-	}
-};
-
-
-//! The class implements both toString() and toWideString()
-
-template<typename valueType> class value_tofromstring<class_toboth,
-						      valueType> {
-public:
-
-	//! Convert the value to a string representation.
-
-	static std::string toString(const valueType &v,
-				    const const_locale &locale)
-
-	{
-		std::string s;
-
-		v.toString(std::back_insert_iterator<std::string>(s), locale);
-
-		return s;
-	}
-
-	//! Convert the value from a string represantion
-
-	static valueType fromString(const std::string &w,
-				    const const_locale &locale)
-
-	{
-		return valueType::fromString(w.begin(), w.end(), locale);
-	}
-
-	//! Convert the value to a string representation.
-
-	static std::wstring toWideString(const valueType &v,
-					const const_locale &locale)
-
-	{
-		std::wstring s;
-
-		v.toWideString(std::back_insert_iterator<std::wstring>(s),
-			       locale);
-
-		return s;
-	}
-
-	//! Convert the value from a string represantion
-
-	static valueType fromWideString(const std::wstring &w,
-					const const_locale &locale)
-
-	{
-		return valueType::fromWideString(w.begin(), w.end(), locale);
-	}
-};
-
-//! This class does not implement toWideString() or fromWideString(), but implements toString() and fromString()
-
-//! The class ignores the locale, and always does it in utf-8.
-
-template<typename valueType> class value_tofromstring<class_tostring_utf8,
-						      valueType> {
-public:
-	//! Convert the value to a string representation.
-
-	static inline std::string toString(const valueType &v,
-					   const const_locale &locale)
-
-	{
-		return value_string<std::wstring>
-			::toString(toWideString(v, locale), locale);
-	}
-
-	//! Convert the value from a string represantion
-
-	static inline valueType fromString(const std::string &w,
-					   const const_locale &locale)
-
-	{
-		return fromWideString(value_string<std::wstring>
-				      ::fromString(w, locale), locale);
-	}
-
-	//! Convert the value to a string representation.
-
-	static std::wstring toWideString(const valueType &v,
-					 const const_locale &localeRef)
-
-	{
-		std::wstring s;
-
-		typedef std::back_insert_iterator<std::wstring> ins_iter;
-
-		typedef ocodecvtiter<ins_iter>::ctow_iter_t ctow_ins_iter;
-
-		locale utf8=locale::base::utf8();
-
-		v.toString(ctow_ins_iter::create(ins_iter(s), utf8),
-			   utf8).flush();
-
-		return s;
-	}
-
-	//! Convert the value from a string represantion
-
-	static valueType fromWideString(const std::wstring &s,
-					const const_locale &localeRef)
-
-	{
-		locale utf8=locale::base::utf8();
-
-		std::string w=value_string<std::wstring>::toString(s, utf8);
-
-		return valueType::fromString(w.begin(), w.end(), utf8);
 	}
 };
 

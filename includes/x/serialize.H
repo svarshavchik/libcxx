@@ -1,5 +1,5 @@
 /*
-** Copyright 2012 Double Precision, Inc.
+** Copyright 2012-2015 Double Precision, Inc.
 ** See COPYING for distribution information.
 */
 
@@ -10,7 +10,6 @@
 
 #include <string>
 #include <cstring>
-#include <cwchar>
 #include <locale>
 
 #include <sstream>
@@ -254,7 +253,7 @@ class serialize_float<true, value_type>;
 //!
 template<typename value_type>
 class serialize_float<false, value_type> :
-	public serialize_container< container_traits<value_type>::type != 
+	public serialize_container< container_traits<value_type>::type !=
 				    unknown_container, value_type > {
 };
 
@@ -547,53 +546,6 @@ public:
 	}
 };
 
-//! Specialization for serializing a native string type
-
-//! \see serialize_value
-//!
-template<>
-class serialize_value<const wchar_t *> {
-
-public:
-
-	//! %Serialize the type of a literal string
-
-	//! Instantiate the helper class, and let it figure it out.
-	//!
-	template <typename iter_type>
-	static void serialize_type(//! Output iterator
-				   iter_type &iter)
-	{
-		serialize_container<true,
-			serialize_be_helper<const wchar_t *, wchar_t> >
-			::serialize_type(iter);
-	}
-
-	//! %Serialize the value of a literal string
-
-	//! Instantiates a helper object that makes it look like a
-	//! \c std::basic string, then serializes that as a container.
-
-	template <typename iter_type, typename serialize_toiter_type>
-	static void serialize_bytes(//! Output iterator
-				    iter_type &iter,
-
-				    //! The output string
-				    const wchar_t *str,
-
-				    //! Serialization_object
-				    serialize_toiter_type &toiter
-
-				    )
-	{
-		serialize_be_helper<const wchar_t *, wchar_t>
-			helper(str, str+wcslen(str));
-
-		serialize_container<true,
-			serialize_be_helper<const wchar_t *, wchar_t> >
-			::serialize_bytes(iter, helper, toiter);
-	}
-};
 
 //! Specialization for serializing a native string type
 
@@ -609,22 +561,6 @@ class serialize_value<const char[n]> : public serialize_value<const char *> {
 //!
 template<size_t n>
 class serialize_value<char[n]> : public serialize_value<const char *> {
-};
-
-//! Specialization for serializing a native string type
-
-//! \see serialize_value
-//!
-template<size_t n>
-class serialize_value<const wchar_t[n]> : public serialize_value<const wchar_t *> {
-};
-
-//! Specialization for serializing a native string type
-
-//! \see serialize_value
-//!
-template<size_t n>
-class serialize_value<wchar_t[n]> : public serialize_value<const wchar_t *> {
 };
 
 //! %Serialize a pointer to an object

@@ -1,5 +1,5 @@
 /*
-** Copyright 2012 Double Precision, Inc.
+** Copyright 2012-2015 Double Precision, Inc.
 ** See COPYING for distribution information.
 */
 
@@ -93,9 +93,6 @@ namespace LIBCXX_NAMESPACE {
 //!
 //! An \c INSERT_LIBX_NAMESPACE::option::string_value stores the option's value as an unformatted
 //! \c std::string.
-//!
-//! An \c INSERT_LIBX_NAMESPACE::option::wstring_value stores the option's value as an unformatted
-//! \c std::wstring.
 //!
 //! An \c INSERT_LIBX_NAMESPACE::option::hms_value stores the option's value into an
 //! \ref hms "hms" object.

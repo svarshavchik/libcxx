@@ -1,5 +1,5 @@
 /*
-** Copyright 2012 Double Precision, Inc.
+** Copyright 2012-2015 Double Precision, Inc.
 ** See COPYING for distribution information.
 */
 
@@ -149,7 +149,7 @@ class tzfileObj : virtual public obj {
 	//! \internal
 	//!
 	class tzinfo {
-		
+
 	public:
 		//! The timezone abbreviation
 
@@ -193,8 +193,7 @@ class tzfileObj : virtual public obj {
 
 		template<typename OutputIterator>
 		OutputIterator toString(OutputIterator iter,
-					basic_ctype<typename
-					OutputIterator::char_type> ct)
+					const ctype &ct)
 			const LIBCXX_HIDDEN;
 	};
 
@@ -318,8 +317,7 @@ public:
 
 	//! \internal
 	//!
-	template<typename CharT>
-	std::basic_string<CharT>
+	std::string
 	debugDump(const const_locale &locale=locale::base::global())
 		const;
 
@@ -327,10 +325,9 @@ public:
 
 	//! \internal
 	//!
-	template<typename CharT>
-	std::basic_ostream<CharT> &debugDump(std::basic_ostream<CharT> &o,
-					     const const_locale &locale
-					     =locale::base::global())
+	std::ostream &debugDump(std::ostream &o,
+				const const_locale &locale
+				=locale::base::global())
 		const;
 
 	//! Convert a time value to date+time using this timezone data

@@ -16,16 +16,6 @@ namespace LIBCXX_NAMESPACE {
 };
 #endif
 
-#if __BYTE_ORDER__ == __ORDER_BIG_ENDIAN__
-const char iconviofilter::ucs4[]="UCS-4BE";
-#else
-#if __BYTE_ORDER__ == __ORDER_LITTLE_ENDIAN__
-const char iconviofilter::ucs4[]="UCS-4LE";
-#else
-#error No more endians
-#endif
-#endif
-
 iconviofilter::iconviofilter(const std::string &fromchset,
 			     const std::string &tochset)
 	: h((iconv_t)-1), x_outbuf_ptr(0)
@@ -214,103 +204,6 @@ bool iconviofilter::filter_handle_e2big(const char *&inp,
 
 	LOG_TRACE("Conversion error");
 	return false;
-}
-
-extern void char32_t_better_be_4_bytes(char p[sizeof(char32_t) == 4 ? 1:-1]);
-
-std::u32string iconviofilter::to_u32string(const std::string &string,
-					   const std::string &charset)
-{
-	std::u32string u32string;
-
-	iconviofilter to_ucs4(charset, iconviofilter::ucs4);
-
-	to_ucs4.next_in=string.c_str();
-	to_ucs4.avail_in=string.size();
-
-	size_t taken, next_taken=0;
-
-	bool error_reported=false;
-
-	do
-	{
-	again:
-
-		taken=next_taken;
-
-		u32string.resize(((taken ? taken*2:256)+3)/4);
-
-		to_ucs4.next_out=reinterpret_cast<char *>(&u32string[0])+taken;
-		to_ucs4.avail_out=u32string.size()*4-taken;
-
-		try {
-			to_ucs4.filter();
-			error_reported=false;
-		} catch (const exception &e)
-		{
-			next_taken=to_ucs4.next_out-
-				reinterpret_cast<char *>(&u32string[0]);
-			u32string.resize(next_taken / 4);
-
-			if (!error_reported)
-			{
-				std::ostringstream ss;
-
-				ss << "[" << e << "]";
-
-				std::string s=ss.str();
-
-				std::copy(s.begin(), s.end(),
-					  std::back_insert_iterator<std::u32string>
-					  (u32string));
-				error_reported=true;
-			}
-			next_taken=u32string.size()*4;
-
-			if (!to_ucs4.avail_in)
-				break;
-			++to_ucs4.next_in;
-			--to_ucs4.avail_in;
-			goto again;
-		}
-
-		next_taken=to_ucs4.next_out-
-			reinterpret_cast<char *>(&u32string[0]);
-	} while (taken != next_taken);
-
-	u32string.resize(next_taken / 4);
-	return u32string;
-}
-
-std::string iconviofilter::from_u32string(const std::u32string &u32string,
-					  const std::string &charset)
-{
-	std::string string;
-
-	iconviofilter from_ucs4(iconviofilter::ucs4, charset);
-
-	from_ucs4.next_in=reinterpret_cast<const char *>(u32string.c_str());
-	from_ucs4.avail_in=u32string.size()*sizeof(char32_t);
-
-	size_t taken, next_taken=0;
-
-	do
-	{
-		taken=next_taken;
-
-		string.resize(taken ? taken*2:256);
-		from_ucs4.next_out=reinterpret_cast<char *>(&string[0])+taken;
-		from_ucs4.avail_out=string.size()-taken;
-
-		from_ucs4.filter();
-
-		next_taken=from_ucs4.next_out-
-			reinterpret_cast<char *>(&string[0]);
-	} while (taken != next_taken);
-
-	string.resize(next_taken);
-
-	return string;
 }
 
 #if 0

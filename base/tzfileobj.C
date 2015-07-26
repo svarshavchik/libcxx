@@ -146,7 +146,7 @@ ymd tzfileObj::tzinfo::getDayOfGivenYear(int32_t year) const
 		ymd curday(year, m, 1);
 
 		curday += (d + 7 - curday.getDayOfWeek()) % 7;
-		
+
 		curday += (w-1) * 7;
 
 		return curday;
@@ -163,10 +163,10 @@ ymd tzfileObj::tzinfo::getDayOfGivenYear(int32_t year) const
 		else
 		{
 			curday += 31+28;
-			
+
 			if (curday.getDay() == 29)
 				++curday;
-			
+
 			curday += d-31-28-1;
 		}
 	}
@@ -174,7 +174,7 @@ ymd tzfileObj::tzinfo::getDayOfGivenYear(int32_t year) const
 	{
 		curday += d-1;
 	}
-	
+
 	return curday;
 }
 
@@ -301,6 +301,23 @@ std::string tzfileObj::localname()
 			}
 			break;
 		}
+	}
+
+	// Maybe /etc/localtime is a symlink
+
+	try {
+		std::string link=
+			fd::base::combinepath("/etc/localtime",
+					      fileattr::create("/etc/localtime",
+							       true)
+					      ->readlink());
+
+		auto pfix=tzfile::base::tzdir() + "/";
+
+		if (link.substr(0, pfix.size()) == pfix)
+			return link.substr(pfix.size());
+	} catch (exception &e)
+	{
 	}
 
 	return localnameid;
@@ -570,7 +587,7 @@ bool tzfileObj::parse_tztodnum(std::string::const_iterator &b,
 
 		if (p != e && *p >= '0' && *p <= '9')
 			n=n*10 + (*p++ - '0');
-		
+
 		b=p;
 		return true;
 	}

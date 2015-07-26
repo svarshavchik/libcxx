@@ -1,5 +1,5 @@
 /*
-** Copyright 2012 Double Precision, Inc.
+** Copyright 2012-2015 Double Precision, Inc.
 ** See COPYING for distribution information.
 */
 
@@ -12,8 +12,8 @@
 #include <x/messagesfwd.H>
 #include <x/facet.H>
 #include <x/ctype.H>
-#include <x/strftimefwd.H>
-#include <x/value_stringable.H>
+#include <x/strftime.H>
+#include <x/functional.H>
 #include <stdint.h>
 
 #include <iostream>
@@ -22,6 +22,7 @@
 #include <iterator>
 #include <ctime>
 #include <type_traits>
+#include <courier-unicode.h>
 
 namespace LIBCXX_NAMESPACE {
 #if 0
@@ -35,12 +36,6 @@ namespace LIBCXX_NAMESPACE {
 //! with the Gregorian calendar on Sep 14 1752.
 
 class ymd {
-
-	//! Throw an %exception when there's a failure parsing the date
-
-	//! \overload
-
-	static void date_parsing_failed() __attribute((noreturn));
 
 public:
 	//! A day number. Jan 1 0001 is day 0.
@@ -203,12 +198,10 @@ public:
 
 		//! Convert this %interval to a descriptive string
 
-		template<typename char_type> std::basic_string<char_type>
-		toString(//! Use this locale for the description
-			 const const_locale &l=locale::base::global()) const;
-
-		//! This class implements toString() and fromString()
-		static const stringable_t stringable=class_tostring;
+		std::string internal_tostring
+		(//! Use this locale for the description
+		 const const_locale &l=
+		 locale::base::global()) const;
 
 		//! Convert this %interval to a descriptive string
 
@@ -223,12 +216,7 @@ public:
 
 		//! Returns a string in the default locale
 
-		template<typename char_type>
-		operator std::basic_string<char_type>()
-			const
-		{
-			return toString<char_type>();
-		}
+		operator std::string() const;
 
 		//! Create an interval from a string
 
@@ -247,7 +235,7 @@ public:
 		}
 
 		//! Serialization function
-		
+
 		template<typename iter_type>
 		void serialize(iter_type &i)
 		{
@@ -373,7 +361,7 @@ public:
 
 	//! Jan 1, 0001 is day 0.
 	//!
-	
+
 	explicit ymd(daynum_t dayNumber);
 
 	//! Add the given number of days.
@@ -567,48 +555,41 @@ public:
 
 		//! Return the ISO8601 year
 
-		uint16_t getYear() const noexcept { return year; }
+		inline uint16_t getYear() const noexcept { return year; }
 
 		//! Return the ISO8601 week
 
-		uint16_t getWeek() const noexcept { return week; }
+		inline uint16_t getWeek() const noexcept { return week; }
 
 		//! Return the ISO8601 day of week. Monday is day 1.
 
-		uint16_t getDayOfWeek() const noexcept { return daynum; }
+		inline uint16_t getDayOfWeek() const noexcept { return daynum; }
 
 		//! Convert this object to a text string
 
-		template<typename CharT>
-		std::basic_string<CharT> toString() const;
+		std::string toString() const;
 
 		//! String operator
 
-		template<typename CharT>
-		operator std::basic_string<CharT>() const
+		inline operator std::string() const
 		{
-			return toString<CharT>();
+			return toString();
 		}
 
 		//! Serialization function
-		
+
 		template<typename iter_type>
-		void serialize(iter_type &i)
+		inline void serialize(iter_type &i)
 		{
 			i(year);
 			i(week);
 			i(daynum);
 		}
-
 	};
 
 	//! Construct from an ISO8601 date
 
 	ymd(const iso8601 &iso8601Date);
-
-	//! This class implements toString(), fromString(), toWideString() and fromWideString().
-
-	static const stringable_t stringable=class_toboth;
 
 	//! Convert the date to a text string.
 
@@ -640,80 +621,45 @@ public:
 				const std::string &pattern)
 		const;
 
-	//! Convert the date to a text string.
+	//! Convert date to a text string.
 
-	//! The date is formatted according to the given \c strftime(3)
-	//! pattern. Only date-related formatting conversion in the formatting
-	//! string carry meaningful results.
-
-	template<typename OutputIterator>
-	OutputIterator toWideString(//! Output iterator
-				    OutputIterator iter,
-
-				    //! Locale for the conversion
-				    const const_locale &localeRef=locale::base::global(),
-				    //! Start of the pattern
-				    const wchar_t *pattern=0)
+	//! \overload
+	//!
+	std::string formatDate(//! Formatting pattern
+			       const char *pattern=0,
+			       //! Locale for the conversion
+			       const const_locale
+			       &localeRef=locale::base::global())
 		const;
 
 	//! Convert date to a text string.
 
 	//! \overload
 	//!
-	template<typename OutputIterator>
-	OutputIterator toWideString(//! Output iterator
-				    OutputIterator iter,
-
-				    //! Locale for the conversion
-				    const const_locale &localeRef,
-
-				    //! Formatting pattern
-				    const std::wstring &pattern)
+	std::string formatDate(//! Pattern for the conversion
+			       const std::string &pattern,
+			       //! Locale for the conversion
+			       const const_locale
+			       &localeRef=locale::base::global())
 		const;
 
 	//! Convert date to a text string.
 
-	//! \overload
-	//!
-	template<typename CharT>
-	std::basic_string<CharT> formatDate(//! Formatting pattern
-					    const CharT *pattern=0,
-					    //! Locale for the conversion
-					    const const_locale
-					    &localeRef=locale::base::global())
-		const;
-
-	//! Convert date to a text string.
-
-	//! \overload
-	//!
-	template<typename CharT>
-	std::basic_string<CharT> formatDate(//! Pattern for the conversion
-					    const std::basic_string<CharT>
-					    &pattern,
-					    //! Locale for the conversion
-					    const const_locale
-					    &localeRef=locale::base::global())
-		const;
-
-	//! Convert date to a text string.
-
-	template<typename CharT>
-	operator std::basic_string<CharT>() const;
+	operator std::string() const;
 
 	//! A helper class for parsing an ymd value from a string
 
-	template<typename CharT> class parser {
+	class parser {
 
 		//! Locale used for parsing
 		const_locale loc;
 
 		//! Cached month names
 
-		std::basic_string<CharT> month_names[12];
+		std::vector<unicode_char> month_names[12];
 
 		//! Cached weekday names
-		std::basic_string<CharT> month_names_long[12];
+		std::vector<unicode_char> month_names_long[12];
 
 		//! Flag: interpret dd/dd/dddd as m/d/y
 
@@ -731,7 +677,7 @@ public:
 		//! The default is dd/mm/yyyy
 		//!
 
-		parser<CharT> &mdy(bool flag=true) noexcept
+		inline parser &mdy(bool flag=true) noexcept
 		{
 			usmdy=flag;
 			return *this;
@@ -748,23 +694,39 @@ public:
 		//! string cannot be parsed.
 
 		template<typename InputIterator>
-		ymd parse(InputIterator beg_iter,
-			  InputIterator end_iter);
+		inline ymd parse(InputIterator beg_iter,
+				 InputIterator end_iter)
+		{
+			return parse_internal(make_function<int ()>
+					      ([&]
+					      {
+						      if (beg_iter == end_iter)
+							      return -1;
+
+						      unsigned char c=
+							      *beg_iter;
+						      ++beg_iter;
+						      return (int)c;
+					      }));
+		}
+
+		//! Internal parser
+
+		//! \internal
+		ymd parse_internal(const function<int ()> &);
 
 		//! Make some sense out of a string
 
 		//! \overload
 
 		ymd parse(//! The string
-			  const CharT *string);
+			  const char *string);
 
 		//! Make some sense out of a string
 
 		//! \overload
-		template<typename traits_type, typename alloc_type>
-		ymd parse(//! The string
-			  const std::basic_string<CharT, traits_type,
-			  alloc_type> &s)
+		inline ymd parse(//! The string
+				 const std::string &s)
 
 		{
 			return parse(s.c_str());
@@ -775,34 +737,13 @@ public:
 
 	ymd(const char *string,
 	    bool mdyflag=false,
-	    const const_locale &loc=locale::base::global())
-
-	{
-		*this= parser<char>(loc).mdy(mdyflag).parse(string);
-	}
+	    const const_locale &loc=locale::base::global());
 
 	//! Initialize the date from a string
 
-	ymd(const wchar_t *string,
+	ymd(const std::string &string,
 	    bool mdyflag=false,
-	    const const_locale &loc=locale::base::global())
-
-	{
-		*this= parser<wchar_t>(loc).mdy(mdyflag).parse(string);
-	}
-
-	//! Initialize the date from a string
-
-	template<typename CharT,
-		 typename traits_type,
-		 typename alloc_type> ymd(const std::basic_string<CharT,
-					  traits_type, alloc_type> &string,
-					  bool mdyflag=false,
-					  const const_locale &loc=locale::base::global())
-
-	{
-		*this= parser<CharT>(loc).mdy(mdyflag).parse(string);
-	}
+	    const const_locale &loc=locale::base::global());
 
 	//! Instantiate a new object from an input iterator
 
@@ -811,43 +752,23 @@ public:
 	//! by the \ref parser "parser object".
 
 	template<typename InputIterator>
-	static ymd fromString(//! Beginning iterator
-			      InputIterator beg_iter,
+	static inline ymd fromString(//! Beginning iterator
+				     InputIterator beg_iter,
 
-			      //! Ending iterator
-			      InputIterator end_iter,
+				     //! Ending iterator
+				     InputIterator end_iter,
 
-			      //! The locale
-			      const const_locale &localeArg
-			      =locale::base::global())
+				     //! The locale
+				     const const_locale &localeArg
+				     =locale::base::global())
 	{
-		return parser<char>(localeArg).parse(beg_iter, end_iter);
-	}
-
-	//! Instantiate a new object from an input iterator
-
-	//! A string gets retrieved from the given beginning and ending
-	//! iterator. The string may be in any format that's recognized
-	//! by the \ref parser "parser object".
-
-	template<typename InputIterator>
-	static ymd fromWideString(//! Beginning iterator
-				  InputIterator beg_iter,
-
-				  //! Ending iterator
-				  InputIterator end_iter,
-
-				  //! The locale
-				  const const_locale &localeArg
-				  =locale::base::global())
-	{
-		return parser<wchar_t>(localeArg).parse(beg_iter, end_iter);
+		return parser(localeArg).parse(beg_iter, end_iter);
 	}
 
 	//! Serialization function
-		
+
 	template<typename iter_type>
-	void serialize(iter_type &i)
+	inline void serialize(iter_type &i)
 	{
 		i(year);
 		i(month);
@@ -860,4 +781,3 @@ public:
 #endif
 }
 #endif
-

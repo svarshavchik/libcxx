@@ -152,7 +152,7 @@ std::cout &lt;&lt; (std::string)&ns;::ymd(firstDayOfYear) &lt;&lt; std::endl;</p
     An
     <ulink url="&link-x--ymd--parser;"><classname>&ns;::ymd::parser</classname></ulink>
     object initializes <classname>&ns;::ymd</classname>
-    objects from narrow or wide character text strings:
+    objects from a text string.
   </para>
 
   <blockquote>
@@ -342,7 +342,7 @@ std::string now_s=&ns;::tostring(now.format("%d-%b-%Y %H:%M:%S %z"));</programli
 
 &ns;::locale en_us(&ns;::locale::create("en_us.UTF-8"));
 
-&ns;::wmessages msgcat(&ns;::wmessages::create(en_us), "application");
+&ns;::messages msgcat(&ns;::messages::create(en_us), "application");
 
 static const char *const units[]={"block", "blocks",
                                   "section", "sections",
@@ -361,7 +361,7 @@ std::vector&gt;int&lt; value(i.parse("3 blocks, 1 section, 1 lot"));</programlis
       be even, and the last one followed by a null pointer. Each pair of
       strings specifies the name of a dimension, in the single and plural
       form. The single and the plural form is used to look up the localized
-      dimensional name in the wide character
+      dimensional name in the
       <link linkend="msgcatalogs">message catalog</link>.
       The above example passes an array of six strings, or three dimensions.
       The second aprameter to the constructor is the 0-based index of the
@@ -370,7 +370,7 @@ std::vector&gt;int&lt; value(i.parse("3 blocks, 1 section, 1 lot"));</programlis
     </para>
 
     <para>
-      <methodname>parse</methodname>() parses a narrow or a wide character
+      <methodname>parse</methodname>() parses a character
       string, which must consists of pair of names and values. Each value
       gets associated with a dimension specified by the name. The value
       may appear before or after the corresponding name.
@@ -393,9 +393,8 @@ std::vector&gt;int&lt; value(i.parse("3 blocks, 1 section, 1 lot"));</programlis
   <title>Format time using strftime</title>
 
   <para>
-    <ulink url="&link-typedef-x-strftime;"><classname>&ns;::strftime</classname></ulink>, and
-    <ulink url="&link-typedef-x-wstrftime;"><classname>&ns;::wstrftime</classname></ulink>
-    format a given date or time using a <citerefentry>
+    <ulink url="&link-x--strftime;"><classname>&ns;::strftime</classname></ulink>
+    formats a given date or time using a <citerefentry>
     <refentrytitle>strftime</refentrytitle>
       <manvolnum>3</manvolnum>
     </citerefentry>

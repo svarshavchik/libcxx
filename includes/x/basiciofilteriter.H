@@ -1,5 +1,5 @@
 /*
-** Copyright 2012 Double Precision, Inc.
+** Copyright 2012-2015 Double Precision, Inc.
 ** See COPYING for distribution information.
 */
 
@@ -415,8 +415,6 @@ public:
 	}
 };
 
-extern template class obasiciofilteriterbase<char, wchar_t>;
-extern template class obasiciofilteriterbase<wchar_t, char>;
 extern template class obasiciofilteriterbase<char, char>;
 
 #if 0

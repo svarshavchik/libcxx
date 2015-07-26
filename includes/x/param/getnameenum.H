@@ -1,5 +1,5 @@
 /*
-** Copyright 2012 Double Precision, Inc.
+** Copyright 2012-2015 Double Precision, Inc.
 ** See COPYING for distribution information.
 */
 
@@ -10,7 +10,6 @@
 
 #include <x/param/enumeration.H>
 #include <x/locale.H>
-#include <x/value_stringable.H>
 #include <x/namespace.h>
 
 namespace LIBCXX_NAMESPACE {

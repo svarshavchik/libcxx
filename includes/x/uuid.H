@@ -1,5 +1,5 @@
 /*
-** Copyright 2012 Double Precision, Inc.
+** Copyright 2012-2015 Double Precision, Inc.
 ** See COPYING for distribution information.
 */
 
@@ -11,7 +11,6 @@
 #include <x/container_traits.H>
 #include <x/singleton.H>
 #include <x/base64.H>
-#include <x/value_stringable.H>
 #include <sys/time.h>
 #include <stdint.h>
 
@@ -181,9 +180,6 @@ public:
 
 	//! Convert unique ID to a text string.
 	void asString(charbuf cb) const noexcept;
-
-	//! This class implements toString().
-	static const stringable_t stringable=class_tostring;
 
 	//! Alternate string conversion operator.
 	template<typename OutputIterator>

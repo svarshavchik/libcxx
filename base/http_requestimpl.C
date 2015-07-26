@@ -42,7 +42,7 @@ const char requestimpl::proxy_authorization[] = "Proxy-Authorization";
 
 requestimpl::requestimpl() noexcept : proxyFormat(false),
 				     method(GET), httpver(httpver_t::http11)
-				     
+
 {
 }
 
@@ -101,8 +101,7 @@ void requestimpl::parse_start_line()
 	b=std::find_if(p, e, std::not1(std::ptr_fun(isspace)));
 	p=std::find_if(b, e, std::ptr_fun(isspace));
 
-	// Domain should be ACE, if not, ass-ume UTF-8.
-	uri.parse(b, p, locale::base::utf8(), 0);
+	uri.parse(b, p, 0);
 
 	b=std::find_if(p, e, std::not1(std::ptr_fun(isspace)));
 
@@ -138,7 +137,7 @@ void requestimpl::parse_start_line()
 
 	erase("Host");
 }
-	    
+
 const char *requestimpl::methodstr(method_t method) noexcept
 {
 	size_t i;

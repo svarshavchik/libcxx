@@ -1,5 +1,5 @@
 /*
-** Copyright 2012-2013 Double Precision, Inc.
+** Copyright 2012-2015 Double Precision, Inc.
 ** See COPYING for distribution information.
 */
 
@@ -48,26 +48,17 @@ class basic_streamObj : public streamType, virtual public obj {
 public:
 	//! Type of our stream buffer
 
-	typedef ref<basic_streambufObj<typename streamType::char_type,
-				       typename streamType::traits_type>
-		    > streambufref_t;
+	typedef ref<basic_streambufObj> streambufref_t;
 private:
 
 	//! Our stream buffer
 
 	streambufref_t streambufref;
 
-	//! Stream buffer type used by this stream
-
-	typedef std::basic_streambuf<typename streamType::char_type,
-				     typename streamType::traits_type
-				     > streambuf_type;
-
 public:
 	//! Define the reference type for this reference-counted object.
 
 	typedef ref<basic_streamObj< streamType > > ref_t;
-
 
 	//! Bind this new stream object to a stream buffer
 
@@ -76,7 +67,7 @@ public:
 
 	basic_streamObj(//! A reference to a stream buffer
 			const streambufref_t &streambufrefArg)
-		: streamType(interface<streambuf_type>
+		: streamType(interface<std::streambuf>
 			     ::getRef(streambufrefArg)),
 		  streambufref(streambufrefArg)
 	{
@@ -105,7 +96,7 @@ public:
 	void rdbuf(//! New buffer object
 		   const streambufref_t &streambufrefArg)
 	{
-		streamType::rdbuf(interface<streambuf_type>
+		streamType::rdbuf(interface<std::streambuf>
 				  ::getRef(streambufrefArg));
 		streambufref=streambufrefArg;
 	}
@@ -146,42 +137,6 @@ typedef ref<basic_streamObj< std::ostream > > ostream;
 
 typedef ref<basic_streamObj< std::iostream > > iostream;
 
-//! A reference-counted \c std::wistream
-
-//! \code
-//! wstreambuf buf(wstreambuf::create());
-//!
-//! wistream wis(wistream::create(buf));
-//! \endcode
-//!
-//! \see ptr
-
-typedef ref<basic_streamObj< std::wistream > > wistream;
-
-//! A reference-counted \c std::wostream
-
-//! \code
-//! wstreambuf buf(wstreambuf::create());
-//!
-//! wostream wos(wostream::create(buf));
-//! \endcode
-//!
-//! \see ptr
-
-typedef ref<basic_streamObj< std::wostream > > wostream;
-
-//! A reference-counted \c std::wiostream
-
-//! \code
-//! wstreambuf buf(wstreambuf::create());
-//!
-//! wiostream wios(wiostream::create(buf));
-//! \endcode
-//!
-//! \see ptr
-
-typedef ref<basic_streamObj< std::wiostream > > wiostream;
-
 //! A reference-counted \c std::istream
 
 //! \see istream
@@ -199,24 +154,6 @@ typedef ptr<basic_streamObj< std::ostream > > ostreamptr;
 //! \see iostream
 
 typedef ptr<basic_streamObj< std::iostream > > iostreamptr;
-
-//! A reference-counted \c std::wistream
-
-//! \see wistream
-
-typedef ptr<basic_streamObj< std::wistream > > wistreamptr;
-
-//! A reference-counted \c std::wostream
-
-//! \see wostream
-
-typedef ptr<basic_streamObj< std::wostream > > wostreamptr;
-
-//! A reference-counted \c std::wiostream
-
-//! \see wiostream
-
-typedef ptr<basic_streamObj< std::wiostream > > wiostreamptr;
 
 #if 0
 {

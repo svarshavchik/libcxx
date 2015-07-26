@@ -1,5 +1,5 @@
 /*
-** Copyright 2012 Double Precision, Inc.
+** Copyright 2012-2015 Double Precision, Inc.
 ** See COPYING for distribution information.
 */
 
@@ -15,7 +15,6 @@
 #include <x/http/formfwd.H>
 #include <x/exception.H>
 #include <x/locale.H>
-#include <x/value_stringable.H>
 #include <x/idn.H>
 #include <x/namespace.h>
 
@@ -88,25 +87,11 @@ public:
 		template<typename iter_type>
 		authority_t(iter_type beg_iter,
 			    iter_type end_iter,
-			    const const_locale &locale,
 			    int flags=0)
 			: has_userinfo(false)
 		{
-			if (parse(beg_iter, end_iter, locale, flags)
-			    != end_iter)
+			if (parse(beg_iter, end_iter, flags) != end_iter)
 				invalid_authority();
-		}
-
-		//! Construct from a string defined by a beginning and ending input iterator
-
-		//! An international domain name gets converted using the
-		//! system environment locale
-		template<typename iter_type>
-		authority_t(iter_type beg_iter,
-			    iter_type end_iter)
-			: authority_t(beg_iter, end_iter,
-				      locale::base::environment())
-		{
 		}
 
 		//! Destructor
@@ -139,7 +124,6 @@ public:
 		template<typename iter_type>
 		iter_type parse(iter_type beg_iter,
 				iter_type end_iter,
-				const const_locale &locale,
 				int flags)
 		{
 			clear();
@@ -150,7 +134,7 @@ public:
 			if (*beg_iter != '[')
 			{
 				beg_iter=parse_nonipliteral(beg_iter, end_iter,
-							    locale, flags);
+							    flags);
 
 				if (beg_iter == end_iter || *beg_iter != '@')
 				{
@@ -206,7 +190,7 @@ public:
 					{
 						hostport.push_back(*beg_iter);
 						++beg_iter;
-					} 
+					}
 
 					validate_port();
 				}
@@ -214,7 +198,7 @@ public:
 			}
 
 			beg_iter=parse_nonipliteral(beg_iter, end_iter,
-						    locale, flags);
+						    flags);
 
 			validate_port();
 
@@ -235,7 +219,6 @@ public:
 		template<typename iter_type>
 		iter_type parse_nonipliteral(iter_type beg_iter,
 					     iter_type end_iter,
-					     const const_locale &localeArg,
 					     int flags)
 		{
 			std::string s;
@@ -256,7 +239,7 @@ public:
 				lastcolon=s.size();
 
 			hostport=idn::to_ascii(s.substr(0, lastcolon),
-					       localeArg, flags)
+					       flags)
 				+ s.substr(lastcolon);
 
 			return beg_iter;
@@ -299,7 +282,7 @@ public:
 		//! \overload
 		//! Compatibility with value_string. Converts ACE domain
 		//! name to the current locale.
-		
+
 		template<typename OutputIterator>
 		OutputIterator toString(//! The output iterator
 					OutputIterator iter,
@@ -319,8 +302,7 @@ public:
 			auto p=std::find(b, e, ':');
 
 			iter=emitUserinfo(iter);
-			auto s=idn::from_ascii(std::string(b, p),
-					       localeRef, flags);
+			auto s=idn::from_ascii(std::string(b, p), flags);
 			iter=std::copy(s.begin(), s.end(), iter);
 
 			return std::copy(p, e, iter);
@@ -403,7 +385,7 @@ public:
 		//! Flags for libidn
 		int flags=0)
 	{
-		parse(beg_iter, end_iter, locale, flags);
+		parse(beg_iter, end_iter, flags);
 	}
 
 private:
@@ -426,7 +408,6 @@ public:
 	template<typename InputIterator>
 	void parse(InputIterator beg_iter,
 		   InputIterator end_iter,
-		   const const_locale &localeArg,
 		   int flags)
 	{
 		scheme.clear();
@@ -477,7 +458,6 @@ public:
 
 					beg_iter=authority.parse(beg_iter,
 								 end_iter,
-								 localeArg,
 								 flags);
 
 					if (beg_iter == end_iter)
@@ -545,19 +525,12 @@ public:
 public:
 	//! Constructor
 
-	uriimpl(const std::string &urlString);
-
-	//! Constructor
-
 	uriimpl(const char *urlString);
 
 	//! Constructor
 
 	uriimpl(//! URI string
 		const std::string &urlString,
-
-		//! Locale for parsing international domain names
-		const const_locale &locale,
 
 		//! Optional \ref idn "libidn flags".
 		int flags=0);
@@ -747,10 +720,6 @@ public:
 		return iter;
 	}
 
-
-	//! This class implements toString() and fromString()
-	static const stringable_t stringable=class_tostring;
-
 	//! Convert this URI to a string representation
 
 	//! \overload
@@ -907,7 +876,7 @@ private:
 #ifndef DOXYGEN
 extern template void uriimpl::parse(std::string::const_iterator,
 				    std::string::const_iterator,
-				    const const_locale &, int);
+				    int);
 
 extern template std::ostreambuf_iterator<char>
 uriimpl::toString(std::ostreambuf_iterator<char>, bool,
@@ -920,17 +889,13 @@ uriimpl::toString(std::ostreambuf_iterator<char>, const const_locale &, bool)
 
 extern template
 uriimpl::authority_t::authority_t(std::string::const_iterator,
-				  std::string::const_iterator);
-
-extern template
-uriimpl::authority_t::authority_t(std::string::const_iterator,
 				  std::string::const_iterator,
-				  const const_locale &, int);
+				  int);
 extern template
 std::string::const_iterator
 uriimpl::authority_t::parse(std::string::const_iterator,
 			    std::string::const_iterator,
-			    const const_locale &, int);
+			    int);
 
 extern template std::ostreambuf_iterator<char>
 uriimpl::authority_t::emitUserinfo(std::ostreambuf_iterator<char>)

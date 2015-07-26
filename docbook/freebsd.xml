@@ -71,13 +71,6 @@ See COPYING for distribution information.
 	On Linux this class is declared as an inline no-op, and will hopefully
 	get optimized away.
       </para>
-
-      <para>
-	Even with this workaround, some things are still not working
-	correctly; namely <link linkend="codecvt">wide/narrow character
-	  conversion</link> classes do not appear to handle the system
-	environment locale correctly.
-      </para>
     </listitem>
 
     <listitem>

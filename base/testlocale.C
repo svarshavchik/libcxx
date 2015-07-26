@@ -22,29 +22,6 @@ static void testctype()
 	std::cout << ctype.toupper(std::string("Hello world")) << std::endl;
 	std::cout << ctype.tolower("Hello world") << std::endl;
 	std::cout << ctype.tolower(std::string("Hello world")) << std::endl;
-
-	if (ctype.narrow(ctype.widen(std::string("rosebud")), ' ')
-	    != "rosebud")
-		throw EXCEPTION("narrow/widen failure");
-}
-
-static void testwctype()
-{
-	LIBCXX_NAMESPACE::locale utf8(LIBCXX_NAMESPACE::locale::base::utf8());
-
-	LIBCXX_NAMESPACE::wctype ctype(utf8);
-
-	std::cout << LIBCXX_NAMESPACE::tostring(ctype.toupper(L"Hello world"),
-					      utf8) << std::endl;
-	std::cout << LIBCXX_NAMESPACE::tostring(ctype.toupper(std::wstring(L"Hello world")),
-					      utf8) << std::endl;
-	std::cout << LIBCXX_NAMESPACE::tostring(ctype.tolower(L"Hello world"),
-					      utf8) << std::endl;
-	std::cout << LIBCXX_NAMESPACE::tostring(ctype.tolower(std::wstring(L"Hello world")),
-					      utf8) << std::endl;
-	if (ctype.narrow(ctype.widen(std::string("rosebud")), ' ')
-	    != "rosebud")
-		throw EXCEPTION("narrow/widen failure");
 }
 
 static void showwords(const std::list<std::string> &s)
@@ -175,9 +152,6 @@ int main(int argc, char *argv[])
 	try {
 		alarm(30);
 		testctype();
-		testwctype();
-
-		LIBCXX_NAMESPACE::fromutf8string(LIBCXX_NAMESPACE::toutf8string(std::string("Hello World!")));
 
 		if (LIBCXX_NAMESPACE::strftime(1000000000, LIBCXX_NAMESPACE::tzfile::base::utc(), LIBCXX_NAMESPACE::locale::base::utf8())("%Y")
 		    != "2001")

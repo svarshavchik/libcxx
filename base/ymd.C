@@ -12,6 +12,7 @@
 #include "x/messages.H"
 #include "x/tostring.H"
 #include "x/interval.H"
+#include "x/strftime.H"
 #include "gettext_in.h"
 
 #include <time.h>
@@ -34,11 +35,6 @@ const ymd::daynum_t ymd::gregorian_reformation_date_jd=
 
 	;
 
-void ymd::date_parsing_failed()
-{
-	throw EXCEPTION(_("Date parsing failed"));
-}
-
 ymd::ymd()
 {
 	time_t t;
@@ -55,6 +51,16 @@ ymd::ymd()
 	day=tmval.tm_mday;
 
 	compute_daynum();
+}
+
+ymd::ymd(const char *string, bool mdyflag, const const_locale &loc)
+{
+	*this= parser(loc).mdy(mdyflag).parse(string);
+}
+
+ymd::ymd(const std::string &string, bool mdyflag, const const_locale &loc)
+{
+	*this= parser(loc).mdy(mdyflag).parse(string);
 }
 
 ymd::~ymd() noexcept
@@ -407,9 +413,7 @@ template void ymd::interval::construct<std::string::iterator>
 (std::string::iterator, std::string::iterator, const const_locale &)
 ;
 
-template<>
-std::string ymd::interval::toString<char>(const const_locale &l)
-const
+std::string ymd::interval::internal_tostring(const const_locale &l) const
 {
 	messages msgcat(messages::create(l, LIBCXX_DOMAIN));
 
@@ -451,13 +455,9 @@ const
 	return o.str();
 }
 
-template<>
-std::wstring ymd::interval::toString<wchar_t>(const const_locale &l)
- const
+ymd::interval::operator std::string() const
 {
-	std::string s(toString<char>(l));
-
-	return towstring(s, l);
+	return internal_tostring();
 }
 
 ymd::iso8601::iso8601(const ymd &date)
@@ -513,32 +513,24 @@ ymd::iso8601::~iso8601() noexcept
 {
 }
 
-template<typename CharT>
-std::basic_string<CharT> ymd::iso8601::toString()
-	const
+std::string ymd::iso8601::toString() const
 {
-	CharT d[2];
-	CharT dw[3];
+	char d[2];
+	char dw[3];
 
 	d[0]=dw[0]='-';
 	dw[1]='W';
 	d[1]=dw[2]=0;
 
-	std::basic_ostringstream<CharT> o;
+	std::ostringstream o;
 
-	imbue<std::basic_ostringstream<CharT> > force_c(locale::create("C"), o);
+	imbue<std::ostringstream> force_c(locale::create("C"), o);
 
-	o << std::setw(4) << std::setfill((CharT)'0') << year << dw
-	  << std::setw(2) << std::setfill((CharT)'0') << (int)week << d
+	o << std::setw(4) << std::setfill('0') << year << dw
+	  << std::setw(2) << std::setfill('0') << (int)week << d
 	  << std::setw(1) << (int)daynum;
 	return o.str();
 }
-
-template std::basic_string<char>
-ymd::iso8601::toString<char>() const;
-
-template std::basic_string<wchar_t>
-ymd::iso8601::toString<wchar_t>() const;
 
 ymd::ymd(const ymd::iso8601 &iso8601Date)
 {
@@ -554,16 +546,17 @@ ymd::ymd(const ymd::iso8601 &iso8601Date)
 	*this= firstDay + ival;
 }
 
-template<typename CharT>
-ymd::parser<CharT>::parser(const const_locale &locArg)
- : loc(locArg), usmdy(false)
+ymd::parser::parser(const const_locale &locArg)
+	: loc(locArg), usmdy(false)
 {
-	basic_ctype<CharT> ct(loc);
+	ctype ct(loc);
 
-	CharT fmtbuf[3];
+	char fmtbuf[3];
 
 	fmtbuf[0]='%';
 	fmtbuf[2]=0;
+
+	auto utf8=locale::base::utf8();
 
 	for (size_t i=0; i<12; i++)
 	{
@@ -571,25 +564,236 @@ ymd::parser<CharT>::parser(const const_locale &locArg)
 
 		fmtbuf[1]='b';
 
-		month_names[i]=ct.toupper(day.formatDate(fmtbuf, loc));
+		unicode::iconvert::convert(day.formatDate(fmtbuf, utf8),
+					   unicode::utf_8,
+					   month_names[i]);
 
 		fmtbuf[1]='B';
 
-		month_names_long[i]=ct.toupper(day.formatDate(fmtbuf, loc));
-	}
+		unicode::iconvert::convert(day.formatDate(fmtbuf, utf8),
+					   unicode::utf_8,
+					   month_names_long[i]);
 
+		std::transform(month_names[i].begin(),
+			       month_names[i].end(),
+			       month_names[i].begin(),
+			       unicode_uc);
+
+		std::transform(month_names_long[i].begin(),
+			       month_names_long[i].end(),
+			       month_names_long[i].begin(),
+			       unicode_uc);
+	}
 }
 
-template<typename CharT>
-ymd::parser<CharT>::~parser() noexcept
+ymd::parser::~parser() noexcept
 {
 }
 
+ymd ymd::parser::parse(const char *string)
+{
+	size_t n;
+
+	for (n=0; string[n]; ++n)
+		;
+
+	return parse(string, string+n);
+}
+
+ymd ymd::parser::parse_internal(const function<int ()> &f)
+{
+	ctype ct(loc);
+
+	int md[2];
+	int md_cnt=0;
+
+	bool md_str=false;
+	std::string mstr;
+
+	uint16_t year=0;
+	bool yearfound=false;
+
+	bool yearfirst=false;
+	bool first=true;
+
+	size_t current_number=0;
+	int in_number=0;
+
+	int c=f();
+
+	// Parse numbers we see, maybe a month name.
+
+	while (1)
+	{
+		if (c >= '0' && c <= '9')
+		{
+			// Seeing a digit, add it to current_number
+
+			current_number=current_number * 10 + (c-'0');
+
+			// Can't see 5 or more consecutive digits.
+
+			if (++in_number > 4)
+				goto bad;
+			c=f();
+			continue;
+		}
+
+		if (in_number)
+		{
+			// Something that's not a digit, after a digit
+
+			if (in_number == 4)
+			{
+				// Saw four digits, must be a year.
+
+				if (yearfound)
+					goto bad;
+
+				yearfound=true;
+				yearfirst=first;
+				year=current_number;
+			}
+			else
+			{
+				// Can't see three or more numbers
+
+				if (md_cnt >= 2)
+					goto bad;
+
+				if ((uint8_t)current_number != current_number)
+					goto bad;
+
+				md[md_cnt]=current_number;
+				++md_cnt;
+			}
+			current_number=0;
+			in_number=0;
+			first=false;
+		}
+
+		if (c == -1)
+			break;
+
+		if (!ct.is(c, std::ctype_base::alpha))
+		{
+			c=f();
+			continue;
+		}
+
+		// Seeing letters, must be a month name
+
+		if (md_str)
+			goto bad;
+
+		while (c != -1 &&
+		       ct.is(c, std::ctype_base::alnum))
+		{
+			mstr.push_back(c);
+			c=f();
+		}
+
+		md_str=true;
+	}
+
+	// Now, figure out what we have.
+
+	uint16_t month, day;
+
+	if (!yearfound)
+		goto bad;
+
+	if (md_str)
+	{
+		if (md_cnt != 1)
+			goto bad;
+
+		if (mstr.size() > 1 && mstr[0] == 'W')
+		{
+			// W<week number>
+
+			std::istringstream i(mstr.substr(1));
+
+			uint16_t n=0;
+
+			i >> n;
+
+			if (!i.fail())
+				return ymd(ymd::iso8601(year, n, md[0]));
+		}
+
+		// Convert to uppercase unicode, match to a month.
+
+		std::vector<unicode_char> umstr;
+
+		unicode::iconvert::convert(mstr, unicode_default_chset(),
+					   umstr);
+
+		std::transform(umstr.begin(),
+			       umstr.end(),
+			       umstr.begin(),
+			       unicode_uc);
+
+		for (month=0; month<12; month++)
+			if (month_names[month] == umstr ||
+			    month_names_long[month] == umstr)
+				break;
+
+		if (month >= 12)
+			goto bad;
+		++month;
+		day=md[0];
+	}
+	else
+	{
+		if (md_cnt != 2)
+		{
+		bad:
+
+			throw EXCEPTION(_("Date parsing failed"));
+		}
+
+		if (yearfirst || usmdy)
+		{
+			month=md[0];
+			day=md[1];
+		}
+		else
+		{
+			day=md[0];
+			month=md[1];
+		}
+	}
+
+	return ymd(year, month, day);
+}
+
+std::string ymd::formatDate(const char *pattern,
+			    const const_locale &localeRef)
+	const
+{
+	static const char isodate[]="%d-%b-%Y";
+
+	if (!pattern)
+		pattern=isodate;
+
+	return strftime(*this, localeRef)(pattern);
+}
+
+std::string ymd::formatDate(const std::string &pattern,
+			    const const_locale &localeRef)
+	const
+{
+	return formatDate(pattern.c_str(), localeRef);
+}
+
+ymd::operator std::string() const
+{
+	return formatDate();
+}
+
 #ifndef DOXYGEN
-template class ymd::parser<char>;
-template class ymd::parser<wchar_t>;
-template ymd ymd::parser<char>::parse(const char *, const char *);
-template ymd ymd::parser<wchar_t>::parse(const wchar_t *, const wchar_t *);
+template ymd ymd::parser::parse(const char *, const char *);
 #endif
 
 #if 0
