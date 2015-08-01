@@ -92,6 +92,15 @@ size_t gettext_fmt_getn(const char *&str)
 	return n;
 }
 
+std::vector<unicode_char> messagesObj::to_unicode(const std::string &s) const
+{
+	std::vector<unicode_char> uc;
+
+	unicode::iconvert::convert(s, l->charset(), uc);
+
+	return uc;
+}
+
 #if 0
 {
 #endif

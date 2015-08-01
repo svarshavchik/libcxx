@@ -10,7 +10,6 @@
 #include <x/tzfile.H>
 #include <x/locale.H>
 #include <x/facet.H>
-#include <x/ctype.H>
 #include <x/string_argument.H>
 #include <iostream>
 #include <type_traits>
@@ -186,24 +185,8 @@ public:
 	//!
 	//! An exception gets thrown if the string cannot be parsed, as such.
 
-	template<typename iter_type>
-	static inline time_t to_time_t(iter_type b, iter_type e,
-				       const const_locale &l)
-	{
-		return do_to_time_t
-			(make_function<bool ()>([&]{ return b == e; }),
-			 make_function<char ()>([&]{ return *b; }),
-			 make_function<void ()>([&]{ ++b; }), l);
-	}
-
-	//! Type-erased to_time_t
-
-	//! \internal
-
-	static time_t do_to_time_t(const function<bool()> &eof_func,
-				   const function<char ()> &curchar_func,
-				   const function<void ()> &nextchar_func,
-				   const const_locale &l);
+	static time_t to_time_t(const std::string &s,
+				const const_locale &l);
 
 	//! Instantiate from a string
 
@@ -225,8 +208,7 @@ public:
 	       //! Locale for parsing the month name
 	       const const_locale &localeRef=locale::base::utf8())
 		: ymdhmsBase(tzfileArg->compute_ymdhms
-			     (to_time_t(timeValue.begin(), timeValue.end(),
-					localeRef))),
+			     (to_time_t(timeValue, localeRef))),
 		  tz(tzfileArg)
 	{
 	}

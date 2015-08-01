@@ -20,8 +20,7 @@ namespace LIBCXX_NAMESPACE {
 #include "tz_internal.H"
 
 template<typename OutputIterator>
-OutputIterator tzfileObj::tzinfo::toString(OutputIterator iter,
-					   const ctype &ct)
+OutputIterator tzfileObj::tzinfo::toString(OutputIterator iter)
 	const
 {
 	std::ostringstream o;
@@ -127,8 +126,6 @@ OutputIterator tzfileObj::debugDump(OutputIterator iter,
 		endl=ss.str();
 	}
 
-	ctype ct(locale);
-
 	{
 		std::vector<struct ttinfo_s>::iterator b, e;
 		size_t i;
@@ -199,12 +196,12 @@ OutputIterator tzfileObj::debugDump(OutputIterator iter,
 
 		iter=std::copy(tzseq, tzseq+3, iter);
 
-		iter=tz_alt_start.toString(iter, ct);
+		iter=tz_alt_start.toString(iter);
 
 		if (tz_alt_start.offset != tz_alt_end.offset)
 		{
 			*iter++ = ',';
-			iter=tz_alt_end.toString(iter, ct);
+			iter=tz_alt_end.toString(iter);
 		}
 
 		iter=std::copy(endl.begin(), endl.end(), iter);

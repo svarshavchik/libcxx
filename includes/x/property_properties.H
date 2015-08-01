@@ -11,7 +11,6 @@
 #include <x/ptr.H>
 #include <x/property_valueeventhandlerobj.H>
 #include <x/locale.H>
-#include <x/ctype.H>
 #include <iostream>
 #include <map>
 #include <list>
@@ -152,15 +151,13 @@ iter_type parsepropname(iter_type b, //!< Beginning iterator
 {
 	prophier.clear();
 
-	ctype ct(locale);
-
 	std::string cur_name;
 
 	while (1)
 	{
 		bool eof=b == e;
 
-		if (eof || ct.is(*b, std::ctype_base::space)
+		if (eof || *b == ' ' || *b == '\t' || *b == '\r' || *b == '\n'
 		    || *b == '<' || *b == '>' || *b == ','
 		    || *b == '.' || *b == ':')
 		{

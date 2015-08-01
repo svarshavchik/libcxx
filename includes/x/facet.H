@@ -29,13 +29,6 @@ template<class FacetType> class facetObj;
 
 namespace facetObjs {
 
-	//! A \c std::ctype&lt;char&gt; facet implementation
-
-	//! \internal
-	//! \see facets::ctype
-
-	typedef facetObj< std::ctype<char> > ctype;
-
 	//! A \c std::time_put facet implementation
 
 	//! \internal
@@ -90,18 +83,6 @@ namespace facetObjs {
 //! no need to access the underlying \c std::locale %facet object directly.
 
 namespace facets {
-
-
-	//! Define a wrapper for the \c std::ctype&lt;char&gt; facet.
-
-	//! See also: \ref ctype "ctype".
-
-	typedef ref< facetObjs::ctype> ctype_facet;
-
-	//! A pointer to a reference-counted ctype facet
-
-	//! \see ctype_facet
-	typedef ptr< facetObjs::ctype> ctype_facetptr;
 
 	//! Define a wrapper for the \c std::time_put facet.
 

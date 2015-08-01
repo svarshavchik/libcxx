@@ -10,7 +10,6 @@
 #include "x/chrcasecmp.H"
 #include "x/messages.H"
 #include "x/servent.H"
-#include "x/ctype.H"
 #include <sstream>
 
 #include <arpa/inet.h>

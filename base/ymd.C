@@ -8,7 +8,6 @@
 #include "x/sysexception.H"
 #include "x/ymd.H"
 #include "x/strtok.H"
-#include "x/ctype.H"
 #include "x/messages.H"
 #include "x/tostring.H"
 #include "x/interval.H"
@@ -358,6 +357,22 @@ ymd::sdaynum_t ymd::operator-(const ymd &other) const noexcept
 	return -(b-a);
 }
 
+
+ymd::interval::interval(const std::string &sArg,
+			const const_locale &localeArg)
+	: years(0), months(0), weeks(0), days(0)
+{
+	LIBCXX_NAMESPACE::interval<sdaynum_t> parser(interval_descr, 0,
+						     libmsg());
+
+	const std::vector<sdaynum_t> &vec=parser.parse(sArg, localeArg);
+
+	days=vec[0];
+	weeks=vec[1];
+	months=vec[2];
+	years=vec[3];
+}
+
 ymd::interval ymd::interval::operator-() const
 {
 	interval n;
@@ -400,18 +415,6 @@ const char * const ymd::interval::interval_descr[]={_txtn("day", "days"),
 						    _txtn("month", "months"),
 						    _txtn("year", "years"),
 						    0};
-
-ymd::interval::interval(const std::string &intervalStr,
-			const const_locale &localeArg)
-	: years(0), months(0), weeks(0), days(0)
-{
-	construct(intervalStr.begin(),
-		  intervalStr.end(), localeArg);
-}
-
-template void ymd::interval::construct<std::string::iterator>
-(std::string::iterator, std::string::iterator, const const_locale &)
-;
 
 std::string ymd::interval::internal_tostring(const const_locale &l) const
 {
@@ -549,8 +552,6 @@ ymd::ymd(const ymd::iso8601 &iso8601Date)
 ymd::parser::parser(const const_locale &locArg)
 	: loc(locArg), usmdy(false)
 {
-	ctype ct(loc);
-
 	char fmtbuf[3];
 
 	fmtbuf[0]='%';
@@ -574,15 +575,8 @@ ymd::parser::parser(const const_locale &locArg)
 					   unicode::utf_8,
 					   month_names_long[i]);
 
-		std::transform(month_names[i].begin(),
-			       month_names[i].end(),
-			       month_names[i].begin(),
-			       unicode_uc);
-
-		std::transform(month_names_long[i].begin(),
-			       month_names_long[i].end(),
-			       month_names_long[i].begin(),
-			       unicode_uc);
+		month_names[i]=unicode::toupper(month_names[i]);
+		month_names_long[i]=unicode::toupper(month_names_long[i]);
 	}
 }
 
@@ -600,15 +594,13 @@ ymd ymd::parser::parse(const char *string)
 	return parse(string, string+n);
 }
 
-ymd ymd::parser::parse_internal(const function<int ()> &f)
+ymd ymd::parser::parse_internal(const std::vector<unicode_char> &ustr)
 {
-	ctype ct(loc);
-
 	int md[2];
 	int md_cnt=0;
 
 	bool md_str=false;
-	std::string mstr;
+	std::vector<unicode_char> mstr;
 
 	uint16_t year=0;
 	bool yearfound=false;
@@ -619,23 +611,23 @@ ymd ymd::parser::parse_internal(const function<int ()> &f)
 	size_t current_number=0;
 	int in_number=0;
 
-	int c=f();
+	auto b=ustr.begin(), e=ustr.end();
 
 	// Parse numbers we see, maybe a month name.
 
 	while (1)
 	{
-		if (c >= '0' && c <= '9')
+		if (b != e && unicode_isdigit(*b))
 		{
 			// Seeing a digit, add it to current_number
 
-			current_number=current_number * 10 + (c-'0');
+			current_number=current_number * 10 + (*b & 0x0F);
 
 			// Can't see 5 or more consecutive digits.
 
 			if (++in_number > 4)
 				goto bad;
-			c=f();
+			++b;
 			continue;
 		}
 
@@ -672,12 +664,12 @@ ymd ymd::parser::parse_internal(const function<int ()> &f)
 			first=false;
 		}
 
-		if (c == -1)
+		if (b == e)
 			break;
 
-		if (!ct.is(c, std::ctype_base::alpha))
+		if (!unicode_isalpha(*b))
 		{
-			c=f();
+			++b;
 			continue;
 		}
 
@@ -686,11 +678,10 @@ ymd ymd::parser::parse_internal(const function<int ()> &f)
 		if (md_str)
 			goto bad;
 
-		while (c != -1 &&
-		       ct.is(c, std::ctype_base::alnum))
+		while (b != e && unicode_isalnum(*b))
 		{
-			mstr.push_back(c);
-			c=f();
+			mstr.push_back(*b);
+			++b;
 		}
 
 		md_str=true;
@@ -712,31 +703,45 @@ ymd ymd::parser::parse_internal(const function<int ()> &f)
 		{
 			// W<week number>
 
-			std::istringstream i(mstr.substr(1));
+			if (std::find_if(mstr.begin()+1,
+					 mstr.end(),
+					 []
+					 (unicode_char uc)
+					 {
+						 return !unicode_isdigit(uc);
+					 })
+			    == mstr.end())
+			{
+				std::transform(mstr.begin()+1,
+					       mstr.end(),
+					       mstr.begin()+1,
+					       []
+					       (unicode_char uc)
+					       {
+						       return (uc & 0x0f) + '0';
+					       });
 
-			uint16_t n=0;
 
-			i >> n;
+				std::istringstream i(std::string(mstr.begin()+1,
+								 mstr.end()));
 
-			if (!i.fail())
-				return ymd(ymd::iso8601(year, n, md[0]));
+				uint16_t n=0;
+
+				i >> n;
+
+				if (!i.fail())
+					return ymd(ymd::iso8601(year, n,
+								md[0]));
+			}
 		}
 
 		// Convert to uppercase unicode, match to a month.
 
-		std::vector<unicode_char> umstr;
-
-		unicode::iconvert::convert(mstr, unicode_default_chset(),
-					   umstr);
-
-		std::transform(umstr.begin(),
-			       umstr.end(),
-			       umstr.begin(),
-			       unicode_uc);
+		mstr=unicode::toupper(mstr);
 
 		for (month=0; month<12; month++)
-			if (month_names[month] == umstr ||
-			    month_names_long[month] == umstr)
+			if (month_names[month] == mstr ||
+			    month_names_long[month] == mstr)
 				break;
 
 		if (month >= 12)

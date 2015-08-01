@@ -23,6 +23,12 @@ void interval_base::syntax_error()
 	throw EXCEPTION(_("Cannot parse specified interval"));
 }
 
+template class interval<int>;
+template class interval<unsigned>;
+
+template class interval<long>;
+template class interval<unsigned long>;
+
 #if 0
 {
 #endif

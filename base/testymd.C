@@ -308,7 +308,7 @@ int main(int argc, char **argv)
 		{
 			std::string s("1 week");
 
-			LIBCXX_NAMESPACE::ymd::interval i(s.begin(), s.end());
+			LIBCXX_NAMESPACE::ymd::interval i(s);
 
 			if (i.weeks != 1)
 				throw EXCEPTION("1 week is not 1 week");

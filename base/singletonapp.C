@@ -10,7 +10,6 @@
 #include "x/fd.H"
 #include "x/fileattr.H"
 #include "x/locale.H"
-#include "x/ctype.H"
 #include "x/eventqueuemsgdispatcher.H"
 #include "x/weaklist.H"
 #include "x/pwd.H"
@@ -21,6 +20,7 @@
 #include "x/messages.H"
 #include "x/pidinfo.H"
 #include "x/sigset.H"
+#include "x/strtok.H"
 #include "gettext_in.h"
 #include <sstream>
 #include <unistd.h>
@@ -432,8 +432,7 @@ void singletonapp::impl::installsighandler(const sighandler &handler,
 {
 	std::list<std::string> signalnames;
 
-	ctype(locale::base::global())
-		.strtok_is(signallistprop.getValue(), signalnames);
+	strtok_str(signallistprop.getValue(), " \t\r\n,;", signalnames);
 
 	while (!signalnames.empty())
 	{

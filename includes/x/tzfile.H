@@ -14,7 +14,6 @@
 
 #include <x/fdfwd.H>
 #include <x/vectorfwd.H>
-#include <x/ctype.H>
 #include <x/locale.H>
 #include <x/singletonfwd.H>
 #include <x/basicstreamobj.H>
@@ -192,8 +191,7 @@ class tzfileObj : virtual public obj {
 		//! Diagnostic method, only implemented in the regression test.
 
 		template<typename OutputIterator>
-		OutputIterator toString(OutputIterator iter,
-					const ctype &ct)
+		OutputIterator toString(OutputIterator iter)
 			const LIBCXX_HIDDEN;
 	};
 

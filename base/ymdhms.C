@@ -67,14 +67,10 @@ ymdhms::~ymdhms() noexcept
 {
 }
 
-time_t ymdhms::do_to_time_t(const function<bool ()> &eof,
-			    const function<char ()> &curchar,
-			    const function<void ()> &nextchar,
-			    const const_locale &l)
+time_t ymdhms::to_time_t(const std::string &s,
+			 const const_locale &l)
 {
 	auto time_get=l->get_facet<facets::time_get_facet<char> >();
-
-	ctype ct(l);
 
 	std::vector<int> numbers;
 
@@ -82,46 +78,52 @@ time_t ymdhms::do_to_time_t(const function<bool ()> &eof,
 	int tz=0;
 	int month=0;
 
-	while (!eof())
-	{
-		auto c=curchar();
+	std::vector<unicode_char> uc;
 
-		if (ct.is(c, std::ctype_base::space))
+	unicode::iconvert::convert(s, l->charset(), uc);
+
+	for (auto b=uc.begin(), e=uc.end(); b != e;)
+	{
+		if (unicode_isspace(*b))
 		{
-			nextchar();
+			++b;
 			continue;
 		}
 
 		int plusminus=0;
 
-		if (c == '-' || c == '+')
+		if (*b == '-' || *b == '+')
 		{
-			plusminus=c;
+			plusminus= *b;
 
-			nextchar();
-
-			if (eof())
+			if (++b == e)
 				break;
-			c=curchar();
 		}
 
-		if (c >= '0' && c <= '9')
+		if (unicode_isdigit(*b))
 		{
 			int n=0;
 
-			while (!eof() && (c=curchar()) >= '0' && c <= '9')
+			int i=0;
+
+			while (b != e && unicode_isdigit(*b))
 			{
-				n = n * 10 + (c-'0');
-				nextchar();
+				if (++i > 4)
+					goto bad;
+
+				n = n * 10 + (*b & 0x0F);
+				++b;
 			}
 
-			c=curchar();
-			if (!eof())
+			if (b != e)
 			{
-				if (c == ':')
-					nextchar();   // Handle %H:%M:%S
-				else if (c == '-')
-					nextchar();   // Handle the %d in %d-%b-%Y
+				if (*b == ':' || // Handle %H:%M:%S
+				    *b == '-'   // Handle the %d in %d-%b-%Y
+				    )
+				{
+					++b;
+					plusminus=0;
+				}
 			}
 
 			if (plusminus)
@@ -132,24 +134,26 @@ time_t ymdhms::do_to_time_t(const function<bool ()> &eof,
 			continue;
 		}
 
-		std::stringstream ss;
+		auto p=b;
 
-		while (!eof())
+		while (b != e)
 		{
-			c=curchar();
-
-			if (ct.is(c, std::ctype_base::space))
+			if (unicode_isspace(*b) || *b == '-')
 				break;
 
-			if (c == '-')
-			{
-				// Handle the %b in %d-%b-%Y
-				nextchar();
-				break;
-			}
-			ss << c;
-			nextchar();
+			++b;
 		}
+
+		auto lower_month=unicode::iconvert::convert
+			(std::vector<unicode_char>(p, b), l->charset());
+
+		if (b != e && *b == '-')
+		{
+			// Handle the %b in %d-%b-%Y
+			++b;
+		}
+
+		std::istringstream i(lower_month);
 
 		tm tmp=tm();
 
@@ -158,9 +162,9 @@ time_t ymdhms::do_to_time_t(const function<bool ()> &eof,
 		std::ios_base::iostate s;
 
 		time_get->getFacetConstRef()
-			.get_monthname(std::istreambuf_iterator<char>(ss),
+			.get_monthname(std::istreambuf_iterator<char>(i),
 				       std::istreambuf_iterator<char>(),
-				       ss, s, &tmp);
+				       i, s, &tmp);
 		if (tmp.tm_mon >= 0 && tmp.tm_mon < 12)
 		{
 			month=tmp.tm_mon+1;
@@ -169,6 +173,7 @@ time_t ymdhms::do_to_time_t(const function<bool ()> &eof,
 
 	if (numbers.size() != 5 || month == 0)
 	{
+	bad:
 		throw EXCEPTION(libmsg(_txt("Cannot parse time value")));
 	}
 

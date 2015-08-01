@@ -716,9 +716,8 @@ public:
 
 		for (auto hdr:req.list())
 		{
-			if (LIBCXX_NAMESPACE::ctype(LIBCXX_NAMESPACE::locale
-						  ::create("C"))
-			    .tolower(hdr.substr(0, 2)) == "x-")
+			if (unicode::tolower(hdr, unicode::utf_8)
+			    .substr(0, 2) == "x-")
 			{
 				o << std::string(hdr) << std::endl;
 			}

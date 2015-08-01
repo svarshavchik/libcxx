@@ -10,7 +10,6 @@
 #include "x/fd.H"
 #include "x/dir.H"
 #include "x/locale.H"
-#include "x/ctype.H"
 #include "x/strtok.H"
 #include "x/netif.H"
 

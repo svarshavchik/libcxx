@@ -55,7 +55,6 @@ libcxx_la_SOURCES=\
 	chrcasecmp.C		\
 	condobj.C		\
 	csv.C			\
-	ctype.C			\
 	dequemsgdispatcher.C	\
 	destroycallbackflagobj.C \
 	destroycallbackflagwait4obj.C \

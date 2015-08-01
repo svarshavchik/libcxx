@@ -11,7 +11,6 @@
 #include "x/sysexception.H"
 #include "x/locale.H"
 #include "x/imbue.H"
-#include "x/ctype.H"
 #include "x/property_properties.H"
 #include "x/property_list.H"
 #include "x/singleton.H"
@@ -25,6 +24,7 @@
 #include <algorithm>
 #include <iterator>
 #include <cstring>
+#include <courier-unicode.h>
 
 #include <sys/types.h>
 #include <sys/stat.h>
@@ -544,16 +544,11 @@ public:
 	//! Default locale
 	locale default_locale;
 
-	//! Default character conversion locale
-
-	ctype default_ctype;
-
 	configmeta() noexcept;
 	~configmeta() noexcept;
 };
 
-logger::configmeta::configmeta() noexcept : default_locale(locale::base::environment()),
-					   default_ctype(default_locale)
+logger::configmeta::configmeta() noexcept : default_locale(locale::base::environment())
 {
 }
 
@@ -612,8 +607,7 @@ std::string logger::debuglevelpropstr::tostr(short n, const const_locale &l)
 			logger::logconfig->loglevelsrev.find(n);
 
 		if (iter != logger::logconfig->loglevelsrev.end())
-			return logger::logconfig->default_ctype.tolower
-				(iter->second);
+			return unicode::tolower(iter->second, l->charset());
 	}
 
 	std::ostringstream o;
@@ -630,9 +624,8 @@ short logger::debuglevelpropstr::fromstr(const std::string &s,
 		logger::logconfig_lock lock;
 
 		std::map<std::string, short>::iterator iter=
-			logger::logconfig->loglevels.find(logconfig->
-							  default_ctype
-							  .toupper(s));
+			logger::logconfig->loglevels
+			.find(unicode::toupper(s, l->charset()));
 
 		if (iter != logger::logconfig->loglevels.end())
 			return iter->second;
@@ -694,9 +687,8 @@ logger::handlername::handlername(const std::string &name,
 		logger::logconfig_lock lock;
 
 		std::map<std::string, handler>::iterator
-			iter=logconfig->loghandlers.find(logger::logconfig->
-							 default_ctype
-							 .toupper(name));
+			iter=logconfig->loghandlers
+			.find(unicode::toupper(name, localeRef->charset()));
 
 		if (iter != logconfig->loghandlers.end())
 		{
@@ -754,9 +746,8 @@ logger::handlerfmt::handlerfmt(const std::string &name,
 		logger::logconfig_lock lock;
 
 		std::map<std::string, std::string>::iterator
-			iter=logconfig->logformats.find(logger::logconfig->
-							default_ctype
-							.toupper(name));
+			iter=logconfig->logformats
+			.find(unicode::toupper(name, localeRef->charset()));
 
 		if (iter != logconfig->logformats.end())
 		{
@@ -946,6 +937,8 @@ logger::logconfig_init::logconfig_init() noexcept
 
 	locale global_locale(locale::base::environment());
 
+	auto chset=global_locale->charset();
+
 	if (logconfig == NULL)
 		logconfig=new logger::configmeta;
 
@@ -995,8 +988,9 @@ logger::logconfig_init::logconfig_init() noexcept
 				     e=children.end(); b != e;
 			     ++b)
 			{
-				std::string n=logconfig->default_ctype
-					.toupper(b->first);
+				std::string n=
+					unicode::toupper(b->first,
+							 chset);
 
 				std::string v=b->second.value().first;
 
@@ -1011,8 +1005,8 @@ logger::logconfig_init::logconfig_init() noexcept
 				if (parsen.fail())
 				{
 					xlogger_level_map[n]=
-						logconfig->default_ctype
-						.toupper(v);
+						unicode::toupper(v,
+								 chset);
 				}
 
 				logconfig->loglevels[b->first]=vint;
@@ -1079,16 +1073,17 @@ logger::logconfig_init::logconfig_init() noexcept
 				     e=children.end(); b != e;
 			     ++b)
 			{
-				std::string n=logconfig->default_ctype
-					.toupper(b->first);
+				std::string n=
+					unicode::toupper(b->first,
+							 chset);
 
 				std::string val=b->second.value().first;
 
 				if (*val.c_str() == '$')
 				{
 					xlogger_format_map[n]=
-						logconfig->default_ctype
-						.toupper(val.substr(1));
+						unicode::toupper(val.substr(1),
+								 chset);
 					continue;
 				}
 
@@ -1155,16 +1150,16 @@ logger::logconfig_init::logconfig_init() noexcept
 				     e=children.end(); b != e;
 			     ++b)
 			{
-				std::string n=logconfig->default_ctype
-					.toupper(b->first);
+				std::string n=unicode::toupper(b->first,
+							       chset);
 
 				std::string v=b->second.value().first;
 
 				if (*v.c_str() == '$')
 				{
 					xlogger_handler_map[n]=
-						logconfig->default_ctype
-						.toupper(v.substr(1));
+						unicode::toupper(v.substr(1),
+								 chset);
 					continue;
 				}
 
@@ -1179,9 +1174,7 @@ logger::logconfig_init::logconfig_init() noexcept
 
 					while (b != e)
 					{
-						if (logconfig->default_ctype
-						    .is(*b,
-							std::ctype_base::space))
+						if (strchr(" \t\r\n", *b))
 						{
 							++b;
 							continue;
@@ -1192,11 +1185,8 @@ logger::logconfig_init::logconfig_init() noexcept
 
 						while (b != e)
 						{
-							if (logconfig->
-							    default_ctype
-							    .is(*b,
-								std::ctype_base
-								::space))
+							if (strchr(" \t\r\n",
+								   *b))
 								break;
 							++b;
 						}
@@ -1209,15 +1199,15 @@ logger::logconfig_init::logconfig_init() noexcept
 							continue;
 
 						std::string
-							sysn=logconfig
-							->default_ctype
-							.toupper(w.substr(0,
-									  eq));
+							sysn=unicode::toupper
+							(w.substr(0,
+								  eq),
+							 chset);
+
 						std::string
-							l=logconfig
-							->default_ctype
-							.toupper(w.substr(++eq)
-								 );
+							l=unicode::toupper
+							(w.substr(++eq),
+							 chset);
 
 						std::map<std::string,
 							 short>::iterator i
@@ -1390,8 +1380,8 @@ logger::logconfig_init::logconfig_init() noexcept
 		if (facility.propname().size() > 0)
 		{
 			std::string v=
-				logconfig->default_ctype
-				.toupper(facility.value().first);
+				unicode::toupper(facility.value().first,
+						 chset);
 
 
 			static const char * const facilities[]={
@@ -1635,7 +1625,7 @@ void logger::operator()(const std::string &s, short loglevel) const noexcept
 	}
 
 	vars["level"]=
-		tostring(logger::logconfig->default_ctype.tolower
+		tostring(unicode::tolower
 			 (logger::debuglevelpropstr::tostr(loglevel,
 							   logger::logconfig
 							   ->default_locale)

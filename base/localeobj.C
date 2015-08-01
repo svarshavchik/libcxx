@@ -1,5 +1,5 @@
 /*
-** Copyright 2012 Double Precision, Inc.
+** Copyright 2012-2015 Double Precision, Inc.
 ** See COPYING for distribution information.
 */
 
@@ -9,6 +9,8 @@
 #include "x/tostring.H"
 #include "x/singleton.H"
 #include "x/exception.H"
+
+#include <courier-unicode.h>
 
 namespace LIBCXX_NAMESPACE {
 #if 0
@@ -145,6 +147,11 @@ void localeObj::global() const noexcept
 std::string localeObj::name() const noexcept
 {
 	return x.n;
+}
+
+std::string localeObj::charset() const noexcept
+{
+	return unicode_locale_chset_l(x.h);
 }
 
 #if 0

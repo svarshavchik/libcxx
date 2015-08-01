@@ -17,6 +17,7 @@
 #include "x/fd.H"
 #include "x/pidinfo.H"
 #include "x/messages.H"
+#include "x/strtok.H"
 #include "gettext_in.h"
 #include <fstream>
 #include <list>
@@ -252,13 +253,11 @@ void listObj::load_file(std::ifstream &i,
 	{
 		std::string line;
 
-		ctype ct(l);
-
 		while (!std::getline(i, line).eof())
 		{
 			std::list<std::string> words;
 
-			ct.strtok_is(line, words);
+			strtok_str(line, " \t\r\n", words);
 
 			if (words.empty())
 				continue;

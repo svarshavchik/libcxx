@@ -7,7 +7,6 @@
 #include "addoverflow.h"
 #include "x/hms.H"
 #include "x/strtok.H"
-#include "x/ctype.H"
 #include "x/messages.H"
 #include "x/interval.H"
 #include "x/strftime.H"

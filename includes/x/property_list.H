@@ -469,8 +469,6 @@ private:
 	{
 		std::lock_guard<std::mutex> lock(objmutex);
 
-		ctype ct(l);
-
 		size_t linenum=0;
 
 		parsed.clear();
@@ -512,8 +510,8 @@ private:
 			{
 				++beg_iter;
 			} while (beg_iter != end_iter &&
-				 *beg_iter != '\n' &&
-				 ct.is(*beg_iter, std::ctype_base::space));
+				 (*beg_iter == ' ' || *beg_iter == '\t'
+				  || *beg_iter == '\r'));
 
 			while (beg_iter != end_iter &&
 			       *beg_iter != '\n' &&
@@ -558,7 +556,8 @@ private:
 				{
 					v.push_back(c);
 
-					if (ct.is(c, std::ctype_base::space))
+					if (c == '\t' || c == ' ' ||
+					    c == '\n' || c == '\r')
 						continue;
 				}
 				nonspcpos=v.size();

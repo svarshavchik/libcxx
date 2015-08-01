@@ -10,12 +10,11 @@
 #include <x/namespace.h>
 #include <x/locale.H>
 #include <x/messages.H>
-#include <x/ctype.H>
 #include <x/tostring.H>
 
 #include <string>
 #include <vector>
-#include <algorithm>
+#include <courier-unicode.h>
 
 namespace LIBCXX_NAMESPACE {
 #if 0
@@ -138,23 +137,17 @@ public:
 	//! \return a reference to a vector that contains the values for each
 	//! associated name. If the value was not specified, it gets set to 0.
 
-	template<typename InputIterator>
-	const std::vector<int_type> &parse(//! Iterator that returns the string
-					   InputIterator b,
-
-					   //! Ending iterator
-					   InputIterator e)
-
+	const std::vector<int_type> &parse(const std::vector<unicode_char> &uc)
 	{
 		std::fill(values.begin(), values.end(), int_type(0));
 
 		bool has_word=false;
 		bool has_value=false;
 
-		std::string word;
+		std::vector<unicode_char> word;
 		int_type value;
 
-		std::vector<std::string> lookup; // Cache localized words
+		std::vector<std::vector<unicode_char>> lookup; // Cache localized words
 
 		std::vector<bool> lookup_flag; // Seen this word
 
@@ -162,23 +155,21 @@ public:
 		lookup_flag.resize(values.size());
 		std::fill(lookup_flag.begin(), lookup_flag.end(), false);
 
-		ctype ct(catalog->getLocale());
-
-		while (b != e)
+		for (auto b=uc.begin(), e=uc.end(); b != e; )
 		{
-			if (ct.is(*b, std::ctype_base::space))
+			if (unicode_isspace(*b))
 			{
 				++b;
 				continue;
 			}
 
-			if (*b != '-' && ct.is(*b, std::ctype_base::punct))
+			if (*b != '-' && unicode_ispunct(*b))
 			{
 				++b;
 				continue;
 			}
 
-			if (ct.is(*b, std::ctype_base::alpha))
+			if (unicode_isalpha(*b))
 			{
 				// Grab a word
 
@@ -187,12 +178,11 @@ public:
 
 				word.clear();
 
-				while (b != e &&
-				       ct.is(*b, std::ctype_base::alpha))
+				while (b != e && unicode_isalpha(*b))
 				{
 					word.push_back(*b++);
 				}
-				word=ct.tolower(word);
+				unicode::tolower(word);
 				has_word=true;
 			}
 			else
@@ -207,14 +197,12 @@ public:
 				if (*b == '-')
 					w.push_back(*b++);
 
-				if (b == e ||
-				    !ct.is(*b, std::ctype_base::digit))
+				if (b == e || !unicode_isdigit(*b))
 					syntax_error();
 
-				while (b != e &&
-				       ct.is(*b, std::ctype_base::digit))
+				while (b != e && unicode_isdigit(*b))
 				{
-					w.push_back(*b++);
+					w.push_back(((*b++) & 0x0F) + '0');
 				}
 
 				std::istringstream i(w);
@@ -234,29 +222,27 @@ public:
 
 			for (i=0; i<values.size(); i++)
 			{
-				lookup[i]=catalog->get(sp[i*2], sp[i*2+1],
-						       value);
-
+				lookup[i]=
+					unicode::tolower
+					(catalog->get_unicode(sp[i*2],
+							      sp[i*2+1],
+							      value));
 				if (lookup[i] == word)
 					break;
 			}
 
-			if (i >= values.size())
+			if (i >= values.size() && !word.empty())
 			{
-				for (i=0; i<values.size(); i++)
-					if (*lookup[i].c_str() ==
-					    *word.c_str())
-						break;
-			}
+				// Maybe match the first character.
 
-			// Last resort -- check unlocalized
-
-			if (i >= values.size())
-			{
 				for (i=0; i<values.size(); i++)
-					if (sp[i*2][0] == *word.c_str() ||
-					    sp[i*2+1][0] == *word.c_str())
+				{
+					if (lookup[i].empty())
+						continue;
+
+					if (lookup[i][0] == word[0])
 						break;
+				}
 			}
 
 			if (i >= values.size())
@@ -282,12 +268,21 @@ public:
 
 	//! \overload
 	//!
-	const std::vector<int_type> &parse(const std::string &str)
-
+	const std::vector<int_type> &parse(const std::string &str,
+					   const const_locale &l)
 	{
-		return parse(str.begin(), str.end());
+		std::vector<unicode_char> uc;
+
+		unicode::iconvert::convert(str, l->charset(), uc);
+		return parse(uc);
 	}
 };
+
+extern template class interval<int>;
+extern template class interval<unsigned>;
+
+extern template class interval<long>;
+extern template class interval<unsigned long>;
 
 #if 0
 {

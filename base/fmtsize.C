@@ -6,10 +6,11 @@
 #include "libcxx_config.h"
 #include "x/fmtsize.H"
 #include "x/locale.H"
-#include "x/ctype.H"
 #include "gettext_in.h"
 
 #include <sstream>
+#include <algorithm>
+#include <courier-unicode.h>
 
 namespace LIBCXX_NAMESPACE {
 #if 0
@@ -55,47 +56,50 @@ std::string fmtsize(uint64_t bytes) noexcept
 	return o.str();
 }
 
-uint64_t parsesize_int(const std::string &s,
-		       const const_locale &localeArg) noexcept
-	LIBCXX_INTERNAL;
-
-uint64_t parsesize_int(const std::string &s,
-		       const const_locale &localeArg) noexcept
+static uint64_t parsesize_int(const std::string &s,
+			      const const_locale &localeArg) noexcept
 {
+	std::vector<unicode_char> uc;
+
+	unicode::iconvert::convert(s, localeArg->charset(), uc);
+
 	uint64_t n=0, frac=0;
 
-	ctype ct(localeArg);
+	auto b=uc.begin(), e=uc.end();
 
-	std::string::const_iterator b=s.begin(), e=s.end();
+	while (b != e && unicode_isspace(*b))
+		++b;
 
-	b=ct.scan_not(std::ctype_base::space, b, e);
-
-	while (b != e && *b >= '0' && *b <= '9')
+	while (b != e && unicode_isdigit(*b))
 	{
-		n=n * 10 + (*b++ - '0');
+		n=n * 10 + (*b++ & 0x0F);
 	}
 
 	if (b != e && *b == '.')
 	{
 		++b;
-		if (b != e && *b >= '0' && *b <= '9')
+		if (b != e && unicode_isdigit(*b))
 		{
-			frac= *b - '0';
+			frac= *b & 0x0F;
 
 			do
 			{
 				++b;
-			} while (b != e && *b >= '0' && *b <= '9');
+			} while (b != e && unicode_isdigit(*b));
 		}
 	}
 
-	std::string scale=
-		ct.toupper(std::string(ct.scan_not(std::ctype_base::space,
-						   b, e), e));
+	while (b != e && unicode_isspace(*b))
+		++b;
+
+	while (b != e && unicode_isspace(e[-1]))
+		--e;
+
+	unicode_char scale=b == e ? 0: unicode_uc(*b);
 
 	for (int i=sizeof(sz)/sizeof(sz[0]); --i >= 0; )
 	{
-		if (scale == ct.toupper(sz_n[i]))
+		if (scale == unicode_uc(sz_n[i][0]))
 		{
 			n *= sz[i];
 			n += (frac * sz[i]+9) / 10;

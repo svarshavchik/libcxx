@@ -10,6 +10,7 @@
 #include <x/strftime.H>
 #include <x/messagesfwd.H>
 #include <x/interval.H>
+#include <x/locale.H>
 
 namespace LIBCXX_NAMESPACE {
 #if 0
@@ -46,39 +47,17 @@ OutputIterator ymd::interval::toString(OutputIterator iter,
 }
 
 template<typename InputIterator>
-ymd::interval::interval(InputIterator beg_iter,
-			InputIterator end_iter,
-			const const_locale &localeArg)
-	: years(0), months(0), weeks(0), days(0)
+inline ymd ymd::parser::parse(InputIterator beg_iter,
+			      InputIterator end_iter)
 {
-	construct(beg_iter, end_iter, localeArg);
+	std::vector<unicode_char> uc;
+
+	unicode::iconvert::tou::convert(beg_iter, end_iter,
+					loc->charset(),
+					uc);
+
+	return parse_internal(uc);
 }
-
-template<typename InputIterator>
-void ymd::interval::construct(InputIterator beg_iter,
-			      InputIterator end_iter,
-			      const const_locale &localeArg)
-{
-	LIBCXX_NAMESPACE::interval<sdaynum_t> parser(interval_descr, 0,
-						     libmsg());
-
-	const std::vector<sdaynum_t> &vec=parser.parse(beg_iter, end_iter);
-
-	days=vec[0];
-	weeks=vec[1];
-	months=vec[2];
-	years=vec[3];
-}
-
-//! Common template instantiation
-
-extern template void ymd::interval::construct<std::string::iterator>
-(std::string::iterator, std::string::iterator, const const_locale &)
-;
-
-#ifndef DOXYGEN
-extern template ymd ymd::parser::parse(const char *, const char *);
-#endif
 
 #if 0
 {

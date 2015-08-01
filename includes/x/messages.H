@@ -18,6 +18,7 @@
 #include <tuple>
 #include <sstream>
 #include <x/namespace.h>
+#include <courier-unicode.h>
 
 namespace LIBCXX_NAMESPACE {
 
@@ -156,6 +157,21 @@ public:
 	{
 		return get(s.c_str(), p.c_str(), n);
 	}
+
+	//! Retrieve a message from the catalog, as unicode.
+
+	template<typename ...Args>
+	inline std::vector<unicode_char> get_unicode(Args && ...args) const
+	{
+		return to_unicode(get(std::forward<Args>(args)...));
+	}
+
+	//! Convert just retrieved text string to unicode
+
+	//! Used by get_unicode().
+	//! \internal
+
+	std::vector<unicode_char> to_unicode(const std::string &s) const;
 
 	//! Retrieve a localized message, then use gettextmsg() to format it.
 

@@ -32,8 +32,6 @@ iter_type save_properties(//! Properties
 			  //! Locale for parsing
 			  const const_locale &locale)
 {
-	ctype ct(locale);
-
 	std::string name=locale->name();
 
 	if (name.size() != 0)
@@ -50,9 +48,7 @@ iter_type save_properties(//! Properties
 
 		for (auto ch:prop.second)
 		{
-			if (ct.is(ch, std::ctype_base::space)
-			    || ch == '#' || ch == '\\'
-			    || (ch >= 0 && ch < 0x20))
+			if (ch == '#' || ch == '\\' || (ch >= 0 && ch <= 0x20))
 			{
 				*iter++='\\';
 

@@ -1,7 +1,7 @@
 /*
 ** Copyright 2012 Double Precision, Inc.
 ** See COPYING for distribution information.
-*/ 
+*/
 #ifndef x_yaml_writer_H
 #define x_yaml_writer_H
 
@@ -13,6 +13,8 @@
 #include <x/yaml/writerobj.H>
 #include <x/yaml/newdocumentnode.H>
 #include <yaml.h>
+
+#include <vector>
 
 namespace LIBCXX_NAMESPACE {
 

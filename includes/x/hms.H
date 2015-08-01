@@ -118,7 +118,7 @@ void hms::construct(InputIterator beg_iter,
 	{
 		interval<int32_t> parser(interval_descr, 2, libmsg());
 
-		std::vector<int32_t> vec=parser.parse(str);
+		std::vector<int32_t> vec=parser.parse(str, l);
 
 		normalize(vec[0], vec[1], vec[2], vec[3], vec[4]);
 		h=vec[0];

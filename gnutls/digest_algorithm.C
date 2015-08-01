@@ -54,7 +54,7 @@ get_name(gnutls_digest_algorithm_t value, const const_locale &localeRef)
 	if (!p)
 		return "(unknown digest)";
 
-	return ctype(localeRef).toupper(p);
+	return unicode::toupper(p, localeRef->charset());
 }
 
 
@@ -64,7 +64,7 @@ getnameenum<gnutls_digest_algorithm_t>::get_enum(const std::string &name,
 						 const const_locale &localeRef)
 {
 	return (gnutls_digest_algorithm_t)
-		gnutls_mac_get_id(ctype(localeRef).toupper(name).c_str());
+		gnutls_mac_get_id(unicode::toupper(name, localeRef->charset()).c_str());
 }
 
 template class getenumerationntl<LIBCXX_NAMESPACE::gnutls::

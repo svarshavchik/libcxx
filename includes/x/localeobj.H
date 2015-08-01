@@ -84,6 +84,10 @@ public:
 
 	std::string name() const noexcept;
 
+	//! Return the character set used by this locale
+
+	std::string charset() const noexcept;
+
 	//! Make this locale the global locale.
 
 	//! The global locale is the default locale used by the C

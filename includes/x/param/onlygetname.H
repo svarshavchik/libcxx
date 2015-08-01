@@ -10,8 +10,9 @@
 
 #include <x/param/enumeration.H>
 #include <x/locale.H>
-#include <x/ctype.H>
 #include <x/namespace.h>
+
+#include <courier-unicode.h>
 
 namespace LIBCXX_NAMESPACE {
 	namespace param{
@@ -42,9 +43,9 @@ public:
 	static enum_t get_enum(const std::string &name,
 			       const const_locale &localeRef)
 	{
-		auto c=ctype(localeRef);
+		auto charset=localeRef->charset();
 
-		std::string lower_n = c.tolower(name);
+		std::string lower_n = unicode::tolower(name, charset);
 
 		for (size_t n=0;
 		     n < enumeration<enum_t>::manual_enumeration_cnt;
@@ -54,7 +55,7 @@ public:
 				::manual_enumeration[n];
 
 			if (lower_n ==
-			    c.tolower(get_name(v, localeRef)))
+			    unicode::tolower(get_name(v, localeRef), charset))
 				return v;
 		}
 

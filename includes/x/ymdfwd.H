@@ -8,10 +8,9 @@
 
 #include <x/exception.H>
 #include <x/namespace.h>
-#include <x/locale.H>
+#include <x/localefwd.H>
 #include <x/messagesfwd.H>
 #include <x/facet.H>
-#include <x/ctype.H>
 #include <x/strftime.H>
 #include <x/functional.H>
 #include <stdint.h>
@@ -144,39 +143,14 @@ public:
 		{
 		}
 
-		//! Initialize the %interval from a text string
+		//! Initialize the %interval from a text string.
 
-		interval(//! The %interval
-			 const std::string &intervalStr,
-
-			 //! The locale
-			 const const_locale &localeArg=locale::base::global()
-			 );
-
-		//! Initialize the %interval from a text string defined by a beginning and ending iterator
-
-		template<typename InputIterator>
-		interval(//! Beginning iterator
-			 InputIterator beg_iter,
-
-			 //! Ending iterator
-			 InputIterator end_iter,
+		interval(//! Text string
+			 const std::string &Arg,
 
 			 //! The locale
 			 const const_locale &localeArg=locale::base::global()
 			 );
-
-	private:
-		//! An internal constructor
-
-		//! \internal
-
-		template<typename InputIterator>
-		void construct(InputIterator beg_iter,
-			       InputIterator end_iter,
-			       const const_locale &localeArg)
-;
-	public:
 
 		//! Negate the %interval
 
@@ -231,7 +205,8 @@ public:
 					   const const_locale &localeArg
 					   =locale::base::global())
 		{
-			return interval(beg_iter, end_iter, localeArg);
+			return interval(std::string(beg_iter, end_iter),
+					localeArg);
 		}
 
 		//! Serialization function
@@ -694,26 +669,13 @@ public:
 		//! string cannot be parsed.
 
 		template<typename InputIterator>
-		inline ymd parse(InputIterator beg_iter,
-				 InputIterator end_iter)
-		{
-			return parse_internal(make_function<int ()>
-					      ([&]
-					      {
-						      if (beg_iter == end_iter)
-							      return -1;
-
-						      unsigned char c=
-							      *beg_iter;
-						      ++beg_iter;
-						      return (int)c;
-					      }));
-		}
+		ymd parse(InputIterator beg_iter,
+			  InputIterator end_iter);
 
 		//! Internal parser
 
 		//! \internal
-		ymd parse_internal(const function<int ()> &);
+		ymd parse_internal(const std::vector<unicode_char> &);
 
 		//! Make some sense out of a string
 
