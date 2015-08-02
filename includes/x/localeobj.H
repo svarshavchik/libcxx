@@ -54,9 +54,14 @@ class localeObj : virtual public obj {
 
 	//! \internal This function creates a \c std::locale, and traps and
 	//! converts a \c std::exception to our-style exception.
-	static std::locale create_locale(const char *explicit_name)
-;
+	static std::locale create_locale(const char *explicit_name);
 
+	//! Cached character set.
+
+	std::string locale_charset;
+
+	//! A locale was deserialized.
+	void deserialized(const std::string &n);
 public:
 	//! Instantiate a locale object.
 
@@ -82,11 +87,25 @@ public:
 	//! \return this locale's
 	//! name.
 
-	std::string name() const noexcept;
+	inline const std::string &name() const noexcept
+	{
+		return x.n;
+	}
 
 	//! Return the character set used by this locale
 
-	std::string charset() const noexcept;
+	inline const std::string &charset() const noexcept
+	{
+		return locale_charset;
+	}
+
+	//! Convert text string in this locale's charset() to lowercase.
+
+	std::string tolower(const std::string &text) const;
+
+	//! Convert text string in this locale's charset() to uppercase.
+
+	std::string toupper(const std::string &text) const;
 
 	//! Make this locale the global locale.
 
@@ -107,7 +126,7 @@ public:
 	{
 		if (i.serializing)
 		{
-			std::string n(name());
+			std::string n=name();
 
 			i(n);
 		}
@@ -116,8 +135,8 @@ public:
 			std::string n;
 
 			i(n);
-			locale=create_locale(n.c_str());
-			x=xlocale(n);
+
+			deserialized(n);
 		}
 	}
 

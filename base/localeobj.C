@@ -111,15 +111,22 @@ std::locale localeObj::create_locale(const char *explicit_name)
 #endif
 }
 
-localeObj::localeObj(const char *localeName)
-	: locale(create_locale(localeName)),
-	  x(localeName)
+localeObj::localeObj(const std::string &localeName)
+	: localeObj(localeName.c_str())
 {
 }
 
-localeObj::localeObj(const std::string &localeName)
-	: locale(create_locale(localeName.c_str())),
-	  x(localeName)
+void localeObj::deserialized(const std::string &localeName)
+{
+	locale=create_locale(localeName.c_str());
+	x=xlocale(localeName);
+	locale_charset=unicode_locale_chset_l(x.h);
+}
+
+localeObj::localeObj(const char *localeName)
+	: locale(create_locale(localeName)),
+	  x(localeName),
+	  locale_charset(unicode_locale_chset_l(x.h))
 {
 }
 
@@ -144,14 +151,14 @@ void localeObj::global() const noexcept
 	setlocale(LC_ALL, x.n.c_str());
 }
 
-std::string localeObj::name() const noexcept
+std::string localeObj::tolower(const std::string &text) const
 {
-	return x.n;
+	return unicode::tolower(text, charset());
 }
 
-std::string localeObj::charset() const noexcept
+std::string localeObj::toupper(const std::string &text) const
 {
-	return unicode_locale_chset_l(x.h);
+	return unicode::toupper(text, charset());
 }
 
 #if 0

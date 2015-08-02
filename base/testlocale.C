@@ -100,6 +100,16 @@ void teststrsplit()
 	}
 }
 
+void testunicode()
+{
+	auto l=LIBCXX_NAMESPACE::locale::base::utf8();
+
+	if (l->toupper("Здравствуйте") != "ЗДРАВСТВУЙТЕ")
+		throw EXCEPTION("toupper failed");
+	if (l->tolower("Здравствуйте") != "здравствуйте")
+		throw EXCEPTION("tolower failed");
+}
+
 int main(int argc, char *argv[])
 {
 	try {
@@ -112,6 +122,7 @@ int main(int argc, char *argv[])
 
 		teststrtok();
 		teststrsplit();
+		testunicode();
 	} catch (LIBCXX_NAMESPACE::exception &e)
 	{
 		std::cout << e << std::endl;
