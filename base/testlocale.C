@@ -43,6 +43,13 @@ static void teststrtok()
 	std::cout << "strtok2: ";
 	showwords(wordlist);
 	std::cout << std::endl;
+	wordlist.clear();
+
+	LIBCXX_NAMESPACE::strtok_str(std::string("  ab \"a b\" a\"bc \"a \"\" b\" \"abc"), " \t", '"', wordlist);
+	std::cout << "strtok3: ";
+	showwords(wordlist);
+	std::cout << std::endl;
+	wordlist.clear();
 }
 
 void teststrsplit()

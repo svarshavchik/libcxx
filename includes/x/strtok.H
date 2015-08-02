@@ -22,16 +22,16 @@ namespace LIBCXX_NAMESPACE {
 //! \code
 //!
 //! std::string str;
-//! class Predicate predicate;
 //!
 //! std::list<std::string> container;
 //!
-//! strtok_if(str, predicate, container);
+//! strtok_if(str, [](char c) { return c == ' ';}, container);
 //! \endcode
 //!
 //! strtok_if() extracts zero or more character sequences from \c str, and
 //! appends them to the \c container via the container's push_back() method.
-//! The predicate function defines character sequence delimiters.
+//! The second parameter is a predicate function that
+//! defines character sequence delimiters.
 //! Consecutive character sequences for which the predicate function returns
 //! \c false are extracted and added to the container.
 //! Once the starting and the ending character sequence position is obtained,
@@ -55,13 +55,11 @@ namespace LIBCXX_NAMESPACE {
 //! Any existing contents of the container are not modified. strtok_if()
 //! only adds additional objects to the container
 
-template<typename char_type,
-	 typename traits_type,
-	 typename alloc_type,
+template<typename string_type,
 	 typename predicate_type,
 	 typename container_type>
 void strtok_if( //! The character string
-	       const std::basic_string<char_type, traits_type, alloc_type> &str,
+	       const string_type &str,
 
 	       //! The predicate object
 	       const predicate_type &Predicate,
@@ -69,51 +67,90 @@ void strtok_if( //! The character string
 	       //! The container
 	       container_type &Container) noexcept
 {
-	typename std::basic_string<char_type, traits_type, alloc_type>
-		::const_iterator b=str.begin(), e=str.end(), p;
+	decltype(std::begin(str))
+		b=std::begin(str),
+		e=std::end(str), p;
 
 	while ((b=std::find_if(b, e, [&Predicate]
-			       (char c)
+			       (auto c)
 			       {
 				       return !Predicate(c);
 			       })) != e)
 	{
 		p=std::find_if(b, e, Predicate);
-		Container.push_back(std::basic_string<char_type,
-				    traits_type, alloc_type>(b, p));
+		Container.push_back(string_type(b, p));
 
 		b=p;
 	}
 }
 
-//! Predicate class for strtok_str()
+//! strtok(), C++-style
 
-//! \internal
-//! This is a predicate class that implements the search function for
-//! strtok_str()
+//! \overload
+//!
+//! This overloaded strtok() takes an extra parameter that defines a
+//! predicate that returns true for a quoting character, that allows
+//! parsed works to contain whitespace predicate characters.
+//!
+//! Two consecutive quote characters insert a single quote character
+//! into the parsed token.
 
-template<typename char_type>
-class strtok_predicate : public std::unary_function<char_type, bool> {
+template<typename string_type,
+	 typename predicate_type,
+	 typename qpredicate_type,
+	 typename container_type>
+void strtok_if( //! The character string
+	       const string_type &str,
 
-public:
-	//! The string to search.
+	       //! The predicate object
+	       const predicate_type &Predicate,
 
-	const char_type *toks;
+	       //! The quote predicate object
+	       const qpredicate_type &qPredicate,
 
-	//! The search operator
+	       //! The container
+	       container_type &Container) noexcept
+{
+	decltype(std::begin(str))
+		b=std::begin(str),
+		e=std::end(str), p;
 
-	bool operator()(const char_type &v) const noexcept
+	while ((b=std::find_if(b, e, [&Predicate]
+			       (auto c)
+			       {
+				       return !Predicate(c);
+			       })) != e)
 	{
-		const char_type *c=toks;
-
-		while (*c)
+		if (qPredicate(*b))
 		{
-			if (*c++ == v)
-				return true;
+			++b;
+			p=std::find_if(b, e, qPredicate);
+
+			string_type token(b, p);
+
+			while (p != e)
+			{
+				++p;
+				if (p != e && qPredicate(*p))
+				{
+					b=p;
+					++p;
+					p=std::find_if(p, e, qPredicate);
+					token.append(b, p);
+				}
+				else
+					break;
+			}
+			Container.push_back(token);
+			b=p;
+			continue;
 		}
-		return false;
+		p=std::find_if(b, e, Predicate);
+		Container.push_back(string_type(b, p));
+
+		b=p;
 	}
-};
+}
 
 //! strtok(), C++-style
 
@@ -139,20 +176,24 @@ void strtok_str( const std::basic_string<char_type, traits_type, alloc_type> &st
 		 const char_type *toks,
 		 container_type &Container) noexcept
 {
-	strtok_predicate<char_type> s;
+	strtok_if(str,
+		  [toks]
+		  (auto v)
+		  {
+			  auto c=toks;
 
-	s.toks=toks;
-
-	strtok_if(str, s, Container);
+			  while (*c)
+			  {
+				  if (*c++ == v)
+					  return true;
+			  }
+			  return false;
+		  }, Container);
 }
 
 //! strtok(), C++-style
 
 //! \overload
-//! The output of this strtok_str() is always the same, since both the
-//! original string and the delimiter string are constant string literals.
-//! This function is a convenient shortcut for initializing a container
-//! with many predefined strings.
 
 template<typename char_type,
 	 typename container_type>
@@ -161,6 +202,67 @@ void strtok_str( const char_type *str,
 		 container_type &Container) noexcept
 {
 	strtok_str(std::basic_string<char_type>(str), toks, Container);
+}
+
+//! strtok(), C++ style
+
+//! \overload
+//!
+//! \code
+//!
+//! std::string str;
+//!
+//! std::list<std::string> container;
+//!
+//! strtok_str(str, " \t\r\n", '"', container);
+//! \endcode
+//!
+//! This overloaded version of strtok_str() takes an extra parameter that
+//! specifies the quoting character.
+
+template<typename char_type,
+	 typename traits_type,
+	 typename alloc_type,
+	 typename container_type>
+void strtok_str( const std::basic_string<char_type, traits_type, alloc_type> &str,
+		 const char_type *toks,
+		 char_type quoting_character,
+		 container_type &Container) noexcept
+{
+	strtok_if(str,
+		  [toks]
+		  (auto v)
+		  {
+			  auto c=toks;
+
+			  while (*c)
+			  {
+				  if (*c++ == v)
+					  return true;
+			  }
+			  return false;
+		  },
+		  [quoting_character]
+		  (auto v)
+		  {
+			  return v == quoting_character;
+		  },
+		  Container);
+}
+
+//! strtok(), C++-style
+
+//! \overload
+
+template<typename char_type,
+	 typename container_type>
+void strtok_str( const char_type *str,
+		 const char_type *toks,
+		 char_type quoting_character,
+		 container_type &Container) noexcept
+{
+	strtok_str(std::basic_string<char_type>(str), toks,
+		   quoting_character, Container);
 }
 
 #if 0

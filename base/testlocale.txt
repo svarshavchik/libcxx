@@ -1,2 +1,3 @@
 strtok1: ab:cd
 strtok2: ab:cd
+strtok3: ab:a b:a"bc:a " b:abc
