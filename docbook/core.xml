@@ -9,7 +9,9 @@ See COPYING for distribution information.
   <title>Introduction to core classes</title>
   <para>
     To access the classes and templates described in this part,
-    the application must be linked with the <option>-lcxx</option> option.
+    the application must be linked with the <option>-lcxx</option> library.
+    Some templates also require linking with the
+    <option>-lcourier-unicode</option> library.
   </para>
 
   <section id="libnamespace">
@@ -132,7 +134,7 @@ c -o managedsingleton.o managedsingleton.C
 mv -f .deps/managedsingleton.Tpo .deps/managedsingleton.Po
 /bin/sh ./libtool --tag=CXX   --mode=link g++  -g -O2 -fno-omit-frame-pointer -s
 td=c++0x -I/usr/include/p11-kit-1     -o managedsingleton managedsingleton.o -lcxx
- 
+
 libtool: link: g++ -g -O2 -fno-omit-frame-pointer -std=c++0x -I/usr/include/p11-
 kit-1 -o managedsingleton managedsingleton.o  /usr/lib64/libcxx.so -lpthread -lrt -lpcre</programlisting>
       </informalexample>
