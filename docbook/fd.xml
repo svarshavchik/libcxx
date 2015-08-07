@@ -1704,7 +1704,7 @@ mapped->msync();</programlisting>
 	  An open
 	  <link linkend="fd"><classname>&ns;::fd</classname></link>,
 	  the protection setting,
-	  and thre optional parameters: flags, offset, and length. This maps
+	  and three optional parameters: flags, offset, and length. This maps
 	  in the opened file descriptor.
 	</para>
       </listitem>
@@ -1737,6 +1737,31 @@ mapped->msync();</programlisting>
     <para>
       <methodname>object</methodname>() returns a pointer to the mapped
       memory segment, casted to a pointer to the template type.
+    </para>
+
+    <blockquote>
+      <informalexample>
+	<programlisting>
+#include &lt;&ns;/mmapfile.H&gt;
+
+&ns;::mmapfile file=&ns;::mmapfile::create(fd, PROT_READ|PROT_WRITE);
+
+const char *ptr=file->buffer();
+
+size_t size=file->size();</programlisting>
+      </informalexample>
+    </blockquote>
+
+    <para>
+      <ulink url="&link-typedef-x-mmapfile;"><classname>&ns;::mmapfile</classname></ulink>
+      is a simplified wrapper for <classname>&ns;::mmap</classname>ing the
+      entire contents of the file, as is.
+      The constructor takes an open file descriptor, and the required
+      protection settingargument. <methodname>buffer</methodname>()
+      returns a pointer
+      to the mapped file, with <methodname>size</methodname>() giving
+      the size of the mapped file.
+      The <methodname>msync</methodname>() method is inherited.
     </para>
   </section>
 </chapter>

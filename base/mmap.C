@@ -5,6 +5,7 @@
 
 #include "libcxx_config.h"
 #include "x/mmap.H"
+#include "x/mmapfile.H"
 #include "x/fd.H"
 #include "x/filestat.H"
 #include "x/logger.H"
@@ -83,8 +84,17 @@ void mmapbaseObj::msync(int flags) const
 		throw SYSEXCEPTION("msync");
 }
 
+
+mmapfileObj::mmapfileObj(const fd &filedesc, int prot)
+	: mmapObj<char>(filedesc, prot)
+{
+}
+
+mmapfileObj::~mmapfileObj() noexcept
+{
+}
+
 #if 0
 {
 #endif
 }
-

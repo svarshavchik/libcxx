@@ -11,7 +11,6 @@
 #include <x/fdfwd.H>
 #include <sys/mman.h>
 #include <utility>
-#include <cstdio>
 #include <x/sys/offt.h>
 
 namespace LIBCXX_NAMESPACE {
@@ -107,4 +106,3 @@ public:
 #endif
 }
 #endif
-

@@ -47,7 +47,7 @@ template<typename typeObj> class mmapObj;
 //! present it defaults to \c nullptr; then either:
 //!
 //! - An open \ref fd "INSERT_LIBX_NAMESPACE::fd", the protection setting,
-//! and thre optional parameters: flags, offset, and length. This maps in the
+//! and three optional parameters: flags, offset, and length. This maps in the
 //! opened file descriptor.
 //!
 //! - A length, the protection setting, and an optional flag value. This creates

@@ -6,6 +6,7 @@
 #include "libcxx_config.h"
 #include "x/fd.H"
 #include "x/mmap.H"
+#include "x/mmapfile.H"
 #include <iostream>
 #include <cstring>
 
@@ -45,11 +46,29 @@ void testshm()
 	LIBCXX_NAMESPACE::fd::base::shm_unlink("/testshm");
 }
 
+void testmmap()
+{
+	{
+		auto fd=LIBCXX_NAMESPACE::fd::create("testshm.tmp");
+
+		fd->write("Hello world", 12);
+
+		auto mmap=LIBCXX_NAMESPACE::mmapfile
+			::create(fd, PROT_READ|PROT_WRITE);
+
+		if (mmap->size() != 12 ||
+		    strcmp(mmap->buffer(), "Hello world"))
+			throw EXCEPTION("mmapfile failed");
+	}
+	unlink("testshm.tmp");
+}
+
 int main()
 {
 	alarm(60);
 	try {
 		testshm();
+		testmmap();
 	} catch (const LIBCXX_NAMESPACE::exception &e)
 	{
 		std::cerr << e << std::endl;
