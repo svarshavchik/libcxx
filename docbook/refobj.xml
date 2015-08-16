@@ -70,8 +70,7 @@ See COPYING for distribution information.
 	  is derived from an implementation in the Boost library, which
 	  appears to be not
 	  <ulink url="http://gcc.gnu.org/ml/libstdc++/2013-08/msg00161.html">thread-safe</ulink>.
-	  The proposal that's discussed in that email thread to address this
-	  defect will have a major thread performance impact.
+	  This implementation of reference-counted objects is thread safe.
 	</para>
       </listitem>
 
@@ -124,12 +123,13 @@ See COPYING for distribution information.
 	  &ref;'s <methodname>*</methodname> and <methodname>-&gt;</methodname>
 	  operators do not check for a <literal>nullptr</literal>
 	  because &ref; cannot be a <literal>nullptr</literal>, it must always
-	  refer to an object. This is enforced. The <literal>nullptr</literal>
-	  gets checked upon an assignment of an &ref;.
+	  refer to an object. This is enforced by contract.
+	  The <literal>nullptr</literal>
+	  gets checked when an &ref; gets assigned to.
 	  &ref; is proven, by contract, never to contain a
 	  <literal>nullptr</literal>; hence its
 	  <methodname>*</methodname> and <methodname>-&gt;</methodname> directly
-	  dereference the internal pointer to the underlying object.
+	  dereferences the internal pointer to the underlying object.
 	</para>
 
 	<para>
@@ -164,7 +164,7 @@ See COPYING for distribution information.
     </itemizedlist>
 
     <para>
-      The primary advantage of the <classname>shared_ptr</classname>
+      The primary benefit of using <classname>shared_ptr</classname>
       is that it allows any class to acquire reference-counting
       semantics without modification. Standard C++ library classes, such as
       various stream objects, can be easily wrapped into a
