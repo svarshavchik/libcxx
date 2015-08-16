@@ -108,13 +108,7 @@ public:
 	    const ref<objClass, baseType> &p,
 
 	    //! run() method's parameters.
-	    Args && ...args)
-#ifndef DOXYGEN
-		-> ref<runthreadObj<decltype(p->run(invoke_run_param_helper
-						    <Args>()...))>
-		>
-#endif
-	;
+	    Args && ...args);
 };
 
 //! A reference to a base class of a running thread handle, that implements wait() and terminated()

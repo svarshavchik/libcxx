@@ -290,12 +290,12 @@ inline void ptrImpl<objClass>::setRef(objClass *newRefP) noexcept
 	if (newRefP && newRefP->refcnt::refadd(1) == 0)
 		ref_in_constructor(newRefP);
 
-	objClass *oldRef=refP;
+	objClass *oldRef;
 
-	refP=newRefP;
+	__atomic_exchange(&refP, &newRefP, &oldRef, __ATOMIC_SEQ_CST);
 
 	if (oldRef && oldRef->refcnt::refadd(-1) == 0)
-		static_cast<obj *>(oldRef)->destroy();
+		oldRef->obj::destroy();
 }
 
 template<typename objClass>
@@ -304,12 +304,12 @@ inline void ptrImpl<objClass>::setRef_noconscheck(objClass *newRefP) noexcept
 	if (newRefP)
 		newRefP->refcnt::refadd(1);
 
-	objClass *oldRef=refP;
+	objClass *oldRef;
 
-	refP=newRefP;
+	__atomic_exchange(&refP, &newRefP, &oldRef, __ATOMIC_SEQ_CST);
 
 	if (oldRef && oldRef->refcnt::refadd(-1) == 0)
-		static_cast<obj *>(oldRef)->destroy();
+		oldRef->obj::destroy();
 }
 
 template<typename objClass>
@@ -325,7 +325,7 @@ template<typename objClass>
 inline ptrImpl<objClass>::~ptrImpl() noexcept
 {
 	if (refP && refP->refcnt::refadd(-1) == 0)
-		static_cast<obj *>(refP)->destroy();
+		refP->obj::destroy();
 }
 
 template<typename objClass>

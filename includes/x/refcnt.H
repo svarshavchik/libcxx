@@ -53,7 +53,7 @@ public:
 	inline long refadd(//! Amount to add or subtract from \link refcnt::cnt cnt \endlink
 			   long inc) noexcept __attribute__((artificial))
 	{
-		return __sync_fetch_and_add(&cnt, inc) + inc;
+		return __atomic_fetch_add(&cnt, inc, __ATOMIC_SEQ_CST)+inc;
 	}
 
 	//! Return the current reference count
@@ -64,7 +64,7 @@ public:
 
 	inline long refget() const noexcept __attribute__((artificial))
 	{
-		return __sync_fetch_and_add(&cnt, 0);
+		return __atomic_fetch_add(&cnt, 0, __ATOMIC_RELAXED);
 	}
 };
 #if 0

@@ -110,9 +110,9 @@ public:
 
 	inline ptrImpl(//! An existing reference.
 		       ptrImpl<objClass> &&o )
-		noexcept __attribute__((artificial)) : refP(o.refP)
+		noexcept __attribute__((artificial)) : refP(nullptr)
 	{
-		o.refP=nullptr;
+		__atomic_exchange(&refP, &o.refP, &o.refP, __ATOMIC_SEQ_CST);
 	}
 
 	//! The default assignment operator
@@ -139,9 +139,7 @@ public:
 		   ptrImpl<objClass> &&o)
 		noexcept __attribute__((artificial))
 	{
-		objClass *p=refP;
-		refP=o.refP;
-		o.refP=p;
+		__atomic_exchange(&refP, &o.refP, &o.refP, __ATOMIC_SEQ_CST);
 
 		return *this;
 	}

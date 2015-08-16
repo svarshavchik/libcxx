@@ -114,11 +114,7 @@ public:
 		if (o.null())
 			null_ptr_deref();
 
-		objClass *q=this->p.refP;
-
-		this->p.refP=o.refP;
-
-		o.refP=q;
+		__atomic_exchange(&p.refP, &o.refP, &o.refP, __ATOMIC_SEQ_CST);
 
 		return *this;
 	}
@@ -153,9 +149,7 @@ public:
 		   const_ref<objClass, baseClass> &&o)
 		noexcept __attribute__((artificial))
 	{
-		objClass *q=this->p.refP;
-		this->p.refP=o.p.refP;
-		o.p.refP=q;
+		__atomic_exchange(&p.refP, &o.p.refP, &o.p.refP, __ATOMIC_SEQ_CST);
 
 		return *this;
 	}
@@ -534,7 +528,7 @@ public:
 		   ref<objClass, baseClass> &&o)
 		noexcept __attribute__((artificial))
 	{
-		const_ref<objClass, baseClass>::operator=(std::move(static_cast<const const_ref<objClass, baseClass> &>(o)));
+		const_ref<objClass, baseClass>::operator=(std::move(o));
 
 		return *this;
 	}

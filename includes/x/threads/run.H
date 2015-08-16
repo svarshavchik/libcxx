@@ -148,7 +148,6 @@ template<typename objClass, typename baseType,
 	 typename ...Args>
 auto run_async::run_thread(const ref<objClass, baseType> &p,
 			   Args && ...args)
-	-> ref<runthreadObj<decltype(p->run(invoke_run_param_helper<Args>()...))> >
 {
 	// The return value from the run() method.
 
@@ -263,8 +262,6 @@ inline auto run(//! The thread object with a run() method.
 
 		//! run() method's parameters.
 		Args && ...args)
-	-> ref<run_async::runthreadObj<decltype(p->run(invoke_run_param_helper
-						       <Args>()...))> >
 {
 	return run_async::run_thread(p, std::forward<Args>(args)...);
 }
@@ -280,8 +277,6 @@ inline auto run(//! The thread object with a run() method.
 
 		//! run() method's parameters.
 		Args && ...args)
-	-> ref<run_async::runthreadObj<decltype(p->run(invoke_run_param_helper
-						       <Args>()...))> >
 {
 	return run_async::run_thread(ref<objClass, baseType>(p),
 				     std::forward<Args>(args)...);
@@ -329,8 +324,6 @@ public:
 
 template<typename lambdaType>
 auto inline make_lambda_thread(lambdaType &&lambda)
-	-> ref<lambdaThreadObj<typename
-	std::remove_reference<lambdaType>::type>>
 {
 	return ref<lambdaThreadObj<typename
 				   std::remove_reference<lambdaType>::type>>
@@ -345,8 +338,6 @@ auto inline run_lambda(//! Lambda to run
 
 		       //! Arguments to the lambda
 		       Args && ...args)
-	-> decltype(run(make_lambda_thread(std::move(lambda)),
-			std::forward<Args>(args)...))
 {
 	return run(make_lambda_thread(std::move(lambda)),
 		   std::forward<Args>(args)...);
