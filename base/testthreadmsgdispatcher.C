@@ -9,6 +9,7 @@
 #include "x/threads/run.H"
 
 #include <vector>
+#include <stdlib.h>
 
 class intarray : virtual public LIBCXX_NAMESPACE::obj {
 
@@ -122,4 +123,3 @@ int main(int argc, char **argv)
 	}
 	return (0);
 }
-

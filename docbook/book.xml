@@ -94,7 +94,7 @@
 <!ENTITY reforptr "&ref; or an &ptr;">
 <!ENTITY stl "<acronym>STL</acronym>">
 <!ENTITY freebsdver "FreeBSD 10">
-<!ENTITY freebsdverdir "<filename>packaging/freebsd9/devel/libcxx</filename>">
+<!ENTITY freebsdverdir "<filename>packaging/freebsd10/devel/libcxx</filename>">
 <!ENTITY gcrypt "<application>Libgcrypt</application>">
 <!ENTITY automakeintro SYSTEM "automakeintro.inc.xml">
 <!ENTITY automakelibxinit SYSTEM "automakelibxinit.inc.xml">

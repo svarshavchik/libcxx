@@ -11,6 +11,7 @@
 #include <iostream>
 #include <mutex>
 #include <condition_variable>
+#include <stdlib.h>
 
 class testowner : public LIBCXX_NAMESPACE::semaphore::base::ownerObj {
 

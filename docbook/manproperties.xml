@@ -63,9 +63,9 @@ See COPYING for distribution information.
       This command sets or clears an extended attribute of a &app; application
       that specifies its <quote>property file</quote>.
       The property file initializes the application's configuration.
-      See the application's documentation for a descriptions of what the
-      configuration settings are.
-      The <command>properties</command> command only specifies the filename
+      See the application's documentation for a descriptions of its
+      configuration settings.
+      The <command>properties</command> command only sets the filename
       where the property settings come from.
     </para>
 

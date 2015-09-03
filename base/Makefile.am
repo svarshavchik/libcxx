@@ -276,7 +276,7 @@ if HAVE_REPO
 effective_tld_names.dat: effective_tld_names.dat.timestamp
 
 effective_tld_names.dat.timestamp:
-	wget $(WGET_OPTIONS) -O effective_tld_names.dat.tmp 'http://mxr.mozilla.org/mozilla-central/source/netwerk/dns/effective_tld_names.dat?raw=1'
+	wget $(WGET_OPTIONS) -O effective_tld_names.dat.tmp 'https://publicsuffix.org/list/effective_tld_names.dat'
 	cmp -s effective_tld_names.dat.tmp effective_tld_names.dat || mv -f effective_tld_names.dat.tmp effective_tld_names.dat
 	rm -f effective_tld_names.dat.tmp
 	touch effective_tld_names.dat.timestamp

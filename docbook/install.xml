@@ -1,6 +1,6 @@
 <!--
 
-Copyright 2012 Double Precision, Inc.
+Copyright 2012-2015 Double Precision, Inc.
 See COPYING for distribution information.
 
 -->
@@ -55,7 +55,8 @@ See COPYING for distribution information.
   </para>
 
   <para>
-    <application>gcc 4.9</application> is required. Since this library uses
+    &app; targets the current generally-available version of
+    <application>gcc</application>. Since this library uses
     C++14 classes, applications must be compiled with the
     <option>-std=c++1y</option> option, as well as
     <option>-fno-omit-frame-pointer</option>. This is done automatically
@@ -119,10 +120,10 @@ See COPYING for distribution information.
 
       <listitem>
 	<para>
-	  <application>GCC</application> version 4.9, or a higher version if
-	  it's the current current version of <application>GCC</application>.
+	  The current generally-available version of
+	  <application>GCC</application>.
 	  As new <application>GCC</application> releases improve support for
-	  C++11, this library will probably be updated to take advantage of
+	  C++x, this library will probably be updated to take advantage of
 	  them.
 	</para>
       </listitem>
@@ -177,6 +178,12 @@ See COPYING for distribution information.
 
   <simplesect>
     <title>Configuring and building</title>
+
+    <para>
+      As mentioned above, &app; should be built into a standalone, installable
+      package. Use the following documentation as a guide to create an
+      installation script or a package.
+    </para>
 
     <para>
       Run the <filename>configure</filename> script, followed by
@@ -240,7 +247,7 @@ See COPYING for distribution information.
   </simplesect>
 
   <simplesect>
-    <title>Regenerating emphemeral <acronym>DSA</acronym> and <acronym>RSA</acronym> parameters</title>
+    <title>Regenerating ephemeral <acronym>DSA</acronym> and <acronym>RSA</acronym> parameters</title>
 
     <para>
       This is required by &app;'s <acronym>API</acronym> for the
@@ -272,30 +279,21 @@ See COPYING for distribution information.
       <filename>/usr/local/sbin</filename>)
       reads these
       options, and runs <command>tlsparamsgen</command> to regenerate the
-      emphemeral files. A regularly-scheduled job should be scheduled to run
+      ephemeral files. A regularly-scheduled job should be scheduled to run
       this script (a monthly frequency is fine).
     </para>
 
     <para>
       <command>make install</command> runs a script that generates
-      an initial set of ephemeral parameter files, so that &app; is
-      immediately usable after installation. However, the initial
-      emphemeral parameters are low security, generated with a minimum number
-      of bits. This is because full, high security parameter files may take
-      hours to be generated, depending on the hardware (and even the low
-      security ones can take several minutes). This is fine for some job that
-      runs monthly at off-peak times. but this does not work very well
-      for a canned build script.
-      The recommended approach is the following compromise:
-    </para>
-
-    <para>
-      Include the pregenerated low security
+      an initial set of ephemeral parameter files, making &app;
+      immediately usable after installation.
+      Include the pregenerated
       ephemeral parameter files in the installable package. Then,
       as part of the package installation, the
       package should make arrangements to execute
       <command>tlsparamsgen.sh</command> soon after
-      installation, to replace the low-security ephemeral parameters.
+      installation, to replace the stock ephemeral parameters with
+      randomly-generate ones.
     </para>
 
     <para>
@@ -314,7 +312,7 @@ See COPYING for distribution information.
       <listitem>
 	<para>
 	  The <quote><literal>INSTALL_TLSPARAM_SUFFIX=.dist</literal></quote>
-	  parameter to <command>make install</command> installs the low-security
+	  parameter to <command>make install</command> installs the stock
 	  ephemeral parameter files with a <quote>.dist</quote> suffix. This
 	  is what goes into the <acronym>RPM</acronym> package.
 	</para>
@@ -325,13 +323,13 @@ See COPYING for distribution information.
 	  A post-install script checks if each ephemeral parameter file already
 	  exists, or not, and only links the installed
 	  <filename>.dist</filename> file to the real one if it does not exist.
-	  So, if there are already high security ephemeral parameter files
-	  from a previously-installed version of &app;, they get preserved.
+	  Any existing ephemeral parameter files,
+	  from a previously-installed version of &app;, get preserved.
 	</para>
 
 	<para>
 	  Therefore, &app; is usable immediately after installation, and
-	  only a new install has the low security stock ephemeral parameters
+	  only a new install has the stock ephemeral parameters
 	  until the first reboot, because:
 	</para>
       </listitem>
@@ -340,8 +338,8 @@ See COPYING for distribution information.
 	<para>
 	  The startup script that runs at boot time, to start
 	  <command>httportmap</command>, checks if parameter files are the
-	  initial low
-	  security ones, and runs <command>tlsparamsgen</command> in the
+	  initial stock files,
+	  and runs <command>tlsparamsgen</command> in the
 	  background, immediately.
 	  The <acronym>RPM</acronym>s also install a monthly
 	  <command>cron</command> job to generate new parameter files.
@@ -350,8 +348,9 @@ See COPYING for distribution information.
     </itemizedlist>
 
     <para>
-      The end result is that &app; package gets installed without
-      lengthy delays for generating ephemeral parameter files. This occurs
+      The final result is that &app; package gets installed without
+      lengthy delays for generating ephemeral parameter files, at
+      installation time. This happens in the background
       during the first reboot after installation. And going forward, the
       cron job in the package regenerates them monthly.
     </para>

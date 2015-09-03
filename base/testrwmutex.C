@@ -13,6 +13,7 @@
 #include <thread>
 #include <future>
 #include <iostream>
+#include <stdlib.h>
 
 void testrwmutex()
 {
@@ -320,6 +321,9 @@ void testrwmutexdebug()
 			caught=true;
 			std::cerr << "Caught expected exception: " << e
 				  << std::endl;
+		} catch (...)
+		{
+			std::cerr << "HUH!" << std::endl;
 		}
 
 		if (!caught)
@@ -327,7 +331,7 @@ void testrwmutexdebug()
 	}
 	thread->wait();
 }
-	
+
 
 int main(int argc, char **argv)
 {

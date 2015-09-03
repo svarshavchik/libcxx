@@ -2,6 +2,7 @@
 #include "x/threads/run.H"
 #include "x/mpobj.H"
 #include <iostream>
+#include <stdlib.h>
 
 void testinotify()
 {

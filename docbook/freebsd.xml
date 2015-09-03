@@ -30,10 +30,13 @@ See COPYING for distribution information.
 	<application>libunwind</application>,
 	<application>libidn</application> and
 	<application>libiconv</application> packages need to be installed to
-	build &app;, in addition to
-	<application>gcc49</application>
+	build &app;, in addition to the current stable port of
+	<application>gcc<replaceable>NN</replaceable></application>
 	and <application>gmake</application>
-	that must be used to compile it.
+	that must be used to compile them.
+	The <application>courier-unicode</application> library must also
+	be installed, and compiled by the same <application>gcc</application>
+	port.
 	<application>doxygen</application>, <application>graphviz</application>,
 	and <application>doxygen-xsl</application> are also required to build
 	from &app;'s source repository.
@@ -42,7 +45,7 @@ See COPYING for distribution information.
 
     <listitem>
       <para>
-	Subsequently, <methodname>imbue</methodname>(), and any other code that
+	<methodname>imbue</methodname>(), and any other code that
 	touches a locale object must be wrapped inside an instance
 	of <classname>&ns;::globlocale</classname>:
       </para>
@@ -137,7 +140,7 @@ See COPYING for distribution information.
 	  <refentrytitle>fork</refentrytitle>
 	  <manvolnum>2</manvolnum>
 	</citerefentry>.
-	Some Linux locale-emulation code acquires an internal application
+	Linux locale-emulation code acquires an internal application
 	lock
 	(a <ulink url="&link-x--globlock;"><classname>&ns;::globlock</classname></ulink>)
 	for the duration of temporarily setting a global application
