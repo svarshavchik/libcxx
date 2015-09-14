@@ -180,13 +180,7 @@ void ltdlObj::makeresident()
 		throw_error();
 }
 
-void *ltdlObj::sym(const std::string &name)
-{
-	return lt_dlsym(impl->handle, name.c_str());
-}
-
-
-const void *ltdlObj::sym(const std::string &name) const
+void *ltdlObj::get_sym(const std::string &name) const
 {
 	return lt_dlsym(impl->handle, name.c_str());
 }

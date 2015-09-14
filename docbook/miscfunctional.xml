@@ -5,7 +5,7 @@ See COPYING for distribution information.
 
 -->
 
-<chapter id="Functional">
+<chapter id="functional">
   <title>Virtual inheritance-based function objects</title>
 
   <blockquote>
@@ -31,8 +31,9 @@ int call_method(functor_type &amp;&amp; functor)
   </blockquote>
 
   <para>
-    This is a mechanism for implementing function objects that does not use
-    heap-allocated memory for storing the wrapped function pointer.
+    This is a mechanism for implementing function objects that uses
+    virtual inheritance instead of heap allocation, like
+    <classname>std::function</classname>.
     <ulink url="&link-x--function--return-type-Args...--;"><classname>&ns;::function&lt;return_type(Args...)&gt;</classname></ulink>
     is a function object that implements an <methodname>operator()</methodname>
     that takes <replaceable>Args...</replaceable> parameters and returns a

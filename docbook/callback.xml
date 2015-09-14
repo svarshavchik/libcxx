@@ -307,12 +307,12 @@ public:
     </para>
 
     <para>
-      <methodname>get</methodname>()() returns
+      <methodname>get</methodname>() returns
       <literal>true</literal>, if
-      <methodname>get</methodname>()() was able to
+      <methodname>get</methodname>() was able to
       recover strong references from all weak references, and invoke
       the lambda,
-      <methodname>get</methodname>()() returns
+      <methodname>get</methodname>() returns
       <literal>false</literal>, and does not invoke the lambda,
       if one or more weakly-referenced object already went out of scope
       and got destroyed.

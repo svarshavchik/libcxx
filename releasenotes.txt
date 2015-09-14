@@ -1,0 +1,80 @@
+New features and API changes
+============================
+
+x::ref and x::ptr will now detect illegal attempts to construct
+refs and ptrs in the object's constructor or destructor, and throw an
+exception.
+
+x::ref and x::ptr can now be compared each other for equality.
+
+x::obj::isa<T> template: http://www.libcxx.org/isa.html
+
+Some performance optimizations to x::ref and x::ptr. x::ref and x::ptr
+should themselves now be thread-safe.
+
+Implement find_or_create() method for weak maps.
+
+x::exception->caught() method standardizea logging of caught exceptions.
+
+Standardized names of destructor-related callbacks, for consistency.
+onAnyDestroyed() replaced with on_any_destroyed(). addOnDestroy() renamed
+and replaced with a lambda-based ondestroy().
+
+cxxltdl module - a wrapper for libtool's libltdl library,
+http://www.libcxx.org/ltdl.html
+
+API change: x::fd's read() and write() do not throw an exception on an
+underlying I/O error, but return an error indication.
+
+API change: several wide character-based classes and templates removed.
+The comparable functionality now comes from the courier-unicode library.
+Application property names are now UTF-8 strings, instead of wide
+character strings. Option long names and descriptions are also now
+UTF-8 strings.
+
+Updated gcc build flag to -std=c++1y
+
+New classes
+===========
+
+x::final_class, declare classes that cannot be subclassed,
+http://www.libcxx.org/finalclasses.html
+
+x::threadeventqueuemsgdispatcher - an event file descriptor queue-based
+message dispatcher.
+http://www.libcxx.org/msgdispatchermcguffins.html
+
+x::mcguffinlist, x::mcguffinmap, x::mcguffinref, x::mcguffinstash -
+ew mcguffin-based design patterns.
+http://www.libcxx.org/mcguffincontainers.html
+
+x::fixedsemaphore
+
+x::make_function<T> and x::function<T>, an alternate to std::function that's
+based on virtual inheritance, and does not use heap allocation.
+http://www.libcxx.org/functional.html
+
+x::callback<T> - wrap a lambda into a reference-counted object.
+http://www.libcxx.org/callback.html
+
+x::derivedvalue - new design pattern.
+http://www.libcxx.org/derived.html
+
+x::inotify - a wrapper for the Linux kernel inotify API.
+http://www.libcxx.org/inotify.html
+
+x::mmapfile - a wrapper for the mmap() system call.
+
+x::sorted_vector<>
+
+Miscellaneous new functions
+===========================
+
+x::vector<T>->load()
+
+x::strsplit()
+
+x::realpath() and x::combinepath() - file path methods
+
+x::make_weak_capture() - utility template for implementing lambdas that
+capture weak references.

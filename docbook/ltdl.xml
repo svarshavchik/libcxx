@@ -15,11 +15,9 @@ See COPYING for distribution information.
 
 auto shlib=&ns;::ltdl::create("libmymodule");
 
-void *sym=shlib-&gt;sym("function");
+auto function=shlib-&gt;sym&lt;int (*)()&gt;("function");
 
-auto symptr=reinterpret_cast&lt;void (*)()&gt;(sym);
-
-(*symptr)();</programlisting>
+int ret=(*function)();</programlisting>
     </informalexample>
   </blockquote>
 

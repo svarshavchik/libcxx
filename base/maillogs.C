@@ -256,8 +256,18 @@ public:
 
 	void operator()(const std::string &s)
 	{
-		if (regex->match(s))
-			out(s);
+		try {
+			if (regex->match(s))
+				out(s);
+		} catch (const LIBCXX_NAMESPACE::exception &e)
+		{
+			// Garbage matches can result PCRE_ERROR_MATCHLIMIT
+			std::ostringstream o;
+
+			o << e;
+
+			out(o.str());
+		}
 	}
 };
 

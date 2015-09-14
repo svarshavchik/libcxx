@@ -3,8 +3,8 @@
 
 <!ENTITY % entity-list SYSTEM "entities">
 
-<!ENTITY app "<application><emphasis>LIBCXX</emphasis></application>">
-<!ENTITY appshort "LIBCXX">
+<!ENTITY app "<application><emphasis>LibCXX</emphasis></application>">
+<!ENTITY appshort "LibCXX">
 <!ENTITY stasher "<ulink url='http://www.libcxx.org/stasher/'><application>Stasher</application></ulink>">
 <!ENTITY nopthreadcancel SYSTEM "nopthreadcancel.xml">
 <!ENTITY singletonlimits SYSTEM "singletonlimits.xml">
@@ -86,6 +86,7 @@
 <!ENTITY httpserver SYSTEM "httpserver.xml">
 <!ENTITY ftpclient SYSTEM "ftpclient.xml">
 <!ENTITY ltdl SYSTEM "ltdl.xml">
+<!ENTITY news SYSTEM "news.xml">
 <!ENTITY ns "x">
 <!ENTITY ref "<classname>&ns;::ref</classname>">
 <!ENTITY ptr "<classname>&ns;::ptr</classname>">
@@ -106,7 +107,7 @@
 
 <!--
 
-Copyright 2012 Double Precision, Inc.
+Copyright 2012-2015 Double Precision, Inc.
 See COPYING for distribution information.
 
 -->
@@ -360,19 +361,42 @@ See COPYING for distribution information.
 
     &ftpclient;
   </part>
-  <part id="sql">
-    <title>Accessing <acronym>SQL</acronym> databases</title>
+  <part id="extras">
+    <title>Extra <application>LibCXX</application> components</title>
+
+    <partintro>
+      <para>
+	Several additional components can be installed after installing the
+	main &app; library.
+      </para>
+    </partintro>
 
     <chapter id="sqlinstall">
       <title>Installing the &app; <acronym>SQL</acronym> library</title>
 
       <para>
 	The
-	<ulink url="sql/index.html"><application><emphasis>LIBCXX</emphasis>
+	<ulink url="/sql">&app;
 	<acronym>SQL</acronym>
-	library</application></ulink> is a separately-installed module that
+	library</ulink> is a separately-installed module that
 	implements classes and templates for accessing
 	<acronym>SQL</acronym> databases.
+      </para>
+
+      <para>
+	Install this library separately, after
+	<link linkend="INSTALL">installing &app; first</link>.
+      </para>
+    </chapter>
+
+    <chapter id="winstall">
+      <title>Installing the &app; X Windows toolkit</title>
+
+      <para>
+	The
+	<ulink url="/w"><application><emphasis>LibCXXW</emphasis>
+	library</application></ulink> is a separately-installed module that
+	implements classes and templates for using X client applications.
       </para>
 
       <para>

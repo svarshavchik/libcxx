@@ -38,7 +38,7 @@ See COPYING for distribution information.
       </arg>
 
       <group choice='req'>
-	<arg choice='plain'>--tostdout</arg>
+	<arg choice='plain'>--stdout</arg>
 	<arg choice='req' rep='repeat'>
 	  <group choice='req'>
 	    <arg choice='plain'>-t=<replaceable>user@domain</replaceable></arg>
@@ -177,11 +177,11 @@ See COPYING for distribution information.
       </varlistentry>
 
       <varlistentry>
-	<term><option>--tostdout</option></term>
+	<term><option>--stdout</option></term>
 	<listitem>
 	  <para>
 	    Do not send the mail, only format it and send it to standard output.
-	    Either <option>--tostdout</option>, or at least one
+	    Either <option>--stdout</option>, or at least one
 	    <option>-t, --to</option> option must be given.
 	  </para>
 	</listitem>
@@ -240,7 +240,7 @@ See COPYING for distribution information.
       <command>maillogs</command> runs <command>/usr/sbin/sendmail</command>
       or the program specified by the <envar>SENDMAIL</envar> environment
       variable, to send the mail, unless
-      <option>--tostdout</option> is given.
+      <option>--stdout</option> is given.
     </para>
   </refsect1>
 

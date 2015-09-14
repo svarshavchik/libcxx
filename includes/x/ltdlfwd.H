@@ -42,11 +42,12 @@ class ltdlBase;
 //! isresident() returns an indication whether the object is loaded.
 //!
 //! \code
-//! void *sym=shlib->sym("function");
+//! auto sym=shlib->sym<int (*)()>("function");
 //! \endcode
 //!
 //! Returns the address of the symbol in the loaded shared library, or a
-//! nullptr if no such symbol exists.
+//! nullptr if no such symbol exists, type-casted to the template class
+//! parameter.
 //!
 //! \note
 //! C++ symbols need to be mangled.

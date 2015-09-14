@@ -89,8 +89,10 @@ See COPYING for distribution information.
 
       <listitem>
 	<para>
-	  Accessing <ulink url="sql/index.html"><acronym>SQL</acronym>
-	    databases</ulink>.
+	  Two optional subcomponents:
+	  an <ulink url="/sql"><acronym>SQL</acronym>
+	    database</ulink> API, and <ulink url="/w">LibCXXW</ulink>, an
+	  X widget toolkit.
 	</para>
       </listitem>
 
@@ -112,6 +114,7 @@ See COPYING for distribution information.
       <link linkend="COPYING">GPL, version 3</link>.
     </para>
   </section>
+  &news;
   &install;
 </preface>
 

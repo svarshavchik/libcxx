@@ -49,6 +49,10 @@ public:
 	//! Returns true if the pattern was found, and the matching string and
 	//! any subpatterns gets placed into
 	//! \ref subpatterns "subpatterns".
+	//!
+	//! An error from the underlying PCRE library can result in a thrown
+	//! exception. Specifically, PCRE_ERROR_MATCHLIMIT. The caller
+	//! should catch any thrown exceptions, and decide what to do with them.
 
 	bool match(//! String to match
 		   const std::string &string,
@@ -76,4 +80,3 @@ public:
 #endif
 }
 #endif
-

@@ -806,6 +806,16 @@ static void start_as_child(const args &a)
 
 // systemd-specific code to deal with its stupidity. Have a process listen
 // for nothing other than a signal to reexec itself.
+//
+// After updating libcxx, the start() commands starts the new httportmap
+// executable, which negotiated with the existing executable to do an
+// orderly handover, at which point the old executable exits. The new
+// httportmap daemon is a child of the new, started executable.
+//
+// systemd can't deal with this. We must have the existing process listen
+// and reexec itself. We'll use a separate socket to pass the startup
+// arguments, from the terminal-initiated command to the running daemon,
+// which then
 
 static void systemd_brain_damage(const std::string &me,
 				 const LIBCXX_NAMESPACE::fd &lockfile,

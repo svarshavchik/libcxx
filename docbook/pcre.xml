@@ -31,7 +31,7 @@ else
   <para>
     This is a
     <application>Perl</application>-compatible regular expression engine,
-    a facade for the <application>pcre</application> library.
+    a facade for the <application>PCRE</application> library.
   </para>
 
   <para>
@@ -71,6 +71,15 @@ else
       necessary arrangement for invoking
       <methodname>match</methodname>(), and accessing
       <varname>subpatterns</varname> by one thread at a time.
+    </para>
+  </note>
+
+  <note>
+    <para>
+      An error from the underlying
+      <application>PCRE</application> library can result in a thrown
+      exception. Specifically, PCRE_ERROR_MATCHLIMIT. The caller
+      should catch any thrown exceptions, and decide what to do with them.
     </para>
   </note>
 </chapter>

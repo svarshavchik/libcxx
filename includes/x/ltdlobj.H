@@ -78,10 +78,14 @@ public:
 	void makeresident();
 
 	//! Search for a symbol in the loaded library
-	const void *sym(const std::string &name) const;
+	template<typename typeObj>
+	inline auto sym(const std::string &name) const
+	{
+		return reinterpret_cast<typeObj>(get_sym(name));
+	}
 
-	//! Search for a symbol in the loaded library
-	void *sym(const std::string &name);
+	//! Retrieve a symbol from a shared library.
+	void *get_sym(const std::string &name) const;
 };
 
 #if 0
