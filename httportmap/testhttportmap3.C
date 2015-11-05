@@ -83,11 +83,20 @@ int main(int argc, char **argv)
 
 		if (p == 0)
 		{
+			std::vector<std::vector<char>> charbuf;
+
 			std::vector<char *> argvec;
 
-			for (auto word:optionParser->args)
-				argvec.push_back(const_cast<char *>
-						 (word.c_str()));
+			for (const auto &word:optionParser->args)
+			{
+				charbuf.push_back(std::vector<char>
+						  (word.begin(), word.end()));
+
+				auto &last=charbuf.back();
+
+				last.push_back(0);
+				argvec.push_back(&last[0]);
+			}
 			argvec.push_back(nullptr);
 			execv(optionParser->args.front().c_str(), &argvec[0]);
 			perror(optionParser->args.front().c_str());

@@ -1,0 +1,68 @@
+<!--
+
+Copyright 2015 Double Precision, Inc.
+See COPYING for distribution information.
+
+-->
+
+<chapter id="sentry">
+  <title>Sentries</title>
+
+  <blockquote>
+    <informalexample>
+      <programlisting>
+#include &lt;&ns;/sentry.H&gt;
+
+void transaction(const DBH &amp;dbh)
+{
+    auto transaction_sentry=&ns;::make_sentry(
+        [&amp;]
+        {
+            dbh-&gt;rollback();
+        }
+    );
+
+    dbh-&gt;begin();
+    transaction_sentry.guard();
+
+    // ...
+
+    dbh-&gt;commit();
+    transaction_sentry.unguard();
+}</programlisting>
+    </informalexample>
+  </blockquote>
+
+  <para>
+    <ulink url="&link-function-x-make-sentry;"><function>&ns;::make_sentry</function></ulink>
+    implements an ad-hoc <acronym>RAII</acronym> design pattern using a lambda.
+    <function>&ns;::make_sentry</function>() returns an object that should
+    exist on the stack.
+    If the object goes out of scope after
+    <methodname>guard</methodname>() and before
+    <methodname>unguard</methodname>(), the object's destructor invokes the
+    lambda.
+  </para>
+
+  <para>
+    In the example above, an exception that gets thrown any time after the
+    <methodname>begin</methodname>(), and before the
+    <methodname>commit</methodname>(), results in the
+    <methodname>rollback</methodname>() getting automatically invoked.
+  </para>
+
+  <note>
+    <para>
+      The lambda should not throw exceptions,
+      although a thrown
+      <link linkend="exceptions"><classname>&ns;::exception</classname></link>
+      is going to get caught, and logged.
+    </para>
+  </note>
+</chapter>
+<!--
+Local Variables:
+mode: sgml
+sgml-parent-document: ("book.xml" "part" "chapter")
+End:
+-->

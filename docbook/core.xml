@@ -5,7 +5,7 @@ See COPYING for distribution information.
 
 -->
 
-<partintro id="core">
+<partintro id="coreintro">
   <title>Introduction to core classes</title>
   <para>
     To access the classes and templates described in this part,

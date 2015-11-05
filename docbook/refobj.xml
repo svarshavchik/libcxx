@@ -1246,7 +1246,7 @@ inputp=button;</programlisting>
     </para>
   </section>
 
-  <section id="multinherit">
+  <section id="privinherit">
     <title>Private inheritance of reference-counted objects</title>
 
     <para>

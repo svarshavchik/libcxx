@@ -105,7 +105,7 @@ rm -rf $RPM_BUILD_ROOT
 /bin/systemctl daemon-reload || :
 /bin/systemctl enable httportmap.service &> /dev/null || :
 /bin/systemctl reload-or-try-restart httportmap.service &> /dev/null || :
-for f in %{_localstatedir}/tlsparams/system.dh %{_localstatedir}/tlsparams/system.rsa
+for f in %{_localstatedir}/tlsparams/system.dh
 do
 	test -f $f || ln $f.dist $f
 done
@@ -116,7 +116,6 @@ then
 	/bin/systemctl stop httportmap.service
 	/bin/systemctl disable httportmap.service
 	rm -f %{_localstatedir}/tlsparams/system.dh
-	rm -f %{_localstatedir}/tlsparams/system.rsa
 fi
 
 %postun

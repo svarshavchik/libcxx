@@ -6,7 +6,7 @@ See COPYING for distribution information.
 -->
 
 
-<chapter id="base64">
+<chapter id="qp">
   <title>Quoted-printable encoding and decoding</title>
 
   <blockquote>

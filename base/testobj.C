@@ -36,6 +36,8 @@
 #include "x/dirwalk.H"
 #include "x/destroycallbackflagobj.H"
 #include "x/string_argument.H"
+#include "x/sentry.H"
+
 #include <iostream>
 #include <algorithm>
 #include <vector>
@@ -2581,9 +2583,44 @@ void testequality()
 	COMPAREOP(cpc , == , cpc);
 }
 
+void testsentry()
+{
+	int flag=1;
+
+	{
+		auto s=LIBCXX_NAMESPACE::make_sentry([&]
+						     {
+							     flag=0;
+						     });
+		s.guard();
+		s.unguard();
+	}
+
+	if (flag != 1)
+	{
+		std::cerr << "testsentry failed" << std::endl;
+		exit(1);
+	}
+
+	{
+		auto s=LIBCXX_NAMESPACE::make_sentry([&]
+						     {
+							     flag=0;
+						     });
+		s.guard();
+
+	}
+	if (flag != 0)
+	{
+		std::cerr << "testsentry failed" << std::endl;
+		exit(1);
+	}
+}
+
 int main()
 {
 	alarm(60);
+	testsentry();
 	string_argument();
 	objtest();
 	exceptiontest();

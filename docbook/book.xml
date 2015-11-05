@@ -52,6 +52,7 @@
 <!ENTITY hier SYSTEM "hier.xml">
 <!ENTITY httportmap SYSTEM "httportmap.xml">
 <!ENTITY miscfunctional SYSTEM "miscfunctional.xml">
+<!ENTITY miscsentry SYSTEM "miscsentry.xml">
 <!ENTITY miscstringability SYSTEM "miscstringability.xml">
 <!ENTITY miscstrtok SYSTEM "miscstrtok.xml">
 <!ENTITY misctokenizer SYSTEM "misctokenizer.xml">
@@ -161,6 +162,7 @@ See COPYING for distribution information.
     <title>Miscellaneous classes and functions</title>
 
     &miscfunctional;
+    &miscsentry;
     &miscstringability;
     &miscstrtok;
     &miscjoiniterator;

@@ -145,7 +145,7 @@ public:
 	{
 // ...
 
-		send(req, 
+		send(req,
 		     "text/html; charset=utf-8",
                      container.begin(),
                      container.end());
@@ -296,7 +296,7 @@ catch (const &ns;::http::response_exception &amp;e)
 	  member methods in <ulink url="&link-x--http--responseimpl;"><classname>&ns;::http::responseimpl</classname></ulink>.
 	</para>
       </listitem>
- 
+
       <listitem>
 	<para>
 	  The original request, a <quote>content type</quote> string,
@@ -550,7 +550,7 @@ void received(const &ns;::http::requestimpl &amp;req, bool hasbody)
       <methodname>getCookies</methodname>() method retrieves any cookies
       sent in the client's request:
     </para>
-      
+
     <blockquote>
       <informalexample>
 	<programlisting>
@@ -837,7 +837,7 @@ auto auth=&ns;::http::serverauth::create("Mailbox", "/private", "/mail",
       </itemizedlist>
 
       <para>
-	Here, 
+	Here,
 	<quote>http://www.example.com</quote> and
         <quote>https://www.example.com</quote> get combined, individually,
 	with <quote>/private</quote> and <quote>/mail</quote>, and together
@@ -926,7 +926,7 @@ auth-&gt;nonce_expiration=120;</programlisting>
 	as a number of seconds. The default value is 60 seconds, set by the
 	<literal>&ns;::http::serverauth::nonce_expiration</literal> property.
 	This should be sufficient. The implementation of digest authentication
-	in &app; sends a new 
+	in &app; sends a new
 	nonce in response to every authentication request, and all nonces
 	remain valid until they expire;
 	so as long as there's at least one request in a minute, the client
@@ -1084,7 +1084,7 @@ auth-&gt;nonce_expiration=120;</programlisting>
       </para>
     </section>
 
-    <section id="httpserverauthproxy">
+    <section id="httpserverauthboth">
       <title>Using both digest and basic authentication</title>
 
       <para>

@@ -779,7 +779,7 @@ fd-&gt;cancel_read_timeout();</programlisting>
     <para>
       <methodname>set_read_timeout</methodname>() starts a timer. Its parameter
       is actually a
-      <link id="timespec"><classname>&ns;::timespec</classname></link>.
+      <link linkend="timespec"><classname>&ns;::timespec</classname></link>.
       Invoking <methodname>pubread</methodname>() directly or indirectly
       waits for either data to be
       available, or for the timer to expire.
