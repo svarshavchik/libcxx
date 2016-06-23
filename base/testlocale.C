@@ -12,6 +12,7 @@
 #include <iostream>
 #include <sstream>
 #include <iterator>
+#include <vector>
 
 static void showwords(const std::list<std::string> &s)
 {

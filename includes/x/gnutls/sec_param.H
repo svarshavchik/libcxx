@@ -14,6 +14,50 @@
 #include <x/param/getenumerationarr.H>
 #include <gnutls/gnutls.h>
 
+namespace LIBCXX_NAMESPACE {
+	namespace param {
+#if 0
+	}
+}
+#endif
+
+//! Internal specialization.
+
+template<>
+std::string
+onlygetname<gnutls_sec_param_t>::get_name(gnutls_sec_param_t value,
+					  const const_locale &localeRef);
+//! Internal specialization.
+
+template<>
+const gnutls_sec_param_t
+enumeration<gnutls_sec_param_t>::manual_enumeration[];
+
+//! Internal specialization.
+
+template<> const size_t
+enumeration<gnutls_sec_param_t>::manual_enumeration_cnt;
+
+//! Internal specialization.
+
+template<>
+void onlygetname<gnutls_sec_param_t>
+::nosuchname(const std::string &name,
+	     const const_locale &localeRef);
+
+//! Internal specialization.
+
+template<>
+bool getenumerationarr<onlygetname<gnutls_sec_param_t> >
+::donotenumerate(gnutls_sec_param_t value);
+
+#if 0
+{
+	{
+#endif
+	}
+}
+
 extern template class LIBCXX_NAMESPACE::param::enumeration<gnutls_sec_param_t>;
 extern template class LIBCXX_NAMESPACE::param::onlygetname<gnutls_sec_param_t>;
 

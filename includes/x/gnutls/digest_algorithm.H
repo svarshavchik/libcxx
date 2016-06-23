@@ -79,6 +79,33 @@ typedef LIBCXX_NAMESPACE::param::settable<
 	}
 }
 
+namespace LIBCXX_NAMESPACE {
+	namespace param {
+#if 0
+	}
+}
+#endif
+
+//! Internal specialization.
+
+template<>
+std::string
+getnameenum<gnutls_digest_algorithm_t>::
+get_name(gnutls_digest_algorithm_t value, const const_locale &localeRef);
+
+//! Internal specialization.
+
+template<>
+gnutls_digest_algorithm_t
+getnameenum<gnutls_digest_algorithm_t>::get_enum(const std::string &name,
+						 const const_locale &localeRef);
+#if 0
+{
+	{
+#endif
+	}
+}
+
 extern template class LIBCXX_NAMESPACE::param
 ::getnameenum<gnutls_digest_algorithm_t>;
 

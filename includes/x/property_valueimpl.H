@@ -54,6 +54,37 @@ public:
 	}
 };
 
+//! Specialization for a bool.
+
+template<int intsizeType>
+class valueImplBase<bool, intsizeType, true> {
+
+	//! Stored %value
+
+	mutable int v;
+
+public:
+	//! Default constructor
+
+	valueImplBase(bool initialValue) noexcept : v(initialValue) {}
+
+	//! Default destructor
+	~valueImplBase() noexcept {}
+
+	//! Retrieve current %value
+	bool getValue() const noexcept { return __sync_fetch_and_add(&v, 0); }
+
+	//! Store a new %value
+
+	void setValue(//! New %value
+
+		      bool n) noexcept
+	{
+		__sync_bool_compare_and_swap(&v, __sync_fetch_and_add(&v, 0),
+					     n);
+	}
+};
+
 //! valueimpl implementation for a non-int type.
 
 //! This is a specialization for non-int types that use

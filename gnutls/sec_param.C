@@ -38,20 +38,6 @@ template<> const size_t
 enumeration<gnutls_sec_param_t>::manual_enumeration_cnt
 = sizeof(manual_enumeration)/sizeof(manual_enumeration[0]);
 
-template<>
-std::string
-onlygetname<gnutls_sec_param_t>::get_name(gnutls_sec_param_t value,
-					  const const_locale &localeRef);
-
-template<>
-void onlygetname<gnutls_sec_param_t>
-::nosuchname(const std::string &name,
-	     const const_locale &localeRef);
-
-template<>
-bool getenumerationarr<onlygetname<gnutls_sec_param_t> >
-::donotenumerate(gnutls_sec_param_t value) LIBCXX_HIDDEN;
-
 template<> std::string
 onlygetname<gnutls_sec_param_t>::get_name(gnutls_sec_param_t value,
 					  const const_locale &localeRef)

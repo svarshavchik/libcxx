@@ -790,7 +790,7 @@ void wthread::run(const LIBCXX_NAMESPACE::ref<rwlocktestinfo> &rwti)
 		LIBCXX_NAMESPACE::rwlock::base::wlock wlock=rwti->rwl->writelock();
 }
 
-static void rwlocktest() noexcept
+static void rwlocktest()
 {
 	{
 		auto rw=LIBCXX_NAMESPACE::rwlock::create();

@@ -4,6 +4,8 @@
 */
 
 #include "libcxx_config.h"
+#include <cmath>
+#include <cstdlib>
 #include "x/serialize.H"
 #include "x/deserialize.H"
 #include "x/tzfile.H"
@@ -14,7 +16,6 @@
 #include <iomanip>
 #include <sstream>
 #include <map>
-#include <cmath>
 #include <set>
 #include <list>
 #include <iterator>
