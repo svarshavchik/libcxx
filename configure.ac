@@ -94,6 +94,7 @@ AC_LINK_IFELSE(
 ])],[:],[AC_MSG_ERROR([The Courier Unicode Library 1.2 appears not to be installed. You may need to install a separate development subpackage, in addition to the main package])])
 LIBS="$save_LIBS"
 
+# Also update -std in includes/x/libcxx.m4.in
 CXXFLAGS="$CXXFLAGS -std=c++1z -fno-omit-frame-pointer"
 
 AC_CHECK_PROGS(XML2_CONFIG,xml2-config,none)
