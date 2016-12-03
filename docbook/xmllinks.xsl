@@ -33,9 +33,9 @@
 <xsl:template match="member">
   <xsl:text>&lt;!ENTITY link-</xsl:text>
   <xsl:value-of select="@kind" /><xsl:text>-</xsl:text>
-  <xsl:value-of select="translate(../name,': &amp;&lt;&gt;,_[]()*~!=+','-----------ZDNEP')" />
+  <xsl:value-of select="translate(../name,': &amp;&lt;&gt;,_[]()*~!=+%/','-----------ZDNEPMD')" />
   <xsl:text>-</xsl:text>
-  <xsl:value-of select="translate(name,': &amp;&lt;&gt;,_[]()*~!=+','-----------ZDNEP')" />
+  <xsl:value-of select="translate(name,': &amp;&lt;&gt;,_[]()*~!=+%/','-----------ZDNEPMD')" />
   <xsl:text> &quot;ref/</xsl:text>
   <xsl:value-of select="substring(@refid, 1, string-length(@refid)-35)" />
   <xsl:text>.html#</xsl:text>

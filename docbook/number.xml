@@ -1,0 +1,87 @@
+<!--
+
+Copyright 2016 Double Precision, Inc.
+See COPYING for distribution information.
+
+-->
+
+<chapter id="number">
+  <title>Typesafe numerical aliases</title>
+
+  <blockquote>
+    <informalexample>
+      <programlisting>
+#include &lt;&ns;/number.H&gt;
+
+class number_tag;
+
+typedef &ns;::number&lt;int, number_tag&gt; number_t;
+
+number_t number{4}, number2=number*2;
+
+int value=number;</programlisting>
+    </informalexample>
+  </blockquote>
+
+  <para>
+    <ulink url="&link-x--number;"><classname>&ns;::number</classname></ulink>
+    implements a typesafe wrapper for a numerical type. This is a wrapper
+    for an integral type that implements overloaded operators for all
+    mathematical expressions, which produce the same type.
+  </para>
+
+  <para>
+    The second template parameter is not referenced. Its only use is to
+    produce a separate, discrete type.
+    An <classname>&ns;::number</classname> can be added to, subtracted to,
+    etc..., to either another untyped numerical value, or the same
+    <classname>&ns;::number</classname>, resulting in the same
+    <classname>&ns;::number</classname>. Using multiple
+    <classname>&ns;::number</classname>s prevents accidentally using
+    one <classname>&ns;::number</classname> in an expression with a different
+    <classname>&ns;::number</classname>.
+  </para>
+
+  <blockquote>
+    <informalexample>
+      <programlisting>
+typedef number_t::value_type value_type;</programlisting>
+    </informalexample>
+  </blockquote>
+
+  <para>
+    The <classname>value_type</classname> member is an alias
+    for the wrapped numerical type, the first template parameter.
+  </para>
+
+  <blockquote>
+    <informalexample>
+      <programlisting>
+
+class base_class {
+
+public:
+
+     static constexpr int infinite() { return -1; }
+
+};
+
+typedef &ns;::number&lt;int, number_tag, base_class&gt; number_t;
+
+int n=number_t::infinite();</programlisting>
+    </informalexample>
+  </blockquote>
+
+  <para>
+    The optional third template parameter specifies a class that the
+    resulting
+    <classname>&ns;::number</classname>
+    class inherits from, inheriting all of the base class's methods.
+  </para>
+</chapter>
+<!--
+Local Variables:
+mode: sgml
+sgml-parent-document: ("book.xml" "part" "chapter")
+End:
+-->
