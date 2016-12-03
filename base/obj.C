@@ -63,7 +63,7 @@ void obj::demangle(const char *mangled,
 			free(t);
 		} catch (...) {
 			free(t);
-			throw;
+			demangled="failed";
 		}
 	}
 	else

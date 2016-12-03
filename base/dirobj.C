@@ -50,13 +50,10 @@ dirObj::iterator dirObj::begin() const
 {
 	dirObj::iterator b(ptr<opendirObj>::create(),
 			   const_dirptr(this));
-	
+
 	if ((b.val.d->dirp=opendir((b.val.d->dirname=getDirname()).c_str()))
 	    == NULL)
 		throw SYSEXCEPTION(b.val.d->dirname);
-	b.val.d->readdir_size=
-		offsetof(struct dirent, d_name)+
-		fpathconf(dirfd(b.val.d->dirp), _PC_NAME_MAX)+1;
 
 	return ++b;
 }
@@ -86,17 +83,10 @@ dirObj::iterator &dirObj::iterator::operator++()
 
 		struct dirent *de;
 
-		char readdir_buf[o.readdir_size];
-
 		do
 		{
-			int err=readdir_r(o.dirp, (struct dirent *)readdir_buf,
-					  &de);
-			if (err)
-			{
-				errno= -err;
-				throw SYSEXCEPTION("readdir");
-			}
+			de=readdir(o.dirp);
+
 		} while (!nameref->getImplicitFlag() && de &&
 			 (strcmp(de->d_name, ".") == 0 ||
 			  strcmp(de->d_name, "..") == 0));

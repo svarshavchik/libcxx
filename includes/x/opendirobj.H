@@ -33,10 +33,6 @@ public:
 
 	std::string dirname;
 
-	//! Calculated maximum size of each directory name
-
-	size_t readdir_size;
-
 	//! The default constructor.
 
 	opendirObj() noexcept;
