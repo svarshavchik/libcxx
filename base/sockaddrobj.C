@@ -361,7 +361,7 @@ bool sockaddrObj::is46(const sockaddrObj &o) const
 	if (inet_pton(AF_INET6, buf, &sin6.sin6_addr) <= 0)
 		throw SYSEXCEPTION(buf);
 
-	if (o.size() < (const char *)(&sin6.sin6_addr+1)-(const char *)&sin6)
+	if (o.size() < (size_t)((const char *)(&sin6.sin6_addr+1)-(const char *)&sin6))
 		return false;
 
 	struct sockaddr_in6 sin6b;

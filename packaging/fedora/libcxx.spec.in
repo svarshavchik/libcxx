@@ -18,6 +18,7 @@ BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root
 BuildRequires: courier-unicode-devel
 BuildRequires: gettext
 BuildRequires: gnutls-devel
+BuildRequires: libgcrypt-devel
 BuildRequires: %{__perl}
 BuildRequires: libxslt
 BuildRequires: pcre-devel

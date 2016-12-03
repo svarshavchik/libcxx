@@ -181,8 +181,6 @@ void listObj::usage_internal(std::ostream &output,
 	for (auto c:p_name)
 		w += unicode_wcwidth(c);
 
-	auto p_width=w;
-
 	o << pArg;
 
 	std::list<ref<definitionbaseObj> >::const_iterator

@@ -336,6 +336,7 @@ noinst_PROGRAMS=\
 	testmimesectioniter           \
 	testmsgdispatcher             \
 	testnetif                     \
+	testnumber		      \
 	testobj                       \
 	testoptgen                    \
 	testoptions                   \
@@ -489,6 +490,10 @@ testcredentials_LDFLAGS=$(TESTLINKTYPE)
 testnetif_SOURCES=testnetif.C
 testnetif_LDADD=libcxx.la
 testnetif_LDFLAGS=$(TESTLINKTYPE)
+
+testnumber_SOURCES=testnumber.C
+testnumber_LDADD=libcxx.la
+testnumber_LDFLAGS=$(TESTLINKTYPE)
 
 testglob_SOURCES=testglob.C
 testglob_LDADD=libcxx.la
@@ -853,6 +858,7 @@ check-am: $(noinst_PROGRAMS) $(noinst_DATA)
 	diff $(srcdir)/testfmtsize.txt testfmtsize.tmp
 	rm -f testfmtsize.tmp
 	./testnetif
+	./testnumber
 	./testuri >testuri.tmp
 	diff $(srcdir)/testuri.txt testuri.tmp
 	rm -f testuri.tmp
