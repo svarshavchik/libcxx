@@ -9,10 +9,13 @@ This file defines a typesafe number.
 
 */
 
-#ifndef x_exception_H
-#define x_exception_H
+#ifndef x_number_H
+#define x_number_H
 
+#include <x/namespace.h>
 #include <utility>
+#include <iostream>
+
 namespace LIBCXX_NAMESPACE {
 #if 0
 };
@@ -111,6 +114,36 @@ public:
 	//! Modulus operator
 	number operator%(const number &v) const { return number(n%v.n); }
 
+	//! Pre-increment operator
+	number &operator++()
+	{
+		++n;
+		return *this;
+	}
+
+	//! Pre-decrement operator
+	number &operator--()
+	{
+		--n;
+		return *this;
+	}
+
+	//! Post-increment operator
+	number operator++(int)
+	{
+		auto copy=*this;
+		++*this;
+		return copy;
+	}
+
+	//! Post-decrement operator
+	number operator--(int)
+	{
+		auto copy=*this;
+		--*this;
+		return copy;
+	}
+
 	//! Addition assignment operator
 	number &operator+=(value_type_t vn) { n+=vn; return *this; }
 	//! Subtraction assignment operator
@@ -133,30 +166,30 @@ public:
 	number &operator%=(const number &v) { n%=v.n; return *this; }
 
 	//! Comparison operator
-	bool operator==(value_type vn) { return n == vn; }
+	bool operator==(value_type vn) const { return n == vn; }
 	//! Comparison operator
-	bool operator!=(value_type vn) { return n != vn; }
+	bool operator!=(value_type vn) const { return n != vn; }
 	//! Comparison operator
-	bool operator<(value_type vn) { return n < vn; }
+	bool operator<(value_type vn) const { return n < vn; }
 	//! Comparison operator
-	bool operator<=(value_type vn) { return n <= vn; }
+	bool operator<=(value_type vn) const { return n <= vn; }
 	//! Comparison operator
-	bool operator>(value_type vn) { return n > vn; }
+	bool operator>(value_type vn) const { return n > vn; }
 	//! Comparison operator
-	bool operator>=(value_type vn) { return n >= vn; }
+	bool operator>=(value_type vn) const { return n >= vn; }
 
 	//! Comparison operator
-	bool operator==(const number &v) { return n == v.n; }
+	bool operator==(const number &v) const { return n == v.n; }
 	//! Comparison operator
-	bool operator!=(const number &v) { return n != v.n; }
+	bool operator!=(const number &v) const { return n != v.n; }
 	//! Comparison operator
-	bool operator<(const number &v) { return n < v.n; }
+	bool operator<(const number &v) const { return n < v.n; }
 	//! Comparison operator
-	bool operator<=(const number &v) { return n <= v.n; }
+	bool operator<=(const number &v) const { return n <= v.n; }
 	//! Comparison operator
-	bool operator>(const number &v) { return n > v.n; }
+	bool operator>(const number &v) const { return n > v.n; }
 	//! Comparison operator
-	bool operator>=(const number &v) { return n >= v.n; }
+	bool operator>=(const number &v) const { return n >= v.n; }
 };
 
 //! Addition operator overload
@@ -222,6 +255,16 @@ operator%(number_t &&n,
 	  const number<value_type_t, tag, base_class> &o)
 {
 	return o.operator%(std::forward<number_t>(n));
+}
+
+//! Overload << operator for output streams.
+
+template<typename CharT, typename Traits,
+	 typename value_type_t, typename tag, typename base_class>
+inline auto &operator<<(std::basic_ostream<CharT, Traits> &o,
+			const number<value_type_t, tag, base_class> &n)
+{
+	return o << static_cast<value_type_t>(n);
 }
 
 #if 0

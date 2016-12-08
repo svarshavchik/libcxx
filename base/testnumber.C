@@ -6,6 +6,7 @@
 #include "libcxx_config.h"
 #include "x/number.H"
 #include <iostream>
+#include <sstream>
 
 class foo;
 class foobar {
@@ -100,6 +101,19 @@ void testnumber()
 	u=20/u;
 	u=2*u;
 	u=1%u;
+
+	n1=2;
+
+	if (n1++ != 2 || n1-- != 3 || n1 != 2 ||
+	    ++n1 != 3 || --n1 != 2)
+	{
+		std::cout << "Increment operators wrong" << std::endl;
+		exit(1);
+	}
+
+	std::ostringstream o;
+
+	o << n1;
 }
 
 int main()
