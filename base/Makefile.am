@@ -347,6 +347,7 @@ noinst_PROGRAMS=\
 	testprop                      \
 	testqp                        \
 	testrefiterator               \
+	testrefptrtraits	      \
 	testrun                       \
 	testrunsingleton	      \
 	testrwmutex                   \
@@ -390,6 +391,10 @@ testobj_LDFLAGS=$(TESTLINKTYPE)
 testrefiterator_SOURCES=testrefiterator.C
 testrefiterator_LDADD=libcxx.la
 testrefiterator_LDFLAGS=$(TESTLINKTYPE)
+
+testrefptrtraits_SOURCES=testrefptrtraits.C
+testrefptrtraits_LDADD=libcxx.la
+testrefptrtraits_LDFLAGS=$(TESTLINKTYPE)
 
 testqp_SOURCES=testqp.C
 testqp_LDADD=libcxx.la
@@ -763,6 +768,7 @@ check-am: $(noinst_PROGRAMS) $(noinst_DATA)
 	./testobj 2>test.obj.tmp >&2
 	diff $(srcdir)/testobj.tst test.obj.tmp
 	rm test.obj.tmp
+	./testrefptrtraits
 	./testrefiterator
 	./testqp
 	./testrun
