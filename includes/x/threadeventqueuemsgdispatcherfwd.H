@@ -8,6 +8,8 @@
 
 #include <x/ptrfwd.H>
 
+#warning "Deprecated - use threadmsgdispatcher.H"
+
 namespace LIBCXX_NAMESPACE {
 
 #if 0
@@ -37,7 +39,7 @@ class threadeventqueuemsgdispatcherObj;
 //!       void run(const INSERT_LIBX_NAMESPACE::ref<INSERT_LIBX_NAMESPACE::obj> &mcguffin, const msgqueue_t &msgqueue, int additional_arguments);
 //!
 //! };
-//! 
+//!
 //! INSERT_LIBX_NAMESPACE::threadeventqueuemsgdispatcher<myThreadObj> thr=INSERT_LIBX_NAMESPACE::ref<myThreadObj>::create();
 //!
 //! thr->run_thread(4);

@@ -42,6 +42,31 @@ endef
 
 MSGDISPATCHER_GEN=$(foreach mode,$(2),$(eval $(call MSGDISPATCHER_INVOKE,$(1).$(mode).H,$(1).xml,mode=$(mode) $(3))))
 
+
+
+
+
+define THREADMSGDISPATCHER
+
+# Workaround for BUILT_SOURCES in all's dependencies being already etched in stone
+
+ifdef AUTOMAKE
+all: $(1)
+endif
+
+$(1): $(2)
+	$$(LIBCXX_XSLTPROC) $(LIBCXX_XINCLUDEDIR)threadmsgdispatcher.xsl $$< >$$@.tmp
+	mv -f $$@.tmp $$@
+
+LIBCXX_CLEANFILES += $(1)
+
+LIBCXX_SOURCES += $(2)
+
+endef
+
+THREADMSGDISPATCHER_GEN=$(eval $(call THREADMSGDISPATCHER,$(1),$(2)))
+
+
 define OPTIONS_INVOKE
 
 ifdef AUTOMAKE

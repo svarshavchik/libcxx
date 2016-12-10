@@ -3,8 +3,8 @@
 ** See COPYING for distribution information.
 */
 
-#ifndef x_threadmsgdispatcher_H
-#define x_threadmsgdispatcher_H
+#ifndef x_msgdispatcher_H
+#define x_msgdispatcher_H
 
 #include <x/obj.H>
 #include <x/ptr.H>
@@ -14,6 +14,8 @@
 #include <x/dispatchablemsgobj.H>
 
 #include <type_traits>
+
+#warning "Deprecated - use threadmsgdispatcher.H"
 
 namespace LIBCXX_NAMESPACE {
 

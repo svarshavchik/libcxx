@@ -105,6 +105,7 @@
 /testxmlescape
 /testxmlparse
 /testymd
+/threadmsgdispatcher.H
 /timerobj.msgs.decl.H
 /timerobj.msgs.def.H
 /xml_element_type.h

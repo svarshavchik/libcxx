@@ -96,6 +96,7 @@ header.html: Doxyfile
 dist-hook:
 	rm -f $(distdir)/includes/x/namespace.h
 	rm -f $(distdir)/includes/x/msgdispatcher.xsl
+	rm -f $(distdir)/includes/x/threadmsgdispatcher.xsl
 
 rpm:
 	make dist

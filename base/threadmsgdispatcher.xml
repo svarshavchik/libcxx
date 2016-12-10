@@ -1,0 +1,27 @@
+<class name="mythreadObj">
+  <method name="logerror">
+    <comment> //! logerror() function</comment>
+    <param>
+      <decl>const char *file</decl>
+      <default>""</default>
+    </param>
+    <param>
+      <decl>int line</decl>
+      <default>-1</default>
+    </param>
+    <param>
+      <comment>//! Descriptive error message</comment>
+      <decl>const std::string &amp;error_message</decl>
+      <default>"unknown error"</default>
+    </param>
+
+    <attributes> noexcept</attributes>
+  </method>
+
+  <method name="testas">
+    <param>
+      <decl>testas_class param</decl>
+      <as>int</as>
+    </param>
+  </method>
+</class>

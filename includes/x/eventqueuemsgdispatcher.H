@@ -15,6 +15,8 @@ namespace LIBCXX_NAMESPACE {
 };
 #endif
 
+#warning "Deprecated - use threadmsgdispatcher.H"
+
 //! An event file descriptor queue-based message dispatcher
 
 //! Instantiates an \ref eventqueue "eventqueue" and implements

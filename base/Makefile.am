@@ -195,6 +195,7 @@ libcxx_la_SOURCES=\
 	string_argument.C	\
 	stopexception.C		\
 	stoppable.C		\
+	threadmsgdispatcher.C   \
 	timerfdobj.C		\
 	timerobj.C		\
 	timerobj_internal.H	\
@@ -579,6 +580,8 @@ testuseragentidn_LDFLAGS=-static
 teststoppable_SOURCES=teststoppable.C
 teststoppable_LDADD=libcxx.la
 teststoppable_LDFLAGS=$(TESTLINKTYPE)
+
+$(call THREADMSGDISPATCHER_GEN, threadmsgdispatcher.H, threadmsgdispatcher.xml)
 
 testthreadmsgdispatcher_SOURCES=testthreadmsgdispatcher.C
 testthreadmsgdispatcher_LDADD=libcxx.la

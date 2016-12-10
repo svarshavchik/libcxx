@@ -16,6 +16,8 @@ namespace LIBCXX_NAMESPACE {
 };
 #endif
 
+#warning "Deprecated - use threadmsgdispatcher.H"
+
 //! An old-fashioned deque-based message dispatching queue.
 
 //! Implementation of event() by stuffing the dispatchable message into a
