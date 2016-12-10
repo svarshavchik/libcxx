@@ -98,7 +98,7 @@ if (verbose_value-&gt;value)
   </option>
 
   <option>
-    <name>filename</name>
+    <name>filenames</name>
     <type>string</type>
     <opt>-f</opt>
     <longopt>filename</longopt>
@@ -162,14 +162,12 @@ int main(int argc, char **argv)
                   << std::endl;
     }
 
-    for (std::list<std::string>::iterator b(opts.filenames->values.begin()),
-         e(opts.filenames->values.end()); b != e; ++b)
+    for (const auto &filename : opts.filenames->values)
     {
-        std::cout << "--filename " << *b << std::endl;
+        std::cout << "--filename " << filename << std::endl;
     }
 
-    for (std::list<std::string>::iterator b(args.begin()),
-         e(args.end()); b != e; ++b)
+    for (const auto &arg : args)
     {
         std::cout << "argument: " << *b << std::endl;
     }
