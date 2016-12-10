@@ -1,5 +1,5 @@
 /*
-** Copyright 2012 Double Precision, Inc.
+** Copyright 2012-2016 Double Precision, Inc.
 ** See COPYING for distribution information.
 */
 
@@ -8,52 +8,16 @@
 
 #include <x/ref.H>
 #include <x/ptr.H>
+#include <x/stoppablefwd.H>
+#include <x/stoppableobj.H>
 #include <x/weakptr.H>
 #include <x/weaklist.H>
-#include <x/obj.H>
 
 namespace LIBCXX_NAMESPACE {
 
 #if 0
 };
 #endif
-
-class stoppableObj;
-class stoppableBase;
-
-//! A reference to a stoppable object
-
-typedef ref<stoppableObj, stoppableBase> stoppable;
-
-//! A nullable pointer reference to a stoppable object
-
-typedef ptr<stoppableObj, stoppableBase> stoppableptr;
-
-//! An interface for something that's stoppable
-
-//! An interface for a class that implements a method called stop().
-//!
-//! \ref stoppableBase::group() "stoppable::base::group()" installs
-//! destructor callbacks for a sequence of objects. When
-//! any one of those objects is destroyed, stop() gets invoked on the
-//! next object in the sequence. The end result is that when any one in the
-//! sequence of objects gets destroyed, all the others gets destroyed too.
-//! [MUTUAL]
-
-class stoppableObj : virtual public obj {
-
-public:
-	//! Constructor
-	stoppableObj();
-
-	//! Destructor
-	~stoppableObj() noexcept;
-
-	//! Request this thread to terminate itself
-
-	virtual void stop()=0;
-};
-
 
 //! \c INSERT_LIBX_NAMESPACE::stoppable::base
 
