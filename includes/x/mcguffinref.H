@@ -7,11 +7,11 @@
 #define x_mcguffinref_H
 
 #include <x/ptr.H>
+#include <x/mpobj.H>
 #include <x/weakptr.H>
 #include <x/ondestroy.H>
+#include <x/mpobj.H>
 #include <x/namespace.h>
-
-#include <mutex>
 
 namespace LIBCXX_NAMESPACE {
 #if 0
@@ -22,12 +22,18 @@ template<typename ref_type> class mcguffinrefObj;
 
 //! Mcguffin destructor callback trigger
 
+//! \internal
+
 template<typename ref_type>
 class mcguffinref_cbObj : virtual public obj {
 
-public:
+	//! Type of disconnect_ref
+	typedef mpobj<weakptr<ptr<mcguffinrefObj<ref_type> > >> disconnect_ref_t;
+
 	//! The connection to the controller
-	weakptr<ptr<mcguffinrefObj<ref_type> > > disconnect_ref;
+	disconnect_ref_t disconnect_ref;
+
+public:
 
 	//! Constructor
 	mcguffinref_cbObj() noexcept
@@ -39,20 +45,39 @@ public:
 	{
 	}
 
+	//! Arm the trigger
+
+	void set_ref(const ptr<mcguffinrefObj<ref_type>> &refptr)
+	{
+		typename disconnect_ref_t::lock lock{disconnect_ref};
+
+		*lock=refptr;
+	}
+
+	//! Get the trigger object.
+
+	auto get_ref()
+	{
+		typename disconnect_ref_t::lock lock{disconnect_ref};
+
+		return lock->getptr();
+	}
+
 	//! Destructor callback
 	void destroyed() noexcept
 	{
-		ptr<mcguffinrefObj<ref_type> > getptr(disconnect_ref.getptr());
+		auto getptr=get_ref();
 
 		if (!getptr.null())
 		{
 			ref_type p;
 
 			{
-				std::lock_guard<std::mutex> lock(getptr->mutex);
+				typename mpobj<ref_type>::lock lock{getptr->p};
 
-				p=getptr->p;
-				getptr->p=ref_type();
+				p=*lock;
+
+				*lock=ref_type();
 			}
 			getptr->destroyed(p);
 		}
@@ -66,27 +91,28 @@ public:
 template<typename ref_type>
 class mcguffinrefObj : virtual public obj {
 
-	//! The reference
-	ref_type p;
-
-	//! Mutex that protects the reference.
-	std::mutex mutex;
-
-	//! Destructor callback handle
-	ondestroyptr ondestroycb;
-
 public:
+	//! Mutex-protected reference type
+
+	typedef mpobj<ref_type> p_t;
+
+	//! The reference
+	p_t p;
+
+	// //! Destructor callback handle
+	// ondestroyptr ondestroycb;
+
 	friend class mcguffinref_cbObj<ref_type>;
 
 	//! Retrieve the reference
 
 	ref_type getptr()
 	{
-		std::lock_guard<std::mutex> lock(mutex);
+		typename p_t::lock lock{p};
 
-		return p;
+		return *lock;
 	}
-		
+
 	//! Constructor
 	mcguffinrefObj()
 
@@ -106,10 +132,10 @@ public:
 		     //! The mcguffin
 		     const ref<obj> &mcguffin)
 	{
-		std::lock_guard<std::mutex> lock(mutex);
+		typename p_t::lock lock{p};
 
-		p=ref_type();
-		ondestroycb=ondestroyptr();
+		*lock=ref_type();
+		// ondestroycb=ondestroyptr();
 
 		auto cb=ref<mcguffinref_cbObj<ref_type> >::create();
 
@@ -118,11 +144,10 @@ public:
 						 cb->destroyed();
 					 }, mcguffin);
 
-		cb->disconnect_ref=
-			ptr<mcguffinrefObj<ref_type> >(this);
+		cb->set_ref(ptr<mcguffinrefObj<ref_type> >(this));
 
-		p=ptrArg;
-		ondestroycb=d;
+		*lock=ptrArg;
+		// ondestroycb=d;
 	}
 
 	//! Optional callback
