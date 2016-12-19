@@ -105,7 +105,15 @@ See COPYING for distribution information.
     <xsl:for-each select="method">
       <xsl:text>&#10;//! Internal implementation of the </xsl:text>
       <xsl:value-of select="@name" />
-      <xsl:text>() message&#10;&#10;void dispatch_</xsl:text>
+      <xsl:text>() message&#10;&#10;</xsl:text>
+
+      <xsl:choose>
+	<xsl:when test="virtual">
+	  <xsl:text>virtual </xsl:text>
+	</xsl:when>
+      </xsl:choose>
+
+      <xsl:text>void dispatch_</xsl:text>
       <xsl:value-of select="@name" />
       <xsl:text>(</xsl:text>
 

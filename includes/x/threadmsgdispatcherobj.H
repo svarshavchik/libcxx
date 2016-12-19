@@ -179,10 +179,10 @@ private:
 
 	mpobj<msgqueueptr_t> msgqueueptr;
 
-protected:
+public:
 
 	//! Return the message queue
-	auto get_msgqueue()
+	msgqueueptr_t get_msgqueue()
 	{
 		typename mpobj<msgqueueptr_t>::lock lock(msgqueueptr);
 
@@ -191,46 +191,61 @@ protected:
 
 	//! Message queue for the executing thread to read.
 
+	//! The executing thread constructs it on the stack.
+
 	class msgqueue_auto : public msgqueue_t {
 
 		//! The executing thread.
-		threadmsgdispatcherObj *me;
+		ref<threadmsgdispatcherObj> me;
 
 	public:
 
 		using msgqueue_t::operator*;
 		using msgqueue_t::operator->;
 
+		//! Deleted operator
+
+		msgqueue_auto(const msgqueue_auto &)=delete;
+
+		//! Deleted operator
+
+		msgqueue_auto &operator=(const msgqueue_auto &)=delete;
+
 		//! Construct the message queue.
 
 		msgqueue_auto(threadmsgdispatcherObj *me,
-			      const eventfd &fdArg=eventfd::create())
-			: msgqueue_t(msgqueue_t::create(fdArg)),
-			  me(me)
-		{
-			// Install it in mgsqueueptr
+			      const eventfd &fdArg=eventfd::create());
 
-			typename mpobj<msgqueueptr_t>::lock
-				lock(me->msgqueueptr);
+		//! Construct the message queue.
 
-			*lock= static_cast<msgqueue_t>(*this);
-		}
+		msgqueue_auto(const ref<threadmsgdispatcherObj> &me,
+			      const eventfd &fdArg=eventfd::create());
 
 		//! Destroy the message queue
 
-		~msgqueue_auto() noexcept
-		{
-			// Remove myself from msgqueueptr
-			typename mpobj<msgqueueptr_t>::lock
-				lock(me->msgqueueptr);
-
-			*lock=msgqueueptr_t();
-		}
+		~msgqueue_auto() noexcept;
 
 		//! Process the next event.
 
 		void event();
 	};
+
+	//! msgqueue_auto in a reference-counted object.
+
+	class msgqueue_objObj : public msgqueue_auto, virtual public obj {
+
+	public:
+		msgqueue_objObj(const ref<threadmsgdispatcherObj> &me,
+				const eventfd &fdArg=eventfd::create());
+		~msgqueue_objObj() noexcept;
+	};
+
+	//! A msgqueue_auto object.
+
+	//! Makes it possible to construct a queue in advance of the
+	//! formal start_thread.
+
+	typedef ref<msgqueue_objObj> msgqueue_obj;
 
 	//! Message to the execution thread.
 

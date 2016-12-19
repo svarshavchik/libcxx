@@ -19,6 +19,7 @@
   </method>
 
   <method name="testas">
+    <virtual />
     <param>
       <decl>testas_class param</decl>
       <as>int</as>

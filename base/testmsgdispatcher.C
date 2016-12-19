@@ -97,10 +97,19 @@ void mythreadObj::dispatch_testas(testas_class param)
 {
 }
 
+static LIBCXX_NAMESPACE::mpobj<bool> flag{false};
+
 void mythreadObj::run(LIBCXX_NAMESPACE::ptr<LIBCXX_NAMESPACE::obj> &mcguffin,
 		      int ignored)
 {
 	msgqueue_auto q{ this, LIBCXX_NAMESPACE::eventfd::create() };
+
+	sleep(2);
+	{
+		LIBCXX_NAMESPACE::mpobj<bool>::lock lock(flag);
+
+		*lock=true;
+	}
 
 	mcguffin=LIBCXX_NAMESPACE::ptr<LIBCXX_NAMESPACE::obj>();
 
@@ -121,6 +130,15 @@ void testthreadmsgdispatcher()
 	auto t=LIBCXX_NAMESPACE::ref<mythreadObj>::create();
 
 	auto ret=LIBCXX_NAMESPACE::start_thread(t, 1);
+
+	{
+		LIBCXX_NAMESPACE::mpobj<bool>::lock lock(flag);
+
+		if (!*lock)
+		{
+			throw EXCEPTION("This is wrong");
+		}
+	}
 
 	test_copies c;
 
@@ -148,7 +166,7 @@ int main(int argc, char **argv)
 	} catch (const LIBCXX_NAMESPACE::exception &e)
 	{
 		std::cerr << e << std::endl;
-		exit(1);
+		_exit(1);
 	}
 	return 0;
 }
