@@ -362,7 +362,7 @@ template<typename objClass, typename baseClass>
 template<typename objClass2>
 inline const_ptr<objClass, baseClass>::const_ptr(const ptrImpl<objClass2> &o)
 
-	: ptrImpl<objClass>(0)
+	: ptrImpl<objClass>(nullptr)
 {
 	operator=(o);
 }
@@ -893,6 +893,13 @@ public:
 	template<typename objClass2> inline ptr<objClass, baseClass>
 	&operator=(objClass2 *o)
 		__attribute__((artificial));
+
+	//! Convert from a nullptr
+	inline ptr<objClass, baseClass>
+	&operator=(std::nullptr_t) __attribute__((artificial))
+	{
+		return operator=((objClass *)0);
+	}
 };
 
 template<typename objClass, typename baseClass>

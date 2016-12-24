@@ -54,7 +54,7 @@ public:
 	//! \see ref
 
 	inline explicit
-	const_ref(const objClass *pArg) noexcept
+	const_ref(const objClass *pArg)
 		__attribute__((artificial))
 		: p(const_cast<objClass *>(pArg))
 	{
@@ -92,8 +92,7 @@ public:
 	//! The assignment operator
 
 	inline const_ref<objClass, baseClass>
-	&operator=(const ptrImpl<objClass> &o)
-		noexcept __attribute__((artificial))
+	&operator=(const ptrImpl<objClass> &o) __attribute__((artificial))
 	{
 		if (o.null())
 			null_ptr_deref();
@@ -108,8 +107,7 @@ public:
 	//! The move operator
 
 	inline const_ref<objClass, baseClass>
-	&operator=(ptrImpl<objClass> &&o)
-		noexcept __attribute__((artificial))
+	&operator=(ptrImpl<objClass> &&o) __attribute__((artificial))
 	{
 		if (o.null())
 			null_ptr_deref();
@@ -346,7 +344,6 @@ public:
 template<typename objClass, typename baseClass>
 template<typename objClass2>
 inline const_ref<objClass, baseClass>::const_ref(const ptrImpl<objClass2> &o)
-
 {
 	static_cast<const_ptr<objClass, baseClass> &>(p)=o;
 
@@ -357,7 +354,6 @@ inline const_ref<objClass, baseClass>::const_ref(const ptrImpl<objClass2> &o)
 template<typename objClass, typename baseClass>
 template<typename objClass2>
 inline const_ref<objClass, baseClass>::const_ref(ptrImpl<objClass2> &&o)
-
 {
 	static_cast<const_ptr<objClass, baseClass> &>(p)=std::move(o);
 

@@ -111,7 +111,7 @@ void mythreadObj::run(LIBCXX_NAMESPACE::ptr<LIBCXX_NAMESPACE::obj> &mcguffin,
 		*lock=true;
 	}
 
-	mcguffin=LIBCXX_NAMESPACE::ptr<LIBCXX_NAMESPACE::obj>();
+	mcguffin=nullptr;
 
 	try {
 		while (1)

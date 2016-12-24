@@ -21,7 +21,7 @@ namespace LIBCXX_NAMESPACE {
 };
 #endif
 
-//! A thread object, with a message interface.
+//! A thread object, with a message-based interface.
 
 //! \code
 //! class myThreadObj : public INSERT_LIBX_NAMESPACE::threadmsgdispatcherObj {
@@ -46,7 +46,7 @@ namespace LIBCXX_NAMESPACE {
 //! {
 //!     msgqueue_auto q{this, INSERT_LIBX_NAMESPACE::eventfd::create() };
 //!
-//!     mcguffin=INSERT_LIBX_NAMESPACE::ptr<INSERT_LIBX_NAMESPACE::obj>();
+//!     mcguffin=nullptr;
 //!
 //!	try {
 //!		while (1)
@@ -68,17 +68,18 @@ namespace LIBCXX_NAMESPACE {
 //!
 //! This class implements the following design pattern:
 //!
-//! * An object that runs an message-based execution thread.
+//! * An object that runs a message-based execution thread.
 //!
-//! * Public method functions send messages to the execution thread.
+//! * Public methods send messages to the execution thread.
 //!
-//! * The messages send to the execution thread result in the object's
-//! private methods getting invoked by an execution thread.
+//! * The messages sent to the execution thread have the result of the
+//! object's private methods getting invoked by an execution thread.
 //!
 //! \par The message queue
 //!
-//! The internal queue that sends messages to the executing thread is
-//! an \ref eventqueue "event file descriptor-based queue". The message
+//! The internal queue for the executing thread is
+//! an \ref eventqueue "event file descriptor-based queue". The execution
+//! thread owns the queue, and the
 //! queue remains in existence as long as the execution thread is running.
 //! When the execution thread terminates the queue gets destroyed. Any
 //! unprocessed messages in the queue get destroyed.
@@ -116,7 +117,7 @@ namespace LIBCXX_NAMESPACE {
 //! The started thread invokes the thread object's run() method.
 //! The parameters to run() are.
 //!
-//! * A mcguffin pointer.
+//! * A mcguffin (see below).
 //!
 //! * Any additional parameters are forwarded from start_thread().
 //!
@@ -125,9 +126,9 @@ namespace LIBCXX_NAMESPACE {
 //! * Construct a \c msgqueue_auto object in automatic scope, on the stack.
 //!
 //! * After the \c msgqueue_auto object gets constructed, destroy the
-//! mcguffin by setting it to an empty \c ptr.
+//! mcguffin by setting it to a \c nullptr.
 //!
-//! The parent thread will not return from start_thread() until the mcguffin
+//! The parent thread does not return from start_thread() until the mcguffin
 //! gets destroyed.
 //!
 //! \par The event queue
@@ -140,7 +141,7 @@ namespace LIBCXX_NAMESPACE {
 //!
 //! * An optional parameter specifying the \ref eventfd "event file descriptor"
 //! that runs the message queue. If not specified, a new file descriptor
-//! gets
+//! gets created.
 //!
 //! \c msqueue_auto's `event()` method removes the next message from the
 //! message queue, and invokes the class method that was sent by the message.
@@ -155,14 +156,18 @@ namespace LIBCXX_NAMESPACE {
 //! Because \c msgqueue_auto is a subclass of an \ref eventqueue "event queue",
 //! its methods are available to the execution thread.
 //!
-//! \par This is a stoppable thread
+//! \par This is a stoppable singleton thread
 //!
 //! \c threadmsgdispatcherObj inherits from \c stoppableObj, and has a
 //! stop() method that sends a message to the execution thread to throw a
 //! \c INSERT_LIBX_NAMESPACE::stopexception.
+//!
+//! \c threadmsgdispatcherObj also inherits from \ref runthreadsingleton,
+//! limiting it to one execution thread per object, because the execution
+//! thread retains ownership of the message event queue.
 
 class threadmsgdispatcherObj : public stoppableObj,
-			       public runthreadsingleton {
+			       virtual public runthreadsingleton {
 
 public:
 
@@ -182,6 +187,9 @@ private:
 public:
 
 	//! Return the message queue
+
+	//! A null ptr gets returned if the execution thread is not running.
+
 	msgqueueptr_t get_msgqueue()
 	{
 		typename mpobj<msgqueueptr_t>::lock lock(msgqueueptr);
@@ -230,7 +238,7 @@ public:
 		void event();
 	};
 
-	//! msgqueue_auto in a reference-counted object.
+	//! msgqueue_auto as a reference-counted object.
 
 	class msgqueue_objObj : public msgqueue_auto, virtual public obj {
 
@@ -247,7 +255,7 @@ public:
 
 	typedef ref<msgqueue_objObj> msgqueue_obj;
 
-	//! Message to the execution thread.
+	//! A message to the execution thread.
 
 	//! Captures the method to invoke, and this object, and any
 	//! method parameters.
