@@ -60,9 +60,8 @@
 /testmimerfc2047
 /testmimesectioniter
 /testmsgdispatcher
-/testmsgdispatcher.testclass1.all.H
-/testmsgdispatcher.testclass2.decl.H
-/testmsgdispatcher.testclass2.def.H
+/testmsgdispatcher.testclass1.H
+/testmsgdispatcher.testclass2.H
 /testnetif
 /testnumber
 /testobj

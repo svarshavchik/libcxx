@@ -591,8 +591,8 @@ testmsgdispatcher_SOURCES=testmsgdispatcher.C
 testmsgdispatcher_LDADD=libcxx.la
 testmsgdispatcher_LDFLAGS=$(TESTLINKTYPE)
 
-$(call MSGDISPATCHER_GEN,testmsgdispatcher.testclass1,all,dispatch=public)
-$(call MSGDISPATCHER_GEN,testmsgdispatcher.testclass2,def decl)
+$(call THREADMSGDISPATCHER_GEN,testmsgdispatcher.testclass1.H,testmsgdispatcher.testclass1.xml)
+$(call THREADMSGDISPATCHER_GEN,testmsgdispatcher.testclass2.H,testmsgdispatcher.testclass2.xml)
 
 testsemaphore_SOURCES=testsemaphore.C
 testsemaphore_LDADD=libcxx.la

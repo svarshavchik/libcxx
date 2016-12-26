@@ -3,7 +3,6 @@
 ** See COPYING for distribution information.
 */
 
-#include "x/msgdispatcher.H"
 #include "x/threadmsgdispatcher.H"
 #include "x/stoppable.H"
 
@@ -11,44 +10,48 @@
 #include <unistd.h>
 #include <iostream>
 
-class testclass1 : public LIBCXX_NAMESPACE::msgdispatcherObj {
+class testclass1 : public LIBCXX_NAMESPACE::threadmsgdispatcherObj {
 
-#include "testmsgdispatcher.testclass1.all.H"
-
-};
-
-class errorthread : public LIBCXX_NAMESPACE::msgdispatcherObj {
-
-#include "testmsgdispatcher.testclass2.decl.H"
+#include "testmsgdispatcher.testclass1.H"
 
 };
 
-#include "testmsgdispatcher.testclass2.def.H"
+class errorthread : public LIBCXX_NAMESPACE::threadmsgdispatcherObj {
 
-void testclass1::dispatch(const method2_msg &msg)
+#include "testmsgdispatcher.testclass2.H"
 
+};
+
+void testclass1::dispatch_method2(const char *strptr,
+				  const std::string &objectarg)
 {
 }
 
-void testclass1::dispatch(const method1_msg &msg)
-
+void testclass1::dispatch_method1(const char *strptr)
 {
 }
 
-void testclass1::dispatch(const method0_msg &msg)
-
+void testclass1::dispatch_method0()
 {
 }
 
-void errorthread::dispatch(const logerror_msg &msg)
+void errorthread::dispatch_logerror(const char *file,
+				    int line,
+				    const std::string &error_message)
 {
 }
 
-void errorthread::dispatch(const report_errors_msg &msg)
+void errorthread::dispatch_report_errors(const x::ptr<x::obj> &mcguffin,
+					 void (*callback_func)(const char *file,
+							       int line,
+							       const std::string &errmsg))
 {
 }
 
-void errorthread::dispatch(const dump_msg &msg)
+void errorthread::dispatch_dump(const std::string &filename,
+				int count,
+				int repeat,
+				int errcode)
 {
 }
 

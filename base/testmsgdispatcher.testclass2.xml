@@ -1,19 +1,19 @@
 <class name="errorthread">
   <method name="logerror">
-    <param><decl>const char *<name>file</name></decl></param>
-    <param><decl>int <name>line</name></decl></param>
-    <param type="class"><decl>std::string <name>error_message</name></decl></param>
+    <param><decl>const char *file</decl></param>
+    <param><decl>int line</decl></param>
+    <param><decl>const std::string &amp;error_message</decl></param>
   </method>
 
-  <method name="dump" default="1" serialize="1">
-    <param type="class"><decl>std::string <name>filename</name></decl></param>
-    <param default="0"><decl>int <name>count</name></decl></param>
-    <param default="1"><decl>int <name>repeat</name></decl></param>
-    <param dontserialize="1" default="-1"><decl>int <name>errcode</name></decl></param>
+  <method name="dump">
+    <param><decl>const std::string &amp;filename</decl></param>
+    <param><decl>int count=0</decl></param>
+    <param><decl>int repeat=1</decl></param>
+    <param><decl>int errcode=-1</decl></param>
   </method>
 
   <method name="report_errors">
-    <param type="weakptr"><decl>x::ptr&lt;x::obj&gt; <name>mcguffin</name></decl></param>
-    <param><decl>void (*<name>callback_func</name>)(const char *file, int line, const std::string &amp;errmsg)</decl></param>
+    <param><decl>const x::ptr&lt;x::obj&gt; &amp;mcguffin</decl></param>
+    <param><decl>void (*callback_func)(const char *file, int line, const std::string &amp;errmsg)</decl></param>
   </method>
 </class>
