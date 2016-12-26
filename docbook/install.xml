@@ -57,8 +57,8 @@ See COPYING for distribution information.
   <para>
     &app; targets the current generally-available version of
     <application>gcc</application>. Since this library uses
-    C++14 classes, applications must be compiled with the
-    <option>-std=c++1y</option> option, as well as
+    C++17 classes, applications must be compiled with the
+    <option>-std=c++1z</option> option, as well as
     <option>-fno-omit-frame-pointer</option>. This is done automatically
     when <link linkend="using">using autotools</link>.
   </para>

@@ -1,147 +1,89 @@
 <!--
 
-Copyright 2015 Double Precision, Inc.
+Copyright 2015-2016 Double Precision, Inc.
 See COPYING for distribution information.
 
 -->
 
 <section id="news">
-  <title>Announcing release 0.5 of &app;</title>
+  <title>Announcing release 0.10 of &app;</title>
 
   <variablelist>
     <varlistentry>
-      <term>New features and API changes</term>
+      <term>New features and major API changes</term>
 
       <listitem>
 	<para>
-	  An &reforptr; will now detect illegal attempts to create
-	  them in the object's constructor or destructor, and throw an
-	  exception.
-	</para>
-
-	<para>
-	  An &reforptr; is now comparable. An &reforptr; can be compared
-	  to another one, for equality or non-equality.
-	</para>
-
-	<para>
-	  <link linkend="isa"><classname>x::obj-&gt;isa</classname> template</link>.
-	</para>
-
-	<para>
-	  Some performance optimizations to &ref; and &ptr;. &ref; and &ptr;
-	  should themselves now be thread-safe.
-	</para>
-
-	<para>
-	  Implement find_or_create() method for weak maps.
-	</para>
-
-	<para>
-	  x::exception->caught() method standardizea logging of caught exceptions.
-	</para>
-
-	<para>
-	  Standardized names of destructor-related callbacks, for consistency.
-	  onAnyDestroyed() replaced with on_any_destroyed(). addOnDestroy() renamed
-	  and replaced with a lambda-based ondestroy().
-	</para>
-
-	<para>
-	  A wrapper for <link linkend="ltdl">libtool's libltdl library</link>.
-	</para>
-
-	<para>
-	  API change: x::fd's read() and write() do not throw an exception on an
-	  underlying I/O error, but return an error indication.
-	</para>
-
-	<para>
-	  API change: several wide character-based classes and templates removed.
-	  The comparable functionality now comes from the courier-unicode library.
-	  Application property names are now UTF-8 strings, instead of wide
-	  character strings. Option long names and descriptions are also now
-	  UTF-8 strings.
-	</para>
-
-	<para>
-	  Updated gcc build flag to -std=c++1y
+	  <link linkend="callback">Reference-counted lambdas</link> and the
+	  <link linkend="derived">derived values</link> design pattern
+	  provide a more generic replacement for event callbacks.
 	</para>
       </listitem>
-    </varlistentry>
-
-    <varlistentry>
-      <term>New classes</term>
 
       <listitem>
 	<para>
-	  <link linkend="finalclasses">Final classes</link>
+	  <link linkend="inotify">Inotify</link> classes.
 	</para>
+      </listitem>
 
+      <listitem>
 	<para>
-	  <classname>&ns;::threadeventqueuemsgdispatcher</classname>:
-	  an alternate
-	  <link linkend="msgdispatchermcguffins">event file descriptor
-	    queue-based
-	    message dispatcher</link>.
+	  Removed various ctype-related classes, replaced with courier-unicode
+	  based functionality.
 	</para>
+      </listitem>
 
+      <listitem>
 	<para>
-	  <link linkend="mcguffincontainers">Mcguffin containers</link>.
+	  <link linkend="ltdl">Loading shared libraries</link>.
 	</para>
+      </listitem>
 
+      <listitem>
 	<para>
-	  <link linkend="fixed_semaphores">Fixed semaphores</link>.
+	  <link linkend="functional"><classname>&ns;::function</classname></link>
+	  template, similar to <classname>std::function</classname>, but
+	  uses virtual inheritance instead of dynamic memory allocation.
 	</para>
+      </listitem>
 
+      <listitem>
 	<para>
-	  <link linkend="functional">Virtual inheritance-based function objects</link>.
+	  <link linkend="sentry">Sentries</link>.
 	</para>
+      </listitem>
 
-	<para>
-	  <link linkend="callback">Reference-counted lambdas</link>,
-	  for callbacks.
-	</para>
-
-	<para>
-	  <link linkend="derived">Derived value</link> design pattern.
-	</para>
-
-	<para>
-	  A <link linkend="inotify">Linux inotify(7) implementation</link>.
-	</para>
-
-	<para>
-	  <link linkend="shmem">Posix shared memory and memory-mapped files</link>.
-	</para>
-
+      <listitem>
 	<para>
 	  <link linkend="sortedvector">Sorted vectors</link>.
 	</para>
       </listitem>
-    </varlistentry>
-
-    <varlistentry>
-      <term>Miscellaneous new functions</term>
 
       <listitem>
 	<para>
-	  &ns;::vector&lt;<replaceable>T</replaceable>&gt;-&gt;load()
+	  <link linkend="number">Type-safe numerical aliases</link>.
 	</para>
+      </listitem>
 
+      <listitem>
 	<para>
-	  <link linkend="strtok">&ns;::strsplit()</link>
+	  <link linkend="mcguffincontainers">Mcguffin containers</link>.
 	</para>
+      </listitem>
 
+      <listitem>
 	<para>
-	  <link linkend="fdmisc">&ns;::realpath() and &ns;::combinepath()</link>
-	  - filename manipulation.
+	  <link linkend="fixed_semaphores">Fixed semaphores</link>.
 	</para>
+      </listitem>
 
+      <listitem>
 	<para>
-	  <link linkend="weakcapture">&ns;::make_weak_capture()</link>
-	  - utility template for implementing lambdas that
-	  capture weak references.
+	  Deprecated <classname>eventqueuemsgdispatcher</classname>,
+	  <classname>threadeventqueuemsgdispatcher</classname>, and
+	  <classname>dequemsgdispatcher</classname>.
+	  Replaced with a more generic and simpler
+	  <link linkend="msgdispatcher"><classname>threadmsgdispatcher</classname></link>.
 	</para>
       </listitem>
     </varlistentry>

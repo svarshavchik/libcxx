@@ -9,36 +9,32 @@ See COPYING for distribution information.
   <title>Message dispatching-based thread design pattern</title>
 
   <para>
-    <ulink url="&link-x--msgdispatcherObj;"><classname>&ns;::msgdispatcherObj</classname></ulink>
+    <ulink url="&link-x--threadmsgdispatcherObj;"><classname>&ns;::threadmsgdispatcherObj</classname></ulink>
     is a <link linkend="refobj">reference-counted object</link> that implements
-    a design pattern for a message-based thread class. An isolated thread
+    a design pattern for a message-based thread class. A dedicated
+    execution thread
     runs in a loop that retrieves messages from other threads, and responds
     to them.
   </para>
 
   <para>
-    This design pattern contains several elements.
+    This design pattern contains several elements:
   </para>
 
   <itemizedlist>
     <listitem>
       <para>
-	An execution thread is associated with each instance of the
-	class. The message dispatching classes discussed here are
-	thread safe, and multiple execution threads can dispatch messages from
-	the same class instance. However, this would typically complicate the
-	design of the rest of the class, increasing the complexity required
-	for thread safety. Having a single execution thread per class greatly
-	reduces the complexity of implementing thread safety, since only one
-	execution thread will have access to private class instance members.
+	One execution thread for each instance of the
+	class. Multiple execution threads require a separate instance of the
+	class.
       </para>
     </listitem>
 
     <listitem>
       <para>
 	The class exports public methods that take their parameters and
-	package them into a single instance of a message class.
-	The public methods are called by other threads.
+	save them in an internal message objects. Other threads invoke
+	these public methods.
       </para>
     </listitem>
 
@@ -52,54 +48,32 @@ See COPYING for distribution information.
 
     <listitem>
       <para>
-	The class implement overloaded 
-	<methodname>dispatch</methodname>() methods that take a
-	reference to
-	each message class, as a parameter. They are private methods.
+	The execution thread runs a loop that takes messages off the
+	internal queue. Each message invokes a private class method.
+	The original
+	parameters that were passed to the public class method get forwarded
+	to the private class method, which now gets invoked by
+	<ulink url="&link-x--threadmsgdispatcherObj;"><classname>&ns;::threadmsgdispatcherObj</classname></ulink>'s execution class.
       </para>
     </listitem>
 
     <listitem>
       <para>
-	The execution thread runs in a loop that takes messages off the
-	internal queue, and invokes the associated
-	<methodname>dispatch</methodname>() method.
-      </para>
-    </listitem>
-
-    <listitem>
-      <para>
-	The execution thread gets terminated by throwing an exception in
-	one of the <methodname>dispatch</methodname>() methods, that unwinds the
-	stack and breaks out of the message dispatching loop.
+	The execution thread stops by throwing an exception in
+	one of the private methods. The exception breaks out of the
+	execution thread's
+	message dispatching loop and terminates the execution thread.
+	Alternatively, the execution thread can check a private flag that
+	gets set to terminate the execution thread, and terminate its
+	message dispatching loop based on that.
       </para>
     </listitem>
   </itemizedlist>
 
   <para>
-    <classname>&ns;::msgdispatcherObj</classname> implements the interface
-    that constructs messages and puts them into a message queue by
-    calling a pure virtual <methodname>event</methodname>(). A subclass
-    implements <methodname>event</methodname>().
-    There are three available implementations.
-    <ulink url="&link-x--eventqueuemsgdispatcherObj;"><classname>&ns;::eventqueuemsgdispatcherObj</classname></ulink>
-    is a subclass that uses an <link linkend="eventfd">event file
-      descriptor</link>-based message queue and implemens
-    <methodname>event</methodname> by putting the message into the
-    event queue.
-    The <classname>&ns;::threadeventqueuemsgdispatcherObj</classname> template
-    class is an alternative event file descriptor-based queue implementation
-    that's discussed later.
-    <ulink url="&link-x--dequemsgdispatcherObj;"><classname>&ns;::dequemsgdispatcherObj</classname></ulink> is a subclass that uses a regular, mutex-protected,
-    queue.
-  </para>
-
-  <para>
     Public methods comprise the public interface to the class. Public methods
-    take their parameters and package them into messages which are added to the
-    message queue.
-    The thread runs a loop that takes messages off the queue, and invokes
-    the overloaded <methodname>dispatch</methodname>() method.
+    take their parameters and place them in a message queue. All parameters
+    must be copyable.
   </para>
 
   <para>
@@ -108,67 +82,56 @@ See COPYING for distribution information.
     of methods and their parameters.
     The stylesheet
     <link linkend="msgdispatchergen">generates the code</link> that defines
-    the public methods which create the message classes, inserts the
-    messages into the dispatching queue, and declares the
-    <methodname>dispatch</methodname>() methods. The end result is conveniently
+    the public methods that takes their parameters, place the internal
+    messages into the dispatching queue, and declares the private class
+    methods. The end result gets conveniently
     <literal>#include</literal>d into the class definition.
-    But before getting to that,
-    the following examples demonstrate the
-    inner workings of <classname>&ns;::msgdispatcherObj</classname>, and
+    The following examples demonstrate the
+    inner workings of <classname>&ns;::threadmsgdispatcherObj</classname>, and
     the mechanism that drives message dispatching.
   </para>
 
   <blockquote>
     <informalexample>
       <programlisting>
-#include &lt;&ns;/dispatchablemsgobj.H&gt;
+#include &lt;&ns;/threadmsgdispatcher.H&gt;
+#include &lt;&ns;/ptr.H&gt;
+#include &lt;&ns;/obj.H&gt;
+#include &lt;&ns;/logger.H&gt;
 
-class myClass : public &ns;::eventqueuemsgdispatcherObj {
+class myClassObj : public &ns;::threadmsgdispatcherObj {
 
-    class mystatus {
+    LOG_CLASS_SCOPE;
 
-    public:
+    void dispatch_statusinquiry(bool format);
 
-        bool format;
+    void dispatch_refresh(const std::string &amp; name);
 
-        mystatus(bool formatArg) : format(formatArg)
-        {
-        }
-
-    };
-
-    class myrefresh {
-
-    public:
-
-        std::string name;
-
-        myrefresh(const std::string &amp;nameArg) : name(nameArg)
-        {
-        }
-
-   };
-
-  void dispatch(const mystatus &amp;msg);
-
-  void dispatch(const myrefresh &amp;msg);
 
 public:
-  template&lt;typename obj_type, typename msg_type&gt;
-      friend class &ns;::dispatchablemsgObj;
 
-  void statusinquiry(bool longformat);
+    myClassObj()=default;
 
-  void refresh(const std::string &amp;name);
+    ~myClassObj() noexcept=default;
 
-  void run();
-// ...
+    void statusinquiry(bool format);
 
+    void refresh(const std::string &amp;name);
+
+    void run(&ns;::ptr&lt;&ns;::obj&gt; &amp;threadmsgdispatcher_mcguffin)
+    {
+        msgqueue_auto msgqueue(this);
+
+        threadmsgdispatcher_mcguffin=nullptr;
+
+        while (1)
+           msgqueue.event();
+    }
 };
 
-&ns;::ref&lt;myClass&gt; clinstance(&ns;::ref&lt;myClass&gt;::create());
+LOG_CLASS_INIT(myClassObj);
 
-&ns;::run(clinstance);</programlisting>
+typedef &ns;::ref&lt;myClassObj&gt; myClass;</programlisting>
     </informalexample>
   </blockquote>
 
@@ -176,7 +139,7 @@ public:
     This simple class defines two messages,
     <quote>statusinquiry</quote> and <quote>refresh</quote>
     (there's also a default <quote>stop</quote> message inherited from
-    <classname>&ns;::msgdispatcherObj</classname>),
+    <classname>&ns;::threadmsgdispatcherObj</classname>),
     represented by two public methods.
   </para>
 
@@ -186,218 +149,354 @@ public:
     <blockquote>
       <informalexample>
         <programlisting>
-void myClass::statusinquiry(bool longformat)
-{
-    sendevent&lt;mystatus&gt;(this, longformat);
-}
+    void statusinquiry(bool format)
+    {
+        this->sendevent(&amp;myClassObj::dispatch_statusinquiry,
+                        this, format);
+    }
 
-void myClass::refresh(const std::string &amp;name)
-{
-    sendevent&lt;myrefresh&gt;(this, name);
-
-}</programlisting>
+    void refresh(const std::string &amp;name)
+    {
+        this->sendevent(&amp;myClassObj::dispatch_refresh
+                        this, name);
+    }
+</programlisting>
       </informalexample>
     </blockquote>
 
     <para>
-      The <classname>&ns;::msgdispatcherObj</classname> superclass defines
+      The <classname>&ns;::threadmsgdispatcherObj</classname> superclass defines
       the <methodname>sendevent</methodname>() template method.
-      Its template parameter specifies the message class to send
-      to the message-dispatching thread. Each message is a separate class.
+      <methodname>sendevent()</methodname> takes the following parameters:
     </para>
 
-    <para>
-      The first parameter to <methodname>sendevent</methodname>() is a pointer
-      to the class that defines the <methodname>dispatch</methodname>() method
-      that receives the message class; in nearly all cases it's
-      <literal>this</literal>. The pointer should not be an
-      &reforptr;. In most cases, the message queue is a member of the
-      subclass, and consists of &ref;s to unprocessed messages, and putting
-      an &reforptr; in each message creates a circular reference.
-    </para>
+    <itemizedlist>
+      <listitem>
+	<para>A pointer to a class method.</para>
+      </listitem>
 
-    <para>
-      Using <literal>this</literal> is generally safe. If the
-      message-dispatching
-      object, and its thread, goes out of scope and gets destroyed, the
-      unprocessed messages in the message queue also get destroyed, and their
-      invalidated <literal>this</literal> never gets used.
-    </para>
+      <listitem>
+	<para>
+	  The <literal>this</literal> value.
+	  Each subclass of
+	  <classname>&ns;::threadmsgdispatcherObj</classname> can define
+	  its own public/private methods, and use
+	  <methodname>sendevent</methodname>().
+	</para>
+      </listitem>
 
-    <para>
-      The remaining arguments to <methodname>sendevent</methodname> get
-      forwarded to the constructed message class instance's constructor.
-    </para>
+      <listitem>
+	<para>
+	  Any additional parameters get forwarded to the private class
+	  method.
+	</para>
+      </listitem>
+    </itemizedlist>
   </section>
 
   <section id="msgdispatcherrun">
-    <title>The message dispatching thread loop</title>
+    <title>Starting the message-dispatching execution thread</title>
+
+    <blockquote>
+      <informalexample>
+	<programlisting>
+auto clinstance = myClass::create();
+
+&ns;::start_thread(clinstance);</programlisting>
+      </informalexample>
+    </blockquote>
 
     <para>
-      The subclass thread's <methodname>run</methodname>() method would
-      typically
-      consist of a loop that looks like this:
+      <ulink url="&link-function-x-start-thread;"><function>&ns;::start_thread</function></ulink>
+      must be used to start an execution thread for a subclass of
+      <classname>&ns;::threadmsgdispatcherObj</classname>.
+      <function>&ns;::start_thread</function>() is a wrapper for
+      <ulink url="&link-function-x-run;">&ns;::run</ulink>().
+      The first parameter to the execution thread's
+      <function>run</function>() message is a reference to an opaque
+      <link linkend="ondestroy">mcguffin</link>. Any remaining parameters
+      to <function>&ns;::start_thread</function>() get forwarded as additional
+      parameters to the thread's
+      <function>run</function>() method:
     </para>
 
     <blockquote>
       <informalexample>
 	<programlisting>
-#include &lt;&ns;/stopexception.H&gt;
-
-void myClass::run()
-{
-    try {
-        while (1)
-        {
-            msgqueue->pop()-&gt;dispatch();
-        }
-    } catch (const &ns;::stopexception &amp;)
+    void run(&ns;::ptr&lt;&ns;::obj&gt; &amp;threadmsgdispatcher_mcguffin)
     {
-    }
-}</programlisting>
+        msgqueue_auto msgqueue(this);
+
+        threadmsgdispatcher_mcguffin=nullptr;
+
+        try {
+            while (1)
+                msgqueue.event();
+
+        } catch (const &ns;::stopexception &amp;)
+        {
+        } catch (const &ns;::exception &amp;e)
+        {
+            LOG_ERROR(e);
+            LOG_TRACE(e->backtrace);
+        }
+    }</programlisting>
       </informalexample>
     </blockquote>
 
     <para>
-      In this example
-      <ulink url="&link-x--eventqueuemsgdispatcherObj;"><classname>&ns;::eventqueuemsgdispatcherObj</classname></ulink>
-      implements an event file descriptor-based message queue.
-      The <varname>msgqueue</varname> class member is the event queue.
-      <ulink url="&link-function-x-run;">&ns;::run</ulink>() starts a thread
-      that runs the class's <methodname>run</methodname>() method that
-      starts reading messages from the event queue, and invoking their
-      <methodname>dispatch</methodname>() method.
+      The execution thread's
+      <function>run</function>() method takes the following actions:
+    </para>
+
+    <itemizedlist>
+      <listitem>
+	<para>
+	  Constructs an instance of the
+	  <ulink url="&link-x--threadmsgdispatcherObj--msgqueue-auto;"><classname>msgqueue_auto</classname></ulink>
+	  class in automatic scope.
+	  <classname>msgqueue_auto</classname> is inherited from
+	  <classname>&ns;::threadmsgdispatcherObj</classname>.
+	  This represents the execution thread's message queue.
+	</para>
+      </listitem>
+
+      <listitem>
+	<para>
+	  Performs any additional initialization steps.
+	</para>
+      </listitem>
+
+      <listitem>
+	<para>
+	  Destroys the mcguffin by setting it to a
+	  <literal>nullptr</literal>.
+	</para>
+      </listitem>
+
+      <listitem>
+	<para>
+	  Runs the main message dispatching loop by repeatedly invoking
+          <ulink url="&link-x--threadmsgdispatcherObj--msgqueue-auto;"><classname>msgqueue_auto</classname></ulink>'s
+	  <methodname>event</methodname>() method.
+	  The default behavior of
+	  <methodname>event</methodname>() is to wait for a message on the
+	  internal message queue, retrieve it, then invoke the private
+	  class method the message is for.
+	</para>
+      </listitem>
+    </itemizedlist>
+
+    <para>
+      <function>&ns;::start_thread</function>()	waits until the mcguffin
+      gets destroyed before it returns. This is why the mcguffin parameter
+      must be passed to <methodname>run</methodname>() by reference, rather
+      than value.
+    </para>
+  </section>
+
+  <section id="msgdispatchermessages">
+    <title>The message queue</title>
+
+    <para>
+      <ulink url="&link-x--threadmsgdispatcherObj--msgqueue-auto;"><classname>msgqueue_auto</classname></ulink>
+      represents the execution thread's internal message queue. It is
+      constructed in automatic scope, so it exists when
+      <function>&ns;::start_thread</function>()	returns, and the thread is
+      immediately ready to process messages. When the execution thread
+      terminates, the internal message queue, in automatic scope, gets
+      destroyed as well.
+      Any unprocessed messages in the queue get destroyed as well.
     </para>
 
     <para>
-      <methodname>sendevent</methodname> constructs
-      <classname>&ns;::dispatchablemsgObj</classname>s and invokes
-      <methodname>event</methodname>(), which gets implemented in
-      <classname>&ns;::eventqueuemsgdispatcherObj</classname>.
-      <methodname>event</methodname>() puts the messages into the queue,
-      which <methodname>run</methodname>() drains.
+      <methodname>sendevent</methodname>() takes no action if the execution
+      thread is not running, and the message queue does not exist. In that
+      situation <methodname>sendevent</methodname>() does nothing,
+      and returns immediately.
+      The correct design pattern for sending messages to the execution thread
+      is as follows:
     </para>
+
+    <itemizedlist>
+      <listitem>
+	<para>
+	  Each message's parameters include a
+	  <link linkend="ondestroy">mcguffin</link> and
+	  some other <link linkend="refobj">reference-counted</link>
+	  status object.
+	</para>
+      </listitem>
+
+      <listitem>
+	<para>
+	  The execution thread updates the status object to indicate that
+	  the message was received and processed.
+	</para>
+      </listitem>
+
+      <listitem>
+	<para>
+	  When the mcguffin goes out of scope and gets destroyed, the contents
+	  of the status object get examined.
+	</para>
+      </listitem>
+    </itemizedlist>
 
     <para>
-      <classname>&ns;::dispatchablemsgObj</classname> instances contain
-      messages, and the <literal>this</literal> that was passed to
-      <methodname>sendevent</methodname>, that's typically the same object
-      whose method is draining the message queue. Its
-      <methodname>dispatch</methodname>() uses the stored
-      <literal>this</literal> to invoke the overloaded
-      <methodname>dispatch</methodname> methods.
+      The mcguffin gets destroyed when
+      the message dispatching thread's private method, that processes
+      the message, returns. No more references to the mcguffin exist, at
+      this point.
+      If the execution thread is not running and
+      <methodname>sendevent</methodname>() does nothing, the mcguffin
+      gets destroyed immediately.
+      If the execution thread terminates with the unprocessed message remaining
+      in the message queue, the message and its mcguffin also gets destroyed.
+      Examining the contents of the status object, therefore, indicates
+      whether the message was processed, or not, in all possible outcomes.
     </para>
 
-    <para>
-      The overloaded <methodname>dispatch</methodname> methods are private
-      methods, in this typical example, and may only be invoked by calling
-      the public methods that queue up the messages to the thread.
-      Subsequently, they get only invoked by the object's
-      <methodname>run</methodname>() thread.
-      As demonstrated by the example,
-      <classname>&ns;::dispatchablemsgObj</classname> needs a friend
-      declaration so it can invoke the private method.
-    </para>
+    <section id="msgdispatcherqueue">
+      <title>Using the message queue</title>
 
-    <para>
-      The message classes are also private inner classes, and can only
-      be instanted by calling the public methods that queue up the messages
-      to the class instance.
-    </para>
-
-    <para>
-      For convenience, <classname>&ns;::msgdispatcherObj</classname>
-      defines a <methodname>stop</methodname>() method that queues up a
-      message that, when <methodname>dispatch</methodname>()ed, throws
-      a <classname>&ns;::stopexception</classname>, as a means of terminating
-      the message-dispatching thread.
-      As shown in the previous example, this exception should be caught.
-    </para>
-
-    <formalpara>
-      <title>Summary of the message dispatching-based thread design pattern</title>
       <para>
-	<itemizedlist>
-	  <listitem>
-	    <para>
-	      A subclass that's derived from
-	      <classname>&ns;::msgdispatcherObj</classname>
-	      that implements <methodname>event</methodname>() that places
-	      prepackaged event messages into a queue
-	      (or <classname>&ns;::eventqueuemsgdispatcherObj</classname>
-	      that takes care of that using and event file descriptor-based
-	      queue).
-	      The subclass defines a <methodname>run</methodname>() that
-	      conceptually implements:
-	    </para>
-
-	    <blockquote>
-	      <informalexample>
-		<programlisting>
-while (1)
-{
-   msgqueue->pop()-&gt;dispatch();
-}</programlisting>
-	      </informalexample>
-	    </blockquote>
-
-	    <para>
-	      <varname>msgqueue</varname> is an
-	      <link linkend="eventqueue">event queue</link>
-	      that gets instantiated by
-	      <classname>&ns;::eventqueuemsgdispatcherObj</classname>.
-	    </para>
-	  </listitem>
-
-	  <listitem>
-	    <para>
-	      A collection of message classes, that can be private to the
-	      subclass, and a corresponding collection of private
-	      <methodname>dispatch</methodname> methods, overloaded with
-	      a reference to a message class as their parameter.
-	      The subclass declares that
-	      <classname>&ns;::dispatchablemsgObj&lt;typename obj_type, typename msg_type&gt;</classname>
-	      is its friend.
-	    </para>
-	  </listitem>
-
-	  <listitem>
-	    <para>
-	      Public methods that invoke
-	      <methodname>sendevent</methodname>() passing a message class
-	      as a parameter to the template function, and
-	      <varname>this</varname> as its first argument.
-	      Any remaining arguments get forwarded to the message class's
-	      constructor.
-	    </para>
-
-	    <para>
-	      The public methods may be invoked by any thread, the
-	      message class gets instantiated by
-	      <methodname>sendevent</methodname>(), and sent to
-	      the thread via <methodname>event</methodname>().
-	    </para>
-	  </listitem>
-
-	  <listitem>
-	    <para>
-	      There are no specific requirements as to when the execution
-	      thread needs to get started. Messages can be placed into its
-	      internal queue before the thread gets started, and they
-	      accumulate.
-	    </para>
-
-	    <para>
-	      After the execution thread stops, the internal
-	      message queue, and any remaining, undispatched messages, get
-	      destroyed only when the message dispatching subclass itself
-	      gets destroyed, so consider storing only weak references to the
-	      message dispatching subclass.
-	    </para>
-	  </listitem>
-	</itemizedlist>
+	<ulink url="&link-x--threadmsgdispatcherObj--msgqueue-auto;"><classname>msgqueue_auto</classname></ulink>
+	is just a wrapper for <link linkend="eventqueue">an event queue</link>:
       </para>
-    </formalpara>
+
+      <blockquote>
+	<informalexample>
+	  <programlisting>
+msgqueue_auto msgqueue(this, &ns;::eventfd::create());
+
+// ...
+
+&ns;::eventfd eventfd=msgqueue-&gt;getEventfd();
+
+// ...
+
+if (!msgqueue-&gt;empty())
+     msgqueue-&gt;pop()-&gt;dispatch();
+	  </programlisting>
+	</informalexample>
+      </blockquote>
+
+      <para>
+	<ulink url="&link-x--threadmsgdispatcherObj--msgqueue-auto;"><classname>msgqueue_auto</classname></ulink>'s
+	constructor's optional second parameter specifies the event queue's
+	file descriptor, and a new one gets created by default.
+	<quote><literal>msgqueue.event();</literal></quote>
+	is just a shortcut for
+	<quote><literal>msgqueue-&gt;pop()-&gt;dispatch();</literal></quote>
+      </para>
+
+      <para>
+	It is possible to set the event file descriptor to non-blocking mode,
+	use <methodname>empty()</methodname>() to check for empty messages,
+	or use <function>poll</function>() to wait for messages to get added
+	to the message queue.
+      </para>
+
+      <para>
+	Sometimes it's convenient to create the execution thread's queue
+	after the execution thread's object gets created, but before the
+	execution thread starts:
+      </para>
+
+      <blockquote>
+	<informalexample>
+	  <programlisting>
+
+auto clinstance = myClass::create();
+
+&ns;::threadmsgdispatcherObj::msgqueue_obj queue_arg=&ns;::threadmsgdispatcherObj::msgqueue_obj::create(clinstance);
+
+// Additional initialization
+
+&ns;::start_thread(clinstance, queue_arg);
+
+// ......
+
+void myClassObj::run(&ns;::ptr&lt;&ns;::obj&gt; &amp;threadmsgdispatcher_mcguffin
+                     msgqueue_obj &amp;queue_arg)
+    {
+        msgqueue_auto msgqueue=*queue_arg;
+
+        threadmsgdispatcher_mcguffin=nullptr;
+
+        // ...
+	  </programlisting>
+	</informalexample>
+      </blockquote>
+
+      <para>
+	The <classname>msgqueue_obj</classname> class is inherited from
+	<classname>&ns;::threadmsgdispatcherObj</classname>, and is just
+	a reference-counted wrapper for
+	<classname>msgqueue_auto</classname>.
+	In this case, it gets passed as a parameter to the execution
+	thread's
+	<methodname>run</methodname>() via
+	<function>&ns;::start_thread</function>().
+      </para>
+
+      <para>
+	With this approach, it is possible to invoke the new object's
+	public <methodname>sendevent</methodname>()s before the execution
+	thread gets started. Since the message queue exists,
+	<methodname>sendevent</methodname>()s obediently fills it with
+	messages even if the actual execution thread isn't running yet.
+	After <function>&ns;::start_thread</function>-ing, the parent
+	execution thread gets rid of its <varname>queue_arg</varname>,
+	so when the execution thread eventually terminates, that destroys
+	the only reference to the message queue, preserving the expected
+	behavior of destroying the message queue together with its
+	execution thread.
+      </para>
+
+      <blockquote>
+	<informalexample>
+	  <programlisting>
+&ns;::threadmsgdispatcherObj::msgqueueptr_t msgqueue=clinstance-&gt;get_msgqueue();
+
+if (!msgqueue.null())
+{
+    auto eventfd=msgqueue-&gt;getEventfd();
+
+    // ...
+}
+	  </programlisting>
+	</informalexample>
+      </blockquote>
+
+      <para>
+	The overall design pattern (with some variations), is that the
+	internal message queue gets created and destroyed together with
+	the execution thread. This is done (again with some variations)
+	by constructing the message queue in automatic scope in the
+	<methodname>run</methodname>() method.
+      </para>
+
+      <para>
+	Other class methods can use <methodname>get_msgqueue</methodname>()
+	(inherited from
+	<classname>&ns;::threadmsgdispatcherObj</classname>).
+	It returns an <classname>&ns;::ptr</classname> to the message queue.
+	Private class methods can safely assume that the message queue
+	exists, since it exists while the execution thread is running, and
+	the private class methods are presumably called only by the
+	execution thread.
+      </para>
+
+      <para>
+	<methodname>get_msgqueue</methodname>() itself is thread-safe, and
+	can be called by other execution threads.
+	<methodname>get_msgqueue</methodname>() returns a null
+	<classname>&ns;::ptr</classname> if the message queue does not
+	exist because the execution thread is not running.
+      </para>
+    </section>
   </section>
 
   <section id="threadmsgstop">
@@ -412,12 +511,12 @@ clinstance-&gt;stop();</programlisting>
     </blockquote>
 
     <para>
-      <classname>&ns;::msgdispatcherObj</classname> subclasses
+      <classname>&ns;::threadmsgdispatcherObj</classname> subclasses
       <ulink url="&link-x--stoppableObj;"><classname>&ns;::stoppableObj</classname></ulink>
       and implements a
       <methodname>stop</methodname>() method which
       sends a message to the dispatcher thread that
-      throws an exception when its <methodname>dispatch</methodname> gets invoked.
+      throws an exception when it gets invoked.
       Unless explicitly caught, the exception
       terminates the subclass's dispatch loop.
       This provides a convenient mechanism for stopping the dispatcher thread.
@@ -433,15 +532,18 @@ clinstance-&gt;stop();</programlisting>
       is an implementation of the
       <ulink url="&link-typedef-x-stoppable;"><classname>&ns;::stoppable</classname></ulink>
       interface.
-      The template class subclasses
+      <classname>&ns;::threadmsgdispatcherObj</classname> subclasses
       <ulink url="&link-x--stoppableObj;"><classname>&ns;::stoppableObj</classname></ulink>
-      and implements <methodname>stop</methodname> that's defined by
-      <classname>&ns;::stoppableObj</classname>. A typical implementation of
-      a thread subclasses
-      <link linkend="msgdispatcher"><classname>&ns;::msgdispatcherObj</classname></link>,
-      but the implementation does not have to use <classname>&ns;::msgdispatcherObj</classname>,
-      and subclass <classname>&ns;::stoppableObj</classname>, then implement
-      <methodname>stop</methodname>() itself.
+      and implements <methodname>stop</methodname> by
+      <methodname>sendevent</methodname>()ing a private class method
+      that throws a <classname>&ns;::stopexception</classname>.
+    </para>
+
+    <para>
+      A subclass of
+      <classname>&ns;::threadmsgdispatcherObj</classname> can override
+      <methodname>stop</methodname>() and provide its own mechanism for
+      stopping the execution thread.
     </para>
 
     <para>
@@ -456,7 +558,7 @@ clinstance-&gt;stop();</programlisting>
     <blockquote>
       <informalexample>
 	<programlisting>
-class mythreadObj : public &ns;::msgdispatcherObj {
+class mythreadObj : public &ns;::threadmsgdispatcherObj {
 
 // ...
 };
@@ -538,26 +640,46 @@ sgroup-&gt;add(extraThread);</programlisting>
 
     <para>
       An <acronym>XSLT</acronym> stylesheet, usually installed as
-      <filename>/usr/share/libcxx/msgdispatcher.xsl</filename> or
-      <filename>/usr/local/share/libcxx/msgdispatcher.xsl</filename>, produces
-      generic code for a message dispatching-based object from a stylesheet.
-      An <acronym>XML</acronym> file defines the names of methods implemented
-      by a class as a public interface, and the stylesheet generates the
-      supporting code:
+      <filename>/usr/share/libcxx/threadmsgdispatcher.xsl</filename> or
+      <filename>/usr/local/share/libcxx/threadmsgdispatcher.xsl</filename>
+      , produces
+      generic code for a message dispatching-based object from a convenient
+      stylesheet that produces most of the spaghetti code for a typical
+      dispatcher object.
+      An <acronym>XML</acronym> file lists the names of public methods
+      and the parameters to the private class methods, and the stylesheet
+      generates the supporting code.
     </para>
 
     <blockquote>
       <informalexample>
 	<programlisting><![CDATA[
-<class name="errorthread">
-  <method name="logerror" attributes='__attribute__((visibility("hidden")))'>
-    <param><decl>const char *<name>file</name></decl></param>
-    <param><decl>int <name>line</name></decl></param>
-    <param type="class"><decl>std::string <name>error_message</name></decl></param>
+<class name="mythreadObj">
+  <method name="logerror">
+    <comment> //! logerror() function</comment>
+    <param>
+      <decl>const char *file</decl>
+      <default>""</default>
+    </param>
+    <param>
+      <decl>int line</decl>
+      <default>-1</default>
+    </param>
+    <param>
+      <comment>//! Descriptive error message</comment>
+      <decl>const std::string &amp;error_message</decl>
+      <default>"unknown error"</default>
+    </param>
+
+    <attributes> noexcept</attributes>
   </method>
 
-  <method name="report_errors">
-    <param><decl>void (*<name>callback_func</name>)(const char *file, int line, const std::string &amp;errmsg)</decl></param>
+  <method name="testas">
+    <virtual />
+    <param>
+      <decl>testas_class param</decl>
+      <as>int</as>
+    </param>
   </method>
 </class>
 ]]></programlisting>
@@ -572,7 +694,7 @@ sgroup-&gt;add(extraThread);</programlisting>
     <blockquote>
       <informalexample>
 	<programlisting>
-$ xsltproc /usr/share/lib&ns;/msgdispatcher.xml errorthread.xml &gt;errorthread.inc.H</programlisting>
+$ xsltproc /usr/share/lib&ns;/threadmsgdispatcher.xml errorthread.xml &gt;errorthread.inc.H</programlisting>
       </informalexample>
     </blockquote>
 
@@ -583,108 +705,85 @@ $ xsltproc /usr/share/lib&ns;/msgdispatcher.xml errorthread.xml &gt;errorthread.
 
     <blockquote>
       <informalexample>
-	<programlisting>
-$ xsltproc /usr/share/lib&ns;/msgdispatcher.xml errorthread.xml<![CDATA[
+	<programlisting><![CDATA[
 // AUTOGENERATED -- do not edit
 
-#ifndef lib]]>&ns;<![CDATA[_autogen_suppress_inner
-private:
-
-//! Internal message object sent by logerror()
-
-class __attribute__((visibility("hidden"))) logerror_msg {
-public:
-
-//! Message parameter
-  const char *file;
-
-//! Message parameter
-  int line;
-
-//! Message parameter
-  std::string error_message;
-
-//! Message constructor
-
-  logerror_msg(
-    //! Parameter
-    const char *file_arg,
-    //! Parameter
-    int line_arg, //! Parameter
-    const std::string &error_message_arg) :
-    file(file_arg),
-    line(line_arg),
-    error_message(error_message_arg)
-  {
-  }
-
-//! Destructor
-
-  ~logerror_msg() noexcept {}
-};
-
-
-//! Internal message object sent by report_errors()
-
-class report_errors_msg {
-public:
-
-//! Message parameter
-  void (*callback_func)(const char *file, int line, const std::string &errmsg);
-
-//! Message constructor
-
-  report_errors_msg(
-    //! Parameter
-    void (*callback_func_arg)(const char *file, int line, const std::string &errmsg)) :
-    callback_func(callback_func_arg)
-  {
-  }
-
-//! Destructor
-
-  ~report_errors_msg() noexcept {}
-};
-
+#ifndef libx_autogen_suppress_
 
 public:
-]]>
-//! Send the logerrormessage to the class 
+ //! logerror() function
+template <typename param_type_1,
+          typename param_type_2,
+          typename param_type_3>
+    void logerror(
+        param_type_1 && param_1,
+        param_type_2 && param_2,
+        param_type_3 && param_3)
+{
+    this->sendevent(&mythreadObj::dispatch_logerror, this,
+                    std::forward<param_type_1>(param_1),
+                    std::forward<param_type_2>(param_2),
+                    std::forward<param_type_3>(param_3));
+}
 
-  void logerror(//! Parameter
-                const char *file_arg,
-                //! Parameter
-                int line_arg, //! Parameter
-                const std::string &amp;error_message_arg)
-  {
-    &ns;::msgdispatcherObj::sendevent&lt;logerror_msg&gt;(this, file_arg, line_arg, error_message_arg);
-  }
+//! Provide default value
+void logerror()
+{
+    logerror("");
+}
 
-//! Send the report_errorsmessage to the class 
+//! Provide default value
+template <typename param_type_1> void logerror(
+        param_type_1 && param_1)
+{
+    logerror(
+        std::forward<param_type_1>(param_1),
+        -1);
+}
 
-  void report_errors(//! Parameter
-                     void (*callback_func_arg)(const char *file, int line, const std::string &amp;errmsg))
-  {
-    &ns;::msgdispatcherObj::sendevent&lt;report_errors_msg&gt;(this, callback_func_arg);
-  }
+//! Provide default value
+template <
+    typename param_type_1,
+    typename param_type_2> void logerror(
+        param_type_1 && param_1,
+        param_type_2 && param_2)
+{
+    logerror(
+        std::forward<param_type_1>(param_1),
+        std::forward<param_type_2>(param_2),
+        "unknown error");
+}
 
-
-public:
-  template&lt;typename obj_type, typename msg_type&gt;
-      friend class &ns;::dispatchablemsgObj;
+template <
+    typename param_type_1>
+    void testas(
+        param_type_1 && param_1)
+{
+    this->sendevent(&mythreadObj::dispatch_testas, this,
+                    int(std::forward<param_type_1>(param_1)));
+}
 
 private:
 
+//! Internal implementation of the logerror() message
 
-//! Process message sent by logerror()
+void dispatch_logerror(
+//! Message parameter
+      const char *file,
 
-  void dispatch(const logerror_msg &amp;msg);
+//! Message parameter
+      int line,
 
-//! Process message sent by report_errors()
+//! Descriptive error message
+      const std::string &error_message) noexcept;
 
-  void dispatch(const report_errors_msg &amp;msg);
+//! Internal implementation of the testas() message
 
-#endif</programlisting>
+virtual void dispatch_testas(
+//! Message parameter
+      testas_class param);
+
+]]></programlisting>
       </informalexample>
     </blockquote>
 
@@ -696,370 +795,37 @@ private:
       <informalexample>
 	<programlisting>
 #include &lt;string&gt;
-#include &lt;&ns;/eventqueuemsgdispatcher.H&gt;
+#include &lt;&ns;/threadmsgdispatcher.H&gt;
 
-class errorthread : public &ns;::eventqueuemsgdispatcherObj {
+class errorthread : public &ns;::threadmsgdispatcherObj {
 
 #include "errorthread.inc.H"
 
 public:
-    void run();
+    void run(&ns;::ptr&lt;&ns;::obj&gt; &amp;threadmsgdispatcher_mcguffin)
 };</programlisting>
       </informalexample>
     </blockquote>
 
     <para>
-      <methodname>run</methodname>() would typically be the default
-      message dispatching loop:
-    </para>
-
-    <blockquote>
-      <informalexample>
-	<programlisting>
-void errorthread::run()
-{
-  while (1)
-  {
-    msgqueue->pop()-&gt;dispatch();
-  }
-}</programlisting>
-      </informalexample>
-    </blockquote>
-
-    <para>
       All that's left is the actual implementation of the two
-      <methodname>dispatch</methodname>() methods. The final product is a
+      <methodname>dispatch_<replaceable>name</replaceable></methodname>()
+      methods. The final product is a
       class with two public API methods:
       <methodname>logerror</methodname>() that takes a filename, a line number,
       and an error message string; and
-      <methodname>report_errors</methodname>() that takes a callback function
-      pointer.
-    </para>
-
-    <para>
-      An internal class gets declared for each method:
-      <classname><replaceable>method</replaceable>_msg</classname>.
-      The <classname><replaceable>method</replaceable>_msg</classname> class
-      holds the arguments of its public API method.
-      Auto-generated public methods use
-      <methodname>sendevent</methodname>
-      to dispatch internal classes to the therad.
+      <methodname>test_as</methodname>() that takes a custom class name
+      as a parameter.
     </para>
 
     <para>
       The end result: define the method names and their parameters in the
       <acronym>XML</acronym> definition file, the stylesheet generates the
-      stub code for those methods, that puts the arguments into a
-      <classname><replaceable>method</replaceable>_msg</classname> object, then
-      implement a <methodname>dispatch</methodname>() method that takes a
-      <literal>const</literal> reference to a
-      <classname><replaceable>method</replaceable>_msg</classname>.
+      stub code for those methods, then
+      implement the
+      <methodname>dispatch_<replaceable>name</replaceable></methodname>()
+      private class method.
     </para>
-
-    <section id="msgdispatchergenparam">
-      <title>Stylesheet parameters</title>
-
-      <para>
-	The <filename>msgdispatcher.xsl</filename> stylesheet takes
-	several parameters:
-      </para>
-
-      <variablelist>
-	<varlistentry>
-	  <term><varname>mode</varname></term>
-	  <listitem>
-	    <para>
-	      This parameter defines the content to produce from the stylesheet.
-	      The allowed values are:
-	    </para>
-
-	    <variablelist>
-	      <varlistentry>
-		<term><quote><literal>all</literal></quote></term>
-		<listitem>
-		  <para>
-		    The default value, generates everything: message class
-		    declarations, public API function declaration and
-		    their content, which creates the message class instance
-		    and invokes <methodname>event</methodname>() to put it into
-		    the message queue.
-		  </para>
-		</listitem>
-	      </varlistentry>
-
-	      <varlistentry>
-		<term><quote><literal>messagedecl</literal></quote></term>
-		<listitem>
-		  <para>
-		    Generate only message class declarations, only
-		    <quote>class <replaceable>method</replaceable>_msg;</quote>.
-		  </para>
-		</listitem>
-	      </varlistentry>
-
-	      <varlistentry>
-		<term><quote><literal>messagedef</literal></quote></term>
-		<listitem>
-		  <para>
-		    Generate the complete definitions of all the message
-		    classes, their constructors and destructors.
-		  </para>
-		</listitem>
-	      </varlistentry>
-
-	      <varlistentry>
-		<term><quote><literal>apidecl</literal></quote></term>
-		<listitem>
-		  <para>
-		    Generate declarations of public methods, only
-		    <quote>void <replaceable>method</replaceable>( <replaceable>arguments</replaceable> )</quote>.
-		  </para>
-		</listitem>
-	      </varlistentry>
-
-	      <varlistentry>
-		<term><quote><literal>apidef</literal></quote></term>
-		<listitem>
-		  <para>
-		    Generate complete definition of the public methods,
-		    including their contents, that instantiates the message
-		    class and invokes <methodname>event</methodname>().
-		  </para>
-		</listitem>
-	      </varlistentry>
-
-	      <varlistentry>
-		<term><quote><literal>dispatch</literal></quote></term>
-		<listitem>
-		  <para>
-		    Declare <methodname>dispatch</methodname>() methods that
-		    receive messages queued up by the public API methods.
-		  </para>
-		</listitem>
-	      </varlistentry>
-
-	      <varlistentry>
-		<term><quote><literal>decl</literal></quote></term>
-		<listitem>
-		  <para>
-		    This equivalent to
-		    <literal>messagedecl</literal>,
-		    <literal>apidecl</literal>, and
-		    <literal>dispatch</literal>.
-		  </para>
-		</listitem>
-	      </varlistentry>
-
-	      <varlistentry>
-		<term><quote><literal>def</literal></quote></term>
-		<listitem>
-		  <para>
-		    This equivalent to
-		    <literal>messagedef</literal> and
-		    <literal>apidef</literal>.
-		  </para>
-		</listitem>
-	      </varlistentry>
-	    </variablelist>
-	  </listitem>
-	</varlistentry>
-
-	<varlistentry>
-	  <term><varname>scope</varname></term>
-	  <listitem>
-	    <para>
-	      This parameter has two values, <quote>inner</quote> the default
-	      value, and <quote>outer</quote> which adds the name of the
-	      class in the generated code.
-	      Using the previous example, and running the stylesheet with the
-	      <literal>mode</literal> parameter set to
-	      <literal>messagedef</literal> produces
-	      the following code:
-	    </para>
-
-	    <blockquote>
-	      <informalexample>
-		<programlisting><![CDATA[
-// AUTOGENERATED -- do not edit
-
-#ifndef lib]]>&ns;<![CDATA[_autogen_suppress_inner
-
-//! Internal message object sent by logerror()
-
-class __attribute__((visibility("hidden"))) logerror_msg {
-public:
-
-  //! Message parameter
-  const char *file;
-
-  //! Message parameter
-  int line;
-
-  //! Message parameter
-  std::string error_message;
-
-  //! Message constructor
-
-  logerror_msg(//! Parameter
-               const char *file_arg, //! Parameter
-               int line_arg, //! Parameter
-               const std::string &error_message_arg) :
-    file(file_arg),
-    line(line_arg),
-    error_message(error_message_arg) {}
-
-  //! Destructor
-
-  ~logerror_msg() noexcept {}
-};
-
-//! Internal message object sent by report_errors()
-
-class report_errors_msg {
-public:
-
-  //! Message parameter
-  void (*callback_func)(const char *file, int line, const std::string &errmsg);
-
-  //! Message constructor
-
-  report_errors_msg(//! Parameter
-                    void (*callback_func_arg)(const char *file,
-                                              int line,
-                                              const std::string &errmsg)) :
-    callback_func(callback_func_arg) {}
-
-  //! Destructor
-
-  ~report_errors_msg() noexcept {}
-};
-#endif]]></programlisting>
-	      </informalexample>
-	    </blockquote>
-
-	    <para>
-	      Setting <literal>scope</literal> to <literal>outer</literal>
-	      in addition with
-	      <literal>mode</literal> set to
-	      <literal>messagedef</literal> produces
-	      the following:
-	    </para>
-
-	    <blockquote>
-	      <informalexample>
-		<programlisting><![CDATA[
-// AUTOGENERATED -- do not edit
-
-#ifndef lib]]>&ns;<![CDATA[_autogen_suppress_outer
-
-//! Internal message object sent by logerror()
-
-class __attribute__((visibility("hidden"))) errorthread::logerror_msg {
-public:
-
-//! Message parameter
-  const char *file;
-
-//! Message parameter
-  int line;
-
-//! Message parameter
-  std::string error_message;
-
-//! Message constructor
-
-  logerror_msg(//! Parameter
-const char *file_arg, //! Parameter
-int line_arg, //! Parameter
-const std::string &error_message_arg) :
-    file(file_arg),
-    line(line_arg),
-    error_message(error_message_arg) {}
-
-//! Destructor
-
-  ~logerror_msg() noexcept {}
-};
-
-
-//! Internal message object sent by report_errors()
-
-class errorthread::report_errors_msg {
-public:
-
-//! Message parameter
-  void (*callback_func)(const char *file, int line, const std::string &errmsg);
-
-//! Message constructor
-
-  report_errors_msg(//! Parameter
-void (*callback_func_arg)(const char *file, int line, const std::string &errmsg)) :
-    callback_func(callback_func_arg) {}
-
-//! Destructor
-
-  ~report_errors_msg() noexcept {}
-};
-#endif]]></programlisting>
-	      </informalexample>
-	    </blockquote>
-
-	    <note>
-	      <para>
-		With <literal>mode</literal> set to
-		<literal>def</literal>, the
-		<literal>scope</literal> parameter is ignored, and
-		presumed to be set to <literal>outer</literal>.
-	      </para>
-	    </note>
-	  </listitem>
-	</varlistentry>
-	<varlistentry>
-	  <term><varname>messages</varname> and
-	  <varname>dispatch</varname></term>
-	  <listitem>
-	    <para>
-	      These parameters are set to either
-	      <quote>public</quote>, <quote>protected</quote>, or
-	      <quote>private</quote> (the default for both).
-	      These parameters are used when
-	      <literal>mode</literal> is
-	      <literal>all</literal> or
-	      <literal>decl</literal>. These parameters specify whether
-	      the generated code declares the message classes and the
-	      <methodname>dispatch</methodname>() methods as
-	      <quote>public:</quote> or <quote>private:</quote>.
-	    </para>
-
-	    <para>
-	      If <literal>dispatch</literal> is not <quote>public</quote>
-	      the stylesheet produces
-	      a friend declaration for
-	      <classname>&ns;::dispatchablemsgObj&lt;typename obj_type, typename msg_type&gt;</classname>
-	      when <literal>mode</literal> is
-	      <quote>all</quote> or
-	      <quote>decl</quote>, so that
-	      it is able to invoke
-	      the <methodname>dispatch</methodname>() methods.
-	    </para>
-	  </listitem>
-	</varlistentry>
-      </variablelist>
-
-      <para>
-	Check your <acronym>XSLT</acronym> processor's documentation for
-	instructions on setting stylesheet parameters.
-	With <command>xsltproc</command>, use the <option>--stringparam</option>
-	option:
-      </para>
-
-      <blockquote>
-	<informalexample>
-	  <programlisting>
-xsltproc --stringparam mode messagedef --stringparam scope outer /usr/share/lib&ns;/msgdispatcher.xml errorthread.xml</programlisting>
-	</informalexample>
-      </blockquote>
-    </section>
 
     <section id="msgdispatcherxml">
       <title>XML definitions</title>
@@ -1071,15 +837,32 @@ xsltproc --stringparam mode messagedef --stringparam scope outer /usr/share/lib&
       <blockquote>
 	<informalexample>
 	  <programlisting><![CDATA[
-<class name="errorthread">
+<class name="mythreadObj">
   <method name="logerror">
-    <param><decl>const char *<name>file</name></decl></param>
-    <param><decl>int <name>line</name></decl></param>
-    <param type="class"><decl>std::string <name>error_message</name></decl></param>
+    <comment> //! logerror() function</comment>
+    <param>
+      <decl>const char *file</decl>
+      <default>""</default>
+    </param>
+    <param>
+      <decl>int line</decl>
+      <default>-1</default>
+    </param>
+    <param>
+      <comment>//! Descriptive error message</comment>
+      <decl>const std::string &amp;error_message</decl>
+      <default>"unknown error"</default>
+    </param>
+
+    <attributes> noexcept</attributes>
   </method>
 
-  <method name="report_errors">
-    <param><decl>void (*<name>callback_func</name>)(const char *file, int line, const std::string &amp;errmsg)</decl></param>
+  <method name="testas">
+    <virtual />
+    <param>
+      <decl>testas_class param</decl>
+      <as>int</as>
+    </param>
   </method>
 </class>
 ]]></programlisting>
@@ -1109,362 +892,169 @@ xsltproc --stringparam mode messagedef --stringparam scope outer /usr/share/lib&
       <para>
 	<literal>&lt;method&gt;</literal>
 	has an optional <quote>attributes</quote> parameter that, if present
-	gets inserted immediately after the class keyword, verbatim. This is
-	typically used to set <command>gcc</command> extensions on a class
-	declaration.
+	gets inserted immediately after the class keyword, verbatim. This can
+	be used to specify <literal>noexcept</literal> (as in the example),
+	or set <command>gcc</command> extensions on the method declaration.
       </para>
 
       <para>
 	<literal>&lt;param&gt;</literal> has an optional
 	<literal>&lt;comment&gt;</literal> element, and a required
 	<literal>&lt;decl&gt;</literal>
-	element that contains a literal declaration of a C++ variable,
-	with the variable's name marked with a
-	<literal>&lt;name&gt;</literal> element (and without a trailing
-	semicolon).
+	element that contains a literal declaration of a C++ variable.
       </para>
 
       <para>
-	As shown in the example with the generated code, each parameter
-	to a public API method get stored into a message class, with
-	the definition of class members taken literally from the
-	<literal>&lt;param&gt;</literal>
-	elements.
+	<literal>&lt;method&gt;</literal>
+	has an optional <quote>virtual</quote> element that
+	prepends <quote><literal>virtual</literal></quote> to the
+	private <classname>dispatch_<replaceable>name</replaceable></classname>
+	method.
       </para>
-
-      <para>
-	Setting the optional
-	<literal>&lt;param&gt;</literal>
-	attribute <quote>type</quote> to <quote>class</quote> indicates
-	that the parameter definition is a class definition, and that the
-	constructor in the generated code for the public API method, and
-	the message class's constructor, receives the parameter as a constant
-	reference.
-      </para>
-
-      <blockquote>
-	<informalexample>
-	  <programlisting><![CDATA[
-<method name="logerror">
-  <param><decl>const char *<name>file</name></decl></param>
-  <param><decl>int <name>line</name></decl></param>
-  <param><decl>std::string <name>error_message</name></decl></param>
-</method>]]></programlisting>
-	</informalexample>
-      </blockquote>
-
-      <para>
-	This generates the followeing public API declaration.
-      </para>
-
-      <blockquote>
-	<informalexample>
-	  <programlisting><![CDATA[
-void logerror(const char *file_arg, int line_arg,
-              std::string error_message_arg)]]></programlisting>
-	</informalexample>
-      </blockquote>
-
-      <para>
-	Setting <varname>error_message</varname>'s
-	<literal>&lt;param&gt;</literal>'s
-	<quote>type</quote> attribute to <quote>class</quote> changes this to:
-      </para>
-
-      <blockquote>
-	<informalexample>
-	  <programlisting><![CDATA[
-void logerror(const char *file_arg, int line_arg,
-              const std::string &error_message_arg)]]></programlisting>
-	</informalexample>
-      </blockquote>
-
-      <para>
-	Setting 
-	<literal>&lt;param&gt;</literal>
-	to <quote>type</quote> to <quote>weakptr</quote> passes &ptr;s
-	to <link linkend="refobj">reference-counted objects</link>
-	as <link linkend="weakptr">weak references</link>:
-      </para>
-
-      <blockquote>
-	<informalexample>
-	  <programlisting><![CDATA[
-<method name="report_errors">
-  <param type="weakptr"><decl>]]>mcguffinptr <![CDATA[<name>mcguffin</name></decl></param>
-</method>]]></programlisting>
-	</informalexample>
-      </blockquote>
-
-      <para>
-	This generates the following message class (slightly reformatted
-	for readability):
-      </para>
-
-      <blockquote>
-	<informalexample>
-	  <programlisting><![CDATA[
-// AUTOGENERATED -- do not edit
-
-#ifndef lib]]>&ns;<![CDATA[_autogen_suppress_inner
-private:
-
-
-//! Internal message object sent by report_errors()
-
-class report_errors_msg {
-public:
-
-  //! Message parameter
-  ]]>&ns;<![CDATA[::weakptr<mcguffinptr> mcguffin;
-
-  //! Message constructor
-
-  report_errors_msg(//! Parameter
-                    const mcguffinptr &mcguffin_arg) :
-                    mcguffin(mcguffin_arg)
-  {
-  }
-
-  //! Destructor
-
-  ~report_errors_msg() noexcept {}
-};
-
-
-public:
-
-  //! Send the report_errorsmsg to the class 
-
-  void report_errors(//! Parameter
-                     const mcguffinptr &mcguffin_arg)
-  {
-    ]]>&ns;<![CDATA[::msgdispatcherObj::sendevent<report_errors_msg>(this, mcguffin_arg);
-  }
-
-
-public:
-  ]]>template&lt;typename obj_type, typename msg_type&gt;
-      friend class &ns;::dispatchablemsgObj;<![CDATA[
-
-private:
-
-
-//! Process message sent by report_errors()
-
-  void dispatch(const report_errors_msg &msg);
-
-#endif]]></programlisting>
-	</informalexample>
-      </blockquote>
-
-      <para>
-	The stylesheet generates code that declares the parameter as a
-	reference to the specified &ptr;,
-	but the message stores a weak reference.
-	The parameter declared with a <literal>weakptr</literal>
-	should always be a &ptr;. Here, for example, the declaration
-	<quote>typedef &ns;::ptr&lt;&ns;::obj&gt; mcguffinptr;</quote>
-	should be somewhere in scope.
-      </para>
-
-      <para>
-	This is useful when the actual parameter to the API call is a
-	reference to a reference-counted object, and the executing
-	thread terminates without processing the message, but something else
-	holds a reference on the thread object preventing it from being
-	destroyed. Since the message on the dead thread's message queue contains
-	only a weak reference this won't prevent the parameter to the
-	API call from being destroyed if no other references to it exist.
-      </para>
-
-      <para>
-	The <methodname>dispatch</methodname>() method is expected to recover
-	a strong reference, when it picks up the message, and have a
-	well-defined error path if the weakly-referenced object has already
-	been destroyed.
-      </para>
-
-      <note>
-	<para>
-	  Specifying that a parameter is a weak reference implies that the
-	  caller retains the reference to the parameter object, after
-	  the API call completes. Otherwise, with the API call complete, the
-	  caller's reference to the object goes out of scope may go out of
-	  scope, and the referenced object gets destroyed, before the executing
-	  thread has a chance to recover a strong reference to the parameter
-	  object.
-	</para>
-      </note>
-
-      <para>
-	<literal>&lt;method&gt;</literal> 
-	has an optional <quote>virtual</quote> attribute:
-      </para>
-
-      <blockquote>
-	<informalexample>
-	  <programlisting><![CDATA[
-<method name="report_errors" virtual="1">
-  <param type="weakptr"><decl>]]>mcguffinptr <![CDATA[<name>mcguffin</name></decl></param>
-</method>]]></programlisting>
-	</informalexample>
-      </blockquote>
-
-      <para>
-	The <quote>virtual</quote> attribute results in the
-	<methodname>dispatch</methodname>() method getting declared as a virtual
-	method:
-      </para>
-
-      <blockquote>
-	<informalexample>
-	  <programlisting><![CDATA[
-//! Process message sent by report_errors()
-
-  virtual void dispatch(const report_errors_msg &msg);]]></programlisting>
-	</informalexample>
-      </blockquote>
-
-    </section>
-
-    <section id="msgdispatchercons">
-      <title>Optional message class constructor and serialization function</title>
       <para>
 	The
 	<literal>&lt;method&gt;</literal>
 	element has an optional
-	<quote>default</quote> attribute that may be set to <quote>1</quote>:
+	<quote>default</quote> element.
+	Normally, the stylesheet generates a public method that
+	forwards its arguments to <methodname>sendevent</methodname>().
+	For example, given following stylesheet:
       </para>
 
       <blockquote>
 	<informalexample>
 	  <programlisting><![CDATA[
-<method name="dump" default="1" serialize="1">
-  <param type="class"><decl>std::string <name>filename</name></decl></param>
-  <param default="0"><decl>int <name>count</name></decl></param>
-  <param default="1"><decl>int <name>repeat</name></decl></param>
-  <param type="class" dontserialize="1"><decl>]]>&ns;::ptr&amp;lt;&ns;::obj&amp;gt;<![CDATA[ <name>mcguffin</name></decl></param>
-</method>]]></programlisting>
+<class name="mythreadObj">
+  <method name="logerror">
+    <comment> //! logerror() function</comment>
+    <param>
+      <decl>const char *file</decl>
+    </param>
+    <param>
+      <decl>int line</decl>
+    </param>
+    <param>
+      <comment>//! Descriptive error message</comment>
+      <decl>const std::string &amp;error_message</decl>
+    </param>
+
+    <attributes> noexcept</attributes>
+  </method>
+</classname>
+]]></programlisting>
 	</informalexample>
       </blockquote>
 
       <para>
-	This adds a default constructor to the definition of the generated
-	message class.
-	Each
-	<literal>&lt;param&gt;</literal>'s
-	optional <quote>default</quote> atribute gives the value for the
-	message class's member that's initialized by the default constructor.
+	This results in the following code getting generated for this
+	public method:
       </para>
-
-      <para>
-	Finally, setting
-	<literal>&lt;method&gt;</literal>'s
-	<quote>serialize</quote> attribute to <quote>1</quote> generates a
-	<link linkend="serializingclasses"><methodname>serialize</methodname>()</link>
-	method in the message class definition, serializing all parameters
-	except ones that have the <quote>dontserialize</quote> attribute
-	set to <quote>1</quote>.
-	The <filename>msgdispatcher.xsl</filename> stylesheet
-	produces the following code from the above
-	<acronym>XML</acronym> definition:</para>
 
       <blockquote>
 	<informalexample>
 	  <programlisting><![CDATA[
-// AUTOGENERATED -- do not edit
+template <
+    typename param_type_1,
+    typename param_type_2,
+    typename param_type_3>
+    void logerror(
+        param_type_1 && param_1,
+        param_type_2 && param_2,
+        param_type_3 && param_3)
+{
+    this->sendevent(&mythreadObj::dispatch_logerror, this,
+                    std::forward<param_type_1>(param_1),
+                    std::forward<param_type_2>(param_2),
+                    std::forward<param_type_3>(param_3));
+}
+]]></programlisting>
+	</informalexample>
+      </blockquote>
 
-#ifndef lib]]>&ns;<![CDATA[_autogen_suppress_inner
-private:
+      <para>
+	The following stylesheet specifies default values for all parameters:
+      </para>
 
+      <blockquote>
+	<informalexample>
+	  <programlisting><![CDATA[
+<class name="mythreadObj">
+  <method name="logerror">
+    <comment> //! logerror() function</comment>
+    <param>
+      <decl>const char *file</decl>
+      <default>""</default>
+    </param>
+    <param>
+      <decl>int line</decl>
+      <default>-1</default>
+    </param>
+    <param>
+      <comment>//! Descriptive error message</comment>
+      <decl>const std::string &amp;error_message</decl>
+      <default>"unknown error"</default>
+    </param>
 
-//! Internal message object sent by dump()
+    <attributes> noexcept</attributes>
+  </method>
+</class>
+]]></programlisting>
+	</informalexample>
+      </blockquote>
 
-class dump_msg {
-public:
+      <para>
+	This generates additional overloaded public methods that supply
+	the default values for the parameters:
+      </para>
 
-//! Message parameter
-  std::string filename;
+      <blockquote>
+	<informalexample>
+	  <programlisting><![CDATA[
+//! logerror() function
+template <
+    typename param_type_1,
+    typename param_type_2,
+    typename param_type_3>
+    void logerror(
+        param_type_1 && param_1,
+        param_type_2 && param_2,
+        param_type_3 && param_3)
+{
+    this->sendevent(&mythreadObj::dispatch_logerror, this,
+                    std::forward<param_type_1>(param_1),
+                    std::forward<param_type_2>(param_2),
+                    std::forward<param_type_3>(param_3));
+}
 
-//! Message parameter
-  int count;
+//! Provide default value
+void logerror()
+{
+    logerror("");
+}
 
-//! Message parameter
-  int repeat;
+//! Provide default value
+template <
+    typename param_type_1> void logerror(
+        param_type_1 && param_1)
+{
+    logerror(
+        std::forward<param_type_1>(param_1),
+        -1);
+}
 
-//! Message parameter
-  ]]>&ns;<![CDATA[::ptr<]]>&ns;<![CDATA[::obj> mcguffin;
-
-//! Message constructor
-
-  dump_msg(//! Parameter
-           const std::string &filename_arg,
-           //! Parameter
-           int count_arg,
-           //! Parameter
-           int repeat_arg,
-           //! Parameter
-           const ]]>&ns;<![CDATA[::ptr<]]>&ns;<![CDATA[::obj> &mcguffin_arg) :
-    filename(filename_arg),
-    count(count_arg),
-    repeat(repeat_arg),
-    mcguffin(mcguffin_arg)
-  {
-  }
-
-  //! Default constructor
-
-  dump_msg() :
-      count(0),
-      repeat(1)
-  {
-  }
-
-  //! Serialization function
-
-  template<typename iter_type> void serialize(iter_type &iter)
-  {
-    iter(filename);
-    iter(count);
-    iter(repeat);
-  }
-
-  //! Destructor
-
-  ~dump_msg() noexcept {}
-};
-
-
-public:
-
-//! Send the dumpmessage to the class 
-
-  void dump(//! Parameter
-            const std::string &filename_arg,
-            //! Parameter
-            int count_arg,
-            //! Parameter
-            int repeat_arg,
-            //! Parameter
-            const ]]>&ns;<![CDATA[::ptr<]]>&ns;<![CDATA[::obj> &mcguffin_arg)
-  {
-    ]]>&ns;<![CDATA[::msgdispatcherObj::sendevent<dump_msg>(this, filename_arg, count_arg, repeat_arg, mcguffin_arg);
-  }
-
-
-public:
-  ]]>template&lt;typename obj_type, typename msg_type&gt;
-      friend class &ns;::dispatchablemsgObj;<![CDATA[
-
-private:
-
-
-//! Process message sent by dump()
-
-  void dispatch(const dump_msg &msg);
-
-#endif]]></programlisting>
+//! Provide default value
+template <
+    typename param_type_1,
+    typename param_type_2> void logerror(
+        param_type_1 && param_1,
+        param_type_2 && param_2)
+{
+    logerror(
+        std::forward<param_type_1>(param_1),
+        std::forward<param_type_2>(param_2),
+        "unknown error");
+}
+]]></programlisting>
 	</informalexample>
       </blockquote>
     </section>
@@ -1491,7 +1081,7 @@ private:
       <comment>/*!
       Object to be written
       */</comment>
-    <decl>objref <name>object</name></decl></param>
+    <decl>objref object</decl></param>
   </method>]]></programlisting>
 	</informalexample>
       </blockquote>
@@ -1525,36 +1115,6 @@ private:
 #endif</programlisting>
 	</informalexample>
       </blockquote>
-
-      <para>
-	The partial code fragment containing this output is typically
-	saved in a separate <filename>.H</filename> file and the
-	<filename>.H</filename> that declares the class
-	<literal>#include</literal>d from inside the class.
-	<application>Doxygen</application> typically parses the main
-	class file, but also attempts to read the standalone
-	<filename>.H</filename> file with the auto-generated code, resulting
-	in mild chaos.
-      </para>
-
-      <para>
-	For this reason, the autogenerated code is wrapped inside the
-	<literal>ifndef/endif</literal> construct, as shown above.
-	In the <filename>Doxyfile</filename> specify
-	<quote>PREDEFINED = lib&ns;_autogen_suppress_inner</quote> accordingly,
-	so <application>Doxygen</application> doesn't see it, but also
-	add <quote>#undef lib&ns;_autogen_suppress_inner</quote> in the
-	<filename>.H</filename> file with the main class definition, so that
-	the <quote>#include</quote> from the class <filename>.H</filename>
-	gets parsed.
-      </para>
-
-      <para>
-	Depending on whether autogenerated code uses outer scope, and how
-	the autogenerated code gets included, predefining
-	<varname>lib&ns;_autogen_suppress_outer</varname> may also be
-	necessary.
-      </para>
     </section>
 
     <section id="msgdispatchermake">
@@ -1566,54 +1126,16 @@ private:
 	  <programlisting>
 include /usr/share/lib&ns;/libcxx.mk
 
-$(call MSGDISPATCHER_GEN,errorlog,all)</programlisting>
+$(call THREADMSGDISPATCHER_GEN,errorlog.H,errorlog.xml)</programlisting>
 	</informalexample>
       </blockquote>
 
       <para>
 	This example creates a rule for the target
-	<filename>errorlog.all.H</filename>
+	<filename>errorlog.H</filename>
 	with a dependency <filename>errorlog.xml</filename>.
 	The target gets created by running the
-	<filename>msgdispatcher.xsl</filename> stylesheet with the
-	<quote>mode</quote> parameter set to <quote>all</quote>.
-	An optional third parameter to
-	<methodname>MSGDISPATCHER_GEN</methodname> is a list of other
-	<quote>parameter=value</quote> settings that are passed to
-	<command>xsltproc</command> using the <option>--stringparam</option>
-	option:
-      </para>
-
-      <blockquote>
-	<informalexample>
-	  <programlisting>
-$(call MSGDISPATCHER_GEN,errorlog,all,dispatch=public)</programlisting>
-	</informalexample>
-      </blockquote>
-
-      <para>
-	Another useful invocation of
-	<methodname>MSGDISPATCHER_GEN</methodname> generates declarations
-	and definitions into separate files:
-      </para>
-
-      <blockquote>
-	<informalexample>
-	  <programlisting>
-$(call MSGDISPATCHER_GEN,errorlog,decl def)</programlisting>
-	</informalexample>
-      </blockquote>
-
-      <para>
-	This macro creates two make targets,
-	<filename>errorlog.decl.H</filename> and
-	<filename>errorlog.def.H</filename>, with the
-	same dependency,
-	<filename>errorlog.xml</filename>,
-	that get created by running
-	the
-	<filename>msgdispatcher.xsl</filename> stylesheet with the
-	<quote>mode=decl</quote> and <quote>mode=def</quote> parameters.
+	<filename>threadmsgdispatcher.xsl</filename> stylesheet.
       </para>
     </section>
 
@@ -1642,7 +1164,7 @@ LIBCXX_INIT</programlisting>
 
 # Followed by macro calls:
 
-$(call MSGDISPATCHER_GEN,errorlog,all)
+$(call THREADMSGDISPATCHER_GEN,errorlog.H,errorlog.xml)
 
 # ...
 </programlisting>
@@ -1652,137 +1174,6 @@ $(call MSGDISPATCHER_GEN,errorlog,all)
       &automakelibxinit;
 
     </section>
-  </section>
-
-  <section id="msgdispatchermcguffins">
-    <title>Using mcguffins with a message dispatching-based thread</title>
-
-    <para>
-      The message-dispatching framework,
-      including the
-      <link linkend="msgdispatchergen">stylesheet-generated one</link>
-      works conveniently with
-      <link linkend="ondestroy">mcguffins</link>.
-      The public method simply takes a mcguffin reference
-      as one of its parameters,
-      which gets placed into the message class instance.
-      After the <methodname>dispatch</methodname>() function gets the message
-      as one of its parameters, and returns, the message class instance,
-      with the mcguffin reference quietly sitting there, gets destroyed,
-      releasing the reference to the mcguffin.
-    </para>
-
-    <para>
-      Another parameter to the public method would also be a reference
-      to another object that would represent some kind of the return value,
-      or the result status of processing the message. Presumably, there
-      won't be any other reference to the mcguffin parameter, so after the
-      thread is done with the message, the mcguffin's destructor (or a
-      separate destructor callback) can examine the return value object.
-    </para>
-
-    <para>
-      Its important to understand the implications of the mcguffin-based
-      approach. Until the executing thread gets around to grabbing the
-      message off its queue, to dispatch, the message class queued up
-      by the public method waits in the internal queue.
-      The thread could terminate before the message gets dispatched,
-      and messages will remain in the internal queue.
-      The recommended approach mentioned earlier suggests using only
-      weak references to thread-based message dispatching subclasses, so when
-      the executing thread terminates, the return value object would indicate
-      that the message was not processed (the return value object is
-      presumably instantiated indicating that the corresponding message
-      is not processed).
-    </para>
-
-    <para>
-      Another alternative is to use
-      <ulink url="&link-typedef-x-threadeventqueuemsgdispatcher;"><classname>&ns;::threadeventqueuemsgdispatcher</classname></ulink>:
-    </para>
-    <blockquote>
-      <informalexample>
-	<programlisting>
-#include &lt;&ns;/threadeventqueuemsgdispatcher.H&gt;
-
-class mythread2Obj : public &ns;::threadeventqueuemsgdispatcherObj&lt;mythread2Obj&gt; {
-
-public:
-
-	mythread2Obj() {}
-	~mythread2Obj() noexcept {}
-
-	void run(const &ns;::ref&lt;&ns;::obj&gt; &amp;mcguffin,
-		 const msgqueue_t &amp;q,
-		 int foo)
-	{
-		while (1)
-			q-&gt;pop()->dispatch();
-	}
-};
-
-// ...
-
-auto &ns;::threadeventqueuemsgdispatcher&lt;mythread2Obj&gt; thread=&ns;::ref&lt;mythread2Obj&gt;::create();
-
-auto runthread=t2-&gt;run_thread(2);</programlisting>
-      </informalexample>
-    </blockquote>
-
-    <para>
-      <classname>&ns;::threadeventqueuemsgdispatcherObj's</classname> template
-      parameter is its subclass. Its <methodname>run_thread</methodname>()
-      method invokes its subclass's <methodname>run</methodname>() in a
-      new thread via
-      <link linkend="ethreads"><function>&ns;::run</function>()</link>,
-      returning the
-      <ulink url="&link-typedef-x-runthread;"><classname>&ns;::runthread&lt;<replaceable>T</replaceable>&gt;</classname></ulink>
-      return value from <function>&ns;::run</function>().
-      The first parameter the subclass's <methodname>run</methodname>()
-      receives is an opaque <link linkend="ondestroy">mcguffin</link>, the
-      second parameter to the thread's <classname>msgqueue_t</classname>,
-      message queue.
-    </para>
-
-    <para>
-      Any additional parameters to <methodname>&ns;::run_thread</methodname>()
-      get forwarded to subclass's <methodname>run</methodname>().
-      <classname>&ns;::threadeventqueuemsgdispatcherObj</classname>
-      implements the same <methodname>event</methodname>() method that
-      <classname>&ns;::eventqueuemsgdispatcherObj</classname> does, and
-      that works interchangably with
-      <link linkend="msgdispatchergen">stylesheet-generated</link> code.
-      The subclass must keep the mcguffin and the event queue parameters
-      on its execution stack. When the thread terminates, they go
-      out of scope and get destroyed.
-    </para>
-
-    <para>
-      After the execution thread terminates, the event queue file descriptor
-      based message queue also gets destroyed together with any unprocessed
-      messages, and any additional calls to <methodname>event</methodname>()
-      return immediately; unlike
-      <classname>&ns;::eventqueuemsgdispatcherObj</classname> whose
-      event queue continues to exist as long as the object itself remains
-      in scope; its messages will only get processed if another thread
-      gets started.
-    </para>
-
-    <para>
-      <classname>&ns;::threadeventqueuemsgdispatcherObj</classname> multiply
-      inherits from
-      <link linkend="threadsuperclasses"><classname>&ns;::runthreadsingleton</classname></link>,
-      only one execution thread can be started by
-      <methodname>run_thread</methodname>() for the same object.
-      <methodname>run_thread</methodname>() creates a new event queue using
-      a new event file descriptor, that gets subsequently used by
-      <methodname>event</methodname>() until the execution thread terminates
-      and the event queue goes out of scope and gets destroyed.
-      <methodname>run_thread_using_eventfd</methodname>() constructs the
-      event queue using the event file descriptor as its first parameter,
-      and the remaining parameters get forwarded to
-      <methodname>run</methodname>().
-    </para>
   </section>
 </chapter>
 <!--
