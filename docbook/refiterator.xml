@@ -36,7 +36,7 @@ auto iter=customiterator::create( /* arguments... */ );
   </blockquote>
 
   <para>
-    <ulink url="&link-typedef-x-refiterator;"><classname>&ns;::refiterator</classname></ulink>
+    <ulink url="&link-x--refiterator;"><classname>&ns;::refiterator</classname></ulink>
     defines a subclass of <link linkend="ref"><classname>&ns;::ref</classname></link>
     that implements iterator operator facades which invoke the corresponding
     methods from the referenced object. The template, like
@@ -61,7 +61,7 @@ auto iter=customiterator::create( /* arguments... */ );
       <classname>&ns;::ptriterator</classname> and the others, subject to
       the inherent differenced between the underlying &ref; and &ptr;
       semantics.
-    </para>      
+    </para>
     <para>
       At this time, the reference-counted iterator template implements supports
       only input and output iterators.
@@ -245,7 +245,7 @@ iter=std::copy(s.begin(), s.end(), iter);
 
 	    <listitem>
 	      <para>
-		The return value from 
+		The return value from
 		<methodname>before_postoper</methodname>() becomes the
 		return value of
 		<classname>&ns;::refiterator</classname>'s
@@ -427,7 +427,7 @@ std::back_insert_iterator&lt;std::string&gt;
 
     <note>
       <para>
-	Using 
+	Using
 	<function>&ns;::make_outputrefiterator</function>() with one output
 	iterator parameter is a convenient way to turn a large output
 	iterator into a reference-counted object.

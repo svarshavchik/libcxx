@@ -144,9 +144,6 @@ public:
 	//! if one exists.
 
 	auto operator->() const
-		-> decltype(invoke_arrow_operator< has_arrow_operator<obj_t>
-			    ::value >
-			    ::invoke(*(obj_t *)nullptr))
 	{
 		return invoke_arrow_operator< has_arrow_operator<obj_t>
 					      ::value >::invoke(*get());
@@ -518,4 +515,3 @@ extern template class inputrefiteratorObj<char>;
 #endif
 }
 #endif
-

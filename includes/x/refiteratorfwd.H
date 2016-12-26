@@ -8,6 +8,7 @@
 
 #include <x/namespace.h>
 #include <x/ptrfwd.H>
+#include <x/refptr_traits.H>
 
 namespace LIBCXX_NAMESPACE {
 
@@ -30,14 +31,23 @@ make_outputrefiterator(Args && ...args);
 //! \see refobjiterator
 
 template<typename obj_type, typename baseType=ptrrefBase>
+
+#ifndef DOXYGEN
 using refiterator=refobjiterator<ref<obj_type, baseType>>;
+#else
+class refiterator {};
+#endif
 
 //! A referenced-counted pointer that implements iterator requirements.
 
 //! \see refobjiterator
 
 template<typename obj_type, typename baseType=ptrrefBase>
+#ifndef DOXYGEN
 using ptriterator=refobjiterator<ptr<obj_type, baseType>>;
+#else
+class ptriterator {};
+#endif
 
 //! A referenced-counted pointer that implements iterator requirements.
 
@@ -86,4 +96,3 @@ using const_outputrefiteratorptr=const_ptriterator<outputrefiteratorObj<value_ty
 #endif
 }
 #endif
-
