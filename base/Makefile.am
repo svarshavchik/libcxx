@@ -226,7 +226,7 @@ libcxx_la_SOURCES=\
 
 $(call MSGDISPATCHER_GEN,singletonapp.msgs,all)
 
-$(call MSGDISPATCHER_GEN,timerobj.msgs,def decl)
+$(call THREADMSGDISPATCHER_GEN,timerobj.msgs.H,timerobj.msgs.xml)
 
 BUILT_SOURCES=ymd_grdjd.h mksiglist.h mksigtab.h testoptgen.h maillogs.h propertiescli.h sysconfdir.h srcdir.h xml_parser_options.h xml_element_type.h
 CLEANFILES=ymd_grdjd.h mksiglist.h mksigtab.h testoptgen.h maillogs.h propertiescli.h sysconfdir.h srcdir.h xml_parser_options.h xml_element_type.h effective_tld_names.dat.timestamp

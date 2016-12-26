@@ -9,23 +9,23 @@ See COPYING for distribution information.
 
   <method name="newtask" attributes="LIBCXX_HIDDEN">
     <param type='class'>
-      <decl>taskinfo <name>newtask</name></decl>
+      <decl>const taskinfo &amp;newtask</decl>
     </param>
     <param type='class'>
-      <decl>ref&lt;installedObj&gt; <name>installed</name></decl>
+      <decl>const ref&lt;installedObj&gt; &amp;installed</decl>
     </param>
     <param type='class'>
-      <decl>ptr&lt;obj&gt; <name>mcguffin</name></decl>
+      <decl>const ptr&lt;obj&gt; &amp;mcguffin</decl>
     </param>
   </method>
 
-  <method name="canceltask" attributes="LIBCXX_HIDDEN">
-    <param type='class'>
-      <decl>weakptr&lt;timertaskentryptr&gt; <name>taskentry</name></decl>
+  <method name="do_canceltask" attributes="LIBCXX_HIDDEN">
+    <param>
+      <decl>const weakptr&lt;timertaskentryptr&gt; &amp;taskentry</decl>
     </param>
 
-    <param type='class'>
-      <decl>ref&lt;obj&gt; <name>mcguffin</name></decl>
+    <param>
+      <decl>const ref&lt;obj&gt; &amp;mcguffin</decl>
     </param>
   </method>
 </class>

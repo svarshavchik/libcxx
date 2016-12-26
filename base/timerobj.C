@@ -9,7 +9,7 @@
 #include "x/weakptr.H"
 #include "x/exception.H"
 #include "x/property_value.H"
-#include "x/dequemsgdispatcher.H"
+#include "x/threadmsgdispatcher.H"
 #include "x/threads/run.H"
 #include "x/threads/timer.H"
 #include "x/threads/timertask.H"
@@ -19,6 +19,7 @@
 #include "x/timespec.H"
 #include "x/sysexception.H"
 #include "x/logger.H"
+#include "x/refptr_traits.H"
 
 #include <unistd.h>
 
@@ -49,9 +50,6 @@ timespec timespec::getclock(clockid_t clock_id)
 		throw SYSEXCEPTION("clock_gettime");
 	return ts;
 }
-
-
-#include "timerobj.msgs.def.H"
 
 timerObj::repeatinfo::repeatinfo(const std::string &repeatPropertyArg,
 				 const duration_t &defaultRepeatDurationArg,
@@ -121,6 +119,8 @@ launch(const timerObj::implObj::taskinfo &newtask,
 {
 	bool start_needed=false;
 
+	refptr_traits<threadmsgdispatcherObj::msgqueue_obj>::ptr_t msgqueue_ptr;
+
 	auto p=lock->thread.getptr();
 
 	if (p.null())
@@ -135,6 +135,8 @@ launch(const timerObj::implObj::taskinfo &newtask,
 
 		p=ref<timerObj::implObj>::create(timername);
 		start_needed=true;
+		msgqueue_ptr=threadmsgdispatcherObj::msgqueue_obj
+			::create(p);
 	}
 	else
 	{
@@ -170,7 +172,8 @@ launch(const timerObj::implObj::taskinfo &newtask,
 
 		sigset::block_all block_all_signals;
 
-		lock->thread_ret=run(p);
+		lock->thread_ret=start_thread(p, threadmsgdispatcherObj::
+					      msgqueue_obj(msgqueue_ptr));
 	}
 	return cb;
 }
@@ -223,6 +226,12 @@ timerObj::implObj::~implObj() noexcept
 {
 }
 
+void timerObj::implObj::canceltask(const timertaskentryptr &taskentry_arg,
+				   const ref<obj> &mcguffin_arg)
+{
+	do_canceltask(taskentry_arg, mcguffin_arg);
+}
+
 // Drain the message queue. Returns when the message queue is empty, and when
 // either there are no jobs, or the next job's time has arrived.
 //
@@ -231,18 +240,18 @@ timerObj::implObj::~implObj() noexcept
 inline timerObj::clock_t::time_point
 timerObj::implObj::drain()
 {
+	auto msgqueue=get_msgqueue();
+	struct pollfd pfd;
+
+	pfd.fd=msgqueue->getEventfd()->getFd();
+
 	while (1)
 	{
 		clock_t::time_point now=clock_t::now();
 
-		msgqueue_t::lock lock(msgqueue);
-
-		if (!lock->empty())
+		if (!msgqueue->empty())
 		{
-			auto msg=lock->front();
-
-			lock->pop_front();
-			msg->dispatch();
+			msgqueue->pop()->dispatch();
 			continue;
 		}
 
@@ -254,7 +263,21 @@ timerObj::implObj::drain()
 		if (p->first <= now)
 			return now;
 
-		lock.wait_until(p->first, [&lock] { return !lock->empty(); });
+		auto wait_until=p->first - now;
+		auto ms=std::chrono::duration_cast<std::chrono::milliseconds>(wait_until).count();
+
+		if (ms > 60 * 60 * 1000)
+			ms=60 * 60 * 1000;
+
+		if (ms <= 0)
+			ms=1;
+
+		pfd.events=POLLIN;
+
+		poll(&pfd, 1, ms);
+
+		if (pfd.revents & POLLIN)
+			msgqueue->getEventfd()->event();
 	}
 }
 
@@ -309,8 +332,13 @@ bool timerObj::implObj::runjob()
 	return true;
 }
 
-void timerObj::implObj::run()
+void timerObj::implObj::run(x::ptr<x::obj> &threadmsgdispatcher_mcguffin,
+			    msgqueue_obj &msgqueue)
 {
+	(*msgqueue)->getEventfd()->nonblock(true);
+
+	threadmsgdispatcher_mcguffin=nullptr;
+
 	try {
 		try {
 			{
@@ -342,10 +370,11 @@ void timerObj::implObj::run()
 	tid=std::thread::id();
 }
 
-void timerObj::implObj::dispatch(const newtask_msg &msg)
+void timerObj::implObj::dispatch_newtask(const taskinfo &newtask,
+					 const ref<installedObj> &installed,
+					 const ptr<obj> &mcguffin)
 {
-	msg.installed->processed=true;
-	taskinfo newtask=msg.newtask;
+	installed->processed=true;
 
 	timertaskentry task=timertaskentry::create(newtask->task,
 						   newtask->repeat);
@@ -358,9 +387,10 @@ void timerObj::implObj::dispatch(const newtask_msg &msg)
 	task->jobentry=jobs.insert(std::make_pair(newtask->run_time, task));
 }
 
-void timerObj::implObj::dispatch(const canceltask_msg &msg)
+void timerObj::implObj::dispatch_do_canceltask(const weakptr<timertaskentryptr> &wtaskentry,
+					       const ref<obj> &mcguffin)
 {
-	auto taskentry=msg.taskentry.getptr();
+	auto taskentry=wtaskentry.getptr();
 
 	if (taskentry.null())
 		return;
