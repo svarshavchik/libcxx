@@ -10,7 +10,6 @@
 #include "x/fd.H"
 #include "x/fileattr.H"
 #include "x/locale.H"
-#include "x/eventqueuemsgdispatcher.H"
 #include "x/weaklist.H"
 #include "x/pwd.H"
 #include "x/sighandler.H"
@@ -88,7 +87,7 @@ singletonapp::impl::credtimeoutprop(LIBCXX_NAMESPACE_STR
 
 #pragma GCC visibility push(hidden)
 
-class singletonapp::thr : public eventqueuemsgdispatcherObj {
+class singletonapp::thr : public threadmsgdispatcherObj {
 
 
 	weaklist<obj> *threadsptr;
@@ -99,7 +98,8 @@ public:
 	thr() LIBCXX_INTERNAL {}
 	~thr() noexcept LIBCXX_INTERNAL {}
 
-	void run(fd &listensock,
+	void run(ptr<obj> &threadmsgdispatcher_mcguffin,
+		 fd &listensock,
 		 fdptr &initinstance,
 		 ref<singletonapp::factorybaseObj> &app) LIBCXX_HIDDEN;
 
@@ -108,7 +108,7 @@ private:
 	void launch(const ref<singletonapp::factorybaseObj> &app,
 		    const fd &initinstance) LIBCXX_INTERNAL;
 
-#include "singletonapp.msgs.all.H"
+#include "singletonapp.msgs.H"
 
 };
 
@@ -224,7 +224,8 @@ singletonapp::impl::impl(const ref<singletonapp::factorybaseObj> &app,
 
 	std::pair<fd, fd> fakeconn=fd::base::socketpair();
 
-	thrinstance=run(implthr, fd(connection), fdptr(fakeconn.first), app);
+	thrinstance=start_thread(implthr, fd(connection),
+				 fdptr(fakeconn.first), app);
 
 	sighandlermcguffins=mcguffins;
 	connection=fakeconn.second;
@@ -262,10 +263,14 @@ void singletonapp::impl::close()
 	}
 }
 
-void singletonapp::thr::run(fd &listensock,
+void singletonapp::thr::run(ptr<obj> &threadmsgdispatcher_mcguffin,
+			    fd &listensock,
 			    fdptr &initinstance,
 			    ref<singletonapp::factorybaseObj> &app)
 {
+	msgqueue_auto msgqueue(this);
+	threadmsgdispatcher_mcguffin=nullptr;
+
 	LOG_FUNC_SCOPE(singletonapp::logger);
 
 	weaklist<obj> threads(weaklist<obj>::create());
@@ -296,7 +301,7 @@ void singletonapp::thr::run(fd &listensock,
 		{
 			if (!msgqueue->empty())
 			{
-				msgqueue->pop()->dispatch();
+				msgqueue.event();
 				continue;
 			}
 
@@ -359,7 +364,7 @@ void singletonapp::thr::launch(const ref<singletonapp::factorybaseObj> &app,
 	}
 }
 
-void singletonapp::thr::dispatch(const terminated_msg &msg)
+void singletonapp::thr::dispatch_terminated()
 {
 	for (auto b: **threadsptr)
 	{
@@ -370,7 +375,7 @@ void singletonapp::thr::dispatch(const terminated_msg &msg)
 	throw stopexception();
 }
 
-void singletonapp::thr::dispatch(const stoplistening_msg &msg)
+void singletonapp::thr::dispatch_stoplistening()
 {
 	LOG_FUNC_SCOPE(singletonapp::logger);
 

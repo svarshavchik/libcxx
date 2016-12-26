@@ -5,6 +5,7 @@
 
 #include "libcxx_config.h"
 #include "x/managedsingletonapp.H"
+#include "x/threadmsgdispatcher.H"
 #include "x/option_parser.H"
 
 class test1infoObj : virtual public LIBCXX_NAMESPACE::obj {
@@ -178,15 +179,20 @@ void test1()
 }
 
 
-class test1altArgsObj : virtual public LIBCXX_NAMESPACE::obj {
+class test1altArgsObj : public LIBCXX_NAMESPACE::threadmsgdispatcherObj {
 
 public:
 
 	test1altArgsObj() {}
 	~test1altArgsObj() noexcept {}
 
-	test1args run(uid_t dummy, const test1args &args)
+	test1args run(LIBCXX_NAMESPACE::ptr<LIBCXX_NAMESPACE::obj>
+		      &threadmsgdispatcher_mcguffin,
+		      uid_t dummy, const test1args &args)
 	{
+		msgqueue_auto msgqueue(this);
+
+		threadmsgdispatcher_mcguffin=nullptr;
 		return args;
 	}
 

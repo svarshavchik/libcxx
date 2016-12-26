@@ -224,7 +224,7 @@ libcxx_la_SOURCES=\
 	ymdhms.C		\
 	ymdhmsbase.C
 
-$(call MSGDISPATCHER_GEN,singletonapp.msgs,all)
+$(call THREADMSGDISPATCHER_GEN,singletonapp.msgs.H,singletonapp.msgs.xml)
 
 $(call THREADMSGDISPATCHER_GEN,timerobj.msgs.H,timerobj.msgs.xml)
 

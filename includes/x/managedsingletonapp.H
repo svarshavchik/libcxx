@@ -53,6 +53,143 @@ public:
 	void processed();
 };
 
+//! The managed application singleton is not derived from threadmsgdispatcherObj
+
+//! \internal
+//!
+//! A helper class for managed application singletons when the singletons
+//! are not derived from threadmsgdispatcherObj.
+//!
+//! The real application singleton is stored in this class, and this class
+//! is a proxy that gets returned by newThread() by the class that gets
+//! passed to \ref singletonapp "singletonapp::create()".
+//!
+//! It defines the `run()` method that gets forwarded to the run_common()
+//! virtual method that gets implemented in the subclass, and provides
+//! a run_app() method that's
+//!
+//! For managed application singletons that are not derived from
+//! threadmsgdispatcherObj, this class is derived only from stoppableObj,
+//! and forwards its stop() to the real application singleton.
+
+template<typename objClass, typename baseClass,
+	 typename args_type>
+class singletonapp::managedSingletonAppContainerObj<objClass, baseClass,
+						    args_type, false>
+	: public stoppableObj {
+
+public:
+
+	//! The application object
+
+	const ref<objClass, baseClass> app;
+
+	//! No additional invocation args are needed.
+	class invoke_args {};
+
+	//! Invoke the managed singleton app's run() method.
+	inline auto run_app(invoke_args &ignore_args,
+			    uid_t uid,
+			    args_type &args)
+	{
+		return this->app->run(uid, args);
+	}
+
+	//! Constructor
+	managedSingletonAppContainerObj(const ref<objClass, baseClass> &app)
+		: app(app)
+	{
+	}
+
+	//! Destructor
+
+	~managedSingletonAppContainerObj() noexcept=default;
+
+	//! Run common code.
+
+	void run(const fd &socket)
+	{
+		invoke_args dummy;
+
+		run_common(socket, dummy);
+	}
+
+	//! Singleton thread implementation.
+
+	virtual void run_common(const fd &socket,
+				invoke_args &args)=0;
+};
+
+//! The managed application singleton is derived from threadmsgdispatcherObj
+
+//! \internal
+//!
+//! A helper class for managed application singletons when the singletons
+//! are derived from threadmsgdispatcherObj.
+//!
+//! The real application singleton is stored in this class, and this class
+//! is a proxy that gets returned by newThread() by the class that gets
+//! passed to \ref singletonapp "singletonapp::create()".
+//!
+//! It defines the `run()` method that gets forwarded to the run_common()
+//! virtual method that gets implemented in the subclass, and provides
+//! a run_app() method that's
+//!
+//! Since the application singleton is a threadmsgdispatcherObj, this
+//! proxy is also derived from threadmsgdispatcherObj, however it does not
+//! get used. The threadmsgdispatcherObj's mcguffin gets forwarded to the
+//! real application singleton's run() method.
+
+template<typename objClass, typename baseClass,
+	 typename args_type>
+class singletonapp::managedSingletonAppContainerObj<
+	objClass, baseClass, args_type, true>
+	: public threadmsgdispatcherObj {
+
+public:
+
+	//! The application object
+
+	const ref<objClass, baseClass> app;
+
+	//! Pass start_thread()'s mcguffin as the invocation args.
+
+	typedef x::ptr<x::obj> invoke_args;
+
+	//! Invoke the managed singleton app's run() method.
+
+	auto run_app(ptr<obj> &threadmsgdispatcher_mcguffin,
+		     uid_t uid,
+		     args_type &args)
+	{
+		return this->app->run(threadmsgdispatcher_mcguffin, uid, args);
+	}
+
+	//! Constructor
+	managedSingletonAppContainerObj(const ref<objClass, baseClass> &app)
+		: app(app)
+	{
+	}
+
+	//! Destructor
+	~managedSingletonAppContainerObj() noexcept=default;
+
+	//! Run common code.
+
+	//! We pass through the threadmsgdispatcher_mcguffin, all the way
+	//! to run_app().
+
+	void run(x::ptr<x::obj> &threadmsgdispatcher_mcguffin, const fd &socket)
+	{
+		run_common(socket, threadmsgdispatcher_mcguffin);
+	}
+
+	//! Singleton thread implementation.
+
+	virtual void run_common(const fd &socket,
+				invoke_args &args)=0;
+};
+
 //! This is the factory object instantiated by managed()
 
 //! This is the factory object that managed() instantiates and gives to
@@ -90,18 +227,26 @@ class singletonapp::managedSingletonFactoryObj : virtual public obj {
 	//! Convenience typedef
 	typedef ptr<argsClass, argsBase> app_argsptr;
 
+	//! Convenience typedef
+	typedef managedSingletonAppContainerObj<
+		appObjClass, appBaseClass, app_argsptr> app_container_t;
+
+
 	//! Base class for singleton application threads.
 
-	//! This is the base class. It validates the peer, deserializes the
-	//! application parameters, invokes run() in the subclass, then
-	//! serializates the application return value to the new singleton
+	//! This is the base class. The base class implements run_common()
+	//! that's inherited from the managedSingletonAppContainerObj.
+	//!
+	//! It validates the peer, deserializes the application parameters,
+	//! calls invoke() in its subclass, then
+	//! serializes the application's return value to the new singleton
 	//! instance.
 
-	class threadObj : public stoppableObj {
+	class threadObj : public app_container_t {
 	public:
-		//! The application object
 
-		ref<appObjClass, appBaseClass> app;
+		//! Convenience typedef
+		typedef typename app_container_t::invoke_args invoke_args;
 
 		//! The portmapper
 		httportmap portmapper;
@@ -113,17 +258,20 @@ class singletonapp::managedSingletonFactoryObj : virtual public obj {
 		//! Constructor
 		threadObj(ref<appObjClass, appBaseClass> &&appArg,
 			  const httportmap &portmapperArg,
-			  bool sameuserArg) : app(std::move(appArg)),
-					      portmapper(portmapperArg),
-					      sameuser(sameuserArg) {}
+			  bool sameuserArg)
+			: app_container_t(std::move(appArg)),
+			  portmapper(portmapperArg),
+			  sameuser(sameuserArg) {}
 
 		//! Destructor
 		~threadObj() noexcept
 		{
 		}
 
-		//! Singleton therad implementation.
-		void run(const fd &socket)
+		//! Singleton thread implementation.
+		void run_common(const fd &socket,
+				invoke_args &run_app_args)
+			override
 		{
 			uid_t uid=validate_peer(portmapper, socket, sameuser);
 
@@ -147,7 +295,8 @@ class singletonapp::managedSingletonFactoryObj : virtual public obj {
 				});
 
 			// Run the application, then serialize the return value
-			std::pair<ret_args, bool> ret=run(args, uid);
+			std::pair<ret_args, bool>
+				ret=invoke(args, uid, run_app_args);
 
 			{
 				fdoutputiter out_iter(socket);
@@ -165,23 +314,30 @@ class singletonapp::managedSingletonFactoryObj : virtual public obj {
 		//! The subclass returns a pair, containing the return value,
 		//! and a flag indicates that the parameters were processed
 		//! (if not, the return value is meaningless).
-		virtual std::pair<ret_args, bool> run(app_argsptr &args,
-						      uid_t uid)=0;
+		virtual std::pair<ret_args, bool> invoke(app_argsptr &args,
+							 uid_t uid,
+							 invoke_args &)=0;
 
 		//! Forward stop() to the application object
-		void stop()
+		void stop() override
 		{
-			app->stop();
+			this->app->stop();
 		}
 	};
 
-	//! First singleton application thread
+	//! The first singleton application thread
 
-	//! The instantiated application object's run() method gets invoked.
-	//!
+	//! Invokes run_app() in managedSingletonAppContainerObj, to execute
+	//! the real application singleton class's run() method.
+
 	class firstThreadObj : public threadObj {
 
 	public:
+
+		//! Convenience typedef
+
+		typedef typename threadObj::invoke_args invoke_args;
+
 		//! Constructor
 		firstThreadObj(ref<appObjClass, appBaseClass> &&appArg,
 			       const httportmap &portmapper,
@@ -196,20 +352,30 @@ class singletonapp::managedSingletonFactoryObj : virtual public obj {
 		//! The returned processed flag is always true. It's presumed
 		//! that the initial application thread always processes the
 		//! application parameters.
-		std::pair<ret_args, bool> run(app_argsptr &args,
-					      uid_t uid)
+		std::pair<ret_args, bool> invoke(app_argsptr &args,
+						 uid_t uid,
+						 invoke_args &inv_args)
+			override
 		{
-			return std::make_pair(this->app->run(uid, args), true);
+			return std::make_pair(this->run_app(inv_args,
+							    uid,
+							    args),
+					      true);
 		}
 	};
 
-	//! Additional singletona application threads
+	//! Another singleton application thread.
 
-	//! Invoke the application object's instance() method.
+	//! The application singleton that's used to construct this is the
+	//! existing application singleton. Implements invoke() that
+	//! executes the existing application singleton's instance() method.
 
 	class additionalThreadObj : public threadObj {
 
 	public:
+		//! Convenience typedef
+
+		typedef typename threadObj::invoke_args invoke_args;
 
 		//! Constructor
 		additionalThreadObj(ref<appObjClass, appBaseClass> &&appArg,
@@ -229,8 +395,10 @@ class singletonapp::managedSingletonFactoryObj : virtual public obj {
 		//! Afterwards, block until the mcguffin goes out of scope
 		//! and gets detroyed, before returning the parameters.
 
-		std::pair<ret_args, bool> run(app_argsptr &args,
-					      uid_t uid)
+		std::pair<ret_args, bool> invoke(app_argsptr &args,
+						 uid_t uid,
+						 invoke_args &inv_args)
+			override
 		{
 			processed flag=processed::create();
 			ret_args ret=ret_args::create();
@@ -275,7 +443,8 @@ public:
 
 	//! newThread() implementation for create().
 
-	//! Constructs either the initial, or additional threads.
+	//! Constructs either the initial, or an additional thread.
+
 	ref<threadObj> newThread()
 	{
 		auto ptr=instance.getptr();
@@ -302,26 +471,53 @@ public:
 
 //! managed() determines the application parameter and return objects using
 //! this helper class.
+//!
+//! Select the appropriate specialization depending upon whether the
+//! object returned by the factory is derived from threadmsgdispatcherObj.
 
 template<typename factory_type, typename args_type>
-class singletonapp::managed_ret_type {
+class singletonapp::managed_ret_type
+	: public managed_ret_type_impl<
+	factory_type, args_type,
+	std::is_base_of<threadmsgdispatcherObj,
+			typename decltype(std::declval<factory_type &&>()())
+			::obj_type>::value> {};
+
+//! Helper class specialization for non-threadmsgdispatcherObj singleton apps.
+
+template<typename factory_type, typename args_type>
+class singletonapp::managed_ret_type_impl<factory_type, args_type, false> {
 
 public:
-	//! Fake parameter to the expected run() method in the application object.
-
-	static ptr<typename args_type::obj_type,
-		   typename args_type::base> &get_args_helper();
-
-	//! Fake application object factory
-	static factory_type &&get_factory_helper();
-
-	//! Obtain the type returned by the application object's run() method.
-	typedef decltype( get_factory_helper()()->run(0, get_args_helper()))
-		ret_t;
+	//! Convenience typedef
+	typedef ptr<typename args_type::obj_type,
+		    typename args_type::base> ptr_t;
 
 	//! Determine the object returned by the application object factory.
-	typedef decltype( get_factory_helper()() ) impl_t;
+	typedef decltype( std::declval<factory_type &&>()() ) impl_t;
 
+	//! Obtain the type returned by the application object's run() method.
+	typedef decltype( std::declval<factory_type &&>()()
+			  ->run(0, std::declval<ptr_t &>())) ret_t;
+};
+
+//! Helper class specialization for threadmsgdispatcherObj singleton apps.
+
+template<typename factory_type, typename args_type>
+class singletonapp::managed_ret_type_impl<factory_type, args_type, true> {
+
+public:
+	//! Convenience typedef
+	typedef ptr<typename args_type::obj_type,
+		    typename args_type::base> ptr_t;
+
+	//! Determine the object returned by the application object factory.
+	typedef decltype( std::declval<factory_type &&>()() ) impl_t;
+
+	//! Obtain the type returned by the application object's run() method.
+	typedef decltype( std::declval<factory_type &&>()()
+			  ->run(std::declval<ptr<obj> &>(),
+				0, std::declval<ptr_t &>())) ret_t;
 };
 
 #ifndef DOXYGEN_FIXME
@@ -337,7 +533,8 @@ public:
 
 template<typename factory_type, typename args_type>
 inline
-std::pair<typename singletonapp::managed_ret_type<factory_type, args_type>
+std::pair<typename singletonapp::managed_ret_type<
+		  factory_type, args_type>
 	  ::ret_t, uid_t>
 singletonapp::managed(//! A functor that constructs an aplication object
 

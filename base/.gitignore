@@ -12,8 +12,8 @@
 /properties
 /propertiescli.h
 /propertiescli.h.tmp
-/singletonapp.msgs.all.H
 /srcdir.h
+/singletonapp.msgs.H
 /sysconfdir.h
 /testcgiimpl
 /testcombinepath

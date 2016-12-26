@@ -13,8 +13,10 @@
 #include <x/stoppable.H>
 #include <x/httportmapfwd.H>
 #include <x/sighandler.H>
+#include <x/threadmsgdispatcher.H>
 #include <x/logger.H>
 
+#include <type_traits>
 #include <unistd.h>
 #include <sys/types.h>
 
@@ -31,13 +33,14 @@ namespace LIBCXX_NAMESPACE {
 //!
 //! newThread() returns a reference to a reference-counted object that
 //! optionally
-//! implements the \ref stoppable "stoppable interface", and which has a 
+//! implements the \ref stoppable "stoppable interface", and which has a
 //! a run() method that takes a single parameter which is a file descriptor.
 //!
 //! If this is the initial process, newThread() gets called, and the returned
 //! object's run() method gets invoked.
 //!
-//! If this process is already running, the initial process's newThread()
+//! If this process is already running, the initial process's object's
+//! newThread()
 //! gets called again, and another execution thread invokes the returned
 //! object's run() method.
 //!
@@ -148,6 +151,7 @@ private:
 	};
 
 	template<typename ref_type> class start_new_thread;
+	template<typename ref_type, bool> class start_new_plain_or_dispatcher_thread;
 
 	//! Invoke an application's newThread()
 
@@ -377,8 +381,16 @@ private:
 		 typename ret_args>
 	class managedSingletonFactoryObj;
 
+	template<typename objClass, typename baseClass,
+		 typename args_type,
+		 bool=std::is_base_of<threadmsgdispatcherObj, objClass>
+		 ::value> class managedSingletonAppContainerObj;
+
 	template<typename factory_type, typename args_type>
 	class managed_ret_type;
+
+	template<typename factory_type, typename args_type, bool>
+	class managed_ret_type_impl;
 
 	template<typename factory_type, typename impl_type,
 		 typename args_type, typename ret_type> class managed_helper;
@@ -405,9 +417,19 @@ public:
 //! newThread() must return a ref. Enforce using a specialization.
 
 //! start_new_thread() is undefined otherwise.
-//!
+
 template<typename obj_type, typename baseClass>
-class singletonapp::start_new_thread<ref<obj_type, baseClass> > {
+class singletonapp::start_new_thread<ref<obj_type, baseClass> >
+	: public singletonapp
+::start_new_plain_or_dispatcher_thread<ref<obj_type, baseClass>,
+				       std::is_base_of<threadmsgdispatcherObj,
+						       obj_type>::value> {};
+
+
+//! The singleton is not based on threadmsgdispatcher, gets started via run()
+
+template<typename ref_type>
+class singletonapp::start_new_plain_or_dispatcher_thread<ref_type, false> {
 
 public:
 
@@ -420,10 +442,10 @@ public:
 	public:
 		//! The actual implementation
 
-		ref<obj_type, baseClass> impl;
+		ref_type impl;
 
 		//! Constructor
-		newThreadObj(const ref<obj_type, baseClass> &implArg)
+		newThreadObj(const ref_type &implArg)
 			: impl(implArg)
 		{
 		}
@@ -448,13 +470,64 @@ public:
 
 	//! Invoke the newly-created thread's run().
 
-	static void start(const ref<obj_type, baseClass> &obj,
+	static void start(const ref_type &obj,
 			  const fd &runArg)
 	{
 		run(ref<newThreadObj>::create(obj), runArg);
 	}
 };
 
+//! The singleton is based on threadmsgdispatcher, gets started via start_thread()
+
+template<typename ref_type>
+class singletonapp::start_new_plain_or_dispatcher_thread<ref_type, true> {
+
+public:
+
+	//! Capture and log singleton threads' uncaught exceptions
+
+	//! Because nobody else would.
+	//!
+	class newThreadObj : virtual public obj {
+
+	public:
+		//! The actual implementation
+
+		ref_type impl;
+
+		//! Constructor
+		newThreadObj(const ref_type &implArg)
+			: impl(implArg)
+		{
+		}
+
+		//! Destructor
+		~newThreadObj() noexcept {
+		}
+
+		//! Invoke new singleton thread, capture exceptions
+
+		void run(ptr<obj> &threadmsgdispatcher_mcguffin,
+			 const fd &runArg)
+		{
+			try {
+				impl->run(threadmsgdispatcher_mcguffin, runArg);
+			} catch (const exception &e)
+			{
+				LOG_ERROR(e);
+				LOG_TRACE(e->backtrace);
+			}
+		}
+	};
+
+	//! Invoke the newly-created thread's run().
+
+	static void start(const ref_type &obj,
+			  const fd &runArg)
+	{
+		start_thread(ref<newThreadObj>::create(obj), runArg);
+	}
+};
 
 
 #if 0

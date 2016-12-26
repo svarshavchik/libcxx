@@ -6,7 +6,7 @@
 #include "libcxx_config.h"
 #include "x/singletonapp.H"
 #include "x/options.H"
-#include "x/eventqueuemsgdispatcher.H"
+#include "x/threadmsgdispatcher.H"
 #include "x/sigset.H"
 
 #include <signal.h>
@@ -130,7 +130,7 @@ public:
 
 	~testapp2() noexcept {}
 
-	class thr : public LIBCXX_NAMESPACE::eventqueuemsgdispatcherObj {
+	class thr : public LIBCXX_NAMESPACE::threadmsgdispatcherObj {
 
 	public:
 		testapp2 *p;
@@ -143,10 +143,13 @@ public:
 		{
 		}
 
-
-		void run(const LIBCXX_NAMESPACE::fd &dummy)
-
+		void run(x::ptr<x::obj> &threadmsgdispatcher_mcguffin,
+			 const LIBCXX_NAMESPACE::fd &dummy)
 		{
+			msgqueue_auto msgqueue(this);
+
+			threadmsgdispatcher_mcguffin=nullptr;
+
 			{
 				std::lock_guard<std::mutex> lock(p->mutex);
 
@@ -156,7 +159,7 @@ public:
 			}
 
 			while (1)
-				msgqueue->pop()->dispatch();
+				msgqueue.event();
 		}
 	};
 
