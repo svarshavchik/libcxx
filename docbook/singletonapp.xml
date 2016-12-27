@@ -638,7 +638,7 @@ uid_t uid=&ns;::singletonapp::validate_peer(connection, false);</programlisting>
 	</para>
       </listitem>
     </orderedlist>
-	  
+
     <para>
       The first two parameters are required, the remaining are optional, and
       default to the values that produce a per-userid singleton.
@@ -946,21 +946,24 @@ uid_t uid=&ns;::singletonapp::validate_peer(connection, false);</programlisting>
 	<informalexample>
 	  <programlisting>
 #include &lt;&ns;/managedsingletonapp.H&gt;
-#include &lt;&ns;/eventqueuemsgdispatcher.H&gt;
+#include &lt;&ns;/msgdispatcher.H&gt;
 #include &lt;&ns;/logger.H&gt;
 
-class appObj : virtual public &ns;::eventqueuemsgdispatcherObj {
+class appObj : virtual public &ns;::threadmsgdispatcherObj {
 
 // ...
 
 public:
-	ret_args run(uid_t uid, const app_args &amp;args)
+	ret_args run(&ns;::ptr&lt;&ns;::obj&gt; &amp;threadmsgdispatcher_mcguffin,
+                     uid_t uid, const app_args &amp;args)
 	{
-		// Do the startup thing.
+		msgqueue_auto msgqueue(this);
+
+		threadmsgdispatcher_mcguffin=nullptr;
 
 		try {
 			while (1)
-				msgqueue->pop()->dispatch();
+				msgqueue.event();
 		} catch (const &ns;::stopexception &amp;e)
 		{
 		} catch (const &ns;::exception &amp;e)
@@ -970,10 +973,13 @@ public:
 		}
 	}
 
-#include "app.msgs.all.H"
+#include "app.msgs.H"
 };
 
-void appObj::dispatch(const instance_msg &amp;msg)
+void appObj::dispatch_instance(uid_t uid, const test1argsptr &amp;args,
+		      const test1args &amp;ret,
+		      const &ns;::singletonapp::processed &amp;flag,
+		      const &ns;::ref&lt;LIBCXX_NAMESPACE::obj&gt; &amp;mcguffin)
 {
 	msg.flag->processed();
 
@@ -999,34 +1005,34 @@ void appObj::dispatch(const instance_msg &amp;msg)
 	//! The other invocation's uid
     &lt;/comment&gt;
 
-    &lt;decl&gt;uid_t &lt;name&gt;uid&lt;/name&gt;&lt;/decl&gt;
+    &lt;decl&gt;uid_t uid&lt;/decl&gt;
   &lt;/param&gt;
 
-  &lt;param type="class"&gt;
+  &lt;param&gt;
     &lt;comment&gt;
 	//! The invocation's arguments.
     &lt;/comment&gt;
 
-    &lt;decl&gt;app_args &lt;name&gt;args&lt;/name&gt;&lt;/decl&gt;
+    &lt;decl&gt;const app_args &amp;args&lt;/decl&gt;
   &lt;/param&gt;
 
-  &lt;param type="class"&gt;
+  &lt;param&gt;
     &lt;comment&gt;
 	//! The return value to the original invocation
     &lt;/comment&gt;
 
-    &lt;decl&gt;ret_args &lt;name&gt;ret&lt;/name&gt;&lt;/decl&gt;
+    &lt;decl&gt;const ret_args &amp;ret&lt;/decl&gt;
   &lt;/param&gt;
 
-  &lt;param type="class"&gt;
+  &lt;param&gt;
     &lt;comment&gt;
 	//! Invoke flag-&gt;processed() to indicate that the request was processed
     &lt;/comment&gt;
 
-    &lt;decl&gt;&ns;::singletonapp::processed &lt;name&gt;flag&lt;/name&gt;&lt;/decl&gt;
+    &lt;decl&gt;const &ns;::singletonapp::processed &amp;flag&lt;/decl&gt;
   &lt;/param&gt;
 
-  &lt;param type="class"&gt;
+  &lt;param&gt;
     &lt;comment&gt;
 	//! Request mcguffin
 
@@ -1034,7 +1040,7 @@ void appObj::dispatch(const instance_msg &amp;msg)
 	//! "ret" and "flag" gets sent back to the original invocation.
     &lt;/comment&gt;
 
-    &lt;decl&gt;&ns;::ref&amp;lt;&ns;::obj&amp;gt; &lt;name&gt;mcguffin&lt;/name&gt;&lt;/decl&gt;
+    &lt;decl&gt;const &ns;::ref&amp;lt;&ns;::obj&amp;gt; &amp;mcguffin&lt;/decl&gt;
   &lt;/param&gt;
 
 &lt;/method&gt;</programlisting>

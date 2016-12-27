@@ -1,4 +1,4 @@
 noinst_PROGRAMS=managedsingleton
 
 managedsingleton_SOURCES=managedsingleton.C
-managedsingleton_LDADD=-lcxx
+managedsingleton_LDADD=-lcxx -lpthread
