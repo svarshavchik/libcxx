@@ -1,12 +1,13 @@
 /*
 ** Copyright 2012 Double Precision, Inc.
 ** See COPYING for distribution information.
-*/ 
+*/
 #ifndef x_mime_sectioninfoobj_H
 #define x_mime_sectioninfoobj_H
 
 #include <x/namespace.h>
 #include <x/weakptrfwd.H>
+#include <x/weakptrobj.H>
 #include <x/mime/sectioninfofwd.H>
 #include <stdint.h>
 #include <vector>

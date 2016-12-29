@@ -70,10 +70,9 @@ template<typename value_type_t, typename tag,
 	 typename base_class=number_default_base>
 class number : public base_class {
 
+public:
 	//! The actual value.
 	value_type_t n;
-
-public:
 
 	//! The real number type
 	typedef value_type_t value_type;

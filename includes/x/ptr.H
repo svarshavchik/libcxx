@@ -16,6 +16,7 @@ object.
 #include <x/namespace.h>
 #include <x/errors.H>
 #include <x/ptrfwd.H>
+#include <x/weakptrfwd.H>
 #include <x/ptrimpl.H>
 #include <utility>
 #include <typeinfo>
@@ -516,6 +517,15 @@ template<typename objClass2> inline const_ptr<objClass, baseClass>
 //! reference, which is equivalent to a \c NULL pointer.
 //! Dereferencing it throws a null pointer %exception.
 //!
+//! \par Making weak pointers
+//!
+//! \code
+//! INSERT_LIBX_NAMESPACE::weakptr<ptr<<obj>> weakling=classP.weaken();
+//! \endcode
+//!
+//! weaken() is provided for convenience, which constructs
+//! a \ref weakptr "weak pointer" from this strong pointer.
+//!
 //! \par Thread safety
 //!
 //! This reference pointer
@@ -899,6 +909,13 @@ public:
 	&operator=(std::nullptr_t) __attribute__((artificial))
 	{
 		return operator=((objClass *)0);
+	}
+
+	//! Make a weak pointer out of me.
+
+	inline auto weaken() const
+	{
+		return weakptr<ptr<objClass, baseClass>>(*this);
 	}
 };
 

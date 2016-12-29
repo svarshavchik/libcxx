@@ -661,6 +661,13 @@ public:
 	{
 		return this->p;
 	}
+
+	//! Make a weak pointer.
+
+	inline auto weaken() const
+	{
+		return this->p.weaken();
+	}
 };
 
 template<typename objClass, typename baseClass>

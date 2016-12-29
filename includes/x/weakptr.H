@@ -9,6 +9,7 @@
 #include <x/ref.H>
 #include <x/exception.H>
 #include <x/weakptrfwd.H>
+#include <x/weakptrobj.H>
 #include <x/weakinfo.H>
 #include <x/obj.H>
 #include <x/namespace.h>
@@ -55,9 +56,7 @@ inline weakptr<ptr<objClass, baseType>>
 }
 
 template<typename objClass, typename baseType>
-inline weakptr<ptr<objClass, baseType>>::~weakptr() noexcept
-{
-}
+inline weakptr<ptr<objClass, baseType>>::~weakptr() noexcept=default;
 
 template<typename objClass, typename baseType>
 inline weakptr<ptr<objClass, baseType>> &weakptr<ptr<objClass, baseType>>

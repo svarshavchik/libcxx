@@ -9,6 +9,7 @@
 #include <x/threads/timertaskentryfwd.H>
 #include <x/ptrfwd.H>
 #include <x/weakptrfwd.H>
+#include <x/weakptrobj.H>
 #include <x/obj.H>
 #include <x/namespace.h>
 

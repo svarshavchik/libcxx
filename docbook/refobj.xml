@@ -1439,15 +1439,15 @@ typedef &ns;::weakptr&lt;widgetptr&gt; weakwidget;
 
 // ...
 
-widget w(widget::create());
+widget w{widget::create()};
 
 // ...
 
-weakwidget weakw(w);
+weakwidget weakw=w.weaken();
 
 // ...
 
-widgetptr origw(weakw.getptr());
+widgetptr origw=weakw.getptr();
 
 if (!origw.null())
 {
@@ -1457,11 +1457,14 @@ if (!origw.null())
     </blockquote>
 
     <para>
-	The
-	<ulink url="&link-x--weakptr;"><classname>weakptr</classname></ulink>
-	template takes a &ptr; (not an &ref;), and makes a weak version of it.
-	A weak pointer is similarly instantiated from an existing,
-	ordinary pointer. The only method implemented by a
+      <methodname>weaken</methodname>() creates a
+      <ulink url="&link-x--weakptr;"><classname>weakptr</classname></ulink>,
+      a weak pointer.
+      Alternatively, its constructor can be invoked directly, but note that
+      the template's constructor
+      takes a &ptr; and not an &ref;, but both &ptr;s and &ref;s have
+      a <methodname>weaken</methodname>() method.
+      The only method implemented by a
 	<classname>weakptr</classname> is <methodname>getptr</methodname>(),
 	which returns an ordinary, strong pointer to the underlying object,
 	if it still exists.
@@ -1476,7 +1479,7 @@ if (!origw.null())
 	is thread-safe, however see
 	<link linkend="thrsafenote">important comments about thread safety of
 	  references</link>.
-      </para>
+    </para>
   </section>
 
   <section id="ondestroy">

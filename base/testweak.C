@@ -79,9 +79,14 @@ public:
 	}
 };
 
+auto test_if_compiles(const testref &r)
+{
+	return r.weaken();
+}
+
 void weaktestinfo::run()
 {
-	LIBCXX_NAMESPACE::weakptr<testptr> weakptr(strongref);
+	auto weakptr=strongref.weaken();
 
 	std::cout << "Weak reference acquired"
 		  << std::endl << std::flush;

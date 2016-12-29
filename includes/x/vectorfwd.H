@@ -22,8 +22,7 @@ template<class T, class Allocator=std::allocator<T> > class vectorObj;
 
 //! A reference to a \c std::vector
 
-//! This template defines a reference to a %vector. Since C++ does not (yet)
-//! have template typedefs, the typedef is defined within a templated class.
+//! This template is a reference-counted vector.
 //!
 //! \code
 //! INSERT_LIBX_NAMESPACE::vector<char> vecref=INSERT_LIBX_NAMESPACE::vector<char>::create();
