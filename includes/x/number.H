@@ -13,6 +13,7 @@ This file defines a typesafe number.
 #define x_number_H
 
 #include <x/namespace.h>
+#include <ostream>
 #include <utility>
 #include <iostream>
 
@@ -78,57 +79,57 @@ public:
 	typedef value_type_t value_type;
 
 	//! Default constructor
-	number() : n(value_type_t()) {}
+	constexpr number() : n(value_type_t()) {}
 
 	//! Construct from the underlying number
-	explicit number(value_type_t vn) : n(vn) {}
+	constexpr explicit number(value_type_t vn) : n(vn) {}
 
 	//! Return the underlying number.
-	explicit operator value_type_t() const { return n; }
+	constexpr explicit operator value_type_t() const { return n; }
 
 	//! Assignment operator
-	number &operator=(value_type_t vn) { n=vn; return *this; }
+	constexpr number &operator=(value_type_t vn) { n=vn; return *this; }
 
 	//! Assignment operator
-	number &operator=(const number &v) { n=v.n; return *this; }
+	constexpr number &operator=(const number &v) { n=v.n; return *this; }
 
 	//! Addition operator
-	number operator+(value_type_t vn) const { return number(n+vn); }
+	constexpr number operator+(value_type_t vn) const { return number(n+vn); }
 	//! Subtraction operator
-	number operator-(value_type_t vn) const { return number(n-vn); }
+	constexpr number operator-(value_type_t vn) const { return number(n-vn); }
 	//! Multiplication operator
-	number operator*(value_type_t vn) const { return number(n*vn); }
+	constexpr number operator*(value_type_t vn) const { return number(n*vn); }
 	//! Division operator
-	number operator/(value_type_t vn) const { return number(n/vn); }
+	constexpr number operator/(value_type_t vn) const { return number(n/vn); }
 	//! Modulus operator
-	number operator%(value_type_t vn) const { return number(n%vn); }
+	constexpr number operator%(value_type_t vn) const { return number(n%vn); }
 	//! Addition operator
-	number operator+(const number &v) const { return number(n+v.n); }
+	constexpr number operator+(const number &v) const { return number(n+v.n); }
 	//! Subtraction operator
-	number operator-(const number &v) const { return number(n-v.n); }
+	constexpr number operator-(const number &v) const { return number(n-v.n); }
 	//! Multiplication operator
-	number operator*(const number &v) const { return number(n*v.n); }
+	constexpr number operator*(const number &v) const { return number(n*v.n); }
 	//! Division operator
-	number operator/(const number &v) const { return number(n/v.n); }
+	constexpr number operator/(const number &v) const { return number(n/v.n); }
 	//! Modulus operator
-	number operator%(const number &v) const { return number(n%v.n); }
+	constexpr number operator%(const number &v) const { return number(n%v.n); }
 
 	//! Pre-increment operator
-	number &operator++()
+	constexpr number &operator++()
 	{
 		++n;
 		return *this;
 	}
 
 	//! Pre-decrement operator
-	number &operator--()
+	constexpr number &operator--()
 	{
 		--n;
 		return *this;
 	}
 
 	//! Post-increment operator
-	number operator++(int)
+	constexpr number operator++(int)
 	{
 		auto copy=*this;
 		++*this;
@@ -136,7 +137,7 @@ public:
 	}
 
 	//! Post-decrement operator
-	number operator--(int)
+	constexpr number operator--(int)
 	{
 		auto copy=*this;
 		--*this;
@@ -144,25 +145,25 @@ public:
 	}
 
 	//! Addition assignment operator
-	number &operator+=(value_type_t vn) { n+=vn; return *this; }
+	constexpr number &operator+=(value_type_t vn) { n+=vn; return *this; }
 	//! Subtraction assignment operator
-	number &operator-=(value_type_t vn) { n-=vn; return *this; }
+	constexpr number &operator-=(value_type_t vn) { n-=vn; return *this; }
 	//! Multiplication assignment operator
-	number &operator*=(value_type_t vn) { n*=vn; return *this; }
+	constexpr number &operator*=(value_type_t vn) { n*=vn; return *this; }
 	//! Division assignment operator
-	number &operator/=(value_type_t vn) { n/=vn; return *this; }
+	constexpr number &operator/=(value_type_t vn) { n/=vn; return *this; }
 	//! Modulus assignment operator
-	number &operator%=(value_type_t vn) { n%=vn; return *this; }
+	constexpr number &operator%=(value_type_t vn) { n%=vn; return *this; }
 	//! Addition assignment operator
-	number &operator+=(const number &v) { n+=v.n; return *this; }
+	constexpr number &operator+=(const number &v) { n+=v.n; return *this; }
 	//! Subtraction assignment operator
-	number &operator-=(const number &v) { n-=v.n; return *this; }
+	constexpr number &operator-=(const number &v) { n-=v.n; return *this; }
 	//! Multiplication assignment operator
-	number &operator*=(const number &v) { n*=v.n; return *this; }
+	constexpr number &operator*=(const number &v) { n*=v.n; return *this; }
 	//! Division assignment operator
-	number &operator/=(const number &v) { n/=v.n; return *this; }
+	constexpr number &operator/=(const number &v) { n/=v.n; return *this; }
 	//! Modulus assignment operator
-	number &operator%=(const number &v) { n%=v.n; return *this; }
+	constexpr number &operator%=(const number &v) { n%=v.n; return *this; }
 
 	//! Comparison operator
 	bool operator==(value_type vn) const { return n == vn; }
@@ -178,17 +179,17 @@ public:
 	bool operator>=(value_type vn) const { return n >= vn; }
 
 	//! Comparison operator
-	bool operator==(const number &v) const { return n == v.n; }
+	constexpr bool operator==(const number &v) const { return n == v.n; }
 	//! Comparison operator
-	bool operator!=(const number &v) const { return n != v.n; }
+	constexpr bool operator!=(const number &v) const { return n != v.n; }
 	//! Comparison operator
-	bool operator<(const number &v) const { return n < v.n; }
+	constexpr bool operator<(const number &v) const { return n < v.n; }
 	//! Comparison operator
-	bool operator<=(const number &v) const { return n <= v.n; }
+	constexpr bool operator<=(const number &v) const { return n <= v.n; }
 	//! Comparison operator
-	bool operator>(const number &v) const { return n > v.n; }
+	constexpr bool operator>(const number &v) const { return n > v.n; }
 	//! Comparison operator
-	bool operator>=(const number &v) const { return n >= v.n; }
+	constexpr bool operator>=(const number &v) const { return n >= v.n; }
 };
 
 //! Addition operator overload
@@ -197,7 +198,7 @@ public:
 
 template<typename value_type_t, typename tag, typename base_class,
 	 typename number_t>
-inline number<value_type_t, tag, base_class>
+constexpr auto
 operator+(number_t &&n,
 	  const number<value_type_t, tag, base_class> &o)
 {
@@ -210,7 +211,7 @@ operator+(number_t &&n,
 
 template<typename value_type_t, typename tag, typename base_class,
 	 typename number_t>
-inline number<value_type_t, tag, base_class>
+constexpr auto
 operator-(number_t &&n,
 	  const number<value_type_t, tag, base_class> &o)
 {
@@ -223,7 +224,7 @@ operator-(number_t &&n,
 
 template<typename value_type_t, typename tag, typename base_class,
 	 typename number_t>
-inline number<value_type_t, tag, base_class>
+constexpr auto
 operator*(number_t &&n,
 	  const number<value_type_t, tag, base_class> &o)
 {
@@ -236,7 +237,7 @@ operator*(number_t &&n,
 
 template<typename value_type_t, typename tag, typename base_class,
 	 typename number_t>
-inline number<value_type_t, tag, base_class>
+constexpr auto
 operator/(number_t &&n,
 	  const number<value_type_t, tag, base_class> &o)
 {
@@ -249,7 +250,7 @@ operator/(number_t &&n,
 
 template<typename value_type_t, typename tag, typename base_class,
 	 typename number_t>
-inline number<value_type_t, tag, base_class>
+constexpr auto
 operator%(number_t &&n,
 	  const number<value_type_t, tag, base_class> &o)
 {
@@ -260,10 +261,10 @@ operator%(number_t &&n,
 
 template<typename CharT, typename Traits,
 	 typename value_type_t, typename tag, typename base_class>
-inline auto &operator<<(std::basic_ostream<CharT, Traits> &o,
-			const number<value_type_t, tag, base_class> &n)
+auto &operator<<(std::basic_ostream<CharT, Traits> &o,
+		 const number<value_type_t, tag, base_class> &n)
 {
-	return o << static_cast<value_type_t>(n);
+	return o << n.n;
 }
 
 #if 0
