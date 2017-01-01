@@ -66,7 +66,7 @@ public:
 	test1args
 	run(uid_t dummy, test1argsptr &args)
 	{
-		LIBCXX_NAMESPACE::destroyCallbackFlag cb=LIBCXX_NAMESPACE::destroyCallbackFlag::create();
+		LIBCXX_NAMESPACE::destroy_callback cb=LIBCXX_NAMESPACE::destroy_callback::create();
 
 		args->ondestroy([cb]{cb->destroyed();});
 

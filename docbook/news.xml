@@ -85,6 +85,13 @@ See COPYING for distribution information.
 	  Replaced with a more generic and simpler
 	  <link linkend="msgdispatcher"><classname>threadmsgdispatcher</classname></link>.
 	</para>
+	<para>
+	  Renamed <classname>&ns;::destroyCallbackFlag</classname> to
+	  <classname>&ns;::destroy_callback</classname> and
+	  <classname>&ns;::destroyCallbackFlagWait4</classname> to
+	  <classname>&ns;::destroy_callback_wait4</classname>, in order to
+	  remove unsightly camel-case.
+	</para>
       </listitem>
     </varlistentry>
   </variablelist>

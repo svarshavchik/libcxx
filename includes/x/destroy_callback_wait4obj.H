@@ -3,11 +3,11 @@
 ** See COPYING for distribution information.
 */
 
-#ifndef x_destroycallbackwait4obj_H
-#define x_destroycallbackwait4obj_H
+#ifndef x_destroy_callback_wait4obj_H
+#define x_destroy_callback_wait4obj_H
 
 #include <x/obj.H>
-#include <x/destroycallbackflagfwd.H>
+#include <x/destroy_callbackfwd.H>
 #include <x/namespace.h>
 
 namespace LIBCXX_NAMESPACE {
@@ -17,17 +17,17 @@ namespace LIBCXX_NAMESPACE {
 
 //! Destructor callback that waits for another object to get destroyed
 
-class destroyCallbackFlagWait4Obj : virtual public obj {
+class destroy_callback_wait4Obj : virtual public obj {
 
 	//! The flag for the other object.
-	destroyCallbackFlag flag;
+	destroy_callback flag;
 
 public:
 	//! Constructor
-	destroyCallbackFlagWait4Obj(const ref<obj> &other_obj);
+	destroy_callback_wait4Obj(const ref<obj> &other_obj);
 
 	//! Destructor
-	~destroyCallbackFlagWait4Obj() noexcept;
+	~destroy_callback_wait4Obj() noexcept;
 
 	//! Wait for another object to get destroyed, too.
 	void destroyed();
@@ -39,4 +39,3 @@ public:
 }
 
 #endif
-

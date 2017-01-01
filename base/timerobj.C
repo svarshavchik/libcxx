@@ -14,7 +14,7 @@
 #include "x/threads/timer.H"
 #include "x/threads/timertask.H"
 #include "x/threads/timertaskentryfwd.H"
-#include "x/destroycallbackflag.H"
+#include "x/destroy_callback.H"
 #include "x/sigset.H"
 #include "x/timespec.H"
 #include "x/sysexception.H"
@@ -111,7 +111,7 @@ void timerObj::setTimerName(const std::string &nameArg) noexcept
 	timername=nameArg;
 }
 
-static inline destroyCallbackFlagptr
+static inline destroy_callbackptr
 launch(const timerObj::implObj::taskinfo &newtask,
        const ref<timerObj::implObj::installedObj> &installedflag,
        timerObj::meta_container_t::lock &lock,
@@ -146,12 +146,12 @@ launch(const timerObj::implObj::taskinfo &newtask,
 
 			installedflag->processed=true;
 			p->newtask(newtask, installedflag, x::ptr<x::obj>());
-			return destroyCallbackFlagptr();
+			return destroy_callbackptr();
 		}
 	}
 
 	// Send the new task to the timer thread.
-	destroyCallbackFlag cb=destroyCallbackFlag::create();
+	destroy_callback cb=destroy_callback::create();
 
 	{
 		ref<obj> mcguffin=ref<obj>::create();

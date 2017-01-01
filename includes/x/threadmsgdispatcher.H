@@ -9,7 +9,7 @@
 #include <x/threadmsgdispatcherobj.H>
 #include <x/eventqueue.H>
 #include <x/threads/run.H>
-#include <x/destroycallbackflag.H>
+#include <x/destroy_callback.H>
 
 namespace LIBCXX_NAMESPACE {
 
@@ -25,7 +25,7 @@ static auto start_thread(const thread_object &object, Args && ...args)
 	// Construct the thread initialization mcguffin, and guard it
 	// before returning.
 
-	destroyCallbackFlag::base::guard guard;
+	destroy_callback::base::guard guard;
 
 	auto mcguffin=ref<obj>::create();
 

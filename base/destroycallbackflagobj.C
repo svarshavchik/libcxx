@@ -4,23 +4,23 @@
 */
 
 #include "libcxx_config.h"
-#include "x/destroycallbackflag.H"
+#include "x/destroy_callback.H"
 
 namespace LIBCXX_NAMESPACE {
 #if 0
 };
 #endif
 
-destroyCallbackFlagObj::destroyCallbackFlagObj() noexcept
+destroy_callbackObj::destroy_callbackObj() noexcept
 {
 	*mpcobj<bool>::lock(flag)=false;
 }
 
-destroyCallbackFlagObj::~destroyCallbackFlagObj() noexcept
+destroy_callbackObj::~destroy_callbackObj() noexcept
 {
 }
 
-void destroyCallbackFlagObj::destroyed()
+void destroy_callbackObj::destroyed()
 {
 	mpcobj<bool>::lock lock(flag);
 
@@ -28,18 +28,18 @@ void destroyCallbackFlagObj::destroyed()
 	lock.notify_all();
 }
 
-void destroyCallbackFlagObj::wait()
+void destroy_callbackObj::wait()
 {
 	mpcobj<bool>::lock lock(flag);
 
 	lock.wait([&lock] { return *lock; });
 }
 
-destroyCallbackFlagBase::guard::guard()
+destroy_callbackBase::guard::guard()
 {
 }
 
-destroyCallbackFlagBase::guard::~guard() noexcept
+destroy_callbackBase::guard::~guard() noexcept
 {
 	while (!callbacks.empty())
 	{
@@ -48,9 +48,9 @@ destroyCallbackFlagBase::guard::~guard() noexcept
 	}
 }
 
-void destroyCallbackFlagBase::guard::add(const x::ref<x::obj> &obj)
+void destroy_callbackBase::guard::add(const x::ref<x::obj> &obj)
 {
-	auto cb=destroyCallbackFlag::create();
+	auto cb=destroy_callback::create();
 
 	obj->ondestroy([cb] { cb->destroyed(); });
 	callbacks.push_back(cb);

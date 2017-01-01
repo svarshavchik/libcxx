@@ -1709,11 +1709,11 @@ my_mcguffins->insert("callback", mcguffin);
       </variablelist>
     </section>
 
-    <section id="destroycallbackflag">
+    <section id="destructorcallback">
       <title>A basic destructor callback</title>
 
       <para>
-	<ulink url="&link-typedef-x-destroyCallbackFlag;"><classname>&ns;::destroyCallbackFlag</classname></ulink>
+	<ulink url="&link-typedef-x-destroy-callback;"><classname>&ns;::destroy_callback</classname></ulink>
 	is a simple elementation of a common design pattern where some
 	mcguffin's destruction does not itself takes any immediate action.
 	Rather, at some point later, a check is made whether the object is
@@ -1723,9 +1723,9 @@ my_mcguffins->insert("callback", mcguffin);
       <blockquote>
 	<informalexample>
 	  <programlisting>
-#include &lt;&ns;/destroycallbackflag.H&gt;
+#include &lt;&ns;/destroy_callback.H&gt;
 
-&ns;::destroyCallbackFlag cb=&ns;::destroyCallbackFlag::create();
+&ns;::destroy_callback cb=&ns;::destroy_callback::create();
 
 // ...
 
@@ -1751,7 +1751,7 @@ cb->wait();</programlisting>
 
       <note>
 	<para>
-	  <classname>&ns;::destroyCallbackFlag</classname> is designed
+	  <classname>&ns;::destroy_callback</classname> is designed
 	  for simple one-off situations involving a single mcguffin.
 	  It's your responsibility to attach it as a destructor callback to
 	  at least one object, before invoking
@@ -1768,7 +1768,7 @@ cb->wait();</programlisting>
 
       <para>
 	A
-	<ulink url="&link-x--destroyCallbackFlagBase--guard;"><classname>&ns;::destroyCallbackFlag::base::guard</classname></ulink>
+	<ulink url="&link-x--destroy-callbackBase--guard;"><classname>&ns;::destroy_callback::base::guard</classname></ulink>
 	is an object meant to be instantiated on the stack, or as a class
 	member.
 	Its destructor waits until other objects placed in its care get
@@ -1780,7 +1780,7 @@ cb->wait();</programlisting>
 	  <programlisting>
 void run()
 {
-    &ns;::destroyCallbackFlag::base::guard guard;
+    &ns;::destroy_callback::base::guard guard;
 
     &ns;::ref&lt;&ns;::obj&gt; mcguffin;
 
@@ -1825,7 +1825,7 @@ void run()
 	  <programlisting>
 void run()
 {
-    &ns;::destroyCallbackFlag::base::guard guard;
+    &ns;::destroy_callback::base::guard guard;
 
     start_timer(guard(&ns;::ref&lt;&ns;::obj&gt;::create()));
 
@@ -1852,7 +1852,7 @@ void run()
 
       <note>
 	<para>
-	  <classname>&ns;::destroyCallbackFlag::base::guard</classname>
+	  <classname>&ns;::destroy_callback::base::guard</classname>
 	  does not implement copy contructors or assignment operators.
 	  It should always be instantiated either on the stack, or as a
 	  class member.
@@ -1860,7 +1860,7 @@ void run()
       </note>
 
       <para>
-	<ulink url="&link-x--destroyCallbackFlagBase--guard-object--ref--objClass--baseClass----;"><classname>&ns;::destroyCallbackFlag::base::guard_object</classname></ulink>
+	<ulink url="&link-x--destroy-callbackBase--guard-object--ref--objClass--baseClass----;"><classname>&ns;::destroy_callback::base::guard_object</classname></ulink>
 	is a convenient template to instantiate a guard for a single
 	&ref;.
       </para>
@@ -1872,7 +1872,7 @@ typedef &ns;::ref&lt;widgetObj&gt; widget;
 
 class containerObj : virtual public &ns;::obj {
 
-    &ns;::destroyCallbackFlag::base::guard_object&lt;widget&gt; title;
+    &ns;::destroy_callback::base::guard_object&lt;widget&gt; title;
 
 // ...
 };
@@ -1887,23 +1887,23 @@ containerObj::containerObj() : title(widget::create())
 	</informalexample>
       </blockquote>
       <para>
-	<classname>&ns;::destroyCallbackFlag::base::guard_object</classname>'s
+	<classname>&ns;::destroy_callback::base::guard_object</classname>'s
 	template parameter must be an &ref;.
-	<classname>&ns;::destroyCallbackFlag::base::guard_object</classname>
+	<classname>&ns;::destroy_callback::base::guard_object</classname>
 	declares a subclass of this &ref;, that's privately guarded.
-	When <classname>&ns;::destroyCallbackFlag::base::guard_object</classname>
+	When <classname>&ns;::destroy_callback::base::guard_object</classname>
 	goes out of scope and gets destroyed, if there are any other &ref;s
 	or &ptr;s
 	to the same object,
-	<classname>&ns;::destroyCallbackFlag::base::guard_object</classname>
+	<classname>&ns;::destroy_callback::base::guard_object</classname>
 	waits until all other &ref;s and &ptr;s go out of scope and gets
 	destroyed.
-	<classname>&ns;::destroyCallbackFlag::base::guard_object</classname>'s
+	<classname>&ns;::destroy_callback::base::guard_object</classname>'s
 	destructor does not return until the referenced object's destructor
 	returns.
       </para>
       <para>
-	<classname>&ns;::destroyCallbackFlag::base::guard_object</classname>
+	<classname>&ns;::destroy_callback::base::guard_object</classname>
 	inherits
 	<methodname>*</methodname>() and
 	<methodname>-&gt;</methodname>() operators from the underlying
@@ -2073,7 +2073,7 @@ std::list&lt;&ns;::ref&lt;&ns;::obj&gt; &gt; objects;
     <title>Waiting for a cascading destructor</title>
 
     <para>
-      An <ulink url="&link-typedef-x-destroyCallbackFlagWait4;"><classname>&ns;::destroyCallbackFlagWait4</classname></ulink>
+      An <ulink url="&link-typedef-x-destroy-callback-wait4;"><classname>&ns;::destroy_callback_wait4</classname></ulink>
       implements a way for a thread that destroys one object to stop, and then
       wait for some other object to get destroyed too, presumably by another
       thread.
@@ -2091,7 +2091,7 @@ std::list&lt;&ns;::ref&lt;&ns;::obj&gt; &gt; objects;
       <link linkend="ondestroyguard">guard object</link>, except that the
       guard object gets instantiated on the stack, and waits for all guarded
       objects to get destroyed, when the guard object goes out of scope.
-      <classname>&ns;::destroyCallbackFlagWait4</classname> is a reference
+      <classname>&ns;::destroy_callback_wait4</classname> is a reference
       to a <link linkend="refobj">reference-counted object</link>. Once
       it gets created and installed, explicit references to the object are
       no longer needed. A reference remains to it, since it's installed as a
@@ -2103,7 +2103,7 @@ std::list&lt;&ns;::ref&lt;&ns;::obj&gt; &gt; objects;
     <blockquote>
       <informalexample>
 	<programlisting>
-#include &lt;&ns;/destroycallbackflagwait4.H&gt;
+#include &lt;&ns;/destroy_callback_wait4.H&gt;
 #include &lt;&ns;/threads/run.H&gt;
 
 class parentObj : virtual public &ns;::obj {
@@ -2119,7 +2119,7 @@ public:
     {
         auto child=&ns;::ref&lt;childObj&gt;::create();
 
-        addOnDestroy(&ns;::destroyCallbackFlagWait4::create(child));
+        addOnDestroy(&ns;::destroy_callback_wait4::create(child));
 
         &ns;::run(child);
     }
@@ -2128,12 +2128,12 @@ public:
     </blockquote>
 
     <para>
-      <classname>&ns;::destroyCallbackFlagWait4</classname>'s constructor
+      <classname>&ns;::destroy_callback_wait4</classname>'s constructor
       takes a reference to a reference-counted object.
       Its <methodname>destroyed</methodname>() method, when and if it gets
       invoked, waits for the object's destruction, if it's not already
       destroyed.
-      After the <classname>&ns;::destroyCallbackFlagWait4</classname> gets
+      After the <classname>&ns;::destroy_callback_wait4</classname> gets
       installed as a parent's destructor callback, once the parent object
       goes out of scope and gets destroyed, if, previously, a child
       object got started, parent's destruction automatically waits for the
@@ -2149,12 +2149,12 @@ public:
     <blockquote>
       <informalexample>
 	<programlisting>
-        &ns;::run(child)->addOnDestroy(&ns;::destroyCallbackFlagWait4::create(child));</programlisting>
+        &ns;::run(child)->addOnDestroy(&ns;::destroy_callback_wait4::create(child));</programlisting>
       </informalexample>
     </blockquote>
 
     <para>
-      By installing a <classname>&ns;::destroyCallbackFlagWait4</classname>
+      By installing a <classname>&ns;::destroy_callback_wait4</classname>
       destructor callback on the thread's return value object, this has
       the effect of only waiting until the thread finishes execution.
       With no other references to the thread return value object, it goes out
@@ -2173,8 +2173,8 @@ public:
     </note>
 
     <para>
-      Internally, <classname>&ns;::destroyCallbackFlagWait4</classname> uses
-      <link linkend="destroycallbackflag"><classname>&ns;::destroyCallbackFlag</classname></link>,
+      Internally, <classname>&ns;::destroy_callback_wait4</classname> uses
+      <link linkend="destructorcallback"><classname>&ns;::destroy_callback</classname></link>,
       which is where it gets the class name from.
     </para>
   </section>

@@ -8,7 +8,7 @@
 #include "x/ref.H"
 #include "x/fdtimeout.H"
 #include "x/netaddr.H"
-#include "x/destroycallbackflag.H"
+#include "x/destroy_callback.H"
 #include "x/sysexception.H"
 #include "x/threads/run.H"
 #include <unistd.h>
@@ -133,7 +133,7 @@ void testaccept()
 
 	timeout=LIBCXX_NAMESPACE::fdtimeout::create(sock);
 
-	LIBCXX_NAMESPACE::destroyCallbackFlag::base::guard guard;
+	LIBCXX_NAMESPACE::destroy_callback::base::guard guard;
 
 	auto pipe=LIBCXX_NAMESPACE::fd::base::pipe();
 
@@ -167,7 +167,7 @@ void testguardobject()
 	time_t before=time(nullptr);
 
 	{
-		LIBCXX_NAMESPACE::destroyCallbackFlag::base::guard_object<LIBCXX_NAMESPACE::ref<LIBCXX_NAMESPACE::obj>>
+		LIBCXX_NAMESPACE::destroy_callback::base::guard_object<LIBCXX_NAMESPACE::ref<LIBCXX_NAMESPACE::obj>>
 			guard(LIBCXX_NAMESPACE::ref<LIBCXX_NAMESPACE::obj>::create());
 
 		LIBCXX_NAMESPACE::ref<LIBCXX_NAMESPACE::obj> refobj=guard;

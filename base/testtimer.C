@@ -6,7 +6,7 @@
 #include "libcxx_config.h"
 #include "x/threads/timer.H"
 #include "x/threads/timertask.H"
-#include "x/destroycallbackflag.H"
+#include "x/destroy_callback.H"
 
 class timerCount : public LIBCXX_NAMESPACE::timertaskObj {
 
@@ -41,7 +41,7 @@ static void testtimertask() noexcept
 	auto timer=LIBCXX_NAMESPACE::timerptr::create();
 
 	{
-		auto cb=LIBCXX_NAMESPACE::destroyCallbackFlag::create();
+		auto cb=LIBCXX_NAMESPACE::destroy_callback::create();
 
 
 		{
@@ -58,7 +58,7 @@ static void testtimertask() noexcept
 
 
 	{
-		auto cb=LIBCXX_NAMESPACE::destroyCallbackFlag::create();
+		auto cb=LIBCXX_NAMESPACE::destroy_callback::create();
 
 
 		{
@@ -74,7 +74,7 @@ static void testtimertask() noexcept
 	}
 
 	{
-		auto cb=LIBCXX_NAMESPACE::destroyCallbackFlag::create();
+		auto cb=LIBCXX_NAMESPACE::destroy_callback::create();
 
 
 		{
@@ -151,8 +151,8 @@ static void testtimertask3() noexcept
 				  LIBCXX_NAMESPACE::property::errhandler::errthrow(),
 				  LIBCXX_NAMESPACE::locale::create("C"));
 
-	LIBCXX_NAMESPACE::destroyCallbackFlag flag=
-		LIBCXX_NAMESPACE::destroyCallbackFlag::create();
+	LIBCXX_NAMESPACE::destroy_callback flag=
+		LIBCXX_NAMESPACE::destroy_callback::create();
 
 	{
 		auto counter=LIBCXX_NAMESPACE::ptr<timerCount>::create(3, "3");
@@ -185,8 +185,8 @@ static void testtimertask4() noexcept
 
 	std::cout << "testtimer4task" << std::endl;
 
-	auto cb1=LIBCXX_NAMESPACE::destroyCallbackFlag::create();
-	auto cb2=LIBCXX_NAMESPACE::destroyCallbackFlag::create();
+	auto cb1=LIBCXX_NAMESPACE::destroy_callback::create();
+	auto cb2=LIBCXX_NAMESPACE::destroy_callback::create();
 
 
 	{
@@ -306,7 +306,7 @@ void testtimertask6()
 
 	auto timer=LIBCXX_NAMESPACE::timer::create();
 
-	LIBCXX_NAMESPACE::destroyCallbackFlag::base::guard guard;
+	LIBCXX_NAMESPACE::destroy_callback::base::guard guard;
 
 	auto ptr=x::ref<testtimertask6Obj>::create();
 
@@ -332,7 +332,7 @@ void testtimertask7()
 
 	auto timer=LIBCXX_NAMESPACE::timer::create();
 
-	LIBCXX_NAMESPACE::destroyCallbackFlag::base::guard guard;
+	LIBCXX_NAMESPACE::destroy_callback::base::guard guard;
 
 	auto ptr=x::ref<testtimertask6Obj>::create();
 

@@ -586,9 +586,9 @@ template<typename objClass2> inline const_ptr<objClass, baseClass>
 //! \par Simple destructor callbacks
 //!
 //! \code
-//! #include <destroycallbackflag.H>
+//! #include <destroy_callback.H>
 //!
-//! INSERT_LIBX_NAMESPACE::destroyCallbackFlag cb(INSERT_LIBX_NAMESPACE::destroyCallbackFlag::create());
+//! INSERT_LIBX_NAMESPACE::destroy_callback cb(INSERT_LIBX_NAMESPACE::destroy_callback::create());
 //!
 //! INSERT_LIBX_NAMESPACE::ref<obj> someobj;
 //!
@@ -601,17 +601,17 @@ template<typename objClass2> inline const_ptr<objClass, baseClass>
 //!
 //! \endcode
 //!
-//! \ref destroyCallbackFlag "INSERT_LIBX_NAMESPACE::destroyCallbackFlag"
+//! \ref destroy_callback "INSERT_LIBX_NAMESPACE::destroyCallbackFlag"
 //! implements a frequent design pattern where some object's destruction
 //! does not itself takes any immediate action. Rather, at some point later,
 //! a check is made whether the object is already destroyed. If not,
 //! wait for its destruction.
 //!
-//! \c INSERT_LIBX_NAMESPACE::destroyCallbackFlag is itself a reference to
+//! \c INSERT_LIBX_NAMESPACE::destroy_callback is itself a reference to
 //! a reference-counted object.
 //!
 //! Use \c ondestroy() on another object to invoke
-//! \c INSERT_LIBX_NAMESPACE::destroyCallbackFlag's destroyed() method.
+//! \c INSERT_LIBX_NAMESPACE::destroy_callback's destroyed() method.
 //!
 //! The \c wait() method blocks if \c destroyed() was not already invoked,
 //! until it gets invoked (presumably, by some other execution thread).

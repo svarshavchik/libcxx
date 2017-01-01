@@ -3,11 +3,11 @@
 ** See COPYING for distribution information.
 */
 
-#ifndef x_destroycallbackflag_H
-#define x_destroycallbackflag_H
+#ifndef x_destroy_callback_H
+#define x_destroy_callback_H
 
-#include <x/destroycallbackflagfwd.H>
-#include <x/destroycallbackflagobj.H>
+#include <x/destroy_callbackfwd.H>
+#include <x/destroy_callbackobj.H>
 #include <x/notcopyableobj.H>
 #include <list>
 
@@ -16,9 +16,9 @@ namespace LIBCXX_NAMESPACE {
 };
 #endif
 
-//! Refer to this class as \c destroyCallbackFlag::base
+//! Refer to this class as \c destroy_callback::base
 
-class destroyCallbackFlagBase : public ptrrefBase {
+class destroy_callbackBase : public ptrrefBase {
 
 public:
 
@@ -31,13 +31,13 @@ public:
 
 //! Make sure that an object gets destroyed, when the guard goes out of scope.
 
-//! Refer to this class as \c destroyCallbackFlag::base::guard
+//! Refer to this class as \c destroy_callback::base::guard
 
-class destroyCallbackFlagBase::guard : public notcopyableObj {
+class destroy_callbackBase::guard : public notcopyableObj {
 
 	//! The owned callbacks
 
-	std::list<destroyCallbackFlag> callbacks;
+	std::list<destroy_callback> callbacks;
 
 public:
 	//! Constructor
@@ -65,7 +65,7 @@ private:
 //! A convenient macro to instantiate a guard on a refobj.
 
 //! Refer to this template as
-//! \c INSERT_LIBX_NAMESPACE::destroyCallbackFlag::base::guard<INSERT_LIBX_NAMESPACE::ref<class,[base]>>.
+//! \c INSERT_LIBX_NAMESPACE::destroy_callback::base::guard<INSERT_LIBX_NAMESPACE::ref<class,[base]>>.
 //!
 //! Declare this template as a class member, or instantiate it on the stack.
 //! The template parameter must be a \ref ref "INSERT_LIBX_NAMESPACE::ref".
@@ -78,7 +78,7 @@ private:
 //! underlying object is truly gone for good.
 
 template<typename objClass, typename baseClass>
-class destroyCallbackFlagBase::guard_object<ref<objClass, baseClass>>
+class destroy_callbackBase::guard_object<ref<objClass, baseClass>>
 	: private guard, public ref<objClass, baseClass> {
 
  public:
@@ -101,4 +101,3 @@ class destroyCallbackFlagBase::guard_object<ref<objClass, baseClass>>
 }
 
 #endif
-

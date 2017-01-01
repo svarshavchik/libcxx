@@ -4,13 +4,13 @@
 */
 
 #include "libcxx_config.h"
-#include "x/destroycallbackflagwait4.H"
+#include "x/destroy_callback_wait4.H"
 #include "x/threads/run.H"
 #include "x/exception.H"
 #include <unistd.h>
 #include <iostream>
 
-typedef LIBCXX_NAMESPACE::destroyCallbackFlagWait4 w4;
+typedef LIBCXX_NAMESPACE::destroy_callback_wait4 w4;
 
 class test1Obj : virtual public LIBCXX_NAMESPACE::obj {
 

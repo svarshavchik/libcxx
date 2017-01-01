@@ -3,23 +3,23 @@
 ** See COPYING for distribution information.
 */
 
-#ifndef x_destroycallbackflagobj_H
-#define x_destroycallbackflagobj_H
+#ifndef x_destroy_callbackobj_H
+#define x_destroy_callbackobj_H
 
 #include <x/obj.H>
 #include <x/mpobj.H>
+#include <x/destroy_callbackfwd.H>
 
 namespace LIBCXX_NAMESPACE {
 #if 0
 };
 #endif
 
-//! A subclass of destroyCallbackObj whose destroyed() sets a bool flag
+//! Implements a destroyed() callback that sets an internal flag.
 
-//! Invoke wait() to wait for destroyed() to be invoked
-//!
+//! Invoke wait() to wait for destroyed() to be invoked.
 
-class destroyCallbackFlagObj : virtual public obj {
+class destroy_callbackObj : virtual public obj {
 
 	//! Flag, destroyed() has been invoked.
 
@@ -28,10 +28,10 @@ class destroyCallbackFlagObj : virtual public obj {
 public:
 
 	//! Constructor
-	destroyCallbackFlagObj() noexcept;
+	destroy_callbackObj() noexcept;
 
 	//! Destructor
-	~destroyCallbackFlagObj() noexcept;
+	~destroy_callbackObj() noexcept;
 
 	//! The attached object has been destroyed
 	void destroyed();
@@ -46,4 +46,3 @@ public:
 }
 
 #endif
-

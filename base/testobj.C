@@ -34,7 +34,7 @@
 #include "x/eventdestroynotify.H"
 #include "x/eventqueuedestroynotify.H"
 #include "x/dirwalk.H"
-#include "x/destroycallbackflagobj.H"
+#include "x/destroy_callback.H"
 #include "x/string_argument.H"
 #include "x/sentry.H"
 

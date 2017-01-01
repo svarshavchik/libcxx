@@ -17,7 +17,7 @@
 #include "x/http/fdclientimpl.H"
 #include "x/http/cgiimpl.H"
 #include "x/timerfd.H"
-#include "x/destroycallbackflag.H"
+#include "x/destroy_callback.H"
 #include "x/sysexception.H"
 #include "x/fditer.H"
 #include "x/serialize.H"
@@ -380,8 +380,8 @@ void httportmap_server::startup(const std::string &sockname,
 			LIBCXX_NAMESPACE::rwlock::base::wlock
 				wlock=request_lock->writelock();
 
-			LIBCXX_NAMESPACE::destroyCallbackFlag flag=
-				LIBCXX_NAMESPACE::destroyCallbackFlag::create();
+			LIBCXX_NAMESPACE::destroy_callback flag=
+				LIBCXX_NAMESPACE::destroy_callback::create();
 
 			{
 				auto recv(reexec_fd_recv::create(timeout,

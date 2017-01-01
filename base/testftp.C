@@ -9,7 +9,7 @@
 #include "x/options.H"
 #include "x/netaddr.H"
 #include "x/fdtimeoutconfig.H"
-#include "x/destroycallbackflag.H"
+#include "x/destroy_callback.H"
 #include "x/threads/run.H"
 #include "x/sysexception.H"
 #include "x/strtok.H"
@@ -371,7 +371,7 @@ void connect_test(const char *ip, bool passive)
 
 	auto server_socket=create_server_socket();
 
-	LIBCXX_NAMESPACE::destroyCallbackFlag::base::guard guard;
+	LIBCXX_NAMESPACE::destroy_callback::base::guard guard;
 
 	auto rwsock=LIBCXX_NAMESPACE::fd::base::pipe();
 
@@ -499,7 +499,7 @@ void testrfc2640()
 
 	std::string whatwegot;
 
-	LIBCXX_NAMESPACE::destroyCallbackFlag::base::guard guard;
+	LIBCXX_NAMESPACE::destroy_callback::base::guard guard;
 
 	auto terminator=LIBCXX_NAMESPACE::fd::base::pipe();
 
@@ -580,7 +580,7 @@ void port_timeout_test()
 
 	auto server_socket=create_server_socket();
 
-	LIBCXX_NAMESPACE::destroyCallbackFlag::base::guard guard;
+	LIBCXX_NAMESPACE::destroy_callback::base::guard guard;
 
 	auto rwsock=LIBCXX_NAMESPACE::fd::base::pipe();
 
@@ -641,7 +641,7 @@ void connect_timeout_test()
 {
 	auto server_socket=create_server_socket();
 
-	LIBCXX_NAMESPACE::destroyCallbackFlag::base::guard guard;
+	LIBCXX_NAMESPACE::destroy_callback::base::guard guard;
 
 	auto rwsock=LIBCXX_NAMESPACE::fd::base::pipe();
 
@@ -722,7 +722,7 @@ void retr_timeout_test()
 {
 	auto server_socket=create_server_socket();
 
-	LIBCXX_NAMESPACE::destroyCallbackFlag::base::guard guard;
+	LIBCXX_NAMESPACE::destroy_callback::base::guard guard;
 
 	auto rwsock=LIBCXX_NAMESPACE::fd::base::pipe();
 
@@ -786,7 +786,7 @@ void stor_timeout_test()
 {
 	auto server_socket=create_server_socket();
 
-	LIBCXX_NAMESPACE::destroyCallbackFlag::base::guard guard;
+	LIBCXX_NAMESPACE::destroy_callback::base::guard guard;
 
 	auto rwsock=LIBCXX_NAMESPACE::fd::base::pipe();
 
@@ -834,7 +834,7 @@ void noop_test()
 {
 	auto server_socket=create_server_socket();
 
-	LIBCXX_NAMESPACE::destroyCallbackFlag::base::guard guard;
+	LIBCXX_NAMESPACE::destroy_callback::base::guard guard;
 
 	auto terminator=LIBCXX_NAMESPACE::fd::base::pipe();
 

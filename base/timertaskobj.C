@@ -8,7 +8,7 @@
 #include "x/threads/timerobj.H"
 #include "x/threadmsgdispatcher.H"
 #include "x/logger.H"
-#include "x/destroycallbackflag.H"
+#include "x/destroy_callback.H"
 
 namespace LIBCXX_NAMESPACE {
 #if 0
@@ -41,7 +41,7 @@ bool timertaskObj::install(const timertaskentry &te)
 
 void timertaskObj::cancel()
 {
-	destroyCallbackFlag cb=destroyCallbackFlag::create();
+	destroy_callback cb=destroy_callback::create();
 
 	{
 		auto p=({

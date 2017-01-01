@@ -4,27 +4,27 @@
 */
 
 #include "libcxx_config.h"
-#include "x/destroycallbackflagwait4.H"
+#include "x/destroy_callback_wait4.H"
 
 namespace LIBCXX_NAMESPACE {
 #if 0
 };
 #endif
 
-destroyCallbackFlagWait4Obj::destroyCallbackFlagWait4Obj(const ref<obj>
+destroy_callback_wait4Obj::destroy_callback_wait4Obj(const ref<obj>
 							 &other_obj)
-	: flag(destroyCallbackFlag::create())
+	: flag(destroy_callback::create())
 {
 	auto f=flag;
 
 	other_obj->ondestroy([f] { f->destroyed(); });
 }
 
-destroyCallbackFlagWait4Obj::~destroyCallbackFlagWait4Obj() noexcept
+destroy_callback_wait4Obj::~destroy_callback_wait4Obj() noexcept
 {
 }
 
-void destroyCallbackFlagWait4Obj::destroyed()
+void destroy_callback_wait4Obj::destroyed()
 {
 	flag->wait();
 }

@@ -18,7 +18,6 @@ This file defines the managed() function that implements a managed singleton.
 #include <x/weakptr.H>
 #include <x/serialize.H>
 #include <x/deserialize.H>
-#include <x/destroycallbackflag.H>
 #include <x/httportmap.H>
 
 namespace LIBCXX_NAMESPACE {
@@ -403,8 +402,8 @@ class singletonapp::managedSingletonFactoryObj : virtual public obj {
 			processed flag=processed::create();
 			ret_args ret=ret_args::create();
 
-			destroyCallbackFlag cb=
-				destroyCallbackFlag::create();
+			destroy_callback cb=
+				destroy_callback::create();
 
 			{
 				ref<obj> mcguffin=ref<obj>::create();

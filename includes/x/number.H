@@ -166,17 +166,17 @@ public:
 	constexpr number &operator%=(const number &v) { n%=v.n; return *this; }
 
 	//! Comparison operator
-	bool operator==(value_type vn) const { return n == vn; }
+	constexpr bool operator==(value_type vn) const { return n == vn; }
 	//! Comparison operator
-	bool operator!=(value_type vn) const { return n != vn; }
+	constexpr bool operator!=(value_type vn) const { return n != vn; }
 	//! Comparison operator
-	bool operator<(value_type vn) const { return n < vn; }
+	constexpr bool operator<(value_type vn) const { return n < vn; }
 	//! Comparison operator
-	bool operator<=(value_type vn) const { return n <= vn; }
+	constexpr bool operator<=(value_type vn) const { return n <= vn; }
 	//! Comparison operator
-	bool operator>(value_type vn) const { return n > vn; }
+	constexpr bool operator>(value_type vn) const { return n > vn; }
 	//! Comparison operator
-	bool operator>=(value_type vn) const { return n >= vn; }
+	constexpr bool operator>=(value_type vn) const { return n >= vn; }
 
 	//! Comparison operator
 	constexpr bool operator==(const number &v) const { return n == v.n; }
