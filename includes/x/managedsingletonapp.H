@@ -151,7 +151,7 @@ public:
 
 	const ref<objClass, baseClass> app;
 
-	//! Pass start_thread()'s mcguffin as the invocation args.
+	//! Pass start_threadmsgdispatcher()'s mcguffin as the invocation args.
 
 	typedef x::ptr<x::obj> invoke_args;
 

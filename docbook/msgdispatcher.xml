@@ -202,20 +202,20 @@ typedef &ns;::ref&lt;myClassObj&gt; myClass;</programlisting>
 	<programlisting>
 auto clinstance = myClass::create();
 
-&ns;::start_thread(clinstance);</programlisting>
+&ns;::start_threadmsgdispatcher(clinstance);</programlisting>
       </informalexample>
     </blockquote>
 
     <para>
-      <ulink url="&link-function-x-start-thread;"><function>&ns;::start_thread</function></ulink>
+      <ulink url="&link-function-x-start-threadmsgdispatcher;"><function>&ns;::start_threadmsgdispatcher</function></ulink>
       must be used to start an execution thread for a subclass of
       <classname>&ns;::threadmsgdispatcherObj</classname>.
-      <function>&ns;::start_thread</function>() is a wrapper for
+      <function>&ns;::start_threadmsgdispatcher</function>() is a wrapper for
       <ulink url="&link-function-x-run;">&ns;::run</ulink>().
       The first parameter to the execution thread's
       <function>run</function>() message is a reference to an opaque
       <link linkend="ondestroy">mcguffin</link>. Any remaining parameters
-      to <function>&ns;::start_thread</function>() get forwarded as additional
+      to <function>&ns;::start_threadmsgdispatcher</function>() get forwarded as additional
       parameters to the thread's
       <function>run</function>() method:
     </para>
@@ -288,7 +288,7 @@ auto clinstance = myClass::create();
     </itemizedlist>
 
     <para>
-      <function>&ns;::start_thread</function>()	waits until the mcguffin
+      <function>&ns;::start_threadmsgdispatcher</function>()	waits until the mcguffin
       gets destroyed before it returns. This is why the mcguffin parameter
       must be passed to <methodname>run</methodname>() by reference, rather
       than value.
@@ -302,7 +302,7 @@ auto clinstance = myClass::create();
       <ulink url="&link-x--threadmsgdispatcherObj--msgqueue-auto;"><classname>msgqueue_auto</classname></ulink>
       represents the execution thread's internal message queue. It is
       constructed in automatic scope, so it exists when
-      <function>&ns;::start_thread</function>()	returns, and the thread is
+      <function>&ns;::start_threadmsgdispatcher</function>()	returns, and the thread is
       immediately ready to process messages. When the execution thread
       terminates, the internal message queue, in automatic scope, gets
       destroyed as well.
@@ -414,7 +414,7 @@ auto clinstance = myClass::create();
 
 // Additional initialization
 
-&ns;::start_thread(clinstance, queue_arg);
+&ns;::start_threadmsgdispatcher(clinstance, queue_arg);
 
 // ......
 
@@ -438,7 +438,7 @@ void myClassObj::run(&ns;::ptr&lt;&ns;::obj&gt; &amp;threadmsgdispatcher_mcguffi
 	In this case, it gets passed as a parameter to the execution
 	thread's
 	<methodname>run</methodname>() via
-	<function>&ns;::start_thread</function>().
+	<function>&ns;::start_threadmsgdispatcher</function>().
       </para>
 
       <para>
@@ -447,7 +447,7 @@ void myClassObj::run(&ns;::ptr&lt;&ns;::obj&gt; &amp;threadmsgdispatcher_mcguffi
 	thread gets started. Since the message queue exists,
 	<methodname>sendevent</methodname>()s obediently fills it with
 	messages even if the actual execution thread isn't running yet.
-	After <function>&ns;::start_thread</function>-ing, the parent
+	After <function>&ns;::start_threadmsgdispatcher</function>-ing, the parent
 	execution thread gets rid of its <varname>queue_arg</varname>,
 	so when the execution thread eventually terminates, that destroys
 	the only reference to the message queue, preserving the expected

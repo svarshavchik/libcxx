@@ -97,7 +97,7 @@ public:
 //! s.guard();
 //!
 //! // ...
-//! dbh->unguard();
+//! dbh->commit();
 //! s.unguard();
 //! \endcode
 //!

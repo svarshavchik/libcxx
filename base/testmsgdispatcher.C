@@ -132,7 +132,7 @@ void testthreadmsgdispatcher()
 {
 	auto t=LIBCXX_NAMESPACE::ref<mythreadObj>::create();
 
-	auto ret=LIBCXX_NAMESPACE::start_thread(t, 1);
+	auto ret=LIBCXX_NAMESPACE::start_threadmsgdispatcher(t, 1);
 
 	{
 		LIBCXX_NAMESPACE::mpobj<bool>::lock lock(flag);

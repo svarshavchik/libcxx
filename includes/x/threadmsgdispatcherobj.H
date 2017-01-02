@@ -62,7 +62,7 @@ namespace LIBCXX_NAMESPACE {
 //!
 //! auto thr=INSERT_LIBX_NAMESPACE::ref<mythreadObj>::create();
 //!
-//! auto t=INSERT_LIBX_NAMESPACE::start_thread(thr, 1, 2);
+//! auto t=INSERT_LIBX_NAMESPACE::start_threadmsgdispatcher(thr, 1, 2);
 //!
 //! \endcode
 //!
@@ -105,11 +105,11 @@ namespace LIBCXX_NAMESPACE {
 //!
 //! \par Starting the execution thread.
 //!
-//! \ref start_thread "INSERT_LIBX_NAMESPACE::start_thread()" must be used to
-//! start the execution thread. start_thread() does not return until the
+//! \ref start_threadmsgdispatcher "INSERT_LIBX_NAMESPACE::start_threadmsgdispatcher()" must be used to
+//! start the execution thread. start_threadmsgdispatcher() does not return until the
 //! execution thread is running.
 //!
-//! start_thread() returns the value from \ref run "INSERT_LIBX_NAMESPACE::run()"
+//! start_threadmsgdispatcher() returns the value from \ref run "INSERT_LIBX_NAMESPACE::run()"
 //! that started the execution thread.
 //!
 //! \par Execution thread startup sequence
@@ -119,7 +119,7 @@ namespace LIBCXX_NAMESPACE {
 //!
 //! * A mcguffin (see below).
 //!
-//! * Any additional parameters are forwarded from start_thread().
+//! * Any additional parameters are forwarded from start_threadmsgdispatcher().
 //!
 //! The execution thread must take the following course of action:
 //!
@@ -128,7 +128,7 @@ namespace LIBCXX_NAMESPACE {
 //! * After the \c msgqueue_auto object gets constructed, destroy the
 //! mcguffin by setting it to a \c nullptr.
 //!
-//! The parent thread does not return from start_thread() until the mcguffin
+//! The parent thread does not return from start_threadmsgdispatcher() until the mcguffin
 //! gets destroyed.
 //!
 //! \par The event queue
@@ -251,7 +251,7 @@ public:
 	//! A msgqueue_auto object.
 
 	//! Makes it possible to construct a queue in advance of the
-	//! formal start_thread.
+	//! formal start_threadmsgdispatcher.
 
 	typedef ref<msgqueue_objObj> msgqueue_obj;
 

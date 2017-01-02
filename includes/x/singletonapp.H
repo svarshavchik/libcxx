@@ -477,7 +477,7 @@ public:
 	}
 };
 
-//! The singleton is based on threadmsgdispatcher, gets started via start_thread()
+//! The singleton is based on threadmsgdispatcher, gets started via start_threadmsgdispatcher()
 
 template<typename ref_type>
 class singletonapp::start_new_plain_or_dispatcher_thread<ref_type, true> {
@@ -525,7 +525,8 @@ public:
 	static void start(const ref_type &obj,
 			  const fd &runArg)
 	{
-		start_thread(ref<newThreadObj>::create(obj), runArg);
+		start_threadmsgdispatcher(ref<newThreadObj>::create(obj),
+					  runArg);
 	}
 };
 

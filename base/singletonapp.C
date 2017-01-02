@@ -224,8 +224,8 @@ singletonapp::impl::impl(const ref<singletonapp::factorybaseObj> &app,
 
 	std::pair<fd, fd> fakeconn=fd::base::socketpair();
 
-	thrinstance=start_thread(implthr, fd(connection),
-				 fdptr(fakeconn.first), app);
+	thrinstance=start_threadmsgdispatcher(implthr, fd(connection),
+					      fdptr(fakeconn.first), app);
 
 	sighandlermcguffins=mcguffins;
 	connection=fakeconn.second;

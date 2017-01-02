@@ -20,7 +20,8 @@ namespace LIBCXX_NAMESPACE {
 //! Start a thread for an object that's derived from \ref threadmsgdispatcherObj "threadmsgdispatcherObj"
 
 template<typename thread_object, typename ...Args>
-static auto start_thread(const thread_object &object, Args && ...args)
+static auto start_threadmsgdispatcher(const thread_object &object,
+				      Args && ...args)
 {
 	// Construct the thread initialization mcguffin, and guard it
 	// before returning.

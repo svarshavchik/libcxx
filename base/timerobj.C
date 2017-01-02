@@ -172,8 +172,10 @@ launch(const timerObj::implObj::taskinfo &newtask,
 
 		sigset::block_all block_all_signals;
 
-		lock->thread_ret=start_thread(p, threadmsgdispatcherObj::
-					      msgqueue_obj(msgqueue_ptr));
+		lock->thread_ret=
+			start_threadmsgdispatcher(p,
+						  threadmsgdispatcherObj::
+						  msgqueue_obj(msgqueue_ptr));
 	}
 	return cb;
 }
