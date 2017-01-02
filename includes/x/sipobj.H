@@ -45,7 +45,7 @@ public:
 	sipobj(Args && ...args) : obj(std::forward<Args>(args)...) {}
 
 	//! Destructor
-	~sipobj() noexcept {}
+	~sipobj() {}
 
 	class readlock;
 	class writelock;
@@ -103,7 +103,7 @@ public:
 		}
 
 		//! Destructor
-		~readlock() noexcept {}
+		~readlock() {}
 
 		//! Whether the object was locked
 		bool locked() const noexcept
@@ -190,7 +190,7 @@ public:
 		}
 
 		//! Destructor
-		~writelock() noexcept {}
+		~writelock() {}
 
 		//! Access the underlying object
 		obj_type &operator*() const noexcept

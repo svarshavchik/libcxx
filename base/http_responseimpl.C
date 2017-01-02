@@ -100,7 +100,7 @@ responseimpl::responseimpl(int statuscodeArg,
 	setCurrentDate();
 }
 
-responseimpl::~responseimpl() noexcept
+responseimpl::~responseimpl()
 {
 }
 

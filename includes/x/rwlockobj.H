@@ -36,7 +36,7 @@ public:
 	rwlockObj();
 
 	//! Default destructor
-	~rwlockObj() noexcept;
+	~rwlockObj();
 
 	//! A reference-counted read lock
 
@@ -57,7 +57,7 @@ public:
 		friend class ptrrefBase;
 
 		rlockObj();
-		~rlockObj() noexcept;
+		~rlockObj();
 	};
 
 	//! A reference-counted write lock
@@ -79,7 +79,7 @@ public:
 		friend class ptrrefBase;
 
 		wlockObj();
-		~wlockObj() noexcept;
+		~wlockObj();
 	};
 
 	friend class rlockObj;

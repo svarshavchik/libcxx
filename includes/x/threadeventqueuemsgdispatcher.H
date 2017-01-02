@@ -56,7 +56,7 @@ public:
 	}
 
 	//! Default destructor
-	~threadeventqueuemsgdispatcherObj() noexcept
+	~threadeventqueuemsgdispatcherObj()
 	{
 	}
 

@@ -117,7 +117,7 @@ public:
 	rwmutex();
 
 	//! Destructor
-	~rwmutex() noexcept;
+	~rwmutex();
 };
 
 

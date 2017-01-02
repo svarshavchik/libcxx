@@ -18,7 +18,7 @@ dtdObj::dtdObj()
 {
 }
 
-dtdObj::~dtdObj() noexcept
+dtdObj::~dtdObj()
 {
 }
 
@@ -41,7 +41,7 @@ dtdimplObj::dtdimplObj(const subset_impl_t &subset_implArg,
 {
 }
 
-dtdimplObj::~dtdimplObj() noexcept
+dtdimplObj::~dtdimplObj()
 {
 }
 

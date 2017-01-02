@@ -47,7 +47,7 @@ public:
 	       //! Whether \c . and \c .. entries are retrieved.
 	       bool showimplicitArg=false) noexcept;
 
-	~dirObj() noexcept;
+	~dirObj();
 
 	//! Retrieve the directory's name.
 

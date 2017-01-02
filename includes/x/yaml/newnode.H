@@ -41,7 +41,7 @@ public:
 
 	//! Destructor
 
-	~newnode_functorObj() noexcept
+	~newnode_functorObj()
 	{
 	}
 

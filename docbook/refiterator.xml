@@ -97,7 +97,7 @@ public:
 
 public:
     dummyOutputIterObj() {}
-    ~dummyOutputIterObj() noexcept {}
+    ~dummyOutputIterObj() {}
 
     void operator++() {}
 

@@ -39,7 +39,7 @@ class fixed_semaphoreObj : virtual public obj {
 
 	
 	    	//! Destructor
-		~callbackBaseObj() noexcept;
+		~callbackBaseObj();
 
 		//! Semaphore can be acquired
 
@@ -74,7 +74,7 @@ class fixed_semaphoreObj : virtual public obj {
 		}
 
 		//! Destructor
-		~callbackObj() noexcept
+		~callbackObj()
 		{
 		}
 
@@ -97,7 +97,7 @@ public:
 			   size_t howmany=1);
 
 	//! Destructor
-	~fixed_semaphoreObj() noexcept;
+	~fixed_semaphoreObj();
 
 	class acquiredObj;
 

@@ -54,7 +54,7 @@ protected:
 		workerbaseObj(const std::string &nameArg);
 
 		//! Destructor
-		~workerbaseObj() noexcept;
+		~workerbaseObj();
 	};
 
 	//! Property, minimum number of threads to start
@@ -135,7 +135,7 @@ class workerpoolObj : public workerpoolbase, virtual public obj {
 		{
 			sigmask=sigset::current();
 		}
-		~jobObj() noexcept
+		~jobObj()
 		{
 		}
 
@@ -162,7 +162,7 @@ class workerpoolObj : public workerpoolbase, virtual public obj {
 		}
 
 		//! Destructor
-		~workerObj() noexcept
+		~workerObj()
 		{
 		}
 
@@ -233,7 +233,7 @@ class workerpoolObj : public workerpoolbase, virtual public obj {
 		}
 
 		//! Destructor
-		~jobqueueObj() noexcept
+		~jobqueueObj()
 		{
 		}
 	};
@@ -301,7 +301,7 @@ public:
 	}
 
 	//! Destructor
-	~workerpoolObj() noexcept
+	~workerpoolObj()
 	{
 		{
 			// Stop all workers

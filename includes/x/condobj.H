@@ -33,7 +33,7 @@ public:
 	condObj();
 
 	//! Destroy the condition variable
-	~condObj() noexcept;
+	~condObj();
 
 	//! Wait on the condition variable
 	void wait(//! An existing mutex lock

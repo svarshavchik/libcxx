@@ -30,7 +30,7 @@ fdlistenerImplObj::fdserverObj::fdserverObj()
 {
 }
 
-fdlistenerImplObj::fdserverObj::~fdserverObj() noexcept
+fdlistenerImplObj::fdserverObj::~fdserverObj()
 {
 }
 
@@ -61,7 +61,7 @@ public:
 		       const fd &filedescArg,
 		       const fd &termfdsArg,
 		       const sigset &maskArg) LIBCXX_HIDDEN;
-	~listenerJobObj() noexcept LIBCXX_HIDDEN;
+	~listenerJobObj() LIBCXX_HIDDEN;
 
 	void run() LIBCXX_HIDDEN;
 };
@@ -79,7 +79,7 @@ fdlistenerImplObj::listenerJobObj
 {
 }
 
-fdlistenerImplObj::listenerJobObj::~listenerJobObj() noexcept
+fdlistenerImplObj::listenerJobObj::~listenerJobObj()
 {
 }
 
@@ -109,7 +109,7 @@ public:
 	eventfd terminatefd;
 
 	serverDestroyCallbackObj(const eventfd &terminatefdArg) LIBCXX_HIDDEN;
-	~serverDestroyCallbackObj() noexcept LIBCXX_HIDDEN;
+	~serverDestroyCallbackObj() LIBCXX_HIDDEN;
 
 	void destroyed() LIBCXX_HIDDEN;
 };
@@ -121,7 +121,7 @@ fdlistenerImplObj::serverDestroyCallbackObj
 {
 }
 
-fdlistenerImplObj::serverDestroyCallbackObj::~serverDestroyCallbackObj() noexcept
+fdlistenerImplObj::serverDestroyCallbackObj::~serverDestroyCallbackObj()
 {
 }
 
@@ -140,7 +140,7 @@ public:
 	ref<fdserverObj> server;
 
 	startArgObj(const ref<fdserverObj> &serverArg) LIBCXX_HIDDEN;
-	~startArgObj() noexcept LIBCXX_HIDDEN;
+	~startArgObj() LIBCXX_HIDDEN;
 };
 
 fdlistenerImplObj::startArgObj::startArgObj(const ref<fdserverObj> &serverArg)
@@ -148,7 +148,7 @@ fdlistenerImplObj::startArgObj::startArgObj(const ref<fdserverObj> &serverArg)
 {
 }
 
-fdlistenerImplObj::startArgObj::~startArgObj() noexcept
+fdlistenerImplObj::startArgObj::~startArgObj()
 {
 }
 
@@ -174,7 +174,7 @@ fdlistenerImplObj::listenon::listenon(const std::list<fd> &fdlistArg)
 {
 }
 
-fdlistenerImplObj::listenon::~listenon() noexcept
+fdlistenerImplObj::listenon::~listenon()
 {
 }
 
@@ -201,7 +201,7 @@ fdlistenerImplObj::fdlistenerImplObj(const fdlistenerImplObj::listenon
 	LOG_TRACE("Listening for new connections");
 }
 
-fdlistenerImplObj::~fdlistenerImplObj() noexcept
+fdlistenerImplObj::~fdlistenerImplObj()
 {
 }
 

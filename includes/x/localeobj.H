@@ -80,7 +80,7 @@ public:
 
 	//! Deallocate the \c std::locale
 	//! object.
-	~localeObj() noexcept;
+	~localeObj();
 
 	//! Return the name of this locale
 

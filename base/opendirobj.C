@@ -15,7 +15,7 @@ opendirObj::opendirObj() noexcept : dirp(0)
 {
 }
 
-opendirObj::~opendirObj() noexcept
+opendirObj::~opendirObj()
 {
 	if (dirp)
 		closedir(dirp);

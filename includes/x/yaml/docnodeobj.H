@@ -40,7 +40,7 @@ private:
 public:
 	//! Destructor
 
-	~docnodeObj() noexcept;
+	~docnodeObj();
 
 	friend class documentObj;
 	friend class nodeObj;

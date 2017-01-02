@@ -38,7 +38,7 @@ class foo : virtual public LIBCXX_NAMESPACE::obj,
 
 public:
 	foo() {}
-	~foo() noexcept {}
+	~foo() {}
 
 	xx run(xx &xp)
 	{

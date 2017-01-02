@@ -22,7 +22,7 @@ sighandlerObj::sighandlerObj()
 {
 }
 
-sighandlerObj::~sighandlerObj() noexcept
+sighandlerObj::~sighandlerObj()
 {
 }
 
@@ -55,7 +55,7 @@ class sighandlerObj::priv {
 
 	public:
 		handlers() LIBCXX_INTERNAL {}
-		~handlers() noexcept LIBCXX_INTERNAL {}
+		~handlers() LIBCXX_INTERNAL {}
 
 		mpobj<handlersmeta> meta;
 
@@ -68,7 +68,7 @@ class sighandlerObj::priv {
 
 	public:
 		threadimpl() LIBCXX_HIDDEN {}
-		~threadimpl() noexcept LIBCXX_HIDDEN {}
+		~threadimpl() LIBCXX_HIDDEN {}
 
 		void run(const ref<handlers> &start_arg)
 			LIBCXX_HIDDEN;
@@ -95,7 +95,7 @@ class sighandlerObj::priv {
 		mpobj<sigthreadmeta> sigthreadmetainfo;
 
 		sigthread() LIBCXX_HIDDEN {}
-		~sigthread() noexcept LIBCXX_HIDDEN {}
+		~sigthread() LIBCXX_HIDDEN {}
 	};
 
 	static singleton<sigthread> impl;
@@ -113,7 +113,7 @@ class sighandlerObj::priv {
 		handlersmeta::handlers_t::iterator iter;
 
 		mcguffin() LIBCXX_HIDDEN {}
-		~mcguffin() noexcept LIBCXX_HIDDEN
+		~mcguffin() LIBCXX_HIDDEN
 		{
 			if (p.null())
 				return; // Wasn't really installed

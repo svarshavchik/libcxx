@@ -31,7 +31,7 @@ public:
 	mutexObj() noexcept;
 
 	//! Default destructor
-	~mutexObj() noexcept;
+	~mutexObj();
 
 	//! A mutually-exclude %option is set
 

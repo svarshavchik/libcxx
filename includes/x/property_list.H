@@ -61,7 +61,7 @@ public:
 		const ref<nodehierObj> hierpArg);
 
 	//! Destructor
-	~nodeObj() noexcept;
+	~nodeObj();
 };
 
 //! A hierarchical tree of properties
@@ -87,7 +87,7 @@ public:
 	nodehierObj(const ptr<nodehierObj> &parentArg);
 
 	//! Destructor
-	~nodehierObj() noexcept;
+	~nodehierObj();
 };
 
 //! A list of defined properties
@@ -168,7 +168,7 @@ class listObj : virtual public obj {
 				noexcept : c(cArg) {}
 
 			//! Destructor
-			~dummy() noexcept {}
+			~dummy() {}
 		};
 
 	public:
@@ -184,7 +184,7 @@ class listObj : virtual public obj {
 		}
 
 		//! Destructor
-		~parsepropname_iter() noexcept
+		~parsepropname_iter()
 		{
 		}
 
@@ -366,7 +366,7 @@ private:
 			    const std::string &nodenameArg,
 			    const ptr<nodehierObj> &pArg) LIBCXX_INTERNAL;
 
-		~iteratorObj() noexcept LIBCXX_INTERNAL;
+		~iteratorObj() LIBCXX_INTERNAL;
 	};
 
 public:
@@ -599,7 +599,7 @@ public:
 	listObj();
 
 	//! Destructor
-	~listObj() noexcept;
+	~listObj();
 
 	//! Install a callback for a property
 

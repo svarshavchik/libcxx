@@ -28,7 +28,7 @@ class LIBCXX_HIDDEN run_async::localscope::mainscope_destructor {
  public:
 	mainscope_destructor() {}
 
-	~mainscope_destructor() noexcept
+	~mainscope_destructor()
 	{
 		localscope *p=({
 				std::unique_lock<std::mutex>

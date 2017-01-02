@@ -685,7 +685,7 @@ public:
 			const std::string &nameArg) noexcept;
 
 		//! Default destructor
-		~context() noexcept;
+		~context();
 
 		//! Retrieve the context string
 
@@ -751,7 +751,7 @@ private:
 		scopebase(inheritObj &inherit) LIBCXX_INTERNAL ;
 
 		//! Internal destructor
-		~scopebase() noexcept LIBCXX_INTERNAL ;
+		~scopebase() LIBCXX_INTERNAL ;
 
 		//! Internal function
 
@@ -946,7 +946,7 @@ public:
 	log_stringstream();
 
 	//! Destructor
-	~log_stringstream() noexcept;
+	~log_stringstream();
 };
 
 //! Internal macro

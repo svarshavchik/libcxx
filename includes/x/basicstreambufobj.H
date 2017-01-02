@@ -36,7 +36,7 @@ public:
 	basic_streambufObj() noexcept {}
 
 	//! Default destructor
-	~basic_streambufObj() noexcept {}
+	~basic_streambufObj() {}
 };
 
 //! A reference to a \c std::streambuf

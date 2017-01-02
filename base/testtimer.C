@@ -20,7 +20,7 @@ public:
 	{
 	}
 
-	~timerCount() noexcept
+	~timerCount()
 	{
 		std::cout << "destructor, thread " << name << std::endl;
 	}
@@ -99,7 +99,7 @@ public:
 	std::condition_variable cond;
 
 	dummyThread() noexcept {}
-	~dummyThread() noexcept {}
+	~dummyThread() {}
 
 	void run()
 	{
@@ -170,7 +170,7 @@ class selfcancel : public LIBCXX_NAMESPACE::timertaskObj {
 
 public:
 	selfcancel() {}
-	~selfcancel() noexcept {}
+	~selfcancel() {}
 
 	void run()
 	{
@@ -272,7 +272,7 @@ class testtimertask6Obj : virtual public LIBCXX_NAMESPACE::obj {
 	int n;
 
 	testtimertask6Obj() : n(2) {}
-	~testtimertask6Obj() noexcept {
+	~testtimertask6Obj() {
 	}
 
 	void run(const LIBCXX_NAMESPACE::timer &t)

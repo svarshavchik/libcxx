@@ -16,7 +16,7 @@ gnutls::privkeyobj::privkeyobj() noexcept
 {
 }
 
-gnutls::privkeyobj::~privkeyobj() noexcept
+gnutls::privkeyobj::~privkeyobj()
 {
 }
 

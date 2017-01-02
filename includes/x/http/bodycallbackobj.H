@@ -34,7 +34,7 @@ public:
 	bodycallbackObj();
 
 	//! Default destructor
-	~bodycallbackObj() noexcept;
+	~bodycallbackObj();
 
 	//! Process the body of a response
 

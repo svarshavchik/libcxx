@@ -23,7 +23,7 @@ namespace LIBCXX_NAMESPACE {
 };
 #endif
 
-encoderObj::section::~section() noexcept
+encoderObj::section::~section()
 {
 }
 
@@ -75,7 +75,7 @@ class LIBCXX_HIDDEN encoderObj::combinedObj : public inputrefiteratorObj<char> {
 		    const joiniterator_t &curArg,
 		    const joiniterator_t &endArg);
 	//! Destructor
-	~combinedObj() noexcept;
+	~combinedObj();
 };
 
 encoderObj::combinedObj::combinedObj(const const_encoder &encoder_refArg,
@@ -86,7 +86,7 @@ encoderObj::combinedObj::combinedObj(const const_encoder &encoder_refArg,
 {
 }
 
-encoderObj::combinedObj::~combinedObj() noexcept
+encoderObj::combinedObj::~combinedObj()
 {
 }
 
@@ -108,7 +108,7 @@ encoderObj::encoderObj() : sections(vector<section>::create())
 {
 }
 
-encoderObj::~encoderObj() noexcept
+encoderObj::~encoderObj()
 {
 }
 
@@ -259,7 +259,7 @@ from_file_container::from_file_container(const std::string &filenameArg)
 {
 }
 
-from_file_container::~from_file_container() noexcept
+from_file_container::~from_file_container()
 {
 }
 
@@ -291,7 +291,7 @@ from_fd_container::from_fd_container(const fd &filedescArg)
 {
 }
 
-from_fd_container::~from_fd_container() noexcept
+from_fd_container::~from_fd_container()
 {
 }
 
@@ -316,7 +316,7 @@ class magicObj : virtual public obj {
 
 public:
 	magicObj() LIBCXX_HIDDEN;
-	~magicObj() noexcept LIBCXX_HIDDEN;
+	~magicObj() LIBCXX_HIDDEN;
 
 	std::string lookup(const fd &filedesc, int type) LIBCXX_HIDDEN;
 };
@@ -328,7 +328,7 @@ magicObj::magicObj() : handle(magic_open(MAGIC_NONE))
 	magic_load(handle, NULL);
 }
 
-magicObj::~magicObj() noexcept
+magicObj::~magicObj()
 {
 	if (handle)
 		magic_close(handle);

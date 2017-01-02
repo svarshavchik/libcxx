@@ -33,7 +33,7 @@ public:
 	pubkeyobj();
 
 	//! Default destructor
-	~pubkeyobj() noexcept;
+	~pubkeyobj();
 
 	//! Return this public key's algorithm
 

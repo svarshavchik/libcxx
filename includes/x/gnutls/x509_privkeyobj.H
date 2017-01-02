@@ -64,7 +64,7 @@ public:
 	privkeyObj();
 
 	//! The default destructor
-	~privkeyObj() noexcept;
+	~privkeyObj();
 
 	//! Generate a new private key
 

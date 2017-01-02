@@ -28,7 +28,7 @@ fdtlsserverObj::fdtlsserverObj(const sessioncache &cacheArg)
 {
 }
 
-fdtlsserverObj::~fdtlsserverObj() noexcept
+fdtlsserverObj::~fdtlsserverObj()
 {
 }
 

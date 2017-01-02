@@ -61,7 +61,7 @@ void servent::init()
 	buffer.resize(1024);
 }
 
-servent::~servent() noexcept
+servent::~servent()
 {
 }
 

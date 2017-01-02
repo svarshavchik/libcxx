@@ -42,7 +42,7 @@ public:
 	fdtlsserverObj(const sessioncache &cacheArg);
 
 	//! Destructor
-	~fdtlsserverObj() noexcept;
+	~fdtlsserverObj();
 
 	//! fdlistener gives us the file descriptor here, run with it.
 

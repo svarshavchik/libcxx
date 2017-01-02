@@ -22,7 +22,7 @@ public:
 
 	derivedvalueListObj();
 
-	~derivedvalueListObj() noexcept;
+	~derivedvalueListObj();
 
 protected:
 
@@ -83,7 +83,7 @@ public:
 	value_fromObj(const ref<derivedvalueListObj> &all_valuesArg,
 		      all_values_t &all_values);
 
-	~value_fromObj() noexcept;
+	~value_fromObj();
 
 	void update(const basedon_t &new_basedonvalue);
 
@@ -209,7 +209,7 @@ public:
 		 typename ...Args>
 	calcObj(B &&b, C &&c, E &&e, Args && ...args);
 
-	~calcObj() noexcept;
+	~calcObj();
 
 	void updated(const function<void (void)> &) override;
 };

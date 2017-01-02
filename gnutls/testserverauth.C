@@ -281,7 +281,7 @@ public:
 	{
 	}
 
-	~auth_serverObj() noexcept {}
+	~auth_serverObj() {}
 
 	void received(const LIBCXX_NAMESPACE::http::requestimpl &req,
 		      bool bodyflag) override
@@ -349,7 +349,7 @@ public:
 	{
 	}
 
-	~digestauth_serverObj() noexcept {}
+	~digestauth_serverObj() {}
 
 	LIBCXX_NAMESPACE::http::
 	auth authenticate(const LIBCXX_NAMESPACE::http::requestimpl &req,
@@ -396,7 +396,7 @@ public:
 	{
 	}
 
-	~httpauth_factoryObj() noexcept {}
+	~httpauth_factoryObj() {}
 
 	LIBCXX_NAMESPACE::ref<server_type> create()
 	{
@@ -448,7 +448,7 @@ public:
 	{
 	}
 
-	~httpauth_rfc2617_serverObj() noexcept
+	~httpauth_rfc2617_serverObj()
 	{
 	}
 
@@ -636,7 +636,7 @@ public:
 	{
 	}
 
-	~httpauth_rfc2069_serverObj() noexcept
+	~httpauth_rfc2069_serverObj()
 	{
 	}
 
@@ -666,7 +666,7 @@ public:
 	{
 	}
 
-	~basicdigestauth_serverObj() noexcept {}
+	~basicdigestauth_serverObj() {}
 
 	std::string content;
 	std::string digest_algorithm;
@@ -731,7 +731,7 @@ public:
 	{
 	}
 
-	~digest_over_basic_serverObj() noexcept
+	~digest_over_basic_serverObj()
 	{
 	}
 
@@ -812,7 +812,7 @@ public:
 	{
 	}
 
-	~digest_fallback_basic_serverObj() noexcept
+	~digest_fallback_basic_serverObj()
 	{
 	}
 
@@ -872,7 +872,7 @@ public:
 	{
 	}
 
-	~testserverObj() noexcept {}
+	~testserverObj() {}
 
 	void received(const LIBCXX_NAMESPACE::http::requestimpl &req,
 		      bool bodyflag) override

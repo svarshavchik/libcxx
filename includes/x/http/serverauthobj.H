@@ -129,7 +129,7 @@ private:
 public:
 
 	//! Destructor
-	~serverauthObj() noexcept;
+	~serverauthObj();
 
 	//! Build an authentication challenge
 

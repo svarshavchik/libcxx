@@ -31,7 +31,7 @@ public:
 	sighandlerObj();
 
 	//! Destructor
-	~sighandlerObj() noexcept;
+	~sighandlerObj();
 
 	//! Signal handler
 

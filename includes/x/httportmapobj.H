@@ -188,7 +188,7 @@ public:
 	static int getDefaultPort();
 
 	//! Destructor
-	~httportmapObj() noexcept;
+	~httportmapObj();
 
 	//! Enumerate applications on the referenced server
 

@@ -27,7 +27,7 @@ public:
 	destroy_callback_wait4Obj(const ref<obj> &other_obj);
 
 	//! Destructor
-	~destroy_callback_wait4Obj() noexcept;
+	~destroy_callback_wait4Obj();
 
 	//! Wait for another object to get destroyed, too.
 	void destroyed();

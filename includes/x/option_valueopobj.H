@@ -117,7 +117,7 @@ public:
 		: valueref(valueArg), opvalue(opvalueArg) {}
 
 	//! Default destructor
-	~opvalueObj() noexcept {}
+	~opvalueObj() {}
 
 	//! Set the option's value
 

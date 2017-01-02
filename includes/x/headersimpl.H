@@ -33,7 +33,7 @@ public:
 	headersimpl(const headersbase &headers);
 
 	//! Destructor
-	~headersimpl() noexcept;
+	~headersimpl();
 
 	//! Clear all headers
 

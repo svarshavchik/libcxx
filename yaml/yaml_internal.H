@@ -5,7 +5,7 @@ class LIBCXX_HIDDEN docnodeObj::rootnodeObj : public docnodeObj {
 
  public:
 	rootnodeObj(const document &docArg);
-	~rootnodeObj() noexcept;
+	~rootnodeObj();
 
 	const yaml_node_t *getNode(const documentObj::readlock_t &lock)
 		override;
@@ -19,7 +19,7 @@ class LIBCXX_HIDDEN docnodeObj::nonrootnodeObj : public docnodeObj {
 	yaml_node_item_t item;
 
 	nonrootnodeObj(const document &docArg, yaml_node_item_t itemArg);
-	~nonrootnodeObj() noexcept;
+	~nonrootnodeObj();
 
 	const yaml_node_t *getNode(const documentObj::readlock_t &lock)
 		override;

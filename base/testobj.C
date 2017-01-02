@@ -97,13 +97,13 @@ class cl3 : virtual public LIBCXX_NAMESPACE::obj {
 
 public:
 	cl3() noexcept {}
-	~cl3() noexcept {}
+	~cl3() {}
 };
 
 class cl4 : virtual public cl3 {
 public:
 	cl4() noexcept {}
-	~cl4() noexcept {}
+	~cl4() {}
 };
 
 void testref3()
@@ -134,7 +134,7 @@ public:
 		std::cerr << "Created " << v << std::endl;
 	}
 
-	~base() noexcept
+	~base()
 	{
 		std::cerr << "Destroyed " << value << std::endl;
 	}
@@ -145,13 +145,13 @@ class derived : public base {
 public:
 
 	derived(int v) : base(v) {}
-	~derived() noexcept {}
+	~derived() {}
 };
 
 class notderived : virtual public LIBCXX_NAMESPACE::obj {
 public:
 	notderived() {}
-	~notderived() noexcept {}
+	~notderived() {}
 };
 
 class threadtestinfo : virtual public LIBCXX_NAMESPACE::obj {
@@ -162,7 +162,7 @@ public:
 	volatile int *lockflag;
 	int processnum;
 
-	~threadtestinfo() noexcept {}
+	~threadtestinfo() {}
 };
 
 class threadtestproc : virtual public LIBCXX_NAMESPACE::obj {
@@ -646,7 +646,7 @@ public:
 	{
 	}
 
-	~testmutexObj() noexcept {
+	~testmutexObj() {
 	}
 
 	void run()
@@ -737,7 +737,7 @@ public:
 	volatile int counter;
 
 	rwlocktestinfo() noexcept;
-	~rwlocktestinfo() noexcept;
+	~rwlocktestinfo();
 };
 
 class rthread : virtual public LIBCXX_NAMESPACE::obj {
@@ -760,7 +760,7 @@ rwlocktestinfo::rwlocktestinfo() noexcept
 {
 }
 
-rwlocktestinfo::~rwlocktestinfo() noexcept
+rwlocktestinfo::~rwlocktestinfo()
 {
 }
 
@@ -896,7 +896,7 @@ public:
 	{
 	}
 
-	~testepollObj() noexcept
+	~testepollObj()
 	{
 	}
 
@@ -949,7 +949,7 @@ public:
 	{
 	}
 
-	~testnetObj() noexcept
+	~testnetObj()
 	{
 	}
 
@@ -1106,7 +1106,7 @@ void test_run_lambda_return_value(LIBCXX_NAMESPACE::netaddr &addr)
 class eventthread : virtual public LIBCXX_NAMESPACE::obj {
 public:
 	eventthread() noexcept;
-	~eventthread() noexcept;
+	~eventthread();
 	void run(const LIBCXX_NAMESPACE::eventfd &eventfd);
 };
 
@@ -1114,7 +1114,7 @@ eventthread::eventthread() noexcept
 {
 }
 
-eventthread::~eventthread() noexcept
+eventthread::~eventthread()
 {
 }
 
@@ -1442,7 +1442,7 @@ class testdestroy : public LIBCXX_NAMESPACE::obj::destroyCallbackObj {
 
 public:
 	testdestroy() noexcept;
-	~testdestroy() noexcept;
+	~testdestroy();
 
 	void destroyed();
 };
@@ -1451,7 +1451,7 @@ testdestroy::testdestroy() noexcept
 {
 }
 
-testdestroy::~testdestroy() noexcept
+testdestroy::~testdestroy()
 {
 }
 
@@ -1657,7 +1657,7 @@ class df6logObj : virtual public LIBCXX_NAMESPACE::obj {
 
 public:
 	df6logObj() {}
-	~df6logObj() noexcept {}
+	~df6logObj() {}
 
 	std::string log;
 };
@@ -1675,7 +1675,7 @@ public:
 	{
 	}
 
-	~df6obj1Obj() noexcept
+	~df6obj1Obj()
 	{
 		l->log += id;
 	}
@@ -1926,7 +1926,7 @@ class testweakcontainerObj : virtual public LIBCXX_NAMESPACE::obj {
 
 public:
 	testweakcontainerObj() noexcept {}
-	~testweakcontainerObj() noexcept {}
+	~testweakcontainerObj() {}
 
 };
 

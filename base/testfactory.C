@@ -12,7 +12,7 @@ class inteventhandlerObj : public LIBCXX_NAMESPACE::eventhandlerObj<int> {
 
 public:
 	inteventhandlerObj() noexcept {}
-	~inteventhandlerObj() noexcept {}
+	~inteventhandlerObj() {}
 
 	void event(const int &n)
 	{

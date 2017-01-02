@@ -269,7 +269,7 @@ public:
 	{
 	}
 
-	~content_headersObj() noexcept
+	~content_headersObj()
 	{
 	}
 
@@ -319,7 +319,7 @@ public:
 	{
 	}
 
-	~mime_processor() noexcept
+	~mime_processor()
 	{
 	}
 

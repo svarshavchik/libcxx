@@ -66,7 +66,7 @@ public:
 
 	//! The destructor
 
-	~iofilter() noexcept
+	~iofilter()
 	{
 	}
 
@@ -120,7 +120,7 @@ public:
 	}
 
 	//! Destructor
-	~iofilteradapterObj() noexcept
+	~iofilteradapterObj()
 	{
 	}
 

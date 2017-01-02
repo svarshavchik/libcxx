@@ -67,7 +67,7 @@ mmapbaseObj::mmapbaseObj() : addr(MAP_FAILED), length(0)
 LOG_FUNC_SCOPE_DECL(LIBCXX_NAMESPACE::mmapbaseObj::~mmapbaseObj,
 		    destructor_logger);
 
-mmapbaseObj::~mmapbaseObj() noexcept
+mmapbaseObj::~mmapbaseObj()
 {
 	LOG_FUNC_SCOPE(destructor_logger);
 
@@ -90,7 +90,7 @@ mmapfileObj::mmapfileObj(const fd &filedesc, int prot)
 {
 }
 
-mmapfileObj::~mmapfileObj() noexcept
+mmapfileObj::~mmapfileObj()
 {
 }
 

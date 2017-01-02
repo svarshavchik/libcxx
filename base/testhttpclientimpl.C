@@ -170,7 +170,7 @@ class testthread : virtual public LIBCXX_NAMESPACE::obj,
 
 public:
 	testthread() {}
-	~testthread() noexcept {}
+	~testthread() {}
 
 	void run(const LIBCXX_NAMESPACE::fd &fd)
 	{

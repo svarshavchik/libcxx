@@ -55,7 +55,7 @@ public:
 		macObj();
 
 		//! Destructor
-		~macObj() noexcept;
+		~macObj();
 
 		//! The MAC address
 
@@ -134,7 +134,7 @@ public:
 	uuid();
 
 	//! Default destructor
-	~uuid() noexcept;
+	~uuid();
 
 	//! Ordering operator.
 
@@ -239,7 +239,7 @@ public:
 
 		//! Destructor
 
-		~serialize_helper() noexcept
+		~serialize_helper()
 		{
 		}
 

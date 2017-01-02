@@ -43,7 +43,7 @@ public:
 	timerObj::tasks_t::iterator installed_iter;
 
 	timerobjentryObj() LIBCXX_HIDDEN {}
-	~timerobjentryObj() noexcept LIBCXX_HIDDEN {}
+	~timerobjentryObj() LIBCXX_HIDDEN {}
 };
 
 //! A reference to a timer entry object.

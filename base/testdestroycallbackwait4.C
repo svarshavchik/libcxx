@@ -27,7 +27,7 @@ public:
 	{
 	}
 
-	~test1Obj() noexcept {
+	~test1Obj() {
 	}
 
 	void run()

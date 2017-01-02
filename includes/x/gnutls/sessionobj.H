@@ -83,7 +83,7 @@ public:
 		   const fdbase &transportArg);
 
 	//! Default destructor
-	~sessionObj() noexcept;
+	~sessionObj();
 
 	//! Return the underlying transport object
 
@@ -554,7 +554,7 @@ public:
 
 	//! Destructor
 
-	~factoryObj() noexcept;
+	~factoryObj();
 
 	//! Update credentials
 

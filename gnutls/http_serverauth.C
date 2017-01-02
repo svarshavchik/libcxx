@@ -66,7 +66,7 @@ serverauthObj::serverauthObj(const std::string &realmArg,
 		algorithms.push_back(GCRY_MD_MD5);
 }
 
-serverauthObj::~serverauthObj() noexcept
+serverauthObj::~serverauthObj()
 {
 }
 

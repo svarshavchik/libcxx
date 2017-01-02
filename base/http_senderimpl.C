@@ -33,7 +33,7 @@ senderimpl_encode::wait_continue::wait_continue()
 {
 }
 
-senderimpl_encode::wait_continue::~wait_continue() noexcept
+senderimpl_encode::wait_continue::~wait_continue()
 {
 }
 

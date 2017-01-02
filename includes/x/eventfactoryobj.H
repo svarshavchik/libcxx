@@ -111,7 +111,7 @@ class eventfactoryObj : virtual public obj {
 
 		//! The registered event handler gets removed from the factory.
 
-		~eventregistrationImplObj() noexcept
+		~eventregistrationImplObj()
 		{
 			eventfactoryObj<keyType, argType, Compare,
 					Allocator> &f= *factory;
@@ -162,7 +162,7 @@ public:
 
 	//! Default destructor
 
-	~eventfactoryObj() noexcept
+	~eventfactoryObj()
 	{
 	}
 

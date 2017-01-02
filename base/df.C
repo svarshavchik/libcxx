@@ -20,7 +20,7 @@ dfObj::dfObj()
 {
 }
 
-dfObj::~dfObj() noexcept
+dfObj::~dfObj()
 {
 }
 
@@ -34,7 +34,7 @@ protected:
 
 public:
 	dfvfsObj();
-	~dfvfsObj() noexcept;
+	~dfvfsObj();
 
 	size_t allocSize();
 	uint64_t allocFree();
@@ -46,7 +46,7 @@ dfObj::dfvfsObj::dfvfsObj()
 {
 }
 
-dfObj::dfvfsObj::~dfvfsObj() noexcept
+dfObj::dfvfsObj::~dfvfsObj()
 {
 }
 
@@ -96,7 +96,7 @@ class dfObj::dfvfspathObj : public dfObj::dfvfsObj {
 public:
 
 	dfvfspathObj(const std::string &pathnameArg);
-	~dfvfspathObj() noexcept;
+	~dfvfspathObj();
 	void refresh();
 };
 
@@ -105,7 +105,7 @@ dfObj::dfvfspathObj::dfvfspathObj(const std::string &pathnameArg)
 {
 }
 
-dfObj::dfvfspathObj::~dfvfspathObj() noexcept
+dfObj::dfvfspathObj::~dfvfspathObj()
 {
 }
 
@@ -126,7 +126,7 @@ class dfObj::dfvfsfdObj : public dfObj::dfvfsObj {
 public:
 
 	dfvfsfdObj(const fd &filedescArg);
-	~dfvfsfdObj() noexcept;
+	~dfvfsfdObj();
 	void refresh();
 };
 
@@ -135,7 +135,7 @@ dfObj::dfvfsfdObj::dfvfsfdObj(const fd &filedescArg)
 {
 }
 
-dfObj::dfvfsfdObj::~dfvfsfdObj() noexcept
+dfObj::dfvfsfdObj::~dfvfsfdObj()
 {
 }
 
@@ -185,7 +185,7 @@ dfObj::reservationObj::reservationObj(long res_blksArg,
 	r.res_inodes.refadd(res_inodes);
 }
 
-dfObj::reservationObj::~reservationObj() noexcept
+dfObj::reservationObj::~reservationObj()
 {
 	dfObj &r= *space;
 

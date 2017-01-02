@@ -24,7 +24,7 @@ public:
 	thread_locale(const localeObj &obj);
 
 	//! Destructor
-	~thread_locale() noexcept;
+	~thread_locale();
 };
 
 #if 0

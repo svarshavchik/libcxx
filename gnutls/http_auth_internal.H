@@ -144,7 +144,7 @@ class LIBCXX_HIDDEN clientauthimplObj::digest : public clientauthimplObj {
 	       const std::string &useridArg,
 	       gcry_md_algos algorithmArg,
 	       const std::string &a1Arg);
-	~digest() noexcept;
+	~digest();
 
 	//! Add my header to a request
 	void add_header(requestimpl &req, const char *header) override;

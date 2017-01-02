@@ -28,7 +28,7 @@ gnutls::http::fdtlsserverimpl::fdtlsserverimpl()
 {
 }
 
-gnutls::http::fdtlsserverimpl::~fdtlsserverimpl() noexcept
+gnutls::http::fdtlsserverimpl::~fdtlsserverimpl()
 {
 }
 
@@ -47,7 +47,7 @@ public:
 	{
 	}
 
-	~cleanup_helper() noexcept
+	~cleanup_helper()
 	{
 		p->clear();
 	}

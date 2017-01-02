@@ -23,7 +23,7 @@ rwmutex::rwmutex() : r(w)
 {
 }
 
-rwmutex::~rwmutex() noexcept
+rwmutex::~rwmutex()
 {
 }
 

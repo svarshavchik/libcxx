@@ -92,7 +92,7 @@ public:
 	}
 
 	//! Destructor
-	~vipobj() noexcept {}
+	~vipobj() {}
 
 	class updatelock;
 	class handlerlock;
@@ -155,7 +155,7 @@ public:
 
 		//! Destructor
 
-		~updatelock() noexcept {}
+		~updatelock() {}
 
 		//! Update the very important object
 
@@ -204,7 +204,7 @@ public:
 
 		//! Destructor
 
-		~handlerlock() noexcept {}
+		~handlerlock() {}
 
 		//! Register a new callback
 

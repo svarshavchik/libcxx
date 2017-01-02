@@ -32,7 +32,7 @@ class pathcookiesObj : public cookie, virtual public obj {
 	pathcookiesObj() LIBCXX_HIDDEN;
 
 	//! Destructor
-	~pathcookiesObj() noexcept LIBCXX_HIDDEN;
+	~pathcookiesObj() LIBCXX_HIDDEN;
 
 	//! Container for the stored cookies
 	typedef std::set<ref<storedcookieObj>, cmp> cookies_t;

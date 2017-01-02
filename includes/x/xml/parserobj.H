@@ -26,7 +26,7 @@ public:
 	parserObj();
 
 	//! Destructor
-	~parserObj() noexcept;
+	~parserObj();
 
 	//! Invoke done() after parsing an XML document to retrieve it.
 	virtual doc done()=0;

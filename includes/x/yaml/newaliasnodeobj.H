@@ -35,7 +35,7 @@ public:
 
 	//! Destructor
 
-	~newaliasnodeObj() noexcept;
+	~newaliasnodeObj();
 
 	friend class writerObj;
 

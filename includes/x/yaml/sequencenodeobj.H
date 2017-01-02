@@ -33,7 +33,7 @@ public:
 
 	//! Destructor
 
-	~sequencenodeObj() noexcept;
+	~sequencenodeObj();
 
 	//! Return the number of elements in the sequence
 	size_t size() const;

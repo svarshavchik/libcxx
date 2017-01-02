@@ -78,7 +78,7 @@ public:
 	{
 	}
 
-	~listenersObj() noexcept {}
+	~listenersObj() {}
 };
 
 typedef x::ref<listenersObj> listeners;
@@ -93,7 +93,7 @@ public:
 	{
 	}
 
-	~myserverimpl() noexcept
+	~myserverimpl()
 	{
 	}
 
@@ -176,7 +176,7 @@ public:
 	{
 	}
 
-	~myhttpserver() noexcept {}
+	~myhttpserver() {}
 
 	server_type create()
 	{

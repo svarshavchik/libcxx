@@ -21,7 +21,7 @@ thread_locale::thread_locale(const localeObj &obj)
 {
 }
 
-thread_locale::~thread_locale() noexcept
+thread_locale::~thread_locale()
 {
 }
 
@@ -43,7 +43,7 @@ xlocale::xlocale() : h(NULL)
 {
 }
 
-xlocale::~xlocale() noexcept
+xlocale::~xlocale()
 {
 	if (h)
 		freelocale(h);
@@ -71,7 +71,7 @@ xlocale::thread_locale::thread_locale(const xlocale &x)
 {
 }
 
-xlocale::thread_locale::~thread_locale() noexcept
+xlocale::thread_locale::~thread_locale()
 {
 	uselocale(oldLocale);
 }
@@ -84,7 +84,7 @@ globlocale::globlocale(const const_locale &localeArg)
 {
 }
 
-globlocale::~globlocale() noexcept
+globlocale::~globlocale()
 {
 }
 

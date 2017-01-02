@@ -38,7 +38,7 @@ exception::exception(const ref<exceptionObj> &refp) noexcept
 {
 }
 
-exception::~exception() noexcept
+exception::~exception()
 {
 }
 
@@ -64,7 +64,7 @@ sysexceptionObj::sysexceptionObj(int errcodeArg) : errcode(errcodeArg)
 {
 }
 
-sysexceptionObj::~sysexceptionObj() noexcept
+sysexceptionObj::~sysexceptionObj()
 {
 }
 
@@ -89,7 +89,7 @@ sysexception::sysexception(sysexceptionObj *obj)
 {
 }
 
-sysexception::~sysexception() noexcept
+sysexception::~sysexception()
 {
 }
 

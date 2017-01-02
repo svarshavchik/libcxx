@@ -45,7 +45,7 @@ public:
 
 	//! Destructor
 
-	~servent() noexcept;
+	~servent();
 
 	//! The -> operator
 

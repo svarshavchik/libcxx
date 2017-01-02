@@ -30,7 +30,7 @@ public:
 	httpserverimpl(bool isinternalArg,
 		       bool allowstopArg,
 		       httportmap_server &portmapArg);
-	~httpserverimpl() noexcept;
+	~httpserverimpl();
 
 	void received(const LIBCXX_NAMESPACE::http::requestimpl &req,
 		      bool bodyflag);
@@ -46,7 +46,7 @@ public:
 	httpserver(bool isinternalArg,
 		   bool allowstopArg,
 		   httportmap_server &portmapArg);
-	~httpserver() noexcept;
+	~httpserver();
 
 	void run(const LIBCXX_NAMESPACE::fd &socket,
 		 const LIBCXX_NAMESPACE::fd &termpipe);

@@ -46,7 +46,7 @@ class cookiejarObj : virtual public obj {
 
 	//! Destructor
 
-	~cookiejarObj() noexcept;
+	~cookiejarObj();
 
 	//! Store cookies from a response
 

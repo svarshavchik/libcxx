@@ -23,7 +23,7 @@ dirObj::dirObj(const std::string &dirnameArg, bool showimplicitArg) noexcept
 {
 }
 
-dirObj::~dirObj() noexcept
+dirObj::~dirObj()
 {
 }
 

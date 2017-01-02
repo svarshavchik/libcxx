@@ -24,7 +24,7 @@ sequencenodeObj::sequencenodeObj(const docnode &nArg,
 {
 }
 
-sequencenodeObj::~sequencenodeObj() noexcept
+sequencenodeObj::~sequencenodeObj()
 {
 }
 
@@ -73,7 +73,7 @@ sequencenodeObj::iterator::iterator(const_sequencenodeptr &&seqArg, size_t iArg)
 {
 }
 
-sequencenodeObj::iterator::~iterator() noexcept
+sequencenodeObj::iterator::~iterator()
 {
 }
 

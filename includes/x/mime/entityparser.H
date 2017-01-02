@@ -226,7 +226,7 @@ public:
 	}
 
 	//! Destructor
-	~make_multipart_parser_struct() noexcept
+	~make_multipart_parser_struct()
 	{
 	}
 

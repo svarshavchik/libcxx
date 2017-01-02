@@ -46,7 +46,7 @@ public:
 		   const writer::options &options);
 
 	//! Destructor
-	~writerObj() noexcept;
+	~writerObj();
 
 	friend class writer;
 	friend class newscalarnodeObj;

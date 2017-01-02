@@ -39,7 +39,7 @@ public:
 	listvalueObj() noexcept {}
 
 	//! Default destructor
-	~listvalueObj() noexcept {}
+	~listvalueObj() {}
 
 	//! The option's values
 

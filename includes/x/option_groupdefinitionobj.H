@@ -60,7 +60,7 @@ public:
 			   //! This should be a single word
 			   std::string argDescriptionArg) noexcept;
 
-	~groupdefinitionObj() noexcept;
+	~groupdefinitionObj();
 
 	//! Override the set() method.
 

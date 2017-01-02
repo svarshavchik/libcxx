@@ -261,7 +261,7 @@ void writerObj::write_mapping_end()
 	LOG_TRACE("MAPPING_END");
 }
 
-writerObj::~writerObj() noexcept
+writerObj::~writerObj()
 {
 	if (initialized)
 		yaml_emitter_delete(&writer);

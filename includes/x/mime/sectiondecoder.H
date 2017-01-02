@@ -360,7 +360,7 @@ public:
 	{
 	}
 
-	~section_decodertranscoderObj() noexcept
+	~section_decodertranscoderObj()
 	{
         }
 

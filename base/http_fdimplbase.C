@@ -26,7 +26,7 @@ fdimplbase::input_iter_t::input_iter_t()
 {
 }
 
-fdimplbase::input_iter_t::~input_iter_t() noexcept
+fdimplbase::input_iter_t::~input_iter_t()
 {
 }
 
@@ -56,7 +56,7 @@ fdimplbase::output_iter_t::output_iter_t()
 {
 }
 
-fdimplbase::output_iter_t::~output_iter_t() noexcept
+fdimplbase::output_iter_t::~output_iter_t()
 {
 }
 
@@ -109,7 +109,7 @@ void fdimplbase::clear()
 	filedesc_timeout=fdtimeoutptr();
 }
 
-fdimplbase::~fdimplbase() noexcept
+fdimplbase::~fdimplbase()
 {
 }
 

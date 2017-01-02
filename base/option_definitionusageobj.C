@@ -22,7 +22,7 @@ definitionUsageObj::definitionUsageObj(std::ostream &helpStreamArg) noexcept
 {
 }
 
-definitionUsageObj::~definitionUsageObj() noexcept
+definitionUsageObj::~definitionUsageObj()
 {
 }
 

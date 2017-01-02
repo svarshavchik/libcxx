@@ -61,7 +61,7 @@ public:
 
 	//! Default destructor
 
-	~basic_stringstreamObj() noexcept
+	~basic_stringstreamObj()
 	{
 	}
 };

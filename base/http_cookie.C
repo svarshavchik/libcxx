@@ -34,7 +34,7 @@ cookie::cookie(const std::string &nameArg,
 	value=valueArg;
 }
 
-cookie::~cookie() noexcept
+cookie::~cookie()
 {
 }
 

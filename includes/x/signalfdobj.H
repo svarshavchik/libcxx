@@ -65,7 +65,7 @@ public:
 	//! that were blocked by this signal file descriptor (unless some
 	//! particular signal remains blocked by some other file descriptor).
 
-	~signalfdObj() noexcept;
+	~signalfdObj();
 
 	//! Capture the requested signal
 

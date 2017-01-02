@@ -16,7 +16,7 @@ public:
 	{
 	}
 
-	~repeatinfoObj() noexcept LIBCXX_HIDDEN
+	~repeatinfoObj() LIBCXX_HIDDEN
 	{
 	}
 };
@@ -65,7 +65,7 @@ public:
 			: task(taskArg),
 			  run_time(run_timeArg),
 			  repeat(repeatArg) {}
-		~taskinfoObj() noexcept LIBCXX_HIDDEN=default;
+		~taskinfoObj() LIBCXX_HIDDEN=default;
 	};
 
 	typedef ref<taskinfoObj> taskinfo;
@@ -78,11 +78,11 @@ public:
 		{
 		}
 
-		~installedObj() noexcept LIBCXX_HIDDEN =default;
+		~installedObj() LIBCXX_HIDDEN =default;
 	};
 
 	implObj(const std::string &timernameArg) LIBCXX_HIDDEN;
-	~implObj() noexcept LIBCXX_HIDDEN;
+	~implObj() LIBCXX_HIDDEN;
 
 	void run(x::ptr<x::obj> &threadmsgdispatcher_mcguffin,
 		 msgqueue_obj &msgqueue) LIBCXX_HIDDEN;

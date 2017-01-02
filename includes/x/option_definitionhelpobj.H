@@ -36,7 +36,7 @@ public:
 	definitionHelpObj(std::ostream &helpStreamArg) noexcept;
 
 	//! Default destructor
-	~definitionHelpObj() noexcept;
+	~definitionHelpObj();
 
 	//! Implement the set() method.
 

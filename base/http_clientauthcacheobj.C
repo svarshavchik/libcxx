@@ -31,7 +31,7 @@ clientauthcacheObj::clientauthcacheObj()
 {
 }
 
-clientauthcacheObj::~clientauthcacheObj() noexcept
+clientauthcacheObj::~clientauthcacheObj()
 {
 }
 

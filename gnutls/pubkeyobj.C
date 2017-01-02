@@ -16,7 +16,7 @@ gnutls::pubkeyobj::pubkeyobj()
 {
 }
 
-gnutls::pubkeyobj::~pubkeyobj() noexcept
+gnutls::pubkeyobj::~pubkeyobj()
 {
 }
 

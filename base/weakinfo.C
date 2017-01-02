@@ -20,7 +20,7 @@ namespace LIBCXX_NAMESPACE {
 };
 #endif
 
-weakinfo::~weakinfo() noexcept
+weakinfo::~weakinfo()
 {
 	if (!callback_list.empty())
 	{

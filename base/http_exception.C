@@ -34,7 +34,7 @@ response_exception::response_exception(int statuscodeArg,
 	done();
 }
 
-response_exception::~response_exception() noexcept
+response_exception::~response_exception()
 {
 }
 

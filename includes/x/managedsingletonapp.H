@@ -46,7 +46,7 @@ public:
 	bool flag;
 
 	processedObj();
-	~processedObj() noexcept;
+	~processedObj();
 
 	//! The secondary managed singleton instance has processed the request.
 	void processed();
@@ -102,7 +102,7 @@ public:
 
 	//! Destructor
 
-	~managedSingletonAppContainerObj() noexcept=default;
+	~managedSingletonAppContainerObj()=default;
 
 	//! Run common code.
 
@@ -171,7 +171,7 @@ public:
 	}
 
 	//! Destructor
-	~managedSingletonAppContainerObj() noexcept=default;
+	~managedSingletonAppContainerObj()=default;
 
 	//! Run common code.
 
@@ -263,7 +263,7 @@ class singletonapp::managedSingletonFactoryObj : virtual public obj {
 			  sameuser(sameuserArg) {}
 
 		//! Destructor
-		~threadObj() noexcept
+		~threadObj()
 		{
 		}
 
@@ -344,7 +344,7 @@ class singletonapp::managedSingletonFactoryObj : virtual public obj {
 			: threadObj(std::move(appArg), portmapper, sameuser) {}
 
 		//! Destructor
-		~firstThreadObj() noexcept {}
+		~firstThreadObj() {}
 
 		//! Invoke the singleton application thread's run()
 
@@ -385,7 +385,7 @@ class singletonapp::managedSingletonFactoryObj : virtual public obj {
 		}
 
 		//! Constructor
-		~additionalThreadObj() noexcept
+		~additionalThreadObj()
 		{
 		}
 
@@ -436,7 +436,7 @@ public:
 	}
 
 	//! Destructor
-	~managedSingletonFactoryObj() noexcept
+	~managedSingletonFactoryObj()
 	{
 	}
 

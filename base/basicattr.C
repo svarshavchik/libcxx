@@ -219,7 +219,7 @@ basic_attr::basic_attr() noexcept
 {
 }
 
-basic_attr::~basic_attr() noexcept
+basic_attr::~basic_attr()
 {
 }
 

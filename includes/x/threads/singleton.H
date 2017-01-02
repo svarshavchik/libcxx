@@ -105,7 +105,7 @@ private:
 		}
 
 		//! The destructor sets instance to NULL, and destroyed to true.
-		~subclass() noexcept
+		~subclass()
 		{
 			instance=0;
 			destroyed=true;
@@ -123,7 +123,7 @@ public:
 	}
 
 	//! Destructor
-	~threadsingleton() noexcept
+	~threadsingleton()
 	{
 	}
 

@@ -278,7 +278,7 @@ public:
 	bool locked;
 
 	testrwmutexdebugObj() : locked(false) {}
-	~testrwmutexdebugObj() noexcept {}
+	~testrwmutexdebugObj() {}
 
 	void run()
 	{

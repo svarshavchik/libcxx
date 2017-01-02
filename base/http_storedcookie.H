@@ -34,7 +34,7 @@ class storedcookieObj : public cookie, virtual public obj {
 	storedcookieObj(const cookie &cookieArg) LIBCXX_HIDDEN;
 
 	//! Destructor
-	~storedcookieObj() noexcept LIBCXX_HIDDEN;
+	~storedcookieObj() LIBCXX_HIDDEN;
 
 	//! Using a raw pointer is safe here. This pathcookiesObj holds a
 	//! reference on this object. When the reference gets removed, this

@@ -50,7 +50,7 @@ public:
 	callbackObj() noexcept;
 
 	//! Default destructor
-	~callbackObj() noexcept;
+	~callbackObj();
 
 	//! get() returns a nullable pointer reference to this object
 
@@ -73,7 +73,7 @@ public:
 
 		//! Destructor
 
-		~keycertObj() noexcept;
+		~keycertObj();
 	};
 
 	//! A reference to a key and a cert chain returned by get().

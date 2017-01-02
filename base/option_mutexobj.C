@@ -18,7 +18,7 @@ mutexObj::mutexObj() noexcept: value(false)
 {
 }
 
-mutexObj::~mutexObj() noexcept
+mutexObj::~mutexObj()
 {
 }
 

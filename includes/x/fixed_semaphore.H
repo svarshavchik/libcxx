@@ -45,7 +45,7 @@ public:
 
 public:
 	//! Destructor
-	~acquiredObj() noexcept;
+	~acquiredObj();
 };
 
 //! Base class for a \ref fixed_semaphore "fixed semaphore".

@@ -36,7 +36,7 @@ public:
 
 	//! Destructor
 
-	~sysexceptionObj() noexcept;
+	~sysexceptionObj();
 
 	//! Rethrow a \ref sysexception "sysexception".
 
@@ -70,7 +70,7 @@ public:
 		     int line);
 
 	//! The default destructor.
-	~sysexception() noexcept;
+	~sysexception();
 
 	//! Internal contructor
 	sysexception(sysexceptionObj *obj);

@@ -23,7 +23,7 @@ mutexObj::mutexObj(const cond_attr &attr) : acquired(false),
 }
 #endif
 
-mutexObj::~mutexObj() noexcept
+mutexObj::~mutexObj()
 {
 }
 
@@ -39,7 +39,7 @@ mutexObj::mlockObj::mlockObj()
 {
 }
 
-mutexObj::mlockObj::~mlockObj() noexcept
+mutexObj::mlockObj::~mlockObj()
 {
 	if (!m.null())
 		m->unlock();

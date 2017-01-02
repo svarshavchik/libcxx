@@ -163,7 +163,7 @@ public:
 	//! reference go the object go out of scope will end up invoking
 	//! the destructor
 
-	virtual ~obj() noexcept;
+	virtual ~obj();
 
 	//! Helper method for constructing ondestroy() callbacks.
 
@@ -217,7 +217,7 @@ public:
 	destroyCallbackObj() noexcept;
 
 	//! Default destructor
-	~destroyCallbackObj() noexcept;
+	~destroyCallbackObj();
 
 	//! The callback
 
@@ -240,7 +240,7 @@ public:
 	}
 
 	//! Destructor
-	~functorCallbackObj() noexcept
+	~functorCallbackObj()
 	{
 	}
 
@@ -322,7 +322,7 @@ inline ptrImpl<objClass>::ptrImpl(objClass *pArg)
 }
 
 template<typename objClass>
-inline ptrImpl<objClass>::~ptrImpl() noexcept
+inline ptrImpl<objClass>::~ptrImpl()
 {
 	if (refP && refP->refcnt::refadd(-1) == 0)
 		refP->obj::destroy();

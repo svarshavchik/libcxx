@@ -22,7 +22,7 @@ namespace LIBCXX_NAMESPACE {
 };
 #endif
 
-eventfdObj::~eventfdObj() noexcept
+eventfdObj::~eventfdObj()
 {
 }
 

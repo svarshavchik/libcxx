@@ -72,7 +72,7 @@ public:
 	}
 
 	//! Destructor
-	~mcguffinstashObj() noexcept
+	~mcguffinstashObj()
 	{
 	}
 

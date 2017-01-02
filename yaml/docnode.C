@@ -19,7 +19,7 @@ docnodeObj::rootnodeObj::rootnodeObj(const document &docArg) : docnodeObj(docArg
 {
 }
 
-docnodeObj::rootnodeObj::~rootnodeObj() noexcept
+docnodeObj::rootnodeObj::~rootnodeObj()
 {
 }
 
@@ -41,7 +41,7 @@ docnodeObj::nonrootnodeObj::nonrootnodeObj(const document &docArg,
 {
 }
 
-docnodeObj::nonrootnodeObj::~nonrootnodeObj() noexcept
+docnodeObj::nonrootnodeObj::~nonrootnodeObj()
 {
 }
 
@@ -62,7 +62,7 @@ docnodeObj::docnodeObj(const document &docArg) : doc(docArg)
 {
 }
 
-docnodeObj::~docnodeObj() noexcept
+docnodeObj::~docnodeObj()
 {
 }
 

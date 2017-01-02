@@ -48,7 +48,7 @@ class clientObj : virtual public obj {
 		string_callback_base();
 
 		//! Destructor
-		~string_callback_base() noexcept;
+		~string_callback_base();
 
 		//! Subclass writes the file to the output iterator
 		virtual void operator()(const std::string &)=0;
@@ -111,7 +111,7 @@ public:
 		impl_common(const fdbase &connArg) LIBCXX_INTERNAL;
 
 		//! Destructor
-		~impl_common() noexcept LIBCXX_INTERNAL;
+		~impl_common() LIBCXX_INTERNAL;
 	};
 
 	//! Current connection, default timeout handler, stream.
@@ -132,7 +132,7 @@ public:
 		     const fdtimeout &timeoutArg) LIBCXX_INTERNAL;
 
 		//! Destructor
-		~impl() noexcept LIBCXX_INTERNAL;
+		~impl() LIBCXX_INTERNAL;
 
 		//! Read a response
 
@@ -202,7 +202,7 @@ public:
 			     const fdtimeout &timeoutArg) LIBCXX_INTERNAL;
 
 		//! Destructor
-		~conn_infoObj() noexcept LIBCXX_INTERNAL;
+		~conn_infoObj() LIBCXX_INTERNAL;
 	};
 
 	//! Current connection handler
@@ -277,7 +277,7 @@ private:
 public:
 
 	//! Destructor
-	~clientObj() noexcept;
+	~clientObj();
 
 	//! Log in
 
@@ -366,7 +366,7 @@ private:
 			: iter(iterArg) {}
 
 		//! Destructor
-		~string_callback_impl() noexcept {}
+		~string_callback_impl() {}
 
 		//! Write the file to the output iterator
 		virtual void operator()(const std::string &filename)
@@ -516,7 +516,7 @@ private:
 		retr_callback_base();
 
 		//! Destructor
-		~retr_callback_base() noexcept;
+		~retr_callback_base();
 
 		//! Next chunk of data.
 		virtual void chunk(const char *p, size_t n)=0;
@@ -544,7 +544,7 @@ private:
 		}
 
 		//! Destructor
-		~retr_callback() noexcept {}
+		~retr_callback() {}
 
 		//! Next chunk.
 		void chunk(const char *p, size_t n) override
@@ -649,7 +649,7 @@ private:
 		stor_callback_base();
 
 		//! Destructor
-		~stor_callback_base() noexcept;
+		~stor_callback_base();
 
 		//! Write new file to this output stream
 		virtual void do_stor(fdbaseObj &o)=0;
@@ -977,7 +977,7 @@ public:
 	}
 
 	//! Destructor
-	~stor_callback_impl_allo() noexcept {}
+	~stor_callback_impl_allo() {}
 
 	//! Yes, ALLO can be done
 	bool can_allo()
@@ -1012,7 +1012,7 @@ public:
 	}
 
 	//! Destructor
-	~stor_callback_impl_allo() noexcept {}
+	~stor_callback_impl_allo() {}
 
 	//! We can't
 	bool can_allo()
@@ -1050,7 +1050,7 @@ public:
 	}
 
 	//! Destructor
-	~stor_callback_impl_stor() noexcept
+	~stor_callback_impl_stor()
 	{
 	}
 

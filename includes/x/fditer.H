@@ -55,7 +55,7 @@ public:
 	//! Constructor
 	fdbufferObj(const fdbaseptr &fdArg,
 		    size_t buffer_size) LIBCXX_INTERNAL;
-	~fdbufferObj() noexcept LIBCXX_INTERNAL;
+	~fdbufferObj() LIBCXX_INTERNAL;
 
 	friend class fdinputiter;
 	friend class fdoutputiter;
@@ -86,7 +86,7 @@ public:
 		    size_t buffer_size=fdbaseObj::get_buffer_size());
 		
 	//! Destructor
-	~fdinputiter() noexcept;
+	~fdinputiter();
 
 	//! Update the file descriptor transport
 
@@ -163,7 +163,7 @@ public:
 		     size_t buffer_size=fdbaseObj::get_buffer_size());
 
 	//! Destructor
-	~fdoutputiter() noexcept;
+	~fdoutputiter();
 
 	//! Update the file descriptor transport
 

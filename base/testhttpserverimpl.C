@@ -47,7 +47,7 @@ public:
 	threadwriter(const std::string &strArg,
 		     const LIBCXX_NAMESPACE::fd &fdArg);
 
-	~threadwriter() noexcept;
+	~threadwriter();
 
 	void run();
 };
@@ -58,7 +58,7 @@ threadwriter::threadwriter(const std::string &strArg,
 {
 }
 
-threadwriter::~threadwriter() noexcept
+threadwriter::~threadwriter()
 {
 }
 
@@ -84,7 +84,7 @@ class bodycollecter : protected LIBCXX_NAMESPACE::http::fdimplbase,
 
 public:
 	bodycollecter(const LIBCXX_NAMESPACE::fdbase &fdArg);
-	~bodycollecter() noexcept;
+	~bodycollecter();
 
 	void received(const LIBCXX_NAMESPACE::http::requestimpl &req,
 		      bool bodyflag)
@@ -115,7 +115,7 @@ bodycollecter::bodycollecter(const LIBCXX_NAMESPACE::fdbase &fdArg)
 	filedesc_timeout->set_write_timeout(5);
 }
 
-bodycollecter::~bodycollecter() noexcept
+bodycollecter::~bodycollecter()
 {
 }
 
@@ -211,7 +211,7 @@ public:
 			      time_t messageTimeoutArg,
 			      time_t bodyTimeoutArg)
 ;
-	~bodycollecter_timeout() noexcept;
+	~bodycollecter_timeout();
 
 	bool eof();
 
@@ -235,7 +235,7 @@ bodycollecter_timeout::bodycollecter_timeout(const LIBCXX_NAMESPACE::fd &fdArg,
 {
 }
 
-bodycollecter_timeout::~bodycollecter_timeout() noexcept
+bodycollecter_timeout::~bodycollecter_timeout()
 {
 }
 

@@ -29,7 +29,7 @@ public:
 
 	//! Destructor
 
-	~mmapfileObj() noexcept;
+	~mmapfileObj();
 
 	//! Size of the memory mapped file.
 

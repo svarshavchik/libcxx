@@ -36,7 +36,7 @@ public:
 	sigset(bool fill=false);
 
 	//! Destructor
-	~sigset() noexcept;
+	~sigset();
 
 	//! Obtain current thread signal mask
 
@@ -159,7 +159,7 @@ public:
 	block_all() noexcept;
 
 	//! Destructor
-	~block_all() noexcept;
+	~block_all();
 
 	//! A convenience method
 

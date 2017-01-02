@@ -76,7 +76,7 @@ public:
 
 	//! The default destructor
 
-	~basic_streamObj() noexcept
+	~basic_streamObj()
 	{
 	}
 

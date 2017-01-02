@@ -27,7 +27,7 @@ parserObj::parserObj(const const_locale &lArg) noexcept
 	reset();
 }
 
-parserObj::~parserObj() noexcept
+parserObj::~parserObj()
 {
 }
 

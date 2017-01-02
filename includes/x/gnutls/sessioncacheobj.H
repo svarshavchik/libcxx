@@ -36,7 +36,7 @@ public:
 	sessioncacheObj();
 
 	//! Destructor
-	~sessioncacheObj() noexcept;
+	~sessioncacheObj();
 
 private:
 	//! Session ticket

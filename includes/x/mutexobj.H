@@ -40,7 +40,7 @@ public:
 	mutexObj();
 
 	//! Default destructor
-	~mutexObj() noexcept;
+	~mutexObj();
 
 	//! Mutex object lock
 
@@ -58,7 +58,7 @@ public:
 		mlockObj();
 
 		//! Destructor
-		~mlockObj() noexcept;
+		~mlockObj();
 
 		friend class mutexObj;
 		friend class condObj;

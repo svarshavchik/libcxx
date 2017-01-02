@@ -41,7 +41,7 @@ public:
 		: cnt(cntArg) {}
 
 	//! Destructor
-	virtual inline ~refcnt() noexcept __attribute__((artificial)) {}
+	virtual inline ~refcnt() __attribute__((artificial)) {}
 
 	//! Increment or decrement the reference counter
 

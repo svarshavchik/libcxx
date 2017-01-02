@@ -62,7 +62,7 @@ public:
 	     fdptr &connection,
 	     uid_t uid,
 	     mode_t mode) LIBCXX_INTERNAL;
-	~impl() noexcept LIBCXX_INTERNAL;
+	~impl() LIBCXX_INTERNAL;
 
 	static void notrunning(uid_t uid)
 		__attribute__((noreturn));
@@ -96,7 +96,7 @@ class singletonapp::thr : public threadmsgdispatcherObj {
 public:
 
 	thr() LIBCXX_INTERNAL {}
-	~thr() noexcept LIBCXX_INTERNAL {}
+	~thr() LIBCXX_INTERNAL {}
 
 	void run(ptr<obj> &threadmsgdispatcher_mcguffin,
 		 fd &listensock,
@@ -124,7 +124,7 @@ class LIBCXX_HIDDEN singletonapp::impl::mysighandler : public sighandlerObj {
 	{
 	}
 
-	~mysighandler() noexcept
+	~mysighandler()
 	{
 	}
 
@@ -153,7 +153,7 @@ singletonapp::factorybaseObj::factorybaseObj()
 {
 }
 
-singletonapp::factorybaseObj::~factorybaseObj() noexcept
+singletonapp::factorybaseObj::~factorybaseObj()
 {
 }
 
@@ -238,7 +238,7 @@ void singletonapp::impl::notrunning(uid_t uid)
 				   passwd(uid)->pw_name));
 }
 
-singletonapp::impl::~impl() noexcept
+singletonapp::impl::~impl()
 {
 	try {
 		close();
@@ -337,7 +337,7 @@ public:
 	ref<thr> tptr;
 
 	destroycb(const ref<thr> &ptrArg) : tptr(ptrArg) {}
-	~destroycb() noexcept {}
+	~destroycb() {}
 
 	void destroyed()
 	{
@@ -403,7 +403,7 @@ singletonapp::instanceObj::instanceObj(const ref<singletonapp::factorybaseObj>
 {
 }
 
-singletonapp::instanceObj::~instanceObj() noexcept
+singletonapp::instanceObj::~instanceObj()
 {
 	connection=fdptr();
 
@@ -512,7 +512,7 @@ singletonapp::processedObj::processedObj() : flag(false)
 {
 }
 
-singletonapp::processedObj::~processedObj() noexcept
+singletonapp::processedObj::~processedObj()
 {
 }
 

@@ -44,7 +44,7 @@ public:
 
 	//! Default destructor
 
-	~dirwalkObj() noexcept;
+	~dirwalkObj();
 
 
 	//! An %iterator for the directory's contents
@@ -78,7 +78,7 @@ public:
 
 		//! Default destructor.
 
-		~iterator() noexcept;
+		~iterator();
 
 		friend class dirwalkObj;
 

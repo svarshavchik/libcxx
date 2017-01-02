@@ -33,7 +33,7 @@ public:
 	std::string what;
 
 	test1argsObj() {}
-	~test1argsObj() noexcept {}
+	~test1argsObj() {}
 
 	test1argsObj(const std::string &whatArg) : what(whatArg)
 	{
@@ -128,7 +128,7 @@ public:
 	{
 	}
 
-	~test1threadObj() noexcept
+	~test1threadObj()
 	{
 	}
 
@@ -184,7 +184,7 @@ class test1altArgsObj : public LIBCXX_NAMESPACE::threadmsgdispatcherObj {
 public:
 
 	test1altArgsObj() {}
-	~test1altArgsObj() noexcept {}
+	~test1altArgsObj() {}
 
 	test1args run(LIBCXX_NAMESPACE::ptr<LIBCXX_NAMESPACE::obj>
 		      &threadmsgdispatcher_mcguffin,

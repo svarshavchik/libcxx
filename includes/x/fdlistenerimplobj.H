@@ -73,7 +73,7 @@ public:
 		fdserverObj();
 
 		//! Destructor
-		~fdserverObj() noexcept;
+		~fdserverObj();
 
 		//! Implement socket server in the subclass.
 		virtual void run(const fd &socket, //!< The new socket
@@ -108,7 +108,7 @@ public:
 		//! These sockets have already been created and bound
 		listenon(const std::list<fd> &fdlistArg);
 
-		~listenon() noexcept;
+		~listenon();
 	};
 
 	//! Constructor
@@ -141,7 +141,7 @@ public:
 			  const std::string &propname="");
 
 	//! Destructor
-	~fdlistenerImplObj() noexcept;
+	~fdlistenerImplObj();
 
 	//! Start the listener
 	void start(//! The server for each accepted socket

@@ -19,7 +19,7 @@ fdreadlimitObj::fdreadlimitObj(const fdbase &fdptr)
 {
 }
 
-fdreadlimitObj::~fdreadlimitObj() noexcept
+fdreadlimitObj::~fdreadlimitObj()
 {
 }
 

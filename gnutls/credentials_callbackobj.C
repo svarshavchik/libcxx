@@ -23,7 +23,7 @@ gnutls::credentials::callbackObj::keycertObj
 }
 
 gnutls::credentials::callbackObj::keycertObj
-::~keycertObj() noexcept
+::~keycertObj()
 {
 }
 
@@ -32,7 +32,7 @@ gnutls::credentials::callbackObj::callbackObj() noexcept
 {
 }
 
-gnutls::credentials::callbackObj::~callbackObj() noexcept
+gnutls::credentials::callbackObj::~callbackObj()
 {
 }
 

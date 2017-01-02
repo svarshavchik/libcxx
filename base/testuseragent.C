@@ -54,7 +54,7 @@ public:
 	testserver ptr;
 
 	myfdserverObj(const testserver &ptrArg);
-	~myfdserverObj() noexcept;
+	~myfdserverObj();
 
 	const LIBCXX_NAMESPACE::fd *socketptr;
 
@@ -88,7 +88,7 @@ public:
 	bool waiting;
 
 	testserverObj();
-	~testserverObj() noexcept;
+	~testserverObj();
 
 	size_t getRunning()
 	{
@@ -118,7 +118,7 @@ testserverObj::testserverObj()
 {
 }
 
-testserverObj::~testserverObj() noexcept
+testserverObj::~testserverObj()
 {
 }
 
@@ -126,7 +126,7 @@ myfdserverObj::myfdserverObj(const testserver &ptrArg) : ptr(ptrArg)
 {
 }
 
-myfdserverObj::~myfdserverObj() noexcept
+myfdserverObj::~myfdserverObj()
 {
 }
 
@@ -231,7 +231,7 @@ public:
 	{
 	}
 
-	~savebodyObj() noexcept
+	~savebodyObj()
 	{
 	}
 
@@ -497,7 +497,7 @@ public:
 
 	testpoolthreadObj(const LIBCXX_NAMESPACE::http::useragent &uaRef,
 			  const LIBCXX_NAMESPACE::uriimpl &uriRef);
-	~testpoolthreadObj() noexcept;
+	~testpoolthreadObj();
 
 	void run();
 };
@@ -510,7 +510,7 @@ testpoolthreadObj::testpoolthreadObj(const LIBCXX_NAMESPACE::http::useragent
 {
 }
 
-testpoolthreadObj::~testpoolthreadObj() noexcept
+testpoolthreadObj::~testpoolthreadObj()
 {
 }
 
@@ -655,7 +655,7 @@ class formpost_serverimpl : public LIBCXX_NAMESPACE::http::fdserverimpl,
 public:
 
 	formpost_serverimpl() {}
-	~formpost_serverimpl() noexcept {}
+	~formpost_serverimpl() {}
 
 	void received(const LIBCXX_NAMESPACE::http::requestimpl &req,
 		      bool bodyflag)
@@ -744,7 +744,7 @@ class formpost_serverimplObj : virtual public LIBCXX_NAMESPACE::obj {
 
 public:
 	formpost_serverimplObj() {}
-	~formpost_serverimplObj() noexcept {}
+	~formpost_serverimplObj() {}
 
 	LIBCXX_NAMESPACE::ref<formpost_serverimpl> create()
 	{
@@ -1056,7 +1056,7 @@ public:
 
 	basic_httpauth_serverimpl(const std::list<int> &status_codesArg)
 		: status_codes(status_codesArg) {}
-	~basic_httpauth_serverimpl() noexcept {}
+	~basic_httpauth_serverimpl() {}
 
 	void received(const LIBCXX_NAMESPACE::http::requestimpl &req,
 		      bool bodyflag)
@@ -1147,7 +1147,7 @@ public:
 		save_args(std::forward<Args>(args)...);
 	}
 
-	~basic_httpauth_serverimplObj() noexcept {}
+	~basic_httpauth_serverimplObj() {}
 
 	LIBCXX_NAMESPACE::ref<basic_httpauth_serverimpl> create()
 	{
@@ -1439,7 +1439,7 @@ class testcookies_serverObj : public LIBCXX_NAMESPACE::http::fdserverimpl,
 public:
 
 	testcookies_serverObj() {}
-	~testcookies_serverObj() noexcept
+	~testcookies_serverObj()
 	{
 	}
 
@@ -1571,7 +1571,7 @@ public:
 	size_t counter;
 
 	testredirect_serverObj() : counter(0) {}
-	~testredirect_serverObj() noexcept
+	~testredirect_serverObj()
 	{
 	}
 

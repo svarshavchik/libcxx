@@ -113,7 +113,7 @@ void gnutls::progress_notifier::progress(std::string method,
 			;
 }
 
-gnutls::init::~init() noexcept
+gnutls::init::~init()
 {
 	if (__sync_fetch_and_add(&init_flag, 0))
 		gnutls_global_deinit();

@@ -129,7 +129,7 @@ public:
 		const const_locale &localeArg=locale::base::global()) noexcept;
 
 	//! Destructor
-	~memsize() noexcept {}
+	~memsize() {}
 
 	//! Format the memory size via fmtstring
 

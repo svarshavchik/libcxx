@@ -53,7 +53,7 @@ public:
 	messageimpl(const headersbase &headers);
 
 	//! Destructor
-	~messageimpl() noexcept;
+	~messageimpl();
 
 	//! Parse an HTTP/1.1 message out of some input sequence
 

@@ -72,7 +72,7 @@ public:
 	structured_content_header() noexcept;
 
 	//! Default destructor
-	~structured_content_header() noexcept;
+	~structured_content_header();
 
 	//! Construct with just a value parameter
 	structured_content_header(const std::string &valueArg);

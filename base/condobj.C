@@ -20,7 +20,7 @@ condObj::condObj(const cond_attr &attr) : cond(attr)
 {
 }
 #endif
-condObj::~condObj() noexcept
+condObj::~condObj()
 {
 }
 

@@ -62,7 +62,7 @@ public:
 
 	//! Destructor
 
-	~newscalarnodeObj() noexcept;
+	~newscalarnodeObj();
 
 	friend class writerObj;
 

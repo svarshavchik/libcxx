@@ -26,7 +26,7 @@ class globlock {
 	globlock() LIBCXX_HIDDEN;
 
 	//! Destructor
-	~globlock() noexcept LIBCXX_HIDDEN;
+	~globlock() LIBCXX_HIDDEN;
 };
 
 //! Execute a fork() under a global lock.

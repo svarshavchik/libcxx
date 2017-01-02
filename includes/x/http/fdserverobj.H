@@ -37,7 +37,7 @@ public:
 	fdserverObj();
 
 	//! Destructor
-	~fdserverObj() noexcept;
+	~fdserverObj();
 
 	//! fdlistener gives us the file descriptor here, run with it.
 

@@ -673,7 +673,7 @@ public:
 
 	//! Destructor
 
-	~sizeof_iter() noexcept
+	~sizeof_iter()
 	{
 	}
 
@@ -752,7 +752,7 @@ public:
 
 	//! Destructor
 
-	~iterator() noexcept
+	~iterator()
 	{
 	}
 
@@ -868,7 +868,7 @@ public:
 	}
 
 	//! Destructor
-	~sizeof_iterator() noexcept
+	~sizeof_iterator()
 	{
 	}
 

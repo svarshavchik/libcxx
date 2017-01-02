@@ -15,7 +15,7 @@ obj::destroyCallbackObj::destroyCallbackObj() noexcept
 {
 }
 
-obj::destroyCallbackObj::~destroyCallbackObj() noexcept
+obj::destroyCallbackObj::~destroyCallbackObj()
 {
 }
 
@@ -34,14 +34,14 @@ public:
 
 	public:
 		cbListObj();
-		~cbListObj() noexcept;
+		~cbListObj();
 	};
 
 	//! Constructor
 	onAnyDestroyCallbackObj(const ref<cbListObj> &cb);
 
 	//! Destructor
-	~onAnyDestroyCallbackObj() noexcept;
+	~onAnyDestroyCallbackObj();
 
 	//! One of the mcguffins went out of scope. We're done, cancel the whole show.
 	void destroyed();
@@ -58,7 +58,7 @@ onAnyDestroyCallbackObj::cbListObj::cbListObj()
 {
 }
 
-onAnyDestroyCallbackObj::cbListObj::~cbListObj() noexcept
+onAnyDestroyCallbackObj::cbListObj::~cbListObj()
 {
 }
 
@@ -67,7 +67,7 @@ onAnyDestroyCallbackObj::onAnyDestroyCallbackObj(const ref<cbListObj> &cb)
 	*mpobj<ptr<cbListObj> >::lock(callbacks)=cb;
 }
 
-onAnyDestroyCallbackObj::~onAnyDestroyCallbackObj() noexcept
+onAnyDestroyCallbackObj::~onAnyDestroyCallbackObj()
 {
 }
 

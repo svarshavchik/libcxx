@@ -232,7 +232,7 @@ public:
 
 	//! Destructor
 
-	~joiniterator() noexcept {}
+	~joiniterator() {}
 
 	//! Iterator operator
 	auto operator*() const -> decltype(*cur_cur)

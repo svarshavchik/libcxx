@@ -33,7 +33,7 @@ gnutls::sessioncacheObj::sessioncacheObj()
 {
 }
 
-gnutls::sessioncacheObj::~sessioncacheObj() noexcept
+gnutls::sessioncacheObj::~sessioncacheObj()
 {
 }
 
@@ -61,7 +61,7 @@ public:
 
 	basic_implObj() : cache(cache_size_property.getValue()) {}
 
-	~basic_implObj() noexcept {}
+	~basic_implObj() {}
 
 	void store(const datum_t &key,
 		   const datum_t &data) override

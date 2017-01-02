@@ -31,7 +31,7 @@ namespace LIBCXX_NAMESPACE {
  LIBCXX_HIDDEN;
 
 			//! Destructor
-			~errexception() noexcept;
+			~errexception();
 		};
 
 		//! This exception gets thrown by sessionObj::recv() when it receives a TLS alert record
@@ -54,7 +54,7 @@ namespace LIBCXX_NAMESPACE {
 ;
 
 			//! Destructor
-			~alertexception() noexcept;
+			~alertexception();
 		};
 
 	}

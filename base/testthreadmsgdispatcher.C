@@ -20,7 +20,7 @@ public:
 	{
 	}
 
-	~intarray() noexcept
+	~intarray()
 	{
 	}
 };
@@ -44,7 +44,7 @@ public:
 	{
 	}
 
-	~mythreadObj() noexcept
+	~mythreadObj()
 	{
 	}
 
@@ -77,7 +77,7 @@ class mythread2Obj : public LIBCXX_NAMESPACE::threadeventqueuemsgdispatcherObj<m
 public:
 
 	mythread2Obj() {}
-	~mythread2Obj() noexcept {}
+	~mythread2Obj() {}
 
 	void run(const LIBCXX_NAMESPACE::ref<LIBCXX_NAMESPACE::obj> &mcguffin,
 		 const msgqueue_t &q,

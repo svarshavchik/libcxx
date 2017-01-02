@@ -101,7 +101,7 @@ public:
 
 	//! Destructor
 
-	~messagesObj() noexcept;
+	~messagesObj();
 
 	//! Retrieve a message from the catalog
 
@@ -267,7 +267,7 @@ public:
 	: fmt(fmtArg), args(std::forward<Args>(given_args)...) {}
 
 	//! Destructor
-	~gettext_helper() noexcept {}
+	~gettext_helper() {}
 
 	//! Format the nth parameter
 
@@ -374,7 +374,7 @@ public:
 	}
 
 	//! Destructor
-	~gettext_helper_ref() noexcept {}
+	~gettext_helper_ref() {}
 
 	using ref_t::operator*;
 	using ref_t::operator->;

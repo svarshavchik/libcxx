@@ -77,7 +77,7 @@ namespace LIBCXX_NAMESPACE {
 //!
 //! public:
 //!    myEventHandlerObj() noexcept {}
-//!    ~myEventHandlerObj() noexcept {}
+//!    ~myEventHandlerObj() {}
 //!    void event(const int &eventArg);
 //! };
 //!

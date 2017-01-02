@@ -20,7 +20,7 @@ gnutls::rsaprivkeyobj::rsaprivkeyobj() :
 {
 }
 
-gnutls::rsaprivkeyobj::~rsaprivkeyobj() noexcept
+gnutls::rsaprivkeyobj::~rsaprivkeyobj()
 {
 }
 

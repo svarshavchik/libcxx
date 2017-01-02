@@ -52,7 +52,7 @@ public:
 	tzfile localInstance;
 
 	localtz();
-	~localtz() noexcept;
+	~localtz();
 };
 
 singleton<tzfileBase::localtz> tzfileBase::localtzInstance;
@@ -62,7 +62,7 @@ tzfileBase::localtz::localtz()
 {
 }
 
-tzfileBase::localtz::~localtz() noexcept
+tzfileBase::localtz::~localtz()
 {
 }
 
@@ -72,7 +72,7 @@ public:
 	tzfile utcInstance;
 
 	utctz();
-	~utctz() noexcept;
+	~utctz();
 };
 
 singleton<tzfileBase::utctz> tzfileBase::utctzInstance;
@@ -82,7 +82,7 @@ tzfileBase::utctz::utctz()
 {
 }
 
-tzfileBase::utctz::~utctz() noexcept
+tzfileBase::utctz::~utctz()
 {
 }
 
@@ -846,7 +846,7 @@ int tzfileObj::parse_tzhead(const std::string &tzname,
 	return version;
 }
 
-tzfileObj::~tzfileObj() noexcept
+tzfileObj::~tzfileObj()
 {
 }
 

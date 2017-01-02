@@ -38,7 +38,7 @@ public:
 	valueImplBase(argType initialValue) noexcept : v(initialValue) {}
 
 	//! Default destructor
-	~valueImplBase() noexcept {}
+	~valueImplBase() {}
 
 	//! Retrieve current %value
 	argType getValue() const noexcept { return __sync_fetch_and_add(&v, 0); }
@@ -69,7 +69,7 @@ public:
 	valueImplBase(bool initialValue) noexcept : v(initialValue) {}
 
 	//! Default destructor
-	~valueImplBase() noexcept {}
+	~valueImplBase() {}
 
 	//! Retrieve current %value
 	bool getValue() const noexcept { return __sync_fetch_and_add(&v, 0); }
@@ -104,7 +104,7 @@ public:
 	valueImplBase(const argType &initialValue) noexcept : v(initialValue) {}
 
 	//! Default destructor
-	~valueImplBase() noexcept {}
+	~valueImplBase() {}
 
 	//! Retrieve current %value
 
@@ -177,7 +177,7 @@ public:
 			    > (initialValue) {}
 
 	//! Default destructor
-	~valueimpl() noexcept {}
+	~valueimpl() {}
 
 };
 

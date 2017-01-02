@@ -58,7 +58,7 @@ sigset::sigset(bool fill)
 		throw EXCEPTION("sigset");
 }
 
-sigset::~sigset() noexcept
+sigset::~sigset()
 {
 }
 
@@ -140,7 +140,7 @@ sigset::block_all::block_all() noexcept
 	ss.setmask();
 }
 
-sigset::block_all::~block_all() noexcept
+sigset::block_all::~block_all()
 {
 	orig.setmask();
 }

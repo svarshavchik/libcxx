@@ -15,7 +15,7 @@ filestatObj::filestatObj() noexcept
 {
 }
 
-filestatObj::~filestatObj() noexcept
+filestatObj::~filestatObj()
 {
 }
 

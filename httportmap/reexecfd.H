@@ -27,7 +27,7 @@ public:
 
 	reexec_fd(const LIBCXX_NAMESPACE::fdbase &fdArg,
 		  const LIBCXX_NAMESPACE::fd &socketArg);
-	~reexec_fd() noexcept {}
+	~reexec_fd() {}
 };
 
 class reexec_fd_send : public reexec_fd {
@@ -37,7 +37,7 @@ public:
 
 	reexec_fd_send(const LIBCXX_NAMESPACE::fd &fdArg,
 		       const LIBCXX_NAMESPACE::fd &socketArg);
-	~reexec_fd_send() noexcept {}
+	~reexec_fd_send() {}
 
 	reexec_fd_send(const reexec_fd_send &)=delete;
 	reexec_fd_send &operator=(const reexec_fd_send &)=delete;
@@ -50,7 +50,7 @@ public:
 
 	reexec_fd_recvObj(const LIBCXX_NAMESPACE::fdbase &fdArg,
 			  const LIBCXX_NAMESPACE::fd &socketArg);
-	~reexec_fd_recvObj() noexcept {}
+	~reexec_fd_recvObj() {}
 
 	reexec_fd_recvObj(const reexec_fd_recvObj &)=delete;
 	reexec_fd_recvObj &operator=(const reexec_fd_recvObj &)=delete;

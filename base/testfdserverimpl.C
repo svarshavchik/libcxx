@@ -19,7 +19,7 @@ public:
 	{
 	}
 
-	~myServerObj() noexcept
+	~myServerObj()
 	{
 	}
 
@@ -50,7 +50,7 @@ class myfdserverObj : virtual public LIBCXX_NAMESPACE::obj {
 
 public:
        myfdserverObj() {}
-       ~myfdserverObj() noexcept {}
+       ~myfdserverObj() {}
 
        LIBCXX_NAMESPACE::ref<myServerObj> create()
        {

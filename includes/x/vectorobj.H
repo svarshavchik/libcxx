@@ -57,7 +57,7 @@ public:
 	{
 	}
 
-	~vectorObj() noexcept {}
+	~vectorObj() {}
 
 
 	//! Dump the contents of this vector to a stream

@@ -214,7 +214,7 @@ public:
 	}
 
 	//! Default destructor
-	~ymdhms() noexcept;
+	~ymdhms();
 
 	//! Retrieve the effective timezone
 
@@ -245,7 +245,7 @@ public:
 		formatter(const ymdhms &objArg);
 
 		//! Destructor
-		inline ~formatter() noexcept {}
+		inline ~formatter() {}
 
 		//! Convert to a string
 		template<typename OutputIterator>

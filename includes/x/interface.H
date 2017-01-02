@@ -49,7 +49,7 @@ public:
 	}
 
 	//! Default destructor
-	~interface() noexcept
+	~interface()
 	{
 	}
 

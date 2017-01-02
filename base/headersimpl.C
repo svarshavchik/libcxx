@@ -26,7 +26,7 @@ headersimpl<endl_type>::headersimpl(const headersbase &headers)
 }
 
 template<typename endl_type>
-headersimpl<endl_type>::~headersimpl() noexcept
+headersimpl<endl_type>::~headersimpl()
 {
 }
 

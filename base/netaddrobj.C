@@ -129,7 +129,7 @@ netaddrObj::netaddrObj(int type,
 	serviceval=default_service;
 }
 
-netaddrObj::~netaddrObj() noexcept
+netaddrObj::~netaddrObj()
 {
 }
 

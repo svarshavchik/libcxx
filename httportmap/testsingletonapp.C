@@ -46,7 +46,7 @@ public:
 		{
 		}
 
-		~thr() noexcept
+		~thr()
 		{
 		}
 
@@ -128,7 +128,7 @@ public:
 	{
 	}
 
-	~testapp2() noexcept {}
+	~testapp2() {}
 
 	class thr : public LIBCXX_NAMESPACE::threadmsgdispatcherObj {
 
@@ -139,7 +139,7 @@ public:
 		{
 		}
 
-		~thr() noexcept
+		~thr()
 		{
 		}
 

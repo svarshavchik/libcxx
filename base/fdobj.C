@@ -140,7 +140,7 @@ fdbaseObj::adapterObj::adapterObj(const fdbase &ptrArg)
 {
 }
 
-fdbaseObj::adapterObj::~adapterObj() noexcept
+fdbaseObj::adapterObj::~adapterObj()
 {
 }
 
@@ -257,7 +257,7 @@ class fdObj::closeactionObj : virtual public obj {
 
  public:
 	closeactionObj() {}
-	~closeactionObj() noexcept {}
+	~closeactionObj() {}
 
 	virtual void beforeclose() {}
 	virtual void cancel() {}
@@ -281,7 +281,7 @@ class fdObj::closeactionObj::rename : public closeactionObj {
 	{
 	}
 
-	~rename() noexcept
+	~rename()
 	{
 	}
 
@@ -311,7 +311,7 @@ class fdObj::closeactionObj::lockunlink : public closeactionObj {
 	{
 	}
 
-	~lockunlink() noexcept
+	~lockunlink()
 	{
 	}
 
@@ -335,7 +335,7 @@ void fdObj::init() noexcept
 	sigpipeFlag=false;
 }
 
-fdObj::~fdObj() noexcept
+fdObj::~fdObj()
 {
 	try {
 		close();
@@ -1506,7 +1506,7 @@ public:
 		task(const fd &updateArg) LIBCXX_HIDDEN
 			: update(updateArg) {}
 
-		~task() noexcept {}
+		~task() {}
 
 		void run() LIBCXX_HIDDEN
 		{
@@ -1519,7 +1519,7 @@ public:
 	ptr<task> updatetask;
 
 	futimens_intervalObj(const ptr<task> &updatetaskArg) LIBCXX_HIDDEN;
-	~futimens_intervalObj() noexcept LIBCXX_HIDDEN;
+	~futimens_intervalObj() LIBCXX_HIDDEN;
 
 };
 
@@ -1529,7 +1529,7 @@ fdObj::futimens_intervalObj::futimens_intervalObj(const ptr<task>
 {
 }
 
-fdObj::futimens_intervalObj::~futimens_intervalObj() noexcept
+fdObj::futimens_intervalObj::~futimens_intervalObj()
 {
 	updatetask->cancel();
 }

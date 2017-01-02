@@ -60,7 +60,7 @@ public:
 
 	//! Default destructor
 
-	~definitionbaseObj() noexcept;
+	~definitionbaseObj();
 
 	//! Set the %option - no value provided
 

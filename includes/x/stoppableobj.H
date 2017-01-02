@@ -32,7 +32,7 @@ public:
 	stoppableObj();
 
 	//! Destructor
-	~stoppableObj() noexcept;
+	~stoppableObj();
 
 	//! Request this thread to terminate itself
 

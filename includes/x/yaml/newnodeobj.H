@@ -33,7 +33,7 @@ public:
 
 	//! Destructor
 
-	~newnodeObj() noexcept;
+	~newnodeObj();
 
 	friend class writerObj;
 	friend class newsequence;

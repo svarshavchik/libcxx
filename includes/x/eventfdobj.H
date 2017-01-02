@@ -36,7 +36,7 @@ public:
 
 	//! Close the event file descriptor before this object gets
 	//! destructed.
-	~eventfdObj() noexcept;
+	~eventfdObj();
 
 	//! Event notification.
 

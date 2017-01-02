@@ -112,7 +112,7 @@ public:
 
     myClassObj()=default;
 
-    ~myClassObj() noexcept=default;
+    ~myClassObj()=default;
 
     void statusinquiry(bool format);
 

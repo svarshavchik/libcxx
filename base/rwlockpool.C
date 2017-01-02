@@ -16,7 +16,7 @@ rwpool_traits::container_t::container_t() noexcept
 {
 }
 
-rwpool_traits::container_t::~container_t() noexcept
+rwpool_traits::container_t::~container_t()
 {
 }
 

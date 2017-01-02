@@ -60,7 +60,7 @@ public:
 
 	//! Default destructor
 
-	~dirwalktreeObj() noexcept;
+	~dirwalktreeObj();
 
 	//! Retrieve the current directory entry
 

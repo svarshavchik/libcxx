@@ -33,7 +33,7 @@ public:
 	rfc2047_encode_base();
 
 	//! Destructor
-	~rfc2047_encode_base() noexcept;
+	~rfc2047_encode_base();
 
 	//! Encode it.
 	void encode(//! Language, empty for unspecified language.

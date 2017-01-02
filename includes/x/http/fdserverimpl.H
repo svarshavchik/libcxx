@@ -178,7 +178,7 @@ public:
 	fdserverimpl();
 
 	//! Destructor
-	~fdserverimpl() noexcept;
+	~fdserverimpl();
 
 	//! Run a server.
 

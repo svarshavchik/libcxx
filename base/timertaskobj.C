@@ -23,7 +23,7 @@ timertaskObj::timertaskObj()
 {
 }
 
-timertaskObj::~timertaskObj() noexcept
+timertaskObj::~timertaskObj()
 {
 }
 
@@ -86,7 +86,7 @@ canceltimertaskObj::canceltimertaskObj(ref<timertaskObj> &&taskArg)
 {
 }
 
-canceltimertaskObj::~canceltimertaskObj() noexcept
+canceltimertaskObj::~canceltimertaskObj()
 {
 	task->cancel();
 }

@@ -20,7 +20,7 @@ public:
 	{
 	}
 	
-	~timertaskentryObj() noexcept LIBCXX_HIDDEN
+	~timertaskentryObj() LIBCXX_HIDDEN
 	{
 	}
 };

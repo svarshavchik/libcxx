@@ -74,7 +74,7 @@ public:
 	fdclientimpl();
 
 	//! Destructor
-	~fdclientimpl() noexcept;
+	~fdclientimpl();
 
 	//! Recycle the HTTP client
 

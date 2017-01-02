@@ -24,7 +24,7 @@ netaddrResultObj::netaddrResultObj() noexcept
 {
 }
 
-netaddrResultObj::~netaddrResultObj() noexcept
+netaddrResultObj::~netaddrResultObj()
 {
 }
 
@@ -39,7 +39,7 @@ netaddrResultObj::addrstruct::addrstruct(const const_sockaddr &addrArg)
 {
 }
 
-netaddrResultObj::addrstruct::~addrstruct() noexcept
+netaddrResultObj::addrstruct::~addrstruct()
 {
 }
 

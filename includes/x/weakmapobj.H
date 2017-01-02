@@ -138,7 +138,7 @@ public:
 		{
 		}
 
-		~assignmentHelper() noexcept
+		~assignmentHelper()
 		{
 		}
 
@@ -179,7 +179,7 @@ public:
 	}
 
 	//! Default destructor
-	~weakmapBaseObj() noexcept
+	~weakmapBaseObj()
 	{
 	}
 
@@ -429,7 +429,7 @@ public:
 	}
 
 	//! Destructor
-	~weakmapObj() noexcept
+	~weakmapObj()
 	{
 	}
 

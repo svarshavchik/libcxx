@@ -59,7 +59,7 @@ public:
 	fileattrObj(const std::string &filenameArg,
 		    bool readsymlinksArg=true) noexcept;
 
-	~fileattrObj() noexcept;
+	~fileattrObj();
 
 private:
 	//! Invoke the listxattr() or llistxattr() function.

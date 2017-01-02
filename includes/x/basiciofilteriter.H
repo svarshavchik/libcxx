@@ -73,7 +73,7 @@ public:
 	obasiciofilteriterbase() {}
 
 	//! Destructor
-	~obasiciofilteriterbase() noexcept {}
+	~obasiciofilteriterbase() {}
 
 private:
 
@@ -310,7 +310,7 @@ public:
 	ibasiciofilteriter() {}
 
 	//! Destructor
-	~ibasiciofilteriter() noexcept {}
+	~ibasiciofilteriter() {}
 
 private:
 
@@ -369,7 +369,7 @@ private:
 		placeholder(output_type_t valArg) noexcept : val(valArg) {}
 
 		//! Destructor
-		~placeholder() noexcept {}
+		~placeholder() {}
 
 		//! The post-increment * operator returns the value.
 

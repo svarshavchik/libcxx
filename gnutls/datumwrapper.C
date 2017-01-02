@@ -19,7 +19,7 @@ gnutls::datumwrapper::datumwrapper(const gnutls_datum_t &valueRef) noexcept
 {
 }
 
-gnutls::datumwrapper::~datumwrapper() noexcept
+gnutls::datumwrapper::~datumwrapper()
 {
 	if (datum.data && datum.size)
 		gnutls_free(datum.data);

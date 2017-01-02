@@ -18,7 +18,7 @@ namespace LIBCXX_NAMESPACE {
 };
 #endif
 
-signalfdObj::~signalfdObj() noexcept
+signalfdObj::~signalfdObj()
 {
 }
 

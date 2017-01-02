@@ -39,7 +39,7 @@ public:
 
 	h() : flag(false) {}
 
-	~h() noexcept {}
+	~h() {}
 
 	void signal(int signum)
 	{

@@ -19,7 +19,7 @@ gnutls::dsapubkeyobj::dsapubkeyobj() :
 {
 }
 
-gnutls::dsapubkeyobj::~dsapubkeyobj() noexcept
+gnutls::dsapubkeyobj::~dsapubkeyobj()
 {
 }
 

@@ -44,7 +44,7 @@ public:
 	guard();
 
 	//! Destructor
-	~guard() noexcept;
+	~guard();
 
 	//! This object must be destroyed before the guard goes out of scope
 	template<typename objClass, typename baseClass>

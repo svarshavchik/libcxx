@@ -52,7 +52,7 @@ void passwd::init()
 	buffer.resize(n);
 }
 
-passwd::~passwd() noexcept
+passwd::~passwd()
 {
 }
 

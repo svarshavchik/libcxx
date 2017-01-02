@@ -52,7 +52,7 @@ public:
 	inotifyObj();
 
 	//! Destructor
-	~inotifyObj() noexcept;
+	~inotifyObj();
 
 	class watchObj;
 

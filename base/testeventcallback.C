@@ -23,7 +23,7 @@ public:
 	std::list<testvip> seen;
 
 	testviphandler() {}
-	~testviphandler() noexcept {}
+	~testviphandler() {}
 };
 
 template<typename vip_t>

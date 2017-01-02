@@ -44,7 +44,7 @@ public:
 		      const std::string &tochset);
 
 	//! Destructor
-	~iconviofilter() noexcept;
+	~iconviofilter();
 
 	//! Convert between character sets
 	void filter();

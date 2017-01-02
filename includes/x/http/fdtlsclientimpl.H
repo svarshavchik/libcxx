@@ -95,7 +95,7 @@ public:
 	fdtlsclientimpl();
 
 	//! Destructor
-	~fdtlsclientimpl() noexcept;
+	~fdtlsclientimpl();
 
 	//! Recycle the HTTP client
 

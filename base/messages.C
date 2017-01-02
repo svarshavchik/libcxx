@@ -37,7 +37,7 @@ messagesObj::messagesObj(const const_locale &lArg,
 	bindtextdomain(domainArg.c_str(), directory.c_str());
 }
 
-messagesObj::~messagesObj() noexcept
+messagesObj::~messagesObj()
 {
 }
 

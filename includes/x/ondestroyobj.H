@@ -65,7 +65,7 @@ public:
 
 	//! The destructor callback is optionally cancelled. If not, the
 	//! destructor callback remains in force for the original object.
-	~ondestroyObj() noexcept;
+	~ondestroyObj();
 
 	//! Cancel the destructor callback
 

@@ -66,7 +66,7 @@ public:
 		  int line);
 
 	//! The default destructor
-	~exception() noexcept;
+	~exception();
 
 	//! Internal constructor
 
@@ -155,7 +155,7 @@ public:
 
 	//! Destructor.
 
-	virtual ~custom_exceptionObj() noexcept
+	virtual ~custom_exceptionObj()
 	{
 	}
 };

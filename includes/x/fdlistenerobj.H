@@ -56,7 +56,7 @@ class fdlistenerObj : virtual public obj {
 		{
 		}
 
-		~serverObj() noexcept
+		~serverObj()
 		{
 		}
 
@@ -118,7 +118,7 @@ public:
 		      const std::string &propname="");
 
 	//! Destructor
-	~fdlistenerObj() noexcept;
+	~fdlistenerObj();
 
 	//! Start the listener
 

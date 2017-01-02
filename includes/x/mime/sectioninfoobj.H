@@ -98,7 +98,7 @@ public:
 	sectioninfoObj(const sectioninfo &parent);
 
 	//! Destructor
-	~sectioninfoObj() noexcept;
+	~sectioninfoObj();
 
 	//! Create a new sectioninfo for a subsection of a multipart section.
 

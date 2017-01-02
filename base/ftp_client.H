@@ -27,7 +27,7 @@ public:
 	{
 	}
 
-	~lock() noexcept {}
+	~lock() {}
 };
 
 struct clientObj::impl_tls_extraObj : virtual public obj {
@@ -50,7 +50,7 @@ public:
 			  const std::string &server_nameArg,
 			  const gnutls::credentials::certificate
 			  &certificateArg);
-	virtual ~impl_tls_extraObj() noexcept;
+	virtual ~impl_tls_extraObj();
 
 	// Virtual linkage for everything, so that libcxx does not need
 	// to link to libcxxtls.
@@ -82,7 +82,7 @@ class LIBCXX_HIDDEN clientObj::tls_socket : public fdbase {
 
 	tls_socket(fdbase &&socketArg, fdbase &&origsocketArg,
 		   const impl_tlsptr &tlsptrArg);
-	~tls_socket() noexcept;
+	~tls_socket();
 
 	void shutdown();
 

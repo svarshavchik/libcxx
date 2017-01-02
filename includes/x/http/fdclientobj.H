@@ -32,7 +32,7 @@ public:
 	fdclientObj();
 
 	//! Destructor
-	~fdclientObj() noexcept;
+	~fdclientObj();
 
 };
 

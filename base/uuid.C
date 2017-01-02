@@ -68,7 +68,7 @@ uuid::macObj::macObj()
 
 singleton<uuid::macObj> uuid::mac;
 
-uuid::macObj::~macObj() noexcept
+uuid::macObj::~macObj()
 {
 }
 
@@ -96,7 +96,7 @@ uuid::uuid()
 	memcpy((char *)val, (char *)&parts, sizeof(val));
 }
 
-uuid::~uuid() noexcept
+uuid::~uuid()
 {
 }
 

@@ -11,7 +11,7 @@ class booksObj : public x::obj {
 
 public:
 	booksObj() {}
-	~booksObj() noexcept {}
+	~booksObj() {}
 
 	std::set<std::string> names;
 };

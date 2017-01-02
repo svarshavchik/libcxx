@@ -15,7 +15,7 @@ eventregistrationObj::eventregistrationObj() noexcept
 {
 }
 
-eventregistrationObj::~eventregistrationObj() noexcept
+eventregistrationObj::~eventregistrationObj()
 {
 }
 

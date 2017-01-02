@@ -439,7 +439,7 @@ public:
 	//! automatically closed, by calling close().
 	//! \note Any thrown %exception errors from close() get ignored.
 	//! Invoke close() explicitly to have any errors reported.
-	~fdObj() noexcept;
+	~fdObj();
 
 	//! Adopt a file descriptor.
 

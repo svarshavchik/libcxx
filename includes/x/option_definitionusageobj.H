@@ -37,7 +37,7 @@ public:
 	definitionUsageObj(std::ostream &helpStreamArg) noexcept;
 
 	//! Default destructor
-	~definitionUsageObj() noexcept;
+	~definitionUsageObj();
 
 	//! Implement the set() method.
 

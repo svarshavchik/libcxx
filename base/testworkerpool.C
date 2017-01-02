@@ -45,7 +45,7 @@ public:
 	{
 	}
 
-	~testjob() noexcept {
+	~testjob() {
 	}
 
 	void run()

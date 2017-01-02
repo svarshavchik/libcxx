@@ -19,7 +19,7 @@ newdocumentnodeObj::newdocumentnodeObj()
 	version=yaml_version_directive_t();
 }
 
-newdocumentnodeObj::~newdocumentnodeObj() noexcept
+newdocumentnodeObj::~newdocumentnodeObj()
 {
 }
 

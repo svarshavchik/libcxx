@@ -18,7 +18,7 @@ public:
 		std::cout << "Constructor" << std::endl;
 	}
 
-	~testclass() noexcept
+	~testclass()
 	{
 		std::cout << "Destructor" << std::endl;
 	}
@@ -74,7 +74,7 @@ public:
 	{
 	}
 
-	~weaktestinfo() noexcept
+	~weaktestinfo()
 	{
 	}
 };

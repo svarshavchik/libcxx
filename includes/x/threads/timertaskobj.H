@@ -57,7 +57,7 @@ public:
 	timertaskObj();
 
 	//! Default destructor
-	~timertaskObj() noexcept;
+	~timertaskObj();
 
 	//! Cancel this task
 
@@ -98,7 +98,7 @@ public:
 	canceltimertaskObj(ref<timertaskObj> &&taskArg);
 
 	//! The destructor invokes cancel()
-	~canceltimertaskObj() noexcept;
+	~canceltimertaskObj();
 };
 
 #if 0

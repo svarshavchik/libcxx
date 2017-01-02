@@ -38,7 +38,7 @@ sectioninfoObj::sectioninfoObj(const sectioninfo &parentArg)
 	index=parentArg->children.size();
 }
 
-sectioninfoObj::~sectioninfoObj() noexcept
+sectioninfoObj::~sectioninfoObj()
 {
 }
 

@@ -112,7 +112,7 @@ public:
 	}
 
 	//! Destructor
-	~parserObj() noexcept;
+	~parserObj();
 
 private:
 

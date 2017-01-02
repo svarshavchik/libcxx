@@ -17,7 +17,7 @@ fdclientObj::fdclientObj()
 {
 }
 
-fdclientObj::~fdclientObj() noexcept
+fdclientObj::~fdclientObj()
 {
 }
 

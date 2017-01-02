@@ -61,7 +61,7 @@ class clientObj::default_timeout_config : public fdtimeoutconfig {
 
 public:
 	default_timeout_config() {}
-	~default_timeout_config() noexcept {}
+	~default_timeout_config() {}
 
 	fdbase operator()(const fd &fdinst)
 		const override
@@ -83,7 +83,7 @@ clientObj::string_callback_base::string_callback_base()
 {
 }
 
-clientObj::string_callback_base::~string_callback_base() noexcept
+clientObj::string_callback_base::~string_callback_base()
 {
 }
 
@@ -98,7 +98,7 @@ class LIBCXX_INTERNAL clientObj::response_collector {
 
  public:
 	response_collector() {}
-	~response_collector() noexcept {}
+	~response_collector() {}
 
 	virtual void operator()(const char *ptr) const {}
 
@@ -116,7 +116,7 @@ class LIBCXX_INTERNAL clientObj::response_collector::str
 	mutable size_t n;
 
 	str() : n(0) {}
-	~str() noexcept {}
+	~str() {}
 
 	void operator()(const char *ptr) const override
 	{
@@ -145,7 +145,7 @@ class LIBCXX_INTERNAL clientObj::response_collector_impl
 	{
 	}
 
-	~response_collector_impl() noexcept
+	~response_collector_impl()
 	{
 	}
 
@@ -177,7 +177,7 @@ class LIBCXX_HIDDEN clientObj::lock_abor : public lock {
 
 	void ok(bool flag=true) { ok_flag=flag; }
 
-	~lock_abor() noexcept {
+	~lock_abor() {
 		if (ok_flag)
 			return;
 
@@ -217,7 +217,7 @@ clientObj::conn_infoObj::conn_infoObj(const fdbase &connArg,
 {
 }
 
-clientObj::conn_infoObj::~conn_infoObj() noexcept
+clientObj::conn_infoObj::~conn_infoObj()
 {
 }
 
@@ -234,7 +234,7 @@ clientObj::impl_common::impl_common(const fdbase &connArg)
 {
 }
 
-clientObj::impl_common::~impl_common() noexcept
+clientObj::impl_common::~impl_common()
 {
 }
 
@@ -257,7 +257,7 @@ clientObj::impl::impl(const fdbase &connArg, const fdtimeout &timeoutArg)
 {
 }
 
-clientObj::impl::~impl() noexcept
+clientObj::impl::~impl()
 {
 }
 
@@ -633,7 +633,7 @@ void clientObj::login(const std::string &userid,
 	}
 }
 
-clientObj::~clientObj() noexcept
+clientObj::~clientObj()
 {
 }
 
@@ -861,7 +861,7 @@ clientObj::tls_socket::tls_socket(fdbase &&socketArg,
 {
 }
 
-clientObj::tls_socket::~tls_socket() noexcept
+clientObj::tls_socket::~tls_socket()
 {
 }
 
@@ -949,7 +949,7 @@ clientObj::retr_callback_base::retr_callback_base()
 {
 }
 
-clientObj::retr_callback_base::~retr_callback_base() noexcept
+clientObj::retr_callback_base::~retr_callback_base()
 {
 }
 
@@ -993,7 +993,7 @@ clientObj::stor_callback_base::stor_callback_base()
 {
 }
 
-clientObj::stor_callback_base::~stor_callback_base() noexcept
+clientObj::stor_callback_base::~stor_callback_base()
 {
 }
 
@@ -1216,7 +1216,7 @@ clientObj::stat_callback::stat_callback()
 {
 }
 
-clientObj::stat_callback::~stat_callback() noexcept
+clientObj::stat_callback::~stat_callback()
 {
 }
 
@@ -1224,7 +1224,7 @@ clientBase::stat::stat()
 {
 }
 
-clientBase::stat::~stat() noexcept
+clientBase::stat::~stat()
 {
 }
 
@@ -1416,7 +1416,7 @@ struct LIBCXX_HIDDEN clientObj::put_fd_callback : public stor_callback_base {
 	{
 	}
 
-	~put_fd_callback() noexcept
+	~put_fd_callback()
 	{
 	}
 

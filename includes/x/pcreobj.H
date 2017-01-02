@@ -42,7 +42,7 @@ public:
 		int options=0);
 
 	//! Destructor
-	~pcreObj() noexcept;
+	~pcreObj();
 
 	//! Match a string against the pattern.
 

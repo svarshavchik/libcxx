@@ -17,7 +17,7 @@ pathcookiesObj::pathcookiesObj()
 {
 }
 
-pathcookiesObj::~pathcookiesObj() noexcept
+pathcookiesObj::~pathcookiesObj()
 {
 }
 

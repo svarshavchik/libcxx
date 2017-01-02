@@ -32,7 +32,7 @@ gnutls::http::fdtlsclientimpl::fdtlsclientimpl()
 {
 }
 
-gnutls::http::fdtlsclientimpl::~fdtlsclientimpl() noexcept
+gnutls::http::fdtlsclientimpl::~fdtlsclientimpl()
 {
 }
 

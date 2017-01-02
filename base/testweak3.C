@@ -28,7 +28,7 @@ class valueObj : virtual public LIBCXX_NAMESPACE::obj {
 public:
 	valueObj() noexcept {}
 	int v_proof=1;
-	~valueObj() noexcept {}
+	~valueObj() {}
 };
 
 typedef LIBCXX_NAMESPACE::weaklist<valueObj> list_t;

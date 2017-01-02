@@ -33,7 +33,7 @@ namespace LIBCXX_NAMESPACE {
 		epollCallbackObj();
 
 		//! Destructor
-		~epollCallbackObj() noexcept;
+		~epollCallbackObj();
 
 		//! The object mask of possible events.
 

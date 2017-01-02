@@ -162,7 +162,7 @@ public:
 		   const std::string &default_service="");
 
 	//! Destructor.
-	~netaddrObj() noexcept;
+	~netaddrObj();
 
 	//! Set the network hostname
 

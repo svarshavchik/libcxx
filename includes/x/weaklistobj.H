@@ -41,7 +41,7 @@ public:
 	}
 
 	//! Default destructor
-	~weaklistObj() noexcept
+	~weaklistObj()
 	{
 	}
 

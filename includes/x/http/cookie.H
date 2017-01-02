@@ -84,7 +84,7 @@ public:
 	       const std::string &valueArg);
 
 	//! Destructor
-	~cookie() noexcept;
+	~cookie();
 
 	//! Set cookie domain
 

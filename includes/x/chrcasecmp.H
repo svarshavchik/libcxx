@@ -52,7 +52,7 @@ template<typename cmp> class cmp_char
 
 public:
 	cmp_char() noexcept {}
-	~cmp_char() noexcept {}
+	~cmp_char() {}
 
 	//! Comparison function
 
@@ -101,7 +101,7 @@ template<typename cmp> class cmp_str
 
 public:
 	cmp_str() noexcept {}
-	~cmp_str() noexcept {}
+	~cmp_str() {}
 
 	//! Comparison function
 	bool operator()(const std::string &a, const std::string &b) const

@@ -55,7 +55,7 @@ public:
 	msgdispatcherObj();
 
 	//! Default destructor
-	~msgdispatcherObj() noexcept;
+	~msgdispatcherObj();
 
 protected:
 

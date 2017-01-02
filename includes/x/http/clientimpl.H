@@ -152,7 +152,7 @@ public:
 	}
 
 	//! Destructor
-	~clientimpl() noexcept
+	~clientimpl()
 	{
 	}
 
@@ -179,7 +179,7 @@ protected:
 		}
 
 		//! Destructor
-		~sendmsg() noexcept
+		~sendmsg()
 		{
 		}
 
@@ -221,7 +221,7 @@ private:
 		}
 
 		//! Destructor
-		~sendmsgbody() noexcept
+		~sendmsgbody()
 		{
 		}
 
@@ -367,7 +367,7 @@ private:
 		}
 
 		//! Destructor
-		~do_continue_impl() noexcept
+		~do_continue_impl()
 		{
 		}
 

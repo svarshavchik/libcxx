@@ -43,7 +43,7 @@ public:
 	rsaprivkeyobj();
 
 	//! Default destructor
-	~rsaprivkeyobj() noexcept;
+	~rsaprivkeyobj();
 
 	datum_t d,		//!< The \c d value
 		p,		//!< The \c p value

@@ -87,7 +87,7 @@ private:
 	static __thread progress_notifier *progress_cb_func LIBCXX_INTERNAL;
 
 public:
-	~init() noexcept;
+	~init();
 
 	//! Initialize gnutls
 

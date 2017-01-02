@@ -59,7 +59,7 @@ public:
 				   bool mime_10_required);
 
 	//! Destructor
-	~contentheader_collectorObj() noexcept;
+	~contentheader_collectorObj();
 
 	using header_collectorObj::operator*;
 	using header_collectorObj::operator++;

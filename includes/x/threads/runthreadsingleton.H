@@ -45,7 +45,7 @@ public:
 		get(T &) {}
 
 		//! Destructor
-		~get() noexcept {}
+		~get() {}
 	};
 
 	//! Implementation of get for classes derived from runthreadsingleton
@@ -67,7 +67,7 @@ public:
 		get_impl(runthreadsingleton &once_object);
 
 		//! Destructor
-		~get_impl() noexcept;
+		~get_impl();
 	};
 
 	friend class get_impl;
@@ -82,7 +82,7 @@ public:
 
 	//! Constructor tries to acquire a lock
 	get(runthreadsingleton &once_object) : get_impl(once_object) {}
-	~get() noexcept {}
+	~get() {}
 };
 
 #if 0

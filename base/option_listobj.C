@@ -43,7 +43,7 @@ listObj::listObj()
 	setAppName(std::string(p, e));
 }
 
-listObj::~listObj() noexcept
+listObj::~listObj()
 {
 }
 

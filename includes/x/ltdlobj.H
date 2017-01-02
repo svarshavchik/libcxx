@@ -39,7 +39,7 @@ public:
 		optionsObj();
 
 		//! Destructor
-		~optionsObj() noexcept;
+		~optionsObj();
 
 		//! Use system standard extensions
 		void set_ext();

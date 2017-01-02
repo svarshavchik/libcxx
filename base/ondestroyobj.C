@@ -31,7 +31,7 @@ ondestroyObj::ondestroyObj(const ref<destroyCallbackObj> &cbArg,
 {
 }
 
-ondestroyObj::~ondestroyObj() noexcept
+ondestroyObj::~ondestroyObj()
 {
 	if (autodestroy)
 		try {

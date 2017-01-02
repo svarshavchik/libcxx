@@ -33,7 +33,7 @@ public:
 
 	//! Destructor
 
-	~mappingnodeObj() noexcept;
+	~mappingnodeObj();
 
 	//! Return the number of elements in the mapping
 	size_t size() const;

@@ -129,7 +129,7 @@ typedef ptr<certificateObj> certificateptr;
 //!
 //! public:
 //!	credCallback() noexcept;
-//!	~credCallback() noexcept;
+//!	~credCallback();
 //!
 //!	keycertptr get(const gnutls::sessionObj *session,
 //!                    const std::list<std::string> &hostname_list,

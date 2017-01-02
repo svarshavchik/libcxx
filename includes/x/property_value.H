@@ -387,7 +387,7 @@ protected:
 public:
 	//! Default destructor
 
-	~value() noexcept
+	~value()
 	{
 		uninstall();
 	}
@@ -417,7 +417,7 @@ private:
 		}
 
 		//! Destructor
-		~sentry() noexcept
+		~sentry()
 		{
 			*v.first=stringType::tostr(prop->getValue(), v.second);
 		}

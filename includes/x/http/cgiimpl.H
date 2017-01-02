@@ -136,7 +136,7 @@ public:
 		bool proxymode=false);
 
 	//! Destructor
-	~cgiimpl() noexcept;
+	~cgiimpl();
 
 	//! Check whether an object was submitted to this application
 

@@ -23,7 +23,7 @@ fdtimeoutconfig::terminate_fd::terminate_fd(const fd &terminate_fdArg)
 {
 }
 
-fdtimeoutconfig::terminate_fd::~terminate_fd() noexcept
+fdtimeoutconfig::terminate_fd::~terminate_fd()
 {
 }
 

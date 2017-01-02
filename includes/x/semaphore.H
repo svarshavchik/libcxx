@@ -47,7 +47,7 @@ public:
 
 	//! Destructor
 
-	~semaphoreObj() noexcept;
+	~semaphoreObj();
 
 	//! Semaphore owners
 
@@ -63,7 +63,7 @@ public:
 		ownerObj();
 
 		//! Destructor
-		~ownerObj() noexcept;
+		~ownerObj();
 
 		//! This object has the semaphore
 
@@ -204,7 +204,7 @@ public:
 		}
 
 		//! Destructor
-		~ownerImpl() noexcept
+		~ownerImpl()
 		{
 		}
 

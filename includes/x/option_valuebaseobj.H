@@ -33,7 +33,7 @@ public:
 	valuebaseObj() noexcept;
 
 	//! Destructor
-	~valuebaseObj() noexcept;
+	~valuebaseObj();
 
 	//! Set the %value of this %option
 

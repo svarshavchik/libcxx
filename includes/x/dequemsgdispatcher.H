@@ -41,7 +41,7 @@ public:
 	dequemsgdispatcherObj();
 
 	//! Default destructor
-	~dequemsgdispatcherObj() noexcept;
+	~dequemsgdispatcherObj();
 
 protected:
 

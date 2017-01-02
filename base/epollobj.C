@@ -134,11 +134,11 @@ epollCallbackObj::epollCallbackObj()
 {
 }
 
-epollCallbackObj::~epollCallbackObj() noexcept
+epollCallbackObj::~epollCallbackObj()
 {
 }
 
-epollObj::~epollObj() noexcept
+epollObj::~epollObj()
 {
 }
 

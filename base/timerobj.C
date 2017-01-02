@@ -67,7 +67,7 @@ timerObj::repeatinfo::repeatinfo(const std::string &repeatPropertyArg,
 {
 }
 
-timerObj::repeatinfo::~repeatinfo() noexcept
+timerObj::repeatinfo::~repeatinfo()
 {
 }
 
@@ -75,7 +75,7 @@ timerObj::timerObj() : timername("unnamed timer")
 {
 }
 
-timerObj::~timerObj() noexcept
+timerObj::~timerObj()
 {
 	cancel();
 }
@@ -224,7 +224,7 @@ timerObj::implObj::implObj(const std::string &timernameArg)
 {
 }
 
-timerObj::implObj::~implObj() noexcept
+timerObj::implObj::~implObj()
 {
 }
 

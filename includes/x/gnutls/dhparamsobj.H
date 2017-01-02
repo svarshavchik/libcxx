@@ -48,7 +48,7 @@ public:
 
 	//! Default destructor
 
-	~dhparamsObj() noexcept;
+	~dhparamsObj();
 
 	//! Generate new DH parameters
 

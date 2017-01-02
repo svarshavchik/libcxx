@@ -52,7 +52,7 @@ public:
 	hms() noexcept : h(0), m(0), s(0) {}
 
 	//! Default destructor
-	~hms() noexcept {}
+	~hms() {}
 
 	//! Construct to an explicit time %interval
 

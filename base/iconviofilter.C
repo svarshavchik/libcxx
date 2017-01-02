@@ -25,7 +25,7 @@ iconviofilter::iconviofilter(const std::string &fromchset,
 					      fromchset, tochset));
 }
 
-iconviofilter::~iconviofilter() noexcept
+iconviofilter::~iconviofilter()
 {
 	if (h != (iconv_t)-1)
 		iconv_close(h);

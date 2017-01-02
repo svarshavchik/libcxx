@@ -49,7 +49,7 @@ public:
 	}
 
 	//! Destructor
-	~newdocumentnode_functorObj() noexcept
+	~newdocumentnode_functorObj()
 	{
 	}
 };

@@ -26,7 +26,7 @@ eventdestroynotifyObj::eventdestroynotifyObj() noexcept : destroyedflag(false)
 {
 }
 
-eventdestroynotifyObj::~eventdestroynotifyObj() noexcept
+eventdestroynotifyObj::~eventdestroynotifyObj()
 {
 }
 

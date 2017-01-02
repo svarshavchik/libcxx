@@ -25,7 +25,7 @@ public:
 	inline sentry() {}
 
 	//! Destructor
-	inline ~sentry() noexcept {}
+	inline ~sentry() {}
 
 	//! Begin guarding
 	virtual void guard()=0;
@@ -61,7 +61,7 @@ public:
 	}
 
 	//! Destructor
-	~sentry_impl() noexcept
+	~sentry_impl()
 	{
 		try {
 			if (guarding)

@@ -30,7 +30,7 @@ definitionPropertiesObj::definitionPropertiesObj(std::ostream &outputStreamArg)
 {
 }
 
-definitionPropertiesObj::~definitionPropertiesObj() noexcept
+definitionPropertiesObj::~definitionPropertiesObj()
 {
 }
 

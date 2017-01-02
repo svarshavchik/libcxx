@@ -307,7 +307,7 @@ public:
 	{
 	}
 
-	~test4aobj() noexcept
+	~test4aobj()
 	{
 	}
 
@@ -332,7 +332,7 @@ public:
 	{
 	}
 
-	~test4bobj() noexcept
+	~test4bobj()
 	{
 	}
 
@@ -481,7 +481,7 @@ public:
 	{
 	}
 
-	~Aobj() noexcept
+	~Aobj()
 	{
 	}
 
@@ -502,7 +502,7 @@ public:
 	{
 	}
 
-	~Bobj() noexcept
+	~Bobj()
 	{
 	}
 

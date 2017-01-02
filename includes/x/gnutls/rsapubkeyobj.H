@@ -33,7 +33,7 @@ public:
 	rsapubkeyobj();
 
 	//! Default destructor
-	~rsapubkeyobj() noexcept;
+	~rsapubkeyobj();
 
 	datum_t m,		//!< Modulus
 		e;		//!< Exponent

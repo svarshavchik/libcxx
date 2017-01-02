@@ -25,7 +25,7 @@ public:
 	discardoutput() noexcept {}
 
 	//! Dummy destructor
-	~discardoutput() noexcept {}
+	~discardoutput() {}
 
 	//! Dummy output iterator
 	discardoutput &operator*() noexcept { return *this; }

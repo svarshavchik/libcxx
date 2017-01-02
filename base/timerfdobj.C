@@ -20,7 +20,7 @@ namespace LIBCXX_NAMESPACE {
 };
 #endif
 
-timerfdObj::~timerfdObj() noexcept
+timerfdObj::~timerfdObj()
 {
 }
 

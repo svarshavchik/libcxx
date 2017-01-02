@@ -20,7 +20,7 @@ newnodeObj::newnodeObj()
 {
 }
 
-newnodeObj::~newnodeObj() noexcept
+newnodeObj::~newnodeObj()
 {
 }
 

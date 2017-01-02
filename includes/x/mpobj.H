@@ -34,7 +34,7 @@ public:
 	mpobjmeta() {}
 
 	//! Destructor
-	~mpobjmeta() noexcept {}
+	~mpobjmeta() {}
 };
 
 //! Just a mutex of an \ref mpobj "mpobj".
@@ -49,7 +49,7 @@ public:
 	mpobjmeta() {}
 
 	//! Destructor
-	~mpobjmeta() noexcept {}
+	~mpobjmeta() {}
 };
 
 //! Methods of \ref mpobj "mpobj" and \ref mpcobj "mpcobj".
@@ -78,7 +78,7 @@ public:
 	mpobjimpl(Args_t && ...args) : obj(std::forward<Args_t>(args)...) {}
 
 	//! Destructor
-	~mpobjimpl() noexcept {}
+	~mpobjimpl() {}
 
 	class lock;
 
@@ -119,7 +119,7 @@ public:
 		bool locked() const { return mlock.owns_lock(); }
 
 		//! Destructor
-		~lock() noexcept
+		~lock()
 		{
 		}
 
@@ -237,7 +237,7 @@ public:
 		(std::forward<Args_t>(args)...) {}
 
 	//! Destructor
-	~mpobj() noexcept {}
+	~mpobj() {}
 };
 
 //! A mutex-protected object, with a condition variable.
@@ -269,7 +269,7 @@ public:
 		(std::forward<Args_t>(args)...) {}
 
 	//! Destructor
-	~mpcobj() noexcept {}
+	~mpcobj() {}
 };
 
 #if 0

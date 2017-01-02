@@ -88,7 +88,7 @@ public:
 	iterator(const_sequencenodeptr &&seqArg, size_t iArg);
 
 	//! Destructor
-	~iterator() noexcept;
+	~iterator();
 
 	//! Iterator comparator
 	bool operator==(const iterator &o) const

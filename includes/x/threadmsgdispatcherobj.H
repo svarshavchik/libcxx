@@ -231,7 +231,7 @@ public:
 
 		//! Destroy the message queue
 
-		~msgqueue_auto() noexcept;
+		~msgqueue_auto();
 
 		//! Process the next event.
 
@@ -245,7 +245,7 @@ public:
 	public:
 		msgqueue_objObj(const ref<threadmsgdispatcherObj> &me,
 				const eventfd &fdArg=eventfd::create());
-		~msgqueue_objObj() noexcept;
+		~msgqueue_objObj();
 	};
 
 	//! A msgqueue_auto object.
@@ -288,7 +288,7 @@ public:
 
 		//! Destructor
 
-		~msgObj() noexcept = default;
+		~msgObj() = default;
 	};
 
 public:

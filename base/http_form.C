@@ -51,7 +51,7 @@ parametersObj::parametersObj() : consumedFlag(false)
 {
 }
 
-parametersObj::~parametersObj() noexcept
+parametersObj::~parametersObj()
 {
 }
 
@@ -175,7 +175,7 @@ parametersObj::encode_iter::encode_iter(const const_parameters &parametersArg,
 	next_word=next_do_equals;
 }
 
-parametersObj::encode_iter::~encode_iter() noexcept
+parametersObj::encode_iter::~encode_iter()
 {
 }
 
@@ -195,7 +195,7 @@ parametersObj::filereceiver::filereceiver()
 {
 }
 
-parametersObj::filereceiver::~filereceiver() noexcept
+parametersObj::filereceiver::~filereceiver()
 {
 }
 
@@ -203,7 +203,7 @@ parametersObj::filereceiverObj::filereceiverObj()
 {
 }
 
-parametersObj::filereceiverObj::~filereceiverObj() noexcept
+parametersObj::filereceiverObj::~filereceiverObj()
 {
 }
 
@@ -246,7 +246,7 @@ class LIBCXX_HIDDEN parametersObj::rfc2388Obj : virtual public obj {
 		{
 		}
 
-		~decodeParameterObj() noexcept LIBCXX_HIDDEN
+		~decodeParameterObj() LIBCXX_HIDDEN
 		{
 		}
 
@@ -281,7 +281,7 @@ class LIBCXX_HIDDEN parametersObj::rfc2388Obj : virtual public obj {
 			buffer.reserve(buffer_size);
 		}
 
-		~receiverObj() noexcept LIBCXX_HIDDEN {}
+		~receiverObj() LIBCXX_HIDDEN {}
 
 		receiverObj &operator*() LIBCXX_HIDDEN { return *this; }
 		receiverObj &operator++() LIBCXX_HIDDEN { return *this; }
@@ -333,7 +333,7 @@ class LIBCXX_HIDDEN parametersObj::rfc2388Obj : virtual public obj {
 		{
 		}
 
-		~receiverWrapperObj() noexcept
+		~receiverWrapperObj()
 		{
 		}
 
@@ -358,7 +358,7 @@ class LIBCXX_HIDDEN parametersObj::rfc2388Obj : virtual public obj {
 	{
 	}
 
-	~rfc2388Obj() noexcept
+	~rfc2388Obj()
 	{
 	}
 

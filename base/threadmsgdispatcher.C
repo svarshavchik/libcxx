@@ -19,7 +19,7 @@ threadmsgdispatcherObj::msgqueue_objObj
 }
 
 threadmsgdispatcherObj::msgqueue_objObj
-::~msgqueue_objObj() noexcept
+::~msgqueue_objObj()
 {
 }
 
@@ -43,7 +43,7 @@ threadmsgdispatcherObj::msgqueue_auto
 	*lock= static_cast<msgqueue_t>(*this);
 }
 
-threadmsgdispatcherObj::msgqueue_auto::~msgqueue_auto() noexcept
+threadmsgdispatcherObj::msgqueue_auto::~msgqueue_auto()
 {
 	// Remove myself from msgqueueptr
 	typename mpobj<msgqueueptr_t>::lock lock(me->msgqueueptr);

@@ -516,7 +516,7 @@ public:
    bool run(int x, int y);
 
    buttonObj() noexcept;
-   ~buttonObj() noexcept;
+   ~buttonObj();
 
    // ...
 };
@@ -1002,7 +1002,7 @@ class myTaskObj : public &ns;::timertaskObj {
 // ...
 public:
     myTaskObj() noexcept {}
-    ~myTaskObj() noexcept {}
+    ~myTaskObj() {}
 
     void run();
 };
@@ -1322,7 +1322,7 @@ class spaceshipObj : virtual public &ns;::obj {
 
 public:
     spaceshipObj() {}
-    ~spaceshipObj() noexcept {}
+    ~spaceshipObj() {}
 
     void run(int x, int y);
 };
@@ -1414,7 +1414,7 @@ class spaceshipObj : virtual public &ns;::obj {
 
 public:
     spaceshipObj() {}
-    ~spaceshipObj() noexcept {}
+    ~spaceshipObj() {}
 
     void run(int x, int y);
 };

@@ -20,7 +20,7 @@ gnutls::errexception::errexception(int errcodeArg,
 	done();
 }
 
-gnutls::errexception::~errexception() noexcept
+gnutls::errexception::~errexception()
 {
 }
 
@@ -32,7 +32,7 @@ gnutls::alertexception::alertexception(bool fatalArg,
 	done();
 }
 
-gnutls::alertexception::~alertexception() noexcept
+gnutls::alertexception::~alertexception()
 {
 }
 

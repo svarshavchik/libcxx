@@ -20,7 +20,7 @@ stopexception::stopexception() noexcept
 	(*this)->save();
 }
 
-stopexception::~stopexception() noexcept
+stopexception::~stopexception()
 {
 }
 

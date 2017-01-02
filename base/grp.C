@@ -52,7 +52,7 @@ void group::init()
 	buffer.resize(n);
 }
 
-group::~group() noexcept
+group::~group()
 {
 }
 

@@ -70,7 +70,7 @@ gnutls::x509::privkeyObj::privkeyObj()
 	chkerr(gnutls_x509_privkey_init(&privkey), "gnutls_x509_privkey_init");
 }
 
-gnutls::x509::privkeyObj::~privkeyObj() noexcept
+gnutls::x509::privkeyObj::~privkeyObj()
 {
 	gnutls_x509_privkey_deinit(privkey);
 }

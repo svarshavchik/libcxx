@@ -38,7 +38,7 @@ public:
 
 	//! Close the timer file descriptor before this object gets
 	//! destructed.
-	~timerfdObj() noexcept;
+	~timerfdObj();
 
 	using fdObj::epoll_add;
 	using fdObj::epoll_mod;

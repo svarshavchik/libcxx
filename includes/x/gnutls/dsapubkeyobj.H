@@ -33,7 +33,7 @@ public:
 	dsapubkeyobj();
 
 	//! Default destructor
-	~dsapubkeyobj() noexcept;
+	~dsapubkeyobj();
 
 	datum_t p,		//!< The \c p value
 		q,		//!< The \c q value

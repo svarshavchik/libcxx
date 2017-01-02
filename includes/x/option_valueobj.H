@@ -49,7 +49,7 @@ public:
 	}
 
 	//! Default destructor
-	~valueObj() noexcept
+	~valueObj()
 	{
 	}
 

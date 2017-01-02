@@ -116,7 +116,7 @@ public:
 
 	//! Default destructor
 
-	~weakptr() noexcept;
+	~weakptr();
 
 	//! Assignment operator
 

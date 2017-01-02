@@ -119,7 +119,7 @@ void sockaddrObj::init_addr(const struct ::sockaddr *p)
 	}
 }
 
-sockaddrObj::~sockaddrObj() noexcept
+sockaddrObj::~sockaddrObj()
 {
 }
 

@@ -77,7 +77,7 @@ class mcguffincontainerObj<ref<objClass, baseType>> : virtual public obj {
 			: container(containerArg) {}
 
 		//! Destructor
-		~wrapperObj() noexcept {}
+		~wrapperObj() {}
 	};
 
 	//! Thread-safe strong reference to the wrapper object.
@@ -109,7 +109,7 @@ class mcguffincontainerObj<ref<objClass, baseType>> : virtual public obj {
 	}
 
 	//! Destructor
-	~mcguffincontainerObj() noexcept
+	~mcguffincontainerObj()
 	{
 	}
 

@@ -124,7 +124,7 @@ template<typename K,
 	}
 
 	//! Destructor
-	~sorted_vector() noexcept
+	~sorted_vector()
 	{
 	}
 

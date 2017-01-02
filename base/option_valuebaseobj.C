@@ -24,7 +24,7 @@ valuebaseObj::valuebaseObj() noexcept : specified(false)
 {
 }
 
-valuebaseObj::~valuebaseObj() noexcept
+valuebaseObj::~valuebaseObj()
 {
 }
 

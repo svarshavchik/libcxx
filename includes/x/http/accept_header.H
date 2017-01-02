@@ -212,7 +212,7 @@ public:
 	accept_header() noexcept;
 
 	//! Default destructor
-	~accept_header() noexcept;
+	~accept_header();
 
 	//! Construct from HTTP headers
 	accept_header(const headersbase &);

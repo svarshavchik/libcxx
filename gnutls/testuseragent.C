@@ -13,7 +13,7 @@ class myserverimpl : public LIBCXX_NAMESPACE::gnutls::http::fdtlsserverimpl {
 
 public:
 	myserverimpl();
-	~myserverimpl() noexcept;
+	~myserverimpl();
 
 	void received(const LIBCXX_NAMESPACE::http::requestimpl &req,
 		      bool bodyflag);
@@ -23,7 +23,7 @@ myserverimpl::myserverimpl()
 {
 }
 
-myserverimpl::~myserverimpl() noexcept
+myserverimpl::~myserverimpl()
 {
 }
 
@@ -47,14 +47,14 @@ class myserverimplObj : public myserverimpl, virtual public LIBCXX_NAMESPACE::ob
 
 public:
 	myserverimplObj() {}
-	~myserverimplObj() noexcept {}
+	~myserverimplObj() {}
 };
 
 class myserverObj : virtual public LIBCXX_NAMESPACE::obj {
 
 public:
 	myserverObj() {}
-	~myserverObj() noexcept {}
+	~myserverObj() {}
 
 	LIBCXX_NAMESPACE::ref<myserverimplObj> create()
 	{
@@ -182,7 +182,7 @@ public:
 		LIBCXX_NAMESPACE::gnutls::sessioncache::create();
 
 	sessioncacheserverObj() {}
-	~sessioncacheserverObj() noexcept {}
+	~sessioncacheserverObj() {}
 
 	void run(const LIBCXX_NAMESPACE::fd &socket,
 		 const LIBCXX_NAMESPACE::fd &termfd)

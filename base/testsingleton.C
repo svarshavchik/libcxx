@@ -18,7 +18,7 @@ public:
 		std::cout << "Constructor" << std::endl;
 	}
 
-	~singletonObj() noexcept
+	~singletonObj()
 	{
 		std::cout << "Destructor" << std::endl;
 	}

@@ -15,7 +15,7 @@ public:
 	{
 	}
 
-	~serverObj() noexcept
+	~serverObj()
 	{
 	}
 
@@ -127,7 +127,7 @@ public:
 	x::fdlistener daemon;
 
 	serverfactoryObj(const x::fdlistener &daemonArg) : daemon(daemonArg) {}
-	~serverfactoryObj() noexcept {}
+	~serverfactoryObj() {}
 
 	x::ref<serverObj> create()
 	{

@@ -21,7 +21,7 @@ domaincookiesObj::domaincookiesObj()
 {
 }
 
-domaincookiesObj::~domaincookiesObj() noexcept
+domaincookiesObj::~domaincookiesObj()
 {
 }
 

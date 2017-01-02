@@ -37,7 +37,7 @@ public:
 			   httpver_t httpverArg=httpver_t::http11);
 
 	//! Destructor
-	~response_exception() noexcept;
+	~response_exception();
 
 	//! The /small/ body.
 

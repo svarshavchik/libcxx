@@ -38,7 +38,7 @@ gnutls::dhparamsObj::dhparamsObj::operator gnutls_dh_params_t()
 	return cpy;
 }
 
-gnutls::dhparamsObj::~dhparamsObj() noexcept
+gnutls::dhparamsObj::~dhparamsObj()
 {
 	gnutls_dh_params_deinit(dh);
 }

@@ -38,7 +38,7 @@ public:
 
 	//! Default destructor
 
-	~pkparamsObj() noexcept;
+	~pkparamsObj();
 
 	//! Generate new key exchange parameters
 

@@ -89,7 +89,7 @@ public:
 		       const fdbase &ptr);
 
 	//! Destructor
-	~fdreadlimitObj() noexcept;
+	~fdreadlimitObj();
 
 	//! Activate a read limit.
 

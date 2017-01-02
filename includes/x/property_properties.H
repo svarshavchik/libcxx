@@ -40,7 +40,7 @@ public:
 
 	//~ Default destructor
 
-	virtual ~errhandler() noexcept;
+	virtual ~errhandler();
 
 	//! Report an error that occured when parsing a %property definition.
 
@@ -78,7 +78,7 @@ public:
 
 	//~ Default destructor
 
-	virtual ~errthrow() noexcept;
+	virtual ~errthrow();
 
 	//! Report an error by throwing an exception
 
@@ -105,7 +105,7 @@ public:
 
 	//~ Default destructor
 
-	virtual ~errstream() noexcept;
+	virtual ~errstream();
 
 	//! Report an error by writing it to the stream
 
@@ -128,7 +128,7 @@ public:
 
 	//~ Default destructor
 
-	virtual ~errlog() noexcept;
+	virtual ~errlog();
 
 	//! Report an error by writing it to the stream
 

@@ -40,7 +40,7 @@ public:
 
 	//! Destructor
 
-	~newmappingnodeObj() noexcept
+	~newmappingnodeObj()
 	{
 	}
 

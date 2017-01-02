@@ -43,7 +43,7 @@ public:
 	: fd(fdArg) {}
 
 	//! Default destructor
-	~eventqueueObj() noexcept {}
+	~eventqueueObj() {}
 
 	//! Retrieve the associated event handler
 

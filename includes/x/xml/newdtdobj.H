@@ -25,7 +25,7 @@ public:
 	newdtdObj();
 
 	//! Destructor
-	~newdtdObj() noexcept;
+	~newdtdObj();
 
 	//! Create a general entity
 

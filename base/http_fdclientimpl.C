@@ -36,7 +36,7 @@ fdclientimpl::fdclientimpl() : superclass_t(headers_limit.getValue())
 
 // NOTE -- the TLS-based constructor is in the gnutls library
 
-fdclientimpl::~fdclientimpl() noexcept
+fdclientimpl::~fdclientimpl()
 {
 }
 

@@ -284,7 +284,7 @@ private:
 public:
 	basic_attr() noexcept;
 
-	virtual ~basic_attr() noexcept;
+	virtual ~basic_attr();
 
 	//! Set an attribute's value.
 

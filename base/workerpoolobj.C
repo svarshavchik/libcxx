@@ -37,7 +37,7 @@ workerpoolbase::workerbaseObj::workerbaseObj(const std::string &nameArg)
 #endif
 }
 
-workerpoolbase::workerbaseObj::~workerbaseObj() noexcept
+workerpoolbase::workerbaseObj::~workerbaseObj()
 {
 #ifdef LIBCXX_DEBUG_WORKEROBJ_STOP
 	LIBCXX_DEBUG_WORKEROBJ_STOP();

@@ -34,7 +34,7 @@ class LIBCXX_HIDDEN clientauthimplObj::basic : public clientauthimplObj {
 	//! Constructor
 	basic(const uriimpl &uriArg,
 	      const std::string &realm, const std::string &authstringArg);
-	~basic() noexcept;
+	~basic();
 
 	//! Add my header to a request
 	void add_header(requestimpl &req, const char *header) override;

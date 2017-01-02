@@ -111,7 +111,7 @@ public:
 		: ref_type(std::forward<Args>(args)...) {}
 
 	//! Destructor
-	~refobjiterator() noexcept {}
+	~refobjiterator() {}
 
 	//! Make sure that create() returns the correct type.
 
@@ -250,7 +250,7 @@ public:
 	outputrefiteratorObj() {}
 
 	//! Destructor
-	~outputrefiteratorObj() noexcept {}
+	~outputrefiteratorObj() {}
 
 	//! Iterator operator
 
@@ -297,7 +297,7 @@ public:
 
 	//! Destructor
 
-	~outputrefiteratorTupleObj() noexcept
+	~outputrefiteratorTupleObj()
 	{
 	}
 
@@ -411,7 +411,7 @@ public:
 	inputrefiteratorObj() : eof(false), buffer_pos(0) {}
 
 	//! Destructor
-	~inputrefiteratorObj() noexcept {}
+	~inputrefiteratorObj() {}
 
 	//! Return the current value of the iterator.
 

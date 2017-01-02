@@ -21,7 +21,7 @@ public:
 	bool flag;
 
 	xx() : flag(false) {}
-	~xx() noexcept {}
+	~xx() {}
 
 	void run()
 	{

@@ -136,7 +136,7 @@ private:
 		factorybaseObj();
 
 		//! Destructor
-		~factorybaseObj() noexcept;
+		~factorybaseObj();
 
 		//! Construct a new thread for the singleton process.
 
@@ -169,7 +169,7 @@ private:
 		}
 
 		//! Destructor
-		~factoryObj() noexcept
+		~factoryObj()
 		{
 		}
 
@@ -222,7 +222,7 @@ public:
 		//! for all of them to stop. In other processes, there are no
 		//! threads to wait for.
 
-		~instanceObj() noexcept;
+		~instanceObj();
 
 		friend class singletonapp;
 	};
@@ -451,7 +451,7 @@ public:
 		}
 
 		//! Destructor
-		~newThreadObj() noexcept {
+		~newThreadObj() {
 		}
 
 		//! Invoke new singleton thread, capture exceptions
@@ -502,7 +502,7 @@ public:
 		}
 
 		//! Destructor
-		~newThreadObj() noexcept {
+		~newThreadObj() {
 		}
 
 		//! Invoke new singleton thread, capture exceptions

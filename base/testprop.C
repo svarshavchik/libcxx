@@ -44,7 +44,7 @@ public:
 	std::string val;
 
 	mycb() {}
-	~mycb() noexcept {}
+	~mycb() {}
 
 	void event(const LIBCXX_NAMESPACE::property::propvalueset_t &arg)
 
@@ -131,7 +131,7 @@ public:
 	{
 	}
 
-	~mynotifycb() noexcept {}
+	~mynotifycb() {}
 
 	void event()
 	{

@@ -182,7 +182,7 @@ accept_header::accept_header() noexcept
 {
 }
 
-accept_header::~accept_header() noexcept
+accept_header::~accept_header()
 {
 }
 

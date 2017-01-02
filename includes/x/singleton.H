@@ -23,7 +23,7 @@ namespace LIBCXX_NAMESPACE {
 //!
 //! public:
 //!    mySingletonObj();
-//!    ~mySingletonObj() noexcept;
+//!    ~mySingletonObj();
 //! };
 //!
 //! singleton<mySingletonObj> singleton_obj;
@@ -71,7 +71,7 @@ template<typename obj_type,
 		}
 
 		//! Destructor
-		~wrapperObj() noexcept
+		~wrapperObj()
 		{
 			std::unique_lock<std::mutex> lock(instance_mutex);
 			instance=0;

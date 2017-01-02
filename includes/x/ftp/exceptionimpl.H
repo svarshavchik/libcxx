@@ -29,7 +29,7 @@ public:
 	ftp_custom_exception(int);
 
 	//! Destructor
-	~ftp_custom_exception() noexcept;
+	~ftp_custom_exception();
 };
 
 #if 0

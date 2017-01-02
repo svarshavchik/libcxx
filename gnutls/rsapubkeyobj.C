@@ -17,7 +17,7 @@ gnutls::rsapubkeyobj::rsapubkeyobj() :
 {
 }
 
-gnutls::rsapubkeyobj::~rsapubkeyobj() noexcept
+gnutls::rsapubkeyobj::~rsapubkeyobj()
 {
 }
 

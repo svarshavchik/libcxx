@@ -24,7 +24,7 @@ public:
 
 public:
 	dummyOutputIterObj() {}
-	~dummyOutputIterObj() noexcept {}
+	~dummyOutputIterObj() {}
 
 	void operator++() {}
 
@@ -74,7 +74,7 @@ public:
 
 public:
 	dummyInputIterObj(const char *strArg) : str(strArg) {}
-	~dummyInputIterObj() noexcept {}
+	~dummyInputIterObj() {}
 
 	LIBCXX_NAMESPACE::ref<dummyInputIterObj> before_postoper()
 	{
@@ -136,7 +136,7 @@ public:
 	{
 	}
 
-	~dummyInputIterator2() noexcept
+	~dummyInputIterator2()
 	{
 	}
 

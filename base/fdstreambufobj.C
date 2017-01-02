@@ -23,7 +23,7 @@ fdstreambufObj::fdstreambufObj(const fdbase &fdrefArg,
 {
 }
 
-fdstreambufObj::~fdstreambufObj() noexcept
+fdstreambufObj::~fdstreambufObj()
 {
 	try {
 		sync();

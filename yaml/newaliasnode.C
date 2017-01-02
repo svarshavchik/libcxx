@@ -21,7 +21,7 @@ newaliasnodeObj::newaliasnodeObj(const std::string &anchorArg)
 {
 }
 
-newaliasnodeObj::~newaliasnodeObj() noexcept
+newaliasnodeObj::~newaliasnodeObj()
 {
 }
 

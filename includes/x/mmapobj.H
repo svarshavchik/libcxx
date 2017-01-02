@@ -52,7 +52,7 @@ public:
 	mmapbaseObj();
 
 	//! Destructor
-	~mmapbaseObj() noexcept;
+	~mmapbaseObj();
 
 	//! msync() the shared memory segment
 	void msync(int flags=MS_SYNC) const;
@@ -86,7 +86,7 @@ public:
 	}
 
 	//! Destructor
-	~mmapObj() noexcept {}
+	~mmapObj() {}
 
 	//! Return the mmaped object.
 	typeObj *object()

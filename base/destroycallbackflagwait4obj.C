@@ -20,7 +20,7 @@ destroy_callback_wait4Obj::destroy_callback_wait4Obj(const ref<obj>
 	other_obj->ondestroy([f] { f->destroyed(); });
 }
 
-destroy_callback_wait4Obj::~destroy_callback_wait4Obj() noexcept
+destroy_callback_wait4Obj::~destroy_callback_wait4Obj()
 {
 }
 

@@ -41,7 +41,7 @@ public:
 	clientauthObj();
 
 	//! Destructor
-	~clientauthObj() noexcept;
+	~clientauthObj();
 
 	//! Add the authorization headers to a request.
 

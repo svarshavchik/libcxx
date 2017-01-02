@@ -39,7 +39,7 @@ class uploadObj : virtual public obj {
 		filebaseObj();
 
 		//! Destructor
-		~filebaseObj() noexcept;
+		~filebaseObj();
 
 		//! Add the file to an upload request.
 
@@ -74,7 +74,7 @@ class uploadObj : virtual public obj {
 			: args(std::forward<InitArgs>(initArgs)...) {}
 
 		//! Destructor
-		~fileimplObj() noexcept {}
+		~fileimplObj() {}
 
 		//! Add a file upload object to the request.
 
@@ -98,7 +98,7 @@ public:
 	uploadObj();
 
 	//! Destructor
-	~uploadObj() noexcept;
+	~uploadObj();
 
 	//! Add a file upload
 

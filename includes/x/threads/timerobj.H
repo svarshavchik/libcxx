@@ -83,7 +83,7 @@ private:
 			   const duration_t &defaultRepeatDurationArg);
 
 		//! Destructor
-		~repeatinfo() noexcept;
+		~repeatinfo();
 
 		//! Retrieve the current repeat interval
 		duration_t getDuration()
@@ -117,7 +117,7 @@ public:
 	timerObj();
 
 	//! The default destructor
-	~timerObj() noexcept;
+	~timerObj();
 
 	//! Schedule a task to run at a given time
 

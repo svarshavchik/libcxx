@@ -51,7 +51,7 @@ public:
 	}
 
 	test1Obj();
-	~test1Obj() noexcept;
+	~test1Obj();
 
 	void run(const LIBCXX_NAMESPACE::fd &socket,
 		 const LIBCXX_NAMESPACE::fd &termpipe,
@@ -63,7 +63,7 @@ test1Obj::test1Obj()
 {
 }
 
-test1Obj::~test1Obj() noexcept
+test1Obj::~test1Obj()
 {
 }
 
@@ -174,7 +174,7 @@ class test2Obj : virtual public LIBCXX_NAMESPACE::obj {
 public:
 
 	test2Obj();
-	~test2Obj() noexcept;
+	~test2Obj();
 
 	void run(const LIBCXX_NAMESPACE::fd &socket,
 		 const LIBCXX_NAMESPACE::fd &termpipe)
@@ -186,7 +186,7 @@ test2Obj::test2Obj()
 {
 }
 
-test2Obj::~test2Obj() noexcept
+test2Obj::~test2Obj()
 {
 }
 

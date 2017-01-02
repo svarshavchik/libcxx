@@ -18,7 +18,7 @@ newdtdObj::newdtdObj()
 {
 }
 
-newdtdObj::~newdtdObj() noexcept
+newdtdObj::~newdtdObj()
 {
 }
 
@@ -67,7 +67,7 @@ newdtdimplObj::newdtdimplObj(const subset_impl_t &subset_implArg,
 {
 }
 
-newdtdimplObj::~newdtdimplObj() noexcept
+newdtdimplObj::~newdtdimplObj()
 {
 }
 

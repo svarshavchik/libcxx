@@ -122,7 +122,7 @@ public:
 	}
 
 	//! Destructor
-	~receiverimplbase() noexcept
+	~receiverimplbase()
 	{
 		delinkiter();
 	}
@@ -188,7 +188,7 @@ public:
 
 		//! The destructor discards any uniterated message body
 
-		~iterator() noexcept
+		~iterator()
 		{
 			if (receiver)
 				receiver->body_end_internal();
@@ -617,7 +617,7 @@ public:
 	}
 
 	//! Destructor
-	~receiverimpl() noexcept
+	~receiverimpl()
 	{
 	}
 
@@ -710,7 +710,7 @@ public:
 	}
 
 	//! Destructor
-	~receiverimpl() noexcept
+	~receiverimpl()
 	{
 	}
 

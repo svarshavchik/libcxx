@@ -41,7 +41,7 @@ public:
 	eventdestroynotifyObj() noexcept;
 
 	//! Destructor
-	~eventdestroynotifyObj() noexcept;
+	~eventdestroynotifyObj();
 
 	//! Check if the object was destroyed
 

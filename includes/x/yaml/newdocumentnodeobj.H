@@ -53,7 +53,7 @@ public:
 
 	//! Destructor
 
-	~newdocumentnodeObj() noexcept;
+	~newdocumentnodeObj();
 
 	//! The subclass must define root() to return the new document's root node.
 

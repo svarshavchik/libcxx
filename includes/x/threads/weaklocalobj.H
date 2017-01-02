@@ -41,7 +41,7 @@ public:
 	}
 
 	//! Destructor
-	~weakthreadlocalObj() noexcept {}
+	~weakthreadlocalObj() {}
 
 	//! Retrieve the underlying object.
 	ptr<objClass, baseType> getptr() const

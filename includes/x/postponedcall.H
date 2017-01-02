@@ -59,7 +59,7 @@ class postponedcallBaseObj : virtual public obj {
 
 public:
 	postponedcallBaseObj() {}
-	~postponedcallBaseObj() noexcept {}
+	~postponedcallBaseObj() {}
 
 	//! Invoke the postponed call.
 
@@ -113,7 +113,7 @@ public:
 	{
 	}
 
-	~postponedcallObj() noexcept
+	~postponedcallObj()
 	{
 	}
 

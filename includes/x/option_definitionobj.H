@@ -62,7 +62,7 @@ public:
 		      //! This should be a single word
 		      const std::string &argDescriptionArg) noexcept;
 
-	~definitionObj() noexcept;
+	~definitionObj();
 
 	//! Implement the set() method.
 

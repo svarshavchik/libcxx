@@ -28,7 +28,7 @@ public:
 
 	//! Destructor
 
-	~scalarnodeObj() noexcept;
+	~scalarnodeObj();
 
 	friend class documentObj;
 

@@ -95,7 +95,7 @@ public:
 		//! Constructor
 		name(const std::string &nArg);
 		//! Destructor
-		~name() noexcept;
+		~name();
 	};
 
 	template<typename ret_type> class runthreadObj;

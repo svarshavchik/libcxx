@@ -46,7 +46,7 @@ public:
 	dfObj();
 
 	//! Destructor
-	~dfObj() noexcept;
+	~dfObj();
 
 	//! Return filesystem allocation unit size
 	virtual size_t allocSize()=0;
@@ -168,7 +168,7 @@ public:
 		       const df &spaceArg);
 
 	//! Destructor
-	~reservationObj() noexcept;
+	~reservationObj();
 
 	//! Commit the reservation
 

@@ -33,7 +33,7 @@ definitionObj::definitionObj(ptr<valuebaseObj> valueArg,
 {
 }
 
-definitionObj::~definitionObj() noexcept
+definitionObj::~definitionObj()
 {
 }
 

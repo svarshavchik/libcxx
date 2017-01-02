@@ -91,7 +91,7 @@ public:
 			  int httpport,
 			  bool daemonize);
 	void wait();
-	~httportmap_server() noexcept;
+	~httportmap_server();
 
 public:
 

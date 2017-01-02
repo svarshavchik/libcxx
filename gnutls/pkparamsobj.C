@@ -51,7 +51,7 @@ gnutls::pkparamsObj::pkparamsObj()
 {
 }
 
-gnutls::pkparamsObj::~pkparamsObj() noexcept
+gnutls::pkparamsObj::~pkparamsObj()
 {
 }
 

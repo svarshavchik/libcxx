@@ -19,14 +19,14 @@ public:
 	int n;
 
 	loc(int nArg) : n(nArg) {}
-	~loc() noexcept {}
+	~loc() {}
 };
 
 class dummyThread : public LIBCXX_NAMESPACE::obj {
 
 public:
 	dummyThread() {}
-	~dummyThread() noexcept {}
+	~dummyThread() {}
 
 	LIBCXX_NAMESPACE::weakthreadlocalptr<loc> ll;
 
@@ -76,7 +76,7 @@ public:
 	int v;
 
 	testst() : v(0) {}
-	~testst() noexcept {}
+	~testst() {}
 
 	int next() noexcept
 	{
@@ -110,7 +110,7 @@ public:
 	{
 	}
 
-	~testThreadSingletonThread() noexcept {}
+	~testThreadSingletonThread() {}
 
 	void run()
 

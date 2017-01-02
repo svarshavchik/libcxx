@@ -22,7 +22,7 @@ derivedvalueListObj<basedon_t>::derivedvalueListObj()
 //! Destructor
 
 template<typename basedon_t>
-derivedvalueListObj<basedon_t>::~derivedvalueListObj() noexcept
+derivedvalueListObj<basedon_t>::~derivedvalueListObj()
 {
 }
 
@@ -116,7 +116,7 @@ derivedvalueListObj<basedon_t>::value_fromObj
 //! The destructor also invokes all_values->updated()
 
 template<typename basedon_t>
-derivedvalueListObj<basedon_t>::value_fromObj::~value_fromObj() noexcept
+derivedvalueListObj<basedon_t>::value_fromObj::~value_fromObj()
 {
 	all_values->updated
 		(make_function<void (void)>
@@ -208,7 +208,7 @@ derivedvalueListObj<basedon_t>::calcObj<begin_calc_functor_t,
 					end_calc_functor_t,
 					vipobj_arg_type,
 					vipobj_t...>
-::~calcObj() noexcept
+::~calcObj()
 {
 }
 

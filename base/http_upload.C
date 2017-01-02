@@ -17,7 +17,7 @@ uploadObj::uploadObj()
 {
 }
 
-uploadObj::~uploadObj() noexcept
+uploadObj::~uploadObj()
 {
 }
 
@@ -25,7 +25,7 @@ uploadObj::filebaseObj::filebaseObj()
 {
 }
 
-uploadObj::filebaseObj::~filebaseObj() noexcept
+uploadObj::filebaseObj::~filebaseObj()
 {
 }
 

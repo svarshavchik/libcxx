@@ -84,7 +84,7 @@ public:
 		     httpver_t httpverArg=httpver_t::http11);
 
 	//! Destructor
-	~responseimpl() noexcept;
+	~responseimpl();
 
 	//! Retrieve the HTTP version
 

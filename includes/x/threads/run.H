@@ -109,7 +109,7 @@ public:
 	}
 
 	//! Destructor
-	~runthreadparamObj() noexcept
+	~runthreadparamObj()
 	{
 	}
 };
@@ -306,7 +306,7 @@ public:
 	}
 
 	//! Destructor
-	~lambdaThreadObj() noexcept
+	~lambdaThreadObj()
 	{
 	}
 

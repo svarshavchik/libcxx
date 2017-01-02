@@ -22,7 +22,7 @@ cookiemrulist::cookiemrulist()
 {
 }
 
-cookiemrulist::~cookiemrulist() noexcept
+cookiemrulist::~cookiemrulist()
 {
 }
 

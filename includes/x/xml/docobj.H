@@ -34,7 +34,7 @@ protected:
 		save_to_callback();
 
 		//! Destructor
-		~save_to_callback() noexcept;
+		~save_to_callback();
 
 		//! Save a chunk of formatted XML
 		virtual void save(const char *, int)=0;
@@ -44,7 +44,7 @@ public:
 	docObj();
 
 	//! Destructor
-	~docObj() noexcept;
+	~docObj();
 
 	//! Helper class for creating a new element
 
@@ -111,7 +111,7 @@ public:
 
 		//! Destructor
 
-		~newElement() noexcept;
+		~newElement();
 	};
 
 
@@ -134,7 +134,7 @@ public:
 			     const std::string &attrnamespaceArg);
 
 		//! Destructor
-		~docAttribute() noexcept;
+		~docAttribute();
 
 		//! Comparison operator for associative containers.
 
@@ -213,7 +213,7 @@ public:
 			     const std::string &attrvalueArg);
 
 		//! Destructor
-		~newAttribute() noexcept;
+		~newAttribute();
 
 		//! Comparison operator for associative containers.
 
@@ -231,7 +231,7 @@ public:
 
 	public:
 		xpathObj();
-		~xpathObj() noexcept;
+		~xpathObj();
 
 		//! How many nodes in the resulting nodeset.
 		virtual size_t count() const=0;
@@ -272,7 +272,7 @@ public:
 		readlockObj();
 
 		//! Destructor
-		~readlockObj() noexcept;
+		~readlockObj();
 
 		//! Create another read lock
 
@@ -538,7 +538,7 @@ public:
 			}
 
 			//! Destructor
-			~save_to_callback_iter() noexcept
+			~save_to_callback_iter()
 			{
 			}
 
@@ -626,7 +626,7 @@ public:
 		createnodeObj();
 
 		//! Destructor
-		~createnodeObj() noexcept;
+		~createnodeObj();
 
 		//! Create a new cdata block
 		virtual ref<createnodeObj> cdata(//! Content of the new CDATA
@@ -781,7 +781,7 @@ public:
 		writelockObj();
 
 		//! Destructor
-		~writelockObj() noexcept;
+		~writelockObj();
 
 		//! Create a new child element
 

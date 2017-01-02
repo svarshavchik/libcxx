@@ -64,7 +64,7 @@ public:
 
 	//! The default destructor
 
-	inline ~const_ref() noexcept __attribute__((artificial))
+	inline ~const_ref() __attribute__((artificial))
 	{
 	}
 
@@ -459,7 +459,7 @@ public:
 	//! If this is the last pointer to an object, the object
 	//! gets automatically destroyed via \c delete.
 
-	inline ~ref() noexcept __attribute__((artificial))
+	inline ~ref() __attribute__((artificial))
 	{
 	}
 

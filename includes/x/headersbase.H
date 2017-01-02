@@ -66,7 +66,7 @@ public:
 		}
 
 		//! Destructor
-		~header() noexcept
+		~header()
 		{
 		}
 
@@ -113,7 +113,7 @@ public:
 
 		//! Destructor
 
-		~header_map_val_t() noexcept
+		~header_map_val_t()
 		{
 		}
 
@@ -171,7 +171,7 @@ public:
 	headersbase() noexcept;
 
 	//! Destructor
-	~headersbase() noexcept;
+	~headersbase();
 
 	//! Iterator type returned by lookup methods.
 

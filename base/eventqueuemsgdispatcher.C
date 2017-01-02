@@ -16,7 +16,7 @@ eventqueuemsgdispatcherObj::eventqueuemsgdispatcherObj(const eventfd &eventfd)
 {
 }
 
-eventqueuemsgdispatcherObj::~eventqueuemsgdispatcherObj() noexcept
+eventqueuemsgdispatcherObj::~eventqueuemsgdispatcherObj()
 {
 }
 

@@ -150,7 +150,7 @@ cgiimpl::cgiimpl(bool proxymode)
 	}
 }
 
-cgiimpl::~cgiimpl() noexcept
+cgiimpl::~cgiimpl()
 {
 }
 

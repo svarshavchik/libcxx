@@ -45,7 +45,7 @@ obj::obj() noexcept : refcnt(-1)
 {
 }
 
-obj::~obj() noexcept
+obj::~obj()
 {
 }
 

@@ -19,7 +19,7 @@ public:
 	LIBCXX_NAMESPACE::mpcobj<bool> flag;
 
 	amIstoppedObj() : flag(false) {}
-	~amIstoppedObj() noexcept {}
+	~amIstoppedObj() {}
 
 	void stop()
 	{

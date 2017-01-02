@@ -196,7 +196,7 @@ public:
 		       const fdbase &ptr);
 
 	//! Destructor
-	~fdtimeoutObj() noexcept;
+	~fdtimeoutObj();
 
 
 	//! Set the terminating file descriptor

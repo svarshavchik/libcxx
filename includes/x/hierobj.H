@@ -124,7 +124,7 @@ protected:
 
 		elemObj() : parent(nullptr) {}
 
-		~elemObj() noexcept {}
+		~elemObj() {}
 
 		//! Add an inferior node
 
@@ -177,7 +177,7 @@ protected:
 		tree() : rootnode(elem::create())
 		{
 		}
-		~tree() noexcept {}
+		~tree() {}
 	};
 
 	//! A container for the hierarchy tree.
@@ -187,7 +187,7 @@ protected:
 	container_t container;
 public:
 	hierObj() {}
-	~hierObj() noexcept {}
+	~hierObj() {}
 
 protected:
 
@@ -224,7 +224,7 @@ protected:
 		{
 		}
 
-		~container_lockbaseObj() noexcept {}
+		~container_lockbaseObj() {}
 	};
 
 	//! container_t::readlock or container_t::writelock lives here.
@@ -242,7 +242,7 @@ protected:
 			: lockval(refArg->container) {}
 
 		//! Destructor
-		~container_lockObj() noexcept {}
+		~container_lockObj() {}
 	};
 
 	//! A superclass of container_nodeObj with a reference to container_lockObj
@@ -277,7 +277,7 @@ protected:
 		}
 
 		//! Destructor
-		~refcontainer_lockObj() noexcept {}
+		~refcontainer_lockObj() {}
 	};
 
 	//! A node in a locked hierarchy container.
@@ -312,7 +312,7 @@ protected:
 		{
 		}
 
-		~container_nodeObj() noexcept {}
+		~container_nodeObj() {}
 
 		//! Clone this lock object.
 
@@ -406,7 +406,7 @@ public:
 		}
 
 		//! Destructor
-		~readlockObj() noexcept {}
+		~readlockObj() {}
 
 		//! Clone this lock, creating another read lock.
 
@@ -634,7 +634,7 @@ public:
 		}
 
 		//! Destructor
-		~writelockbaseObj() noexcept
+		~writelockbaseObj()
 		{
 		}
 	};
@@ -658,7 +658,7 @@ public:
 		}
 
 		//! Destructor
-		~writelockObj() noexcept {}
+		~writelockObj() {}
 
 		//! Block cloning of write locks.
 

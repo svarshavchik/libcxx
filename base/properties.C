@@ -51,7 +51,7 @@ errhandler::errhandler() noexcept
 {
 }
 
-errhandler::~errhandler() noexcept
+errhandler::~errhandler()
 {
 }
 
@@ -59,7 +59,7 @@ errhandler::errthrow::errthrow() noexcept
 {
 }
 
-errhandler::errthrow::~errthrow() noexcept
+errhandler::errthrow::~errthrow()
 {
 }
 
@@ -78,7 +78,7 @@ errhandler::errstream::errstream(std::ostream &oArg) noexcept : o(oArg)
 {
 }
 
-errhandler::errstream::~errstream() noexcept
+errhandler::errstream::~errstream()
 {
 }
 
@@ -93,7 +93,7 @@ errhandler::errlog::errlog() noexcept
 {
 }
 
-errhandler::errlog::~errlog() noexcept
+errhandler::errlog::~errlog()
 {
 }
 
@@ -152,7 +152,7 @@ nodeObj::nodeObj(const std::string &valArg,
 {
 }
 
-nodeObj::~nodeObj() noexcept
+nodeObj::~nodeObj()
 {
 }
 
@@ -161,7 +161,7 @@ nodehierObj::nodehierObj(const ptr<nodehierObj> &parentArg)
 {
 }
 
-nodehierObj::~nodehierObj() noexcept
+nodehierObj::~nodehierObj()
 {
 }
 
@@ -171,7 +171,7 @@ listObj::listObj()
 {
 }
 
-listObj::~listObj() noexcept
+listObj::~listObj()
 {
 }
 
@@ -447,7 +447,7 @@ listObj::iteratorObj::iteratorObj(const list &lArg,
 {
 }
 
-listObj::iteratorObj::~iteratorObj() noexcept
+listObj::iteratorObj::~iteratorObj()
 {
 }
 
@@ -583,7 +583,7 @@ class globalListObj : public listObj {
 
 public:
 	globalListObj() LIBCXX_INTERNAL;
-	~globalListObj() noexcept;
+	~globalListObj();
 };
 
 globalListObj::globalListObj()
@@ -642,7 +642,7 @@ globalListObj::globalListObj()
 	}
 }
 
-globalListObj::~globalListObj() noexcept
+globalListObj::~globalListObj()
 {
 }
 
@@ -662,7 +662,7 @@ notifyObj::notifyObj()
 {
 }
 
-notifyObj::~notifyObj() noexcept
+notifyObj::~notifyObj()
 {
 }
 
@@ -706,7 +706,7 @@ public:
 	propvaluebaseObj();
 
 	//! Destructor
-	~propvaluebaseObj() noexcept;
+	~propvaluebaseObj();
 
 	//! Register the property container.
 	void setValueBase(//! The container for this %property %value
@@ -751,7 +751,7 @@ void propvaluebaseObj::install(const list &props,
 			     propname, initialvalue, l);
 }
 
-propvaluebaseObj::~propvaluebaseObj() noexcept
+propvaluebaseObj::~propvaluebaseObj()
 {
 }
 
@@ -781,7 +781,7 @@ propvaluesetbase::propvaluesetbase()
 {
 }
 
-propvaluesetbase::~propvaluesetbase() noexcept
+propvaluesetbase::~propvaluesetbase()
 {
 }
 

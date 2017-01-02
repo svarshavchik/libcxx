@@ -55,7 +55,7 @@ class LIBCXX_HIDDEN ltdlObj::optionsObj::implObj : virtual public obj {
 			throw_error();
 	}
 
-	~implObj() noexcept
+	~implObj()
 	{
 		lt_dladvise_destroy(&opts);
 	}
@@ -65,7 +65,7 @@ ltdlObj::optionsObj::optionsObj() : impl(ref<implObj>::create())
 {
 }
 
-ltdlObj::optionsObj::~optionsObj() noexcept
+ltdlObj::optionsObj::~optionsObj()
 {
 }
 
@@ -130,7 +130,7 @@ class LIBCXX_HIDDEN ltdlObj::implObj : virtual public obj {
 			throw_error();
 	}
 
-	~implObj() noexcept
+	~implObj()
 	{
 		std::unique_lock<std::mutex> lock(dl_mutex);
 		lt_dlclose(handle);
@@ -156,7 +156,7 @@ ltdlObj::ltdlObj(const std::string &filename, const ref<optionsObj> &opts)
 {
 }
 
-ltdlObj::~ltdlObj() noexcept
+ltdlObj::~ltdlObj()
 {
 }
 

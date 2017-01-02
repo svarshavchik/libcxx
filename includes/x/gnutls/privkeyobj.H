@@ -31,7 +31,7 @@ public:
 	privkeyobj() noexcept;
 
 	//! Default destructor
-	~privkeyobj() noexcept;
+	~privkeyobj();
 
 	//! Import this raw private key into a gnutls::x509::privkey object
 

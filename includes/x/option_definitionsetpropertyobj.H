@@ -33,7 +33,7 @@ public:
 	definitionSetPropertyObj() noexcept;
 
 	//! Default destructor
-	~definitionSetPropertyObj() noexcept;
+	~definitionSetPropertyObj();
 
 	//! Implement the set() method.
 

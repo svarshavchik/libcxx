@@ -38,7 +38,7 @@ class domaincookiesObj : virtual public obj {
 
 	//! Destructor
 
-	~domaincookiesObj() noexcept LIBCXX_HIDDEN;
+	~domaincookiesObj() LIBCXX_HIDDEN;
 
 	//! Store a cookie
 

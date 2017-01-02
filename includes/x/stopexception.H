@@ -24,7 +24,7 @@ class stopexception : public exception {
 
 public:
 	stopexception() noexcept;
-	~stopexception() noexcept;
+	~stopexception();
 
 	using exception::operator->;
 	using exception::operator*;

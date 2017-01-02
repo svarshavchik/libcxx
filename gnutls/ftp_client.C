@@ -27,7 +27,7 @@ clientObj::impl_tls_extraObj
 {
 }
 
-clientObj::impl_tls_extraObj::~impl_tls_extraObj() noexcept
+clientObj::impl_tls_extraObj::~impl_tls_extraObj()
 {
 }
 

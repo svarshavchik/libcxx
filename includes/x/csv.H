@@ -239,7 +239,7 @@ public:
 		noexcept : header(headerArg), colnum(0) {}
 
 	//! Destructor
-	~csvheaderrow_iter() noexcept {}
+	~csvheaderrow_iter() {}
 
 	//! Register a CSV column
 	void push_back(const std::basic_string<char_type> &s) noexcept

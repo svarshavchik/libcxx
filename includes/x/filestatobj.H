@@ -34,7 +34,7 @@ public:
 	filestatObj() noexcept;
 
 	//! The default destructor.
-	~filestatObj() noexcept;
+	~filestatObj();
 };
 
 #if 0

@@ -19,7 +19,7 @@ dirwalkObj::dirwalkObj(const std::string &dirnameArg,
 {
 }
 
-dirwalkObj::~dirwalkObj() noexcept
+dirwalkObj::~dirwalkObj()
 {
 }
 
@@ -42,7 +42,7 @@ dirwalkObj::iterator::iterator() noexcept
 {
 }
 
-dirwalkObj::iterator::~iterator() noexcept
+dirwalkObj::iterator::~iterator()
 {
 }
 

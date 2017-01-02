@@ -87,7 +87,7 @@ public:
 	iterator(const_mappingnodeptr &&mapArg, size_t iArg);
 
 	//! Destructor
-	~iterator() noexcept;
+	~iterator();
 
 	//! Iterator comparator
 	bool operator==(const iterator &o) const

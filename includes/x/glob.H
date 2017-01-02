@@ -59,7 +59,7 @@ public:
 	globObj();
 
 	//! Default destructor
-	~globObj() noexcept;
+	~globObj();
 
 	//! Recomment flags for expand()
 

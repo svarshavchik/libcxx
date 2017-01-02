@@ -34,7 +34,7 @@ cookiejarObj::cookiejarObj() : cookiedomainhier(cookiedomainhier_t::create())
 {
 }
 
-cookiejarObj::~cookiejarObj() noexcept
+cookiejarObj::~cookiejarObj()
 {
 }
 
@@ -342,7 +342,7 @@ public:
 	{
 	}
 
-	~iteratorimplObj() noexcept
+	~iteratorimplObj()
 	{
 	}
 };

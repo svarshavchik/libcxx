@@ -167,7 +167,7 @@ public:
 	rwmutexdebug();
 
 	//! Destructor
-	~rwmutexdebug() noexcept;
+	~rwmutexdebug();
 };
 
 #if 0

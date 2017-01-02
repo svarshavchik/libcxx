@@ -24,7 +24,7 @@ class eventregistrationObj : virtual public obj {
 
 public:
 	eventregistrationObj() noexcept;
-	~eventregistrationObj() noexcept;
+	~eventregistrationObj();
 };
 
 //! Reference to a registered event handler

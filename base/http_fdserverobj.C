@@ -20,7 +20,7 @@ fdserverObj::fdserverObj()
 {
 }
 
-fdserverObj::~fdserverObj() noexcept
+fdserverObj::~fdserverObj()
 {
 }
 

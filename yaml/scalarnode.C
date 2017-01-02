@@ -31,7 +31,7 @@ scalarnodeObj::scalarnodeObj(const docnode &nArg,
 {
 }
 
-scalarnodeObj::~scalarnodeObj() noexcept
+scalarnodeObj::~scalarnodeObj()
 {
 }
 

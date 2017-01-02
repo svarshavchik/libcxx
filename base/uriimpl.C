@@ -52,7 +52,7 @@ uriimpl::authority_t::authority_t(const std::string &authorityStr,
 		invalid_authority();
 }
 
-uriimpl::authority_t::~authority_t() noexcept
+uriimpl::authority_t::~authority_t()
 {
 }
 
@@ -137,7 +137,7 @@ uriimpl::uriimpl(const char *urlString) : uriimpl(std::string(urlString))
 {
 }
 
-uriimpl::~uriimpl() noexcept
+uriimpl::~uriimpl()
 {
 }
 

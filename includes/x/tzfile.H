@@ -299,7 +299,7 @@ public:
 		  const std::string &tzname);
 
 	//! Default destructor
-	~tzfileObj() noexcept;
+	~tzfileObj();
 
 	//! Diagnostic function, implemented only in the regression test suite
 

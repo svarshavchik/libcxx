@@ -127,7 +127,7 @@ class vipobjdebug : private vipobj<obj_type, callback_arg_type,
 		}
 
 		//! Destructor
-		~lockrecord_t() noexcept
+		~lockrecord_t()
 		{
 		}
 
@@ -173,7 +173,7 @@ public:
 		: vipobj_t(objArg) {}
 
 	//! Destructor
-	~vipobjdebug() noexcept {}
+	~vipobjdebug() {}
 
 private:
 
@@ -203,7 +203,7 @@ private:
 		}
 
 		//! Destructor
-		~deadlocker() noexcept {}
+		~deadlocker() {}
 	};
 
 	//! Record lock instantiation
@@ -235,7 +235,7 @@ private:
 		}
 
 		//! Destructor
-		~lockentry() noexcept
+		~lockentry()
 		{
 			std::lock_guard<std::mutex> lock(lockpool.locksmutex);
 
@@ -267,7 +267,7 @@ public:
 		}
 
 		//! Destructor
-		~readlock() noexcept {}
+		~readlock() {}
 
 		using vipobj_t::readlock::operator*;
 		using vipobj_t::readlock::operator->;
@@ -296,7 +296,7 @@ public:
 
 		//! Destructor
 
-		~writelock() noexcept {}
+		~writelock() {}
 
 		using vipobj_t::writelock::operator*;
 		using vipobj_t::writelock::operator->;
@@ -326,7 +326,7 @@ public:
 		}
 
 		//! Destructor
-		~updatelock() noexcept {}
+		~updatelock() {}
 	};
 
 	//! A wrapper for a handler lock
@@ -352,7 +352,7 @@ public:
 		}
 
 		//! Destructor
-		~handlerlock() noexcept {}
+		~handlerlock() {}
 	};
 };
 

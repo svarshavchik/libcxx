@@ -34,7 +34,7 @@ public:
 	fdtlsclientObj();
 
 	//! Destructor
-	~fdtlsclientObj() noexcept;
+	~fdtlsclientObj();
 
 };
 

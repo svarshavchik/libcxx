@@ -16,7 +16,7 @@ destroy_callbackObj::destroy_callbackObj() noexcept
 	*mpcobj<bool>::lock(flag)=false;
 }
 
-destroy_callbackObj::~destroy_callbackObj() noexcept
+destroy_callbackObj::~destroy_callbackObj()
 {
 }
 
@@ -39,7 +39,7 @@ destroy_callbackBase::guard::guard()
 {
 }
 
-destroy_callbackBase::guard::~guard() noexcept
+destroy_callbackBase::guard::~guard()
 {
 	while (!callbacks.empty())
 	{

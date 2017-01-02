@@ -62,7 +62,7 @@ impldocObj::impldocObj(xmlDocPtr pArg) : p(pArg), lock(rwlock::create())
 {
 }
 
-impldocObj::~impldocObj() noexcept
+impldocObj::~impldocObj()
 {
 	if (p)
 		xmlFreeDoc(p);
@@ -72,7 +72,7 @@ docObj::docObj()
 {
 }
 
-docObj::~docObj() noexcept
+docObj::~docObj()
 {
 }
 
@@ -110,7 +110,7 @@ docObj::newElement::newElement(const std::string &nameArg,
 {
 }
 
-docObj::newElement::~newElement() noexcept
+docObj::newElement::~newElement()
 {
 }
 
@@ -120,7 +120,7 @@ docObj::docAttribute::docAttribute(const std::string &attrnameArg,
 {
 }
 
-docObj::docAttribute::~docAttribute() noexcept
+docObj::docAttribute::~docAttribute()
 {
 }
 
@@ -163,7 +163,7 @@ docObj::newAttribute::newAttribute(const std::string &attrnameArg,
 {
 }
 
-docObj::newAttribute::~newAttribute() noexcept
+docObj::newAttribute::~newAttribute()
 {
 }
 
@@ -206,7 +206,7 @@ docObj::readlockObj::readlockObj()
 {
 }
 
-docObj::readlockObj::~readlockObj() noexcept
+docObj::readlockObj::~readlockObj()
 {
 }
 
@@ -214,7 +214,7 @@ docObj::writelockObj::writelockObj()
 {
 }
 
-docObj::writelockObj::~writelockObj() noexcept
+docObj::writelockObj::~writelockObj()
 {
 }
 
@@ -262,7 +262,7 @@ class LIBCXX_HIDDEN impldocObj::save_impl {
 	{
 	}
 
-	~save_impl() noexcept
+	~save_impl()
 	{
 	}
 };
@@ -303,7 +303,7 @@ docObj::save_to_callback::save_to_callback()
 {
 }
 
-docObj::save_to_callback::~save_to_callback() noexcept
+docObj::save_to_callback::~save_to_callback()
 {
 }
 
@@ -322,7 +322,7 @@ class LIBCXX_HIDDEN impldocObj::readlockImplObj : public writelockObj {
 	{
 	}
 
-	~readlockImplObj() noexcept
+	~readlockImplObj()
 	{
 	}
 
@@ -841,7 +841,7 @@ class LIBCXX_HIDDEN impldocObj::createnodeImplObj : public createnodeObj {
 	{
 	}
 
-	~createnodeImplObj() noexcept
+	~createnodeImplObj()
 	{
 	}
 
@@ -869,7 +869,7 @@ class LIBCXX_HIDDEN impldocObj::createnodeImplObj : public createnodeObj {
 				throw EXCEPTION(gettextmsg(libmsg(_txt("Cannot create a new XML %1% element")), method));
 		}
 
-		~guard() noexcept
+		~guard()
 		{
 			if (n)
 				xmlFreeNode(n);
@@ -914,7 +914,7 @@ class LIBCXX_HIDDEN impldocObj::createnodeImplObj : public createnodeObj {
 					   (name.c_str())), "<" + name + ">")
 		{
 		}
-		~created_element() noexcept
+		~created_element()
 		{
 		}
 	};
@@ -1028,7 +1028,7 @@ class LIBCXX_HIDDEN impldocObj::createchildObj : public createnodeImplObj {
 	{
 	}
 
-	~createchildObj() noexcept
+	~createchildObj()
 	{
 	}
 
@@ -1092,7 +1092,7 @@ class LIBCXX_HIDDEN impldocObj::createnextsiblingObj : public createnodeImplObj 
 	{
 	}
 
-	~createnextsiblingObj() noexcept
+	~createnextsiblingObj()
 	{
 	}
 
@@ -1141,7 +1141,7 @@ class LIBCXX_HIDDEN impldocObj::createprevioussiblingObj : public createnodeImpl
 	{
 	}
 
-	~createprevioussiblingObj() noexcept
+	~createprevioussiblingObj()
 	{
 	}
 
@@ -1202,7 +1202,7 @@ class LIBCXX_HIDDEN impldocObj::writelockImplObj
 	{
 	}
 
-	~writelockImplObj() noexcept
+	~writelockImplObj()
 	{
 	}
 
@@ -1539,7 +1539,7 @@ docObj::createnodeObj::createnodeObj()
 {
 }
 
-docObj::createnodeObj::~createnodeObj() noexcept
+docObj::createnodeObj::~createnodeObj()
 {
 }
 
@@ -1661,7 +1661,7 @@ class LIBCXX_HIDDEN impldocObj::xpathcontextObj : virtual public obj {
 				throw EXCEPTION(libmsg(_txt("Lock not positioned on a node")));
 		}
 
-	~xpathcontextObj() noexcept
+	~xpathcontextObj()
 	{
 		if (context)
 			xmlXPathFreeContext(context);
@@ -1673,7 +1673,7 @@ docObj::xpathObj::xpathObj()
 }
 
 
-docObj::xpathObj::~xpathObj() noexcept
+docObj::xpathObj::~xpathObj()
 {
 }
 
@@ -1703,7 +1703,7 @@ class LIBCXX_HIDDEN impldocObj::xpathImplObj : public xpathObj {
 						   expression));
 	}
 
-	~xpathImplObj() noexcept
+	~xpathImplObj()
 	{
 		if (objp)
 			xmlXPathFreeObject(objp);

@@ -20,7 +20,7 @@ storedcookieObj::storedcookieObj(const cookie &cookieArg)
 {
 }
 
-storedcookieObj::~storedcookieObj() noexcept
+storedcookieObj::~storedcookieObj()
 {
 }
 

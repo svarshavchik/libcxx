@@ -33,7 +33,7 @@ public:
 	std::list<LIBCXX_NAMESPACE::fd> listen_sockets;
 
 	portmap_server(httportmap_server &portmapArg);
-	~portmap_server() noexcept;
+	~portmap_server();
 
 	void stop();
 

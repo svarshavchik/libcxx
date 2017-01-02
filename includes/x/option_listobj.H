@@ -56,7 +56,7 @@ public:
 	listObj();
 
 	//! Default destructor
-	~listObj() noexcept;
+	~listObj();
 
 	//! Reset all options to defaults
 

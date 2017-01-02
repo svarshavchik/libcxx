@@ -39,7 +39,7 @@ class LIBCXX_HIDDEN selfexeObj : virtual public x::obj {
 	std::string procselfexe;
 
 	selfexeObj();
-	~selfexeObj() noexcept;
+	~selfexeObj();
 
 #if HAVE_SYSCTL_KERN_PROC
 	bool found(dev_t dev, ino_t ino);
@@ -309,7 +309,7 @@ std::string exestarttime(pid_t p)
 
 #endif
 
-selfexeObj::~selfexeObj() noexcept
+selfexeObj::~selfexeObj()
 {
 }
 
@@ -319,7 +319,7 @@ class LIBCXX_HIDDEN selfexeinit {
 
  public:
 	selfexeinit();
-	~selfexeinit() noexcept;
+	~selfexeinit();
 };
 
 selfexeinit::selfexeinit()
@@ -327,7 +327,7 @@ selfexeinit::selfexeinit()
 	procselfexe.get();
 }
 
-selfexeinit::~selfexeinit() noexcept
+selfexeinit::~selfexeinit()
 {
 }
 

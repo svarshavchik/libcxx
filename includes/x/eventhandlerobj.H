@@ -34,7 +34,7 @@ public:
 	eventhandlerObj() noexcept {}
 
 	//! Default destructor
-	~eventhandlerObj() noexcept {}
+	~eventhandlerObj() {}
 
 	//! Dispatch an event
 

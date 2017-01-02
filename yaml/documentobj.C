@@ -30,7 +30,7 @@ documentObj::documentObj(do_not_initialize *ignore) : doc(&y),
 {
 }
 
-documentObj::~documentObj() noexcept
+documentObj::~documentObj()
 {
 	if (initialized)
 	{

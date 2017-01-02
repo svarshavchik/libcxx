@@ -15,7 +15,7 @@ dispatchablebaseObj::dispatchablebaseObj()
 {
 }
 
-dispatchablebaseObj::~dispatchablebaseObj() noexcept
+dispatchablebaseObj::~dispatchablebaseObj()
 {
 }
 

@@ -17,7 +17,7 @@ gnutls::http::fdtlsclientObj::fdtlsclientObj()
 {
 }
 
-gnutls::http::fdtlsclientObj::~fdtlsclientObj() noexcept
+gnutls::http::fdtlsclientObj::~fdtlsclientObj()
 {
 }
 

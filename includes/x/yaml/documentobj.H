@@ -94,7 +94,7 @@ public:
 	friend class docnodeObj;
 
 	//! Destructor
-	~documentObj() noexcept;
+	~documentObj();
 
 	//! Return the document's root node.
 

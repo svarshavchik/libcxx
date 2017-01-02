@@ -21,7 +21,7 @@ contentheader_collectorObj::contentheader_collectorObj(bool mime_10_required)
 {
 }
 
-contentheader_collectorObj::~contentheader_collectorObj() noexcept
+contentheader_collectorObj::~contentheader_collectorObj()
 {
 }
 

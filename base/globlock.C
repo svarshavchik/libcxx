@@ -19,7 +19,7 @@ globlock::globlock()
 	globmutex.lock();
 }
 
-globlock::~globlock() noexcept
+globlock::~globlock()
 {
 	globmutex.unlock();
 }

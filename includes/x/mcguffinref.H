@@ -41,7 +41,7 @@ public:
 	}
 
 	//! Destructor
-	~mcguffinref_cbObj() noexcept
+	~mcguffinref_cbObj()
 	{
 	}
 
@@ -120,7 +120,7 @@ public:
 	}
 
 	//! Destructor
-	~mcguffinrefObj() noexcept
+	~mcguffinrefObj()
 	{
 	}
 

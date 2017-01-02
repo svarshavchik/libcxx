@@ -48,7 +48,7 @@ class run_async::runthreadObj : public runthreadbaseObj {
 		bool terminated;
 
 		meta_t() : terminated(false) {}
-		~meta_t() noexcept {}
+		~meta_t() {}
 	};
 
 	//! The container for \c meta_t is a mutex-protected object, with a condition variable.
@@ -127,7 +127,7 @@ public:
 	}
 
 	//! Destructor
-	~runthreadObj() noexcept {}
+	~runthreadObj() {}
 
 	//! Return \c true if the thread has terminated, \c false otherwise.
 

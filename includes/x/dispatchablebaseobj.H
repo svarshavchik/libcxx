@@ -23,7 +23,7 @@ class dispatchablebaseObj : virtual public obj {
 
 public:
 	dispatchablebaseObj();
-	~dispatchablebaseObj() noexcept;
+	~dispatchablebaseObj();
 
 	//! Dispatch the message
 

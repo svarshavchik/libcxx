@@ -41,7 +41,7 @@ public:
 
 	//! Destructor
 
-	~newsequencenodeObj() noexcept
+	~newsequencenodeObj()
 	{
 	}
 	friend class writerObj;

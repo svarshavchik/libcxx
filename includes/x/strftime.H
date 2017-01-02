@@ -62,7 +62,7 @@ protected:
 	strftime_base(const const_locale &lArg);
 
 	//! Destructor
-	~strftime_base() noexcept;
+	~strftime_base();
 };
 
 //! Date and time formatting
@@ -193,7 +193,7 @@ public:
 		 const const_locale &lArg=locale::base::global());
 
 	//! Destructor
-	~strftime() noexcept;
+	~strftime();
 
 	//! Specify what date/time is to be formatted
 

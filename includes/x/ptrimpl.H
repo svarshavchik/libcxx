@@ -56,7 +56,7 @@ public:
 		objClass *pArg) noexcept;
 
 	//! Default destructor
-	~ptrImpl() noexcept;
+	~ptrImpl();
 
 	//! The default copy constructor
 

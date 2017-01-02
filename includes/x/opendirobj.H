@@ -38,7 +38,7 @@ public:
 	opendirObj() noexcept;
 
 	//! The default destructor.
-	~opendirObj() noexcept;
+	~opendirObj();
 };
 
 #if 0

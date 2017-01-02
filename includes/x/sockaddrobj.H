@@ -37,7 +37,7 @@ public:
 	sockaddrObj() noexcept;
 
 	//! Destructor
-	~sockaddrObj() noexcept;
+	~sockaddrObj();
 
 	//! Initialize this network address structure.
 

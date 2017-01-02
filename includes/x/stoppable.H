@@ -96,7 +96,7 @@ public:
 	groupObj();
 
 	//! Destructor
-	~groupObj() noexcept;
+	~groupObj();
 
 	//! Add a stoppable object to the group
 

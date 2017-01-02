@@ -18,7 +18,7 @@ globObj::globObj() : glflag(false)
 {
 }
 
-globObj::~globObj() noexcept
+globObj::~globObj()
 {
 	if (glflag)
 		globfree(&gl);

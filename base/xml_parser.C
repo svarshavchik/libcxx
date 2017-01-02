@@ -31,7 +31,7 @@ error_handler::error::error() noexcept
 	errorflag=false;
 }
 
-error_handler::error::~error() noexcept
+error_handler::error::~error()
 {
 	thread_error=0;
 }
@@ -109,7 +109,7 @@ error_handler::error_handler() noexcept
 	xmlSetGenericErrorFunc(NULL, handleValidationError);
 }
 
-error_handler::~error_handler() noexcept
+error_handler::~error_handler()
 {
 }
 
@@ -119,7 +119,7 @@ parserObj::parserObj()
 {
 }
 
-parserObj::~parserObj() noexcept
+parserObj::~parserObj()
 {
 }
 
@@ -166,7 +166,7 @@ implparserObj::implparserObj(const std::string &uriArg,
 	buffer.resize(fdbaseObj::get_buffer_size());
 }
 
-implparserObj::~implparserObj() noexcept
+implparserObj::~implparserObj()
 {
 	try {
 		// Clean up, destroy any existing parser context.

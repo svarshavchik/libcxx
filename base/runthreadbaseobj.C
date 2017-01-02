@@ -61,7 +61,7 @@ std::thread *cleanup_thread LIBCXX_HIDDEN; // The actual cleanup thread
 class LIBCXX_HIDDEN cleanup_thread_shutdown {
 
 public:
-	~cleanup_thread_shutdown() noexcept
+	~cleanup_thread_shutdown()
 	{
 		if (getpid() != origpid)
 		{
@@ -178,7 +178,7 @@ runthreadbaseObj::runthreadbaseObj()
 
 }
 
-runthreadbaseObj::~runthreadbaseObj() noexcept
+runthreadbaseObj::~runthreadbaseObj()
 {
 }
 
@@ -194,7 +194,7 @@ runthreadbaseObj::threadCleanupObj
 	accounted_for=true;
 }
 
-runthreadbaseObj::threadCleanupObj::~threadCleanupObj() noexcept
+runthreadbaseObj::threadCleanupObj::~threadCleanupObj()
 {
 	if (accounted_for)
 	{

@@ -32,7 +32,7 @@ class myfdserverObj : public LIBCXX_NAMESPACE::http::fdserverimpl,
 
 public:
 	myfdserverObj();
-	~myfdserverObj() noexcept;
+	~myfdserverObj();
 
 	void received(const LIBCXX_NAMESPACE::http::requestimpl &req,
 		      bool bodyflag);
@@ -45,7 +45,7 @@ myfdserverObj::myfdserverObj()
 {
 }
 
-myfdserverObj::~myfdserverObj() noexcept
+myfdserverObj::~myfdserverObj()
 {
 }
 

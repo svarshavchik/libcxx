@@ -36,7 +36,7 @@ newscalarnodeObj::newscalarnodeObj(const std::string &tagArg,
 {
 }
 
-newscalarnodeObj::~newscalarnodeObj() noexcept
+newscalarnodeObj::~newscalarnodeObj()
 {
 }
 

@@ -56,7 +56,7 @@ inline weakptr<ptr<objClass, baseType>>
 }
 
 template<typename objClass, typename baseType>
-inline weakptr<ptr<objClass, baseType>>::~weakptr() noexcept=default;
+inline weakptr<ptr<objClass, baseType>>::~weakptr()=default;
 
 template<typename objClass, typename baseType>
 inline weakptr<ptr<objClass, baseType>> &weakptr<ptr<objClass, baseType>>

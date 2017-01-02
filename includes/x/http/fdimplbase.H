@@ -90,7 +90,7 @@ public:
 		input_iter_t();
 
 		//! Destructor
-		~input_iter_t() noexcept;
+		~input_iter_t();
 
 #ifndef DOXYGEN
 		// TODO - doxygen fix
@@ -137,7 +137,7 @@ public:
 		output_iter_t();
 
 		//! Destructor
-		~output_iter_t() noexcept;
+		~output_iter_t();
 
 		//! Iterator operator
 		output_iter_t &operator++()
@@ -180,7 +180,7 @@ public:
 			     const fdptr &terminatefdArg);
 
 	//! Destructor
-	~fdimplbase() noexcept;
+	~fdimplbase();
 
 	//! Set the terminating file descriptor
 

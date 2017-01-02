@@ -43,7 +43,7 @@ public:
 
 	//! Destructor
 
-	~group() noexcept;
+	~group();
 
 	//! The -> operator
 

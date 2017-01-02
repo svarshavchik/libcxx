@@ -27,7 +27,7 @@ httpserver::httpserver(bool isinternalArg,
 {
 }
 
-httpserver::~httpserver() noexcept
+httpserver::~httpserver()
 {
 }
 
@@ -52,7 +52,7 @@ httpserverimpl::httpserverimpl(bool isinternalArg,
 	media_type_list.push_back("text/xml; charset=utf-8");
 }
 
-httpserverimpl::~httpserverimpl() noexcept
+httpserverimpl::~httpserverimpl()
 {
 }
 
@@ -76,7 +76,7 @@ class httpserverimpl::svclistiter : public std::iterator<std::input_iterator_tag
 		implObj(httportmap_server &portmapArg,
 			const LIBCXX_NAMESPACE::http::form::parameters &paramsArg,
 			bool external_queryArg);
-		~implObj() noexcept;
+		~implObj();
 
 		void filter();
 	};
@@ -101,7 +101,7 @@ public:
 		    const LIBCXX_NAMESPACE::http::form::parameters &params,
 		    bool external_query);
 	svclistiter();
-	~svclistiter() noexcept;
+	~svclistiter();
 
 	bool operator==(const svclistiter &iter) const;
 	bool operator!=(const svclistiter &iter) const;
@@ -178,7 +178,7 @@ httpserverimpl::svclistiter::implObj::implObj(httportmap_server &portmapArg,
 
 }
 
-httpserverimpl::svclistiter::implObj::~implObj() noexcept
+httpserverimpl::svclistiter::implObj::~implObj()
 {
 }
 
@@ -248,7 +248,7 @@ public:
 	    const LIBCXX_NAMESPACE::http::form::parameters &params,
 	    bool external_query);
 	csv();
-	~csv() noexcept;
+	~csv();
 
 	void getnextrow(const httportmap_server::iterator &i);
 	void getlastrow();
@@ -277,7 +277,7 @@ httpserverimpl::svclistiter::svclistiter::csv
 {
 }
 
-httpserverimpl::svclistiter::svclistiter::csv::~csv() noexcept
+httpserverimpl::svclistiter::svclistiter::csv::~csv()
 {
 }
 
@@ -312,7 +312,7 @@ public:
 	    bool external_query)
 ;
 	xml();
-	~xml() noexcept;
+	~xml();
 
 	void getnextrow(const httportmap_server::iterator &i)
 ;
@@ -341,7 +341,7 @@ httpserverimpl::svclistiter::svclistiter::xml
 {
 }
 
-httpserverimpl::svclistiter::svclistiter::xml::~xml() noexcept
+httpserverimpl::svclistiter::svclistiter::xml::~xml()
 {
 }
 
@@ -391,7 +391,7 @@ httpserverimpl::svclistiter::svclistiter(httportmap_server &portmap,
 	implRef->filter();
 }
 
-httpserverimpl::svclistiter::~svclistiter() noexcept
+httpserverimpl::svclistiter::~svclistiter()
 {
 }
 

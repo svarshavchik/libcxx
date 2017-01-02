@@ -33,7 +33,7 @@ protected:
 	interval_base() noexcept {}
 
 	//! Default destructor
-	~interval_base() noexcept {}
+	~interval_base() {}
 
 	//! Throw an exception - invalid parameters to interval constructor
 

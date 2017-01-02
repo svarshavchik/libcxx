@@ -573,7 +573,7 @@ void httportmap_server::wait()
 	}
 }
 
-httportmap_server::~httportmap_server() noexcept
+httportmap_server::~httportmap_server()
 {
 	wait();
 

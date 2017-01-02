@@ -18,7 +18,7 @@ fixed_semaphoreObj::fixed_semaphoreObj(size_t howmany)
 {
 }
 
-fixed_semaphoreObj::~fixed_semaphoreObj() noexcept
+fixed_semaphoreObj::~fixed_semaphoreObj()
 {
 }
 
@@ -26,7 +26,7 @@ fixed_semaphoreObj::callbackBaseObj::callbackBaseObj()
 {
 }
 
-fixed_semaphoreObj::callbackBaseObj::~callbackBaseObj() noexcept
+fixed_semaphoreObj::callbackBaseObj::~callbackBaseObj()
 {
 }
 
@@ -56,7 +56,7 @@ fixed_semaphoreObj::acquiredObj
 {
 }
 
-fixed_semaphoreObj::acquiredObj::~acquiredObj() noexcept
+fixed_semaphoreObj::acquiredObj::~acquiredObj()
 {
 	if (!acquired)
 		return;

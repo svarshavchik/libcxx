@@ -28,7 +28,7 @@ struct cookiemrulist {
 	cookiemrulist() LIBCXX_HIDDEN;
 
 	//! Destructor
-	~cookiemrulist() noexcept LIBCXX_HIDDEN;
+	~cookiemrulist() LIBCXX_HIDDEN;
 
 	//! MRU list for a given public suffix
 

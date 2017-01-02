@@ -81,7 +81,7 @@ public:
 	lockpoolObj();
 
 	//! Default destructor
-	~lockpoolObj() noexcept;
+	~lockpoolObj();
 
 	//! addLockSet() returns a reference to this object
 
@@ -138,7 +138,7 @@ public:
 
 		//! Default destructor
 
-		~lockentryObj() noexcept;
+		~lockentryObj();
 
 		//! Indicate if this lock has been acquired
 
@@ -208,7 +208,7 @@ private:
 		placeholderObj() {}
 
 		//! Destructor
-		~placeholderObj() noexcept {}
+		~placeholderObj() {}
 
 		//! Which lock entry this is a placeholder for.
 		weakptr< ptr<lockentryObj> > lockentryref;
@@ -318,7 +318,7 @@ template<typename lockid_t, typename compare_t, typename lockop_t, bool starve>
 }
 
 template<typename lockid_t, typename compare_t, typename lockop_t, bool starve>
-lockpoolObj<lockid_t, compare_t, lockop_t, starve>::~lockpoolObj() noexcept
+lockpoolObj<lockid_t, compare_t, lockop_t, starve>::~lockpoolObj()
 {
 }
 
@@ -326,7 +326,7 @@ lockpoolObj<lockid_t, compare_t, lockop_t, starve>::~lockpoolObj() noexcept
 
 template<typename lockid_t, typename compare_t, typename lockop_t, bool starve>
 lockpoolObj<lockid_t, compare_t, lockop_t, starve>::lockentryObj
-::~lockentryObj() noexcept
+::~lockentryObj()
 {
 #ifdef LIBCXX_LOCKPOOL_DEBUG
 	LIBCXX_LOCKPOOL_DEBUG();

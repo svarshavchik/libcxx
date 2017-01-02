@@ -17,7 +17,7 @@ rwlockObj::rwlockObj()
 {
 }
 
-rwlockObj::~rwlockObj() noexcept
+rwlockObj::~rwlockObj()
 {
 }
 
@@ -30,7 +30,7 @@ rwlockObj::rlockObj::rlockObj(const rwlock &lockArg)
 {
 }
 
-rwlockObj::rlockObj::~rlockObj() noexcept
+rwlockObj::rlockObj::~rlockObj()
 {
 }
 
@@ -43,7 +43,7 @@ rwlockObj::wlockObj::wlockObj(const rwlock &lockArg)
 {
 }
 
-rwlockObj::wlockObj::~wlockObj() noexcept
+rwlockObj::wlockObj::~wlockObj()
 {
 }
 

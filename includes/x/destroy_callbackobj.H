@@ -31,7 +31,7 @@ public:
 	destroy_callbackObj() noexcept;
 
 	//! Destructor
-	~destroy_callbackObj() noexcept;
+	~destroy_callbackObj();
 
 	//! The attached object has been destroyed
 	void destroyed();

@@ -15,7 +15,7 @@ stoppableObj::stoppableObj()
 {
 }
 
-stoppableObj::~stoppableObj() noexcept
+stoppableObj::~stoppableObj()
 {
 }
 
@@ -29,7 +29,7 @@ class LIBCXX_HIDDEN stoppableBase::groupObj::cbObj : virtual public obj {
 	{
 	}
 
-	~cbObj() noexcept
+	~cbObj()
 	{
 	}
 
@@ -50,7 +50,7 @@ stoppableBase::groupObj::groupObj()
 {
 }
 
-stoppableBase::groupObj::~groupObj() noexcept
+stoppableBase::groupObj::~groupObj()
 {
 }
 

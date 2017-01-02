@@ -43,7 +43,7 @@ public:
 
 	//! Destructor
 
-	~passwd() noexcept;
+	~passwd();
 
 	//! The -> operator
 

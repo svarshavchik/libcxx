@@ -22,7 +22,7 @@ definitionHelpObj::definitionHelpObj(std::ostream &helpStreamArg) noexcept
 {
 }
 
-definitionHelpObj::~definitionHelpObj() noexcept
+definitionHelpObj::~definitionHelpObj()
 {
 }
 

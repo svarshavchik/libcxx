@@ -44,7 +44,7 @@ public:
 	clientauthcacheObj();
 
 	//! Destructor
-	~clientauthcacheObj() noexcept;
+	~clientauthcacheObj();
 
 	//! Install a manually-specific basic authorization scheme.
 

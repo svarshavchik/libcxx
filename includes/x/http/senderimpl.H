@@ -40,7 +40,7 @@ namespace senderimpl_encode {
 		wait_continue();
 
 		//! Destructor
-		~wait_continue() noexcept;
+		~wait_continue();
 
 		//! Whether to proceed and send the body of this message
 
@@ -521,7 +521,7 @@ class senderimpl {
 		}
 
 		//! Destructor
-		~write_message_scope() noexcept
+		~write_message_scope()
 		{
 			try {
 				done();
@@ -566,7 +566,7 @@ public:
 	}
 
 	//! Destructor
-	~senderimpl() noexcept
+	~senderimpl()
 	{
 	}
 

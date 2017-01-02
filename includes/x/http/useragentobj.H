@@ -129,7 +129,7 @@ class useragentObj : virtual public obj {
 		cache_key_t(const uriimpl &uri);
 
 		//! Destructor
-		~cache_key_t() noexcept;
+		~cache_key_t();
 
 		//! Comparison function for an associative container
 
@@ -155,7 +155,7 @@ class useragentObj : virtual public obj {
 		idle_connectionlistObj();
 
 		//! Destructor
-		~idle_connectionlistObj() noexcept;
+		~idle_connectionlistObj();
 
 		//! The list of all cached idle objects that hold a reference to this object
 
@@ -195,7 +195,7 @@ class useragentObj : virtual public obj {
 		epollCallbackObj(idleconnObj *connArg);
 
 		//! Destructor
-		~epollCallbackObj() noexcept;
+		~epollCallbackObj();
 
 		//! The connection must've been closed. Delink it.
 
@@ -244,7 +244,7 @@ class useragentObj : virtual public obj {
 
 	public:
 		sip() LIBCXX_HIDDEN;
-		~sip() noexcept LIBCXX_HIDDEN;
+		~sip() LIBCXX_HIDDEN;
 
 		//! An epoll file descriptor that monitors open cached connections
 
@@ -296,7 +296,7 @@ class useragentObj : virtual public obj {
 		idleconnObj();
 
 		//! Destructor
-		~idleconnObj() noexcept;
+		~idleconnObj();
 
 		//! This cached connection is owned by this user agent object
 		useragentObj *uaObj;
@@ -329,7 +329,7 @@ class useragentObj : virtual public obj {
 
 	public:
 		connObj() LIBCXX_HIDDEN {}
-		~connObj() noexcept LIBCXX_HIDDEN {}
+		~connObj() LIBCXX_HIDDEN {}
 	};
 
 	//! Internal authentication cache
@@ -398,7 +398,7 @@ public:
 		     =maxhostconn.getValue());
 
 	//! Default destructor
-	~useragentObj() noexcept;
+	~useragentObj();
 
 
 	class responseBase;
@@ -430,7 +430,7 @@ public:
 			     int strengthArg);
 
 		//! Destructor
-		~challengeObj() noexcept=0;
+		~challengeObj()=0;
 
 		//! Construct an authentication handler for the given userid and password
 
@@ -545,7 +545,7 @@ public:
 		//! the unconsumed content, before the underlying connection
 		//! gets returned to the useragent object.
 
-		~responseObj() noexcept;
+		~responseObj();
 
 		//! Return an indication if this response has content.
 		bool has_content() const
@@ -959,7 +959,7 @@ private:
 		request_sans_body();
 
 		//! Destructor
-		~request_sans_body() noexcept;
+		~request_sans_body();
 
 		//! Send the request
 
@@ -989,7 +989,7 @@ private:
 		}
 
 		//! Destructor
-		~request_with_body() noexcept
+		~request_with_body()
 		{
 		}
 

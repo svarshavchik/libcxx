@@ -34,7 +34,7 @@ dirwalktreeObj::dirwalktreeObj(const std::string &dirnameArg,
 	dirtree.push_back(e);
 }
 
-dirwalktreeObj::~dirwalktreeObj() noexcept
+dirwalktreeObj::~dirwalktreeObj()
 {
 }
 

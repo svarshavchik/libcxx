@@ -42,7 +42,7 @@ messageimpl::messageimpl(const headersbase &headers)
 {
 }
 
-messageimpl::~messageimpl() noexcept
+messageimpl::~messageimpl()
 {
 }
 

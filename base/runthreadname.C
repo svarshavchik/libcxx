@@ -40,7 +40,7 @@ run_async::name::name(const std::string &nArg)
 // This thread name object on the executing thread's stack is about
 // to be destroyed.
 
-run_async::name::~name() noexcept
+run_async::name::~name()
 {
 	thread_name=default_name;
 }

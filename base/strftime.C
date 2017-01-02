@@ -22,7 +22,7 @@ strftime_base::strftime_base(const const_locale &lArg)
 	ios.clear();
 }
 
-strftime_base::~strftime_base() noexcept
+strftime_base::~strftime_base()
 {
 }
 
@@ -73,7 +73,7 @@ strftime::strftime(const struct tm *tmArg,
 	operator()(tmArg);
 }
 
-strftime::~strftime() noexcept
+strftime::~strftime()
 {
 }
 

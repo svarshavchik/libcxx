@@ -195,7 +195,7 @@ structured_content_header::structured_content_header() noexcept
 {
 }
 
-structured_content_header::~structured_content_header() noexcept
+structured_content_header::~structured_content_header()
 {
 }
 
@@ -449,7 +449,7 @@ struct LIBCXX_HIDDEN structured_content_header::format_cb_string
 	format_cb_string();
 
 	//! Destructor
-	~format_cb_string() noexcept;
+	~format_cb_string();
 
 	//! Callback.
 	void operator()(const std::string &s);
@@ -460,7 +460,7 @@ structured_content_header::format_cb_string::format_cb_string()
 {
 }
 
-structured_content_header::format_cb_string::~format_cb_string() noexcept
+structured_content_header::format_cb_string::~format_cb_string()
 {
 }
 

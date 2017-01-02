@@ -67,7 +67,7 @@ class encoderObj: public encoderbaseObj {
 		}
 
 		//! Destructor
-		~section() noexcept;
+		~section();
 
 		using const_encoderbase::operator*;
 		using const_encoderbase::operator->;
@@ -122,7 +122,7 @@ public:
 	encoderObj();
 
 	//! Destructor
-	~encoderObj() noexcept;
+	~encoderObj();
 
 	//! Return the beginning iterator for the encoded MIME object.
 	inputrefiterator<char> begin() const override;
@@ -499,7 +499,7 @@ public:
 	from_file_container(const std::string &filenameArg);
 
 	//! Destructor
-	~from_file_container() noexcept;
+	~from_file_container();
 
 	//! Open the file
 	fdinputiter begin() const;
@@ -531,7 +531,7 @@ public:
 	from_fd_container(const fd &filedescArg);
 
 	//! Destructor
-	~from_fd_container() noexcept;
+	~from_fd_container();
 
 	//! Open the file
 	fdinputiter begin() const;

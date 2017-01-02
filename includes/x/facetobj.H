@@ -55,7 +55,7 @@ public:
 
 	//! The default destructor
 
-	~facetObj() noexcept
+	~facetObj()
 	{
 	}
 

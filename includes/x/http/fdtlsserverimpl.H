@@ -47,7 +47,7 @@ public:
 	fdtlsserverimpl();
 
 	//! Destructor
-	~fdtlsserverimpl() noexcept;
+	~fdtlsserverimpl();
 
 	//! Install the factory for TLS sessions.
 

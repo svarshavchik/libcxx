@@ -38,7 +38,7 @@ gnutls::x509::crtObj::crtObj()
 	chkerr(gnutls_x509_crt_init(&crt), "gnutls_x509_crt_init");
 }
 
-gnutls::x509::crtObj::~crtObj() noexcept
+gnutls::x509::crtObj::~crtObj()
 {
 	gnutls_x509_crt_deinit(crt);
 }

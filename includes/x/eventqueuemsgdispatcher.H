@@ -45,7 +45,7 @@ public:
 			 const eventfd &eventfd=eventfd::create());
 
 	//! Default destructor
-	~eventqueuemsgdispatcherObj() noexcept;
+	~eventqueuemsgdispatcherObj();
 
 protected:
 

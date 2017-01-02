@@ -44,7 +44,7 @@ public:
 	friend class epollBase;
 
 	//! Default destructor.
-	~epollObj() noexcept;
+	~epollObj();
 
 private:
 	//! epoll(2) file descriptor operation

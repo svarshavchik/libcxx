@@ -36,7 +36,7 @@ public:
 	definitionPropertiesObj(std::ostream &outputStreamArg) noexcept;
 
 	//! Default destructor
-	~definitionPropertiesObj() noexcept;
+	~definitionPropertiesObj();
 
 	//! Implement the set() method.
 

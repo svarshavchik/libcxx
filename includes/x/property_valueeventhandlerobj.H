@@ -48,7 +48,7 @@ public:
 	notifyObj();
 
 	//! Destructor
-	~notifyObj() noexcept;
+	~notifyObj();
 
 	//! The real callback
 
@@ -133,7 +133,7 @@ public:
 	propvaluesetbase();
 
 	//! Default destructor
-	virtual ~propvaluesetbase() noexcept;
+	virtual ~propvaluesetbase();
 
 	//! Update property %value
 

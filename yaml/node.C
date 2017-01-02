@@ -22,7 +22,7 @@ nodeObj::nodeObj(yaml_node_type_t nodetypeArg,
 {
 }
 
-nodeObj::~nodeObj() noexcept
+nodeObj::~nodeObj()
 {
 }
 

@@ -32,7 +32,7 @@ groupdefinitionObj::groupdefinitionObj(ptr<valuebaseObj> valueArg,
 {
 }
 
-groupdefinitionObj::~groupdefinitionObj() noexcept
+groupdefinitionObj::~groupdefinitionObj()
 {
 }
 

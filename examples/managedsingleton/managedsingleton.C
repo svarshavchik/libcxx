@@ -19,7 +19,7 @@ public:
 	{
 	}
 
-	~app_argsObj() noexcept 
+	~app_argsObj()
 	{
 	}
 
@@ -53,7 +53,7 @@ class ret_argsObj : virtual public x::obj {
 
 public:
 	ret_argsObj() {}
-	~ret_argsObj() noexcept {}
+	~ret_argsObj() {}
 
 	std::string message;
 
@@ -77,7 +77,7 @@ public:
 	bool quitflag;
 
 	appObj() : quitflag(false) {}
-	~appObj() noexcept {}
+	~appObj() {}
 
 	// The first singleton instance waits for another instance to be
 	// called with a 'stop' argument.
@@ -144,4 +144,3 @@ int main(int argc, char **argv)
 		  << ret.second << "): " << ret.first->message << std::endl;
 	return 0;
 }
-

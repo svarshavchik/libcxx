@@ -39,7 +39,7 @@ fdserverimpl::fdserverimpl() : superclass_t(headers_limit.getValue())
 {
 }
 
-fdserverimpl::~fdserverimpl() noexcept
+fdserverimpl::~fdserverimpl()
 {
 }
 
@@ -50,7 +50,7 @@ public:
 	fdserverimpl *p;
 
 	run_helper(fdserverimpl *pArg) : p(pArg) {}
-	~run_helper() noexcept
+	~run_helper()
 	{
 		p->clear();
 	}

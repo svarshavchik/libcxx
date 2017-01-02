@@ -32,7 +32,7 @@ class inteventhandlerObj : public LIBCXX_NAMESPACE::eventhandlerObj<int> {
 
 public:
 	inteventhandlerObj() noexcept {}
-	~inteventhandlerObj() noexcept {}
+	~inteventhandlerObj() {}
 
 	void event(const int &n)
 	{
@@ -50,7 +50,7 @@ public:
 	{
 	}
 
-	~myThread() noexcept
+	~myThread()
 	{
 	}
 
@@ -113,7 +113,7 @@ public:
 	{
 	}
 
-	~testThreadDestr() noexcept
+	~testThreadDestr()
 	{
 		if (wait)
 		{

@@ -69,7 +69,7 @@ private:
 		{
 		}
 
-		~body_iterObj() noexcept
+		~body_iterObj()
 		{
 		}
 	};
@@ -163,7 +163,7 @@ public:
 
 	//! Destructor
 
-	~section_processorObj() noexcept
+	~section_processorObj()
 	{
 	}
 
@@ -250,7 +250,7 @@ class multipart_section_processorObj : public outputrefiteratorObj<int> {
 		}
 
 		//! Destructor
-		~containerObj() noexcept
+		~containerObj()
 		{
 		}
 	};
@@ -279,7 +279,7 @@ public:
 	}
 
 	//! Destructor
-	~multipart_section_processorObj() noexcept
+	~multipart_section_processorObj()
 	{
 	}
 

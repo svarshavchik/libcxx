@@ -92,7 +92,7 @@ mdObj::mdObj(const const_md &src) : h(0), algorithm(src->algorithm)
 	chkerr(gcry_md_copy(&h, src->h));
 }
 
-mdObj::~mdObj() noexcept
+mdObj::~mdObj()
 {
 	gcry_md_close(h);
 }

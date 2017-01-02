@@ -59,7 +59,7 @@ useragentObj::sip::sip() : epollfd(epoll::create()),
 {
 }
 
-useragentObj::sip::~sip() noexcept
+useragentObj::sip::~sip()
 {
 }
 
@@ -72,7 +72,7 @@ useragentObj::cache_key_t::cache_key_t(const uriimpl &uri)
 {
 }
 
-useragentObj::cache_key_t::~cache_key_t() noexcept
+useragentObj::cache_key_t::~cache_key_t()
 {
 }
 
@@ -81,7 +81,7 @@ useragentObj::idle_connectionlistObj::idle_connectionlistObj()
 {
 }
 
-useragentObj::idle_connectionlistObj::~idle_connectionlistObj() noexcept
+useragentObj::idle_connectionlistObj::~idle_connectionlistObj()
 {
 }
 
@@ -89,7 +89,7 @@ useragentObj::idleconnObj::idleconnObj()
 {
 }
 
-useragentObj::idleconnObj::~idleconnObj() noexcept
+useragentObj::idleconnObj::~idleconnObj()
 {
 }
 
@@ -106,7 +106,7 @@ useragentObj::epollCallbackObj::epollCallbackObj(idleconnObj *connArg)
 {
 }
 
-useragentObj::epollCallbackObj::~epollCallbackObj() noexcept
+useragentObj::epollCallbackObj::~epollCallbackObj()
 {
 }
 
@@ -123,7 +123,7 @@ useragentObj::request_sans_body::request_sans_body()
 {
 }
 
-useragentObj::request_sans_body::~request_sans_body() noexcept
+useragentObj::request_sans_body::~request_sans_body()
 {
 }
 
@@ -147,7 +147,7 @@ useragentObj::useragentObj(clientopts_t optsArg,
 {
 }
 
-useragentObj::~useragentObj() noexcept
+useragentObj::~useragentObj()
 {
 }
 
@@ -157,7 +157,7 @@ useragentObj::responseObj::responseObj(const uriimpl &uriArg,
 {
 }
 
-useragentObj::responseObj::~responseObj() noexcept
+useragentObj::responseObj::~responseObj()
 {
 	try {
 		if (!ua.null())
@@ -463,7 +463,7 @@ class LIBCXX_HIDDEN useragentObj::challengeObj::basicObj : public challengeObj {
 	basicObj(const uriimpl &uriArg,
 		 const std::string &realmArg) : challengeObj(auth::basic, 0),
 		uri(uriArg), realm(realmArg) {}
-	~basicObj() noexcept {}
+	~basicObj() {}
 
 	clientauthimpl create(const std::string &username,
 			      const std::string &password) override
@@ -784,7 +784,7 @@ useragentObj::challengeObj::challengeObj(auth schemeArg,
 {
 }
 
-useragentObj::challengeObj::~challengeObj() noexcept
+useragentObj::challengeObj::~challengeObj()
 {
 }
 
@@ -813,7 +813,7 @@ class LIBCXX_HIDDEN useragentObj::request_with_form_upload
 	mime::encoder e;
 
 	request_with_form_upload(const mime::encoder &eArg) : e(eArg) {}
-	~request_with_form_upload() noexcept {}
+	~request_with_form_upload() {}
 
 	bool operator()(fdclientimpl &client,
 			requestimpl &req,

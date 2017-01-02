@@ -21,7 +21,7 @@ public:
 	int n;
 
 	valueObj(int nArg=0):n(nArg) {}
-	~valueObj() noexcept {}
+	~valueObj() {}
 };
 
 typedef LIBCXX_NAMESPACE::weakmultimap<std::string, valueObj> mmap_t;

@@ -55,7 +55,7 @@ public:
 	crtObj();
 
 	//! The default destructor
-	~crtObj() noexcept;
+	~crtObj();
 
 	//! Match the server/host name
 

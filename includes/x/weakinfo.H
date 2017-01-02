@@ -106,7 +106,7 @@ public:
 
 	//! Destructor.
 
-	~weakinfo() noexcept;
+	~weakinfo();
 
 	friend class obj;
 	friend class ondestroyObj;

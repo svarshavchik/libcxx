@@ -144,7 +144,7 @@ public:
 
 	//! Destructor
 
-	~eventqueuedestroynotifyObj() noexcept
+	~eventqueuedestroynotifyObj()
 	{
 	}
 

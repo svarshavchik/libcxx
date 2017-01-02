@@ -53,7 +53,7 @@ public:
 	noexcept;
 
 	//! Default destructor
-	~parserObj() noexcept;
+	~parserObj();
 
 	//! Current status
 	int err_status;

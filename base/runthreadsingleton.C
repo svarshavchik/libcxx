@@ -39,7 +39,7 @@ runthreadsingleton::get_impl::get_lock(runthreadsingleton &once_object)
 	return lock;
 }
 
-runthreadsingleton::get_impl::~get_impl() noexcept
+runthreadsingleton::get_impl::~get_impl()
 {
 }
 

@@ -21,7 +21,7 @@ ftp_custom_exception::ftp_custom_exception(int status_codeArg)
 {
 }
 
-ftp_custom_exception::~ftp_custom_exception() noexcept
+ftp_custom_exception::~ftp_custom_exception()
 {
 }
 

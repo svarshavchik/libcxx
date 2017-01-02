@@ -44,7 +44,7 @@ public:
 			  const std::string &realmArg);
 
 	//! Destructor
-	~clientauthimplObj() noexcept;
+	~clientauthimplObj();
 
 	//! Add authorization headers
 	virtual void add_header(//! Request to add headers to

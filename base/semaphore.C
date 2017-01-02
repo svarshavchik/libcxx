@@ -28,13 +28,13 @@ class semaphoreObj::pendingObj : virtual public obj {
 	{
 	}
 
-	~pendingObj() noexcept LIBCXX_INTERNAL
+	~pendingObj() LIBCXX_INTERNAL
 	{
 	}
 };
 
 semaphoreObj::ownerObj::ownerObj() {}
-semaphoreObj::ownerObj::~ownerObj() noexcept {}
+semaphoreObj::ownerObj::~ownerObj() {}
 
 // Acquired semaphore. The mcguffin's destructor invokes release()
 
@@ -49,7 +49,7 @@ class LIBCXX_HIDDEN semaphoreObj::acquired_mcguffin : virtual public obj {
 	{
 	}
 
-	~acquired_mcguffin() noexcept
+	~acquired_mcguffin()
 	{
 		if (acquired)
 			sem->release(acquired);
@@ -61,7 +61,7 @@ semaphoreObj::semaphoreObj(property::value<size_t> &semaphore_sizeArg)
 {
 }
 
-semaphoreObj::~semaphoreObj() noexcept
+semaphoreObj::~semaphoreObj()
 {
 }
 

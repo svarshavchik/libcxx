@@ -49,7 +49,7 @@ rwmutexdebug::rwmutexdebug() : r(lockpool, rwmutex::r),
 {
 }
 
-rwmutexdebug::~rwmutexdebug() noexcept
+rwmutexdebug::~rwmutexdebug()
 {
 }
 

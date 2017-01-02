@@ -83,7 +83,7 @@ log_stringstream::log_stringstream()
 	}
 }
 
-log_stringstream::~log_stringstream() noexcept
+log_stringstream::~log_stringstream()
 {
 }
 
@@ -102,7 +102,7 @@ public:
 	handlerObj() noexcept;
 
 	//! The default destructor
-	~handlerObj() noexcept;
+	~handlerObj();
 
 	//! Report a log message
 
@@ -125,7 +125,7 @@ logger::handlerObj::handlerObj() noexcept
 {
 }
 
-logger::handlerObj::~handlerObj() noexcept
+logger::handlerObj::~handlerObj()
 {
 }
 
@@ -184,7 +184,7 @@ public:
 	   size_t keepArg) noexcept;
 
 	//! The destructor
-	~fd() noexcept;
+	~fd();
 
 	//! Log the message to the file descriptor
 
@@ -217,7 +217,7 @@ logger::handlerObj::fd::fd(const std::string &logfilenamepatternArg,
 {
 }
 
-logger::handlerObj::fd::~fd() noexcept
+logger::handlerObj::fd::~fd()
 {
 	if (closeit)
 		close(n);
@@ -230,7 +230,7 @@ public:
 	time_t mtime;
 
 	filetime(const char *filename) noexcept;
-	~filetime() noexcept;
+	~filetime();
 };
 
 logger::handlerObj::fd::filetime::filetime(const char *filenameArg) noexcept
@@ -243,7 +243,7 @@ logger::handlerObj::fd::filetime::filetime(const char *filenameArg) noexcept
 	}
 }
 
-logger::handlerObj::fd::filetime::~filetime() noexcept
+logger::handlerObj::fd::filetime::~filetime()
 {
 }
 
@@ -254,7 +254,7 @@ public:
 	{
 	}
 
-	~filetime_sort() noexcept
+	~filetime_sort()
 	{
 	}
 
@@ -440,7 +440,7 @@ public:
 	syslogger(//! The syslog level mapping
 		  const std::map<short, int> &syslog_mapArg) noexcept;
 
-	~syslogger() noexcept;
+	~syslogger();
 
 	//! Log the message to syslog
 
@@ -472,7 +472,7 @@ logger::handlerObj::syslogger::syslogger(const std::map<short, int> &syslog_mapA
 {
 }
 
-logger::handlerObj::syslogger::~syslogger() noexcept
+logger::handlerObj::syslogger::~syslogger()
 {
 }
 
@@ -545,14 +545,14 @@ public:
 	locale default_locale;
 
 	configmeta() noexcept;
-	~configmeta() noexcept;
+	~configmeta();
 };
 
 logger::configmeta::configmeta() noexcept : default_locale(locale::base::environment())
 {
 }
 
-logger::configmeta::~configmeta() noexcept
+logger::configmeta::~configmeta()
 {
 }
 
@@ -562,7 +562,7 @@ class logger::logconfig_init : virtual public obj {
 
 public:
 	logconfig_init() noexcept;
-	~logconfig_init() noexcept;
+	~logconfig_init();
 };
 
 singleton<logger::logconfig_init> logger::logger_init;
@@ -650,7 +650,7 @@ public:
 	handlerptr h;
 
 	handlername();
-	~handlername() noexcept;
+	~handlername();
 
 	handlername(const std::string &,
 		    const const_locale &);
@@ -676,7 +676,7 @@ logger::handlername::handlername()
 {
 }
 
-logger::handlername::~handlername() noexcept
+logger::handlername::~handlername()
 {
 }
 
@@ -708,7 +708,7 @@ public:
 	std::string fmt;
 
 	handlerfmt();
-	~handlerfmt() noexcept;
+	~handlerfmt();
 
 	handlerfmt(const std::string &, const const_locale &);
 
@@ -735,7 +735,7 @@ logger::handlerfmt::handlerfmt()
 {
 }
 
-logger::handlerfmt::~handlerfmt() noexcept
+logger::handlerfmt::~handlerfmt()
 {
 }
 
@@ -772,7 +772,7 @@ public:
 		     const std::string &fmtnamestr,
 
 		     const const_locale &localeRef);
-	~scopedestObj() noexcept;
+	~scopedestObj();
 };
 
 logger::scopedestObj::scopedestObj(const std::string &handlerpropname,
@@ -787,7 +787,7 @@ logger::scopedestObj::scopedestObj(const std::string &handlerpropname,
 {
 }
 
-logger::scopedestObj::~scopedestObj() noexcept
+logger::scopedestObj::~scopedestObj()
 {
 }
 
@@ -796,7 +796,7 @@ class logger::inheritObj : virtual public obj {
 
 public:
 	inheritObj() LIBCXX_INTERNAL ;
-	~inheritObj() noexcept LIBCXX_INTERNAL ;
+	~inheritObj() LIBCXX_INTERNAL ;
 
 	std::list<property::listObj::iterator> scope;
 
@@ -817,7 +817,7 @@ logger::inheritObj::inheritObj()
 {
 }
 
-logger::inheritObj::~inheritObj() noexcept
+logger::inheritObj::~inheritObj()
 {
 }
 
@@ -862,7 +862,7 @@ logger::scopebase::scopebase(inheritObj &inherit)
 	}
 }
 
-logger::scopebase::~scopebase() noexcept
+logger::scopebase::~scopebase()
 {
 }
 
@@ -1445,7 +1445,7 @@ logger::logconfig_init::logconfig_init() noexcept
 	}
 }
 
-logger::logconfig_init::~logconfig_init() noexcept
+logger::logconfig_init::~logconfig_init()
 {
 	logconfig_lock llock;
 
@@ -1775,7 +1775,7 @@ logger::context::context(const std::string &nameArg) noexcept : name(nameArg)
 	context_stack=this;
 }
 
-logger::context::~context() noexcept
+logger::context::~context()
 {
 	logconfig_lock llock;
 

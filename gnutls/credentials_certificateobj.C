@@ -131,7 +131,7 @@ int gnutls::credentials::certificateObj::get_params(gnutls_params_type_t type,
 	return -1;
 }
 
-gnutls::credentials::certificateObj::~certificateObj() noexcept
+gnutls::credentials::certificateObj::~certificateObj()
 {
 	gnutls_certificate_free_credentials(cred);
 }

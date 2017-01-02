@@ -48,7 +48,7 @@ public:
 		{
 		}
 
-		~ifaddr() noexcept {}
+		~ifaddr() {}
 
 	};
 
@@ -87,7 +87,7 @@ public:
 		 ) noexcept;
 
 	//! Destructor
-	~netifObj() noexcept;
+	~netifObj();
 
 	//! Return the interface's name
 

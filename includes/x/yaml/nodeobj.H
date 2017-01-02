@@ -35,7 +35,7 @@ public:
 
 	//! Destructor
 
-	~nodeObj() noexcept;
+	~nodeObj();
 
 	//! The type of this node
 	const yaml_node_type_t nodetype;

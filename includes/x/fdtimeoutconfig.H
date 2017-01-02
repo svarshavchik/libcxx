@@ -59,7 +59,7 @@ public:
 		     const fd &fdrefArg);
 
 	//! Destructor
-	~terminate_fd() noexcept;
+	~terminate_fd();
 
 	//! Attach the terminator file descriptor.
 
@@ -84,7 +84,7 @@ public:
 	}
 
 	//! Destructor
-	~fdtimeoutconfig_helper() noexcept {}
+	~fdtimeoutconfig_helper() {}
 
 	//! Return the timeout wrapper for a file descriptor
 	fdbase operator()(const fd &fd) const override

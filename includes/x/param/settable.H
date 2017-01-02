@@ -63,7 +63,7 @@ public:
 	: value(valueArg) {}
 
 	//! Destructor
-	~settable() noexcept {}
+	~settable() {}
 
 	//! Return the raw value
 

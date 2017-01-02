@@ -25,7 +25,7 @@ public:
 
 	customsectioninfoObj() {}
 
-	~customsectioninfoObj() noexcept {}
+	~customsectioninfoObj() {}
 
 	// The custom subclass must implement create_subsection(), and
 	// the subsection constructor, that forwards a reference to the parent

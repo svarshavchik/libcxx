@@ -28,7 +28,7 @@ public:
 	clientinfoObj(const LIBCXX_NAMESPACE::fd &fdArg,
 		      size_t pollfd_indexArg,
 		      char stateArg);
-	~clientinfoObj() noexcept;
+	~clientinfoObj();
 
 	LIBCXX_NAMESPACE::fd fd;
 	size_t pollfd_index;
@@ -117,7 +117,7 @@ portmap_server::clientinfoObj::clientinfoObj(const LIBCXX_NAMESPACE::fd &fdArg,
 	readbufp=0;
 }
 
-portmap_server::clientinfoObj::~clientinfoObj() noexcept
+portmap_server::clientinfoObj::~clientinfoObj()
 {
 }
 
@@ -127,7 +127,7 @@ portmap_server::portmap_server(httportmap_server &portmapArg)
 {
 }
 
-portmap_server::~portmap_server() noexcept
+portmap_server::~portmap_server()
 {
 }
 

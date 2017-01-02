@@ -39,7 +39,7 @@ pcreObj::pcreObj(const std::string &pattern, int options)
 		throw EXCEPTION(errptr);
 }
 
-pcreObj::~pcreObj() noexcept
+pcreObj::~pcreObj()
 {
 	if (studied)
 		pcre_free_study(studied);

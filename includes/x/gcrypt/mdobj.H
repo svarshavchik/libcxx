@@ -57,7 +57,7 @@ public:
 	mdObj(const const_md &src);
 
 	//! Destructor
-	~mdObj() noexcept;
+	~mdObj();
 
 	//! Enable an algorithm
 

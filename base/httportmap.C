@@ -49,7 +49,7 @@ class LIBCXX_HIDDEN httportmapBase::regpid2exeObj : virtual public x::obj {
 		instance->regpid2exe();
 	}
 
-	~regpid2exeObj() noexcept {}
+	~regpid2exeObj() {}
 };
 
 singleton<httportmapBase::regpid2exeObj> LIBCXX_HIDDEN local_regpid2exe_instance;
@@ -73,7 +73,7 @@ public:
 	{
 	}
 
-	~daemonConnObj() noexcept
+	~daemonConnObj()
 	{
 	}
 };
@@ -135,7 +135,7 @@ class LIBCXX_HIDDEN httportmapObj::clock {
 		conn->clientfd=origfd;
 	}
 
-	~clock() noexcept
+	~clock()
 	{
 	}
 };
@@ -154,7 +154,7 @@ httportmapObj::httportmapObj(const http::useragent &uaArg,
 {
 }
 
-httportmapObj::~httportmapObj() noexcept
+httportmapObj::~httportmapObj()
 {
 	if (daemon.null())
 		return;

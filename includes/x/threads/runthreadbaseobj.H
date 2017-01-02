@@ -42,7 +42,7 @@ protected:
 
 public:
 	//! Destructor
-	~runthreadbaseObj() noexcept;
+	~runthreadbaseObj();
 
 private:
 
@@ -72,7 +72,7 @@ private:
 		threadCleanupObj(const ref<runthreadbaseObj> &thrArg);
 
 		//! Destructor
-		~threadCleanupObj() noexcept LIBCXX_HIDDEN;
+		~threadCleanupObj() LIBCXX_HIDDEN;
 
 		//! Thread terminated.
 

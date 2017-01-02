@@ -74,7 +74,7 @@ public:
 	}
 
 	//! Default destructor
-	~mcguffinmapObj() noexcept
+	~mcguffinmapObj()
 	{
 	}
 

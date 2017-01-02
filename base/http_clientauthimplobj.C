@@ -22,7 +22,7 @@ clientauthimplObj::clientauthimplObj(auth schemeArg,
 {
 }
 
-clientauthimplObj::~clientauthimplObj() noexcept
+clientauthimplObj::~clientauthimplObj()
 {
 }
 
@@ -43,7 +43,7 @@ clientauthimplObj::basic::basic(const uriimpl &uriArg,
 	uri.setFragment("");
 }
 
-clientauthimplObj::basic::~basic() noexcept
+clientauthimplObj::basic::~basic()
 {
 }
 

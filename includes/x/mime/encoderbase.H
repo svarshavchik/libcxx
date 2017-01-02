@@ -32,7 +32,7 @@ public:
 	encoderbaseObj();
 
 	//! Destructor
-	~encoderbaseObj() noexcept;
+	~encoderbaseObj();
 
 	//! Return a beginning iterator for a MIME-encoded section
 
@@ -139,7 +139,7 @@ public:
 	}
 
 	//! Destructor
-	~encoderbaseImplObj() noexcept {}
+	~encoderbaseImplObj() {}
 
 	//! Fill the input buffer with the next MIME-encoded chunk.
 
@@ -202,7 +202,7 @@ public:
 	}
 
 	//! Destructor
-	~encoderImplObj() noexcept {}
+	~encoderImplObj() {}
 
 	//! Construct the beginning iterator.
 	inputrefiterator<char> begin() const override

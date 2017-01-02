@@ -402,7 +402,7 @@ public:
 		obj::demangle(typeid(object).name(), namebuf);
 	}
 
-	~object_name() noexcept
+	~object_name()
 	{
 	}
 

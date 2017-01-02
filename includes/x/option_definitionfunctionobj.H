@@ -62,7 +62,7 @@ public:
 	}
 
 	//! Default destructor
-	~definitionfuncbaseObj() noexcept
+	~definitionfuncbaseObj()
 	{
 	}
 
@@ -193,7 +193,7 @@ public:
 	}
 
 	//! Default destructor
-	~definitionfuncvalueObj() noexcept
+	~definitionfuncvalueObj()
 	{
 	}
 
@@ -255,7 +255,7 @@ public:
 	}
 
 	//! Default destructor
-	~definitionfunccrvalueObj() noexcept
+	~definitionfunccrvalueObj()
 	{
 	}
 
@@ -303,7 +303,7 @@ public:
 			      ) noexcept;
 
 	//! Default destructor
-	~definitionfuncvoidObj() noexcept;
+	~definitionfuncvoidObj();
 
 private:
 	//! Set the default value

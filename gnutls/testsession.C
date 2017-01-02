@@ -37,7 +37,7 @@ public:
 	bool expecthostname;
 
 	credCallback() noexcept;
-	~credCallback() noexcept;
+	~credCallback();
 
 	keycertptr get(const LIBCXX_NAMESPACE::gnutls::sessionObj *sess,
 		       const std::list<std::string> &hostname_list,
@@ -51,7 +51,7 @@ credCallback::credCallback() noexcept
 {
 }
 
-credCallback::~credCallback() noexcept
+credCallback::~credCallback()
 {
 }
 

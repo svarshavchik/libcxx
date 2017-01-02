@@ -122,7 +122,7 @@ public:
 
 	//! The default destructor
 
-	inline ~const_ptr() noexcept __attribute__((artificial))
+	inline ~const_ptr() __attribute__((artificial))
 	{
 	}
 
@@ -451,7 +451,7 @@ template<typename objClass2> inline const_ptr<objClass, baseClass>
 //!     void myMethod();
 //!
 //!     myClassObj();
-//!     ~myClassObj() noexcept;
+//!     ~myClassObj();
 //! };
 //!
 //! typedef INSERT_LIBX_NAMESPACE::ref<myClassObj> myClass;
@@ -772,7 +772,7 @@ public:
 	//! If this is the last reference bound to an object, the object
 	//! gets automatically destroyed via \c delete.
 
-	inline ~ptr() noexcept __attribute__((artificial))
+	inline ~ptr() __attribute__((artificial))
 	{
 	}
 

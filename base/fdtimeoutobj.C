@@ -31,7 +31,7 @@ fdtimeoutObj::fdtimeoutObj(const fdbase &ptr)
 {
 }
 
-fdtimeoutObj::~fdtimeoutObj() noexcept
+fdtimeoutObj::~fdtimeoutObj()
 {
 }
 

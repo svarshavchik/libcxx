@@ -45,7 +45,7 @@ public:
 
 	//! The list of addresses is released and all memory gets freed.
 	//!
-	~netaddrResultObj() noexcept;
+	~netaddrResultObj();
 
 	//! A single socket address.
 
@@ -89,7 +89,7 @@ public:
 		addrstruct(const const_sockaddr &addrArg);
 
 		//! Destructor
-		~addrstruct() noexcept;
+		~addrstruct();
 
 		//! Comparison operator
 

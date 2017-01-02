@@ -52,7 +52,7 @@ gnutls::sessionObj::factoryObj::factoryObj(const gnutls::credentials::certificat
 {
 }
 
-gnutls::sessionObj::factoryObj::~factoryObj() noexcept
+gnutls::sessionObj::factoryObj::~factoryObj()
 {
 }
 
@@ -234,7 +234,7 @@ ssize_t gnutls::sessionObj::push_func(const void *buf,
 	return n;
 }
 
-gnutls::sessionObj::~sessionObj() noexcept
+gnutls::sessionObj::~sessionObj()
 {
 	if (session_remove_needed && !cache.null())
 		gnutls_db_remove_session(sess);

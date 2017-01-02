@@ -26,7 +26,7 @@ mappingnodeObj::mappingnodeObj(const docnode &nArg,
 {
 }
 
-mappingnodeObj::~mappingnodeObj() noexcept
+mappingnodeObj::~mappingnodeObj()
 {
 }
 
@@ -76,7 +76,7 @@ mappingnodeObj::iterator::iterator(const_mappingnodeptr &&mapArg, size_t iArg)
 {
 }
 
-mappingnodeObj::iterator::~iterator() noexcept
+mappingnodeObj::iterator::~iterator()
 {
 }
 

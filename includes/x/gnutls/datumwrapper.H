@@ -71,7 +71,7 @@ public:
 	datumwrapper(datum_t importRef);
 
 	//! Deallocate the \c gnutls_datum_t via gnutls_free
-	~datumwrapper() noexcept;
+	~datumwrapper();
 
 	//! Convert to a vector, upon demand.
 	operator datum_t() const;
@@ -99,7 +99,7 @@ public:
 	//! A datum_t that we own
 
 	tempdatum(const const_datum_t &datum) noexcept;
-	~tempdatum() noexcept {}
+	~tempdatum() {}
 };
 
 #if 0

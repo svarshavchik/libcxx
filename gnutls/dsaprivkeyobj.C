@@ -17,7 +17,7 @@ gnutls::dsaprivkeyobj::dsaprivkeyobj()
 {
 }
 
-gnutls::dsaprivkeyobj::~dsaprivkeyobj() noexcept
+gnutls::dsaprivkeyobj::~dsaprivkeyobj()
 {
 }
 

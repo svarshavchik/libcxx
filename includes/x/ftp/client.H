@@ -84,7 +84,7 @@ public:
 		stat(const std::string &str);
 
 		//! Destructor
-		~stat() noexcept;
+		~stat();
 	};
 };
 
@@ -98,7 +98,7 @@ public:
 
 	//! Destructor
 
-	~stat_callback() noexcept;
+	~stat_callback();
 
 	//! Callback
 
@@ -122,7 +122,7 @@ public:
 	}
 
 	//! Destructor
-	~stat_callback_impl() noexcept
+	~stat_callback_impl()
 	{
 	}
 

@@ -42,7 +42,7 @@ public:
 	exceptionObj() noexcept;
 
 	//! The default destructor.
-	~exceptionObj() noexcept;
+	~exceptionObj();
 
 	//! Record the file and the line number that threw the exception.
 

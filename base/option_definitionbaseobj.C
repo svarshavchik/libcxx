@@ -37,7 +37,7 @@ definitionbaseObj::definitionbaseObj(unicode_char shortnameArg,
 
 //! Default destructor
 
-definitionbaseObj::~definitionbaseObj() noexcept
+definitionbaseObj::~definitionbaseObj()
 {
 }
 
@@ -249,7 +249,7 @@ definitionfuncvoidObj
 {
 }
 
-definitionfuncvoidObj::~definitionfuncvoidObj() noexcept
+definitionfuncvoidObj::~definitionfuncvoidObj()
 {
 }
 

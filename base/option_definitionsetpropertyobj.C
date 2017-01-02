@@ -30,7 +30,7 @@ definitionSetPropertyObj::definitionSetPropertyObj()
 {
 }
 
-definitionSetPropertyObj::~definitionSetPropertyObj() noexcept
+definitionSetPropertyObj::~definitionSetPropertyObj()
 {
 }
 

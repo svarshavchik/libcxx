@@ -95,7 +95,7 @@ public:
 		}
 
 		//! Destructor
-		~authority_t() noexcept;
+		~authority_t();
 
 		//! Indicate if the authority component was provided
 		operator bool() const
@@ -536,7 +536,7 @@ public:
 		int flags=0);
 	//! Destructor
 
-	~uriimpl() noexcept;
+	~uriimpl();
 
 	//! Return the URI's scheme part.
 

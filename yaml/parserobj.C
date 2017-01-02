@@ -27,7 +27,7 @@ extern "C" {
 	}
 };
 
-yaml::parserObj::~parserObj() noexcept
+yaml::parserObj::~parserObj()
 {
 }
 

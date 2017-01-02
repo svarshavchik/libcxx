@@ -146,7 +146,7 @@ private:
 public:
 
 	//! Destructor
-	~requestimpl() noexcept;
+	~requestimpl();
 
 	//! Set the proxy flag
 

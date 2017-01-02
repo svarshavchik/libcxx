@@ -32,7 +32,7 @@ fileattrObj::fileattrObj(const std::string &filenameArg,
 }
 
 
-fileattrObj::~fileattrObj() noexcept
+fileattrObj::~fileattrObj()
 {
 }
 

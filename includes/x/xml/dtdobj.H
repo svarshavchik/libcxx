@@ -26,7 +26,7 @@ public:
 	dtdObj();
 
 	//! Destructor
-	~dtdObj() noexcept;
+	~dtdObj();
 
 	//! Whether the doctype is defined
 	virtual bool exists()=0;

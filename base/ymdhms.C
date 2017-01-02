@@ -63,7 +63,7 @@ ymdhms::ymdhms(const struct tm &timeValue,
 {
 }
 
-ymdhms::~ymdhms() noexcept
+ymdhms::~ymdhms()
 {
 }
 

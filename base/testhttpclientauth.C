@@ -28,7 +28,7 @@ public:
 	{
 	}
 
-	~dummyauthObj() noexcept {}
+	~dummyauthObj() {}
 
 	void add_header(LIBCXX_NAMESPACE::http::requestimpl &req,
 			const char *header) override
@@ -46,7 +46,7 @@ public:
 
 	testclientauthcacheObj() {}
 
-	~testclientauthcacheObj() noexcept {}
+	~testclientauthcacheObj() {}
 
 	std::string toString()
 	{

@@ -54,7 +54,7 @@ requestimpl::requestimpl(const cgiimpl &cgi)
 	erase("Host");
 }
 
-requestimpl::~requestimpl() noexcept
+requestimpl::~requestimpl()
 {
 }
 

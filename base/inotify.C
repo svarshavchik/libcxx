@@ -94,7 +94,7 @@ class inotifyObj::watcherObj : virtual public obj {
 					   + pathname);
 	}
 
-	~watcherObj() noexcept
+	~watcherObj()
 	{
 		inotify_rm_watch(i->getFd(), w);
 	}
@@ -106,7 +106,7 @@ inotifyObj::inotifyObj()
 {
 }
 
-inotifyObj::~inotifyObj() noexcept
+inotifyObj::~inotifyObj()
 {
 }
 

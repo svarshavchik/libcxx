@@ -36,7 +36,7 @@ netifObj::netifObj(const std::string &nameArg,
 {
 }
 
-netifObj::~netifObj() noexcept
+netifObj::~netifObj()
 {
 }
 

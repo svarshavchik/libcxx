@@ -15,7 +15,7 @@ msgdispatcherObj::msgdispatcherObj()
 {
 }
 
-msgdispatcherObj::~msgdispatcherObj() noexcept
+msgdispatcherObj::~msgdispatcherObj()
 {
 }
 
@@ -24,7 +24,7 @@ class msgdispatcherObj::throwstopexceptionObj : public dispatchablebaseObj {
 public:
 	throwstopexceptionObj() LIBCXX_HIDDEN;
 
-	~throwstopexceptionObj() noexcept LIBCXX_HIDDEN;
+	~throwstopexceptionObj() LIBCXX_HIDDEN;
 
 	void dispatch() LIBCXX_HIDDEN;
 };
@@ -33,7 +33,7 @@ msgdispatcherObj::throwstopexceptionObj::throwstopexceptionObj()
 {
 }
 
-msgdispatcherObj::throwstopexceptionObj::~throwstopexceptionObj() noexcept
+msgdispatcherObj::throwstopexceptionObj::~throwstopexceptionObj()
 {
 }
 

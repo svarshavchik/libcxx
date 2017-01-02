@@ -45,7 +45,7 @@ class myEventHandlerObj : public &ns;::eventhandlerObj&lt;int&gt; {
 
 public:
     myEventHandlerObj() noexcept {}
-    ~myEventHandlerObj() noexcept {}
+    ~myEventHandlerObj() {}
     void event(const int &amp;eventArg);
 };
 

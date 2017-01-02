@@ -307,7 +307,7 @@ public:
 	ymd();
 
 	//! The destructor
-	~ymd() noexcept;
+	~ymd();
 
 	//! Initialize the date to a given date
 
@@ -526,7 +526,7 @@ public:
 			int dayArg);
 
 		//! Default destructor
-		~iso8601() noexcept;
+		~iso8601();
 
 		//! Return the ISO8601 year
 
@@ -645,7 +645,7 @@ public:
 		parser(const const_locale &loc=locale::base::environment());
 
 		//! Destructor
-		~parser() noexcept;
+		~parser();
 
 		//! Set flag to interpret dd/dd/dddd as mm/dd/yyyy.
 

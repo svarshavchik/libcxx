@@ -81,7 +81,7 @@ public:
 		       ) noexcept;
 
 	//! Default destructor
-	~fdstreambufObj() noexcept;
+	~fdstreambufObj();
 
 	//! Implement \c std::streambuf::setbuf()
 

@@ -42,7 +42,7 @@ public:
 		{
 		}
 
-		~valueObj() noexcept {}
+		~valueObj() {}
 	};
 
 	typedef ref<valueObj> value;
@@ -51,7 +51,7 @@ public:
 
 	tld_t tld;
 
-	~tldnamesObj() noexcept {}
+	~tldnamesObj() {}
 
 	tldnamesObj() : tld(load_tlds(locale::base::utf8()))
 	{

@@ -194,7 +194,7 @@ exceptionObj::exceptionObj() noexcept
 #endif
 }
 
-exceptionObj::~exceptionObj() noexcept
+exceptionObj::~exceptionObj()
 {
 }
 

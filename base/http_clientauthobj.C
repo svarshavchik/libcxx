@@ -21,7 +21,7 @@ clientauthObj::clientauthObj()
 {
 }
 
-clientauthObj::~clientauthObj() noexcept
+clientauthObj::~clientauthObj()
 {
 }
 

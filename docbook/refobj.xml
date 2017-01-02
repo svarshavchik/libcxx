@@ -259,7 +259,7 @@ class buttonObj: virtual public &ns;::obj {
 public:
 
     buttonObj(int width, int height);
-    ~buttonObj() noexcept;
+    ~buttonObj();
 };
 
 //
@@ -317,13 +317,13 @@ button okButton=button::create(100, 100);</programlisting>
       references to the derived object.
     </para>
 
-    <para>
-      All classes derived from <classname>&ns;::obj</classname> must
-      explicitly define
-      a destructor that throws no exceptions (the <quote>noexcept</quote>
-      keyword). This is mandatory.
-      Destructors should not throw exceptions anyway, this makes it explicit.
-    </para>
+    <note>
+      <para>
+	Destructors of reference-counted objects cannot throw exceptions.
+	All classes derived from <classname>&ns;::obj</classname> should
+	not use the <literal>noexcept(false)</literal> override.
+      </para>
+    </note>
   </section>
 
   <section id="ref">
@@ -676,7 +676,7 @@ class buttonObj : virtual public &ns;::obj {
 
 public:
     buttonObj(int width, int height);
-    ~buttonObj() noexcept;
+    ~buttonObj();
 
 // ...
 

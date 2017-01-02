@@ -15,7 +15,7 @@ public:
 	{
 	}
 
-	~myServer() noexcept
+	~myServer()
 	{
 	}
 
@@ -46,14 +46,14 @@ class myServerObj : public myServer, virtual public LIBCXX_NAMESPACE::obj {
 
 public:
 	myServerObj() {}
-	~myServerObj() noexcept {}
+	~myServerObj() {}
 };
 
 class myTlsServerObj : virtual public LIBCXX_NAMESPACE::obj {
 
 public:
 	myTlsServerObj() {}
-	~myTlsServerObj() noexcept {}
+	~myTlsServerObj() {}
 
 	LIBCXX_NAMESPACE::ref<myServerObj> create()
 	{

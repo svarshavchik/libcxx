@@ -30,7 +30,7 @@ class myHierObj : public LIBCXX_NAMESPACE::hierObj<std::string, myElem> {
 
 public:
 	myHierObj() {}
-	~myHierObj() noexcept {}
+	~myHierObj() {}
 
 	void validate()
 	{

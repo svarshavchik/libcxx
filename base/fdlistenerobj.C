@@ -24,7 +24,7 @@ fdlistenerObj::fdlistenerObj(const fdlistenerImplObj::listenon &listenonArg,
 {
 }
 
-fdlistenerObj::~fdlistenerObj() noexcept
+fdlistenerObj::~fdlistenerObj()
 {
 	stop();
 	wait();

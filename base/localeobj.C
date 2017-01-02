@@ -26,7 +26,7 @@ public:
 		singletonObj() LIBCXX_HIDDEN : localeObj(init_func())
 		{
 		}
-		~singletonObj() noexcept LIBCXX_HIDDEN
+		~singletonObj() LIBCXX_HIDDEN
 		{
 		}
 
@@ -130,7 +130,7 @@ localeObj::localeObj(const char *localeName)
 {
 }
 
-localeObj::~localeObj() noexcept
+localeObj::~localeObj()
 {
 }
 

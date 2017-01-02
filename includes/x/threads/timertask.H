@@ -46,7 +46,7 @@ public:
 		{
 		}
 		//! Destructor
-		~redirectObj() noexcept
+		~redirectObj()
 		{
 		}
 

@@ -15,7 +15,7 @@ dequemsgdispatcherObj::dequemsgdispatcherObj()
 {
 }
 
-dequemsgdispatcherObj::~dequemsgdispatcherObj() noexcept
+dequemsgdispatcherObj::~dequemsgdispatcherObj()
 {
 }
 

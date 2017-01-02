@@ -43,7 +43,7 @@ public:
 	{
 	}
 
-	~utf8toucs4() noexcept
+	~utf8toucs4()
 	{
 	}
 

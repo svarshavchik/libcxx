@@ -399,7 +399,7 @@ public:
 		container_t() noexcept;
 
 		//! Destructor
-		~container_t() noexcept;
+		~container_t();
 	};
 
 	//! The insert_lock() implementation.
@@ -513,7 +513,7 @@ template<typename mutex_t,
 		container_t() : current_lock_cnt(0) {}
 
 		//! Destructor
-		~container_t() noexcept {}
+		~container_t() {}
 	};
 
 	//! The insert_lock() implementation.

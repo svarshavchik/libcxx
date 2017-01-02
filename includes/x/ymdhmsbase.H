@@ -72,7 +72,7 @@ public:
 	}
 
 	//! Default destructor
-	~ymdhmsBase() noexcept
+	~ymdhmsBase()
 	{
 	}
 

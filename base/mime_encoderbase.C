@@ -17,7 +17,7 @@ encoderbaseObj::encoderbaseObj()
 {
 }
 
-encoderbaseObj::~encoderbaseObj() noexcept
+encoderbaseObj::~encoderbaseObj()
 {
 }
 

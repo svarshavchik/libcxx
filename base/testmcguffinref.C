@@ -17,7 +17,7 @@ public:
 
 	intval() : v(0) {}
 
-	~intval() noexcept {}
+	~intval() {}
 
 };
 
@@ -25,7 +25,7 @@ class cb : public LIBCXX_NAMESPACE::mcguffinrefObj<LIBCXX_NAMESPACE::ptr<intval>
 
 public:
 	cb() {}
-	~cb() noexcept {}
+	~cb() {}
 
 	void destroyed(const LIBCXX_NAMESPACE::ptr<intval> &s)
 

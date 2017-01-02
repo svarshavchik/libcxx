@@ -127,7 +127,7 @@ protected:
 		}
 
 		//! Default destructor
-		~cleanupObj() noexcept {}
+		~cleanupObj() {}
 
 		//! Called when this iterator object is fully initialized.
 
@@ -197,7 +197,7 @@ protected:
 
 		//! The destructor invokes remove_pending_deletes()
 
-		~rlockBaseObj() noexcept
+		~rlockBaseObj()
 		{
 			// If there are no read iterators, purge me.
 
@@ -243,7 +243,7 @@ protected:
 
 		//! The destructor releases the lock
 
-		~rlockObj() noexcept
+		~rlockObj()
 		{
 		}
 	};
@@ -304,7 +304,7 @@ protected:
 	}
 public:
 	//! Default destructor
-	~weakContainerObj() noexcept
+	~weakContainerObj()
 	{
 	}
 
@@ -343,7 +343,7 @@ public:
 		iterator() noexcept {}
 
 		//! Default destructor
-		~iterator() noexcept
+		~iterator()
 		{
 		}
 

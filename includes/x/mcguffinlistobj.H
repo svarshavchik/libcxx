@@ -48,7 +48,7 @@ public:
 	}
 
 	//! Default destructor
-	~mcguffinlistObj() noexcept
+	~mcguffinlistObj()
 	{
 	}
 

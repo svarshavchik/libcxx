@@ -115,7 +115,7 @@ class LIBCXX_HIDDEN clientauthimplObj::digest::req : public clientauthimplObj {
 	req(const ref<digest> &digestrefArg);
 
 	//! Destructor
-	~req() noexcept;
+	~req();
 
 	//! Add my header to a request
 	void add_header(requestimpl &req, const char *header) override;
@@ -191,7 +191,7 @@ clientauthimplObj::digest
 }
 
 
-clientauthimplObj::digest::~digest() noexcept
+clientauthimplObj::digest::~digest()
 {
 }
 
@@ -260,7 +260,7 @@ clientauthimplObj::digest::req::req(const ref<digest> &digestrefArg)
 {
 }
 
-clientauthimplObj::digest::req::~req() noexcept
+clientauthimplObj::digest::req::~req()
 {
 }
 

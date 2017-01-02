@@ -119,7 +119,7 @@ public:
 		decode_params(container.begin(), container.end());
 	}
 	//! Destructor
-	~parametersObj() noexcept;
+	~parametersObj();
 
 private:
 
@@ -149,7 +149,7 @@ private:
 		filereceiverObj();
 
 		//! Destructor
-		~filereceiverObj() noexcept;
+		~filereceiverObj();
 
 		//! Write the next chunk
 
@@ -210,7 +210,7 @@ public:
 		filereceiver();
 
 		//! Destructor
-		~filereceiver() noexcept;
+		~filereceiver();
 
 		//! Constructed receiver object.
 
@@ -534,7 +534,7 @@ private:
 		word_iter() : ptr("") {}
 
 		//! Destructor
-		~word_iter() noexcept {}
+		~word_iter() {}
 
 		//! Return pointer to current character
 		const char *curchar() noexcept LIBCXX_INTERNAL;
@@ -634,7 +634,7 @@ public:
 	friend class parametersObj;
 
 	//! Destructor
-	~encode_iter() noexcept;
+	~encode_iter();
 
 	//! Iterator operator
 	bool operator==(const encode_iter &o) const
@@ -698,7 +698,7 @@ template<typename iter_type> class limited_iter
 			: value(valueArg) {}
 
 		//! Destructor
-		~helper() noexcept {}
+		~helper() {}
 
 		//! Iterator operator
 		typename iter_type::value_type operator*() { return value; }
@@ -710,7 +710,7 @@ public:
 	limited_iter() : left(0) {}
 
 	//! Destructor
-	~limited_iter() noexcept {}
+	~limited_iter() {}
 
 	//! Constructor, presumably the beginning iterator
 

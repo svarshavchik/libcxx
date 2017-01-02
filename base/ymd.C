@@ -62,7 +62,7 @@ ymd::ymd(const std::string &string, bool mdyflag, const const_locale &loc)
 	*this= parser(loc).mdy(mdyflag).parse(string);
 }
 
-ymd::~ymd() noexcept
+ymd::~ymd()
 {
 }
 
@@ -512,7 +512,7 @@ ymd::iso8601::iso8601(uint16_t yearArg,
 	daynum=dayArg;
 }
 
-ymd::iso8601::~iso8601() noexcept
+ymd::iso8601::~iso8601()
 {
 }
 
@@ -580,7 +580,7 @@ ymd::parser::parser(const const_locale &locArg)
 	}
 }
 
-ymd::parser::~parser() noexcept
+ymd::parser::~parser()
 {
 }
 

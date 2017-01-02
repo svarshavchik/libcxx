@@ -77,7 +77,7 @@ class LIBCXX_HIDDEN http::useragentObj::challengeObj::digestObj
 		params(paramsArg)
 		{
 		}
-	~digestObj() noexcept
+	~digestObj()
 	{
 	}
 

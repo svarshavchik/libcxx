@@ -150,7 +150,7 @@ public:
 	commaValuesPredicate() noexcept {}
 
 	//! Destructor
-	~commaValuesPredicate() noexcept {}
+	~commaValuesPredicate() {}
 
 	//! Predicate test for a delimiter
 	bool operator()(char c) const noexcept

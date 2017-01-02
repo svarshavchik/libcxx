@@ -19,7 +19,7 @@ weakptr::weakptr(ptr<weakinfo> weakinfoArg)
 {
 }
 
-weakptr::~weakptr() noexcept
+weakptr::~weakptr()
 {
 }
 

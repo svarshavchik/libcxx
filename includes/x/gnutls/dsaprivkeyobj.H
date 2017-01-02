@@ -43,7 +43,7 @@ public:
 	dsaprivkeyobj();
 
 	//! Default destructor
-	~dsaprivkeyobj() noexcept;
+	~dsaprivkeyobj();
 
 	datum_t x;	//!< The \c x value
 

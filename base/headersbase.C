@@ -38,7 +38,7 @@ headersbase::headersbase() noexcept
 {
 }
 
-headersbase::~headersbase() noexcept
+headersbase::~headersbase()
 {
 }
 

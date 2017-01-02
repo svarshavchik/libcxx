@@ -119,7 +119,7 @@ private:
 
 public:
 	//! Default destructor
-	~certificateObj() noexcept;
+	~certificateObj();
 
 	//! Set the certificate and key for this credentials object
 

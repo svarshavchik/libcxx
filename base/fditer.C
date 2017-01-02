@@ -20,7 +20,7 @@ fdbufferObj::fdbufferObj(const ptr<fdbaseObj> &fdArg,
 {
 }
 
-fdbufferObj::~fdbufferObj() noexcept
+fdbufferObj::~fdbufferObj()
 {
 }
 
@@ -39,7 +39,7 @@ fdinputiter::fdinputiter(const fdbase &fdArg,
 {
 }
 
-fdinputiter::~fdinputiter() noexcept
+fdinputiter::~fdinputiter()
 {
 }
 
@@ -153,7 +153,7 @@ fdoutputiter::fdoutputiter(const fdbase &fdArg,
 {
 }
 
-fdoutputiter::~fdoutputiter() noexcept
+fdoutputiter::~fdoutputiter()
 {
 }
 

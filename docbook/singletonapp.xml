@@ -27,7 +27,7 @@ class singletonThreadObj : virtual public &ns;::obj {
 
 public:
     singletonThreadObj();
-    ~singletonThreadObj() noexcept;
+    ~singletonThreadObj();
 
     void run(const &ns;::fd &amp;connection)
     {
@@ -43,7 +43,7 @@ class threadFactoryObj : virtual public &ns;::obj {
 
 public:
     threadFactoryObj();
-    ~threadFactoryObj() noexcept;
+    ~threadFactoryObj();
 
     singletonThread newThread()
     {

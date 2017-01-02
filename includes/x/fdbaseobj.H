@@ -48,7 +48,7 @@ public:
 	fdbaseObj() noexcept {}
 
 	//! Default destructor
-	~fdbaseObj() noexcept {}
+	~fdbaseObj() {}
 
 	//! Return the underlying file descriptor
 
@@ -338,7 +338,7 @@ public:
 
 	//! Destructor
 
-	~adapterObj() noexcept;
+	~adapterObj();
 
 	//! Pass through method
 

@@ -165,7 +165,7 @@ public:
 	}
 
 	//! Default destructor
-	~deserialize_value() noexcept
+	~deserialize_value()
 	{
 	}
 };
@@ -188,7 +188,7 @@ public:
 	}
 
 	//! Default destructor
-	~deserialize_value_nonconst() noexcept
+	~deserialize_value_nonconst()
 	{
 	}
 };
@@ -217,7 +217,7 @@ public:
 	{
 	}
 
-	~deserialize_integer() noexcept
+	~deserialize_integer()
 	{
 	}
 
@@ -277,7 +277,7 @@ public:
 	{
 	}
 
-	~deserialize_integer() noexcept
+	~deserialize_integer()
 	{
 	}
 };
@@ -296,7 +296,7 @@ public:
 	{
 	}
 
-	~deserialize_float() noexcept
+	~deserialize_float()
 	{
 	}
 };
@@ -337,7 +337,7 @@ public:
 	{
 	}
 
-	~deserialize_container() noexcept
+	~deserialize_container()
 	{
 	}
 
@@ -433,7 +433,7 @@ public:
 	{
 	}
 
-	~deserialize_container() noexcept
+	~deserialize_container()
 	{
 	}
 };
@@ -456,7 +456,7 @@ public:
 	{
 	}
 
-	~deserialize_float() noexcept
+	~deserialize_float()
 	{
 	}
 
@@ -530,7 +530,7 @@ public:
 	{
 	}
 
-	~deserialize_value() noexcept
+	~deserialize_value()
 	{
 	}
 
@@ -617,7 +617,7 @@ public:
 	{
 	}
 
-	~deserialize_value() noexcept
+	~deserialize_value()
 	{
 	}
 
@@ -698,7 +698,7 @@ public:
 	{
 	}
 
-	~deserialize_value() noexcept
+	~deserialize_value()
 	{
 	}
 
@@ -812,7 +812,7 @@ public:
 	{
 	}
 
-	~deserialize_object() noexcept
+	~deserialize_object()
 	{
 	}
 
@@ -919,7 +919,7 @@ public:
 
 	//! Destructor
 
-	~iterator() noexcept
+	~iterator()
 	{
 	}
 
@@ -1065,7 +1065,7 @@ public:
 			}
 
 			//! Destructor
-			~deserBaseObj() noexcept
+			~deserBaseObj()
 			{
 			}
 
@@ -1089,7 +1089,7 @@ public:
 			}
 
 			//! Destructor
-			~deserObj() noexcept
+			~deserObj()
 			{
 			}
 
@@ -1133,7 +1133,7 @@ public:
 		}
 
 		//! Destructor
-		~any() noexcept
+		~any()
 		{
 		}
 

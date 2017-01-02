@@ -15,7 +15,7 @@ public:
 	{
 	}
 
-	~serverObj() noexcept
+	~serverObj()
 	{
 	}
 
@@ -71,7 +71,7 @@ public:
 	{
 	}
 
-	~serverfactoryObj() noexcept
+	~serverfactoryObj()
 	{
 	}
 
