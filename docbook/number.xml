@@ -31,15 +31,21 @@ int value=number;</programlisting>
   </para>
 
   <para>
+    The first template parameter is any integer type.
     The second template parameter is not referenced. Its only use is to
     produce a separate, discrete type.
     An <classname>&ns;::number</classname> can be added to, subtracted to,
     etc..., to either another untyped numerical value, or the same
     <classname>&ns;::number</classname>, resulting in the same
-    <classname>&ns;::number</classname>. Using multiple
+    <classname>&ns;::number</classname>.
+    This is the default configuration, and
+    <link linkend="miscnumberbase">a custom base class</link> can specify
+    different type-safety rules.
+    Using multiple
     <classname>&ns;::number</classname>s prevents accidentally using
     one <classname>&ns;::number</classname> in an expression with a different
-    <classname>&ns;::number</classname>.
+    <classname>&ns;::number</classname> (unless allowed by the template
+    aliases specified in the custom base class).
   </para>
 
   <blockquote>
@@ -54,30 +60,136 @@ typedef number_t::value_type value_type;</programlisting>
     for the wrapped numerical type, the first template parameter.
   </para>
 
-  <blockquote>
-    <informalexample>
-      <programlisting>
 
+  <section id="miscnumberbase">
+    <title>Base classes</title>
+
+    <para>
+      The optional third template parameter specifies a class that the
+      resulting
+      <classname>&ns;::number</classname>
+      class inherits from, inheriting all of the base class's methods
+      and definitions:
+    </para>
+
+    <blockquote>
+      <informalexample>
+	<programlisting>
 class base_class {
 
 public:
 
-     static constexpr int infinite() { return -1; }
+    static constexpr int infinite() { return -1; }
 
+    template&lt;typename number_1, typename number_2&gt;
+    using resulting_add_op=&ns;::number_default_same_op_only&lt;number_1, number_2&gt;;
+
+    template&lt;typename number_1, typename number_2&gt;
+    using resulting_sub_op=&ns;::number_default_same_op_only&lt;number_1, number_2&gt;;
+
+    template&lt;typename number_1, typename number_2&gt;
+    using resulting_mul_op=&ns;::number_default_same_op_only&lt;number_1, number_2&gt;;
+
+    template&lt;typename number_1, typename number_2&gt;
+    using resulting_div_op=&ns;::number_default_same_op_only&lt;number_1, number_2&gt;;
+
+    template&lt;typename number_1, typename number_2&gt;
+    using resulting_mod_op=&ns;::number_default_same_op_only&lt;number_1, number_2&gt;;
 };
 
 typedef &ns;::number&lt;int, number_tag, base_class&gt; number_t;
 
 int n=number_t::infinite();</programlisting>
-    </informalexample>
-  </blockquote>
+      </informalexample>
+    </blockquote>
 
-  <para>
-    The optional third template parameter specifies a class that the
-    resulting
-    <classname>&ns;::number</classname>
-    class inherits from, inheriting all of the base class's methods.
-  </para>
+    <para>
+      Anything specified in the base class can be accessed directly via the
+      resulting number class, like <methodname>infinite</methodname>() in this
+      example. The base class must also define the following
+      five template aliases:
+      <literal>resulting_add_op</literal>,
+      <literal>resulting_sub_op</literal>,
+      <literal>resulting_mul_op</literal>,
+      <literal>resulting_div_op</literal>, and
+      <literal>resulting_mod_op</literal>.
+    </para>
+
+    <para>
+      The above example uses a copy of the template aliases defined
+      in
+      <ulink url="&link-x--number-default-base;"><classname>&ns;::number_default_base</classname></ulink>.
+      This example is equivalent to:
+    </para>
+
+    <blockquote>
+      <informalexample>
+	<programlisting>
+class base_class : public &ns;::number_default_base {
+
+public:
+
+    static constexpr int infinite() { return -1; }
+};
+
+typedef &ns;::number&lt;int, number_tag, base_class&gt; number_t;
+
+int n=number_t::infinite();</programlisting>
+      </informalexample>
+    </blockquote>
+
+    <para>
+      The five template aliases specify the number type resulting from
+      addition, subtraction, multiplication, division, and modulus operations
+      respectively, and the template alias specifies the resulting type of the
+      operation. The
+      <ulink url="&link-typedef-x-number-default-same-op-only;"><classname>&ns;::number_default_same_op_only</classname></ulink>
+      template alias is defined as follows:
+    </para>
+
+    <blockquote>
+      <informalexample>
+	<programlisting>
+template&lt;typename number_1, typename number_2&gt;
+using number_default_same_op_only=
+	typename std::enable_if&lt;std::is_same&lt;number_1, number_2&gt;::value,
+				number_1&gt;::type;</programlisting>
+      </informalexample>
+    </blockquote>
+
+    <para>
+      The
+      <literal>+</literal>,
+      <literal>-</literal>,
+      <literal>*</literal>,
+      <literal>/</literal>, and
+      <literal>%</literal> operators use the left-hand side's number's
+      base class's template aliases, and the first template parameter to
+      <literal>resulting_add_op</literal>,
+      <literal>resulting_sub_op</literal>,
+      <literal>resulting_mul_op</literal>,
+      <literal>resulting_div_op</literal>, or
+      <literal>resulting_mod_op</literal> template alias is the left-hand
+      number type. The second template parameter is the right-hand number
+      type.
+      The default template aliases allow only numbers of the same type
+      to be operated on, and the resulting template alias is the same
+      number type.
+    </para>
+
+    <para>
+      In this manner,
+      it is possible to use hand-tailored template aliases to specify that
+      the result of an addition, multiplication, or some other operation
+      on custom number types produce a completely different custom number
+      type.
+    </para>
+
+    <para>
+      The <literal>++</literal> and <literal>--</literal> operators always
+      result in the same number types.
+    </para>
+  </section>
 </chapter>
 <!--
 Local Variables:

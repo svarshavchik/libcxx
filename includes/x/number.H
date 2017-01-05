@@ -15,6 +15,7 @@ This file defines a typesafe number.
 #include <x/namespace.h>
 #include <ostream>
 #include <utility>
+#include <type_traits>
 #include <iostream>
 
 namespace LIBCXX_NAMESPACE {
@@ -24,7 +25,52 @@ namespace LIBCXX_NAMESPACE {
 
 //! \internal
 
-class number_default_base {};
+class number_default_base;
+
+template<typename value_type_t, typename tag,
+	 typename base_class=number_default_base> class number;
+
+//! Define only operations on same \ref number "typesafe numerical aliases".
+
+//! Allows operations on \ref number "typesafe numerical aliases" to be
+//! only with the same alias, resulting in the same alias.
+//!
+//! \internal
+
+template<typename number_1, typename number_2>
+using number_default_same_op_only=
+	typename std::enable_if<std::is_same<number_1, number_2>::value,
+				number_1>::type;
+
+//! Default base class for "typesafe numerical aliases".
+
+//! Specifies \ref number_default_same_op_only "for all arithmetical operations".
+//!
+//! \internal
+class number_default_base {
+
+public:
+	//! Define resulting type for addition operations.
+
+	template<typename number_1, typename number_2>
+	using resulting_add_op=number_default_same_op_only<number_1, number_2>;
+
+	//! Define resulting type for subtraction operations.
+	template<typename number_1, typename number_2>
+	using resulting_sub_op=number_default_same_op_only<number_1, number_2>;
+
+	//! Define resulting type for multiplication operations.
+	template<typename number_1, typename number_2>
+	using resulting_mul_op=number_default_same_op_only<number_1, number_2>;
+
+	//! Define resulting type for division operations.
+	template<typename number_1, typename number_2>
+	using resulting_div_op=number_default_same_op_only<number_1, number_2>;
+
+	//! Define resulting type for modulus operations.
+	template<typename number_1, typename number_2>
+	using resulting_mod_op=number_default_same_op_only<number_1, number_2>;
+};
 
 //! A typesafe numerical alias.
 
@@ -67,8 +113,7 @@ class number_default_base {};
 //! The optional third template parameter specifies a class that
 //! the \ref number "number" inherits from.
 
-template<typename value_type_t, typename tag,
-	 typename base_class=number_default_base>
+template<typename value_type_t, typename tag, typename base_class>
 class number : public base_class {
 
 public:
@@ -82,37 +127,148 @@ public:
 	constexpr number() : n(value_type_t()) {}
 
 	//! Construct from the underlying number
-	constexpr explicit number(value_type_t vn) : n(vn) {}
+	template<typename number_t,
+		 typename V=typename std::enable_if<std::is_integral<number_t>::value>::type>
+	constexpr number(number_t vn) : n(vn) {}
 
 	//! Return the underlying number.
 	constexpr explicit operator value_type_t() const { return n; }
 
 	//! Assignment operator
-	constexpr number &operator=(value_type_t vn) { n=vn; return *this; }
+	template<typename number_t,
+		 typename V=typename std::enable_if<std::is_integral<number_t>::value>::type>
+	constexpr number &operator=(number_t vn) { n=vn; return *this; }
 
 	//! Assignment operator
 	constexpr number &operator=(const number &v) { n=v.n; return *this; }
 
 	//! Addition operator
-	constexpr number operator+(value_type_t vn) const { return number(n+vn); }
+	template<typename value_type_t2, typename tag2, typename base_class2>
+	constexpr auto operator+(const number<value_type_t2,
+				 tag2, base_class2> &v) const
+	{
+		typedef number<value_type_t2, tag2, base_class2> number2;
+		typedef typename base_class
+			::template resulting_add_op<number, number2>
+			res_type;
+
+		typedef typename res_type::value_type value_type;
+
+		return res_type(value_type(n)+value_type(v.n));
+	}
+
 	//! Subtraction operator
-	constexpr number operator-(value_type_t vn) const { return number(n-vn); }
+	template<typename value_type_t2, typename tag2, typename base_class2>
+	constexpr auto operator-(const number<value_type_t2,
+				 tag2, base_class2> &v) const
+	{
+		typedef number<value_type_t2, tag2, base_class2> number2;
+		typedef typename base_class
+			::template resulting_sub_op<number,number2>
+			res_type;
+
+		typedef typename res_type::value_type value_type;
+
+		return res_type(value_type(n)-value_type(v.n));
+	}
+
 	//! Multiplication operator
-	constexpr number operator*(value_type_t vn) const { return number(n*vn); }
+	template<typename value_type_t2, typename tag2, typename base_class2>
+	constexpr auto operator*(const number<value_type_t2,
+				 tag2, base_class2> &v) const
+	{
+		typedef number<value_type_t2, tag2, base_class2> number2;
+		typedef typename base_class
+			::template resulting_mul_op<number, number2>
+			res_type;
+
+		typedef typename res_type::value_type value_type;
+
+		return res_type(value_type(n)*value_type(v.n));
+	}
+
 	//! Division operator
-	constexpr number operator/(value_type_t vn) const { return number(n/vn); }
+	template<typename value_type_t2, typename tag2, typename base_class2>
+	constexpr number operator/(const number<value_type_t2,
+				   tag2, base_class2> &v) const
+	{
+		typedef number<value_type_t2, tag2, base_class2> number2;
+		typedef typename base_class
+			::template resulting_div_op<number, number2>
+			res_type;
+
+		typedef typename res_type::value_type value_type;
+
+		return res_type(value_type(n)/value_type(v.n));
+	}
+
 	//! Modulus operator
-	constexpr number operator%(value_type_t vn) const { return number(n%vn); }
+	template<typename value_type_t2, typename tag2, typename base_class2>
+	constexpr number operator%(const number<value_type_t2,
+				   tag2, base_class2> &v) const
+	{
+		typedef number<value_type_t2, tag2, base_class2> number2;
+		typedef typename base_class
+			::template resulting_mod_op<number, number2>
+			res_type;
+
+		typedef typename res_type::value_type value_type;
+
+		return res_type(value_type(n)%value_type(v.n));
+	}
+
 	//! Addition operator
-	constexpr number operator+(const number &v) const { return number(n+v.n); }
+	template<typename number_t,
+		 typename V=typename std::enable_if<std::is_integral<number_t>::value>::type>
+	constexpr auto operator+(number_t vn) const
+	{
+		auto me= *this;
+
+		me.n += vn;
+		return me;
+	}
 	//! Subtraction operator
-	constexpr number operator-(const number &v) const { return number(n-v.n); }
+	template<typename number_t,
+		 typename V=typename std::enable_if<std::is_integral<number_t>::value>::type>
+	constexpr auto operator-(number_t vn) const
+	{
+		auto me= *this;
+
+		me.n -= vn;
+		return me;
+	}
 	//! Multiplication operator
-	constexpr number operator*(const number &v) const { return number(n*v.n); }
+	template<typename number_t,
+		 typename V=typename std::enable_if<std::is_integral<number_t>::value>::type>
+	constexpr auto operator*(number_t vn) const
+	{
+		auto me= *this;
+
+		me.n *= vn;
+		return me;
+	}
+
 	//! Division operator
-	constexpr number operator/(const number &v) const { return number(n/v.n); }
+	template<typename number_t,
+		 typename V=typename std::enable_if<std::is_integral<number_t>::value>::type>
+	constexpr auto operator/(number_t vn) const
+	{
+		auto me= *this;
+
+		me.n /= vn;
+		return me;
+	}
+
 	//! Modulus operator
-	constexpr number operator%(const number &v) const { return number(n%v.n); }
+	template<typename number_t,
+		 typename V=typename std::enable_if<std::is_integral<number_t>::value>::type>
+	constexpr auto operator%(number_t vn) const
+	{
+		auto me= *this;
+
+		me.n %= vn;
+		return me;
+	}
 
 	//! Pre-increment operator
 	constexpr number &operator++()
@@ -145,25 +301,64 @@ public:
 	}
 
 	//! Addition assignment operator
-	constexpr number &operator+=(value_type_t vn) { n+=vn; return *this; }
+	template<typename number_t,
+		 typename V=typename std::enable_if<std::is_integral<number_t>::value>::type>
+	constexpr number &operator+=(number_t vn) { n += vn; return *this; }
 	//! Subtraction assignment operator
-	constexpr number &operator-=(value_type_t vn) { n-=vn; return *this; }
+	template<typename number_t,
+		 typename V=typename std::enable_if<std::is_integral<number_t>::value>::type>
+	constexpr number &operator-=(number_t vn) { n -= vn; return *this; }
 	//! Multiplication assignment operator
-	constexpr number &operator*=(value_type_t vn) { n*=vn; return *this; }
+	template<typename number_t,
+		 typename V=typename std::enable_if<std::is_integral<number_t>::value>::type>
+	constexpr number &operator*=(number_t vn) { n *= vn; return *this; }
 	//! Division assignment operator
-	constexpr number &operator/=(value_type_t vn) { n/=vn; return *this; }
+	template<typename number_t,
+		 typename V=typename std::enable_if<std::is_integral<number_t>::value>::type>
+	constexpr number &operator/=(number_t vn) { n /= vn; return *this; }
 	//! Modulus assignment operator
-	constexpr number &operator%=(value_type_t vn) { n%=vn; return *this; }
+	template<typename number_t,
+		 typename V=typename std::enable_if<std::is_integral<number_t>::value>::type>
+	constexpr number &operator%=(number_t vn) { n %= vn; return *this; }
 	//! Addition assignment operator
-	constexpr number &operator+=(const number &v) { n+=v.n; return *this; }
+	template<typename value_type_t2, typename tag2, typename base_class2>
+	constexpr number &operator+=(const number<value_type_t2, tag2, base_class2> &v)
+	{
+		*this = *this + v;
+		return *this;
+	}
+
 	//! Subtraction assignment operator
-	constexpr number &operator-=(const number &v) { n-=v.n; return *this; }
+	template<typename value_type_t2, typename tag2, typename base_class2>
+	constexpr number &operator-=(const number<value_type_t2, tag2, base_class2> &v)
+	{
+		*this = *this - v;
+		return *this;
+	}
+
 	//! Multiplication assignment operator
-	constexpr number &operator*=(const number &v) { n*=v.n; return *this; }
+	template<typename value_type_t2, typename tag2, typename base_class2>
+	constexpr number &operator*=(const number<value_type_t2, tag2, base_class2> &v)
+	{
+		*this = *this * v;
+		return *this;
+	}
+
 	//! Division assignment operator
-	constexpr number &operator/=(const number &v) { n/=v.n; return *this; }
+	template<typename value_type_t2, typename tag2, typename base_class2>
+	constexpr number &operator/=(const number<value_type_t2, tag2, base_class2> &v)
+	{
+		*this = *this / v;
+		return *this;
+	}
+
 	//! Modulus assignment operator
-	constexpr number &operator%=(const number &v) { n%=v.n; return *this; }
+	template<typename value_type_t2, typename tag2, typename base_class2>
+	constexpr number &operator%=(const number<value_type_t2, tag2, base_class2> &v)
+	{
+		*this = *this % v;
+		return *this;
+	}
 
 	//! Comparison operator
 	constexpr bool operator==(value_type vn) const { return n == vn; }

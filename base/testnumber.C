@@ -9,7 +9,7 @@
 #include <sstream>
 
 class foo;
-class foobar {
+class foobar : public LIBCXX_NAMESPACE::number_default_base {
 
 public:
 
@@ -114,6 +114,225 @@ void testnumber()
 	std::ostringstream o;
 
 	o << n1;
+}
+
+template<typename type1, typename type2>
+class add_op_define;
+
+template<typename type1, typename type2>
+class sub_op_define;
+
+template<typename type1, typename type2>
+class mul_op_define;
+
+template<typename type1, typename type2>
+class divmod_op_define;
+
+template<typename type1, typename type2>
+using my_add_op=typename add_op_define<type1, type2>::type;
+
+template<typename type1, typename type2>
+using my_sub_op=typename sub_op_define<type1, type2>::type;
+
+template<typename type1, typename type2>
+using my_mul_op=typename mul_op_define<type1, type2>::type;
+
+template<typename type1, typename type2>
+using my_divmod_op=typename divmod_op_define<type1, type2>::type;
+
+class coord_base;
+class dim_base;
+class dim_squared_base;
+
+class my_default_base {
+
+public:
+	template<typename number_1, typename number_2>
+	using resulting_add_op=my_add_op<number_1, number_2>;
+
+	//! Define resulting type for subtraction operations.
+	template<typename number_1, typename number_2>
+	using resulting_sub_op=my_sub_op<number_1, number_2>;
+
+	//! Define resulting type for multiplication operations.
+	template<typename number_1, typename number_2>
+	using resulting_mul_op=my_mul_op<number_1, number_2>;
+
+	//! Define resulting type for division operations.
+	template<typename number_1, typename number_2>
+	using resulting_div_op=my_divmod_op<number_1, number_2>;
+
+	//! Define resulting type for modulus operations.
+	template<typename number_1, typename number_2>
+	using resulting_mod_op=my_divmod_op<number_1, number_2>;
+};
+
+typedef LIBCXX_NAMESPACE::number<int, coord_base, coord_base> coord_t;
+
+typedef LIBCXX_NAMESPACE::number<unsigned, dim_base, dim_base> dim_t;
+
+typedef LIBCXX_NAMESPACE::number<unsigned long long, dim_squared_base, dim_squared_base> dim_squared_t;
+
+template<>
+class add_op_define<coord_t, dim_t> {
+
+public:
+	typedef coord_t type;
+};
+
+template<>
+class add_op_define<coord_t, dim_squared_t> {
+
+public:
+	typedef coord_t type;
+};
+
+template<>
+class add_op_define<dim_t, coord_t> {
+
+public:
+	typedef coord_t type;
+};
+
+template<>
+class add_op_define<dim_squared_t, coord_t> {
+
+public:
+	typedef coord_t type;
+};
+
+template<>
+class sub_op_define<coord_t, coord_t> {
+
+public:
+	typedef dim_t type;
+};
+
+template<>
+class sub_op_define<dim_t, dim_t> {
+
+public:
+	typedef dim_t type;
+};
+
+template<>
+class sub_op_define<dim_t, dim_squared_t> {
+
+public:
+	typedef dim_squared_t type;
+};
+
+template<>
+class sub_op_define<dim_squared_t, dim_squared_t> {
+
+public:
+	typedef dim_squared_t type;
+};
+
+template<>
+class sub_op_define<dim_squared_t, dim_t> {
+
+public:
+	typedef dim_squared_t type;
+};
+
+template<>
+class mul_op_define<dim_t, dim_t> {
+
+public:
+	typedef dim_squared_t type;
+};
+
+template<>
+class mul_op_define<dim_t, dim_squared_t> {
+
+public:
+	typedef dim_squared_t type;
+};
+
+template<>
+class mul_op_define<dim_squared_t, dim_t> {
+
+public:
+	typedef dim_squared_t type;
+};
+
+template<>
+class mul_op_define<dim_squared_t, dim_squared_t> {
+
+public:
+	typedef dim_squared_t type;
+};
+
+template<>
+class divmod_op_define<dim_t, dim_t> {
+
+public:
+	typedef dim_t type;
+};
+
+template<>
+class divmod_op_define<dim_t, dim_squared_t> {
+
+public:
+	typedef dim_t type;
+};
+
+template<>
+class divmod_op_define<dim_squared_t, dim_t> {
+
+public:
+	typedef dim_squared_t type;
+};
+
+template<>
+class divmod_op_define<dim_squared_t, dim_squared_t> {
+
+public:
+	typedef dim_squared_t type;
+};
+
+class my_base {
+
+public:
+	template<typename number_1, typename number_2>
+	using resulting_add_op=typename add_op_define<number_1, number_2>::type;
+
+	template<typename number_1, typename number_2>
+	using resulting_sub_op=typename sub_op_define<number_1, number_2>::type;
+
+	template<typename number_1, typename number_2>
+	using resulting_mul_op=typename mul_op_define<number_1, number_2>::type;
+
+	template<typename number_1, typename number_2>
+	using resulting_div_op=typename divmod_op_define<number_1, number_2>::type;
+
+	template<typename number_1, typename number_2>
+	using resulting_mod_op=typename divmod_op_define<number_1, number_2>::type;
+};
+
+class coord_base : public my_base {};
+class dim_base : public my_base {};
+class dim_squared_base : public my_base {};
+
+struct test_assignment {
+	coord_t a;
+};
+
+void test_custom_ops()
+{
+	coord_t a,b;
+
+	test_assignment t={4};
+
+
+	++a;
+	a = a+2;
+	a += 2;
+
+	dim_t c=a-b;
+
+	dim_squared_t d=c*c;
 }
 
 int main()
