@@ -4,7 +4,7 @@
 */
 
 #include "libcxx_config.h"
-#include "x/functional.H"
+#include "x/functionalrefptr.H"
 #include "x/exception.H"
 #include <iostream>
 #include <cstdlib>
@@ -65,10 +65,39 @@ static void testfunction()
 		throw EXCEPTION("Test 4 failed");
 }
 
+void testfunctionref()
+{
+	int index=1;
+
+	auto obj=make_functionref<void(int)>([&index](int n)
+					     {
+						     index += n;
+					     });
+
+	auto obj2=make_functionref<int(int)>([&index](int n)
+					     {
+						     return index+n;
+					     });
+
+	functionref<void(int)> *p=&obj;
+
+	(**p)(3);
+
+	(*p)->invoke(5);
+
+	if (obj2->invoke(1) != 10)
+		throw EXCEPTION("Test 6 failed");
+
+	if (index != 9)
+		throw EXCEPTION("Test 5 failed");
+
+}
+
 int main()
 {
 	try {
 		testfunction();
+		testfunctionref();
 	} catch (const exception &e)
 	{
 		std::cerr << e << std::endl;

@@ -31,8 +31,14 @@ namespace LIBCXX_NAMESPACE {
 //!          return strlen(s);
 //!      }));
 //! \endcode
+//!
+//! If you insist on dynamic memory allocation, but prefer to use
+//! reference-counted object,
+//! there's also \ref make_functionref "make_functionref"().
 
 template<class> class function;
+
+template<class> class functionObj;
 
 //! Function specialization:
 
@@ -50,8 +56,9 @@ public:
 
 //! \see function
 
-template<typename functor_type, typename return_type, typename ...Args>
-class function_impl : public function<return_type(Args...)> {
+template<typename base_class,
+	 typename functor_type, typename return_type, typename ...Args>
+class function_impl : public base_class {
 
 public:
 
@@ -60,13 +67,8 @@ public:
 
 	//! Constructor
 	template<typename functor_arg>
-	function_impl(const functor_arg &functorArg) : functor(functorArg)
-	{
-	}
-
-	//! Move constructor
-	template<typename functor_arg>
-	function_impl(functor_arg &&functorArg) : functor(std::move(functorArg))
+	function_impl(functor_arg &&functorArg)
+		: functor(std::forward<functor_arg>(functorArg))
 	{
 	}
 
@@ -75,37 +77,6 @@ public:
 	return_type operator()(Args ...args) const override
 	{
 		return functor(std::forward<Args>(args)...);
-	}
-};
-
-//! Specialization for function objects that return a void.
-
-template<typename functor_type, typename ...Args>
-class function_impl<functor_type, void, Args...>
-	: public function<void(Args...)> {
-
-public:
-
-	//! The functor
-	const functor_type functor;
-
-	//! Constructor
-	template<typename functor_arg>
-	function_impl(const functor_arg &functorArg) : functor(functorArg)
-	{
-	}
-
-	//! Move constructor
-	template<typename functor_arg>
-	function_impl(functor_arg &&functorArg) : functor(std::move(functorArg))
-	{
-	}
-
-	//! Implement the function call.
-
-	void operator()(Args ...args) const override
-	{
-		functor(std::forward<Args>(args)...);
 	}
 };
 
@@ -123,10 +94,21 @@ class function_impl_ret<functor, return_type(Args...)> {
 
 public:
 
+	//! The decayed functor type.
+
+	typedef typename std::decay<functor>::type decayed_type;
+
 	//! Signature
 
-	typedef function_impl<typename std::decay<functor>::type,
+	typedef function_impl<function<return_type(Args...)>,
+			      decayed_type,
 			      return_type, Args...> type_t;
+
+	//! Signature
+
+	typedef function_impl<functionObj<return_type(Args...)>,
+			      decayed_type,
+			      return_type, Args...> objtype_t;
 };
 
 //! Construct a function object.
@@ -135,25 +117,11 @@ public:
 //! \ref function "INSERT_LIBX_NAMESPACE::function<signature>".
 
 template<typename signature, typename functor>
-typename function_impl_ret<functor, signature>::type_t
-make_function(const functor &functorArg)
+auto make_function(functor &&functorArg)
 {
 	typedef typename function_impl_ret<functor, signature>::type_t type_t;
 
-	return type_t(functorArg);
-}
-
-//! Construct a function object.
-
-//! \see make_function
-
-template<typename signature, typename functor>
-typename function_impl_ret<functor, signature>::type_t
-make_function(functor &&functorArg)
-{
-	typedef typename function_impl_ret<functor, signature>::type_t type_t;
-
-	return type_t(std::move(functorArg));
+	return type_t(std::forward<functor>(functorArg));
 }
 
 #if 0

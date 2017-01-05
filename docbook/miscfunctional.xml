@@ -23,7 +23,7 @@ int method(const &ns;::function&lt;int(const char *)&gt; &amp;func)
 template&lt;typename functor_type&gt;
 int call_method(functor_type &amp;&amp; functor)
 {
-    auto f=&ns;::make_function&lt;int(const char *)&gt;(std::move(functor));
+    auto f=&ns;::make_function&lt;int(const char *)&gt;(std::forward&lt;functor_type&gt;(functor));
 
     return method(f);
 }</programlisting>
@@ -31,7 +31,8 @@ int call_method(functor_type &amp;&amp; functor)
   </blockquote>
 
   <para>
-    This is a mechanism for implementing function objects that uses
+    This is a mechanism for implementing function objects
+    for type-erasing lambdas which uses
     virtual inheritance instead of heap allocation, like
     <classname>std::function</classname>.
     <ulink url="&link-x--function--return-type-Args...--;"><classname>&ns;::function&lt;return_type(Args...)&gt;</classname></ulink>
@@ -67,6 +68,58 @@ int call_method(functor_type &amp;&amp; functor)
       </para>
     </listitem>
   </orderedlist>
+
+  <section id="functionalref">
+    <title>Function references</title>
+
+    <para>
+      <ulink url="&link-typedef-x-functionref;"><classname>&ns;::functionref</classname></ulink>
+      and
+      <ulink url="&link-typedef-x-functionptr;"><classname>&ns;::functionptr</classname></ulink>,
+      together with
+      <ulink url="&link-function-x-make-functionref;"><function>&ns;::make_functionref</function></ulink>,
+      provide a <link linkend="refobj">reference-counted</link> wrapper for
+      an
+      <link linkend="functional"><classname>&ns;::function&lt;return_type(Args...)&gt;</classname></link>.
+      Like <classname>std::function</classname>, this ends up using
+      dynamic memory allocation, but you get all the reference-counted goodies:
+    </para>
+
+    <blockquote>
+      <informalexample>
+	<programlisting>
+#include &lt;&ns;/functionalref.H&gt;
+
+int method(const &ns;::function&lt;int(const char *)&gt; &amp;func)
+{
+    return func("Hello world");
+}
+
+// ...
+
+template&lt;typename functor_type&gt;
+int call_method(functor_type &amp;&amp; functor)
+{
+    &ns;::functionref&lt;int(const char *)&gt; f=&ns;::make_functionref&lt;int(const char *)&gt;(std::forward&lt;functor_type&gt;(functor));
+
+    &ns;::function&lt;int(const char *)&gt; &amp;fr = *f;
+
+    return method(fr) + f-&gt;invoke("!");
+}</programlisting>
+      </informalexample>
+    </blockquote>
+
+    <para>
+      <ulink url="&link-typedef-x-functionref;"><classname>&ns;::functionref</classname></ulink>
+      is a reference to an
+      <link linkend="obj">obj</link> that inherits from an
+      <classname>&ns;::function</classname>.
+      Although its <methodname>operator()</methodname> is available,
+      it's more convenient to use its <methodname>invoke</methodname>()
+      method, which is just a wrapper for its
+      <methodname>operator()</methodname>().
+    </para>
+  </section>
 </chapter>
 <!--
 Local Variables:

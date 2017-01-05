@@ -67,6 +67,12 @@ See COPYING for distribution information.
 
       <listitem>
 	<para>
+	  <link linkend="functionalref">Function references</link>.
+	</para>
+      </listitem>
+
+      <listitem>
+	<para>
 	  <link linkend="mcguffincontainers">Mcguffin containers</link>.
 	</para>
       </listitem>
