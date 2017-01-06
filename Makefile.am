@@ -151,7 +151,7 @@ man.stamp: $(wildcard docbook/man*.xml)
 	rm -rf manpages
 
 abi.xml: abi.xml.in config.status
-	sed 's~@INCLUDEDIR@~$(includedir)~;s~@LIBDIR@~$(libdir)~' <abi.xml.in >abi.xml.tmp; mv -f abi.xml.tmp abi.xml
+	sed 's~@INCLUDEDIR@~$(includedir)~;s~@LIBDIR@~$(libdir)~' <$(srcdir)/abi.xml.in >abi.xml.tmp; mv -f abi.xml.tmp abi.xml
 
 CLEANFILES += man.stamp
 
