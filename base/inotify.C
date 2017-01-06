@@ -8,6 +8,7 @@
 #include "x/sysexception.H"
 #include "x/weakmultimap.H"
 #include "x/logger.H"
+#include "x/functionalrefptr.H"
 
 #include <sys/inotify.h>
 #include <limits.h>

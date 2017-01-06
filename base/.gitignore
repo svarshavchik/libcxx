@@ -15,6 +15,7 @@
 /srcdir.h
 /singletonapp.msgs.H
 /sysconfdir.h
+/testcallbacks
 /testcgiimpl
 /testcombinepath
 /testcredentials

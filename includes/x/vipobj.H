@@ -8,7 +8,9 @@
 
 #include <x/namespace.h>
 #include <x/sipobj.H>
-#include <x/callback.H>
+#include <x/weaklist.H>
+#include <x/functionalrefptr.H>
+#include <x/invoke_callbacks.H>
 
 namespace LIBCXX_NAMESPACE {
 
@@ -32,7 +34,7 @@ namespace LIBCXX_NAMESPACE {
 //! changes to the objects are reported to the callback, until the callback
 //! goes out of scope.
 //!
-//! Registering a lambda returns a \ref callback "callback objects", a
+//! Registering a lambda returns a \ref functionref "callback objects", a
 //! reference-counted object. The lambda gets invoked until the last reference
 //! to the callback goes out of scope, and it gets destroyed. The callback
 //! objects are held in an internal \ref weaklist "weak list".
@@ -60,10 +62,10 @@ template<typename obj_type,
 class vipobj : public sipobj<obj_type, rwmutex_type> {
 
 	//! Container for a  list of registered callbacks.
-	typedef weaklist<callbackObj<void, callback_arg_type>> callbacks_t;
+	typedef weaklist<functionObj<void(callback_arg_type)>> callbacks_t;
 
 	//! The type of the callback used internally.
-	typedef callback<void, callback_arg_type> callback_t;
+	typedef functionref<void(callback_arg_type)> callback_t;
 
 	//! A list of registered callbacks
 	callbacks_t callbacks;
@@ -163,7 +165,7 @@ public:
 		//! while protected by an instantiated
 		//! \ref sipobj::writelock "writelock", and then
 		//! invokes notify().
-		
+
 		void update(const obj_type &obj)
 		{
 			{
@@ -216,7 +218,7 @@ public:
 		{
 			auto cb=callback_t::create(std::forward<functor_type>
 						   (functor));
-			
+
 			objp.callbacks->push_front(cb);
 			return cb;
 		}
@@ -238,7 +240,7 @@ public:
 		{
 			auto cb=install_front(std::forward<functor_type>
 					      (functor));
-			cb->functor(v);
+			cb->invoke(v);
 
 			return cb;
 		}
@@ -253,7 +255,7 @@ public:
 		{
 			auto cb=callback_t::create(std::forward<functor_type>
 						   (functor));
-			
+
 			objp.callbacks->push_back(cb);
 
 			return cb;
@@ -276,7 +278,7 @@ public:
 		{
 			auto cb=install_back(std::forward<functor_type>
 					     (functor));
-			cb->functor(v);
+			cb->invoke(v);
 
 			return cb;
 		}
@@ -289,7 +291,7 @@ public:
 		//! The lambda gets invoked with two parameters, the object,
 		//! and the initial or the new value of the very important
 		//! object; as long as the object itself continues to exist.
-		
+
 		template<typename class_type, typename base_type,
 			 typename lambda_type,
 			 typename ...Args>
@@ -358,4 +360,3 @@ public:
 #endif
 }
 #endif
-

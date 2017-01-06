@@ -31,7 +31,6 @@
 <!ENTITY singleton SYSTEM "singleton.xml">
 <!ENTITY lockpool SYSTEM "lockpool.xml">
 <!ENTITY eventqueue SYSTEM "eventqueue.xml">
-<!ENTITY callback SYSTEM "callback.xml">
 <!ENTITY vipobj SYSTEM "vipobj.xml">
 <!ENTITY derivedvalue SYSTEM "derivedvalue.xml">
 <!ENTITY eventfactory SYSTEM "eventfactory.xml">
@@ -142,7 +141,6 @@ See COPYING for distribution information.
     &options;
     &eventqueue;
     &eventfactory;
-    &callback;
     &vipobj;
     &derivedvalue;
     &msgdispatcher;

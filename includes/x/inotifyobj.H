@@ -8,7 +8,7 @@
 
 #include <x/fdobj.H>
 #include <x/mpobj.H>
-#include <x/callbackfwd.H>
+#include <x/functionalrefptrfwd.H>
 #include <x/weakmultimapfwd.H>
 #include <x/ptrfwd.H>
 
@@ -27,8 +27,8 @@ class LIBCXX_PUBLIC inotifyObj : public fdObj {
 public:
 	//! Functor callback reference
 
-	typedef callback<void, uint32_t, uint32_t,
-			 const char *> watch_callback_t;
+	typedef functionref<void(uint32_t, uint32_t,
+				 const char *)> watch_callback_t;
 private:
 
 #pragma GCC visibility push(hidden)

@@ -1,17 +1,13 @@
 /*
-** Copyright 2013 Double Precision, Inc.
+** Copyright 2017 Double Precision, Inc.
 ** See COPYING for distribution information.
 */
 
-#ifndef x_w_callback_H
-#define x_w_callback_H
+#ifndef x_w_invoke_callbacks_H
+#define x_w_invoke_callbacks_H
 
-#include <x/ref.H>
-#include <x/callbackfwd.H>
-#include <x/callbackobj.H>
+#include <x/functionalrefptr.H>
 #include <x/weaklist.H>
-#include <x/namespace.h>
-
 #include <vector>
 
 namespace LIBCXX_NAMESPACE {
@@ -19,78 +15,6 @@ namespace LIBCXX_NAMESPACE {
 };
 #endif
 
-//! A template that forwards invoke() to a functor
-
-//! Used by \ref callback "callbacks".
-//!
-//! Subclasses either callbackObj, implements invoke().
-//! Helper class used by \ref callback "callback"'s.
-
-template<typename functor_type, typename base_class, typename ret_type,
-	 typename ...Args>
-class callbackImplObj : public base_class {
-
-public:
-	//! Functor to invoke
-	functor_type functor;
-
-	//! Constructor
-	callbackImplObj(const functor_type &functorArg)
-		: functor(functorArg)
-	{
-	}
-
-	//! Move constructor
-	callbackImplObj(functor_type &&functorArg)
-		: functor(std::move(functorArg))
-	{
-	}
-
-	//! Destructor
-	~callbackImplObj() {}
-
-	//! Forward arguments to functor
-
-	ret_type invoke(Args ...args) override
-	{
-		return functor(std::forward<Args>(args)...);
-	}
-};
-
-//! A template that forwards invoke() to a functor
-
-//! A specialization for lambdas that return voids.
-
-template<typename functor_type, typename base_class, typename ...Args>
-class callbackImplObj<functor_type, base_class, void, Args...>
-	: public base_class {
-
-public:
-	//! Functor to invoke
-	functor_type functor;
-
-	//! Constructor
-	callbackImplObj(const functor_type &functorArg)
-		: functor(functorArg)
-	{
-	}
-
-	//! Move constructor
-	callbackImplObj(functor_type &&functorArg)
-		: functor(std::move(functorArg))
-	{
-	}
-
-	//! Destructor
-	~callbackImplObj() {}
-
-	//! Forward arguments to functor
-
-	void invoke(Args ...args) override
-	{
-		functor(std::forward<Args>(args)...);
-	}
-};
 
 //! Implement invoke_callbacks() and invoke_callbacks_log_exceptions().
 
@@ -105,7 +29,7 @@ public:
 		 typename ...Args,
 		 typename ...invokeArgs>
 	static ret_type invoke(//! List of callbacks
-			       const weaklist<callbackObj<ret_type, Args...>>
+			       const weaklist<functionObj<ret_type(Args...)>>
 			       &l,
 
 			       //! Lambda receives the return value
@@ -130,7 +54,7 @@ public:
 		// invoke them, so the callbacks do not get invoked with a
 		// held lock.
 
-		std::vector<callback<ret_type, Args...>> callbacks;
+		std::vector<functionref<ret_type(Args...)>> callbacks;
 
 		for (const auto &weakptr:*l)
 		{
@@ -142,7 +66,8 @@ public:
 
 		for (const auto &cb:callbacks)
 		{
-			auto value=cb->invoke(std::forward<args>...);
+			auto value=cb->invoke(std::forward<invokeArgs>
+					      (args)...);
 
 			if (stop_calling(value))
 				return value;
@@ -158,8 +83,8 @@ public:
 		 typename ...Args,
 		 typename ...invokeArgs>
 	static ret_type invoke_log(//! List of callbacks
-				   const weaklist<callbackObj<ret_type,
-				   Args...>> &l,
+				   const weaklist<functionObj<ret_type(Args...)>
+				   > &l,
 
 				   //! Lambda receives the return value
 				   //! from each callback. If it returns
@@ -183,7 +108,7 @@ public:
 		// invoke them, so the callbacks do not get invoked with a
 		// held lock.
 
-		std::vector<callback<ret_type, Args...>> callbacks;
+		std::vector<functionref<ret_type(Args...)>> callbacks;
 
 		for (const auto &weakptr:*l)
 		{
@@ -196,7 +121,8 @@ public:
 		for (const auto &cb:callbacks)
 		{
 			try {
-				auto value=cb->invoke(std::forward<args>...);
+				auto value=cb->invoke(std::forward<invokeArgs>
+						      (args)...);
 
 				if (stop_calling(value))
 					return value;
@@ -224,10 +150,10 @@ public:
 	//! Invoke all callbacks in a weak list.
 
 	template<typename ...Args, typename ...invokeArgs>
-	static void invoke(const weaklist<callbackObj<void, Args...>> &l,
+	static void invoke(const weaklist<functionObj<void(Args...)>> &l,
 			   invokeArgs && ...args)
 	{
-		std::vector<callback<void, Args...>> callbacks;
+		std::vector<functionref<void(Args...)>> callbacks;
 
 		for (const auto &weakptr:*l)
 		{
@@ -243,10 +169,10 @@ public:
 	//! Invoke all callbacks in a weak list, and log any exceptions.
 
 	template<typename ...Args, typename ...invokeArgs>
-	static void invoke_log(const weaklist<callbackObj<void, Args...>> &l,
+	static void invoke_log(const weaklist<functionObj<void(Args...)>> &l,
 			       invokeArgs && ...args)
 	{
-		std::vector<callback<void, Args...>> callbacks;
+		std::vector<functionref<void(Args...)>> callbacks;
 
 		for (const auto &weakptr:*l)
 		{
@@ -270,7 +196,7 @@ public:
 template<typename ret_type,
 	 typename ...Args,
 	 typename ...invokeArgs>
-inline ret_type invoke_callbacks(const weaklist<callbackObj<ret_type, Args...>>
+inline ret_type invoke_callbacks(const weaklist<functionObj<ret_type(Args...)>>
 				 &l,
 				 invokeArgs && ...args)
 {
@@ -284,72 +210,20 @@ template<typename ret_type,
 	 typename ...Args,
 	 typename ...invokeArgs>
 inline ret_type invoke_callbacks_log_exceptions
-(const weaklist<callbackObj<ret_type, Args...>> &l,
+(const weaklist<functionObj<ret_type(Args...)>> &l,
  invokeArgs && ...args)
 {
 	return callback_invocations<ret_type>
 		::template invoke_log(l, std::forward<invokeArgs> (args)...);
 }
 
-//! Base class for \ref callback "callback" handles.
-
-//! Refer to this class as \c INSERT_LIBX_NAMESPACE::w::callback<ret_type, args...>::base
-//!
-//! Implements invoke_callback_list(weaklist, args...) that invokes a list
-//! of callbacks currently in some weak list, forwarding any remaining arguments
-//! to each callback, in turn.
-
-template<typename ret_type, typename ...Args>
-class callbackBase {
-
-public:
-
-	//! Factory that defines a custom create() method
-
-	template<typename ref_type>
-	class objfactory {
-
-	public:
-
-		//! create() constructs a custom subclass of callbackObj
-
-		//! create() for a callbackObj takes a functor for an
-		//! argument, and pulls a switcheroo, constructing the
-		//! implObj subclass.
-
-		template<typename functor_type>
-                static inline auto create(functor_type && functor)
-		{
-			return ref<callbackImplObj<typename
-						   std::remove_reference
-						   <functor_type>::type,
-						   callbackObj<ret_type,
-							       Args...>,
-						   ret_type, Args...>>
-				::create(std::forward<functor_type>(functor));
-		}
-
-		//! create() stub, construct a no-op callback
-
-		static inline auto create()
-		{
-			return ptrrefBase::objfactory<ref<callbackObj<ret_type,
-								      Args...>,
-							  callbackBase<ret_type,
-								       Args...>>
-						      >::create();
-		}
-	};
-};
-
 #ifndef DOXYGEN
-extern template class callbackBase<void>::objfactory<callback<void>>;
-extern template void invoke_callbacks(const weaklist<callbackObj<void>> &);
-extern template void invoke_callbacks_log_exceptions(const weaklist<callbackObj<void>> &);
+extern template void invoke_callbacks(const weaklist<functionObj<void()>> &);
+extern template void invoke_callbacks_log_exceptions(const weaklist<functionObj<void()>> &);
 extern template
-void callback_invocations<void>::invoke(const weaklist<callbackObj<void>> &);
+void callback_invocations<void>::invoke(const weaklist<functionObj<void ()>> &);
 extern template
-void callback_invocations<void>::invoke_log(const weaklist<callbackObj<void>> &);
+void callback_invocations<void>::invoke_log(const weaklist<functionObj<void ()>> &);
 #endif
 
 #if 0

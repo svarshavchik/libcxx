@@ -19,12 +19,12 @@ namespace LIBCXX_NAMESPACE {
 //! Instead of using std::function, which uses dynamic memory allocation,
 //! use virtual inheritance to implement similar functionality.
 //!
-//! Typical usage.
+//! The template parameter is a function signature:
 //!
 //! \code
-//! void method(const INSERT_LIBX_NAMESPACE::function< int(const char *)>> &func);
+//! void method(const INSERT_LIBX_NAMESPACE::function< size_t(const char *)> &func);
 //!
-//! method(INSERT_LIBX_NAMESPACE::make_function<int(const char *)>(
+//! method(INSERT_LIBX_NAMESPACE::make_function<size_t(const char *)>(
 //!      []
 //!      (const char *s)
 //!      {
@@ -32,9 +32,10 @@ namespace LIBCXX_NAMESPACE {
 //!      }));
 //! \endcode
 //!
-//! If you insist on dynamic memory allocation, but prefer to use
-//! reference-counted object,
-//! there's also \ref make_functionref "make_functionref"().
+//! Alternatively,
+//! \ref functionref "INSERT_LIBX_NAMESPACE::functionref" implements
+//! \c INSERT_LIBX_NAMESPACE::function as a reference-counted object.
+
 
 template<class> class function;
 

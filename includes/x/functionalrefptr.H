@@ -7,6 +7,7 @@
 #define x_functionalrefptr_H
 
 #include <x/functional.H>
+#include <x/functionalrefptrfwd.H>
 #include <x/ref.H>
 #include <x/ptr.H>
 #include <x/obj.H>
@@ -17,8 +18,7 @@ namespace LIBCXX_NAMESPACE {
 
 //! Multiply inherit from \ref function "function" and \ref obj "obj".
 
-//! This implements a reference-counted \ref function "function" object.
-//! Use \ref make_functionref "make_functionref"() to construct this object.
+//! This implements a reference-counted \ref functionref "function object".
 
 template<typename signature> class functionObj
 	: public function<signature>, virtual public obj {
@@ -46,61 +46,31 @@ public:
 	}
 };
 
-//! A reference-counted \ref function "function object".
+template<typename signature> class functionBase {
 
-//! Use \ref make_functionref "make_functionref()" to construct this
-//! reference.
+public:
 
-template<typename signature>
-using functionref=ref<functionObj<signature>>;
+	template<typename ref_type> class objfactory {
 
-//! A nullable pointer to a \ref functionref "reference to a function object".
-template<typename signature>
-using functionptr=ptr<functionObj<signature>>;
+	public:
 
-//! Construct a function object.
+		template<typename functor_type>
+		static inline ref_type create(functor_type &&functor)
+		{
+			typedef typename
+				function_impl_ret<functor_type,
+						  signature>::objtype_t
+				objtype_t;
 
-//! make_functionref<signature>(lambda) returns a subclass of a
-//! \ref functionObj "INSERT_LIBX_NAMESPACE::functionObj<signature>".
-//!
-//! Typical usage:
-//!
-//! \code
-//!
-//! INSERT_LIBX_NAMESPACE::functionref<int(const char *)> ref=INSERT_LIBX_NAMESPACE::make_functionref(
-//!                                           (const char *p)
-//!                                           {
-//!                                                 return strlen(p);
-//!                                           });
-//! INSERT_LIBX_NAMESPACE::function< int(const char *)>> &p= *ref;
-//!
-//! int l=p("foo");
-//!
-//! int l=ref->invoke("bar");
-//! \endcode
-//!
-//! make_functionref() constructs a
-//1 \ref ref "reference-counted object" that inherits from
-//! \ref function "INSERT_LIBX_NAMESPACE::function". It serves the
-//! same type-erasure function as
-//! \ref function "INSERT_LIBX_NAMESPACE::function", but as a reference-counted
-//! object.
-//!
-//! This is a reference to a \ref functionObj "functionObj<signature>".
-//! In addition to having the \c operator() operator available,
-//! the \c invoke() method offers a more convenient syntax of invoking the
-//! type-erased lambda, using the reference pointer.
+			return ref<objtype_t>::create(std::forward<functor_type>
+						      (functor));
+		}
+	};
+};
 
-template<typename signature, typename functor>
-auto make_functionref(functor &&functorArg)
-{
-	typedef typename
-		function_impl_ret<functor, signature>::objtype_t objtype_t;
-
-	return functionref<signature>
-		( ref<objtype_t>::create(std::forward<functor>
-					 (functorArg)));
-}
+#ifndef DOXYGEN
+extern template class functionObj<void()>;
+#endif
 
 #if 0
 {

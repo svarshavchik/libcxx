@@ -14,7 +14,14 @@ See COPYING for distribution information.
 
       <listitem>
 	<para>
-	  <link linkend="callback">Reference-counted lambdas</link> and the
+	  <link linkend="functional"><classname>&ns;::function</classname></link>
+	  template, similar to <classname>std::function</classname>, but
+	  uses virtual inheritance instead of dynamic memory allocation.
+	</para>
+
+	<para>
+	  Then,
+	  <link linkend="functionalref">reference-counted lambdas</link> and the
 	  <link linkend="derived">derived values</link> design pattern
 	  provide a more generic replacement for event callbacks.
 	</para>
@@ -36,14 +43,6 @@ See COPYING for distribution information.
       <listitem>
 	<para>
 	  <link linkend="ltdl">Loading shared libraries</link>.
-	</para>
-      </listitem>
-
-      <listitem>
-	<para>
-	  <link linkend="functional"><classname>&ns;::function</classname></link>
-	  template, similar to <classname>std::function</classname>, but
-	  uses virtual inheritance instead of dynamic memory allocation.
 	</para>
       </listitem>
 

@@ -203,7 +203,7 @@ public:
 //! INSERT_LIBX_NAMESPACE::ref<aObj> a;
 //! INSERT_LIBX_NAMESPACE::ref<bObj> b;
 //!
-//! auto callback=INSERT_LIBX_NAMESPACE::callback<void>::create
+//! auto callback=INSERT_LIBX_NAMESPACE::functionref<void()>::create
 //!  ( [ captured_refs=INSERT_LIBX_NAMESPACE::make_weak_capture(a, b) ]
 //!    {
 //!       captured_refs.get([]
@@ -215,7 +215,7 @@ public:
 //!    });
 //! \endcode
 //!
-//! At the time the \ref callback "callback" object gets created, the
+//! At the time the \ref functionref "callback" object gets created, the
 //! two strong refs are weakly captured. The callback object does not keep
 //! a strong reference to the captured objects.
 //!

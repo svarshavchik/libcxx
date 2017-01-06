@@ -291,6 +291,7 @@ noinst_PROGRAMS=\
 	mkgrdjd                       \
 	mksiglist                     \
 	mksigtab                      \
+	testcallbacks		      \
 	testcgiimpl                   \
 	testcombinepath		      \
 	testcredentials               \
@@ -565,6 +566,10 @@ testcsv_SOURCES=testcsv.C
 testcsv_LDADD=libcxx.la
 testcsv_LDFLAGS=$(TESTLINKTYPE)
 
+testcallbacks_SOURCES=testcallbacks.C
+testcallbacks_LDADD=libcxx.la
+testcallbacks_LDFLAGS=$(TESTLINKTYPE)
+
 testcgiimpl_SOURCES=testcgiimpl.C
 testcgiimpl_LDADD=libcxx.la
 testcgiimpl_LDFLAGS=$(TESTLINKTYPE)
@@ -759,6 +764,7 @@ maillogs_LDFLAGS=-static
 noinst_DATA=$(XTEST_MO_DIR)/$(XTEST_MO_FILE)
 
 check-am: $(noinst_PROGRAMS) $(noinst_DATA)
+	./testcallbacks
 	./testrwmutex
 	./testpostponedcall
 	./testsingleton 2>testsingleton.tst.tmp >&2

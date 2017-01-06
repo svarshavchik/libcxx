@@ -69,15 +69,17 @@ void testfunctionref()
 {
 	int index=1;
 
-	auto obj=make_functionref<void(int)>([&index](int n)
-					     {
-						     index += n;
-					     });
+	auto obj=LIBCXX_NAMESPACE::functionref<void(int)>
+		::create([&index](int n)
+			 {
+				 index += n;
+			 });
 
-	auto obj2=make_functionref<int(int)>([&index](int n)
-					     {
-						     return index+n;
-					     });
+	auto obj2=LIBCXX_NAMESPACE::functionref<int(int)>
+		::create([&index](int n)
+			 {
+				 return index+n;
+			 });
 
 	functionref<void(int)> *p=&obj;
 

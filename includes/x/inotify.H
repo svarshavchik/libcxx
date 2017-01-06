@@ -8,7 +8,7 @@
 
 #include <x/inotifyfwd.H>
 #include <x/inotifyobj.H>
-#include <x/callback.H>
+#include <x/functionalrefptr.H>
 
 namespace LIBCXX_NAMESPACE {
 #if 0
