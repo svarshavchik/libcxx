@@ -392,7 +392,9 @@ public:
 //! \see number
 
 template<typename value_type_t, typename tag, typename base_class,
-	 typename number_t>
+	 typename number_t,
+	 typename is_numeric=
+	 typename std::enable_if<std::is_integral<number_t>::value>::type>
 constexpr auto
 operator+(number_t &&n,
 	  const number<value_type_t, tag, base_class> &o)
@@ -405,12 +407,14 @@ operator+(number_t &&n,
 //! \see number
 
 template<typename value_type_t, typename tag, typename base_class,
-	 typename number_t>
+	 typename number_t,
+	 typename is_numeric=
+	 typename std::enable_if<std::is_integral<number_t>::value>::type>
 constexpr auto
 operator-(number_t &&n,
 	  const number<value_type_t, tag, base_class> &o)
 {
-	return o.operator-(std::forward<number_t>(n));
+	return number<value_type_t, tag, base_class>(n)-o;
 }
 
 //! Multiplication operator overload
@@ -418,7 +422,9 @@ operator-(number_t &&n,
 //! \see number
 
 template<typename value_type_t, typename tag, typename base_class,
-	 typename number_t>
+	 typename number_t,
+	 typename is_numeric=
+	 typename std::enable_if<std::is_integral<number_t>::value>::type>
 constexpr auto
 operator*(number_t &&n,
 	  const number<value_type_t, tag, base_class> &o)
@@ -431,12 +437,14 @@ operator*(number_t &&n,
 //! \see number
 
 template<typename value_type_t, typename tag, typename base_class,
-	 typename number_t>
+	 typename number_t,
+	 typename is_numeric=
+	 typename std::enable_if<std::is_integral<number_t>::value>::type>
 constexpr auto
 operator/(number_t &&n,
 	  const number<value_type_t, tag, base_class> &o)
 {
-	return o.operator/(std::forward<number_t>(n));
+	return number<value_type_t, tag, base_class>(n)/o;
 }
 
 //! Modulus operator overload
@@ -444,12 +452,14 @@ operator/(number_t &&n,
 //! \see number
 
 template<typename value_type_t, typename tag, typename base_class,
-	 typename number_t>
+	 typename number_t,
+	 typename is_numeric=
+	 typename std::enable_if<std::is_integral<number_t>::value>::type>
 constexpr auto
 operator%(number_t &&n,
 	  const number<value_type_t, tag, base_class> &o)
 {
-	return o.operator%(std::forward<number_t>(n));
+	return number<value_type_t, tag, base_class>(n)%o;
 }
 
 //! Overload << operator for output streams.

@@ -516,7 +516,7 @@ multimap_callbacks_t::base::mcguffin multimap_callback=multimap_callbacks-&gt;cr
     <para>
       <classname><replaceable>container-type</replaceable>::base::mcguffin</classname>
       is a
-      <link linkend="mcguffin">mcguffin object</link> which represents
+      <link linkend="ondestroy">mcguffin object</link> which represents
       a callable object.
       <methodname>create_mcguffin</methodname>() creates a new mcguffin for
       a callback to be added to the container.

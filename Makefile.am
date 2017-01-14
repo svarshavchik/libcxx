@@ -34,6 +34,7 @@ EXTRA_DIST=config.rpath DoxygenLayout.xml abi.xml.in $(man_MANS) \
 DOCS_SRC = $(shell find includes/x -name '*.H' -print)
 
 docs: html/index.html html/book.css html/logo.png html/robots.txt html/.htaccess html/frame.js html/icon.gif $(patsubst %,html/%,$(notdir $(wildcard $(srcdir)/docbook/*.png)))
+	-chcon -R -t httpd_sys_content_t html/.
 
 html/%.png: html/index.html docbook/%.png
 	$(INSTALL) -m 0644 $(srcdir)/docbook/$(notdir $@) html
@@ -144,6 +145,7 @@ $(man_MANS): man.stamp
 	touch $@
 
 man.stamp: $(wildcard docbook/man*.xml)
+	test -f docbook/entities || $(MAKE) docs; \
 	if test ! -f docbook/book.xml; then touch man.stamp; exit 0; fi; \
 	set -e; rm -rf manpages; \
 	xsltproc --nonet -o manpages/ http://docbook.sourceforge.net/release/xsl/current/manpages/docbook.xsl docbook/book.xml; \
