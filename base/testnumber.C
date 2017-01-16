@@ -5,8 +5,11 @@
 
 #include "libcxx_config.h"
 #include "x/number.H"
+#include "x/number_hash.H"
+#include "x/exception.H"
 #include <iostream>
 #include <sstream>
+#include <unordered_map>
 
 class foo;
 class foobar : public LIBCXX_NAMESPACE::number_default_base {
@@ -335,9 +338,107 @@ void test_custom_ops()
 	dim_squared_t d=c*c;
 }
 
+void testoverflows()
+{
+	typedef LIBCXX_NAMESPACE::number<unsigned short, foo> snumber_t;
+	typedef LIBCXX_NAMESPACE::number<int, foobar> inumber_t;
+
+	if (snumber_t::overflows(0))
+	{
+		std::cout << "Shouldn't overflow." << std::endl;
+		exit(1);
+	}
+
+	if (!snumber_t::overflows(-1))
+	{
+		std::cout << "Should overflow." << std::endl;
+		exit(1);
+	}
+
+	if (snumber_t::truncate(-1) != 0)
+	{
+		std::cout << "Did not truncate to 0" << std::endl;
+		exit(1);
+	}
+
+	inumber_t minus_1{-1};
+
+	if (snumber_t::truncate(minus_1) != 0)
+	{
+		std::cout << "Did not truncate to 0" << std::endl;
+		exit(1);
+	}
+
+	if (snumber_t::truncate(std::numeric_limits<long long>::max())
+	    != std::numeric_limits<unsigned short>::max())
+	{
+		std::cout << "Did not truncate to max()" << std::endl;
+	}
+
+	inumber_t i=4;
+
+	if (snumber_t::overflows(i))
+	{
+		std::cout << "Shouldn't overflow." << std::endl;
+		exit(1);
+	}
+
+	i= -1;
+
+	if (!snumber_t::overflows(i))
+	{
+		std::cout << "Should overflow." << std::endl;
+		exit(1);
+	}
+
+	int n=0;
+
+	try {
+		snumber_t s{-1};
+	} catch (const LIBCXX_NAMESPACE::exception &e)
+	{
+		std::cout << "Expected exception: " << e << std::endl;
+		++n;
+	}
+
+	snumber_t s{0};
+	try {
+		s= -1;
+	} catch (const LIBCXX_NAMESPACE::exception &e)
+	{
+		std::cout << "Expected exception: " << e << std::endl;
+		++n;
+	}
+
+	if (n != 2)
+	{
+		std::cout << "Should've had more exceptions." << std::endl;
+		exit(1);
+	}
+
+	LIBCXX_NAMESPACE::number<short, short> z1( (unsigned int) 0);
+	LIBCXX_NAMESPACE::number<unsigned short, short> z2( (int) 0);
+
+	if (! LIBCXX_NAMESPACE::number<unsigned, unsigned>::overflows(-1))
+	{
+		std::cout << "Assigning negative to an unsigned didn't overflow"
+			  << std::endl;
+		exit(1);
+	}
+}
+
+void testhash()
+{
+	std::unordered_map<number_t, int> m;
+
+	m.insert({number_t(4), 4});
+}
+
 int main()
 {
 	testnumber();
+	testoverflows();
+	testhash();
 
 	if (compare<number_t, number2_t>::bar() ||
 	    !compare<number_t, number_t>::bar())

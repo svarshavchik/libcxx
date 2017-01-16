@@ -17,6 +17,8 @@ This file defines a typesafe number.
 #include <utility>
 #include <type_traits>
 #include <iostream>
+#include <limits>
+#include <typeinfo>
 
 namespace LIBCXX_NAMESPACE {
 #if 0
@@ -41,6 +43,63 @@ template<typename number_1, typename number_2>
 using number_default_same_op_only=
 	typename std::enable_if<std::is_same<number_1, number_2>::value,
 				number_1>::type;
+
+//! Metaprogramming: whether the given type is a \ref number "typesafe number".
+
+template<typename type>
+class is_number_type : public std::false_type {};
+
+//! Metaprogramming: whether the given type is a \ref number "typesafe number".
+
+template<typename value_type_t, typename tag, typename base_class>
+class is_number_type<number<value_type_t, tag, base_class>>
+	: public std::true_type {};
+
+
+template<typename to_value_type, typename from_value_type,
+	 bool is_typesafe_number=is_number_type<from_value_type>::value>
+class number_overflows;
+
+template<typename to_value_type, typename from_value_type>
+class number_overflows<to_value_type, from_value_type, false> {
+
+public:
+
+	template<typename other_value_type>
+	static inline constexpr bool overflows(other_value_type value)
+	{
+		if (std::numeric_limits<to_value_type>::is_signed)
+		{
+			if (std::numeric_limits<other_value_type>::is_signed &&
+			    value < std::numeric_limits<to_value_type>::min())
+				return true;
+		}
+		else
+		{
+			if (value < 0)
+				return true;
+		}
+
+		return value >= 0 &&
+			value > std::numeric_limits<to_value_type>::max();
+	}
+};
+
+template<typename to_value_type, typename from_value_type>
+class number_overflows<to_value_type, from_value_type, true> {
+
+public:
+
+	typedef typename from_value_type::value_type underlying_type;
+
+	template<typename other_value_type>
+	static inline constexpr bool overflows(other_value_type &&value)
+	{
+		return number_overflows<to_value_type, underlying_type,
+					false>
+			::overflows( (underlying_type)(value));
+	}
+};
 
 //! Default base class for "typesafe numerical aliases".
 
@@ -71,6 +130,11 @@ public:
 	template<typename number_1, typename number_2>
 	using resulting_mod_op=number_default_same_op_only<number_1, number_2>;
 };
+
+//! Throw an exception due to numerical overflow.
+
+void numerical_overflow(const char *ftype,
+			const char *ttype) __attribute__((noreturn));
 
 //! A typesafe numerical alias.
 
@@ -129,7 +193,12 @@ public:
 	//! Construct from the underlying number
 	template<typename number_t,
 		 typename V=typename std::enable_if<std::is_integral<number_t>::value>::type>
-	constexpr number(number_t vn) : n(vn) {}
+	constexpr number(number_t vn) : n(vn)
+	{
+		if (overflows(vn))
+			numerical_overflow(typeid(number_t).name(),
+					   typeid(value_type_t).name());
+	}
 
 	//! Return the underlying number.
 	constexpr explicit operator value_type_t() const { return n; }
@@ -137,7 +206,37 @@ public:
 	//! Assignment operator
 	template<typename number_t,
 		 typename V=typename std::enable_if<std::is_integral<number_t>::value>::type>
-	constexpr number &operator=(number_t vn) { n=vn; return *this; }
+	constexpr number &operator=(number_t vn) {
+		if (overflows(vn))
+			numerical_overflow(typeid(number_t).name(),
+					   typeid(value_type_t).name());
+
+		n=vn;
+		return *this;
+	}
+
+	//! If the given number overflows, truncate it to max().
+
+	template<typename number_t,
+		 typename V=typename std::enable_if<std::is_integral<number_t>::value>::type>
+        static value_type_t truncate(number_t vn) {
+		if (vn > std::numeric_limits<value_type_t>::max())
+			vn=std::numeric_limits<value_type_t>::max();
+
+		if (vn < std::numeric_limits<value_type_t>::min())
+			vn=std::numeric_limits<value_type_t>::min();
+
+		return vn;
+	}
+
+	//! If the given number overflows, truncate it to max().
+
+	template<typename value_type_t2, typename tag2, typename base_class2>
+        static value_type_t truncate(const number<value_type_t2,
+				     tag2, base_class2> &n)
+	{
+		return truncate(n.n);
+	}
 
 	//! Assignment operator
 	constexpr number &operator=(const number &v) { n=v.n; return *this; }
@@ -385,6 +484,17 @@ public:
 	constexpr bool operator>(const number &v) const { return n > v.n; }
 	//! Comparison operator
 	constexpr bool operator>=(const number &v) const { return n >= v.n; }
+
+	//! Returns true if the given number cannot be represented by this type
+
+	template<typename other_value_type>
+	static constexpr bool overflows(other_value_type && value)
+	{
+		return number_overflows<value_type,
+					typename std::decay<other_value_type>
+					::type>
+			::overflows(std::forward<other_value_type>(value));
+	}
 };
 
 //! Addition operator overload

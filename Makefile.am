@@ -34,7 +34,7 @@ EXTRA_DIST=config.rpath DoxygenLayout.xml abi.xml.in $(man_MANS) \
 DOCS_SRC = $(shell find includes/x -name '*.H' -print)
 
 docs: html/index.html html/book.css html/logo.png html/robots.txt html/.htaccess html/frame.js html/icon.gif $(patsubst %,html/%,$(notdir $(wildcard $(srcdir)/docbook/*.png)))
-	-chcon -R -t httpd_sys_content_t html/.
+	-chcon -R -t httpd_sys_content_t html/. 2>/dev/null || true
 
 html/%.png: html/index.html docbook/%.png
 	$(INSTALL) -m 0644 $(srcdir)/docbook/$(notdir $@) html

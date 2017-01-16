@@ -190,6 +190,122 @@ using number_default_same_op_only=
       result in the same number types.
     </para>
   </section>
+
+  <section id="miscnumberoverflow">
+    <title>Testing for overflow</title>
+
+    <para>
+      It is allowed to construct a type-safe number from an integral
+      value that doesn't match its underlying type:
+    </para>
+
+    <blockquote>
+      <informalexample>
+	<programlisting>
+class number_tag;
+
+typedef &ns;::number&lt;unsigned short, number_tag&gt; number_t;
+
+number_t number{4};</programlisting>
+      </informalexample>
+    </blockquote>
+
+    <para>
+      Having to explicitly <literal>static_cast&lt;unsigned short&gt;</literal>
+      would get old pretty quickly. As a compromise, constructing or
+      assigning from an integral value throws an exception
+      if the integral value cannot be
+      represented by the number's underlying type.
+      <methodname>overflows</methodname>() is available for preventative
+      measures:
+    </para>
+
+    <blockquote>
+      <informalexample>
+	<programlisting>
+class number_tag;
+
+typedef &ns;::number&lt;unsigned short, number_tag&gt; number_t;
+
+int n;
+
+if (number_t::overflows(n))
+{
+    // n is too big to fit.
+}</programlisting>
+      </informalexample>
+    </blockquote>
+
+    <para>
+      <methodname>truncate</methodname>() is a static method that checks the
+      given value, and if it is too big to be represented by the type-safe
+      number, the smallest or the largest value that can be represented by
+      the type-safe number gets returned:
+    </para>
+
+    <blockquote>
+      <informalexample>
+	<programlisting>
+class number_tag;
+
+typedef &ns;::number&lt;unsigned short, number_tag&gt; number_t;
+
+number_t n;
+
+n=number_t::truncate(-1); // This sets n to 0</programlisting>
+      </informalexample>
+    </blockquote>
+
+    <para>
+      <methodname>truncate</methodname>() returns the underlying integer type.
+      The parameter value gets returned, casted, if it can be represented
+      by the underlying integer type, or the underlying integer type's
+      minimum or maximum value, as appropriate.
+      <methodname>truncate</methodname>() is also overloaded for
+      other type-safe number instances:
+    </para>
+
+    <blockquote>
+      <informalexample>
+	<programlisting>
+class number_tag;
+class bignumber_tag;
+
+typedef &ns;::number&lt;unsigned short, number_tag&gt; number_t;
+typedef &ns;::number&lt;long long, bignumber_tag&gt; bignumber_t;
+
+bignumber_t bn{-1};
+
+number_t n;
+
+n=number_t::truncate(bn); // This sets n to 0</programlisting>
+      </informalexample>
+    </blockquote>
+  </section>
+
+  <section id="miscnumberhash">
+    <title>Using typesafe numerical aliases in unordered containers</title>
+
+    <blockquote>
+      <informalexample>
+	<programlisting>
+#include &lt;&ns;/number_hash.H&gt;
+
+class number_tag;
+
+typedef &ns;::number&lt;int, number_tag&gt; number_t;
+
+std::unordered_map&lt;number_t, int&gt; m;</programlisting>
+      </informalexample>
+    </blockquote>
+
+    <para>
+      The <filename>&ns;/number_hash.H</filename> header file defines a
+      specialization of <classname>std::hash</classname> for integer
+      <link linkend="number">numerical aliases</link> so that they can be
+      used in associative unordered containers.
+    </para>
+  </section>
 </chapter>
 <!--
 Local Variables:

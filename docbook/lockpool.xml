@@ -153,28 +153,28 @@ while (!myLock-&gt;locked())
     </para>
   </section>
 
-  <section id="rwlockpool">
-    <title>Read-write lock pools</title>
+  <section id="sharedpool">
+    <title>Shared lock pools</title>
 
     <blockquote>
       <informalexample>
 	<programlisting>
 #include &lt;&ns;/lockpool.H&gt;
 
-typedef &ns;::rwlockpool&lt;&gt; rwpool_t;
+typedef &ns;::sharedlockpool&lt;&gt; sharedpool_t;
 
-rwpool_t rwlockpool(rwpool_t::create());
+sharedpool_t sharedpool(sharedpool_t::create());
 
-rwpool_t::lockentry rlock(rwlockpool->addLockSet(rwpool_t::readlock,
+sharedpool_t::lockentry rlock(sharedpool->addLockSet(sharedpool_t::create_shared,
                                                  &ns;::eventfd::create());
 
-rwpool_t::lockentry rlock(rwlockpool->addLockSet(rwpool_t::writelock,
+sharedpool_t::lockentry rlock(sharedpool->addLockSet(sharedpool_t::create_unique,
                                                  &ns;::eventfd::create());</programlisting>
       </informalexample>
     </blockquote>
 
     <para>
-      <ulink url="&link-typedef-x-rwlockpool;"><classname>&ns;::rwlockpool</classname></ulink>
+      <ulink url="&link-typedef-x-sharedpool;"><classname>&ns;::sharedpool</classname></ulink>
       is a specialization of a <link linkend="lockpool">lock pool</link>
       that implements the semantics of
       <link linkend="rwmutex"><classname>&ns;::rwmutex</classname></link>.
@@ -182,16 +182,21 @@ rwpool_t::lockentry rlock(rwlockpool->addLockSet(rwpool_t::writelock,
       <link linkend="lockstarvation">lock starvation</link> option.
       In this specialization, the default
       <varname>starve</varname> value is <literal>false</literal>.
-      Once a write lock is in the lock pool's waiting list, any subsequent
-      read locks queue up on the waiting list until all existing read locks
-      go out of scope, permitting the waiting write lock to acquire the lock
-      pool. This ensures that the write lock will eventually be acquired.
+    </para>
+
+    <para>
+      <methodname>create_shared</methodname>() creates a shared lock.
+      <methodname>create_unique</methodname>() creates a unique lock.
+      Once a unique lock is in the lock pool's waiting list, any subsequent
+      shared locks queue up on the waiting list until all existing shared locks
+      go out of scope, permitting the waiting unique lock to acquire the lock
+      pool. This ensures that the unique lock gets eventually acquired.
     </para>
 
     <para>
       Setting <varname>starve</varname> to <literal>true</literal> results
-      in read locks starving the pending write locks as long as at least
-      one read lock exists, until all read locks
+      in shared locks starving any pending unique locks as long as at least
+      one shared lock exists, until all shared locks
       go out of scope.
     </para>
   </section>

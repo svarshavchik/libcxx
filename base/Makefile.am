@@ -153,6 +153,7 @@ libcxx_la_SOURCES=\
 	msgdispatcher.C		\
 	mutexobj.C		\
 	mutexpool.C		\
+	number.C		\
 	netaddrobj.C		\
 	netaddrresultobj.C	\
 	netifobj.C		\
