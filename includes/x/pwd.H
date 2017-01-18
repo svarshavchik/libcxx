@@ -8,7 +8,6 @@
 
 #include <x/namespace.h>
 #include <x/exception.H>
-#include <x/notcopyableobj.H>
 #include <pwd.h>
 #include <vector>
 
@@ -19,7 +18,7 @@ namespace LIBCXX_NAMESPACE {
 
 //! A thread-safe wrapper for a \c struct \c passwd.
 
-class passwd : public notcopyableObj{
+class passwd {
 
 	//! The embeded passwd structure
 	struct ::passwd pwstruct;
@@ -28,6 +27,13 @@ class passwd : public notcopyableObj{
 	std::vector<char> buffer;
 
 public:
+	//! Deleted copy constructor
+
+	passwd(const passwd &)=delete;
+
+	//! Deleted assignment operator
+	passwd &operator=(const passwd &)=delete;
+
 	//! getpwnam() equivalent
 
 	//! Throws an exception if an error occured. If the username was not

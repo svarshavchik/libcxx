@@ -7,7 +7,6 @@
 #define x_threads_singleton_H
 
 #include <x/threads/runfwd.H>
-#include <x/notcopyableobj.H>
 #include <x/weakptr.H>
 #include <x/namespace.h>
 
@@ -75,7 +74,7 @@ class threadsingleton;
 
 template<typename obj_type, typename base_class>
 class threadsingleton<ptr<obj_type, base_class> >
-	: private run_async::singletonbase, public notcopyableObj {
+	: private run_async::singletonbase {
 
 	//! Catch duplicate declarations in static scope
 	static __thread bool initialized;
@@ -84,6 +83,13 @@ class threadsingleton<ptr<obj_type, base_class> >
 	static __thread bool destroyed;
 
 public:
+
+	//! Deleted copy constructor
+
+	threadsingleton(const threadsingleton &)=delete;
+
+	//! Deleted assignment operator
+	threadsingleton &operator=(const threadsingleton &)=delete;
 
 	//! The pointer type
 

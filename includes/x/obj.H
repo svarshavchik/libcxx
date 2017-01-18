@@ -9,7 +9,6 @@
 #include <x/namespace.h>
 #include <x/refcnt.H>
 #include <x/ref.H>
-#include <x/notcopyableobj.H>
 
 #include <list>
 #include <string>
@@ -81,7 +80,7 @@ template<class refType> class weakptr;
 //! isa() is a convenience method for trying a dynamic cast to another
 //! \ref ref "ref"'s or \ref ptr "ptr"'s object.
 
-class obj : public refcnt, public notcopyableObj {
+class obj : public refcnt {
 
 	//! The weak reference information associated with this object.
 
@@ -150,6 +149,12 @@ public:
 	friend class weakinfo;
 	friend class ondestroyObj;
 	template<typename refType> friend class weakptr;
+
+	//! Deleted copy constructor
+	obj(const obj &)=delete;
+
+	//! Deleted assignment operator
+	obj &operator=(const obj &)=delete;
 
 	//! The default constructor
 

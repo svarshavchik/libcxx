@@ -1350,31 +1350,6 @@ buttonp-&gt;doButtonRender(); // doesn't work, private inheritance.
     </para>
   </section>
 
-  <section id="finalclasses">
-    <title>Final classes</title>
-
-    <blockquote>
-      <informalexample>
-	<programlisting>
-#include &lt;&ns;/final_class.H&gt;
-
-class main_window : virtual private &ns;::final_class&lt;main_window&gt; {
-// ...
-};</programlisting>
-      </informalexample>
-    </blockquote>
-
-    <para>
-      Declaring class
-      <classname><replaceable>classname</replaceable></classname>
-      as a virtual subclass of
-      <ulink url="&link-x--final-class;"><classname>&ns;::final_class&lt;<replaceable>classname</replaceable>&gt;</classname></ulink>
-      prevents the class from getting subclassed itself.
-      This implements the C++ equivalent of Java's
-      <quote>final</quote> class.
-    </para>
-  </section>
-
   <section id="refptrhash">
     <title>Comparing &ref;s and &ptr;s</title>
 

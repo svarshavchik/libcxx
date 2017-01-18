@@ -29,7 +29,17 @@ class hms;
 
 //! Common locale-related functions used by \ref strftime "strftime".
 
-class strftime_base : public notcopyableObj {
+class strftime_base {
+
+public:
+
+	//! Deleted copy constructor
+
+	strftime_base(const strftime_base &)=delete;
+
+	//! Deleted assignment operator
+
+	strftime_base &operator=(const strftime_base &)=delete;
 
 protected:
 

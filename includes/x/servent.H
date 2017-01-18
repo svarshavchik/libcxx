@@ -8,7 +8,6 @@
 
 #include <x/namespace.h>
 #include <x/exception.H>
-#include <x/notcopyableobj.H>
 #include <netdb.h>
 #include <vector>
 
@@ -19,7 +18,7 @@ namespace LIBCXX_NAMESPACE {
 
 //! A thread-safe wrapper for a \c struct \c servent.
 
-class servent : public notcopyableObj {
+class servent {
 
 	//! The embeded servent structure
 	struct ::servent servstruct;
@@ -28,6 +27,12 @@ class servent : public notcopyableObj {
 	std::vector<char> buffer;
 
 public:
+	//! Deleted copy constructor
+	servent(const servent &)=delete;
+
+	//! Deleted assignment operator
+	servent &operator=(const servent &)=delete;
+
 	//! getservbyname() equivalent
 
 	//! Throws an exception if an error occured. If the service name was not

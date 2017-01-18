@@ -57,9 +57,16 @@ private:
 
 	//! \internal
 
-	class repeatinfo : public notcopyableObj {
+	class repeatinfo {
 
 	public:
+
+		//! Deleted copy constructor
+
+		repeatinfo(const repeatinfo &)=delete;
+
+		//! Deleted assignment operator
+		repeatinfo &operator=(const repeatinfo &)=delete;
 
 		//! Property that specifies the repeat interval
 
