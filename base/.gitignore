@@ -38,6 +38,7 @@
 /testgetprop
 /testgetpwgr
 /testglob
+/testhash
 /testhier
 /testhttpclientauth
 /testhttpclientimpl

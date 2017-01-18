@@ -16,7 +16,7 @@
 #include <mutex>
 #include <type_traits>
 
-//! Extension namespace
+//! Library namespace
 
 //! This namespace contains all templates and classes defined by
 //! this library.

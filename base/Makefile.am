@@ -341,6 +341,7 @@ noinst_PROGRAMS=\
 	testnetif                     \
 	testnumber		      \
 	testobj                       \
+	testhash		      \
 	testoptgen                    \
 	testoptions                   \
 	testorderer		      \
@@ -410,6 +411,10 @@ testftp_LDFLAGS=$(TESTLINKTYPE)
 testfunction_SOURCES=testfunction.C
 testfunction_LDADD=libcxx.la
 testfunction_LDFLAGS=$(TESTLINKTYPE)
+
+testhash_SOURCES=testhash.C
+testhash_LDADD=libcxx.la
+testhash_LDFLAGS=$(TESTLINKTYPE)
 
 testfutime_SOURCES=testfutime.C
 testfutime_LDADD=libcxx.la
@@ -892,6 +897,7 @@ check-am: $(noinst_PROGRAMS) $(noinst_DATA)
 	./testfdclientimpl
 	./testfdlistener
 	./testfunction
+	./testhash
 	./testhttpclientauth >testhttpclientauth.tmp
 	diff $(srcdir)/testhttpclientauth.txt testhttpclientauth.tmp
 	rm -f testhttpclientauth.tmp

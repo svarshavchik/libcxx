@@ -1375,6 +1375,34 @@ class main_window : virtual private &ns;::final_class&lt;main_window&gt; {
     </para>
   </section>
 
+  <section id="refptrhash">
+    <title>Comparing &ref;s and &ptr;s</title>
+
+    <blockquote>
+      <informalexample>
+	<programlisting>
+std::map&lt;&ns;::ref&lt;myObj&gt;, int&gt; ref_map;
+
+#include &lt;&ns;/refptrhash.H&gt;
+
+std::unordered_map&lt;&ns;::ref&lt;myObj&gt;, int&gt; ref_unordered_map;</programlisting>
+      </informalexample>
+    </blockquote>
+
+    <para>
+      &ref;s and &ptr;s support comparison operators.
+      &ref; (and &ptr;s and <classname>&ns;::const_ref</classname>s
+      and <classname>&ns;::const_ref</classname>s) can be compared with
+      each other (if the types match) for equality, or strict weak ordering.
+    </para>
+
+    <para>
+      For unordered containers, use
+      <filename>refptrhash.H</filename> header file to define the
+      required specializations of <classname>std::hash</classname>.
+    </para>
+  </section>
+
   <section id="isa">
     <title><methodname>isa</methodname>()</title>
 
