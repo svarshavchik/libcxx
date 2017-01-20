@@ -5,9 +5,9 @@
 
 #include "libcxx_config.h"
 #include "x/vipobj.H"
-#include "x/vipobjdebug.H"
 #include <iostream>
 #include <cstdlib>
+#include <unistd.h>
 
 class testvip {
 
@@ -91,24 +91,6 @@ template<typename vip_t> void test4_pass()
 void test4()
 {
 	test4_pass<LIBCXX_NAMESPACE::vipobj<testvip> >();
-
-	test4_pass<LIBCXX_NAMESPACE::vipobjdebug<testvip>>();
-
-	std::cerr << "The following exception is expected:" << std::endl;
-
-	try {
-		typedef LIBCXX_NAMESPACE::vipobjdebug<std::string> pool_t;
-
-		pool_t pool;
-
-		pool_t::readlock rlock(pool);
-
-		pool_t::handlerlock hlock(pool);
-
-	} catch (const LIBCXX_NAMESPACE::exception &e)
-	{
-		std::cerr << e << std::endl;
-	}
 }
 
 void test5()

@@ -84,6 +84,17 @@ See COPYING for distribution information.
 
       <listitem>
 	<para>
+	  Removed <classname>&ns;::rwmutex</classname> and several related
+	  classes (including <classname>&ns;::rwmutexdebug</classname> and
+	  <classname>&ns;::vipobjdebug</classname> that was based on
+	  <classname>&ns;::rwmutexdebug</classname>).
+	  This functionality is supported by
+	  <classname>std::shared_mutex</classname> in C++17.
+	</para>
+      </listitem>
+
+      <listitem>
+	<para>
 	  Deprecated <classname>eventqueuemsgdispatcher</classname>,
 	  <classname>threadeventqueuemsgdispatcher</classname>, and
 	  <classname>dequemsgdispatcher</classname>.

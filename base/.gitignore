@@ -81,7 +81,6 @@
 /testrefptrtraits
 /testrun
 /testrunsingleton
-/testrwmutex
 /testsemaphore
 /testsendrecvfd
 /testserialize

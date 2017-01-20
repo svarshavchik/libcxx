@@ -58,7 +58,7 @@ std::string get_str(const xmlChar *p)
 static const size_t element_offsets_l=
 	sizeof(element_offsets)/sizeof(element_offsets[0]);
 
-impldocObj::impldocObj(xmlDocPtr pArg) : p(pArg), lock(rwlock::create())
+impldocObj::impldocObj(xmlDocPtr pArg) : p(pArg), lock(sharedlock::create())
 {
 }
 
@@ -1526,13 +1526,13 @@ class LIBCXX_HIDDEN impldocObj::writelockImplObj
 ref<docObj::readlockObj> impldocObj::readlock()
 {
 	return ref<readlockImplObj>::create(ref<impldocObj>(this),
-					    lock->readlock());
+					    lock->create_shared());
 }
 
 ref<docObj::writelockObj> impldocObj::writelock()
 {
 	return ref<writelockImplObj>::create(ref<impldocObj>(this),
-					     lock->writelock());
+					     lock->create_unique());
 }
 
 docObj::createnodeObj::createnodeObj()

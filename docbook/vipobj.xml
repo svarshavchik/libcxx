@@ -228,7 +228,7 @@ u.notify(val);</programlisting>
       and affect their access to the underlying very important object.
       It's preferrable to have the callback handlers refer to the value they
       receive as an argument; although nothing stops the callbacks from
-      instantiating and using their own 
+      instantiating and using their own
       <classname>&ns;::vipobj::writelock</classname>s and/or
       <classname>&ns;::vipobj::readlock</classname>s on the same object.
     </para>
@@ -504,14 +504,14 @@ auto callback1=hl->attach_front(my_class, []
       <listitem>
 	<para>
 	  The final template parameter specifies the type of the internal
-	  mutexes. This is used by the <link linkend="vipobjdebug">debugging
-	    class</link>.
+	  mutexes.
 	</para>
       </listitem>
     </itemizedlist>
   </section>
+
   <section id="vipobjdebug">
-    <title>Avoiding and debugging deadlocks</title>
+    <title>Avoiding deadlocks</title>
 
     <para>
       The recommended order for locking very important objects is getting
@@ -566,75 +566,8 @@ vip_t::updatelock(vip).update(vip2_value);</programlisting>
       is consistent, and is not implementation-defined.
       Avoid temporary lock objects, which are subject to reordering within their
       sequence point span.
-      Use the
-      <ulink url="&link-x--vipobjdebug;"><classname>&ns;::vipobjdebug</classname></ulink>
-      class template to isolate lock acquisition in the wrong order:
     </para>
 
-    <blockquote>
-      <informalexample>
-	<programlisting>
-typedef &ns;::vipobjdebug&lt;vipintvalue&gt; vip_t;</programlisting>
-      </informalexample>
-    </blockquote>
-
-    <para>
-      <ulink url="&link-x--vipobjdebug;"><classname>&ns;::vipobjdebug</classname></ulink>
-      derives from, and implements the same interface as
-      <ulink url="&link-x--vipobj;"><classname>&ns;::vipobj</classname></ulink>,
-      and adds additional checks that throw an exception if:
-    </para>
-
-    <itemizedlist>
-      <listitem>
-	<para>
-	  The same thread attempts to acquire a handler lock or an update lock
-	  while holding a read lock or a write lock on the same very important
-	  object.
-	</para>
-      </listitem>
-
-      <listitem>
-	<para>
-	  The same thread attempts to acquire both a read lock and a write lock,
-	  or a handler lock and an update lock on the same object. Normally this
-	  results in an immediate deadlock, which is fairly obvious; but setting
-	  the log level to the trace level gives convenient backtraces where the
-	  conflicting locks were acquired.
-	</para>
-      </listitem>
-    </itemizedlist>
-
-    <para>
-      <classname>&ns;::vipobjdebug</classname> adds significant overhead, and
-      should only be used for debugging purposes. This is just a runtime check,
-      and it's not possible to detect
-      situations where an implementation-defined compilation order results in
-      the correct locking order. This time.
-    </para>
-
-    <para>
-      When a conflicting deadlock sequence gets detected, a fatal message
-      <link linkend="logger">gets logged</link>, a backtrace gets logged at
-      the trace level, and an exception gets thrown.
-      Setting the <literal>&ns;::vipobjdebug_base::abort</literal>
-      <link linkend="properties">property</link>
-      to <literal>true</literal>
-      results in <function>abort</function>(3), and a core dump
-      instead of a thrown exception.
-    </para>
-
-    <warning>
-      <para>
-	<classname>&ns;::vipobjdebug</classname> gives unreliable results if
-	lock instances are allocated on the heap, and juggled between
-	different threads, or if <function>pthread_cancel</function>(3)
-	terminates a thread without unwinding the stack. This debugging class
-	gives accurate results only if lock instances are allocated on the
-	stack. As noted elsewhere, <function>pthread_cancel</function>(3)
-	cannot be used with &app;.
-      </para>
-    </warning>
   </section>
 
   <section id="sipobj">

@@ -180,13 +180,11 @@ libcxx_la_SOURCES=\
 	runthreadbaseobj.C	\
 	runthreadname.C		\
 	runthreadsingleton.C	\
-	rwlockobj.C		\
-	rwlockpool.C		\
-	rwmutex.C		\
-	rwmutexdebug.C		\
 	semaphore.C		\
 	serialization.C		\
 	servent.C		\
+	sharedlockobj.C		\
+	sharedlockpool.C	\
 	sighandlerobj.C		\
 	signalfdobj.C		\
 	sigset.C		\
@@ -209,7 +207,6 @@ libcxx_la_SOURCES=\
 	uuid.C			\
 	value_string.C		\
 	vectorobj.C		\
-	vipobj.C		\
 	weakinfo.C		\
 	weakref.C		\
 	wordexp.C		\
@@ -354,7 +351,6 @@ noinst_PROGRAMS=\
 	testrefptrtraits	      \
 	testrun                       \
 	testrunsingleton	      \
-	testrwmutex                   \
 	testsemaphore                 \
 	testsendrecvfd                \
 	testserialize                 \
@@ -647,10 +643,6 @@ testorderer_SOURCES=testorderer.C
 testorderer_LDADD=libcxx.la
 testorderer_LDFLAGS=$(TESTLINKTYPE)
 
-testrwmutex_SOURCES=testrwmutex.C
-testrwmutex_LDADD=libcxx.la
-testrwmutex_LDFLAGS=$(TESTLINKTYPE)
-
 testrun_SOURCES=testrun.C
 testrun_LDADD=libcxx.la
 testrun_LDFLAGS=$(TESTLINKTYPE)
@@ -771,7 +763,6 @@ noinst_DATA=$(XTEST_MO_DIR)/$(XTEST_MO_FILE)
 
 check-am: $(noinst_PROGRAMS) $(noinst_DATA)
 	./testcallbacks
-	./testrwmutex
 	./testpostponedcall
 	./testsingleton 2>testsingleton.tst.tmp >&2
 	diff $(srcdir)/testsingleton.tst testsingleton.tst.tmp

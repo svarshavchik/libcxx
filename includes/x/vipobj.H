@@ -51,15 +51,13 @@ namespace LIBCXX_NAMESPACE {
 //! \ref exception "exceptions" thrown by a callback are trapped, and logged.
 //! The optional 4th template parameter specifies the type of the underlying
 //! readers-writer mutex, and defaults to
-//! \c INSERT_LIBX_NAMESPACE::rwmutex. It's not used directly, but, rather
-//! gets sets to the debug rwmutex type by using
-//! \ref vipobjdebug "INSERT_LIBX_NAMESPACE:vipobjdebug".
+//! \c std::shared_mutex.
 
 template<typename obj_type,
 	 typename callback_arg_type=const obj_type &,
 	 bool trap_exceptions=false,
-	 typename rwmutex_type=rwmutex>
-class vipobj : public sipobj<obj_type, rwmutex_type> {
+	 typename mutex_type=std::shared_mutex>
+class vipobj : public sipobj<obj_type, mutex_type> {
 
 	//! Container for a  list of registered callbacks.
 	typedef weaklist<functionObj<void(callback_arg_type)>> callbacks_t;
@@ -71,13 +69,13 @@ class vipobj : public sipobj<obj_type, rwmutex_type> {
 	callbacks_t callbacks;
 
 	//! A lock on updates to the callback handlers
-	rwmutex_type updlock;
+	mutex_type updlock;
 
 public:
 	//! This template class instance type
 
 	typedef vipobj<obj_type, callback_arg_type, trap_exceptions,
-		       rwmutex_type> vipobj_t;
+		       mutex_type> vipobj_t;
 
 	//! The object in here
 	typedef obj_type obj_t;
@@ -88,7 +86,7 @@ public:
 	//! Constructor
 	template<typename ...Args>
 	vipobj(Args && ...args)
-		: sipobj<obj_type, rwmutex_type>(std::forward<Args>(args)...),
+		: sipobj<obj_type, mutex_type>(std::forward<Args>(args)...),
 		callbacks(callbacks_t::create())
 	{
 	}
@@ -117,7 +115,7 @@ public:
 		vipobj_t &objp;
 
 		//! A mutex lock on updatemutex
-		std::unique_lock<typename rwmutex_type::wmutex> lock;
+		std::unique_lock<mutex_type> lock;
 
 	public:
 		//! Invoke the callbacks with the updated value
@@ -150,7 +148,7 @@ public:
 
 		template<typename ...Args>
 		updatelock(vipobj_t &objpArg, Args && ...args)
-			: objp(objpArg), lock(objpArg.updlock.w,
+			: objp(objpArg), lock(objpArg.updlock,
 					      std::forward<Args>(args)...)
 		{
 		}
@@ -169,7 +167,7 @@ public:
 		void update(const obj_type &obj)
 		{
 			{
-				typename sipobj<obj_type, rwmutex_type>
+				typename sipobj<obj_type, mutex_type>
 					::writelock lock(objp);
 
 				objp.obj=obj;
@@ -193,13 +191,13 @@ public:
 		vipobj_t &objp;
 
 		//! A write lock on vipobj::handlerlock
-		std::unique_lock<typename rwmutex_type::rmutex> lock;
+		std::shared_lock<mutex_type> lock;
 
 	public:
 		//! The constructor takes a vipobj_t
 		template<typename ...Args>
 		handlerlock(vipobj_t &objpArg, Args && ...args)
-			: objp(objpArg), lock(objp.updlock.r,
+			: objp(objpArg), lock(objp.updlock,
 					      std::forward<Args>(args)...)
 		{
 		}

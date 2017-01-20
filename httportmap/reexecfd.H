@@ -10,7 +10,6 @@
 #include "x/fditer.H"
 #include "x/serialize.H"
 #include "x/deserialize.H"
-#include "x/rwlock.H"
 
 class reexec_fd {
 

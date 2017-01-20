@@ -15,7 +15,7 @@
 #include "x/cond.H"
 #include "x/threads/run.H"
 #include "x/property_properties.H"
-#include "x/rwlock.H"
+#include "x/sharedlock.H"
 #include "x/fd.H"
 #include "x/fditer.H"
 #include "x/fdtimeout.H"
@@ -726,51 +726,52 @@ void testmutex()
 	}
 }
 
-class rwlocktestinfo : virtual public LIBCXX_NAMESPACE::obj {
+class sharedlocktestinfo : virtual public LIBCXX_NAMESPACE::obj {
 
 public:
-	LIBCXX_NAMESPACE::rwlock rwl;
+	LIBCXX_NAMESPACE::sharedlock rwl;
 
 	LIBCXX_NAMESPACE::mutex globmutex;
 	LIBCXX_NAMESPACE::cond globcond;
 
 	volatile int counter;
 
-	rwlocktestinfo() noexcept;
-	~rwlocktestinfo();
+	sharedlocktestinfo() noexcept;
+	~sharedlocktestinfo();
 };
 
 class rthread : virtual public LIBCXX_NAMESPACE::obj {
 
 public:
-	void run(const LIBCXX_NAMESPACE::ref<rwlocktestinfo> &rwti);
+	void run(const LIBCXX_NAMESPACE::ref<sharedlocktestinfo> &rwti);
 };
 
 class wthread : virtual public LIBCXX_NAMESPACE::obj {
 
 public:
-	void run(const LIBCXX_NAMESPACE::ref<rwlocktestinfo> &rwti);
+	void run(const LIBCXX_NAMESPACE::ref<sharedlocktestinfo> &rwti);
 };
 
-rwlocktestinfo::rwlocktestinfo() noexcept
-: rwl(LIBCXX_NAMESPACE::rwlock::create()),
+sharedlocktestinfo::sharedlocktestinfo() noexcept
+: rwl(LIBCXX_NAMESPACE::sharedlock::create()),
 			     globmutex(LIBCXX_NAMESPACE::mutex::create()),
 			     globcond(LIBCXX_NAMESPACE::cond::create()),
 			     counter(0)
 {
 }
 
-rwlocktestinfo::~rwlocktestinfo()
+sharedlocktestinfo::~sharedlocktestinfo()
 {
 }
 
-void rthread::run(const LIBCXX_NAMESPACE::ref<rwlocktestinfo> &rwti)
+void rthread::run(const LIBCXX_NAMESPACE::ref<sharedlocktestinfo> &rwti)
 {
 	std::cout << "Starting read lock thread" << std::endl
 		  << std::flush;
 
 
-	LIBCXX_NAMESPACE::rwlock::base::rlock rlock=rwti->rwl->readlock();
+	LIBCXX_NAMESPACE::sharedlock::base::shared shared=
+		rwti->rwl->create_shared();
 
 	LIBCXX_NAMESPACE::mutex::base::mlock lock=rwti->globmutex->lock();
 
@@ -785,61 +786,65 @@ void rthread::run(const LIBCXX_NAMESPACE::ref<rwlocktestinfo> &rwti)
 		rwti->globcond->wait(lock);
 }
 
-void wthread::run(const LIBCXX_NAMESPACE::ref<rwlocktestinfo> &rwti)
+void wthread::run(const LIBCXX_NAMESPACE::ref<sharedlocktestinfo> &rwti)
 {
-		LIBCXX_NAMESPACE::rwlock::base::wlock wlock=rwti->rwl->writelock();
+	LIBCXX_NAMESPACE::sharedlock::base::unique unique=
+		rwti->rwl->create_unique();
 }
 
-static void rwlocktest()
+static void sharedlocktest()
 {
 	{
-		auto rw=LIBCXX_NAMESPACE::rwlock::create();
+		auto rw=LIBCXX_NAMESPACE::sharedlock::create();
 
-		rw->readlock();
-		rw->writelock();
-		rw->readlock();
+		rw->create_shared();
+		rw->create_unique();
+		rw->create_shared();
 
-		auto w=rw->writelock();
-
-		if (!rw->try_writelock().null())
 		{
-			throw EXCEPTION("How did rwlock get a write lock?");
+			auto w=rw->create_unique();
+
+			if (!rw->try_unique().null())
+			{
+				throw EXCEPTION("How did sharedlock get a write lock?");
+			}
+
+			if (!rw->try_unique_until(LIBCXX_NAMESPACE::timer::base::clock_t::now()
+						     + std::chrono::milliseconds(250))
+			    .null())
+			{
+				throw EXCEPTION("How did sharedlock get a write lock?");
+			}
+
+			if (!rw->try_unique_for(std::chrono::milliseconds(250))
+			    .null())
+			{
+				throw EXCEPTION("How did sharedlock get a write lock?");
+			}
+
+			if (!rw->try_shared().null())
+			{
+				throw EXCEPTION("How did sharedlock get a read lock?");
+			}
+
 		}
 
-		if (!rw->try_writelock_until(LIBCXX_NAMESPACE::timer::base::clock_t::now()
-					     + std::chrono::milliseconds(250))
-		    .null())
-		{
-			throw EXCEPTION("How did rwlock get a write lock?");
-		}
-
-		if (!rw->try_writelock_for(std::chrono::milliseconds(250))
-		    .null())
-		{
-			throw EXCEPTION("How did rwlock get a write lock?");
-		}
-
-		if (!rw->try_readlock().null())
-		{
-			throw EXCEPTION("How did rwlock get a read lock?");
-		}
-
-		if (!rw->try_readlock_until(LIBCXX_NAMESPACE::timer::base::clock_t::now()
+		if (rw->try_shared_until(LIBCXX_NAMESPACE::timer::base::clock_t::now()
 					    + std::chrono::milliseconds(250)).null())
 		{
-			throw EXCEPTION("How did rwlock get a read lock?");
+			throw EXCEPTION("sharedlock did not get a read lock?");
 		}
 
-		if (!rw->try_readlock_for(std::chrono::milliseconds(250)).null())
+		if (rw->try_shared_for(std::chrono::milliseconds(250)).null())
 		{
-			throw EXCEPTION("How did rwlock get a read lock?");
+			throw EXCEPTION("sharedlock did not get a read lock?");
 		}
 
 	}
 
 	std::cout << "Starting two threads" << std::endl;
 
-	auto rwti=LIBCXX_NAMESPACE::ref<rwlocktestinfo>::create();
+	auto rwti=LIBCXX_NAMESPACE::ref<sharedlocktestinfo>::create();
 
 	auto r1=LIBCXX_NAMESPACE::ref<rthread>::create(),
 		r2=LIBCXX_NAMESPACE::ref<rthread>::create();
@@ -2630,7 +2635,7 @@ int main()
 	fdtest2();
 	dirtest();
 	testmutex();
-	rwlocktest();
+	sharedlocktest();
 	testepoll();
 	alarm(0);
 	testnet();

@@ -10,20 +10,11 @@ See COPYING for distribution information.
 
   <section id="threadsintro">
     <title>Introduction</title>
-    <para>
-      &app; adds
-      <ulink url="&link-x--rwmutex;"><classname>&ns;::rwmutex</classname></ulink>
-      to supplement <classname>std::rwmutex</classname> and
-      <classname>std::condition_variable</classname> from the C++ library.
-      This is a lightweight readers/writer design pattern implemented
-      as a pair of <literal>TimedLockable</literal> classes, with appropriate
-      semantics.
-    </para>
 
     <para>
       <ulink url="&link-typedef-x-mutex;"><classname>&ns;::mutex</classname></ulink>,
       <ulink url="&link-typedef-x-cond;"><classname>&ns;::cond</classname></ulink>, and
-      <ulink url="&link-typedef-x-rwlock;"><classname>&ns;::rwlock</classname></ulink>,
+      <ulink url="&link-typedef-x-sharedlock;"><classname>&ns;::sharedlock</classname></ulink>,
       are full fledged
       <link linkend="refobj">reference-counted objects</link> that implement
       similar semantics as their C++ library equivalent, except that they are
@@ -31,7 +22,7 @@ See COPYING for distribution information.
       gets released when the thread that holds the last reference to a lock
       goes out of scope, which may not necessarily be the same thread that
       acquired the lock. The read-write lock is a reference-counted wrapper for
-      <classname>&ns;::rwmutex</classname>.
+      <classname>std::shared_mutex</classname>.
     </para>
 
     <para>
@@ -58,7 +49,7 @@ See COPYING for distribution information.
       The next step up is the <classname>&ns;::sipobj</classname> template
       that defines <quote><link linkend="sipobj">somewhat important
 	  objects</link></quote>, which demand proper locking rights from a
-      <classname>&ns;::rwmutex</classname>, providing two levels of access to
+      <classname>std::shared_mutex</classname>, providing two levels of access to
       the underlying objects.
       Finally, the <classname>&ns;::vipobj</classname> template defines
       <quote><link linkend="vipobj">very important objects</link></quote>,
@@ -155,131 +146,6 @@ typedef &ns;::mpcobj&lt;messages_t&gt;::lock lock_t;
       the <classname>&ns;::mpcobj</classname>
       template overrides <classname>std::mutex</classname> as the
       underlying mutex type.
-    </para>
-  </section>
-
-  <section id="rwmutex">
-    <title>Readers/writer mutex pairs</title>
-
-    <blockquote>
-      <informalexample>
-	<programlisting>
-#include &lt;&ns;/rwmutex.H&gt;
-
-&ns;::rwmutex rw;
-
-// ...
-
-std::lock_guard&lt;&ns;::rwmutex::rmutex&gt; lock(rw.r);
-
-// ...
-
-std::lock_guard&lt;&ns;::rwmutex::wmutex&gt; lock(rw.w);
-
-</programlisting>
-      </informalexample>
-    </blockquote>
-
-    <para>
-      <ulink url="&link-x--rwmutex;"><classname>&ns;::rwmutex</classname></ulink>
-      is a class that instantiates two members, <varname>r</varname> and
-      <varname>w</varname>, their types are
-      <classname>&ns;::rwmutex::rmutex</classname> and
-      <classname>&ns;::rwmutex::wmutex</classname>.
-    </para>
-
-    <para>
-      <classname>&ns;::rwmutex::rmutex</classname> and
-      <classname>&ns;::rwmutex::wmutex</classname> implement
-      <literal>TimedLockable</literal>, and can be used together with the
-      C++ library's locking objects, like
-      <classname>std::lock_guard</classname> and
-      <classname>std::unique_lock</classname>, with the following semantics.
-    </para>
-
-    <itemizedlist>
-      <listitem>
-	<para>
-	  An execution thread can own <varname>r</varname> as long as no
-	  execution thread owns the corresponding <varname>w</varname>.
-	  Multiple threads can own the same <varname>r</varname> as long as
-	  no execution thread owns <varname>w</varname>.
-	</para>
-      </listitem>
-
-      <listitem>
-	<para>
-	  An execution thread can own <varname>w</varname> as long as
-	  no execution thread owns the corresponding <varname>r</varname>
-	  and no other thread owns <varname>w</varname>.
-	  When an execution thread owns <varname>w</varname>, no other thread
-	  can own <varname>w</varname> or the corresponding
-	  <varname>r</varname>.
-	</para>
-      </listitem>
-
-      <listitem>
-	<para>
-	  In all other situations, the locking attempt blocks until the
-	  required condition is met.
-	</para>
-      </listitem>
-    </itemizedlist>
-
-    <note>
-      <para>
-	An execution thread can own a read mutex or a write mutex, but not both.
-	That's intrinsic to the above definition. What's less obvious is that
-	an execution thread cannot attempt to own a read mutex if it already
-	owns it. Just because a thread owns a read mutex doesn't mean that
-	it can grab another read mutex.
-      </para>
-
-      <para>
-	This is because, in order to prevent starvation, an attempt to acquire
-	a write mutex blocks any future read mutex acquisitions, even if there
-	are existing read mutex owners. If a thread owns a read mutex, and
-	there's a waiting write mutex attempt, an attempt to acquire a second
-	read mutex blocks, and because the same thread also has an existing
-	lock on the read mutex, it deadlocks with the thread that's trying to
-	lock the write mutex.
-      </para>
-
-      <para>
-	Most of the time, the second read lock will succeed. Until you win
-	the lottery, and get yourself deadlocked.
-      </para>
-    </note>
-
-    <blockquote>
-      <informalexample>
-	<programlisting>
-#include &lt;&ns;/rwmutexdebug.H&gt;
-
-#define rwmutex rwmutexdebug</programlisting>
-      </informalexample>
-    </blockquote>
-
-    <para>
-      <ulink url="&link-x--rwmutexdebug;"><classname>&ns;::rwmutexdebug</classname></ulink>
-      has the same API as <classname>&ns;::rwmutexdebug</classname>, except that
-      it manually tracks all threads and throws an exception if the same
-      thread tries to grab more than one lock.
-    </para>
-
-    <para>
-      It should be sufficient to just <literal>#define</literal> it,
-      on as-needed basis (but only after <literal>#include</literal>-ing the
-      real class definition, of course). Better yet: use an intermediate
-      <literal>typedef</literal> that can be switched easily.
-    </para>
-
-    <para>
-      The debug class is slow, it should only be used as a
-      temporary debugging measure, to nail down bad locking.
-      Once a bad lock gets detected, a backtrace gets dumped to standard error,
-      and an <link linkend="exceptions">exception gets thrown</link>,
-      for good measure.
     </para>
   </section>
 
@@ -430,20 +296,20 @@ c-&gt;notify_all();</programlisting>
     </para>
   </section>
 
-  <section id="rwlock">
-    <title>Readers-writer lock objects</title>
+  <section id="sharedlock">
+    <title>Shared lock objects</title>
 
     <blockquote>
       <informalexample>
 	<programlisting>
-#include &lt;&ns;/rwlock.H&gt;
+#include &lt;&ns;/sharedlock.H&gt;
 
-&ns;::rwlock lock=&ns;::rwlock::create();
+&ns;::sharedlock lock=&ns;::sharedlock::create();
 
 // ...
 
 {
-  &ns;::rwlock::base::rlock rlock=lock->readlock();
+  &ns;::sharedlock::base::shared shared=lock->create_shared();
 
 
 }
@@ -451,7 +317,7 @@ c-&gt;notify_all();</programlisting>
 // ...
 
 {
-  &ns;::rwlock::base::wlock wlock=lock->writelock();
+  &ns;::sharedlock::base::unique unique=lock->create_unique();
 
 
 }</programlisting>
@@ -459,31 +325,32 @@ c-&gt;notify_all();</programlisting>
     </blockquote>
 
     <para>
-      <ulink url="&link-typedef-x-rwlock;"><classname>&ns;::rwlock</classname></ulink>
+      <ulink url="&link-typedef-x-sharedlock;"><classname>&ns;::sharedlock</classname></ulink>
       is mostly a
       <link linkend="refobj">reference-counted</link>
       version of
-      <link linkend="rwmutex">&ns;::rwmutex</link> that also uses
+      <classname>std::shared_timed_mutex</classname> that also uses
       reference-counted lock objects.
-      Its <function>readlock</function>() acquires a lock on the underlying
-      <varname>r</varname> object,
-      and <function>writelock</function>() acquires a lock on the underlying
-      <varname>w</varname> object.
+      This class uses the terminology of "read lock" and "write lock",
+      instead of "shared lock" and "unique lock"
+      Its <function>create_shared</function>() acquires a shared lock
+      on the underlying object,
+      and <function>create_unique</function>() acquires a unique (exclusive)
+      lock on the underlying object.
       The underlying locks are also reference-counted objects, that can
       be freely passed around. The locks are released when the last reference
       to a lock object goes out of scope and an object gets destroyed.
-      <classname><classname>&ns;::rwlock</classname></classname> implements
-      <function>try_readlock</function>() and
-      <function>try_writelock</function>() which are analogous to a
-      <link linkend="mutex">mutex's <function>try_lock</function>()</link>,
-      in a read lock's or a write lock's case.
+      <classname><classname>&ns;::sharedlock</classname></classname> implements
+      <function>try_shared</function>() and
+      <function>try_unique</function>() which are analogous to a
+      <link linkend="mutex">mutex's <function>try_lock</function>()</link>.
     </para>
 
     <para>
-      <function>try_readlock_until</function>(),
-      <function>try_readlock_for</function>(),
-      <function>try_writelock_until</function>(), and
-      <function>try_writelock_for</function>() also return a nullable
+      <function>try_shared_until</function>(),
+      <function>try_shared_for</function>(),
+      <function>try_unique_until</function>(), and
+      <function>try_unique_for</function>() also return a nullable
       reference pointer to the acquired lock, which is null if the lock
       cannot be acquired.
     </para>

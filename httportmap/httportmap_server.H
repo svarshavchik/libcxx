@@ -16,7 +16,7 @@
 #include "x/fdlistener.H"
 #include "x/pwd.H"
 #include "x/uuid.H"
-#include "x/rwlock.H"
+#include "x/sharedlock.H"
 #include "x/threads/run.H"
 #include "reexecfd.H"
 
@@ -82,10 +82,10 @@ public:
 	static void parse_pid2exeproc_response(pid2exe_proc_t::lock &lock,
 					       std::string &start_time,
 					       std::string &exename);
-					
+
 	// Lock used during reexec to hold processing of all requests.
-	LIBCXX_NAMESPACE::rwlock request_lock;
-				
+	LIBCXX_NAMESPACE::sharedlock request_lock;
+
 	httportmap_server(const std::string &sockname,
 			  const std::string &portmapdatadir,
 			  int httpport,

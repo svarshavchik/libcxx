@@ -7,8 +7,9 @@
 #define x_sipobj_H
 
 #include <x/namespace.h>
-#include <x/rwmutex.H>
 #include <x/errors.H>
+
+#include <shared_mutex>
 
 namespace LIBCXX_NAMESPACE {
 
@@ -23,7 +24,7 @@ namespace LIBCXX_NAMESPACE {
 //!
 //! See also: \ref vipobj "Very Important object".
 
-template<typename obj_type, typename rwmutex_type=rwmutex>
+template<typename obj_type, typename mutex_type=std::shared_mutex>
 class sipobj {
 
 protected:
@@ -31,14 +32,14 @@ protected:
 	//! The somewhat important object
 	obj_type obj;
 
-	//! A rwmutex the somewhat important object
-	rwmutex_type objlock;
+	//! A mutex for the somewhat important object
+	mutex_type objlock;
 
 public:
 
 	//! This template class instance type
 
-	typedef sipobj<obj_type, rwmutex_type> sipobj_t;
+	typedef sipobj<obj_type, mutex_type> sipobj_t;
 
 	//! Constructor
 	template<typename ...Args>
@@ -67,12 +68,12 @@ public:
 		sipobj_t &objp;
 
 		//! An read lock on sipobj::objlock
-		std::unique_lock<typename rwmutex_type::rmutex> lock;
+		std::shared_lock<mutex_type> lock;
 
 	public:
 		//! The constructor takes a sipobj_t
 		readlock(sipobj_t &objpArg) : objp(objpArg),
-					      lock(objp.objlock.r)
+					      lock(objp.objlock)
 		{
 		}
 
@@ -80,7 +81,7 @@ public:
 
 		readlock(sipobj_t &objpArg, std::try_to_lock_t arg)
 			: objp(objpArg),
-			  lock(objp.objlock.r, arg)
+			  lock(objp.objlock, arg)
 		{
 		}
 
@@ -89,7 +90,7 @@ public:
 		template <class Clock, class Duration>
 		readlock(sipobj_t &objpArg,
 			 const std::chrono::time_point<Clock, Duration> &t)
-			: objp(objpArg), lock(objp.objlock.r, t)
+			: objp(objpArg), lock(objp.objlock, t)
 		{
 		}
 
@@ -98,7 +99,7 @@ public:
 		template <class Rep, class Period>
 		readlock(sipobj_t &objpArg,
 			 const std::chrono::duration<Rep, Period> &t)
-			: objp(objpArg), lock(objp.objlock.r, t)
+			: objp(objpArg), lock(objp.objlock, t)
 		{
 		}
 
@@ -147,13 +148,13 @@ public:
 		sipobj_t &objp;
 
 		//! A write lock on sipobj::objlock
-		std::unique_lock<typename rwmutex_type::wmutex> lock;
+		std::unique_lock<mutex_type> lock;
 
 	public:
 		//! The constructor takes a sipobj_t
 
 		writelock(sipobj_t &objpArg) : objp(objpArg),
-					       lock(objp.objlock.w)
+					       lock(objp.objlock)
 		{
 		}
 
@@ -161,7 +162,7 @@ public:
 
 		writelock(sipobj_t &objpArg, std::try_to_lock_t arg)
 			: objp(objpArg),
-			  lock(objp.objlock.w, arg)
+			  lock(objp.objlock, arg)
 		{
 		}
 
@@ -170,7 +171,7 @@ public:
 		template <class Clock, class Duration>
 		writelock(sipobj_t &objpArg,
 			 const std::chrono::time_point<Clock, Duration> &t)
-			: objp(objpArg), lock(objp.objlock.w, t)
+			: objp(objpArg), lock(objp.objlock, t)
 		{
 		}
 
@@ -179,7 +180,7 @@ public:
 		template <class Rep, class Period>
 		writelock(sipobj_t &objpArg,
 			 const std::chrono::duration<Rep, Period> &t)
-			: objp(objpArg), lock(objp.objlock.w, t)
+			: objp(objpArg), lock(objp.objlock, t)
 		{
 		}
 

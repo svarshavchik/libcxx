@@ -443,8 +443,8 @@ httpserverimpl::svclistiter &httpserverimpl::svclistiter::operator++()
 void httpserverimpl::received(const LIBCXX_NAMESPACE::http::requestimpl &req,
 			      bool bodyflag)
 {
-	LIBCXX_NAMESPACE::rwlock::base::rlock
-		lock=portmap.request_lock->readlock();
+	LIBCXX_NAMESPACE::sharedlock::base::shared
+		lock=portmap.request_lock->create_shared();
 
 	std::string lastcomponent;
 	bool external=false;

@@ -770,9 +770,9 @@ bool portmap_server::handle_client_line(clientinfoObj &cl,
 
 
 			{
-				LIBCXX_NAMESPACE::rwlock::base::wlock
-					wlock=portmap.request_lock
-					->writelock();
+				LIBCXX_NAMESPACE::sharedlock::base::unique
+					unique=portmap.request_lock
+					->create_unique();
 
 				portmap.intern_priv_listener->stop();
 				portmap.intern_listener->stop();

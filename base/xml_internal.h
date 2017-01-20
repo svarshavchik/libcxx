@@ -9,7 +9,7 @@
 #include "x/xml/dtd.H"
 #include "x/xml/newdtd.H"
 #include "x/logger.H"
-#include "x/rwlock.H"
+#include "x/sharedlock.H"
 
 namespace LIBCXX_NAMESPACE {
 	namespace xml {
@@ -76,7 +76,7 @@ class LIBCXX_HIDDEN impldocObj : public docObj {
 
 	xmlDocPtr p; // The libXML document.
 
-	rwlock lock; // Readers/writer lock object
+	sharedlock lock; // Readers/writer lock object
 
 	// Constructor
 	impldocObj(xmlDocPtr pArg);

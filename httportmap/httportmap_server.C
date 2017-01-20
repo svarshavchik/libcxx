@@ -261,7 +261,7 @@ httportmap_server::httportmap_server(const std::string &sockname,
 
 	: portmapdatadir(portmapdatadirArg),
 	  pid2exe_proc(pid2exe_thread()),
-	  request_lock(LIBCXX_NAMESPACE::rwlock::create())
+	  request_lock(LIBCXX_NAMESPACE::sharedlock::create())
 {
 	if (daemonize)
 	{
@@ -377,8 +377,8 @@ void httportmap_server::startup(const std::string &sockname,
 				<< std::endl
 				<< std::flush;
 
-			LIBCXX_NAMESPACE::rwlock::base::wlock
-				wlock=request_lock->writelock();
+			LIBCXX_NAMESPACE::sharedlock::base::unique
+				unique=request_lock->create_unique();
 
 			LIBCXX_NAMESPACE::destroy_callback flag=
 				LIBCXX_NAMESPACE::destroy_callback::create();

@@ -177,7 +177,7 @@ sharedpool_t::lockentry rlock(sharedpool->addLockSet(sharedpool_t::create_unique
       <ulink url="&link-typedef-x-sharedpool;"><classname>&ns;::sharedpool</classname></ulink>
       is a specialization of a <link linkend="lockpool">lock pool</link>
       that implements the semantics of
-      <link linkend="rwmutex"><classname>&ns;::rwmutex</classname></link>.
+      <classname>std::shared_mutex</classname>.
       The single template parameter specifies the
       <link linkend="lockstarvation">lock starvation</link> option.
       In this specialization, the default

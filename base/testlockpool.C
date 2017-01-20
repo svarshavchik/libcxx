@@ -163,45 +163,45 @@ void testlockpoolset()
 template<bool starve>
 void testrwpoolset()
 {
-	typedef typename LIBCXX_NAMESPACE::rwlockpool<starve> rwpool_t;
+	typedef typename LIBCXX_NAMESPACE::sharedpool<starve> rwpool_t;
 
 	rwpool_t rwpool(rwpool_t::create());
 
 	typename rwpool_t::base::lockentryptr lock1=
-		rwpool->addLockSet(rwpool_t::base::readlock, LIBCXX_NAMESPACE::eventfd::create());
+		rwpool->addLockSet(rwpool_t::base::sharedlock, LIBCXX_NAMESPACE::eventfd::create());
 
-	std::cout << "readlock: readlock1: " << lock1->locked()
+	std::cout << "sharedlock: sharedlock1: " << lock1->locked()
 		  << std::endl;
 
 	typename rwpool_t::base::lockentryptr lock2=
-		rwpool->addLockSet(rwpool_t::base::writelock, LIBCXX_NAMESPACE::eventfd::create());
+		rwpool->addLockSet(rwpool_t::base::uniquelock, LIBCXX_NAMESPACE::eventfd::create());
 
-	std::cout << "readlock: writelock2: " << lock2->locked()
+	std::cout << "sharedlock: uniquelock2: " << lock2->locked()
 		  << std::endl;
 
 	typename rwpool_t::base::lockentryptr lock3=
-		rwpool->addLockSet(rwpool_t::base::readlock, LIBCXX_NAMESPACE::eventfd::create());
+		rwpool->addLockSet(rwpool_t::base::sharedlock, LIBCXX_NAMESPACE::eventfd::create());
 
-	std::cout << "readlock: readlock3: " << lock3->locked()
+	std::cout << "sharedlock: sharedlock3: " << lock3->locked()
 		  << std::endl;
 
 	lock1=typename rwpool_t::base::lockentryptr();
 
-	std::cout << "readlock: writelock2: " << lock2->locked()
+	std::cout << "sharedlock: uniquelock2: " << lock2->locked()
 		  << std::endl;
-	std::cout << "readlock: readlock3: " << lock3->locked()
+	std::cout << "sharedlock: sharedlock3: " << lock3->locked()
 		  << std::endl;
 
 	if (!lock3->locked())
 	{
 		lock2=typename rwpool_t::base::lockentryptr();
-		std::cout << "readlock: readlock3: " << lock3->locked()
+		std::cout << "sharedlock: sharedlock3: " << lock3->locked()
 			  << std::endl;
 	}
 	else
 	{
 		lock3=typename rwpool_t::base::lockentryptr();
-		std::cout << "readlock: writelock2: " << lock2->locked()
+		std::cout << "sharedlock: uniquelock2: " << lock2->locked()
 			  << std::endl;
 	}
 }
@@ -241,7 +241,7 @@ void testlockpoolstress()
 {
 	std::list<std::future<void> > futures;
 
-	typedef LIBCXX_NAMESPACE::rwlockpool<> pool_t;
+	typedef LIBCXX_NAMESPACE::sharedpool<> pool_t;
 
 	pool_t pool=pool_t::create();
 
@@ -253,7 +253,7 @@ void testlockpoolstress()
 			  {
 				  for (size_t j=0; j<50; ++j)
 				  {
-					  auto w=pool->addLockSet(pool_t::base::writelock,
+					  auto w=pool->addLockSet(pool_t::base::uniquelock,
 									LIBCXX_NAMESPACE::eventfd::create());
 					  while (!w->locked())
 						  w->getNotifyEvent()->event();
@@ -269,7 +269,7 @@ void testlockpoolstress()
 			  {
 				  for (size_t j=0; j<50; ++j)
 				  {
-					  auto w=pool->addLockSet(pool_t::base::readlock,
+					  auto w=pool->addLockSet(pool_t::base::sharedlock,
 								  LIBCXX_NAMESPACE::eventfd::create());
 					  while (!w->locked())
 						  w->getNotifyEvent()->event();
@@ -284,7 +284,7 @@ void testlockpoolstress()
 	}
 }
 
-					  
+
 int main(int argc, char **argv)
 {
 	alarm(120);
@@ -306,7 +306,7 @@ int main(int argc, char **argv)
 		testrwpoolset<true>();
 
 		{
-			typedef LIBCXX_NAMESPACE::rwlockpool<> rwpool_t;
+			typedef LIBCXX_NAMESPACE::sharedpool<> rwpool_t;
 
 			rwpool_t dummy(rwpool_t::create());
 		}

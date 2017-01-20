@@ -364,22 +364,22 @@ public:
 			 starve> lockpool_t;
 };
 
-//! Define the \c rwpool::readlock and \c rwpool::writelock identifiers
+//! Define the \c sharedpool::sharedlock and \c sharedpool::uniquelock identifiers
 
-class rwpool_base {
+class sharedpool_base {
 
 public:
-	//! A read or a write lock
+	//! A shared or a unique lock.
 
 	typedef enum {
-		readlock, //!< A read lock
-		writelock //!< A write lock
+		sharedlock, //!< A shared lock
+		uniquelock //!< A unique lock
 	} lock_t;
 };
 
-//! The traits class for a read/write lock pool
+//! The traits class for a shared lock pool
 
-class rwpool_traits : public rwpool_base {
+class sharedpool_traits : public sharedpool_base {
 
 public:
 
@@ -387,13 +387,13 @@ public:
 
 	struct container_t {
 
-		//! Number of read locks acquired
+		//! Number of shared locks acquired
 
-		ssize_t readlockcnt;
+		ssize_t sharedlockcnt;
 
-		//! A write lock is acquired
+		//! A unique lock is acquired
 
-		bool writelockflag;
+		bool uniquelockflag;
 
 		//! Constructor
 		container_t() noexcept;
@@ -419,71 +419,71 @@ public:
 				container_t &s) noexcept;
 };
 
-template<bool starve> class rwlockpoolBase;
+template<bool starve> class sharedpoolBase;
 
-//! A read/write lock pool
+//! A shared lock pool
 
 //! This is a specialization of
-//! \ref lockpool "lockpool" that implements read/write locks.
-//! The read/write lock has the same semantics as rwlock,
+//! \ref lockpool "lockpool" that implements shared locks.
+//! The shared lock has the same semantics as shared,
 //! except that the locking operation
 //! carries lockpool semantics: it's always nonblocking, and an event file
 //! descriptor signals lock acquisition.
 //!
 //! \code
-//! typedef rwlockpool<> rwpool_t;
+//! typedef sharedpool<> sharedpool_t;
 //!
-//! rwpool_t rwlockpool(rwpool_t::create());
+//! sharedpool_t sharedpool(sharedpool_t::create());
 //!
-//! rwpool_t::lockentry rlock(rwlockpool->addLockSet(rwpool_t::base::readlock,
+//! sharedpool_t::lockentry rlock(sharedpool->addLockSet(sharedpool_t::base::sharedlock,
 //!                                                  eventfd::create());
 //!
-//! rwpool_t::lockentry rlock(rwlockpool->addLockSet(rwpool_t::base::writelock,
+//! sharedpool_t::lockentry rlock(sharedpool->addLockSet(sharedpool_t::base::uniquelock,
 //!                                                  eventfd::create());
 //! \endcode
 //!
-//! The rwlockpool template
+//! The sharedpool template
 //! defines a reference to a reference-counted lock pool type.
-//! rwlockpool takes one template parameter, a bool flag, that sets the
-//! \c starve flag of the underlying rwlockpool implementation. The default
-//! \c starve flag is \c false. As soon as a write lock is placed on a
-//! a waiting list for locking, any additional read lock attempts are queued
-//! up behind it, until all existing read locks go out of scope, and the
-//! write lock is acquired. Specifying \c starve as true means that new
-//! read locks always get acquired as long as there's one or more existing
-//! locks in the lock pool, and pending write locks starve until all
-//! read locks go out of scope.
+//! sharedpool takes one template parameter, a bool flag, that sets the
+//! \c starve flag of the underlying sharedpool implementation. The default
+//! \c starve flag is \c false. As soon as a unique lock is placed on a
+//! a waiting list for locking, any additional shared lock attempts are queued
+//! up behind it, until all existing shared locks go out of scope, and the
+//! unique lock is acquired. Specifying \c starve as true means that new
+//! shared locks always get acquired as long as there's one or more existing
+//! locks in the lock pool, and pending unique locks starve until all
+//! shared locks go out of scope.
 //!
 //! \note
 //! This is a template alias for a \ref ref "ref" to an lockpoolObj.
 
 template<bool starve=false>
-using rwlockpool=ref<lockpoolObj<rwpool_traits::lock_t,
-				 std::less<rwpool_traits::lock_t>,
-				 rwpool_traits, starve>,
-		     rwlockpoolBase<starve> >;
+using sharedpool=ref<lockpoolObj<sharedpool_traits::lock_t,
+				 std::less<sharedpool_traits::lock_t>,
+				 sharedpool_traits, starve>,
+		     sharedpoolBase<starve> >;
 
-//! A nullable reference pointer to a read/write lock pool.
+//! A nullable reference pointer to a shared lock pool.
 
-//! \see rwlockpool
+//! \see sharedpool
 
 template<bool starve=false>
-using rwlockpoolptr=ptr<lockpoolObj<rwpool_traits::lock_t,
-				    std::less<rwpool_traits::lock_t>,
-				    rwpool_traits, starve>,
-			rwlockpoolBase<starve> >;
+using sharedpoolptr=ptr<lockpoolObj<sharedpool_traits::lock_t,
+				    std::less<sharedpool_traits::lock_t>,
+				    sharedpool_traits, starve>,
+			sharedpoolBase<starve> >;
 
-//! \c rwlockpool<bool>::base and \c rwlockpoolptr<bool>::base
+//! \c sharedpool<bool>::base and \c sharedpoolptr<bool>::base
 
 //! \see lockpool
 //!
 
 template<bool starve>
-class rwlockpoolBase :
-	public lockpoolBase<rwpool_traits::lock_t,
-			    std::less<rwpool_traits::lock_t>,
-			    rwpool_traits, starve>,
-	public rwpool_base {
+class sharedpoolBase :
+	public lockpoolBase<sharedpool_traits::lock_t,
+			    std::less<sharedpool_traits::lock_t>,
+			    sharedpool_traits, starve>,
+	public sharedpool_base {
 };
 
 //! The traits class that implements the mutually-exclusive locking strategy.
@@ -636,13 +636,13 @@ extern template class lockpoolObj<bool, std::less<bool>,
 				  mutexpool_traits<bool, std::less<bool>, false>,
 				  false>;
 
-extern template class lockpoolObj<rwpool_traits::lock_t,
-				  std::less<rwpool_traits::lock_t>,
-				  rwpool_traits, true>;
+extern template class lockpoolObj<sharedpool_traits::lock_t,
+				  std::less<sharedpool_traits::lock_t>,
+				  sharedpool_traits, true>;
 
-extern template class lockpoolObj<rwpool_traits::lock_t,
-				  std::less<rwpool_traits::lock_t>,
-				  rwpool_traits, false>;
+extern template class lockpoolObj<sharedpool_traits::lock_t,
+				  std::less<sharedpool_traits::lock_t>,
+				  sharedpool_traits, false>;
 
 #if 0
 {
