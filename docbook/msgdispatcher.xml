@@ -99,7 +99,7 @@ See COPYING for distribution information.
 #include &lt;&ns;/obj.H&gt;
 #include &lt;&ns;/logger.H&gt;
 
-class myClassObj : public &ns;::threadmsgdispatcherObj {
+class myThreadObj : public &ns;::threadmsgdispatcherObj {
 
     LOG_CLASS_SCOPE;
 
@@ -110,9 +110,9 @@ class myClassObj : public &ns;::threadmsgdispatcherObj {
 
 public:
 
-    myClassObj()=default;
+    myThreadObj()=default;
 
-    ~myClassObj()=default;
+    ~myThreadObj()=default;
 
     void statusinquiry(bool format);
 
@@ -129,9 +129,9 @@ public:
     }
 };
 
-LOG_CLASS_INIT(myClassObj);
+LOG_CLASS_INIT(myThreadObj);
 
-typedef &ns;::ref&lt;myClassObj&gt; myClass;</programlisting>
+typedef &ns;::ref&lt;myThreadObj&gt; myClass;</programlisting>
     </informalexample>
   </blockquote>
 
@@ -151,13 +151,13 @@ typedef &ns;::ref&lt;myClassObj&gt; myClass;</programlisting>
         <programlisting>
     void statusinquiry(bool format)
     {
-        this->sendevent(&amp;myClassObj::dispatch_statusinquiry,
+        this->sendevent(&amp;myThreadObj::dispatch_statusinquiry,
                         this, format);
     }
 
     void refresh(const std::string &amp;name)
     {
-        this->sendevent(&amp;myClassObj::dispatch_refresh
+        this->sendevent(&amp;myThreadObj::dispatch_refresh
                         this, name);
     }
 </programlisting>
@@ -418,7 +418,7 @@ auto clinstance = myClass::create();
 
 // ......
 
-void myClassObj::run(&ns;::ptr&lt;&ns;::obj&gt; &amp;threadmsgdispatcher_mcguffin
+void myThreadObj::run(&ns;::ptr&lt;&ns;::obj&gt; &amp;threadmsgdispatcher_mcguffin
                      msgqueue_obj &amp;queue_arg)
     {
         msgqueue_auto msgqueue=*queue_arg;
@@ -495,6 +495,111 @@ if (!msgqueue.null())
 	<methodname>get_msgqueue</methodname>() returns a null
 	<classname>&ns;::ptr</classname> if the message queue does not
 	exist because the execution thread is not running.
+      </para>
+    </section>
+
+    <section id="msgdispatcherauxqueue">
+      <title>Auxiliary message queues</title>
+
+      <para>
+	A message-based thread class can have one or more auxiliary message
+	queues. This is done by declaring a
+	<classname>active_queue_t</classname> class name, and adding
+	an additional <classname>msgqueue_auto</classname> declaration to the
+	thread's <methodname>run</methodname>() method.
+      </para>
+
+      <blockquote>
+	<informalexample>
+	  <programlisting>
+class myThreadObj : public &ns;::threadmsgdispatcherObj {
+
+    LOG_CLASS_SCOPE;
+
+    // ...
+
+    active_queue_t second_queue;
+
+public:
+
+    // ...
+};
+
+
+void myThreadObj::run(&ns;::ptr&lt;&ns;::obj&gt; &amp;threadmsgdispatcher_mcguffin)
+{
+    msgqueue_auto msgqueue(this);
+    msgqueue_auto msgqueue(this, second_queue);
+
+    threadmsgdispatcher_mcguffin=nullptr;
+
+    // ...
+}</programlisting>
+	</informalexample>
+      </blockquote>
+
+      <para>
+	The first <classname>msgqueue_auto</classname> declaration constructs
+	the main message dispatching queue, as usual. The second declaration
+	constructs the auxiliary message queue. This should be done before
+	<link linkend="msgdispatcherrun">releasing the startup mcguffin</link>.
+	The resulting auxiliary message queue has the same lifetime scope and
+	semantics as the main thread message dispatching queue:
+      </para>
+
+      <itemizedlist>
+	<listitem>
+	  <para>
+	    The auxiliary queue exists as long as the execution thread is
+	    running, and gets destroyed when the execution thread stops.
+	  </para>
+	</listitem>
+
+	<listitem>
+	  <para>
+	    Any unprocessed messages in the auxiliary queue get destroyed
+	    when the auxiliary queue goes out of scope and gets destroyed.
+	  </para>
+	</listitem>
+      </itemizedlist>
+
+      <blockquote>
+	<informalexample>
+	  <programlisting>
+void myThreadObj::queue_notify(int flag)
+{
+     this->sendeventaux(second_queue, &amp;myThreadObj::dispatch_statusinquiry,
+                        this, format);
+}
+
+void myThreadObj::process_notifications()
+{
+     this->process_events(second_queue);
+}</programlisting>
+	</informalexample>
+      </blockquote>
+
+      <para>
+	<methodname>sendeventaux</methodname>()'s first parameter is an
+	auxiliary message queue, the remaining parameters are
+	<link linkend="msgdispatchersendevent">the same as
+	  <methodname>sendevent</methodname>()'s</link>.
+	The resulting message does not immediately get processed by the
+	execution thread. It gets added to the auxiliary queue.
+      </para>
+
+      <para>
+	<methodname>process_events</methodname>() takes any and all
+	messages on the auxiliary queue, and moves them to the main
+	message dispatching queue. The execution thread, if it's running
+	should then proceed and immediately dispatch the messages.
+      </para>
+
+      <para>
+	If the execution thread is not running,
+	<methodname>sendeventaux</methodname>() and
+	<methodname>process_events</methodname>() return without taking
+	any actions.
       </para>
     </section>
   </section>

@@ -24,7 +24,7 @@ class eventqueueObj;
 //! \code
 //! typedef eventqueue<myClass> queue_t;
 //!
-//! queue_t q(queue_t::create(myEventFd));
+//! queue_t q{queue_t::create(myEventFd)};
 //!
 //! q->event(myClassInstance);
 //!
@@ -52,6 +52,17 @@ class eventqueueObj;
 //! be passed directly to the
 //! \link eventfactoryObj::registerHandler() registerHandler() \endlink
 //! method.
+//!
+//! \code
+//! queue_t qq{queue_t::create()};
+//!
+//! q->transfer_events(qq);
+//! \endcode
+//!
+//! transfer_events() transfers any unprocessed events from another queue
+//! into this queue.
+//!
+//! This acquires an internal lock on the other queue first, then this queue.
 
 template<typename argType>
 using eventqueue=ref< eventqueueObj<argType> >;

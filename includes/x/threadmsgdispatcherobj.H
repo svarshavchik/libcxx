@@ -165,6 +165,67 @@ namespace LIBCXX_NAMESPACE {
 //! \c threadmsgdispatcherObj also inherits from \ref runthreadsingleton,
 //! limiting it to one execution thread per object, because the execution
 //! thread retains ownership of the message event queue.
+//!
+//! \par Auxiliary queues
+//!
+//! \code
+//! class myThreadObj : public INSERT_LIBX_NAMESPACE::threadmsgdispatcherObj {
+//!
+//! public:
+//!
+//!       active_queue_t second_queue;
+//!
+//!       void run(INSERT_LIBX_NAMESPACE::ptr<INSERT_LIBX_NAMESPACE::obj> &mcguffin,
+//!                int param1, int param2);
+//!
+//!       void queue_notifications(int n);
+//!
+//!       void send_notifications();
+//!
+//!       // ...
+//!
+//! private:
+//!
+//!       void event_handler(int n);
+//! };
+//!
+//! void myThreadObj::run(INSERT_LIBX_NAMESPACE::ptr<INSERT_LIBX_NAMESPACE::obj> &mcguffin);
+//! {
+//!     msgqueue_auto q{this, INSERT_LIBX_NAMESPACE::eventfd::create() };
+//!     msgqueue_auto q2{this, second_queue};
+//!
+//! // ...
+//! }
+//!
+//! void myThreadObj::queue_notifications(int n)
+//! {
+//!     sendeventaux(this->second_queue, &myThread::event_handler, this, n);
+//! }
+//!
+//! void myThreadObj::send_notifications()
+//! {
+//!     process_events(second_queue);
+//! }
+//! \endcode
+//!
+//! It is possible to create one or more, "auxiliary" message queues.
+//! sendeventaux() takes an extra parameter, a reference to a \c active_queue_t
+//! which should be a class member. The message does not get processed by the
+//! execution thread's main message dispatching loop, but gets placed on the
+//! queue.
+//!
+//! The execution thread's \c run() method should instantiate an additional
+//! \c msgqueue_auto, passing a reference to the auxiliary message queue,
+//! before destroying its mcguffin. The auxiliary message queue has the same
+//! lifetime scope as the main thread message dispatching queue, and goes out
+//! of scope, and gets destroyed releasing all references to any unprocessed
+//! messages, upon thread termination, with \c sendeventaux() taking no
+//! action if the execution thread is not running, and the auxiliary message
+//! queue gets destroyed.
+//!
+//! Messages added to the auxiliary message queue do not get processed until
+//! \c process_events() gets called, which moves them to the main
+//! message queue, where they should get processed by the execution thread.
 
 class threadmsgdispatcherObj : public stoppableObj,
 			       virtual public runthreadsingleton {
@@ -175,26 +236,37 @@ public:
 
 	typedef eventqueue<dispatchablebase> msgqueue_t;
 
-private:
-
 	//! Nullable pointer to the message queue
 	typedef eventqueueptr<dispatchablebase> msgqueueptr_t;
 
-	//! Mutex protected message queue
+	//! A mutex-protected active queue.
 
-	mpobj<msgqueueptr_t> msgqueueptr;
+	typedef mpobj<msgqueueptr_t> active_queue_t;
+private:
+
+	//! Default message queue
+	active_queue_t msgqueueptr;
 
 public:
 
-	//! Return the message queue
+	//! Return a mutex-protected queue
+
+	//! A null ptr gets returned if the execution thread is not running.
+
+	static msgqueueptr_t get_msgqueue(active_queue_t &q)
+	{
+		typename mpobj<msgqueueptr_t>::lock lock(q);
+
+		return *lock;
+	}
+
+	//! Return the default message queue
 
 	//! A null ptr gets returned if the execution thread is not running.
 
 	msgqueueptr_t get_msgqueue()
 	{
-		typename mpobj<msgqueueptr_t>::lock lock(msgqueueptr);
-
-		return *lock;
+		return get_msgqueue(msgqueueptr);
 	}
 
 	//! Message queue for the executing thread to read.
@@ -203,8 +275,9 @@ public:
 
 	class msgqueue_auto : public msgqueue_t {
 
-		//! The executing thread.
-		ref<threadmsgdispatcherObj> me;
+		//! The queue pointer in the thread dispatcher object.
+
+		active_queue_t &active_queue;
 
 	public:
 
@@ -228,6 +301,20 @@ public:
 
 		msgqueue_auto(const ref<threadmsgdispatcherObj> &me,
 			      const eventfd &fdArg=eventfd::create());
+
+		//! Construct an auxiliary queue
+
+		msgqueue_auto(threadmsgdispatcherObj *me,
+			      active_queue_t &auxqueue);
+
+		//! Construct an auxiliary queue
+
+		msgqueue_auto(const ref<threadmsgdispatcherObj> &me,
+			      active_queue_t &auxqueue);
+
+		//! Construct a queue
+		msgqueue_auto(const msgqueue_t &q,
+			      active_queue_t &active_queue);
 
 		//! Destroy the message queue
 
@@ -305,7 +392,30 @@ public:
 		       //! Any parameters to pass to the method
 		       Parameters && ...parameters)
 	{
-		auto q=get_msgqueue();
+		return sendeventaux(msgqueueptr,
+				    method,
+				    std::forward<me_type>(me),
+				    std::forward<Parameters>(parameters)...);
+	}
+
+	//! Add a message to an auxiliary queue
+
+	template<typename method_type,
+		 typename me_type,
+		 typename ...Parameters>
+	static void sendeventaux(//! Auxiliary queue
+				 active_queue_t &auxqueue,
+
+				 //! Must be a class method
+				 method_type method,
+
+				 //! A pointer to \c this, the method's class
+				 me_type &&me,
+
+				 //! Any parameters to pass to the method
+				 Parameters && ...parameters)
+	{
+		auto q=get_msgqueue(auxqueue);
 
 		if (q.null())
 			return; // Already destroyed.
@@ -319,6 +429,10 @@ public:
 				  &*me,
 				  std::forward<Parameters>(parameters)...));
 	}
+
+	//! Transfer events from an auxiliary queue into this one.
+
+	void process_events(active_queue_t &auxqueue);
 
 private:
 	//! Throw an exception to stop this thread.

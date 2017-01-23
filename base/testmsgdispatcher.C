@@ -1,10 +1,11 @@
 /*
-** Copyright 2012-2016 Double Precision, Inc.
+** Copyright 2012-2017 Double Precision, Inc.
 ** See COPYING for distribution information.
 */
 
 #include "x/threadmsgdispatcher.H"
 #include "x/stoppable.H"
+#include "x/mpobj.H"
 
 #include <cstdlib>
 #include <unistd.h>
@@ -161,11 +162,72 @@ void testthreadmsgdispatcher()
 	}
 }
 
+class transferThreadObj : public LIBCXX_NAMESPACE::threadmsgdispatcherObj {
+
+public:
+
+	LIBCXX_NAMESPACE::mpcobj<bool> flag{false};
+
+	active_queue_t second_queue;
+
+	void run(LIBCXX_NAMESPACE::ptr<LIBCXX_NAMESPACE::obj> &mcguffin)
+	{
+		msgqueue_auto q{ this, LIBCXX_NAMESPACE::eventfd::create() };
+		msgqueue_auto q2{ this, second_queue};
+
+		mcguffin=nullptr;
+
+		try {
+			while (1)
+				q.event();
+		} catch (const LIBCXX_NAMESPACE::stopexception &e)
+		{
+		} catch (const LIBCXX_NAMESPACE::exception &e)
+		{
+			std::cerr << e << std::endl;
+			exit(1);
+		}
+	}
+
+	void didit()
+	{
+		LIBCXX_NAMESPACE::mpcobj<bool>::lock lock(flag);
+
+		*lock=true;
+		lock.notify_all();
+	}
+};
+
+void testtransfer()
+{
+	LIBCXX_NAMESPACE::ref<transferThreadObj>
+		q1=LIBCXX_NAMESPACE::ref<transferThreadObj>::create();
+
+	auto ret=LIBCXX_NAMESPACE::start_threadmsgdispatcher(q1);
+
+	q1->sendeventaux(q1->second_queue,
+			 &transferThreadObj::didit, &*q1);
+
+	LIBCXX_NAMESPACE::mpcobj<bool>::lock lock(q1->flag);
+
+	lock.wait_for(std::chrono::seconds(1), [&] { return *lock; });
+
+	if (*lock)
+		throw EXCEPTION("Too fast");
+
+	q1->process_events(q1->second_queue);
+	lock.wait([&] { return *lock; });
+
+	q1->stop();
+	ret->wait();
+}
+
 int main(int argc, char **argv)
 {
 	alarm(30);
 	try {
 		testthreadmsgdispatcher();
+		testtransfer();
 	} catch (const LIBCXX_NAMESPACE::exception &e)
 	{
 		std::cerr << e << std::endl;

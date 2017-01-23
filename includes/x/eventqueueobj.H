@@ -54,7 +54,7 @@ public:
 	void event(//! The new event
 		   const argType &arg)
 	{
-		std::lock_guard<std::mutex> lock(this->objmutex);
+		std::unique_lock<std::mutex> lock(this->objmutex);
 
 		queue.push(arg);
 		try {
@@ -64,6 +64,24 @@ public:
 		}
 	}
 
+	//! Transfer all events from another queue into this one.
+
+	void transfer_events(const ref<eventqueueObj<argType>> &other_queue)
+	{
+		std::unique_lock<std::mutex> other_lock(other_queue->objmutex);
+		std::unique_lock<std::mutex> lock(this->objmutex);
+
+		while (!other_queue->queue.empty())
+		{
+			queue.push(other_queue->queue.front());
+			other_queue->queue.pop();
+		}
+		try {
+			fd->event(1);
+		} catch (...)
+		{
+		}
+	}
 	//! Check if the queue is empty
 
 	//! \return \c true if there's nothing in the queue
