@@ -21,16 +21,16 @@ multilock2: 0
 multilock3: 1
 multilock2: 1
 ---
-readlock: readlock1: 1
-readlock: writelock2: 0
-readlock: readlock3: 0
-readlock: writelock2: 1
-readlock: readlock3: 0
-readlock: readlock3: 1
+sharedlock: sharedlock1: 1
+sharedlock: uniquelock2: 0
+sharedlock: sharedlock3: 0
+sharedlock: uniquelock2: 1
+sharedlock: sharedlock3: 0
+sharedlock: sharedlock3: 1
 ---
-readlock: readlock1: 1
-readlock: writelock2: 0
-readlock: readlock3: 1
-readlock: writelock2: 0
-readlock: readlock3: 1
-readlock: writelock2: 1
+sharedlock: sharedlock1: 1
+sharedlock: uniquelock2: 0
+sharedlock: sharedlock3: 1
+sharedlock: uniquelock2: 0
+sharedlock: sharedlock3: 1
+sharedlock: uniquelock2: 1
