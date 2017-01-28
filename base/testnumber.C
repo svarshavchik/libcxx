@@ -116,7 +116,10 @@ void testnumber()
 
 	std::ostringstream o;
 
-	o << n1;
+	o << number_t(4);
+
+	if (o.str() != "4")
+		throw EXCEPTION("<< failed");
 }
 
 template<typename type1, typename type2>
@@ -434,16 +437,47 @@ void testhash()
 	m.insert({number_t(4), 4});
 }
 
+void testinput()
+{
+	std::istringstream i{"100 40000"};
+
+	LIBCXX_NAMESPACE::number<int16_t, int16_t> char_safe1, char_safe2;
+
+	i >> char_safe1;
+
+	if (char_safe1 != 100)
+		throw EXCEPTION(">> failed (" << char_safe1 << ")");
+
+	bool caught=false;
+
+	try {
+		i >> char_safe2;
+	} catch (const LIBCXX_NAMESPACE::exception &e)
+	{
+		caught=true;
+		std::cout << "Expected exception: " << e << std::endl;
+	}
+
+	if (!caught)
+		throw EXCEPTION(">> didn't catch overflow.");
+}
+
 int main()
 {
-	testnumber();
-	testoverflows();
-	testhash();
-
-	if (compare<number_t, number2_t>::bar() ||
-	    !compare<number_t, number_t>::bar())
+	try {
+		testnumber();
+		testoverflows();
+		testhash();
+		testinput();
+		if (compare<number_t, number2_t>::bar() ||
+		    !compare<number_t, number_t>::bar())
+		{
+			std::cout << "Something's wrong" << std::endl;
+			exit(1);
+		}
+	} catch (const LIBCXX_NAMESPACE::exception &e)
 	{
-		std::cout << "Something's wrong" << std::endl;
+		e->caught();
 		exit(1);
 	}
 	return 0;

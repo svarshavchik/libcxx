@@ -136,6 +136,10 @@ public:
 void numerical_overflow(const char *ftype,
 			const char *ttype) __attribute__((noreturn));
 
+//! Throw an exception due to numerical overflow in the >> operator.
+
+void input_numerical_overflow(const char *ttype) __attribute__((noreturn));
+
 //! A typesafe numerical alias.
 
 //! \code
@@ -580,6 +584,21 @@ auto &operator<<(std::basic_ostream<CharT, Traits> &o,
 		 const number<value_type_t, tag, base_class> &n)
 {
 	return o << n.n;
+}
+
+//! Overload >> operator for output streams.
+
+template<typename CharT, typename Traits,
+	 typename value_type_t, typename tag, typename base_class>
+auto &operator>>(std::basic_istream<CharT, Traits> &i,
+		 number<value_type_t, tag, base_class> &n)
+{
+	auto &res=i >> n.n;
+
+	if (res.fail())
+		input_numerical_overflow(typeid(value_type_t).name());
+
+	return res;
 }
 
 #if 0

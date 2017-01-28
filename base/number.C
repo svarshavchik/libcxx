@@ -24,6 +24,15 @@ void numerical_overflow(const char *ftype,
 				   f, t));
 }
 
+void input_numerical_overflow(const char *ttype)
+{
+	std::string t;
+
+	obj::demangle(ttype, t);
+	throw EXCEPTION(gettextmsg(libmsg(_txt("Numerical overflow during input conversion to %1%")),
+				   t));
+}
+
 #if 0
 {
 #endif
