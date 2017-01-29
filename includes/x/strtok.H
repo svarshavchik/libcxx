@@ -10,6 +10,7 @@
 
 #include <algorithm>
 #include <cstring>
+#include <experimental/string_view>
 
 namespace LIBCXX_NAMESPACE {
 
@@ -67,9 +68,8 @@ void strtok_if( //! The character string
 	       //! The container
 	       container_type &Container) noexcept
 {
-	decltype(std::begin(str))
-		b=std::begin(str),
-		e=std::end(str), p;
+	auto b=std::begin(str),
+		e=std::end(str);
 
 	while ((b=std::find_if(b, e, [&Predicate]
 			       (auto c)
@@ -77,8 +77,8 @@ void strtok_if( //! The character string
 				       return !Predicate(c);
 			       })) != e)
 	{
-		p=std::find_if(b, e, Predicate);
-		Container.push_back(string_type(b, p));
+		auto p=std::find_if(b, e, Predicate);
+		Container.push_back(typename container_type::value_type(b, p));
 
 		b=p;
 	}
@@ -111,9 +111,8 @@ void strtok_if( //! The character string
 	       //! The container
 	       container_type &Container) noexcept
 {
-	decltype(std::begin(str))
-		b=std::begin(str),
-		e=std::end(str), p;
+	auto b=std::begin(str),
+		e=std::end(str);
 
 	while ((b=std::find_if(b, e, [&Predicate]
 			       (auto c)
@@ -124,7 +123,7 @@ void strtok_if( //! The character string
 		if (qPredicate(*b))
 		{
 			++b;
-			p=std::find_if(b, e, qPredicate);
+			auto p=std::find_if(b, e, qPredicate);
 
 			string_type token(b, p);
 
@@ -145,8 +144,8 @@ void strtok_if( //! The character string
 			b=p;
 			continue;
 		}
-		p=std::find_if(b, e, Predicate);
-		Container.push_back(string_type(b, p));
+		auto p=std::find_if(b, e, Predicate);
+		Container.push_back(typename container_type::value_type(b, p));
 
 		b=p;
 	}
@@ -168,12 +167,10 @@ void strtok_if( //! The character string
 //! that returns \c true for all characters specified in the character string,
 //! and invokes strtok_if().
 
-template<typename char_type,
-	 typename traits_type,
-	 typename alloc_type,
+template<typename string_type,
 	 typename container_type>
-void strtok_str( const std::basic_string<char_type, traits_type, alloc_type> &str,
-		 const char_type *toks,
+void strtok_str( const string_type &str,
+		 const typename string_type::value_type *toks,
 		 container_type &Container) noexcept
 {
 	strtok_if(str,
@@ -201,7 +198,8 @@ void strtok_str( const char_type *str,
 		 const char_type *toks,
 		 container_type &Container) noexcept
 {
-	strtok_str(std::basic_string<char_type>(str), toks, Container);
+	strtok_str(std::experimental::basic_string_view<char_type>(str), toks,
+		   Container);
 }
 
 //! strtok(), C++ style
@@ -220,13 +218,10 @@ void strtok_str( const char_type *str,
 //! This overloaded version of strtok_str() takes an extra parameter that
 //! specifies the quoting character.
 
-template<typename char_type,
-	 typename traits_type,
-	 typename alloc_type,
-	 typename container_type>
-void strtok_str( const std::basic_string<char_type, traits_type, alloc_type> &str,
-		 const char_type *toks,
-		 char_type quoting_character,
+template<typename string_type, typename container_type>
+void strtok_str( const string_type &str,
+		 const typename string_type::value_type *toks,
+		 typename string_type::value_type quoting_character,
 		 container_type &Container) noexcept
 {
 	strtok_if(str,
@@ -261,7 +256,7 @@ void strtok_str( const char_type *str,
 		 char_type quoting_character,
 		 container_type &Container) noexcept
 {
-	strtok_str(std::basic_string<char_type>(str), toks,
+	strtok_str(std::experimental::basic_string_view<char_type>(str), toks,
 		   quoting_character, Container);
 }
 
