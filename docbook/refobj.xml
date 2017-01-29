@@ -2536,14 +2536,18 @@ weakwidgetmap currentWidgets(weakwidgetmap::create());
       <para>
 	Once something gets added to a
 	<ulink url="&link-typedef-x-weaklist;"><classname>&ns;::weaklist</classname></ulink>,
-	<ulink url="&link-typedef-x-weakmap;"><classname>&ns;::weakmap</classname></ulink>, or
+	<ulink url="&link-typedef-x-weakmap;"><classname>&ns;::weakmap</classname></ulink>,
 	<ulink url="&link-typedef-x-weakmultimap;"><classname>&ns;::weakmultimap</classname></ulink>,
+	<ulink url="&link-typedef-x-weakunordered-map;"><classname>&ns;::weakunordered_map</classname></ulink>, or
+	<ulink url="&link-typedef-x-weakunordered-multimap;"><classname>&ns;::weakunordered_multimap</classname></ulink>,
 	it remains in the weak container until the referenced object goes out
 	of scope and gets destroyed.
 	Alternatively,
 	<ulink url="&link-typedef-x-mcguffinlist;"><classname>&ns;::mcguffinlist</classname></ulink>,
-	<ulink url="&link-typedef-x-mcguffinmap;"><classname>&ns;::mcguffinmap</classname></ulink>, or
+	<ulink url="&link-typedef-x-mcguffinmap;"><classname>&ns;::mcguffinmap</classname></ulink>,
 	<ulink url="&link-typedef-x-mcguffinmultimap;"><classname>&ns;::mcguffinmultimap</classname></ulink>
+	<ulink url="&link-typedef-x-mcguffinunordered-map;"><classname>&ns;::mcguffinunordered_map</classname></ulink>, or
+	<ulink url="&link-typedef-x-mcguffinunordered-multimap;"><classname>&ns;::mcguffinunordered_multimap</classname></ulink>
 	are based on their weak counterparts, but take
 	 a <link linkend="ondestroy">mcguffin</link>-based approach that
 	allows removal of referenced objects that still exist,
@@ -2600,8 +2604,10 @@ for (&ns;::mcguffinmultimap&lt;widget&gt;::base::iterator b=mm->begin(), e=mm->e
 	  The first parameter to the
 	  <ulink url="&link-typedef-x-mcguffinlist;"><classname>&ns;::mcguffinlist</classname></ulink>,
 	  and the second parameter to the
-	  <ulink url="&link-typedef-x-mcguffinmap;"><classname>&ns;::mcguffinmap</classname></ulink> or
+	  <ulink url="&link-typedef-x-mcguffinmap;"><classname>&ns;::mcguffinmap</classname></ulink>,
 	  <ulink url="&link-typedef-x-mcguffinmultimap;"><classname>&ns;::mcguffinmultimap</classname></ulink>
+	  <ulink url="&link-typedef-x-mcguffinunordered-map;"><classname>&ns;::mcguffinunordered_map</classname></ulink> or
+	  <ulink url="&link-typedef-x-mcguffinunordered-multimap;"><classname>&ns;::mcguffinunordered_multimap</classname></ulink>
 	  templates must be a &ref;.
 	</para>
       </listitem>
@@ -2619,6 +2625,8 @@ for (&ns;::mcguffinmultimap&lt;widget&gt;::base::iterator b=mm->begin(), e=mm->e
       <listitem>
 	<para>
 	  <ulink url="&link-typedef-x-mcguffinmap;"><classname>&ns;::mcguffinmap</classname></ulink>'s
+	  and
+	  <ulink url="&link-typedef-x-mcguffinunordered-map;"><classname>&ns;::mcguffinunordered_map</classname></ulink>'s
 	  <methodname>insert</methodname>()
 	  returns an opaque
 	  <classname>&ns;::ptr&lt;&ns;::obj&gt;</classname>
@@ -2631,6 +2639,8 @@ for (&ns;::mcguffinmultimap&lt;widget&gt;::base::iterator b=mm->begin(), e=mm->e
       <listitem>
 	<para>
 	  <ulink url="&link-typedef-x-mcguffinmultimap;"><classname>&ns;::mcguffinmultimap</classname></ulink>
+	  and
+	  <ulink url="&link-typedef-x-mcguffinunordered-multimap;"><classname>&ns;::mcguffinunordered-multimap</classname></ulink>
 	  <methodname>insert</methodname>()
 	  returns an opaque
 	  <classname>&ns;::ref&lt;&ns;::obj&gt;</classname>
@@ -2640,18 +2650,23 @@ for (&ns;::mcguffinmultimap&lt;widget&gt;::base::iterator b=mm->begin(), e=mm->e
 
       <listitem>
 	<para>
-	  <ulink url="&link-typedef-x-mcguffinmap;"><classname>&ns;::mcguffinmap</classname></ulink>'s
+	  <ulink url="&link-typedef-x-mcguffinmap;"><classname>&ns;::mcguffinmap</classname></ulink>'s,
+	  <ulink url="&link-typedef-x-mcguffinmultimap;"><classname>&ns;::mcguffinmultimap</classname></ulink>,
+	  <ulink url="&link-typedef-x-mcguffinunordered-map;"><classname>&ns;::mcguffinunordered_map</classname></ulink>'s
 	  and
-	  <ulink url="&link-typedef-x-mcguffinmultimap;"><classname>&ns;::mcguffinmultimap</classname></ulink>
+	  <ulink url="&link-typedef-x-mcguffinunordered-multimap;"><classname>&ns;::mcguffinunordered_multimap</classname></ulink>
 	  <methodname>find_or_create</methodname>() returns
 	  <classname>std::pair</classname> with both the mcguffin and the
 	  value.
-	  <ulink url="&link-typedef-x-mcguffinmap;"><classname>&ns;::mcguffinmap</classname></ulink>'s
+	  <ulink url="&link-typedef-x-mcguffinmap;"><classname>&ns;::mcguffinmap</classname></ulink>'s and
+	  <ulink url="&link-typedef-x-mcguffinunordered-map;"><classname>&ns;::mcguffinunordered_map</classname></ulink>'s
 	  <classname>std::pair</classname> contains &ptr;s,
-	  <ulink url="&link-typedef-x-mcguffinmap;"><classname>&ns;::mcguffinmap</classname></ulink>'s
+	  <ulink url="&link-typedef-x-mcguffinmultimap;"><classname>&ns;::mcguffinmultimap</classname></ulink>'s and
+	  <ulink url="&link-typedef-x-mcguffinunordered-multimap;"><classname>&ns;::mcguffinunordered_multimap</classname></ulink>
 	  <classname>std::pair</classname> contains &ref;s.
 
-	  <ulink url="&link-typedef-x-mcguffinmap;"><classname>&ns;::mcguffinmap</classname></ulink>'s
+	  <ulink url="&link-typedef-x-mcguffinmap;"><classname>&ns;::mcguffinmap</classname></ulink>'s and
+	  <ulink url="&link-typedef-x-mcguffinunordered-map;"><classname>&ns;::mcguffinunordered_map</classname></ulink>'s
 	  <classname>std::pair</classname> contains null &ptr;s if it couldn't
 	  create a new value for the key.
 	  In all other situations, either the existing map's value and its

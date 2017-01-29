@@ -20,6 +20,8 @@ static bool dumpflag=true;
 #include "x/mcguffinlist.H"
 #include "x/mcguffinmap.H"
 #include "x/mcguffinmultimap.H"
+#include "x/mcguffinunordered_map.H"
+#include "x/mcguffinunordered_multimap.H"
 #include "x/ptr.H"
 #include "x/obj.H"
 
@@ -199,8 +201,6 @@ static void test34_common(const char *testname)
 	}
 
 	m->count(0);
-	m->lower_bound(0);
-	m->upper_bound(0);
 	m->equal_range(0);
 }
 
@@ -212,6 +212,9 @@ static void test3()
 	test34_common<map_t>("test3: ");
 
 	auto m=map_t::create();
+
+	m->lower_bound(0);
+	m->upper_bound(0);
 
 	{
 		std::vector<LIBCXX_NAMESPACE::ref<valueObj>> v;
@@ -240,6 +243,42 @@ static void test3()
 	}
 }
 
+static void test3u()
+{
+	typedef LIBCXX_NAMESPACE::mcguffinunordered_map
+		<int, LIBCXX_NAMESPACE::ref<valueObj>> map_t;
+
+	test34_common<map_t>("test3u: ");
+
+	auto m=map_t::create();
+
+	{
+		std::vector<LIBCXX_NAMESPACE::ref<valueObj>> v;
+
+		v.push_back(LIBCXX_NAMESPACE::ref<valueObj>::create());
+
+		auto mcguffin=m->insert(std::make_pair(0, v.front()));
+
+		std::cout << "test3u: this should be 1: "
+			  << m->insert(std::make_pair(0, v.front())).null()
+			  << std::endl;
+
+		std::cout << "test3u: this should be 0: "
+			  << m->insert(std::make_pair(1, v.front())).null()
+			  << std::endl;
+		v.clear();
+
+		for (const auto &v:*m)
+		{
+			std::cout << "test3u: remaining key " << v.first
+				  << std::flush
+				  << " value: " << v.second.getptr()->v_proof
+				  << std::endl;
+		}
+
+	}
+}
+
 static void test4()
 {
 	typedef LIBCXX_NAMESPACE::mcguffinmultimap
@@ -248,6 +287,9 @@ static void test4()
 	test34_common<map_t>("test4: ");
 
 	auto m=map_t::create();
+
+	m->lower_bound(0);
+	m->upper_bound(0);
 
 	{
 		std::vector<LIBCXX_NAMESPACE::ref<valueObj>> v;
@@ -320,6 +362,86 @@ static void test4()
 	}
 }
 
+static void test4u()
+{
+	typedef LIBCXX_NAMESPACE::mcguffinmultimap
+		<int, LIBCXX_NAMESPACE::ref<valueObj>> map_t;
+
+	test34_common<map_t>("test4u: ");
+
+	auto m=map_t::create();
+
+	{
+		std::vector<LIBCXX_NAMESPACE::ref<valueObj>> v;
+
+		v.push_back(LIBCXX_NAMESPACE::ref<valueObj>::create());
+
+		auto mcguffin=m->insert(std::make_pair(0, v.front()));
+
+		std::cout << "test4u: this should be 0: "
+			  << m->insert(std::make_pair(0, v.front())).null()
+			  << std::endl;
+
+		std::cout << "test4u: this should be 0: "
+			  << m->insert(std::make_pair(1, v.front())).null()
+			  << std::endl;
+		v.clear();
+
+		for (const auto &v:*m)
+		{
+			std::cout << "test4u: remaining key " << v.first
+				  << std::flush
+				  << " value: " << v.second.getptr()->v_proof
+				  << std::endl;
+		}
+	}
+
+	std::vector<LIBCXX_NAMESPACE::ptr<LIBCXX_NAMESPACE::obj>> save_mcguffin;
+
+	{
+		auto v=LIBCXX_NAMESPACE::ref<valueObj>::create();
+
+		auto mcguffin1=m->find_or_create(0, [&v]
+						 {
+							 return v;
+						 });
+
+		auto mcguffin2=m->find_or_create(0, [&v]
+						 {
+							 return v;
+						 });
+
+		for (const auto &v:*m)
+		{
+			std::cout << "test4u: after find_or_create: " << v.first
+				  << std::flush
+				  << " value: " << v.second.getptr()->v_proof
+				  << std::endl;
+
+			auto p=v.second.mcguffin();
+
+			std::cout << "test4u: mcguffin.null() should be 0: "
+				  << p.null() << std::endl;
+			save_mcguffin.push_back(p);
+		}
+	}
+
+	for (const auto &v:*m)
+	{
+		std::cout << "test4u: mcguffin should exist: " << v.first
+			  << std::flush
+			  << " value: " << v.second.getptr()->v_proof
+				  << std::endl;
+
+		save_mcguffin.clear();
+
+		std::cout << "test4u: mcguffin should work: " << v.first
+			  << std::flush
+			  << " null: " << v.second.getptr().null()
+			  << std::endl;
+	}
+}
+
 static void test5()
 {
 	auto m=LIBCXX_NAMESPACE::mcguffinmap
@@ -355,12 +477,12 @@ int main(int argc, char **argv)
 		test1();
 		test2();
 		test3();
+		test3u();
 		test4();
+		test4u();
 		test5();
 	} catch (LIBCXX_NAMESPACE::exception &e) {
 		std::cout << e << std::endl;
 	}
 	return 0;
 }
-
-

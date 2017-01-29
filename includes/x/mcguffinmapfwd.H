@@ -22,7 +22,6 @@ class mcguffinmapObj;
 
 template<typename K,
 	 typename ref_type,
-	 typename M,
 	 typename C,
 	 typename Allocator>
 class mcguffinmapBase;
@@ -93,10 +92,7 @@ using mcguffinmap
 				 mcguffincontainerObj<ref_type>
 				 ::container_element_t, C,
 				 Allocator>>,
-     mcguffinmapBase<K, ref_type,
-			 std::map<K, typename mcguffincontainerObj<ref_type>
-				  ::container_element_t, C,
-				  Allocator>, C, Allocator> >;
+     mcguffinmapBase<K, ref_type, C, Allocator> >;
 
 //! A nullable pointer reference to a \ref mcguffinmap "weak mcguffin map container".
 
@@ -109,10 +105,7 @@ using mcguffinmapptr
 =ptr<mcguffinmapObj<K, ref_type,
 			std::map<K, typename mcguffincontainerObj<ref_type>
 				 ::container_element_t, C, Allocator>>,
-     mcguffinmapBase<K, ref_type,
-			 std::map<K, typename mcguffincontainerObj<ref_type>
-				  ::container_element_t, C, Allocator>,
-			 C, Allocator> >;
+     mcguffinmapBase<K, ref_type, C, Allocator> >;
 
 //! A reference to a constant \ref mcguffinmap "weak mcguffin map container".
 
@@ -127,11 +120,7 @@ using const_mcguffinmap=
 					      mcguffincontainerObj<ref_type>
 					      ::container_element_t, C,
 					      Allocator>>,
-		  mcguffinmapBase<K, ref_type,
-				      std::map<K, typename
-					       mcguffincontainerObj<ref_type>
-					       ::container_element_t, C,
-					       Allocator>, C, Allocator> >;
+		  mcguffinmapBase<K, ref_type, C, Allocator> >;
 
 //! A nullable pointer reference to a constant \ref mcguffinmap "weak mcguffin map container".
 
@@ -147,11 +136,7 @@ using const_mcguffinmapptr=
 					      <ref_type>
 					      ::container_element_t, C,
 					      Allocator>>,
-		  mcguffinmapBase<K, ref_type,
-				      std::map<K, typename
-					       mcguffincontainerObj<ref_type>
-					       ::container_element_t, C,
-					       Allocator>, C, Allocator> >;
+		  mcguffinmapBase<K, ref_type, C, Allocator> >;
 
 #if 0
 {

@@ -22,7 +22,6 @@ namespace LIBCXX_NAMESPACE {
 
 template<typename K,
 	 typename ref_type,
-	 typename M,
 	 typename C,
 	 typename Allocator>
 class mcguffinmapBase : public ptrrefBase {

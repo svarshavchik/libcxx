@@ -72,9 +72,7 @@ public:
 	}
 
 	//! Default destructor
-	~mcguffinmapObj()
-	{
-	}
+	~mcguffinmapObj()=default;
 
 	//! Implement a map-like insert()
 

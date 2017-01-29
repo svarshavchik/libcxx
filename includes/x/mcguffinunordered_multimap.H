@@ -1,41 +1,41 @@
 /*
-** Copyright 2014 Double Precision, Inc.
+** Copyright 2017 Double Precision, Inc.
 ** See COPYING for distribution information.
 */
 
-#ifndef x_mcguffinmultimap_H
-#define x_mcguffinmultimap_H
+#ifndef x_mcguffinunordered_multimap_H
+#define x_mcguffinunordered_multimap_H
 
-#include <x/mcguffinmap.H>
-#include <x/mcguffinmultimapfwd.H>
-#include <x/weakmultimapiterator.H>
+#include <x/mcguffinunordered_multimapfwd.H>
+#include <x/mcguffinmapobj.H>
+#include <x/weakmap.H>
+#include <x/weakunordered_multimapiterator.H>
 
 namespace LIBCXX_NAMESPACE {
 #if 0
 };
 #endif
 
-//! Base class for \ref mcguffinmultimap "weak mcguffin multimap container" objects.
+//! Base class for \ref mcguffinunordered_multimap "weak mcguffin multimap container" objects.
 
-//! Refer to this class as \c INSERT_LIBX_NAMESPACE::mcguffinmultimap<key,ref_type>::base
-
+//! Refer to this class as \c INSERT_LIBX_NAMESPACE::mcguffinunordered_multimap<key,ref_type>::base
 
 template<typename K,
 	 typename ref_type,
-	 typename C,
+	 typename H,
+	 typename KE,
 	 typename Allocator>
-class mcguffinmultimapBase : public ptrrefBase {
+class mcguffinunordered_multimapBase : public ptrrefBase {
 
 public:
 
 	//! The underlying reference-counted object.
 	typedef mcguffinmapObj<K, ref_type,
-				   std::multimap
-				   <K, typename
-				    mcguffincontainerObj<ref_type>
-				    ::container_element_t,
-				    C,
-				    Allocator>> obj_type;
+			       std::unordered_multimap<K, typename
+						  mcguffincontainerObj<ref_type>
+						  ::container_element_t,
+						  H, KE,
+						  Allocator>> obj_type;
 
 	//! The type representing a reference to the container
 

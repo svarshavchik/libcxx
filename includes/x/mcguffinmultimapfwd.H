@@ -15,7 +15,6 @@ namespace LIBCXX_NAMESPACE {
 
 template<typename K,
 	 typename ref_type,
-	 typename M,
 	 typename C,
 	 typename Allocator>
 class mcguffinmultimapBase;
@@ -37,11 +36,7 @@ using mcguffinmultimap
 			std::multimap<K, typename
 				 mcguffincontainerObj<ref_type>
 				 ::container_element_t, C>>,
-     mcguffinmultimapBase<K, ref_type,
-			 std::multimap<K, typename
-				       mcguffincontainerObj<ref_type>
-				       ::container_element_t, C,
-				       Allocator>, C, Allocator> >;
+     mcguffinmultimapBase<K, ref_type, C, Allocator> >;
 
 //! A nullable pointer reference to a \ref mcguffinmultimap "weak mcguffin multimap container".
 
@@ -55,12 +50,7 @@ using mcguffinmultimapptr
 			std::multimap<K, typename
 				      mcguffincontainerObj<ref_type>
 				      ::container_element_t, C, Allocator>>,
-     mcguffinmultimapBase<K, ref_type,
-			      std::multimap<K, typename
-					    mcguffincontainerObj<ref_type>
-					    ::container_element_t,
-					    C, Allocator>,
-			      C, Allocator> >;
+     mcguffinmultimapBase<K, ref_type, C, Allocator> >;
 
 //! A reference to a constant \ref mcguffinmultimap "weak mcguffin multimap container".
 
@@ -76,10 +66,7 @@ using const_mcguffinmultimap=
 				 mcguffincontainerObj<ref_type>
 				 ::container_element_t, C, Allocator>>,
 		  mcguffinmultimapBase
-		  <K, ref_type,
-		   std::multimap<K, typename mcguffincontainerObj<ref_type>
-				 ::container_element_t, C,
-				 Allocator>, C, Allocator> >;
+		  <K, ref_type, C, Allocator> >;
 
 //! A nullable pointer reference to a constant \ref mcguffinmultimap "weak mcguffin multimap container".
 
@@ -96,10 +83,7 @@ using const_mcguffinmultimapptr=
 						   ::container_element_t, C,
 						   Allocator>>,
 		  mcguffinmultimapBase
-		  <K, ref_type,
-		   std::multimap<K, typename mcguffincontainerObj<ref_type>
-				 ::container_element_t, C,
-				 Allocator>, C, Allocator> >;
+		  <K, ref_type, C, Allocator> >;
 #if 0
 {
 #endif
