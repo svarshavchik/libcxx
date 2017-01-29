@@ -8,6 +8,7 @@
 
 #include <x/mcguffinmap.H>
 #include <x/mcguffinmultimapfwd.H>
+#include <x/weakmultimapiterator.H>
 
 namespace LIBCXX_NAMESPACE {
 #if 0
@@ -29,14 +30,13 @@ class mcguffinmultimapBase : public ptrrefBase {
 public:
 
 	//! The underlying reference-counted object.
-	typedef mcguffinmapObj<K, ref_type, C,
+	typedef mcguffinmapObj<K, ref_type,
 				   std::multimap
 				   <K, typename
 				    mcguffincontainerObj<ref_type>
 				    ::container_element_t,
 				    C,
-				    Allocator>,
-				   Allocator> obj_type;
+				    Allocator>> obj_type;
 
 	//! The type representing a reference to the container
 

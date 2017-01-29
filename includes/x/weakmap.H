@@ -8,6 +8,7 @@
 
 #include <x/weakmapfwd.H>
 #include <x/weakmapobj.H>
+#include <x/weakmapiterator.H>
 
 namespace LIBCXX_NAMESPACE {
 #if 0
@@ -26,9 +27,8 @@ class weakmapBase : public ptrrefBase {
 
 public:
 	//! The underlying reference-counted object.
-	typedef weakmapObj<K, ptr<T>, C, std::map<K, weakptr<ptr<T> >, C,
-						  Allocator>,
-			   Allocator> obj_type;
+	typedef weakmapObj<K, ptr<T>, std::map<K, weakptr<ptr<T> >, C,
+					       Allocator>> obj_type;
 
 	//! The type representing a reference to the container
 

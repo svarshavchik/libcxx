@@ -17,7 +17,8 @@ namespace LIBCXX_NAMESPACE {
 };
 #endif
 
-template<typename K, typename T, typename C, typename M, typename Allocator>
+
+template<typename K, typename T, typename M>
 class weakmapObj;
 
 template<typename K, typename T,
@@ -42,10 +43,10 @@ template<typename K, typename T,
 template<typename K, typename T,
 	 typename C=std::less<K>,
 	 typename Allocator=std::allocator<std::pair<const K, weakptr<ptr<T> > > > >
-using weakmultimap=ref<weakmapObj<K, ptr<T>, C,
+using weakmultimap=ref<weakmapObj<K, ptr<T>,
 				  std::multimap<K, weakptr<ptr<T> >,
-						C, Allocator>,
-		       Allocator>, weakmultimapBase<K, T, C, Allocator> >;
+						C, Allocator>>,
+		       weakmultimapBase<K, T, C, Allocator> >;
 
 //! A nullable pointer reference to a reference-counted multimap weak container.
 
@@ -55,10 +56,9 @@ using weakmultimap=ref<weakmapObj<K, ptr<T>, C,
 template<typename K, typename T,
 	 typename C=std::less<K>,
 	 typename Allocator=std::allocator<std::pair<const K, weakptr<ptr<T> > > > >
-using weakmultimapptr=ptr<weakmapObj<K, ptr<T>, C,
+using weakmultimapptr=ptr<weakmapObj<K, ptr<T>,
 				     std::multimap<K, weakptr<ptr<T> >,
-						   C, Allocator>,
-				     Allocator>,
+						   C, Allocator>>,
 			  weakmultimapBase<K, T, C, Allocator> >;
 
 #if 0

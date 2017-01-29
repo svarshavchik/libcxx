@@ -17,9 +17,7 @@ namespace LIBCXX_NAMESPACE {
 
 template<typename K,
 	 typename ref_type,
-	 typename C,
-	 typename M,
-	 typename Allocator>
+	 typename M>
 class mcguffinmapObj;
 
 template<typename K,
@@ -90,12 +88,11 @@ template<typename K, typename ref_type,
 	 <std::pair<const K, typename mcguffincontainerObj<ref_type>
 		    ::container_element_t > > >
 using mcguffinmap
-=ref<mcguffinmapObj<K, ref_type, C,
+=ref<mcguffinmapObj<K, ref_type,
 			std::map<K, typename
 				 mcguffincontainerObj<ref_type>
 				 ::container_element_t, C,
-				 Allocator>,
-			Allocator>,
+				 Allocator>>,
      mcguffinmapBase<K, ref_type,
 			 std::map<K, typename mcguffincontainerObj<ref_type>
 				  ::container_element_t, C,
@@ -109,10 +106,9 @@ template<typename K, typename ref_type,
 	 <std::pair<const K, typename mcguffincontainerObj<ref_type>
 		    ::container_element_t > > >
 using mcguffinmapptr
-=ptr<mcguffinmapObj<K, ref_type, C,
+=ptr<mcguffinmapObj<K, ref_type,
 			std::map<K, typename mcguffincontainerObj<ref_type>
-				 ::container_element_t, C, Allocator>,
-			Allocator>,
+				 ::container_element_t, C, Allocator>>,
      mcguffinmapBase<K, ref_type,
 			 std::map<K, typename mcguffincontainerObj<ref_type>
 				  ::container_element_t, C, Allocator>,
@@ -126,11 +122,11 @@ template<typename K, typename ref_type,
 	 <std::pair<const K, typename mcguffincontainerObj<ref_type>
 		    ::container_element_t > > >
 using const_mcguffinmap=
-	const_ref<mcguffinmapObj<K, ref_type, C,
+	const_ref<mcguffinmapObj<K, ref_type,
 				     std::map<K, typename
 					      mcguffincontainerObj<ref_type>
 					      ::container_element_t, C,
-					      Allocator>, Allocator>,
+					      Allocator>>,
 		  mcguffinmapBase<K, ref_type,
 				      std::map<K, typename
 					       mcguffincontainerObj<ref_type>
@@ -145,12 +141,12 @@ template<typename K, typename ref_type,
 	 <std::pair<const K, typename mcguffincontainerObj<ref_type>
 		    ::container_element_t > > >
 using const_mcguffinmapptr=
-	const_ptr<mcguffinmapObj<K, ref_type, C,
+	const_ptr<mcguffinmapObj<K, ref_type,
 				     std::map<K, typename
 					      mcguffincontainerObj
 					      <ref_type>
 					      ::container_element_t, C,
-					      Allocator>, Allocator>,
+					      Allocator>>,
 		  mcguffinmapBase<K, ref_type,
 				      std::map<K, typename
 					       mcguffincontainerObj<ref_type>

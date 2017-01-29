@@ -28,10 +28,8 @@ namespace LIBCXX_NAMESPACE {
 
 template<typename K,
 	 typename ref_type,
-	 typename C,
-	 typename M,
-	 typename Allocator>
-class mcguffinmapObj : public weakmapBaseObj<K, ref_type, C, M, Allocator> {
+	 typename M>
+class mcguffinmapObj : public weakmapBaseObj<K, ref_type, M> {
 
 	//! find_or_create() atomicity
 	std::recursive_mutex insert_mutex;
@@ -39,7 +37,7 @@ class mcguffinmapObj : public weakmapBaseObj<K, ref_type, C, M, Allocator> {
 public:
 
 	//! Base class typedef, for convenience.
-	typedef weakmapBaseObj<K, ref_type, C, M, Allocator> base_t;
+	typedef weakmapBaseObj<K, ref_type, M> base_t;
 
 	//! Import typedef from the base class.
 
@@ -59,7 +57,7 @@ public:
 
 	//! Convenience typedef
 	typedef typename base_t::template assignmentHelper<
-		ref<mcguffinmapObj<K, ref_type, C, M, Allocator>>
+		ref<mcguffinmapObj<K, ref_type, M>>
 		> assignmentHelper_t;
 
 	//! ref_type is ref<objClass, baseType, define the ptr for it.
@@ -67,9 +65,9 @@ public:
 	typedef typename mcguffincontainerObj<ref_type>::ptr_t ptr_t;
 
 	//! Default constructor
-	explicit mcguffinmapObj(const C &comp=C(),
-				    const Allocator &a=Allocator()) noexcept
-		: base_t(comp, a)
+	template<typename ...Args>
+	explicit mcguffinmapObj(Args && ...args) noexcept
+		: base_t(std::forward<Args>(args)...)
 	{
 	}
 
@@ -145,7 +143,7 @@ public:
 	assignmentHelper_t operator[](const K &k)
 	{
 		return assignmentHelper_t
-			(k, ref<mcguffinmapObj<K, ref_type, C, M, Allocator>
+			(k, ref<mcguffinmapObj<K, ref_type, M>
 			 >(this));
 	}
 

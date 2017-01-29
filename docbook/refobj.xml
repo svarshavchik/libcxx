@@ -2320,9 +2320,10 @@ for (weakwidgetlist::base::iterator b=currentWidgets->begin(),
     </para>
 
     <para>
-      <ulink url="&link-typedef-x-weakmap;"><classname>&ns;::weakmap</classname></ulink>
-      and
-      <ulink url="&link-typedef-x-weakmultimap;"><classname>&ns;::weakmultimap</classname></ulink>
+      <ulink url="&link-typedef-x-weakmap;"><classname>&ns;::weakmap</classname></ulink>,
+      <ulink url="&link-typedef-x-weakmultimap;"><classname>&ns;::weakmultimap</classname></ulink>,
+      <ulink url="&link-typedef-x-weakunordered-map;"><classname>&ns;::weakunordered_map</classname></ulink>,
+      <ulink url="&link-typedef-x-weakunordered-multimap;"><classname>&ns;::weakunordered_multimap</classname></ulink>,
       define analogous containers with map-like properties:
     </para>
 
@@ -2452,7 +2453,8 @@ weakwidgetmap currentWidgets(weakwidgetmap::create());
     </para>
 
     <para>
-      With a weak multimap, if a key's value is a null weak pointer, a new
+      With a weak multimap, or a weak unordered multimap,
+      if a key's value is a null weak pointer, a new
       value for the same key can still be inserted into this map.
       <methodname>find_or_create</methodname>() is a convenient atomic
       method that does the following:
@@ -2491,8 +2493,11 @@ weakwidgetmap currentWidgets(weakwidgetmap::create());
 	<note>
 	  <para>
 	    <methodname>find_or_create</methodname>() is less useful with a
-	    <classname>&ns;::weakmap</classname>, which is based on a
-	    <classname>std::map</classname> that allows only one value per
+	    <classname>&ns;::weakmap</classname> or a
+	    <classname>&ns;::weakunordered_map</classname>,
+	    which are based on a
+	    <classname>std::map</classname>/<classname>std::unordered_map</classname>,
+	    that allow only one value per
 	    key. As metioned before, weak pointers to destroyed objects
 	    cannot get removed from the weak container as long as
 	    <link linkend="weakcontainergetptrnull">any iterators
@@ -2514,6 +2519,7 @@ weakwidgetmap currentWidgets(weakwidgetmap::create());
 
 	  <para>
 	    <classname>&ns;::weakmultimap</classname>'s
+	    and <classname>&ns;::weakunordered_multimap</classname>'s
 	    <methodname>find_or_create</methodname>()
 	    has no problems inserting
 	    a new value for the same key, of course, and won't have this

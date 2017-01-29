@@ -3,31 +3,34 @@
 ** See COPYING for distribution information.
 */
 
-#ifndef x_weakmultimap_H
-#define x_weakmultimap_H
+#ifndef x_weakunordered_map_H
+#define x_weakunordered_map_H
 
-#include <x/weakmultimapfwd.H>
+#include <x/weakunordered_mapfwd.H>
 #include <x/weakmapobj.H>
-#include <x/weakmultimapiterator.H>
+#include <x/weakunordered_mapiterator.H>
 
 namespace LIBCXX_NAMESPACE {
 #if 0
 };
 #endif
 
-//! Base class for a weak map container pointer or reference
+//! Base class for a weak unordered_map container pointer or reference
 
 //! Refer to this class as \c customweaktype::base or \c customweaktypeptr::base
 //!
 
-template<typename K, typename T, typename C, typename Allocator>
-class weakmultimapBase : public ptrrefBase {
+template<typename K, typename T,
+	 typename H,
+	 typename KE,
+	 typename Allocator>
+class weakunordered_mapBase : public ptrrefBase {
 
 public:
-
 	//! The underlying reference-counted object.
-	typedef weakmapObj<K, ptr<T>, std::multimap<K, weakptr<ptr<T> >,
-						       C, Allocator>> obj_type;
+	typedef weakmapObj<K, ptr<T>, std::unordered_map<K, weakptr<ptr<T> >,
+							 H, KE,
+							 Allocator>> obj_type;
 
 	//! The type representing a reference to the container
 

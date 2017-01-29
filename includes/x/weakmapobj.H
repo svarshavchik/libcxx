@@ -8,7 +8,6 @@
 
 #include <x/weakcontainerobj.H>
 #include <x/ptr.H>
-#include <map>
 
 namespace LIBCXX_NAMESPACE {
 #if 0
@@ -23,68 +22,6 @@ namespace LIBCXX_NAMESPACE {
 template<typename C>
 class weakmapiteratorOps;
 
-//! Specialization for processing of the return value from std::map::insert().
-
-template<>
-template<typename K, typename V, typename C, typename A>
-class weakmapiteratorOps<std::map<K, V, C, A> > {
-
-	//! Shorthand for the map
-
-	typedef std::map<K, V, C, A> map_type;
-
-public:
-	//! The type returned by std::map's insert() method
-
-	typedef typename std::pair<typename map_type::iterator, bool>
-	map_insert_ret_type;
-
-	//! Check if the insert() method succeeded
-
-	static inline bool inserted(const map_insert_ret_type &i) noexcept
-	{
-		return i.second;
-	}
-
-	//! Return the inserted iterator
-
-	static typename map_type::iterator iter(const map_insert_ret_type &i)
-		noexcept
-	{
-		return i.first;
-	}
-};
-
-//! Specialization for processing of the return value from std::multimap::insert().
-
-template<>
-template<typename K, typename V, typename C, typename A>
-class weakmapiteratorOps<std::multimap<K, V, C, A> > {
-
-	//! Shorthand for the map
-
-	typedef std::multimap<K, V, C, A> map_type;
-
-public:
-	//! The type returned by std::map's insert() method
-
-	typedef typename map_type::iterator map_insert_ret_type;
-
-	//! Check if the insert() method succeeded
-
-	static inline bool inserted(const map_insert_ret_type &i) noexcept
-	{
-		return true;
-	}
-
-	//! Return the inserted iterator
-
-	static typename map_type::iterator iter(const map_insert_ret_type &i)
-		noexcept
-	{
-		return i;
-	}
-};
 
 //! Weak reference map container implementation
 
@@ -93,21 +30,14 @@ public:
 //!
 //! The first template parameter is the map's key.
 //! The second template parameter must be a reference to an object.
-//! The third parameter is an STL comparison object.
-//! The fourth template parameter should be
+//! The third template parameter should be
 //! either std::map<K, weakptr<T>, C, Allocator> or
 //! std::multimap<K, weakptr<T>, C, Allocator>.
-//! The fifth
-//! parameter is an STL allocator, that's used to allocate
-//! std::pair<K,weakptr<T> > objects
-//! that get added to the map.
 
 template<typename K,
 	 typename T,
-	 typename C,
-	 typename M,
-	 typename Allocator>
-class weakmapBaseObj : public weakContainerObj<T, M, Allocator> {
+	 typename M>
+class weakmapBaseObj : public weakContainerObj<T, M> {
 
 public:
 	//! Helper object for implementing the assignment operation.
@@ -157,7 +87,7 @@ public:
 
 	//! The superclass
 
-	typedef weakContainerObj<T, M, Allocator> weak_container_t;
+	typedef weakContainerObj<T, M> weak_container_t;
 
 	//! The iterator class, defined in the superclass
 
@@ -172,16 +102,14 @@ public:
 	typedef typename weak_container_t::container_t container_t;
 
 	//! Default constructor
-	explicit weakmapBaseObj(const C &comp=C(),
-				const Allocator &a=Allocator()) noexcept
-		: weak_container_t(comp, a)
+	template<typename ...Args>
+	explicit weakmapBaseObj(Args && ...args) noexcept
+		: weak_container_t(std::forward<Args>(args)...)
 	{
 	}
 
 	//! Default destructor
-	~weakmapBaseObj()
-	{
-	}
+	~weakmapBaseObj()=default;
 
 	//! Search the map for a key
 
@@ -211,7 +139,7 @@ public:
 			     const K &key) const
 	{
 		rlock lock = rlock::create(this);
-		
+
 		return this->begin(lock, typename weak_container_t::container_t
 				   ::readlock(lock->container())
 				   ->lower_bound(key));
@@ -223,7 +151,7 @@ public:
 			     const K &key) const
 	{
 		rlock lock = rlock::create(this);
-		
+
 		return this->begin(lock, typename weak_container_t::container_t
 				   ::readlock(lock->container())
 				   ->upper_bound(key));
@@ -235,7 +163,7 @@ public:
 						  const K &key) const
 	{
 		rlock lock = rlock::create(this);
-		
+
 		std::pair<typename M::const_iterator,
 			  typename M::const_iterator>
 			range=typename weak_container_t::container_t
@@ -318,88 +246,21 @@ public:
 	}
 };
 
-//! Helper class for implementing correct weakmapObj::find_or_create() semantics
-
-//! Specialization for a weakmultimap
-//! \internal
-
-template<typename K, typename V, typename C, typename A>
-class handle_find_or_create<std::multimap<K, V, C, A>> {
-
- public:
-	//! Calculate the return type from weakmap::find_or_create().
-
-	//! The callback lambda must return a ref. A compilation error here
-	//! means that the callback lambda is not returning a ref.
-
-	template<typename objClass, typename baseType>
-	static ref<objClass, baseType>
-	weak_return_value(ref<objClass, baseType> &&value)
-	{
-		return std::move(value);
-	}
-
-	//! Calculate the return type from mcguffinmap::find_or_create().
-
-	//! The callback lambda must return a ref. A compilation error here
-	//! means that the callback lambda is not returning a ref.
-	//!
-	//! It's a ptr, since find_or_create() can fail.
-
-	template<typename objClass, typename baseType>
-	static std::pair<ref<obj>, ref<objClass, baseType>>
-	mcguffin_return_value(ref<objClass, baseType> &&value)
-	{
-		return std::pair<ref<obj>, ref<objClass, baseType>>
-			(ref<obj>::create(), value);
-	}
-
-	//! Ho-hum.
-
-	template<typename objClass, typename baseType,
-		 typename key_type,
-		 typename ptr_type>
-	static inline ref<objClass, baseType>
-		insert_into_map(ptr_type *m,
-				const key_type &key,
-				const ref<objClass, baseType> &value)
-	{
-		m->insert(key, value);
-		return value;
-	}
-
-	//! Ho-hum.
-
-	template<typename objClass, typename baseType,
-		 typename key_type,
-		 typename ptr_type>
-		static std::pair<ref<obj>, ref<objClass, baseType>>
-		insert_into_mcguffin(ptr_type *m,
-				     const key_type &key,
-				     const ref<objClass, baseType> &value)
-	{
-		return std::pair<ref<obj>, ref<objClass, baseType>>
-			(m->insert(key, value), value);
-	}
-};
-
 //! A map with weak references.
 
 //! \see weakmapBaseObj
 
 template<typename K,
 	 typename T,
-	 typename C,
-	 typename M,
-	 typename Allocator>
-class weakmapObj : public weakmapBaseObj<K, T, C, M, Allocator> {
+	 typename M>
+class weakmapObj : public weakmapBaseObj<K, T, M> {
 
 	//! find_or_create() atomicity
 	std::recursive_mutex insert_mutex;
 public:
 
 	//! Base class typedef, for convenience.
-	typedef weakmapBaseObj<K, T, C, M, Allocator> base_t;
+	typedef weakmapBaseObj<K, T, M> base_t;
 
 	//! Import typedef from the base class.
 
@@ -419,19 +280,17 @@ public:
 
 	//! Convenience typedef
 	typedef typename base_t::template assignmentHelper<
-		ref<weakmapObj<K, T, C, M, Allocator>>> assignmentHelper_t;
+		ref<weakmapObj<K, T, M>>> assignmentHelper_t;
 
 	//! Constructor
-	explicit weakmapObj(const C &comp=C(),
-			    const Allocator &a=Allocator()) noexcept
-		: base_t(comp, a)
+	template<typename ...Args>
+	explicit weakmapObj(Args && ...args) noexcept
+		: base_t(std::forward<Args>(args)...)
 	{
 	}
 
 	//! Destructor
-	~weakmapObj()
-	{
-	}
+	~weakmapObj()=default;
 
 	//! Find a key in the map, if not exists, create the value using the passed lambda
 	template<typename lambda_type>
@@ -520,7 +379,7 @@ public:
 	assignmentHelper_t operator[](const K &k)
 	{
 		return assignmentHelper_t
-			(k, ref<weakmapObj<K, T, C, M, Allocator> >(this));
+			(k, ref<weakmapObj<K, T, M> >(this));
 	}
 };
 

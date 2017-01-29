@@ -9,6 +9,7 @@
 #include <x/mcguffinmapfwd.H>
 #include <x/mcguffinmapobj.H>
 #include <x/weakmap.H>
+#include <x/weakmapiterator.H>
 
 namespace LIBCXX_NAMESPACE {
 #if 0
@@ -29,13 +30,12 @@ class mcguffinmapBase : public ptrrefBase {
 public:
 
 	//! The underlying reference-counted object.
-	typedef mcguffinmapObj<K, ref_type, C,
+	typedef mcguffinmapObj<K, ref_type,
 				   std::map<K, typename
 					    mcguffincontainerObj<ref_type>
 					    ::container_element_t,
 					    C,
-					    Allocator>,
-				   Allocator> obj_type;
+					    Allocator>> obj_type;
 
 	//! The type representing a reference to the container
 

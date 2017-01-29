@@ -28,8 +28,7 @@ class mcguffinlistObj :
 				std::list<typename
 					  mcguffincontainerObj<ref_type>
 					  ::container_element_t,
-					  Allocator>,
-				Allocator> {
+					  Allocator>> {
 
 public:
 	//! The superclass
@@ -38,8 +37,7 @@ public:
 				 std::list<typename
 					   mcguffincontainerObj<ref_type>
 					   ::container_element_t,
-					   Allocator>,
-				 Allocator> weak_container_t;
+					   Allocator>> weak_container_t;
 
 	//! Default constructor
 	explicit mcguffinlistObj(const Allocator &a=Allocator()) noexcept

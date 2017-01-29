@@ -8,6 +8,8 @@
 #include "x/obj.H"
 #include "x/weakmultimap.H"
 #include "x/weakmap.H"
+#include "x/weakunordered_map.H"
+#include "x/weakunordered_multimap.H"
 #include "x/ondestroy.H"
 
 #include <string>
@@ -102,6 +104,69 @@ void test_find_or_create2()
 	std::cout << "first: " << first.null() << std::endl;
 }
 
+void testunordered1()
+{
+	auto m=LIBCXX_NAMESPACE::weakunordered_map<int, LIBCXX_NAMESPACE::obj>
+		::create();
+
+	auto obj1=LIBCXX_NAMESPACE::ref<LIBCXX_NAMESPACE::obj>::create();
+	auto obj2=LIBCXX_NAMESPACE::ref<LIBCXX_NAMESPACE::obj>::create();
+
+	if (!m->insert(1, obj1))
+		throw EXCEPTION("testunordered1 (1) failed");
+
+	auto p=m->begin();
+
+	if (p == m->end() || p->first != 1 || ++p != m->end())
+		throw EXCEPTION("testunordered1 (2) failed");
+
+	if (m->insert(1, obj2) ||
+	    !m->insert(2, obj2))
+		throw EXCEPTION("testunordered1 (3) failed");
+
+	if (!((*m)[3]=obj2))
+		throw EXCEPTION("testunordered1 (4) failed");
+
+	if (m->find_or_create(1, [&]
+			      {
+				      return obj1;
+			      }).null()
+	    || m->find_or_create(4, [&]
+				  {
+					  return obj1;
+				  }).null())
+		throw EXCEPTION("testunordered1 (5) failed");
+}
+
+void testunordered2()
+{
+	auto m=LIBCXX_NAMESPACE::weakunordered_multimap<int, LIBCXX_NAMESPACE::obj>
+		::create();
+
+	auto obj1=LIBCXX_NAMESPACE::ref<LIBCXX_NAMESPACE::obj>::create();
+	auto obj2=LIBCXX_NAMESPACE::ref<LIBCXX_NAMESPACE::obj>::create();
+
+	if (!m->insert(1, obj1))
+		throw EXCEPTION("testunordered2 (1) failed");
+
+	auto p=m->begin();
+
+	if (p == m->end() || p->first != 1 || ++p != m->end())
+		throw EXCEPTION("testunordered2 (2) failed");
+
+	if (!m->insert(1, obj2) ||
+	    !m->insert(2, obj2))
+		throw EXCEPTION("testunordered2 (3) failed");
+
+	if (!((*m)[3]=obj2))
+		throw EXCEPTION("testunordered2 (4) failed");
+
+	m->find_or_create(1, [&]
+			  {
+				  return obj1;
+			  });
+}
+
 int main(int argc, char **argv)
 {
 	try {
@@ -142,10 +207,11 @@ int main(int argc, char **argv)
 		}
 		test_find_or_create();
 		test_find_or_create2();
+
+		testunordered1();
+		testunordered2();
 	} catch (LIBCXX_NAMESPACE::exception &e) {
 		std::cout << e << std::endl;
 	}
 	return 0;
 }
-
-

@@ -75,7 +75,7 @@ public:
 	//! Constructor
 
 	template<typename ...Args_t>
-	mpobjimpl(Args_t && ...args) : obj(std::forward<Args_t>(args)...) {}
+	mpobjimpl(Args_t && ...args) : obj{std::forward<Args_t>(args)...} {}
 
 	//! Destructor
 	~mpobjimpl() {}

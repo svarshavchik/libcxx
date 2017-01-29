@@ -15,7 +15,7 @@ namespace LIBCXX_NAMESPACE {
 };
 #endif
 
-template<typename K, typename T, typename C, typename M, typename Allocator>
+template<typename K, typename T, typename M>
 class weakmapObj;
 
 template<typename K, typename T, typename C, typename Allocator>
@@ -155,9 +155,8 @@ class weakmapBase;
 template<typename K, typename T,
 	 typename C=std::less<K>,
 	 typename Allocator=std::allocator<std::pair<const K, weakptr<ptr<T> > > > >
-using weakmap=ref<weakmapObj<K, ptr<T>, C,
-			     std::map<K, weakptr<ptr<T> >, C, Allocator>,
-			     Allocator>,
+using weakmap=ref<weakmapObj<K, ptr<T>,
+			     std::map<K, weakptr<ptr<T> >, C, Allocator>>,
 		  weakmapBase<K, T, C, Allocator> >;
 
 //! A nullable pointer reference to a reference-counted map weak container.
@@ -166,10 +165,10 @@ using weakmap=ref<weakmapObj<K, ptr<T>, C,
 template<typename K, typename T,
 	 typename C=std::less<K>,
 	 typename Allocator=std::allocator<std::pair<const K, weakptr<ptr<T> > > > >
-using weakmapptr=ptr<weakmapObj<K, ptr<T>, C,
-				std::map<K, weakptr<ptr<T> >, C, Allocator>,
-				Allocator>,
+using weakmapptr=ptr<weakmapObj<K, ptr<T>,
+				std::map<K, weakptr<ptr<T> >, C, Allocator>>,
 		     weakmapBase<K, T, C, Allocator> >;
+
 
 #if 0
 {

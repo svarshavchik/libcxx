@@ -95,6 +95,13 @@ See COPYING for distribution information.
 
       <listitem>
 	<para>
+	  <link linkend="weakcontainers"><classname>weakunordered_map</classname>,
+	    and <classname>weakunordered_multimap</classname></link>.
+	</para>
+      </listitem>
+
+      <listitem>
+	<para>
 	  Deprecated <classname>eventqueuemsgdispatcher</classname>,
 	  <classname>threadeventqueuemsgdispatcher</classname>, and
 	  <classname>dequemsgdispatcher</classname>.

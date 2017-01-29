@@ -25,14 +25,13 @@ namespace LIBCXX_NAMESPACE {
 
 template<typename T, typename Allocator>
 class weaklistObj : public weakContainerObj<T,
-					    std::list<weakptr<T>, Allocator>,
-					    Allocator> {
+					    std::list<weakptr<T>, Allocator>> {
 
 public:
 	//! The superclass
 
-	typedef weakContainerObj<T, std::list<weakptr<T>, Allocator>,
-				 Allocator> weak_container_t;
+	typedef weakContainerObj<T, std::list<weakptr<T>, Allocator>>
+	weak_container_t;
 
 	//! Default constructor
 	explicit weaklistObj(const Allocator &a=Allocator()) noexcept

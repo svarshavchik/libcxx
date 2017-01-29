@@ -39,7 +39,7 @@ namespace LIBCXX_NAMESPACE {
 //! std::list<weakptr<T>, Allocator>, std::map<key, weakptr<T>, Compare,
 //! Allocator> and std::multimap<key, weakptr<T>, Compare, Allocator>.
 
-template<typename T, typename C, typename Allocator>
+template<typename T, typename C>
 class weakContainerObj : virtual public obj {
 
 protected:
@@ -105,8 +105,7 @@ protected:
 	public:
 		//! The type of the reference back to my container.
 
-		typedef ref< weakContainerObj<T, C, Allocator> >
-		container_ref_t;
+		typedef ref< weakContainerObj<T, C> > container_ref_t;
 
 		//! A reference back to my container
 
@@ -121,7 +120,7 @@ protected:
 		bool installed;
 
 		//! Default constructor
-		cleanupObj(weakContainerObj<T, C, Allocator> *p)
+		cleanupObj(weakContainerObj<T, C> *p)
 			: container_ref(p)
 		{
 		}
@@ -185,12 +184,12 @@ protected:
 	protected:
 		//! Our container
 
-		ref<weakContainerObj<T, C, Allocator> > wc;
+		ref<weakContainerObj<T, C> > wc;
 
 		//! The constructor takes a read lock on the container, which constructs the rlockObj by passing this.
 
-		rlockBaseObj(const weakContainerObj<T, C, Allocator> *wcArg)
-			: wc(const_cast<weakContainerObj<T, C, Allocator> *>
+		rlockBaseObj(const weakContainerObj<T, C> *wcArg)
+			: wc(const_cast<weakContainerObj<T, C> *>
 			     (wcArg))
 		{
 		}
@@ -226,7 +225,7 @@ protected:
 	public:
 		//! The constructor takes a read lock on the container, which constructs the rlockObj by passing this.
 
-		rlockObj(const weakContainerObj<T, C, Allocator> *wcArg)
+		rlockObj(const weakContainerObj<T, C> *wcArg)
 			: rlockBaseObj(wcArg),
 			  iterator_container_t
 			  ::readlock(this->wc->iterator_container)
@@ -284,22 +283,9 @@ public:
 
 protected:
 	//! Construct the container, initially empty.
-
-	explicit weakContainerObj(//! An STL allocator, passed verbatim to the container
-				  const Allocator &a) noexcept
-		: iterator_container(a)
-	{
-	}
-
-	//! Construct the container, initially empty.
-
-	template<typename Compare>
-	explicit weakContainerObj(//! The comparison object
-				  const Compare &comp,
-
-				  //! An STL allocator, passed verbatim to the container
-				  const Allocator &a) noexcept
-		: iterator_container(comp, a)
+	template<typename ...Args>
+	explicit weakContainerObj(Args && ...args) noexcept
+		: iterator_container(std::forward<Args>(args)...)
 	{
 	}
 public:
@@ -310,7 +296,7 @@ public:
 
 	//! Return the container's STL allocator
 
-	Allocator get_allocator() const noexcept
+	auto get_allocator() const noexcept
 	{
 		rlock r=rlock::create(this);
 
@@ -329,14 +315,14 @@ public:
 
 		//! The underlying container
 
-		ptr< weakContainerObj<T, C, Allocator> > container_ref;
+		ptr< weakContainerObj<T, C> > container_ref;
 
 		//! The container iterator
 		typename C::const_iterator iter;
 
 	public:
 
-		friend class weakContainerObj<T, C, Allocator>;
+		friend class weakContainerObj<T, C>;
 
 		//! Construct an empty iterator
 
@@ -390,8 +376,7 @@ public:
 		iterator &operator++() noexcept
 		{
 			{
-				typedef typename weakContainerObj<T, C,
-								  Allocator>
+				typedef typename weakContainerObj<T, C>
 					::container_t::readlock readlock_t;
 
 				readlock_t lock(r->container());
@@ -448,8 +433,7 @@ protected:
 		    ->end())
 			return end();
 
-		i.container_ref=const_cast<weakContainerObj<T, C,
-			Allocator> *>(this);
+		i.container_ref=const_cast<weakContainerObj<T, C> *>(this);
 
 		i.r=r;
 

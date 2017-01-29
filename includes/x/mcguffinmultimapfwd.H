@@ -33,12 +33,10 @@ template<typename K, typename ref_type,
 	 <std::pair<const K, typename mcguffincontainerObj<ref_type>
 		    ::container_element_t > > >
 using mcguffinmultimap
-=ref<mcguffinmapObj<K, ref_type, C,
+=ref<mcguffinmapObj<K, ref_type,
 			std::multimap<K, typename
 				 mcguffincontainerObj<ref_type>
-				 ::container_element_t, C,
-				 Allocator>,
-			Allocator>,
+				 ::container_element_t, C>>,
      mcguffinmultimapBase<K, ref_type,
 			 std::multimap<K, typename
 				       mcguffincontainerObj<ref_type>
@@ -53,11 +51,10 @@ template<typename K, typename ref_type,
 	 <std::pair<const K, typename mcguffincontainerObj<ref_type>
 		    ::container_element_t > > >
 using mcguffinmultimapptr
-=ptr<mcguffinmapObj<K, ref_type, C,
+=ptr<mcguffinmapObj<K, ref_type,
 			std::multimap<K, typename
 				      mcguffincontainerObj<ref_type>
-				      ::container_element_t, C, Allocator>,
-			Allocator>,
+				      ::container_element_t, C, Allocator>>,
      mcguffinmultimapBase<K, ref_type,
 			      std::multimap<K, typename
 					    mcguffincontainerObj<ref_type>
@@ -74,11 +71,10 @@ template<typename K, typename ref_type,
 		    ::container_element_t > > >
 using const_mcguffinmultimap=
 	const_ref<mcguffinmapObj
-		  <K, ref_type, C,
+		  <K, ref_type,
 		   std::multimap<K, typename
 				 mcguffincontainerObj<ref_type>
-				 ::container_element_t, C, Allocator>,
-		   Allocator>,
+				 ::container_element_t, C, Allocator>>,
 		  mcguffinmultimapBase
 		  <K, ref_type,
 		   std::multimap<K, typename mcguffincontainerObj<ref_type>
@@ -93,12 +89,12 @@ template<typename K, typename ref_type,
 	 <std::pair<const K, typename mcguffincontainerObj<ref_type>
 		    ::container_element_t > > >
 using const_mcguffinmultimapptr=
-	const_ptr<mcguffinmapObj<K, ref_type, C,
+	const_ptr<mcguffinmapObj<K, ref_type,
 				     std::multimap<K, typename
 						   mcguffincontainerObj
 						   <ref_type>
 						   ::container_element_t, C,
-						   Allocator>, Allocator>,
+						   Allocator>>,
 		  mcguffinmultimapBase
 		  <K, ref_type,
 		   std::multimap<K, typename mcguffincontainerObj<ref_type>
