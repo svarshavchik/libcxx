@@ -29,7 +29,7 @@ void input_numerical_overflow(const char *ttype)
 	std::string t;
 
 	obj::demangle(ttype, t);
-	throw EXCEPTION(gettextmsg(libmsg(_txt("Numerical overflow during input conversion to %1%")),
+	throw EXCEPTION(gettextmsg(libmsg(_txt("A parsing error or a numerical overflow occured during input conversion to %1%")),
 				   t));
 }
 

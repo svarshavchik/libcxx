@@ -430,6 +430,33 @@ void testoverflows()
 	}
 }
 
+void testtruncate()
+{
+	typedef LIBCXX_NAMESPACE::number<unsigned short, foo> snumber_t;
+	typedef LIBCXX_NAMESPACE::number<int, foobar> inumber_t;
+
+	if (snumber_t::truncate(-2) != 0)
+		throw EXCEPTION("-2 should overflow to 0 for an unsigned type");
+
+	if (snumber_t::truncate((unsigned long long)-1)
+	    != std::numeric_limits<unsigned short>::max())
+		throw EXCEPTION("<huge> didn't overflow to max unsigned short");
+
+	if (inumber_t::truncate( (unsigned long long)-1)
+	    != std::numeric_limits<int>::max())
+		throw EXCEPTION("<huge> didn't overflow to max int");
+
+	inumber_t n{3};
+
+	auto nn= -n;
+
+	inumber_t *nnp=&nn;
+
+	if ((*nnp) != -3)
+		throw EXCEPTION("Unary negation does not work");
+}
+
+
 void testhash()
 {
 	std::unordered_map<number_t, int> m;
@@ -467,6 +494,7 @@ int main()
 	try {
 		testnumber();
 		testoverflows();
+		testtruncate();
 		testhash();
 		testinput();
 		if (compare<number_t, number2_t>::bar() ||

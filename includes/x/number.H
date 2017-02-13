@@ -44,6 +44,16 @@ using number_default_same_op_only=
 	typename std::enable_if<std::is_same<number_1, number_2>::value,
 				number_1>::type;
 
+//! Define the unary operator on signed typesafe numbers only
+
+//! \internal
+
+template<typename number_1>
+using number_default_uneg_op=
+	typename std::enable_if<std::numeric_limits<typename number_1
+						    ::value_type>::is_signed,
+				number_1>::type;
+
 //! Metaprogramming: whether the given type is a \ref number "typesafe number".
 
 template<typename type>
@@ -55,16 +65,23 @@ template<typename value_type_t, typename tag, typename base_class>
 class is_number_type<number<value_type_t, tag, base_class>>
 	: public std::true_type {};
 
+//! Check for overflows/truncation of \ref number "typesafe numbers".
 
 template<typename to_value_type, typename from_value_type,
 	 bool is_typesafe_number=is_number_type<from_value_type>::value>
 class number_overflows;
+
+//! Check for overflows/truncation of \ref number "typesafe numbers".
+
+//! Specialization for checking of an overflow during conversion from a
+//! natural integer type.
 
 template<typename to_value_type, typename from_value_type>
 class number_overflows<to_value_type, from_value_type, false> {
 
 public:
 
+	//! Factor in signed-ness and numeric_limits to determine an overflow.
 	template<typename other_value_type>
 	static inline constexpr bool overflows(other_value_type value)
 	{
@@ -83,15 +100,47 @@ public:
 		return value >= 0 &&
 			value > std::numeric_limits<to_value_type>::max();
 	}
+
+	//! Factor in signed-ness and numeric_limits to truncate the number.
+
+	template<typename other_value_type>
+	static inline constexpr to_value_type truncate(other_value_type value)
+	{
+		if (std::numeric_limits<to_value_type>::is_signed)
+		{
+			if (std::numeric_limits<other_value_type>::is_signed &&
+			    value < std::numeric_limits<to_value_type>::min())
+				return std::numeric_limits<to_value_type>::min();
+		}
+		else
+		{
+			if (value < 0)
+				return 0;
+		}
+
+		if (value >= 0 &&
+		    value > std::numeric_limits<to_value_type>::max())
+			return std::numeric_limits<to_value_type>::max();
+
+		return to_value_type(value);
+	}
+
 };
+
+//! Check for overflows/truncation of \ref number "typesafe numbers".
+
+//! Specialization for checking of an overflow during conversion from another
+//! typesafe number.
 
 template<typename to_value_type, typename from_value_type>
 class number_overflows<to_value_type, from_value_type, true> {
 
 public:
 
+	//! Convenience typedef
 	typedef typename from_value_type::value_type underlying_type;
 
+	//! Forward the type-safe value to the specialization for natural integers.
 	template<typename other_value_type>
 	static inline constexpr bool overflows(other_value_type &&value)
 	{
@@ -99,6 +148,16 @@ public:
 					false>
 			::overflows( (underlying_type)(value));
 	}
+
+	//! Forward the type-safe value to the specialization for natural integers.
+	template<typename other_value_type>
+	static inline constexpr to_value_type truncate(other_value_type &&value)
+	{
+		return number_overflows<to_value_type, underlying_type,
+					false>
+			::truncate( (underlying_type)(value));
+	}
+
 };
 
 //! Default base class for "typesafe numerical aliases".
@@ -129,6 +188,10 @@ public:
 	//! Define resulting type for modulus operations.
 	template<typename number_1, typename number_2>
 	using resulting_mod_op=number_default_same_op_only<number_1, number_2>;
+
+	//! Define resulting type for the unary negation operator
+	template<typename number_1>
+	using resulting_uneg_op=number_default_uneg_op<number_1>;
 };
 
 //! Throw an exception due to numerical overflow.
@@ -219,27 +282,14 @@ public:
 		return *this;
 	}
 
-	//! If the given number overflows, truncate it to max().
+	//! If the given number overflows or underflows, truncate it to max() or min().
 
-	template<typename number_t,
-		 typename V=typename std::enable_if<std::is_integral<number_t>::value>::type>
-        static value_type_t truncate(number_t vn) {
-		if (vn > std::numeric_limits<value_type_t>::max())
-			vn=std::numeric_limits<value_type_t>::max();
-
-		if (vn < std::numeric_limits<value_type_t>::min())
-			vn=std::numeric_limits<value_type_t>::min();
-
-		return vn;
-	}
-
-	//! If the given number overflows, truncate it to max().
-
-	template<typename value_type_t2, typename tag2, typename base_class2>
-        static value_type_t truncate(const number<value_type_t2,
-				     tag2, base_class2> &n)
-	{
-		return truncate(n.n);
+	template<typename other_value_type>
+        static value_type_t truncate(other_value_type &&vn) {
+		return number_overflows<value_type,
+					typename std::decay<other_value_type>
+					::type>
+			::truncate(std::forward<other_value_type>(vn));
 	}
 
 	//! Assignment operator
@@ -273,6 +323,16 @@ public:
 		typedef typename res_type::value_type value_type;
 
 		return res_type(value_type(n)-value_type(v.n));
+	}
+
+	//! Unary negation operation.
+	constexpr auto operator-() const
+	{
+		typedef typename base_class
+			::template resulting_uneg_op<number>
+			res_type;
+
+		return res_type(-n);
 	}
 
 	//! Multiplication operator

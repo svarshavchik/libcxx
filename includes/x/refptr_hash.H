@@ -17,7 +17,7 @@ namespace std {
 	struct hash<LIBCXX_NAMESPACE::ref<objClass, baseType>> {
 
 		inline size_t operator()(const LIBCXX_NAMESPACE::ref<objClass,
-					 baseType> &r) const
+					 baseType> &r) const noexcept
 		{
 			return (size_t)(&*r);
 		}
@@ -31,7 +31,7 @@ namespace std {
 
 		inline size_t operator()(const LIBCXX_NAMESPACE::
 					 const_ref<objClass,
-					 baseType> &r) const
+					 baseType> &r) const noexcept
 		{
 			return (size_t)(&*r);
 		}
@@ -43,7 +43,7 @@ namespace std {
 	struct hash<LIBCXX_NAMESPACE::ptr<objClass, baseType>> {
 
 		inline size_t operator()(const LIBCXX_NAMESPACE::ptr<objClass,
-					 baseType> &r) const
+					 baseType> &r) const noexcept
 		{
 			return (size_t)(&*r);
 		}
@@ -57,7 +57,7 @@ namespace std {
 
 		inline size_t operator()(const LIBCXX_NAMESPACE::
 					 const_ptr<objClass,
-					 baseType> &r) const
+					 baseType> &r) const noexcept
 		{
 			return (size_t)(&*r);
 		}

@@ -95,6 +95,10 @@ public:
 
     template&lt;typename number_1, typename number_2&gt;
     using resulting_mod_op=&ns;::number_default_same_op_only&lt;number_1, number_2&gt;;
+
+    template&lt;typename number_1&gt;
+    using resulting_uneg_op=number_default_uneg_op&lt;number_1&gt;
+
 };
 
 typedef &ns;::number&lt;int, number_tag, base_class&gt; number_t;
@@ -111,8 +115,9 @@ int n=number_t::infinite();</programlisting>
       <literal>resulting_add_op</literal>,
       <literal>resulting_sub_op</literal>,
       <literal>resulting_mul_op</literal>,
-      <literal>resulting_div_op</literal>, and
-      <literal>resulting_mod_op</literal>.
+      <literal>resulting_div_op</literal>,
+      <literal>resulting_mod_op</literal>, and
+      <literal>resulting_uneg_op</literal>.
     </para>
 
     <para>
@@ -139,9 +144,10 @@ int n=number_t::infinite();</programlisting>
     </blockquote>
 
     <para>
-      The five template aliases specify the number type resulting from
-      addition, subtraction, multiplication, division, and modulus operations
-      respectively, and the template alias specifies the resulting type of the
+      The six template aliases specify the number type resulting from
+      addition, subtraction, multiplication, division, modulus,
+      and unary negation operations respectively,
+      and the template alias specifies the resulting type of the
       operation. The
       <ulink url="&link-typedef-x-number-default-same-op-only;"><classname>&ns;::number_default_same_op_only</classname></ulink>
       template alias is defined as follows:
@@ -188,6 +194,28 @@ using number_default_same_op_only=
     <para>
       The <literal>++</literal> and <literal>--</literal> operators always
       result in the same number types.
+    </para>
+
+    <para>
+      The
+      <ulink url="&link-typedef-x-number-default-uneg-op;"><classname>&ns;::number_default_uneg_op</classname></ulink>
+      template alias is defined as follows:
+    </para>
+
+    <blockquote>
+      <informalexample>
+	<programlisting>
+template&lt;typename number_1&gt;
+using number_default_uneg_op=
+        typename std::enable_if&lt;std::numeric_limits&lt;typename number_1
+                                                    ::value_type&gt;::is_signed,
+				number_1>::type;</programlisting>
+      </informalexample>
+    </blockquote>
+
+    <para>
+      This enables the unary negation operation on signed typesafe numbers,
+      with the result being the same typesafe number type.
     </para>
   </section>
 

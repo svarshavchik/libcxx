@@ -25,7 +25,7 @@ namespace std {
 
 		inline size_t operator()(const
 					 LIBCXX_NAMESPACE::number<value_type_t,
-					 tag, base_class> &n) const
+					 tag, base_class> &n) const noexcept
 		{
 			return n.n;
 		}
