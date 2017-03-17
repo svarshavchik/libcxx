@@ -13,10 +13,10 @@ namespace LIBCXX_NAMESPACE {
 };
 #endif
 
-int compare(const std::string &a, const std::string &b) noexcept
+int compare(const std::experimental::string_view &a, const std::experimental::string_view &b) noexcept
 {
-	std::string::const_iterator ab(a.begin()), ae(a.end()),
-		bb(b.begin()), be(b.end());
+	auto ab{a.begin()}, ae{a.end()},
+	     bb{b.begin()}, be{b.end()};
 
 	while (ab != ae || bb != be)
 	{

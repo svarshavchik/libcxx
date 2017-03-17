@@ -9,6 +9,7 @@
 #include <algorithm>
 #include <functional>
 #include <string>
+#include <experimental/string_view>
 
 #include <x/namespace.h>
 
@@ -27,21 +28,21 @@ namespace LIBCXX_NAMESPACE {
 
 //! Convert a single character to uppercase
 
-inline static char toupper(char a) noexcept
+inline static constexpr char toupper(char a) noexcept
 {
 	if (a >= 'a' && a <= 'z')
 		a -= 'a' - 'A';
-	
+
 	return a;
 }
 
 //! Convert a single character to lowercase
 
-inline static char tolower(char a) noexcept
+inline static constexpr char tolower(char a) noexcept
 {
 	if (a >= 'A' && a <= 'Z')
 		a -= 'A' - 'a';
-	
+
 	return a;
 }
 
@@ -51,12 +52,12 @@ template<typename cmp> class cmp_char
 	: public std::binary_function<char, char, bool> {
 
 public:
-	cmp_char() noexcept {}
-	~cmp_char() {}
+	cmp_char() noexcept=default;
+	~cmp_char()=default;
 
 	//! Comparison function
 
-	bool operator()(char a, char b) const noexcept
+	constexpr bool operator()(char a, char b) const noexcept
 	{
 		return cmp()(toupper(a), toupper(b));
 	}
@@ -92,19 +93,20 @@ typedef cmp_char< std::less_equal<char> > char_less_equal;
 //! A negative or a positive value that specifies whether the first string
 //! sorts before or after the second string.
 
-int compare(const std::string &a, const std::string &b) noexcept;
+int compare(const std::experimental::string_view &a, const std::experimental::string_view &b) noexcept;
 
-//! Template function for generating a comparison object for a std::string
+//! Template function for generating a comparison object for a std::experimental::string_view
 
 template<typename cmp> class cmp_str
-	: public std::binary_function<std::string, std::string, bool> {
+	: public std::binary_function<std::experimental::string_view, std::experimental::string_view, bool> {
 
 public:
-	cmp_str() noexcept {}
-	~cmp_str() {}
+	cmp_str() noexcept=default;
+	~cmp_str()=default;
 
 	//! Comparison function
-	bool operator()(const std::string &a, const std::string &b) const
+	constexpr bool operator()(const std::experimental::string_view &a,
+				  const std::experimental::string_view &b) const
 	{
 		return cmp()(compare(a, b), 0);
 	}

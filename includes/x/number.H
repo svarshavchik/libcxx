@@ -285,7 +285,7 @@ public:
 	//! If the given number overflows or underflows, truncate it to max() or min().
 
 	template<typename other_value_type>
-        static value_type_t truncate(other_value_type &&vn) {
+        static constexpr value_type_t truncate(other_value_type &&vn) {
 		return number_overflows<value_type,
 					typename std::decay<other_value_type>
 					::type>
