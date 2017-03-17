@@ -40,7 +40,7 @@ public:
 		    const std::string &language,
 
 		    //! String
-		    const std::vector<unicode_char> &text);
+		    const std::u32string &text);
 
 	//! Subclass specifies whether any additional characters should trigger encoding.
 
@@ -52,9 +52,9 @@ private:
 
 	//! \internal
 
-	std::vector<unicode_char>::const_iterator
-	next_word(std::vector<unicode_char>::const_iterator b,
-		  std::vector<unicode_char>::const_iterator e, bool &encode_it)
+	std::u32string::const_iterator
+	next_word(std::u32string::const_iterator b,
+		  std::u32string::const_iterator e, bool &encode_it)
 		LIBCXX_HIDDEN;
 
 	//! Internal method.
@@ -84,8 +84,8 @@ private:
 	//! Internal method.
 
 	//! \internal
-	static std::string to_utf8(std::vector<unicode_char>::const_iterator b,
-				   std::vector<unicode_char>::const_iterator e)
+	static std::string to_utf8(std::u32string::const_iterator b,
+				   std::u32string::const_iterator e)
 		LIBCXX_HIDDEN;
 
 	class qp_traits;
@@ -119,14 +119,14 @@ public:
 
 //! Encode a string using RFC 2047.
 
-std::string to_rfc2047(const std::vector<unicode_char> &str);
+std::string to_rfc2047(const std::u32string &str);
 
 //! Encode a string using RFC 2047, specifying the language.
 
 //! \overload
 //! Uses the RFC 2231 extension to RFC 2047 to indicate the language.
 std::string to_rfc2047(const std::string &language,
-		       const std::vector<unicode_char> &str);
+		       const std::u32string &str);
 
 //! Encode a string using RFC 2047.
 
@@ -138,7 +138,7 @@ std::string to_rfc2047(const std::string &language,
 
 template<typename Functor>
 std::string to_rfc2047(//! String, unspecified language
-		       const std::vector<unicode_char> &str,
+		       const std::u32string &str,
 
 		       //! Functor
 		       Functor && functor)
@@ -154,7 +154,7 @@ std::string to_rfc2047(//! Language
 		       const std::string &language,
 
 		       //! String
-		       const std::vector<unicode_char> &str,
+		       const std::u32string &str,
 
 		       //! Functor
 		       Functor && functor)
@@ -180,7 +180,7 @@ std::string to_rfc2047_lang_utf8(//! Language
 				 //! An optional functor/lambda
 				 Args && ...args)
 {
-	std::vector<unicode_char> uc;
+	std::u32string uc;
 
 	unicode::iconvert::convert(str, unicode::utf_8, uc);
 
@@ -210,7 +210,7 @@ std::string to_rfc2047_utf8(//! UTF-8 string to encode
 //! Use \ref iconviofilter "LIBCXX_NAMESPACE::iconviofilter::from_u32string()"
 //! to get a regular string.
 
-std::vector<unicode_char> from_rfc2047(//! RFC 2047-encoded string
+std::u32string from_rfc2047(//! RFC 2047-encoded string
 			    const std::string &string,
 
 			    //! Expected charset of unencoded octets
@@ -224,7 +224,7 @@ std::vector<unicode_char> from_rfc2047(//! RFC 2047-encoded string
 //! If the RFC2047-encoded string indicated multiple languages, the first
 //! one gets returned.
 
-std::pair<std::string, std::vector<unicode_char>>
+std::pair<std::string, std::u32string>
 from_rfc2047_lang(//! RFC2047-encoded string
 		  const std::string &string,
 
@@ -240,7 +240,7 @@ void from_rfc2047(//! RFC2047-encoded string
 		  const std::string &native_charset,
 
 		  //! Decoded string, as a list of language/strings.
-		  std::vector<std::pair<std::string, std::vector<unicode_char>>
+		  std::vector<std::pair<std::string, std::u32string>
 		  > &res);
 
 //! Converted from RFC 2047 to a UTF-8 string

@@ -48,6 +48,8 @@ template<typename objClass,
 	 typename baseClass> class const_ptr : public ptrImpl<objClass> {
 public:
 
+	using ptrImpl<objClass>::operator bool;
+	using ptrImpl<objClass>::operator !;
 	//! Provide for this pointer's base class.
 
 	typedef baseClass base;
@@ -674,6 +676,9 @@ template<typename objClass2> inline const_ptr<objClass, baseClass>
 template<typename objClass,
 	 typename baseClass> class ptr : public const_ptr<objClass, baseClass> {
 public:
+	using const_ptr<objClass, baseClass>::operator bool;
+	using const_ptr<objClass, baseClass>::operator !;
+
 	//! The default constructor
 
 	//! The constructor takes an optional parameter, \c pArg, which must

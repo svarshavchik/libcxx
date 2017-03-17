@@ -206,6 +206,12 @@ static void objtest()
 		p4=LIBCXX_NAMESPACE::ptr<base>::create(4),
 		p5=LIBCXX_NAMESPACE::ptr<base>::create(5), p6;
 
+	if (p6)
+		throw EXCEPTION("operator bool on ptrs is busted");
+
+	if (p6 || !p5)
+		throw EXCEPTION("operator bool on ptr is really busted");
+
 	if (p4->isa<LIBCXX_NAMESPACE::ref<derived>>())
 		throw EXCEPTION("False derived");
 

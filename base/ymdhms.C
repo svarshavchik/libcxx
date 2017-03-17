@@ -78,7 +78,7 @@ time_t ymdhms::to_time_t(const std::string &s,
 	int tz=0;
 	int month=0;
 
-	std::vector<unicode_char> uc;
+	std::u32string uc;
 
 	unicode::iconvert::convert(s, l->charset(), uc);
 
@@ -145,7 +145,7 @@ time_t ymdhms::to_time_t(const std::string &s,
 		}
 
 		auto lower_month=unicode::iconvert::convert
-			(std::vector<unicode_char>(p, b), l->charset());
+			(std::u32string(p, b), l->charset());
 
 		if (b != e && *b == '-')
 		{

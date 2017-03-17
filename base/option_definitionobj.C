@@ -22,7 +22,7 @@ namespace LIBCXX_NAMESPACE {
 };
 #endif
 definitionObj::definitionObj(ptr<valuebaseObj> valueArg,
-			     unicode_char shortnameArg,
+			     char32_t shortnameArg,
 			     const std::string &longnameArg,
 			     int flagsArg,
 			     const std::string &descriptionArg,

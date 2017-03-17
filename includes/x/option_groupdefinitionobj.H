@@ -43,7 +43,7 @@ public:
 			   //! Option's short name
 
 			   //! This may be 0, if there is no shortname
-			   unicode_char shortnameArg,
+			   char32_t shortnameArg,
 
 			   //! Option's long name
 			   std::string longnameArg,

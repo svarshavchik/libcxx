@@ -161,7 +161,7 @@ public:
 	//! Retrieve a message from the catalog, as unicode.
 
 	template<typename ...Args>
-	inline std::vector<unicode_char> get_unicode(Args && ...args) const
+	inline std::u32string get_unicode(Args && ...args) const
 	{
 		return to_unicode(get(std::forward<Args>(args)...));
 	}
@@ -171,7 +171,7 @@ public:
 	//! Used by get_unicode().
 	//! \internal
 
-	std::vector<unicode_char> to_unicode(const std::string &s) const;
+	std::u32string to_unicode(const std::string &s) const;
 
 	//! Retrieve a localized message, then use gettextmsg() to format it.
 

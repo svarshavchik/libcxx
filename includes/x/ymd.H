@@ -50,7 +50,7 @@ template<typename InputIterator>
 inline ymd ymd::parser::parse(InputIterator beg_iter,
 			      InputIterator end_iter)
 {
-	std::vector<unicode_char> uc;
+	std::u32string uc;
 
 	unicode::iconvert::tou::convert(beg_iter, end_iter,
 					loc->charset(),

@@ -594,13 +594,13 @@ ymd ymd::parser::parse(const char *string)
 	return parse(string, string+n);
 }
 
-ymd ymd::parser::parse_internal(const std::vector<unicode_char> &ustr)
+ymd ymd::parser::parse_internal(const std::u32string &ustr)
 {
 	int md[2];
 	int md_cnt=0;
 
 	bool md_str=false;
-	std::vector<unicode_char> mstr;
+	std::u32string mstr;
 
 	uint16_t year=0;
 	bool yearfound=false;
@@ -706,7 +706,7 @@ ymd ymd::parser::parse_internal(const std::vector<unicode_char> &ustr)
 			if (std::find_if(mstr.begin()+1,
 					 mstr.end(),
 					 []
-					 (unicode_char uc)
+					 (char32_t uc)
 					 {
 						 return !unicode_isdigit(uc);
 					 })
@@ -716,7 +716,7 @@ ymd ymd::parser::parse_internal(const std::vector<unicode_char> &ustr)
 					       mstr.end(),
 					       mstr.begin()+1,
 					       []
-					       (unicode_char uc)
+					       (char32_t uc)
 					       {
 						       return (uc & 0x0f) + '0';
 					       });

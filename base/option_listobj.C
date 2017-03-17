@@ -67,7 +67,7 @@ void listObj::setAppName(const std::string &applicationNameArg)
 }
 
 listObj &listObj::add (const ref<valuebaseObj> &valueArg,
-		       unicode_char shortnameArg,
+		       char32_t shortnameArg,
 		       const std::string &longnameArg,
 		       int flagsArg,
 		       const std::string &descriptionArg,
@@ -83,7 +83,7 @@ listObj &listObj::add (const ref<valuebaseObj> &valueArg,
 }
 
 listObj &listObj::add(int (*optfunc)(),
-		      unicode_char shortnameArg,
+		      char32_t shortnameArg,
 		      const std::string &longnameArg,
 		      int flagsArg,
 		      const std::string &descriptionArg,
@@ -98,7 +98,7 @@ listObj &listObj::add(int (*optfunc)(),
 }
 
 listObj &listObj::add(const ref<valuebaseObj> &valueArg,
-		      unicode_char shortnameArg,
+		      char32_t shortnameArg,
 		      const std::string &longnameArg,
 		      const list &groupOptionsArg,
 		      const std::string &descriptionArg,
@@ -146,7 +146,7 @@ listObj &listObj::addArgument(const std::string &nameArg,
 	return *this;
 }
 
-unicode_char listObj::option_unicodechar(const std::string &shortName)
+char32_t listObj::option_unicodechar(const std::string &shortName)
 {
 	auto ubuf=unicode::iconvert::tou
 		::convert(shortName, unicode::utf_8).first;

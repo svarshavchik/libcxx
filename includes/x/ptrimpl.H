@@ -43,6 +43,17 @@ public:
 		return refP == 0;
 	}
 
+	//! Make it work in boolean context
+	explicit operator bool() const noexcept
+	{
+		return !null();
+	}
+
+	//! Make it work in boolean context
+	bool operator!() const noexcept
+	{
+		return null();
+	}
 	//! Define this reference's base type
 
 	typedef objClass obj_type;

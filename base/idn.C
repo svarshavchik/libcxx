@@ -17,7 +17,7 @@ namespace LIBCXX_NAMESPACE {
 
 std::string idn::to_ascii(const std::string &str, int flags)
 {
-	std::vector<unicode_char> u32;
+	std::u32string u32;
 
 	unicode::iconvert::convert(str, unicode::utf_8, u32);
 
@@ -40,7 +40,7 @@ std::string idn::to_ascii(const std::string &str, int flags)
 
 std::string idn::from_ascii(const std::string &str, int flags)
 {
-	std::vector<unicode_char> u(str.begin(), str.end());
+	std::u32string u(str.begin(), str.end());
 
 	u.push_back(0);
 
@@ -57,7 +57,7 @@ std::string idn::from_ascii(const std::string &str, int flags)
 	size_t n;
 	for (n=0; output[n]; ++n)
 		;
-	u=std::vector<unicode_char>(output, output+n);
+	u=std::u32string(output, output+n);
 	free(output);
 
 	return unicode::iconvert::convert(u, unicode::utf_8);

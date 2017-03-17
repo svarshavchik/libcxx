@@ -21,7 +21,7 @@ namespace LIBCXX_NAMESPACE {
 };
 #endif
 groupdefinitionObj::groupdefinitionObj(ptr<valuebaseObj> valueArg,
-				       unicode_char shortnameArg,
+				       char32_t shortnameArg,
 				       std::string longnameArg,
 				       list groupOptionsArg,
 				       std::string descriptionArg,

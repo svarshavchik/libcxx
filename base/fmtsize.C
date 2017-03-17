@@ -59,7 +59,7 @@ std::string fmtsize(uint64_t bytes) noexcept
 static uint64_t parsesize_int(const std::string &s,
 			      const const_locale &localeArg) noexcept
 {
-	std::vector<unicode_char> uc;
+	std::u32string uc;
 
 	unicode::iconvert::convert(s, localeArg->charset(), uc);
 
@@ -95,7 +95,7 @@ static uint64_t parsesize_int(const std::string &s,
 	while (b != e && unicode_isspace(e[-1]))
 		--e;
 
-	unicode_char scale=b == e ? 0: unicode_uc(*b);
+	char32_t scale=b == e ? 0: unicode_uc(*b);
 
 	for (int i=sizeof(sz)/sizeof(sz[0]); --i >= 0; )
 	{

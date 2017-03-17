@@ -408,7 +408,7 @@ void responseimpl::getCookies(std::list<cookie> &cookies) const
 	     cookie_headers.first != cookie_headers.second;
 	     ++cookie_headers.first)
 	{
-		std::vector<unicode_char> u;
+		std::u32string u;
 
 		if (!unicode::iconvert::convert(cookie_headers.first->second
 						.value(),

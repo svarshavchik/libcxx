@@ -75,7 +75,7 @@ public:
 
 		     //! This may be 0, if there is no shortname
 		     //!
-		     unicode_char shortnameArg,
+		     char32_t shortnameArg,
 
 		     //! Option's long name
 		     const std::string &longnameArg,
@@ -108,7 +108,7 @@ public:
 
 		     //! This may be 0, if there is no shortname
 		     //!
-		     unicode_char shortnameArg,
+		     char32_t shortnameArg,
 
 		     //! Option's long name
 		     const std::string &longnameArg,
@@ -143,7 +143,7 @@ public:
 
 		     //! This may be 0, if there is no shortname
 		     //!
-		     unicode_char shortnameArg,
+		     char32_t shortnameArg,
 
 		     //! Option's long name
 		     const std::string &longnameArg,
@@ -179,7 +179,7 @@ public:
 
 		     //! This may be 0, if there is no shortname
 		     //!
-		     unicode_char shortnameArg,
+		     char32_t shortnameArg,
 
 		     //! Option's long name
 		     const std::string &longnameArg,
@@ -225,7 +225,7 @@ public:
 
 		     //! This may be 0, if there is no shortname
 		     //!
-		     unicode_char shortnameArg,
+		     char32_t shortnameArg,
 
 		     //! Option's long name
 		     const std::string &longnameArg,
@@ -271,7 +271,7 @@ public:
 
 	//! Converts option short name to a unicod character.
 
-	static unicode_char option_unicodechar(const std::string &shortName);
+	static char32_t option_unicodechar(const std::string &shortName);
 
 	//! Add definitions of standard options
 

@@ -631,10 +631,10 @@ public:
 
 		//! Cached month names
 
-		std::vector<unicode_char> month_names[12];
+		std::u32string month_names[12];
 
 		//! Cached weekday names
-		std::vector<unicode_char> month_names_long[12];
+		std::u32string month_names_long[12];
 
 		//! Flag: interpret dd/dd/dddd as m/d/y
 
@@ -675,7 +675,7 @@ public:
 		//! Internal parser
 
 		//! \internal
-		ymd parse_internal(const std::vector<unicode_char> &);
+		ymd parse_internal(const std::u32string &);
 
 		//! Make some sense out of a string
 

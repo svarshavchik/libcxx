@@ -21,7 +21,7 @@ namespace LIBCXX_NAMESPACE {
 };
 #endif
 
-definitionbaseObj::definitionbaseObj(unicode_char shortnameArg,
+definitionbaseObj::definitionbaseObj(char32_t shortnameArg,
 				     const std::string &longnameArg,
 				     int flagsArg,
 				     const std::string &descriptionArg,
@@ -56,7 +56,7 @@ bool definitionbaseObj::usage(std::ostream &o,
 	if (!(flags & option::list::base::required))
 		o << '[';
 
-	std::vector<unicode_char> shortname_v;
+	std::u32string shortname_v;
 
 	shortname_v.push_back('-');
 	shortname_v.push_back(shortname);
@@ -97,7 +97,7 @@ void definitionbaseObj::help(std::ostream &o,
 
 		optname_s << std::setw(indentlevel) << "";
 
-		std::vector<unicode_char> shortname_v;
+		std::u32string shortname_v;
 
 		shortname_v.push_back('-');
 		shortname_v.push_back(shortname);
@@ -129,7 +129,7 @@ void definitionbaseObj::help(std::ostream &o,
 		unicode::iconvert::tou::convert(description,
 						unicode::utf_8).first;
 
-	std::vector<unicode_char>::iterator b=descriptionBuf.begin(),
+	std::u32string::iterator b=descriptionBuf.begin(),
 		e=descriptionBuf.end(), p, q;
 
 	bool shown_option=false;
@@ -234,7 +234,7 @@ int definitionfuncbaseObj<int (*)(const bool &), bool>::set(parserObj &obj)
 }
 
 definitionfuncvoidObj
-::definitionfuncvoidObj(unicode_char shortnameArg,
+::definitionfuncvoidObj(char32_t shortnameArg,
 			const std::string &longnameArg,
 			int flagsArg,
 			const std::string &descriptionArg,

@@ -32,7 +32,7 @@ class definitionfuncbaseObj : public definitionbaseObj {
 public:
 	//! Define an option that's processed by a function
 	definitionfuncbaseObj(//! Option short name
-			      unicode_char shortnameArg,
+			      char32_t shortnameArg,
 
 			      //! Option long name
 			      const std::string &longnameArg,
@@ -163,7 +163,7 @@ class definitionfuncvalueObj
 public:
 	//! Define an option that's processed by a function
 	definitionfuncvalueObj(//! Option short name
-			      unicode_char shortnameArg,
+			      char32_t shortnameArg,
 
 			      //! Option long name
 			      const std::string &longnameArg,
@@ -224,7 +224,7 @@ class definitionfunccrvalueObj
 public:
 	//! Define an option that's processed by a function
 	definitionfunccrvalueObj(//! Option short name
-				 unicode_char shortnameArg,
+				 char32_t shortnameArg,
 
 				 //! Option long name
 				 const std::string &longnameArg,
@@ -281,7 +281,7 @@ class definitionfuncvoidObj
 public:
 	//! Define an option that's processed by a function
 	definitionfuncvoidObj(//! Option short name
-			      unicode_char shortnameArg,
+			      char32_t shortnameArg,
 
 			      //! Option long name
 			      const std::string &longnameArg,

@@ -392,7 +392,7 @@ void parserObj::collect_optname(const std::string &argstring_arg) noexcept
 			    (rc=(*b)->set(*this,
 					  unicode::iconvert::fromu
 					  ::convert
-					  (std::vector<unicode_char>(sb, se),
+					  (std::u32string(sb, se),
 					   unicode::utf_8).first))
 			    != 0)
 			{
@@ -472,7 +472,7 @@ int parserObj::validate() noexcept
 
 				if ( (*b)->shortname)
 				{
-					std::vector<unicode_char> buf;
+					std::u32string buf;
 
 					buf.push_back('-');
 					buf.push_back( (*b)->shortname );

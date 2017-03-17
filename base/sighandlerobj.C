@@ -54,8 +54,8 @@ class sighandlerObj::priv {
 	class handlers : virtual public obj {
 
 	public:
-		handlers() LIBCXX_INTERNAL {}
-		~handlers() LIBCXX_INTERNAL {}
+		handlers() LIBCXX_INTERNAL=default;
+		~handlers() LIBCXX_INTERNAL=default;
 
 		mpobj<handlersmeta> meta;
 
@@ -94,8 +94,8 @@ class sighandlerObj::priv {
 	public:
 		mpobj<sigthreadmeta> sigthreadmetainfo;
 
-		sigthread() LIBCXX_HIDDEN {}
-		~sigthread() LIBCXX_HIDDEN {}
+		sigthread() LIBCXX_HIDDEN=default;
+		~sigthread() LIBCXX_HIDDEN=default;
 	};
 
 	static singleton<sigthread> impl;

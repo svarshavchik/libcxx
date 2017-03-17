@@ -137,17 +137,17 @@ public:
 	//! \return a reference to a vector that contains the values for each
 	//! associated name. If the value was not specified, it gets set to 0.
 
-	const std::vector<int_type> &parse(const std::vector<unicode_char> &uc)
+	const std::vector<int_type> &parse(const std::u32string &uc)
 	{
 		std::fill(values.begin(), values.end(), int_type(0));
 
 		bool has_word=false;
 		bool has_value=false;
 
-		std::vector<unicode_char> word;
+		std::u32string word;
 		int_type value;
 
-		std::vector<std::vector<unicode_char>> lookup; // Cache localized words
+		std::vector<std::u32string> lookup; // Cache localized words
 
 		std::vector<bool> lookup_flag; // Seen this word
 
@@ -271,7 +271,7 @@ public:
 	const std::vector<int_type> &parse(const std::string &str,
 					   const const_locale &l)
 	{
-		std::vector<unicode_char> uc;
+		std::u32string uc;
 
 		unicode::iconvert::convert(str, l->charset(), uc);
 		return parse(uc);

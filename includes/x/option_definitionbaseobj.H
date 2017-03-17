@@ -34,7 +34,7 @@ class definitionbaseObj : virtual public obj {
 
 public:
 	//! Option's short name
-	unicode_char shortname;
+	char32_t shortname;
 
 	//! Option's long name
 	std::string longname;
@@ -52,7 +52,7 @@ public:
 
 	//! Default constructor
 
-	definitionbaseObj(unicode_char shortnameArg,
+	definitionbaseObj(char32_t shortnameArg,
 			  const std::string &longnameArg,
 			  int flagsArg,
 			  const std::string &descriptionArg,
