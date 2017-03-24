@@ -51,6 +51,15 @@ void testnumber()
 	n1=n2=n1;
 
 	n2=5;
+
+	if (6 < n2 ||
+	    6 == n2 ||
+	    6 <= n2 ||
+	    4 > n2 ||
+	    4 >= n2 ||
+	    5 != n2)
+		throw EXCEPTION("Comparisons are busted");
+
 	n1=n2+4;
 	n1=n2-4;
 	n1=n2*4;
@@ -325,12 +334,16 @@ struct test_assignment {
 	coord_t a;
 };
 
+template<typename ...Args>
+void iamused(Args && ...args)
+{
+}
+
 void test_custom_ops()
 {
 	coord_t a,b;
 
 	test_assignment t={4};
-
 
 	++a;
 	a = a+2;
@@ -339,6 +352,7 @@ void test_custom_ops()
 	dim_t c=a-b;
 
 	dim_squared_t d=c*c;
+	iamused(t, d);
 }
 
 void testoverflows()

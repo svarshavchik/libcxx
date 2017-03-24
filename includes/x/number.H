@@ -71,6 +71,127 @@ template<typename to_value_type, typename from_value_type,
 	 bool is_typesafe_number=is_number_type<from_value_type>::value>
 class number_overflows;
 
+//! Helper class used by \ref number_overflows "number_overflows".
+
+//! Determines whether an integer is smaller than what can be represented
+//! by another integer type after it gets converted to the integer type.
+//!
+//! This default template specialization is used only when both integer
+//! types are unsigned.
+
+template<typename to_value_type, typename from_value_type,
+	 bool to_is_signed=std::numeric_limits<to_value_type>::is_signed,
+	 bool from_is_signed=std::numeric_limits<from_value_type>::is_signed>
+class number_min_overflows {
+
+public:
+
+	template<typename other_value_type>
+	static inline constexpr bool is_overflows(other_value_type value)
+	{
+		return value < std::numeric_limits<to_value_type>::min();
+	}
+};
+
+//! Specialization.
+
+//! This specialization is used when the original integer that's being
+//! converted to another integer type is unsigned.
+//!
+//! An unsigned integer value cannot possibly be less than an integer value
+//! of any type, because the smallest unsigned integer value is zero,
+//! so this is always false.
+
+template<typename to_value_type, typename from_value_type,
+	 bool to_is_signed>
+class number_min_overflows<to_value_type, from_value_type,
+			   to_is_signed, false> {
+
+public:
+	template<typename other_value_type>
+	static inline constexpr bool is_overflows(other_value_type value)
+	{
+		return false;
+	}
+};
+
+//! Specialization.
+
+//! This specialization is used when a signed integer value gets converted
+//! to an unsigned integer type. If the signed integer value is zero, it
+//! underflows, so we just compare it against 0.
+
+template<typename to_value_type, typename from_value_type>
+class number_min_overflows<to_value_type, from_value_type, false, true> {
+public:
+	template<typename other_value_type>
+	static inline constexpr bool is_overflows(other_value_type value)
+	{
+		return value < 0;
+	}
+};
+
+//! Helper class used by \ref number_overflows "number_overflows".
+
+//! Determines whether an integer is larger than what can be represented
+//! by another integer type after it gets converted to the integer type.
+//!
+//! This default template specialization is used when the integer value is
+//! a signed type. In order to prevent "comparing unsigned with signed"
+//! compiler warnings, the integer value is converted to an unsigned integer
+//! value of the same type, but only after check that the integer value is
+//! not negative.
+//!
+//! If it is negative it can't possibly exceed max() of whatever integer
+//! type it is being converted to.
+//!
+//! After the integer value is determined not to be negative, both the
+//! integer and the to-type's max() get converted to an unsigned type, and
+//! compared as unsigned types.
+
+template<typename to_value_type, typename from_value_type,
+	 bool to_is_signed=std::numeric_limits<to_value_type>::is_signed,
+	 bool from_is_signed=std::numeric_limits<from_value_type>::is_signed>
+class number_max_overflows {
+
+public:
+
+	template<typename other_value_type>
+	static inline constexpr bool is_overflows(other_value_type value)
+	{
+		return value >= 0 &&
+			static_cast<typename std::make_unsigned
+				    <other_value_type>::type>(value) >
+			static_cast<typename std::make_unsigned<to_value_type>
+				    ::type>
+			(std::numeric_limits<to_value_type>::max());
+	}
+};
+
+//! Specialization.
+
+//! This specialization is used when an unsigned integer type is getting
+//! converted to another integer type, signed or unsigned. Since the
+//! integer value is an unsigned type, we can skip the test for a negative
+//! value used in the default template.
+
+template<typename to_value_type, typename from_value_type, bool to_is_signed>
+class number_max_overflows<to_value_type, from_value_type,
+			   to_is_signed, false> {
+
+public:
+
+	template<typename other_value_type>
+	static inline constexpr bool is_overflows(other_value_type value)
+	{
+		return static_cast<typename std::make_unsigned
+				   <other_value_type>::type>(value) >
+			static_cast<typename std::make_unsigned<to_value_type>
+				    ::type>
+			(std::numeric_limits<to_value_type>::max());
+	}
+};
+
 //! Check for overflows/truncation of \ref number "typesafe numbers".
 
 //! Specialization for checking of an overflow during conversion from a
@@ -85,20 +206,11 @@ public:
 	template<typename other_value_type>
 	static inline constexpr bool overflows(other_value_type value)
 	{
-		if (std::numeric_limits<to_value_type>::is_signed)
-		{
-			if (std::numeric_limits<other_value_type>::is_signed &&
-			    value < std::numeric_limits<to_value_type>::min())
-				return true;
-		}
-		else
-		{
-			if (value < 0)
-				return true;
-		}
-
-		return value >= 0 &&
-			value > std::numeric_limits<to_value_type>::max();
+		return number_min_overflows<to_value_type, from_value_type>
+			::is_overflows(value)
+			||
+			number_max_overflows<to_value_type, from_value_type>
+			::is_overflows(value);
 	}
 
 	//! Factor in signed-ness and numeric_limits to truncate the number.
@@ -106,25 +218,16 @@ public:
 	template<typename other_value_type>
 	static inline constexpr to_value_type truncate(other_value_type value)
 	{
-		if (std::numeric_limits<to_value_type>::is_signed)
-		{
-			if (std::numeric_limits<other_value_type>::is_signed &&
-			    value < std::numeric_limits<to_value_type>::min())
-				return std::numeric_limits<to_value_type>::min();
-		}
-		else
-		{
-			if (value < 0)
-				return 0;
-		}
+		if (number_min_overflows<to_value_type, from_value_type>
+		    ::is_overflows(value))
+			return std::numeric_limits<to_value_type>::min();
 
-		if (value >= 0 &&
-		    value > std::numeric_limits<to_value_type>::max())
+		if (number_max_overflows<to_value_type, from_value_type>
+		    ::is_overflows(value))
 			return std::numeric_limits<to_value_type>::max();
 
 		return to_value_type(value);
 	}
-
 };
 
 //! Check for overflows/truncation of \ref number "typesafe numbers".
@@ -560,6 +663,78 @@ public:
 			::overflows(std::forward<other_value_type>(value));
 	}
 };
+
+//! Comparison operator overload for \ref number "type safe numbers".
+
+template<typename value_type,
+	 typename value_type_t, typename tag, typename base_class,
+	 typename V=typename std::enable_if<std::is_integral<value_type>
+					    ::value>::type>
+constexpr bool operator==(value_type &&vn,
+			  const number<value_type_t, tag, base_class> &n)
+{
+	return n == std::forward<value_type>(vn);
+}
+
+//! Comparison operator overload for \ref number "type safe numbers".
+
+template<typename value_type,
+	 typename value_type_t, typename tag, typename base_class,
+	 typename V=typename std::enable_if<std::is_integral<value_type>
+					    ::value>::type>
+constexpr bool operator!=(value_type &&vn,
+			  const number<value_type_t, tag, base_class> &n)
+{
+	return n != std::forward<value_type>(vn);
+}
+
+//! Comparison operator overload for \ref number "type safe numbers".
+
+template<typename value_type,
+	 typename value_type_t, typename tag, typename base_class,
+	 typename V=typename std::enable_if<std::is_integral<value_type>
+					    ::value>::type>
+constexpr bool operator<(value_type &&vn,
+			  const number<value_type_t, tag, base_class> &n)
+{
+	return n > std::forward<value_type>(vn);
+}
+
+//! Comparison operator overload for \ref number "type safe numbers".
+
+template<typename value_type,
+	 typename value_type_t, typename tag, typename base_class,
+	 typename V=typename std::enable_if<std::is_integral<value_type>
+					    ::value>::type>
+constexpr bool operator<=(value_type &&vn,
+			  const number<value_type_t, tag, base_class> &n)
+{
+	return n >= std::forward<value_type>(vn);
+}
+
+//! Comparison operator overload for \ref number "type safe numbers".
+
+template<typename value_type,
+	 typename value_type_t, typename tag, typename base_class,
+	 typename V=typename std::enable_if<std::is_integral<value_type>
+					    ::value>::type>
+constexpr bool operator>(value_type &&vn,
+			  const number<value_type_t, tag, base_class> &n)
+{
+	return n < std::forward<value_type>(vn);
+}
+
+//! Comparison operator overload for \ref number "type safe numbers".
+
+template<typename value_type,
+	 typename value_type_t, typename tag, typename base_class,
+	 typename V=typename std::enable_if<std::is_integral<value_type>
+					    ::value>::type>
+constexpr bool operator>=(value_type &&vn,
+			  const number<value_type_t, tag, base_class> &n)
+{
+	return n <= std::forward<value_type>(vn);
+}
 
 //! Addition operator overload
 //!
