@@ -61,8 +61,17 @@ public:
 	//! Initialize a constant reference.
 	//! \see ptr
 
+	inline const_ptr() noexcept
+		__attribute__((artificial))
+		: ptrImpl<objClass>(nullptr)
+	{
+	}
+
+	//! Initialize a constant reference.
+	//! \see ptr
+
 	inline explicit
-	const_ptr(const objClass *pArg=nullptr) noexcept
+	const_ptr(const objClass *pArg) noexcept
 		__attribute__((artificial))
 		: ptrImpl<objClass>(const_cast<objClass *>(pArg))
 	{
@@ -679,9 +688,15 @@ public:
 	using const_ptr<objClass, baseClass>::operator bool;
 	using const_ptr<objClass, baseClass>::operator !;
 
+	inline ptr() noexcept
+		__attribute__((artificial))
+		: const_ptr<objClass, baseClass>(nullptr)
+	{
+	}
+
 	//! The default constructor
 
-	//! The constructor takes an optional parameter, \c pArg, which must
+	//! \c pArg, which must
 	//! be a pointer to a heap-allocated instance of \c objClass .
 	//! pArg \b must point to an object created by \c new, whose
 	//! reference count gets incremented.
@@ -705,7 +720,7 @@ public:
 	//! newObject->method()
 	//! throws a null pointer exception.
 
-	inline explicit ptr(objClass *pArg=nullptr) noexcept
+	inline explicit ptr(objClass *pArg) noexcept
 		__attribute__((artificial))
 		: const_ptr<objClass, baseClass>(pArg)
 	{
