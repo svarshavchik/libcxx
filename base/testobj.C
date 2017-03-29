@@ -35,7 +35,6 @@
 #include "x/eventqueuedestroynotify.H"
 #include "x/dirwalk.H"
 #include "x/destroy_callback.H"
-#include "x/string_argument.H"
 #include "x/sentry.H"
 
 #include <iostream>
@@ -46,26 +45,13 @@
 #include <sys/types.h>
 #include <sys/wait.h>
 
-void string_argument()
+void trimtest()
 {
-	const char *str="abc";
+	std::string foo=" bar ";
 
-	static const char arr[]="def";
-
-	std::string stds="ghi";
-
-	std::vector<char> vec={'j','k','l'};
-
-	if (LIBCXX_NAMESPACE::basic_string_argument(str) +
-	    LIBCXX_NAMESPACE::basic_string_argument(arr) +
-	    LIBCXX_NAMESPACE::basic_string_argument(stds) +
-	    LIBCXX_NAMESPACE::basic_string_argument(vec)
-	    != "abcdefghijkl")
-	{
-		std::cerr << "string_argument test failed" << std::endl;
-		exit(1);
-	}
-};
+	if (LIBCXX_NAMESPACE::trim(foo) != "bar")
+		throw EXCEPTION("trim failed");
+}
 
 class cl1 : virtual public LIBCXX_NAMESPACE::obj {
 
@@ -2632,7 +2618,7 @@ int main()
 {
 	alarm(60);
 	testsentry();
-	string_argument();
+	trimtest();
 	objtest();
 	exceptiontest();
 	exceptiontest2();

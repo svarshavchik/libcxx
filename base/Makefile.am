@@ -190,10 +190,10 @@ libcxx_la_SOURCES=\
 	sigset.C		\
 	singletonapp.C		\
 	sockaddrobj.C		\
-	strftime.C		\
-	string_argument.C	\
 	stopexception.C		\
 	stoppable.C		\
+	strftime.C		\
+	strtok.C		\
 	threadmsgdispatcher.C   \
 	timerfdobj.C		\
 	timerobj.C		\

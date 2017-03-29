@@ -5,6 +5,7 @@
 
 #include "libcxx_config.h"
 #include "x/ymdhms.H"
+#include "x/tostring.H"
 #include <x/exception.H>
 #include "gettext_in.h"
 

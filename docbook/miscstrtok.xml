@@ -6,7 +6,7 @@ See COPYING for distribution information.
 -->
 
 <chapter id="strtok">
-  <title>A C++-ish strtok(); strsplit(), and join()</title>
+  <title>A C++-ish strtok(); strsplit(), join(), and trim()</title>
 
   <para>
     Two template functions implement strtok()-like functionality that's more
@@ -152,6 +152,28 @@ std::string line;
     <function>&ns;::strsplit_if</function>() that supplies the
     lambda predicates based on the literal raw character string, and the
     quoting character.
+  </para>
+
+  <blockquote>
+    <informalexample>
+      <programlisting>
+std::string str;
+std::string trimmed=&ns;::trim(str);
+      </programlisting>
+    </informalexample>
+  </blockquote>
+
+  <para>
+    An overloaded
+    <ulink url="&link-function-x-trim;"><function>&ns;::trim</function>()</ulink>
+    removes all leading and trailing whitespace from a
+    <classname>std::string</classname> or <classname>std::u32string</classname>,
+    and returns the trimmed string.
+    The two argument overload of
+    <function>&ns;::trim</function>() takes a beginning and an ending iterator
+    value of a character sequence. The two arguments are passed by reference.
+    <function>&ns;::trim</function>() updates the iterators to skip all leading
+    and trailing whitespace.
   </para>
 </chapter>
 

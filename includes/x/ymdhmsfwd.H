@@ -10,7 +10,6 @@
 #include <x/tzfile.H>
 #include <x/locale.H>
 #include <x/facet.H>
-#include <x/string_argument.H>
 #include <iostream>
 #include <type_traits>
 #include <x/namespace.h>
@@ -302,10 +301,9 @@ public:
 
 	//! Format this date/time as a string, using a custom format
 
-	template<typename format_type>
-	inline formatter format(const format_type &format_type_arg) const
+	inline formatter format(const std::string &format_type_arg) const
 	{
-		return formatter(*this, basic_string_argument(format_type_arg));
+		return formatter(*this, format_type_arg);
 	}
 
 	//! Convert this date and time value to a string

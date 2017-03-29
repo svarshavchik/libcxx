@@ -260,6 +260,46 @@ void strtok_str( const char_type *str,
 		   quoting_character, Container);
 }
 
+//! Trim a character sequence, determined by a beginning and an ending iterator.
+
+//! Updates the iterator parameters to exclude leading and trailing whitespace.
+
+template<typename iter_type>
+void trim(iter_type &b, iter_type &e)
+{
+	while (b != e && *b == ' ' || *b == '\t' || *b == '\r' || *b == '\n')
+		++b;
+	while (b != e && e[-1] == ' ' || e[-1] == '\t' || e[-1] == '\r'
+	       || e[-1] == '\n')
+		--e;
+}
+
+//! Remove whitespace from string.
+
+template<typename string_type>
+string_type trim(const string_type &str)
+{
+	auto b=str.begin(), e=str.end();
+
+	trim(b, e);
+
+	return {b, e};
+}
+
+#ifndef DOXYGEN
+extern template void trim(const char *&, const char *&);
+extern template void trim(const char32_t *&, const char32_t *&);
+extern template void trim(std::string::iterator &, std::string::iterator &);
+extern template void trim(std::string::const_iterator &,
+			  std::string::const_iterator &);
+extern template void trim(std::u32string::iterator &, std::u32string::iterator &);
+extern template void trim(std::u32string::const_iterator &,
+			  std::u32string::const_iterator &);
+
+extern template std::string trim(const std::string &);
+extern template std::u32string trim(const std::u32string &);
+#endif
+
 #if 0
 {
 #endif
