@@ -148,6 +148,12 @@ void cleanup_thread_func()
 				next_thr;
 			});
 
+		// "The library may reuse the value of a thread::id
+		// of a terminated thread that can no longer be joined."
+		//
+		// So, until we join() this thread, below, thr_id cannot be
+		// recycled. As such it is safe to rely on thr_id being unique.
+
 		{
 			std::lock_guard<std::mutex> lock(thr->objmutex);
 			thr->thr_id=std::thread::id();
@@ -253,5 +259,3 @@ timer timerbaseObj::global()
 {
 #endif
 }
-
-

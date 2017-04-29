@@ -442,6 +442,43 @@ void testoverflows()
 			  << std::endl;
 		exit(1);
 	}
+
+
+	z1=z1.truncate( std::numeric_limits<short>::max() + 1.0 );
+
+	if (z1 != std::numeric_limits<short>::max())
+	{
+		std::cout << "Double did not truncate to max short."
+			<< std::endl;
+			   exit(1);
+	}
+
+	z1=z1.truncate( std::numeric_limits<short>::min() - 1.0 );
+
+	if (z1 != std::numeric_limits<short>::min())
+	{
+		std::cout << "Double did not truncate to min short."
+			<< std::endl;
+			   exit(1);
+	}
+
+	z2=z2.truncate( std::numeric_limits<unsigned short>::max() + 1.0 );
+
+	if (z2 != std::numeric_limits<unsigned short>::max())
+	{
+		std::cout << "Double did not truncate to max unsigned short."
+			  << std::endl;
+			   exit(1);
+	}
+
+	z2=z2.truncate( -1.0 );
+
+	if (z2 != 0)
+	{
+		std::cout << "Double did not truncate to 0."
+			<< std::endl;
+			   exit(1);
+	}
 }
 
 void testtruncate()

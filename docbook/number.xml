@@ -309,6 +309,12 @@ number_t n;
 n=number_t::truncate(bn); // This sets n to 0</programlisting>
       </informalexample>
     </blockquote>
+
+    <para>
+      <methodname>truncate</methodname>() is also overloaded for
+      floating point numbers, by truncating floating points outside of the
+      range, then rounding the floating point value.
+    </para>
   </section>
 
   <section id="miscnumberhash">

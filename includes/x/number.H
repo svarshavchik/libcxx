@@ -151,6 +151,7 @@ public:
 
 template<typename to_value_type, typename from_value_type,
 	 bool to_is_signed=std::numeric_limits<to_value_type>::is_signed,
+	 bool from_is_integer=std::numeric_limits<from_value_type>::is_integer,
 	 bool from_is_signed=std::numeric_limits<from_value_type>::is_signed>
 class number_max_overflows {
 
@@ -177,7 +178,7 @@ public:
 
 template<typename to_value_type, typename from_value_type, bool to_is_signed>
 class number_max_overflows<to_value_type, from_value_type,
-			   to_is_signed, false> {
+			   to_is_signed, true, false> {
 
 public:
 
@@ -188,6 +189,24 @@ public:
 				   <other_value_type>::type>(value) >
 			static_cast<typename std::make_unsigned<to_value_type>
 				    ::type>
+			(std::numeric_limits<to_value_type>::max());
+	}
+};
+
+template<typename to_value_type, typename from_value_type,
+	 bool to_is_signed, bool from_is_signed>
+class number_max_overflows<to_value_type, from_value_type, to_is_signed, false,
+			   from_is_signed>
+{
+
+public:
+
+	template<typename other_value_type>
+	static inline constexpr bool is_overflows(other_value_type value)
+	{
+		return value >= 0 &&
+			static_cast<from_value_type>(value) >
+			static_cast<from_value_type>
 			(std::numeric_limits<to_value_type>::max());
 	}
 };
