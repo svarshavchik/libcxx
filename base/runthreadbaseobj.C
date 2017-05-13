@@ -228,7 +228,7 @@ void runthreadbaseObj::threadCleanupObj::destroyed()
 	cleanup_thread_cond.notify_all();
 }
 
-std::thread::id runthreadbaseObj::get_id()
+std::thread::id runthreadbaseObj::get_id() const
 {
 	std::lock_guard<std::mutex> lock(objmutex);
 	return thr_id;

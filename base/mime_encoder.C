@@ -361,7 +361,7 @@ std::string magicObj::lookup(const fd &filedesc, int type)
 
 static singleton<magicObj> magic;
 
-std::string filetype(const std::string &filename,
+std::string filetype(const std::experimental::string_view &filename,
 		     bool check_contents)
 {
 	auto p=filename.rfind('/');
@@ -373,7 +373,7 @@ std::string filetype(const std::string &filename,
 
 	if (p != std::string::npos)
 	{
-		std::string ext=filename.substr(p+1);
+		std::string ext{filename.substr(p+1)};
 
 		std::ifstream i(MIMETYPES);
 		std::string s;

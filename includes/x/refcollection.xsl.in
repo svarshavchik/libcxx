@@ -1,0 +1,62 @@
+<?xml version='1.0'?>
+
+<!--
+
+Copyright 2017 Double Precision, Inc.
+See COPYING for distribution information.
+
+-->
+
+<xsl:stylesheet
+    xmlns:xsl="http://www.w3.org/1999/XSL/Transform" version="1.0">
+
+  <xsl:output method="text" />
+
+  <xsl:template match="/collection">
+    <xsl:text>struct </xsl:text>
+    <xsl:value-of select="name" />
+    <xsl:text>ptr {&#10;</xsl:text>
+
+    <xsl:for-each select="ref">
+      <xsl:text>&#9;@LIBCXX_NAMESPACE@::ptr_cast&lt;</xsl:text>
+      <xsl:value-of select="type" />
+      <xsl:text>&gt; </xsl:text>
+      <xsl:value-of select="name" />
+      <xsl:text>;&#10;</xsl:text>
+    </xsl:for-each>
+
+    <xsl:text>};&#10;&#10;struct </xsl:text>
+    <xsl:value-of select="name" />
+    <xsl:text> {&#10;</xsl:text>
+
+    <xsl:for-each select="ref">
+      <xsl:text>&#9;</xsl:text>
+      <xsl:value-of select="type" />
+      <xsl:text> </xsl:text>
+      <xsl:value-of select="name" />
+      <xsl:text>;&#10;</xsl:text>
+    </xsl:for-each>
+
+    <xsl:text>&#10;&#9;</xsl:text>
+    <xsl:value-of select="name" />
+    <xsl:text>(const </xsl:text>
+    <xsl:value-of select="name" />
+    <xsl:text>ptr &amp;p)</xsl:text>
+
+    <xsl:for-each select="ref">
+      <xsl:choose>
+	<xsl:when test="position() = 1">
+	  <xsl:text>&#10;&#9;: </xsl:text>
+	</xsl:when>
+	<xsl:otherwise>
+	  <xsl:text>,&#10;&#9;  </xsl:text>
+	</xsl:otherwise>
+      </xsl:choose>
+      <xsl:value-of select="name" />
+      <xsl:text>(p.</xsl:text>
+      <xsl:value-of select="name" />
+      <xsl:text>)</xsl:text>
+    </xsl:for-each>
+    <xsl:text>&#10;&#9;{}&#10;};&#10;</xsl:text>
+  </xsl:template>
+</xsl:stylesheet>

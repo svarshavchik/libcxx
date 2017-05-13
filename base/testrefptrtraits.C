@@ -47,6 +47,42 @@ void check_all()
 	check_me<const_ptr<obj, base>>();
 }
 
+using LIBCXX_NAMESPACE::ref_cast;
+using LIBCXX_NAMESPACE::ptr_cast;
+
+typedef typename std::enable_if<
+	std::is_same<ref<obj, base>, ref_cast<ref<obj, base>>
+		     >::value>::type cast1;
+
+typedef typename std::enable_if<
+	std::is_same<ref<obj, base>, ref_cast<ptr<obj, base>>
+		     >::value>::type cast2;
+
+typedef typename std::enable_if<
+	std::is_same<const_ref<obj, base>, ref_cast<const_ref<obj, base>>
+		     >::value>::type cast1;
+
+typedef typename std::enable_if<
+	std::is_same<const_ref<obj, base>, ref_cast<const_ptr<obj, base>>
+		     >::value>::type cast2;
+
+
+typedef typename std::enable_if<
+	std::is_same<ptr<obj, base>, ptr_cast<ref<obj, base>>
+		     >::value>::type cast1;
+
+typedef typename std::enable_if<
+	std::is_same<ptr<obj, base>, ptr_cast<ptr<obj, base>>
+		     >::value>::type cast2;
+
+typedef typename std::enable_if<
+	std::is_same<const_ptr<obj, base>, ptr_cast<const_ref<obj, base>>
+		     >::value>::type cast1;
+
+typedef typename std::enable_if<
+	std::is_same<const_ptr<obj, base>, ptr_cast<const_ptr<obj, base>>
+		     >::value>::type cast2;
+
 int main()
 {
 	return 0;

@@ -1485,6 +1485,266 @@ if (!origw.null())
     </para>
   </section>
 
+  <section id="refptrtraits">
+    <title>Reference and pointer traits</title>
+
+    <blockquote>
+      <informalexample>
+	<programlisting>
+	  #include &lt;&ns;/refptr_traits.H&gt;
+
+	  class someClassObj;
+	  class someBase;
+
+	  typedef &ns;::ref&lt;someClassObj, someBase&gt; some_ref;
+
+	  typedef &ns;::refptr_traits&lt;some_ref&gt;::ref_t ref_t;
+	  typedef &ns;::refptr_traits&lt;some_ref&gt;::ptr_t ptr_t;
+	  typedef &ns;::refptr_traits&lt;some_ref&gt;::const_ref_t const_ref_t;
+	  typedef &ns;::refptr_traits&lt;some_ref&gt;::const_ptr_t const_ptr_t;
+
+
+	  typedef &ns;::ref_cast&lt;some_ref&gt; ref_cast_t;
+	  typedef &ns;::ptr_cast&lt;some_ref&gt; ptr_cast_t;</programlisting>
+      </informalexample>
+    </blockquote>
+
+    <para>
+      These template classes take an &reforptr; and replace it with
+      another reference or a pointer to the same object (and base class).
+      The
+      <classname>&ns;::refptr_traits</classname>,
+      <classname>&ns;::ref_cast</classname>, and
+      <classname>&ns;::ptr_cast</classname> templates are specialized for
+      a &ref;, &ptr;, &const_ref;, and a &const_ptr;.
+    </para>
+
+    <para>
+      <classname>&ns;::refptr_traits</classname> is a class with four
+      member types:
+      <classname>ref_t</classname>,
+      <classname>ptr_t</classname>,
+      <classname>const_ref_t</classname>, and
+      <classname>const_ptr_t</classname>. These types are a
+      &ref;, &ptr;, &const_ref;, and a &const_ptr; to the same class
+      (and base class) as the template parameter.
+    </para>
+
+    <para>
+      A <classname>&ns;::ref_cast</classname> of a &ref; or a &ptr;
+      results in a &ref; to the same class (and base class).
+      A <classname>&ns;::ref_cast</classname> of a &const_ref; or a
+      &const_ptr;
+      results in a &const_ref; to the same class (and base class).
+      A <classname>&ns;::ptr_cast</classname> of a &ref; or a &ptr;
+      results in a &ptr; to the same class (and base class).
+      A <classname>&ns;::ptr_cast</classname> of a &const_ref; or a
+      &const_ptr;
+      results in a &const_ptr; to the same class (and base class).
+    </para>
+
+    <section id="refcollection">
+      <title>Constructing a collection of references</title>
+
+      <para>
+	Using &ref;, where possible, is better than &ptr;.
+	&ref; proves, by contract, that it's a not a <literal>nullptr</literal>.
+	&ref;'s only disadvantage is that it's not possible to declare
+	an &ref; without an actual object to reference. &ref;
+	does not have a default constructor, by definition.
+      </para>
+
+      <para>
+	It's quite often to have a situation that involves construction
+	of a bunch of &ref;s. However, each one's construction is rather
+	involved. Perhaps, for some reason, some of the &ref;'s can only
+	be constructed in a different, inner scope, then saved outside of their
+	construction scope.
+      </para>
+
+      <para>
+	A common design pattern is to initially declare &ptr;s, construct and
+	define each one of them when needed, then permanently save each one
+	as a &ref;. When all objects
+	are constructed they get all converted to &ref;s.
+	The <filename>refcollection.xsl</filename> stylesheet generates
+	a framework for this kind of a design pattern. The stylesheet
+	converts an <acronym>XML</acronym> header file into a C++
+	class declaration. The simple <acronym>XML</acronym> looks like this:
+      </para>
+
+      <blockquote>
+	<informalexample>
+	  <programlisting><![CDATA[
+<collection>
+  <name>mycollection</name>
+  <ref>
+    <type>intval_ref</type>
+    <name>a</name>
+  </ref>
+  <ref>
+    <type>constintval_ref</type>
+    <name>b</name>
+  </ref>
+</collection>]]></programlisting>
+	</informalexample>
+      </blockquote>
+
+      <para>
+	This file gets processed by the stylesheet processor, such as
+	<command>xsltproc</command>:
+      </para>
+
+      <blockquote>
+	<informalexample>
+	  <programlisting>
+# $datadir/libcxx is installed by the library
+
+xsltproc $datadir/libcxx/refcollection.xsl refcollection.xml &gt;refcollection.H
+</programlisting>
+	</informalexample>
+      </blockquote>
+
+      <para>
+	The resulting header file declares the following classes:
+      </para>
+      <blockquote>
+	<informalexample>
+	  <programlisting>
+struct mycollectionptr {
+	&ns;::ptr_cast&lt;intval_ref&gt; a;
+	&ns;::ptr_cast&lt;constintval_ref&gt; b;
+};
+
+struct mycollection {
+	intval_ref a;
+	constintval_ref b;
+
+	mycollection(const mycollectionptr &amp;p)
+	: a(p.a),
+	  b(p.b)
+	{}
+};
+</programlisting>
+	</informalexample>
+      </blockquote>
+
+      <para>
+	And the typical usage looks like this:
+      </para>
+      <blockquote>
+	<informalexample>
+	  <programlisting>
+#include &lt;&ns;/refptr_traits.H&gt;
+
+class intvalObj : virtual public &ns;::obj {
+
+// ...
+};
+
+typedef &ns;::ref&lt;intvalObj&gt; intval_ref;
+
+typedef &ns;::const_ref&lt;intvalObj&gt; constintval_ref;
+
+#include "refcollection.H"
+
+// ...
+
+class refcollectionObj : virtual public &ns;::obj, public mycollection {
+
+public:
+     using mycollection::mycollection;
+};
+
+// ============
+
+mycollectionptr ptrs;
+
+// Long-winded code that ends up initializing ptrs.a and ptrs.b
+
+auto newobj=&ns;::ref&lt;refcollectionObj&gt;::create(ptrs);
+
+// So, now, newobj-&gt;a and newobj-&gt; are ready for action, and are
+// ordinary references.
+	  </programlisting>
+	</informalexample>
+      </blockquote>
+
+      <para>
+	The basic approach is to declare a structure with nullable
+	pointer references, which get initialized on their own schedule.
+	Afterwards, the collection of &ptr;s gets passed to a constructor
+	of equivalent &ref;s, to convert them all to references, going
+	forward.
+      </para>
+
+      <para>
+	A <filename>Makefile.am</filename> macro assists in creating
+	an appropriate build rule (see <xref linkend="optgenautomake" />
+	for more information on &app;'s integration with
+	<application>automake</application> and
+	<application>autoconf</application>):
+      </para>
+
+      <blockquote>
+	<informalexample>
+	  <programlisting>
+@LIBCXX_AM@
+
+# ...
+
+$(call REFCOLLECTION_GEN,refcollection.H,$(srcdir)/refcollection.xml)
+</programlisting>
+	</informalexample>
+      </blockquote>
+
+      <para>
+	This macro creates a rule to build <filename>refcollection.H</filename>
+	from the <filename>refcollection.xml</filename>
+	source using the stylesheet.
+	The structure of the <acronym>XML</acronym> is as follows:
+      </para>
+
+      <itemizedlist>
+	<listitem>
+	  <para>
+	    The top level element is a <tag class='element'>collection</tag>
+	    which contains a <tag class='element'>name</tag> and a list
+	    of
+	    <tag class='element'>ref</tag>s.
+	  </para>
+
+	  <para>
+	    The <tag class='element'>name</tag> gives the name of the classes
+	    generated by the stylesheet. The stylesheet generates a header
+	    file that declares a class whose name is
+	    <quote><tag class='element'>name</tag></quote>, containing
+	    the <tag class='element'>ref</tag>s, and
+	    <quote><tag class='element'>name</tag>ptr</quote>, containing
+	    the &ptr; equivalent of each <tag class='element'>ref</tag>.
+	  </para>
+	</listitem>
+
+	<listitem>
+	  <para>
+	    Each <tag class='element'>ref</tag> creates a member of both
+	    <quote><tag class='element'>name</tag></quote> and
+	    <quote><tag class='element'>name</tag>ptr</quote> classes.
+	    <tag class='element'>ref</tag> contains
+	    a <tag class='element'>name</tag> that gives the name of the
+	    member, with
+	    <tag class='element'>type</tag> giving the member's type.
+	  </para>
+
+	  <para>
+	    The specified
+	    <tag class='element'>type</tag> must be an &ref; or an
+	    &const_ref;.
+	  </para>
+	</listitem>
+      </itemizedlist>
+    </section>
+  </section>
   <section id="ondestroy">
     <title>Destructor callbacks and mcguffins</title>
 
@@ -1623,94 +1883,6 @@ myobj-&gt;ondestroy([]
 	All <link linkend="exceptions">exceptions</link> must be caught.
       </para>
     </note>
-
-    <section id="mcguffinstash">
-      <title>Mcguffin stashes</title>
-
-      <blockquote>
-	<informalexample>
-	  <programlisting>
-#include &lt;&ns;/mcguffinstash.H&gt;
-
-&ns;::mcguffinstash&lt;&gt; my_mcguffins=&ns;::mcguffinstash&lt;&gt;::create();
-
-my_mcguffins->insert("callback", mcguffin);
-	  </programlisting>
-	</informalexample>
-      </blockquote>
-
-      <para>
-	<ulink url="&link-typedef-x-mcguffinstash;"><classname>&ns;::mcguffinstash</classname></ulink>
-	implements a reference-counted container for mcguffins, based on a
-	<link linkend="mpobj">mutex-protected</link>
-	<classname>std::map</classname> or a
-	<classname>std::multimap</classname>.
-
-	The optional parameters to this template are:
-      </para>
-
-      <itemizedlist>
-	<listitem>
-	  <para>
-	    The type used as a key for the map, this default to
-	    <classname>std::string</classname>. The default implementation
-	    creates a map of mcguffins, identified by a string.
-	  </para>
-	</listitem>
-
-	<listitem>
-	  <para>
-	    A <classname>bool</classname> value; the default value of
-	    <literal>false</literal> instantiates a
-	    <classname>std::map</classname> container. Overriding it to a
-	    <literal>true</literal> value instantiates a
-	    <classname>std::multimap</classname> container, for the mcguffins.
-	  </para>
-	</listitem>
-
-	<listitem>
-	  <para>
-	    The last two optional parameters are the comparator and allocator
-	    classes, that get forwarded to the
-	    <classname>std::map</classname> or the
-	    <classname>std::multimap</classname> template class.
-	  </para>
-	</listitem>
-      </itemizedlist>
-
-      <para>
-	The <ulink url="&link-x--mcguffinstashObj;">referenced object</ulink>
-	implements several common methods for
-	accessing and modifying the map with the mcguffins, like
-	<methodname>insert</methodname>() and <methodname>remove</methodname>().
-	Additionally, the reference's base class provides two typedef
-	aliases:
-      </para>
-
-      <variablelist>
-	<varlistentry>
-	  <term><classname>&ns;::mcguffinstash&lt;<replaceable>parameters</replaceable>...&gt;::base::map_t</classname></term>
-	  <listitem>
-	    <para>
-	      The <classname>std::map</classname> or the
-	      <classname>std::multimap</classname> container, in
-	      the referenced class.
-	    </para>
-	  </listitem>
-	</varlistentry>
-	<varlistentry>
-	  <term><classname>&ns;::mcguffinstash&lt;<replaceable>parameters</replaceable>...&gt;::base::container_t</classname></term>
-	  <listitem>
-	    <para>
-	      The typedef alias for the <varname>container</varname> member
-	      of the referenced object, which is a mutex-protected
-	      <link linkend="mpobj"><classname>&ns;::mpobj</classname></link>
-	      that contains the <classname>map_t</classname>.
-	    </para>
-	  </listitem>
-	</varlistentry>
-      </variablelist>
-    </section>
 
     <section id="destructorcallback">
       <title>A basic destructor callback</title>

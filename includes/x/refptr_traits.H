@@ -86,6 +86,96 @@ template<typename objClass, typename baseClass>
 class refptr_traits<const_ptr<objClass, baseClass>>
 	: public refptr_traits_base<objClass, baseClass> {};
 
+
+template<typename T> class ref_cast_lookup;
+template<typename T> class ptr_cast_lookup;
+
+//! Helper specialization used by \ref ref_cast "ref_cast".
+
+template<typename objClass, typename baseClass>
+class ref_cast_lookup<ref<objClass, baseClass>> {
+public:
+	typedef ref<objClass, baseClass> type;
+};
+
+//! Helper specialization used by \ref ref_cast "ref_cast".
+
+template<typename objClass, typename baseClass>
+class ref_cast_lookup<const_ref<objClass, baseClass>> {
+public:
+	typedef const_ref<objClass, baseClass> type;
+};
+
+//! Helper specialization used by \ref ref_cast "ref_cast".
+
+template<typename objClass, typename baseClass>
+class ref_cast_lookup<ptr<objClass, baseClass>> {
+public:
+	typedef ref<objClass, baseClass> type;
+};
+
+//! Helper specialization used by \ref ref_cast "ref_cast".
+
+template<typename objClass, typename baseClass>
+class ref_cast_lookup<const_ptr<objClass, baseClass>> {
+public:
+	typedef const_ref<objClass, baseClass> type;
+};
+
+//! Helper specialization used by \ref ptr_cast "ptr_cast".
+
+template<typename objClass, typename baseClass>
+class ptr_cast_lookup<ref<objClass, baseClass>>{
+public:
+	typedef ptr<objClass, baseClass> type;
+};
+
+//! Helper specialization used by \ref ptr_cast "ptr_cast".
+
+template<typename objClass, typename baseClass>
+class ptr_cast_lookup<const_ref<objClass, baseClass>> {
+public:
+	typedef const_ptr<objClass, baseClass> type;
+};
+
+//! Helper specialization used by \ref ptr_cast "ptr_cast".
+
+template<typename objClass, typename baseClass>
+class ptr_cast_lookup<ptr<objClass, baseClass>>{
+public:
+	typedef ptr<objClass, baseClass> type;
+};
+
+//! Helper specialization used by \ref ptr_cast "ptr_cast".
+
+template<typename objClass, typename baseClass>
+class ptr_cast_lookup<const_ptr<objClass, baseClass>>{
+public:
+	typedef const_ptr<objClass, baseClass> type;
+};
+
+//! Convert a \c ptr to an equivalent \c ref.
+
+//! If the template parameter is a \c ref or a \c ptr, this resolves to
+//! an equivalent \c ref type.
+//!
+//! If the template parameter is a \c const_ref or a \c const_ptr, this resolves to
+//! an equivalent \c const_ref type.
+
+template<typename T>
+using ref_cast=typename ref_cast_lookup<T>::type;
+
+//! Convert a \c ref to an equivalent \c ptr.
+
+//! If the template parameter is a \c ref or a \c ptr, this resolves to
+//! an equivalent \c ptr type.
+//!
+//! If the template parameter is a \c const_ref or a \c const_ptr, this resolves to
+//! an equivalent \c const_ptr type.
+
+template<typename T>
+using ptr_cast=typename ptr_cast_lookup<T>::type;
+
 #if 0
 {
 #endif

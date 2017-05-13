@@ -32,14 +32,17 @@ extern property::value<unsigned int> lockf_attempts LIBCXX_HIDDEN;
 property::value<unsigned int>
 lockf_attempts(LIBCXX_NAMESPACE_STR "::fd::lockf::count", 1000);
 
-fd fdBase::open(const char *filename,
+fd fdBase::open(const std::experimental::string_view &s,
 		int flags,
 		mode_t mode)
 {
-	int nfd= ::open(filename, flags | O_CLOEXEC, mode);
+	char buf[s.size()+1];
+	*std::copy(s.begin(), s.end(), buf)=0;
+
+	int nfd= ::open(buf, flags | O_CLOEXEC, mode);
 
 	if (nfd < 0)
-		throw SYSEXCEPTION(filename);
+		throw SYSEXCEPTION((const char *)buf);
 
 	try {
 		return adopt(nfd);
@@ -50,15 +53,13 @@ fd fdBase::open(const char *filename,
 	}
 }
 
-fd fdBase::open(const std::string &filename, int flags,
-		mode_t mode)
+fd fdBase::newobj::create(const std::experimental::string_view &filename,
+			  mode_t mode)
 {
-	return open(filename.c_str(), flags, mode);
-}
+	char tmpname[filename.size()+5];
 
-fd fdBase::newobj::create(const std::string &filename, mode_t mode)
-{
-	std::string tmpname=filename + ".tmp";
+	strcpy(std::copy(filename.begin(), filename.end(), tmpname),
+	       ".tmp");
 
 	fd newfd=open(tmpname, O_CREAT|O_TRUNC|O_RDWR, mode);
 
@@ -66,11 +67,15 @@ fd fdBase::newobj::create(const std::string &filename, mode_t mode)
 	return newfd;
 }
 
-std::string fdBase::realpath(const std::string &pathname)
+std::string fdBase::realpath(const std::experimental::string_view &pathname)
 {
+	char buf[pathname.size()+1];
+
+	*std::copy(pathname.begin(), pathname.end(), buf)=0;
+
 	std::string ret;
 
-	char *p=::realpath(pathname.c_str(), NULL);
+	char *p=::realpath(buf, NULL);
 
 	if (p)
 	{
@@ -86,10 +91,10 @@ std::string fdBase::realpath(const std::string &pathname)
 	return ret;
 }
 
-std::string fdBase::combinepath(const std::string &reference,
-				const std::string &combined)
+std::string fdBase::combinepath(const std::experimental::string_view &reference,
+				const std::experimental::string_view &combined)
 {
-	std::string path=reference;
+	std::string path{reference};
 
 	if (combined.substr(0, 1) == "/")
 		path="/";
@@ -162,9 +167,14 @@ std::string fdBase::combinepath(const std::string &reference,
 	return path;
 }
 
-fdptr fdBase::lockf(const std::string &filename, int lockmode,
+fdptr fdBase::lockf(const std::experimental::string_view &filename,
+		    int lockmode,
 		    mode_t mode)
 {
+	char buf[filename.size()+1];
+
+	*std::copy(filename.begin(), filename.end(), buf)=0;
+
 	struct stat s1, s2;
 	unsigned int cnt=lockf_attempts.getValue();
 
@@ -181,7 +191,7 @@ fdptr fdBase::lockf(const std::string &filename, int lockmode,
 		if (fstat(lockfile->getFd(), &s1) < 0)
 			throw SYSEXCEPTION("fstat");
 
-		if (::stat(filename.c_str(), &s2) < 0)
+		if (::stat(buf, &s2) < 0)
 			continue;
 
 		if (s1.st_dev != s2.st_dev ||
@@ -261,11 +271,15 @@ fd fdBase::adopt(int filedesc)
 	return ptrrefBase::objfactory<fd>::create(filedesc);
 }
 
-fd fdBase::shm_open(const char *filename,
+fd fdBase::shm_open(const std::experimental::string_view &filename,
 		    int flags,
 		    mode_t mode)
 {
-	int filedesc=::shm_open(filename, flags, mode);
+	char buf[filename.size()+1];
+
+	*std::copy(filename.begin(), filename.end(), buf)=0;
+
+	int filedesc=::shm_open(buf, flags, mode);
 
 	if (filedesc < 0)
 		throw EXCEPTION("shm_open");
@@ -278,16 +292,13 @@ fd fdBase::shm_open(const char *filename,
 	}
 }
 
-fd fdBase::shm_open(const std::string &filename,
-		    int flags,
-		    mode_t mode)
+void fdBase::shm_unlink(const std::experimental::string_view &filename)
 {
-	return shm_open(filename.c_str(), flags, mode);
-}
+	char buf[filename.size()+1];
 
-void fdBase::shm_unlink(const std::string &filename)
-{
-	::shm_unlink(filename.c_str());
+	*std::copy(filename.begin(), filename.end(), buf)=0;
+
+	::shm_unlink(buf);
 }
 
 fd fdBase::tmpfile()
@@ -299,7 +310,7 @@ fd fdBase::tmpfile()
 	return tmpfile(tmpdir);
 }
 
-fd fdBase::tmpfile(const std::string &dirname)
+fd fdBase::tmpfile(const std::experimental::string_view &dirname)
 {
 	int nfd;
 
@@ -311,7 +322,8 @@ fd fdBase::tmpfile(const std::string &dirname)
 
 		char fn[dirname.size()+sizeof(tmpfilename)+2];
 
-		strcat(strcat(strcpy(fn, dirname.c_str()), "/"), tmpfilename);
+		strcat(strcpy(std::copy(dirname.begin(), dirname.end(), fn),
+			      "/"), tmpfilename);
 
 		nfd=::open(fn,
 			   O_CREAT | O_TRUNC | O_EXCL | O_RDWR

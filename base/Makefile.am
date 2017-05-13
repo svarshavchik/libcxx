@@ -138,7 +138,6 @@ libcxx_la_SOURCES=\
 	localeobj.C		\
 	localscope.C		\
 	logger.C		\
-	mcguffinstash.C		\
 	messages.C		\
 	mime_contentheadercollector.C \
 	mime_encoder.C          \
@@ -749,6 +748,8 @@ maillogs.h : maillogs.h.tmp
 
 $(call OPTIONS_GEN,propertiescli.h.tmp,$(srcdir)/propertiescli.xml)
 $(call OPTIONS_GEN,maillogs.h.tmp,$(srcdir)/maillogs.xml)
+
+$(call REFCOLLECTION_GEN,refcollection.H,$(srcdir)/refcollection.xml)
 
 bin_PROGRAMS=properties maillogs
 

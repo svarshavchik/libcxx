@@ -3,6 +3,7 @@
 /libcxx.m4
 /libcxx.mk
 /msgdispatcher.xsl
+/refcollection.xsl
 /threadmsgdispatcher.xsl
 /namespace.h
 /optgen.xsl

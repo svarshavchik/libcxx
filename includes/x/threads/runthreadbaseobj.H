@@ -112,7 +112,7 @@ public:
 
 	//! Return the running thread's ID
 
-	std::thread::id get_id();
+	std::thread::id get_id() const;
 };
 
 #if 0

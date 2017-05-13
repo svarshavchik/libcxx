@@ -12,6 +12,7 @@
 /properties
 /propertiescli.h
 /propertiescli.h.tmp
+/refcollection.H
 /srcdir.h
 /singletonapp.msgs.H
 /sysconfdir.h

@@ -139,7 +139,7 @@ libcxx.pc: Makefile
 	echo "Cflags: -fno-omit-frame-pointer" >>libcxx.pc.tmp
 	mv -f libcxx.pc.tmp libcxx.pc
 
-CLEANFILES=libcxx.pc abi.xml $(man_MANS)
+CLEANFILES=libcxx.pc abi.xml header.html $(man_MANS)
 
 $(man_MANS): man.stamp
 	touch $@

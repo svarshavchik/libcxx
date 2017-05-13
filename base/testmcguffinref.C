@@ -6,6 +6,7 @@
 #include "libcxx_config.h"
 #include "x/exception.H"
 #include "x/mcguffinref.H"
+#include "x/refptr_traits.H"
 #include <iostream>
 #include <unistd.h>
 #include <cstdlib>
@@ -20,6 +21,13 @@ public:
 	~intval() {}
 
 };
+
+typedef LIBCXX_NAMESPACE::ref<intval> intval_ref;
+
+typedef LIBCXX_NAMESPACE::const_ref<intval> constintval_ref;
+
+#include "refcollection.H"
+
 
 class cb : public LIBCXX_NAMESPACE::mcguffinrefObj<LIBCXX_NAMESPACE::ptr<intval> > {
 
@@ -57,6 +65,13 @@ void test1()
 
 	if (v->v != 2)
 		throw EXCEPTION("test 3 failed");
+}
+
+void test2()
+{
+	mycollectionptr p;
+
+	mycollection r{p};
 }
 
 int main(int argc, char **argv)

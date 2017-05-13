@@ -83,3 +83,21 @@ $(1): $(2) $(LIBCXX_XINCLUDEDIR)/libcxx.mk $(LIBCXX_XINCLUDEDIR)optgen.xsl
 endef
 
 OPTIONS_GEN=$(eval $(call OPTIONS_INVOKE,$(1),$(2)))
+
+
+define REFCOLLECTION_INVOKE
+
+ifdef AUTOMAKE
+all: $(1)
+endif
+
+LIBCXX_CLEANFILES += $(1)
+
+LIBCXX_SOURCES += $(2)
+
+$(1): $(2) $(LIBCXX_XINCLUDEDIR)/libcxx.mk $(LIBCXX_XINCLUDEDIR)refcollection.xsl
+	$$(LIBCXX_XSLTPROC) $(LIBCXX_XINCLUDEDIR)refcollection.xsl $$< >$$@.tmp
+	mv -f $$@.tmp $$@
+endef
+
+REFCOLLECTION_GEN=$(eval $(call REFCOLLECTION_INVOKE,$(1),$(2)))

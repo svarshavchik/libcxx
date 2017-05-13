@@ -698,6 +698,7 @@ AC_CONFIG_FILES([Doxyfile po/Makefile.in
 		 includes/x/xlocale.H
 		 includes/x/msgdispatcher.xsl
 		 includes/x/threadmsgdispatcher.xsl
+		 includes/x/refcollection.xsl
                  base/Makefile
 		 gnutls/Makefile
 		 gnutls/tlsparamsgen.sh

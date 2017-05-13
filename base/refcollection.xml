@@ -1,0 +1,11 @@
+<collection>
+  <name>mycollection</name>
+  <ref>
+    <type>intval_ref</type>
+    <name>a</name>
+  </ref>
+  <ref>
+    <type>constintval_ref</type>
+    <name>b</name>
+  </ref>
+</collection>
