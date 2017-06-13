@@ -7,7 +7,7 @@
 
 <xsl:template match="/doxygenindex/compound[@kind='class']">
   <xsl:text>&lt;!ENTITY link-</xsl:text>
-  <xsl:value-of select="translate(name,': &amp;&lt;&gt;,_[]()*~','-----------ZD')" />
+  <xsl:value-of select="translate(name,': &amp;&lt;&gt;,_[]()*~=','-----------ZDE')" />
   <xsl:text> &quot;ref/</xsl:text>
   <xsl:value-of select="@refid" />
   <xsl:text>.html&quot;&gt;&#10;</xsl:text>
@@ -15,7 +15,7 @@
 
 <xsl:template match="/doxygenindex/compound[@kind='singleton']">
   <xsl:text>&lt;!ENTITY link-</xsl:text>
-  <xsl:value-of select="translate(name,': &amp;&lt;&gt;,_[]()*~','-----------ZD')" />
+  <xsl:value-of select="translate(name,': &amp;&lt;&gt;,_[]()*~=','-----------ZDE')" />
   <xsl:text> &quot;ref/</xsl:text>
   <xsl:value-of select="@refid" />
   <xsl:text>.html&quot;&gt;&#10;</xsl:text>
@@ -23,7 +23,7 @@
 
 <xsl:template match="/doxygenindex/compound[@kind='namespace']">
   <xsl:text>&lt;!ENTITY namespace-</xsl:text>
-  <xsl:value-of select="translate(name,': &amp;&lt;&gt;,_[]()*~','-----------ZD')" />
+  <xsl:value-of select="translate(name,': &amp;&lt;&gt;,_[]()*~=','-----------ZDE')" />
   <xsl:text> &quot;ref/</xsl:text>
   <xsl:value-of select="@refid" />
   <xsl:text>.html&quot;&gt;&#10;</xsl:text>

@@ -148,7 +148,7 @@ if (p-&gt;documents.size() != 1)
   <para>
     If the document's root node turns out to be something else, the
     conversion cannot be made, and an
-    <link linkend="refcast">exception gets thrown</link>. It's presumed that
+    <link linkend="multinhobj">exception gets thrown</link>. It's presumed that
     this is within the scope that catches <acronym>YAML</acronym> parsing
     exceptions, and can be treated the same way.
   </para>
@@ -257,7 +257,7 @@ void handle_sequence(const &ns;::yaml::sequencenode &amp;seq)
       entirely of
       <link linkend="yamlscalar"><classname>&ns;::yaml::scalarnode</classname></link>
       values, so the range iteration value gets coerced accordingly.
-      An <link linkend="refcast">exception gets thrown</link> in the event
+      An <link linkend="multinhobj">exception gets thrown</link> in the event
       of a type conversion failure if the sequence contains a different node
       type.
     </para>
@@ -376,7 +376,7 @@ void dump(const &ns;::yaml::mappingnode &amp;map)
       entirely of
       <link linkend="yamlscalar"><classname>&ns;::yaml::scalarnode</classname></link>s,
       so the range iteration value gets coerced accordingly.
-      An <link linkend="refcast">exception gets thrown</link> in the event
+      An <link linkend="multinhobj">exception gets thrown</link> in the event
       of a type conversion failure if the mapping contains a different node
       for a key or a value.
     </para>

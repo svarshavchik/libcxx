@@ -18,6 +18,7 @@ object.
 #include <x/ptrfwd.H>
 #include <x/weakptrfwd.H>
 #include <x/ptrimpl.H>
+#include <x/convert.H>
 #include <utility>
 #include <typeinfo>
 #include <functional>
@@ -62,7 +63,7 @@ public:
 	//! \see ptr
 
 	inline const_ptr() noexcept
-		__attribute__((artificial))
+		LIBCXX_INLINE
 		: ptrImpl<objClass>(nullptr)
 	{
 	}
@@ -72,7 +73,7 @@ public:
 
 	inline explicit
 	const_ptr(const objClass *pArg) noexcept
-		__attribute__((artificial))
+		LIBCXX_INLINE
 		: ptrImpl<objClass>(const_cast<objClass *>(pArg))
 	{
 	}
@@ -81,7 +82,7 @@ public:
 
 	inline explicit
 	const_ptr(const ptrImpl<objClass> &o) noexcept
-		__attribute__((artificial))
+		LIBCXX_INLINE
 		: ptrImpl<objClass>(o)
 	{
 	}
@@ -90,7 +91,7 @@ public:
 
 	inline explicit
 	const_ptr(ptrImpl<objClass> &&o) noexcept
-		__attribute__((artificial))
+		LIBCXX_INLINE
 		: ptrImpl<objClass>(std::move(o))
 	{
 	}
@@ -133,7 +134,7 @@ public:
 
 	//! The default destructor
 
-	inline ~const_ptr() __attribute__((artificial))
+	inline ~const_ptr() LIBCXX_INLINE
 	{
 	}
 
@@ -142,7 +143,7 @@ public:
 	//! Dereferencing results in a constant object.
 	//!
 	inline const objClass &operator*() const
-		__attribute__((artificial))
+		LIBCXX_INLINE
 	{
 		if (!this->refP)
 			null_ptr_deref();
@@ -156,7 +157,7 @@ public:
 	//!
 
 	inline const objClass *operator->() const
-		__attribute__((artificial))
+		LIBCXX_INLINE
 	{
 		if (!this->refP)
 			null_ptr_deref();
@@ -168,7 +169,7 @@ public:
 
 	inline const_ptr<objClass, baseClass>
 	&operator=(const ptrImpl<objClass> &o)
-		noexcept __attribute__((artificial))
+		noexcept LIBCXX_INLINE
 	{
 		ptrImpl<objClass>::operator=(o);
 
@@ -179,7 +180,7 @@ public:
 
 	inline const_ptr<objClass, baseClass>
 	&operator=(ptrImpl<objClass> &&o)
-		noexcept __attribute__((artificial))
+		noexcept LIBCXX_INLINE
 	{
 		ptrImpl<objClass>::operator=(std::move(o));
 
@@ -194,7 +195,7 @@ public:
 
 	template<typename objClass2>
 	inline const_ptr(const ptrImpl<objClass2> &o)
-		__attribute__((artificial));
+		LIBCXX_INLINE;
 
 	//! Convert from a pointer reference to a different type
 
@@ -202,13 +203,13 @@ public:
 	//! object type's superclass or subclass.
 	template<typename objClass2> inline const_ptr<objClass, baseClass>
 	&operator=(const ptrImpl<objClass2> &o)
-		__attribute__((artificial));
+		LIBCXX_INLINE;
 
 	//! Convert from a native pointer to a subclass or a superclass
 
 	template<typename objClass2> inline const_ptr<objClass, baseClass>
 	&operator=(const objClass2 *o)
-		__attribute__((artificial));
+		LIBCXX_INLINE;
 
 	//! Forward create() to the base type
 
@@ -382,13 +383,12 @@ inline const_ptr<objClass, baseClass>::const_ptr(const ptrImpl<objClass2> &o)
 template<typename objClass, typename baseClass>
 template<typename objClass2> inline const_ptr<objClass, baseClass>
 &const_ptr<objClass, baseClass>::operator=(const ptrImpl<objClass2> &o)
-
 {
 	objClass *newRefP=0;
 
 	if (o.refP)
 	{
-		newRefP=dynamic_cast<objClass *>(o.refP);
+		newRefP=convert<objClass2, objClass, false>::cast(o.refP);
 		if (newRefP == 0)
 			invalid_cast(typeid(*o.refP).name(),
 				     typeid(objClass).name());
@@ -401,13 +401,13 @@ template<typename objClass2> inline const_ptr<objClass, baseClass>
 template<typename objClass, typename baseClass>
 template<typename objClass2> inline const_ptr<objClass, baseClass>
 &const_ptr<objClass, baseClass>::operator=(const objClass2 *o)
-
 {
 	objClass *newRefP=0;
 
 	if (o)
 	{
-		newRefP=dynamic_cast<objClass *>(const_cast<objClass2 *>(o));
+		newRefP=const_cast<objClass *>
+			(convert<objClass2, objClass, true>::cast(o));
 		if (newRefP == 0)
 			invalid_cast(typeid(*o).name(),
 				     typeid(objClass).name());
@@ -689,7 +689,7 @@ public:
 	using const_ptr<objClass, baseClass>::operator !;
 
 	inline ptr() noexcept
-		__attribute__((artificial))
+		LIBCXX_INLINE
 		: const_ptr<objClass, baseClass>(nullptr)
 	{
 	}
@@ -721,7 +721,7 @@ public:
 	//! throws a null pointer exception.
 
 	inline explicit ptr(objClass *pArg) noexcept
-		__attribute__((artificial))
+		LIBCXX_INLINE
 		: const_ptr<objClass, baseClass>(pArg)
 	{
 	}
@@ -730,7 +730,7 @@ public:
 
 	inline explicit
 	ptr(const ptr<objClass, baseClass> &o) noexcept
-		__attribute__((artificial))
+		LIBCXX_INLINE
 		: const_ptr<objClass, baseClass>(o)
 	{
 	}
@@ -739,7 +739,7 @@ public:
 
 	inline explicit
 	ptr(ptr<objClass, baseClass> &&o) noexcept
-		__attribute__((artificial))
+		LIBCXX_INLINE
 		: const_ptr<objClass, baseClass>(std::move(o))
 	{
 	}
@@ -792,7 +792,7 @@ public:
 	//! If this is the last reference bound to an object, the object
 	//! gets automatically destroyed via \c delete.
 
-	inline ~ptr() __attribute__((artificial))
+	inline ~ptr() LIBCXX_INLINE
 	{
 	}
 
@@ -803,7 +803,7 @@ public:
 	//! An exception gets thrown if this reference is not bound to an
 	//! instance of \c objClass.
 	inline objClass &operator*() const
-		 __attribute__((artificial))
+		 LIBCXX_INLINE
 	{
 		if (!this->refP)
 			null_ptr_deref();
@@ -818,7 +818,7 @@ public:
 	//! An exception gets thrown if this reference is not bound to an
 	//! instance of \c objClass.
 	inline objClass *operator->() const
-		__attribute__((artificial))
+		LIBCXX_INLINE
 	{
 		if (!this->refP)
 			null_ptr_deref();
@@ -840,7 +840,7 @@ public:
 		   //! its reference count gets incremented.
 
 		   const ptr<objClass, baseClass> &o)
-		noexcept __attribute__((artificial))
+		noexcept LIBCXX_INLINE
 	{
 		const_ptr<objClass, baseClass>::operator=(o);
 
@@ -856,7 +856,7 @@ public:
 		   //! its reference count gets incremented.
 
 		   ptr<objClass, baseClass> &&o)
-		noexcept __attribute__((artificial))
+		noexcept LIBCXX_INLINE
 	{
 		const_ptr<objClass, baseClass>::operator=(std::move(o));
 
@@ -880,7 +880,7 @@ public:
 
 	    //! An exception gets thrown if o cannot be converted to the right
 	    //! object type.
-	    const ptr<objClass2, baseClass2> &o) __attribute__((artificial));
+	    const ptr<objClass2, baseClass2> &o) LIBCXX_INLINE;
 
 	//! Move constructor from a subclass or a superclass.
 
@@ -890,7 +890,7 @@ public:
 	    //! An %exception gets thrown if o cannot be converted to the right
 	    //! object type.
 	    ptr<objClass2, baseClass2> &&o)
-		__attribute__((artificial));
+		LIBCXX_INLINE;
 
 	//! Convert from a reference to a different type.
 
@@ -903,7 +903,7 @@ public:
 		   //! An exception gets thrown if the reference cannot be
 		   //! converted to this instance's object type.
 		   const ptr<objClass2, baseClass2> &o)
-		__attribute__((artificial));
+		LIBCXX_INLINE;
 
 	//! Move from a reference to a different type.
 
@@ -914,7 +914,7 @@ public:
 		   //! An %exception gets thrown if the reference cannot be
 		   //! converted to this instance's object type.
 		   ptr<objClass2, baseClass2> &&o)
-		__attribute__((artificial));
+		LIBCXX_INLINE;
 
 	//! Convert from a reference to a different type.
 
@@ -922,11 +922,11 @@ public:
 	//! object type's superclass or subclass.
 	template<typename objClass2> inline ptr<objClass, baseClass>
 	&operator=(objClass2 *o)
-		__attribute__((artificial));
+		LIBCXX_INLINE;
 
 	//! Convert from a nullptr
 	inline ptr<objClass, baseClass>
-	&operator=(std::nullptr_t) __attribute__((artificial))
+	&operator=(std::nullptr_t) LIBCXX_INLINE
 	{
 		return operator=((objClass *)0);
 	}

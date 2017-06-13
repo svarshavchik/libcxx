@@ -291,6 +291,7 @@ noinst_PROGRAMS=\
 	testcallbacks		      \
 	testcgiimpl                   \
 	testcombinepath		      \
+	testconvert		      \
 	testcredentials               \
 	testcsv                       \
 	testderivedvalues	      \
@@ -738,6 +739,10 @@ testcombinepath_SOURCES=testcombinepath.C
 testcombinepath_LDADD=libcxx.la
 testcombinepath_LDFLAGS=$(TESTLINKTYPE)
 
+testconvert_SOURCES=testconvert.C
+testconvert_LDADD=libcxx.la
+testconvert_LDFLAGS=$(TESTLINKTYPE)
+
 propertiescli.h : propertiescli.h.tmp
 	perl -p -e 's/^#include.*//;s/\b@LIBCXX_NAMESPACE@::/LIBCXX_NAMESPACE::/g' <propertiescli.h.tmp >propertiescli.h.tmp2
 	mv propertiescli.h.tmp2 propertiescli.h
@@ -922,6 +927,7 @@ check-am: $(noinst_PROGRAMS) $(noinst_DATA)
 	./testinotify
 	./testsortedvector
 	./testcombinepath
+	./testconvert
 
 $(XTEST_MO_DIR)/$(XTEST_MO_FILE): testmessages.po
 	mkdir -p $(XTEST_MO_DIR)

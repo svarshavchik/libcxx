@@ -55,7 +55,7 @@ public:
 
 	inline explicit
 	const_ref(const objClass *pArg)
-		__attribute__((artificial))
+		LIBCXX_INLINE
 		: p(const_cast<objClass *>(pArg))
 	{
 		if (p.null())
@@ -64,7 +64,7 @@ public:
 
 	//! The default destructor
 
-	inline ~const_ref() __attribute__((artificial))
+	inline ~const_ref() LIBCXX_INLINE
 	{
 	}
 
@@ -73,7 +73,7 @@ public:
 	//! Dereferencing results in a constant object.
 	//!
 	inline const objClass &operator*() const
-		__attribute__((artificial))
+		LIBCXX_INLINE
 	{
 		return *this->p.refP;
 	}
@@ -84,7 +84,7 @@ public:
 	//!
 
 	inline const objClass *operator->() const
-		__attribute__((artificial))
+		LIBCXX_INLINE
 	{
 		return this->p.refP;
 	}
@@ -92,7 +92,7 @@ public:
 	//! The assignment operator
 
 	inline const_ref<objClass, baseClass>
-	&operator=(const ptrImpl<objClass> &o) __attribute__((artificial))
+	&operator=(const ptrImpl<objClass> &o) LIBCXX_INLINE
 	{
 		if (o.null())
 			null_ptr_deref();
@@ -107,7 +107,7 @@ public:
 	//! The move operator
 
 	inline const_ref<objClass, baseClass>
-	&operator=(ptrImpl<objClass> &&o) __attribute__((artificial))
+	&operator=(ptrImpl<objClass> &&o) LIBCXX_INLINE
 	{
 		if (o.null())
 			null_ptr_deref();
@@ -128,7 +128,7 @@ public:
 		   //! its reference count gets incremented.
 
 		   const const_ref<objClass, baseClass> &o)
-		noexcept __attribute__((artificial))
+		noexcept LIBCXX_INLINE
 	{
 		p=o.p;
 		return *this;
@@ -145,7 +145,7 @@ public:
 		   //! its reference count gets incremented.
 
 		   const_ref<objClass, baseClass> &&o)
-		noexcept __attribute__((artificial))
+		noexcept LIBCXX_INLINE
 	{
 		__atomic_exchange(&p.refP, &o.p.refP, &o.p.refP, __ATOMIC_SEQ_CST);
 
@@ -160,7 +160,7 @@ public:
 
 	inline explicit
 	const_ref(const const_ref<objClass, baseClass> &o) noexcept
-		__attribute__((artificial))
+		LIBCXX_INLINE
 		: p(o)
 	{
 	}
@@ -169,7 +169,7 @@ public:
 
 	inline explicit
 	const_ref(const_ref<objClass, baseClass> &&o) noexcept
-		__attribute__((artificial))
+		LIBCXX_INLINE
 		: p(std::move(o))
 	{
 	}
@@ -178,25 +178,25 @@ public:
 
 	template<typename objClass2>
 	inline const_ref(const ptrImpl<objClass2> &o)
-		__attribute__((artificial));
+		LIBCXX_INLINE;
 
 	//! Move from a reference to a subclass or a superclass
 
 	template<typename objClass2>
 	inline const_ref(ptrImpl<objClass2> &&o)
-		__attribute__((artificial));
+		LIBCXX_INLINE;
 
 	//! Construct from a reference to a subclass or a superclass
 
 	template<typename objClass2, typename baseClass2>
 	inline const_ref(const const_ref<objClass2, baseClass2> &o)
-		__attribute__((artificial));
+		LIBCXX_INLINE;
 
 	//! Move from a reference to a subclass or a superclass
 
 	template<typename objClass2, typename baseClass2>
 	inline const_ref(const_ref<objClass2, baseClass2> &&o)
-		__attribute__((artificial));
+		LIBCXX_INLINE;
 
 	//! Convert from a reference to a different type
 
@@ -204,11 +204,12 @@ public:
 	//! object type's superclass or subclass.
 	template<typename objClass2> inline const_ref<objClass, baseClass>
 	&operator=(const ptrImpl<objClass2> &o)
-		__attribute__((artificial));
+		LIBCXX_INLINE;
 
 	//! Convert this reference to a pointer
 
 	operator const const_ptr<objClass, baseClass> &() const noexcept
+		LIBCXX_INLINE
 	{
 		return this->p;
 	}
@@ -217,129 +218,226 @@ public:
 
 	template<typename objClass2, typename baseClass2>
 	inline operator const const_ptr<objClass2, baseClass2>() const
-	{
-		return this->p;
-	}
+		LIBCXX_INLINE;
 
 	//! Comparison operator
 
 	//! C++11 allows pointer comparisons.
 	template<typename objClass2, typename baseClass2>
 	inline bool operator==(const const_ptr<objClass2, baseClass2> &o)
-		const noexcept
-	{
-		return p == o;
-	}
+		const noexcept LIBCXX_INLINE;
 
 	//! C++11 allows pointer comparisons.
 	template<typename objClass2, typename baseClass2>
 	inline bool operator!=(const const_ptr<objClass2, baseClass2> &o)
-		const noexcept
-	{
-		return p != o;
-	}
+		const noexcept LIBCXX_INLINE;
 
 	//! Comparison operator
 
 	//! C++11 allows pointer comparisons.
 	template<typename objClass2, typename baseClass2>
 	inline bool operator==(const const_ref<objClass2, baseClass2> &o)
-		const noexcept
-	{
-		return p == o;
-	}
+		const noexcept LIBCXX_INLINE;
 
 	//! C++11 allows pointer comparisons.
 	template<typename objClass2, typename baseClass2>
 	inline bool operator!=(const const_ref<objClass2, baseClass2> &o)
-		const noexcept
-	{
-		return p != o;
-	}
+		const noexcept LIBCXX_INLINE;
 
 	//! Comparison operator
 
 	//! C++11 allows pointer comparisons.
 	template<typename objClass2, typename baseClass2>
 	inline bool operator<(const const_ptr<objClass2, baseClass2> &o)
-		const noexcept
-	{
-		return p < o;
-	}
+		const noexcept LIBCXX_INLINE;
 
 	//! C++11 allows pointer comparisons.
 	template<typename objClass2, typename baseClass2>
 	inline bool operator>=(const const_ptr<objClass2, baseClass2> &o)
-		const noexcept
-	{
-		return p >= o;
-	}
+		const noexcept LIBCXX_INLINE;
 
 	//! Comparison operator
 
 	//! C++11 allows pointer comparisons.
 	template<typename objClass2, typename baseClass2>
 	inline bool operator<(const const_ref<objClass2, baseClass2> &o)
-		const noexcept
-	{
-		return p < o;
-	}
+		const noexcept LIBCXX_INLINE;
 
 	//! C++11 allows pointer comparisons.
 	template<typename objClass2, typename baseClass2>
 	inline bool operator>=(const const_ref<objClass2, baseClass2> &o)
-		const noexcept
-	{
-		return p >= o;
-	}
+		const noexcept LIBCXX_INLINE;
 
 	//! Comparison operator
 
 	//! C++11 allows pointer comparisons.
 	template<typename objClass2, typename baseClass2>
 	inline bool operator>(const const_ptr<objClass2, baseClass2> &o)
-		const noexcept
-	{
-		return p > o;
-	}
+		const noexcept LIBCXX_INLINE;
 
 	//! C++11 allows pointer comparisons.
 	template<typename objClass2, typename baseClass2>
 	inline bool operator<=(const const_ptr<objClass2, baseClass2> &o)
-		const noexcept
-	{
-		return p <= o;
-	}
+		const noexcept LIBCXX_INLINE;
 
 	//! Comparison operator
 
 	//! C++11 allows pointer comparisons.
 	template<typename objClass2, typename baseClass2>
 	inline bool operator>(const const_ref<objClass2, baseClass2> &o)
-		const noexcept
-	{
-		return p < o;
-	}
+		const noexcept LIBCXX_INLINE;
 
 	//! C++11 allows pointer comparisons.
 	template<typename objClass2, typename baseClass2>
 	inline bool operator<=(const const_ref<objClass2, baseClass2> &o)
-		const noexcept
-	{
-		return p >= o;
-	}
+		const noexcept LIBCXX_INLINE;
 
 	//! Forward create() to the base type
 
 	template<typename... Args_t>
-	static inline auto create(Args_t &&...args)
-	{
-		return baseClass
-			::template objfactory< ref<objClass, baseClass> >
-			::create(std::forward<Args_t>(args)...);
-	}
+	static inline auto create(Args_t &&...args) LIBCXX_INLINE;
 };
 
+template<typename objClass, typename baseClass>
+template<typename objClass2, typename baseClass2>
+inline bool const_ref<objClass, baseClass>
+::operator==(const const_ptr<objClass2, baseClass2> &o)
+	const noexcept
+{
+	return p == o;
+}
+
+//! C++11 allows pointer comparisons.
+template<typename objClass, typename baseClass>
+template<typename objClass2, typename baseClass2>
+inline bool const_ref<objClass, baseClass>
+::operator!=(const const_ptr<objClass2, baseClass2> &o)
+	const noexcept
+{
+	return p != o;
+}
+
+//! Comparison operator
+
+//! C++11 allows pointer comparisons.
+template<typename objClass, typename baseClass>
+template<typename objClass2, typename baseClass2>
+inline bool const_ref<objClass, baseClass>
+::operator==(const const_ref<objClass2, baseClass2> &o)
+	const noexcept
+{
+	return p == o;
+}
+
+//! C++11 allows pointer comparisons.
+template<typename objClass, typename baseClass>
+template<typename objClass2, typename baseClass2>
+inline bool const_ref<objClass, baseClass>
+::operator!=(const const_ref<objClass2, baseClass2> &o)
+	const noexcept
+{
+	return p != o;
+}
+
+//! Comparison operator
+
+//! C++11 allows pointer comparisons.
+template<typename objClass, typename baseClass>
+template<typename objClass2, typename baseClass2>
+inline bool const_ref<objClass, baseClass>
+::operator<(const const_ptr<objClass2, baseClass2> &o)
+	const noexcept
+{
+	return p < o;
+}
+
+//! C++11 allows pointer comparisons.
+template<typename objClass, typename baseClass>
+template<typename objClass2, typename baseClass2>
+inline bool const_ref<objClass, baseClass>
+::operator>=(const const_ptr<objClass2, baseClass2> &o)
+	const noexcept
+{
+	return p >= o;
+}
+
+//! Comparison operator
+
+//! C++11 allows pointer comparisons.
+template<typename objClass, typename baseClass>
+template<typename objClass2, typename baseClass2>
+inline bool const_ref<objClass, baseClass>
+::operator<(const const_ref<objClass2, baseClass2> &o)
+	const noexcept
+{
+	return p < o;
+}
+
+//! C++11 allows pointer comparisons.
+template<typename objClass, typename baseClass>
+template<typename objClass2, typename baseClass2>
+inline bool const_ref<objClass, baseClass>
+::operator>=(const const_ref<objClass2, baseClass2> &o)
+	const noexcept
+{
+	return p >= o;
+}
+
+//! Comparison operator
+
+//! C++11 allows pointer comparisons.
+template<typename objClass, typename baseClass>
+template<typename objClass2, typename baseClass2>
+inline bool const_ref<objClass, baseClass>
+::operator>(const const_ptr<objClass2, baseClass2> &o)
+	const noexcept
+{
+	return p > o;
+}
+
+//! C++11 allows pointer comparisons.
+template<typename objClass, typename baseClass>
+template<typename objClass2, typename baseClass2>
+inline bool const_ref<objClass, baseClass>
+::operator<=(const const_ptr<objClass2, baseClass2> &o)
+	const noexcept
+{
+	return p <= o;
+}
+
+//! Comparison operator
+
+//! C++11 allows pointer comparisons.
+template<typename objClass, typename baseClass>
+template<typename objClass2, typename baseClass2>
+inline bool const_ref<objClass, baseClass>
+::operator>(const const_ref<objClass2, baseClass2> &o)
+	const noexcept
+{
+	return p < o;
+}
+
+//! C++11 allows pointer comparisons.
+template<typename objClass, typename baseClass>
+template<typename objClass2, typename baseClass2>
+inline bool const_ref<objClass, baseClass>
+::operator<=(const const_ref<objClass2, baseClass2> &o)
+	const noexcept
+{
+	return p >= o;
+}
+
+//! Forward create() to the base type
+
+template<typename objClass, typename baseClass>
+template<typename... Args_t>
+inline auto const_ref<objClass, baseClass>
+::create(Args_t &&...args)
+{
+	return baseClass
+		::template objfactory< ref<objClass, baseClass> >
+		::create(std::forward<Args_t>(args)...);
+}
 
 template<typename objClass, typename baseClass>
 template<typename objClass2>
@@ -349,6 +447,14 @@ inline const_ref<objClass, baseClass>::const_ref(const ptrImpl<objClass2> &o)
 
 	if (p.null())
 		null_ptr_deref();
+}
+
+template<typename objClass, typename baseClass>
+template<typename objClass2, typename baseClass2>
+inline const_ref<objClass, baseClass>
+::operator const const_ptr<objClass2, baseClass2>() const
+{
+	return this->p;
 }
 
 template<typename objClass, typename baseClass>
@@ -433,7 +539,7 @@ public:
 
 	inline explicit ref(//! Existing object instance. This pointer cannot be NULL.
 			    objClass *pArg) noexcept
-		__attribute__((artificial))
+		LIBCXX_INLINE
 		: const_ref<objClass, baseClass>(pArg)
 	{
 	}
@@ -441,7 +547,7 @@ public:
 	//! Copy constructor
 
 	inline ref(const ref<objClass, baseClass> &o) noexcept
-		__attribute__((artificial))
+		LIBCXX_INLINE
 		: const_ref<objClass, baseClass>(o)
 	{
 	}
@@ -449,7 +555,7 @@ public:
 	//! Move constructor
 
 	inline ref(ref<objClass, baseClass> &&o) noexcept
-		__attribute__((artificial))
+		LIBCXX_INLINE
 		: const_ref<objClass, baseClass>(std::move(o))
 	{
 	}
@@ -459,14 +565,14 @@ public:
 	//! If this is the last pointer to an object, the object
 	//! gets automatically destroyed via \c delete.
 
-	inline ~ref() __attribute__((artificial))
+	inline ~ref() LIBCXX_INLINE
 	{
 	}
 
 	//! The "*" operator.
 
 	inline objClass &operator*() const noexcept
-		 __attribute__((artificial))
+		 LIBCXX_INLINE
 	{
 		return *this->p.refP;
 	}
@@ -474,7 +580,7 @@ public:
 	//! The "->" operator.
 
 	inline objClass *operator->() const noexcept
-		__attribute__((artificial))
+		LIBCXX_INLINE
 	{
 		return this->p.refP;
 	}
@@ -484,7 +590,7 @@ public:
 	inline ref<objClass, baseClass>
 	&operator=(//! An existing pointer. An exception gets thrown if this pointer is NULL.
 		   const ptr<objClass, baseClass> &o)
-		noexcept __attribute__((artificial))
+		noexcept LIBCXX_INLINE
 	{
 		const_ref<objClass, baseClass>::operator=(o);
 
@@ -496,7 +602,7 @@ public:
 	inline ref<objClass, baseClass>
 	&operator=(//! An existing pointer. An exception gets thrown if this pointer is NULL.
 		   ptr<objClass, baseClass> &&o)
-		noexcept __attribute__((artificial))
+		noexcept LIBCXX_INLINE
 	{
 		const_ref<objClass, baseClass>::operator=(std::move(o));
 
@@ -509,7 +615,7 @@ public:
 	&operator=(//! An existing reference.
 
 		   const ref<objClass, baseClass> &o)
-		noexcept __attribute__((artificial))
+		noexcept LIBCXX_INLINE
 	{
 		const_ref<objClass, baseClass>::operator=(static_cast<const const_ref<objClass, baseClass> &>(o));
 
@@ -522,7 +628,7 @@ public:
 	&operator=(//! An existing reference.
 
 		   ref<objClass, baseClass> &&o)
-		noexcept __attribute__((artificial))
+		noexcept LIBCXX_INLINE
 	{
 		const_ref<objClass, baseClass>::operator=(std::move(o));
 
@@ -544,7 +650,7 @@ public:
 	    //! this pointer's object class.
 
 	    const ptr<objClass2, baseClass2> &o)
-		__attribute__((artificial));
+		LIBCXX_INLINE;
 
 	//! Move from a pointer to a superclass or a subclass of the referenced object class.
 
@@ -556,7 +662,7 @@ public:
 	    //! this pointer's object class.
 
 	    ptr<objClass2, baseClass2> &&o)
-		__attribute__((artificial));
+		LIBCXX_INLINE;
 
 	//! Construct from a reference to a superclass or a subclass of the object class.
 
@@ -566,7 +672,7 @@ public:
 	    //! An exception gets thrown if it cannot be converted to the right
 	    //! object type.
 	    const ref<objClass2, baseClass2> &o)
-		__attribute__((artificial));
+		LIBCXX_INLINE;
 
 	//! Move from a reference to a superclass or a subclass of the object class.
 
@@ -576,7 +682,7 @@ public:
 	    //! An exception gets thrown if it cannot be converted to the right
 	    //! object type.
 	    ref<objClass2, baseClass2> &&o)
-		__attribute__((artificial));
+		LIBCXX_INLINE;
 
 	//! Assign from a pointer to a different type.
 
@@ -589,7 +695,7 @@ public:
 		   //! pointer, or if the referenced object cannot be converted to
 		   //! this pointer's object class.
 		   const ptr<objClass2, baseClass2> &o)
-		__attribute__((artificial));
+		LIBCXX_INLINE;
 
 	//! Move from a pointer to a different type.
 
@@ -602,7 +708,7 @@ public:
 		   //! pointer, or if the referenced object cannot be converted to
 		   //! this pointer's object class.
 		   ptr<objClass2, baseClass2> &&o)
-		__attribute__((artificial));
+		LIBCXX_INLINE;
 
 	//! Assign from a reference to a different type.
 
@@ -613,7 +719,7 @@ public:
 		   //! An exception gets thrown if the referenced objec cannot
 		   //! be converted to this pointer's object class.
 		   const ref<objClass2, baseClass2> &o)
-		__attribute__((artificial));
+		LIBCXX_INLINE;
 
 	//! Move from a reference to a different type.
 
@@ -624,13 +730,13 @@ public:
 		   //! An exception gets thrown if the referenced objec cannot
 		   //! be converted to this pointer's object class.
 		   ref<objClass2, baseClass2> &&o)
-		__attribute__((artificial));
+		LIBCXX_INLINE;
 
 	//! Convert from a native pointer to a different type.
 
 	template<typename objClass2> inline ref<objClass, baseClass>
 	&operator=(objClass2 *o)
-		__attribute__((artificial));
+		LIBCXX_INLINE;
 
 	//! Convert this reference to a pointer
 

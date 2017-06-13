@@ -423,13 +423,6 @@ if (!b.null())
       referenced class.
     </para>
 
-    <para id="refcast">
-      An &reforptr; to one class is convertible to an &reforptr; to another
-      class, if the classes are related. A <function>dynamic_cast</function>
-      converts the underlying pointer. An exception gets thrown if
-      the <function>dynamic_cast</function> fails.
-    </para>
-
     <blockquote>
       <informalexample>
 	<programlisting>
@@ -1076,6 +1069,83 @@ if (!wRef.null())
 }</programlisting>
       </informalexample>
     </blockquote>
+
+    <para>
+      Conversion between an &reforptr; (source) to a different &reforptr;
+      (destination) proceeds as follows. If the destination is a superclass
+      of the source, the conversion uses a <literal>static_cast</literal>.
+      Otherwise the conversion uses a <literal>dynamic_cast</literal> and
+      thrown an exception if the conversion fails.
+    </para>
+
+    <para>
+      A destination class can avoid the overhead of a
+      <literal>dynamic_cast</literal> by defining a
+      <methodname>cast_from</methodname>() class method that returns
+      a plain pointer to the destination class with a pointer to a plain
+      source class as a parameter:
+    </para>
+
+    <blockquote>
+      <informalexample>
+	<programlisting>
+class aObj : virtual public &ns;::obj {
+
+public:
+
+	virtual D *getd() { return nullptr; }
+
+};
+
+class bObj : public aObj {
+};
+
+class dObj : public bObj {
+
+public:
+
+	static dObj *cast_from(aObj *a)
+	{
+		return a->getd();
+	}
+
+	dObj *getd() override { return this; }
+};
+
+// ...
+&ns;::ref&lt;aObj&gt; return_a();
+
+&ns;::ref&lt;dObj&gt; d=return_a();</programlisting>
+      </informalexample>
+    </blockquote>
+
+    <para>
+      Normally an attempt to convert an &ref; of <classname>aObj</classname>
+      to <classname>dObj</classname> gets carried out via a
+      <literal>dynamic_cast</literal>. Here, <classname>dObj</classname>
+      defines a <methodname>cast_from</methodname> static class method that
+      takes a pointer to an <classname>aObj</classname> and returns a
+      <classname>DObj</classname>. This results in the
+      <literal>dynamic_cast</literal> getting replaced by the
+      <classname>cast_from</classname>() call.</para>
+
+    <para>
+      The intended use is to have <methodname>cast_from</methodname> invoke
+      a virtual method in the source class. The base implementation in the
+      source class returns a <literal>nullptr</literal> by default, with the
+      destination class overriding and simply returning
+      <literal>this</literal>. The end result is a good enough facsimile for a
+      <literal>dynamic_cast</literal> that it ends up being used as a
+      pinch-hitter.
+    </para>
+
+    <para>
+      This design pattern replaces an otherwise expensive
+      <literal>dynamic_cast</literal> with a much cheaper virtual function
+      dispatch. The functionality of a full <literal>dynamic_cast</literal>
+      isn't matched identically, but this should suffice for most common
+      use cases.
+    </para>
   </section>
 
   <section id="reffromthis">
