@@ -8,20 +8,18 @@ class testsessionfactory :
 	public LIBCXX_NAMESPACE::gnutls::sessionObj::factoryObj {
 
 public:
-	testsessionfactory() throw(LIBCXX_NAMESPACE::exception) {}
-	~testsessionfactory() throw() {}
+	testsessionfactory() {}
+	~testsessionfactory() {}
 
 	LIBCXX_NAMESPACE::gnutls::session create(unsigned mode,
-					       const LIBCXX_NAMESPACE::fdbase
-					       &transportArg)
-		throw(LIBCXX_NAMESPACE::exception);
+						 const LIBCXX_NAMESPACE::fdbase
+						 &transportArg);
 };
 
 
 inline LIBCXX_NAMESPACE::gnutls::session
 testsessionfactory::create(unsigned mode,
 			   const LIBCXX_NAMESPACE::fdbase &transportArg)
-	throw(LIBCXX_NAMESPACE::exception)
 {
 	LIBCXX_NAMESPACE::gnutls::credentials::certificate
 		crt(LIBCXX_NAMESPACE::gnutls::credentials::certificate
@@ -69,15 +67,14 @@ public:
 		virtual public LIBCXX_NAMESPACE::obj {
 
 	public:
-		fdserverObj() throw(LIBCXX_NAMESPACE::exception)
+		fdserverObj()
 		{
 		}
-		~fdserverObj() throw()
+		~fdserverObj()
 		{
 		}
 
 		void run(const LIBCXX_NAMESPACE::fd &socket)
-			throw(LIBCXX_NAMESPACE::exception)
 		{
 			auto dummy=LIBCXX_NAMESPACE::fd::base::socketpair();
 			auto session=
@@ -103,7 +100,6 @@ public:
 	public:
 		filedescObj(const LIBCXX_NAMESPACE::fd &filedescArg,
 			    unsigned sideArg)
-			throw(LIBCXX_NAMESPACE::exception)
 			: filedesc(filedescArg), side(sideArg),
 			  factory(LIBCXX_NAMESPACE::ref<testsessionfactory>
 				  ::create())
@@ -116,7 +112,7 @@ public:
 
 		std::pair<LIBCXX_NAMESPACE::http::fdimplbase::input_iter_t,
 			  LIBCXX_NAMESPACE::http::fdimplbase::input_iter_t>
-		getistream() throw(LIBCXX_NAMESPACE::exception)
+		getistream()
 		{
 			std::unique_lock<std::mutex> lock(mutex);
 
@@ -130,7 +126,6 @@ public:
 		}
 
 		LIBCXX_NAMESPACE::http::fdimplbase::output_iter_t getostream()
-			throw(LIBCXX_NAMESPACE::exception)
 		{
 			std::unique_lock<std::mutex> lock(mutex);
 
@@ -160,7 +155,6 @@ public:
 		}
 
 		void install(LIBCXX_NAMESPACE::gnutls::http::fdtlsclientimpl &obj)
-			throw(LIBCXX_NAMESPACE::exception)
 		{
 			obj.install(factory->create(GNUTLS_CLIENT, filedesc),
 				    filedesc,
@@ -177,7 +171,6 @@ public:
 
 	static void createClientServerPair(filedesc &clientSide,
 					   filedesc &serverSide)
-		throw(LIBCXX_NAMESPACE::exception)
 	{
 		std::pair<LIBCXX_NAMESPACE::fd, LIBCXX_NAMESPACE::fd>
 			p(LIBCXX_NAMESPACE::fd::base::socketpair());

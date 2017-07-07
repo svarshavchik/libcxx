@@ -9,15 +9,14 @@ public:
 		virtual public LIBCXX_NAMESPACE::obj {
 
 	public:
-		fdserverObj() throw(LIBCXX_NAMESPACE::exception)
+		fdserverObj()
 		{
 		}
-		~fdserverObj() throw()
+		~fdserverObj()
 		{
 		}
 
 		void run(const LIBCXX_NAMESPACE::fd &socket)
-			throw(LIBCXX_NAMESPACE::exception)
 		{
 			auto dummy=LIBCXX_NAMESPACE::fd::base::socketpair();
 
@@ -36,22 +35,21 @@ public:
 
 	public:
 		filedescObj()
-			throw(LIBCXX_NAMESPACE::exception)
 		{
 		}
 
 		filedescObj(const LIBCXX_NAMESPACE::fd &filedescArg)
-			throw(LIBCXX_NAMESPACE::exception) : filedesc(filedescArg)
+			: filedesc(filedescArg)
 		{
 		}
 
-		~filedescObj() throw()
+		~filedescObj()
 		{
 		}
 
 		std::pair<LIBCXX_NAMESPACE::http::fdimplbase::input_iter_t,
 			LIBCXX_NAMESPACE::http::fdimplbase::input_iter_t>
-			getistream() throw(LIBCXX_NAMESPACE::exception)
+			getistream()
 		{
 			return std::make_pair(LIBCXX_NAMESPACE::http::fdimplbase
 					      ::input_iter_t(filedesc),
@@ -60,26 +58,24 @@ public:
 		}
 
 		LIBCXX_NAMESPACE::http::fdimplbase::output_iter_t getostream()
-			throw(LIBCXX_NAMESPACE::exception)
 		{
 			return LIBCXX_NAMESPACE::http::fdimplbase
 				::output_iter_t(filedesc);
 		}
 
-		LIBCXX_NAMESPACE::fdptr &getFd() throw()
+		LIBCXX_NAMESPACE::fdptr &getFd() noexcept
 		{
 			return filedesc;
 		}
 
 		template<typename type_t>
 		auto runserver(const type_t &obj)
-			throw(LIBCXX_NAMESPACE::exception)
 			-> decltype(LIBCXX_NAMESPACE::run(obj, filedesc))
 		{
 			return LIBCXX_NAMESPACE::run(obj, filedesc);
 		}
 
-		void install(fdclientimpl &obj) throw(LIBCXX_NAMESPACE::exception)
+		void install(fdclientimpl &obj)
 		{
 			obj.install(filedesc, LIBCXX_NAMESPACE::fdptr());
 		}
@@ -89,7 +85,6 @@ public:
 
 	static void createClientServerPair(filedesc &clientSide,
 					   filedesc &serverSide)
-		throw(LIBCXX_NAMESPACE::exception)
 	{
 		std::pair<LIBCXX_NAMESPACE::fd, LIBCXX_NAMESPACE::fd>
 			p(LIBCXX_NAMESPACE::fd::base::socketpair());

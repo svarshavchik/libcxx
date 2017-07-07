@@ -15,15 +15,15 @@ class discardthread : virtual public LIBCXX_NAMESPACE::obj {
 
 public:
 	discardthread(const typename conn_type::filedesc &fdArg)
-		throw(LIBCXX_NAMESPACE::exception) : fd(fdArg)
+		: fd(fdArg)
 	{
 	}
 
-	~discardthread() throw()
+	~discardthread()
 	{
 	}
 
-	void run() throw (LIBCXX_NAMESPACE::exception)
+	void run()
 	{
 		try {
 			std::pair<LIBCXX_NAMESPACE::http::fdimplbase
@@ -45,14 +45,13 @@ public:
 template<typename conn_type>
 LIBCXX_NAMESPACE::runthread<void>
 discardfd(const typename conn_type::filedesc &fdRef)
-	throw(LIBCXX_NAMESPACE::exception)
 {
 	return LIBCXX_NAMESPACE::run(LIBCXX_NAMESPACE::ref<discardthread<conn_type>
 				   >::create(fdRef));
 }
 
 template<typename conn_type>
-void testwritetimeout() throw(LIBCXX_NAMESPACE::exception)
+void testwritetimeout()
 {
 	typename conn_type::filedesc sclient, sserver;
 
@@ -98,7 +97,7 @@ void testwritetimeout() throw(LIBCXX_NAMESPACE::exception)
 }
 
 template<typename conn_type>
-void testrecvtimeout() throw(LIBCXX_NAMESPACE::exception)
+void testrecvtimeout()
 {
 	typename conn_type::filedesc sclient, sserver;
 
@@ -146,15 +145,15 @@ class threadwriter : virtual public LIBCXX_NAMESPACE::obj {
 public:
 	threadwriter(const std::string &strArg,
 		     const typename conn_type::filedesc &fdArg)
-		throw(LIBCXX_NAMESPACE::exception) : str(strArg), fd(fdArg)
+		: str(strArg), fd(fdArg)
 	{
 	}
 
-	~threadwriter() throw()
+	~threadwriter()
 	{
 	}
 
-	void run() throw (LIBCXX_NAMESPACE::exception)
+	void run()
 	{
 		try {
 			LIBCXX_NAMESPACE::http::fdimplbase::output_iter_t
@@ -171,7 +170,6 @@ public:
 
 template<typename conn_type>
 void testbodytimeout(const char *str)
-	throw(LIBCXX_NAMESPACE::exception)
 {
 	typename conn_type::filedesc sclient, sserver;
 
@@ -229,16 +227,15 @@ class headerwriter : virtual public LIBCXX_NAMESPACE::obj {
 public:
 
 	headerwriter(const typename conn_type::filedesc &fdArg)
-		throw(LIBCXX_NAMESPACE::exception) : fd(fdArg)
+		: fd(fdArg)
 	{
 	}
 
-	~headerwriter() throw()
+	~headerwriter()
 	{
 	}
 
 	void run()
-		throw (LIBCXX_NAMESPACE::exception)
 	{
 		LIBCXX_NAMESPACE::http::fdimplbase::output_iter_t
 			o(fd->getostream());
@@ -263,7 +260,6 @@ public:
 
 template<typename conn_type>
 void testheaderlimit()
-	throw(LIBCXX_NAMESPACE::exception)
 {
 	typename conn_type::filedesc sclient, sserver;
 
@@ -298,7 +294,7 @@ void testheaderlimit()
 }
 
 template<typename conn_type>
-void testrequest() throw(LIBCXX_NAMESPACE::exception)
+void testrequest()
 {
 	typename conn_type::filedesc sclient, sserver;
 

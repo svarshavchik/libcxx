@@ -26,6 +26,7 @@ BuildRequires: libyaml-devel
 BuildRequires: file-devel
 BuildRequires: libidn-devel
 BuildRequires: libtool-ltdl-devel
+BuildRequires: libxml2-devel
 Requires(post): /bin/systemctl
 Requires(preun): /bin/systemctl
 

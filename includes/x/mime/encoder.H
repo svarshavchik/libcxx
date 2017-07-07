@@ -193,61 +193,17 @@ public:
 					const std::string &boundary,
 					size_t maxwidth);
 
-	//! Assemble a multipart MIME section
 
-	//! \internal
-	//! The contents are defined by an input sequence defined by a
-	//! beginnning and an ending iterator.
 
 	template<typename header_type,
 		 typename add_header_functor_type,
 		 typename iter_type>
 	static encoder
-	assemble_multipart_section(//! Functor that adds any header section
-				   add_header_functor_type &&add_headers,
-
-				   //! Maximum width of Content-Type header
+	assemble_multipart_section(add_header_functor_type &&add_headers,
 				   size_t maxwidth,
-
-				   //! Beginning iterator value
-
-				   //! Input sequence of encoded MIME objects
-				   //! that make up the multipart MIME object.
-
 				   iter_type beg_iter,
-
-				   //! Ending iterator value
-
-				   //! Input sequence of encoded MIME objects
-				   //! that make up the multipart MIME object.
 				   iter_type end_iter,
-
-				   //! Use this boundary delimiter string.
-				   const std::string &boundary)
-	{
-		auto e=encoder::create();
-
-		reserve_unless_input_iterator<typename
-					      std::iterator_traits<iter_type>
-					      ::iterator_category>
-			::reserve(*e->sections, beg_iter, end_iter);
-
-		boundary_type b=boundary_type::initial;
-
-		add_headers(e);
-
-		while (beg_iter != end_iter)
-		{
-			e->add_boundary(b, boundary, header_type::eol_str);
-			b=boundary_type::intermediate;
-			e->sections->push_back(*beg_iter);
-			++beg_iter;
-		}
-		e->add_boundary(boundary_type::final, boundary,
-				header_type::eol_str);
-
-		return e;
-	}
+				   const std::string &boundary);
 
 	//! Create a new boundary string
 
@@ -428,6 +384,62 @@ encoder make_message_rfc822_section(const headersimpl<header_type> &headers,
 				    const const_encoder &encoder)
 {
 	return make_message_rfc822_section(headers, (const_encoder)encoder);
+}
+
+//! Assemble a multipart MIME section
+
+//! \internal
+//! The contents are defined by an input sequence defined by a
+//! beginnning and an ending iterator.
+
+template<typename header_type,
+	 typename add_header_functor_type,
+	 typename iter_type>
+encoder encoderObj
+::assemble_multipart_section(//! Functor that adds any header section
+			     add_header_functor_type &&add_headers,
+
+			     //! Maximum width of Content-Type header
+			     size_t maxwidth,
+
+			     //! Beginning iterator value
+
+			     //! Input sequence of encoded MIME objects
+			     //! that make up the multipart MIME object.
+
+			     iter_type beg_iter,
+
+			     //! Ending iterator value
+
+			     //! Input sequence of encoded MIME objects
+			     //! that make up the multipart MIME object.
+			     iter_type end_iter,
+
+			     //! Use this boundary delimiter string.
+			     const std::string &boundary)
+{
+	auto e=encoder::create();
+
+	reserve_unless_input_iterator<typename
+				      std::iterator_traits<iter_type>
+				      ::iterator_category>
+		::reserve(*e->sections, beg_iter, end_iter);
+
+	boundary_type b=boundary_type::initial;
+
+	add_headers(e);
+
+	while (beg_iter != end_iter)
+	{
+		e->add_boundary(b, boundary, header_type::eol_str);
+		b=boundary_type::intermediate;
+		e->sections->push_back(*beg_iter);
+		++beg_iter;
+	}
+	e->add_boundary(boundary_type::final, boundary,
+			header_type::eol_str);
+
+	return e;
 }
 
 //! Create a multipart MIME section.

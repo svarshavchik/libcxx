@@ -14,7 +14,7 @@
 #endif
 
 template<typename conn_type>
-void testhttpnull() throw(LIBCXX_NAMESPACE::exception)
+void testhttpnull()
 {
 	typename conn_type::filedesc sclient, sserver;
 
@@ -41,17 +41,16 @@ template<typename conn_type>
 class testhttp10_serverObj : public conn_type::fdserverObj {
 
 public:
-	testhttp10_serverObj() throw(LIBCXX_NAMESPACE::exception)
+	testhttp10_serverObj()
 	{
 	}
 
-	~testhttp10_serverObj() throw()
+	~testhttp10_serverObj()
 	{
 	}
 
 	template<typename ...Args>
 	void run(Args && ...args)
-		throw(LIBCXX_NAMESPACE::exception)
 	{
 		try {
 			conn_type::fdserverObj::run(std::forward<Args>(args)...);
@@ -65,7 +64,6 @@ public:
 
 	void received(const LIBCXX_NAMESPACE::http::requestimpl &req,
 		      bool bodyflag)
-		throw(LIBCXX_NAMESPACE::exception)
 	{
 		if (bodyflag)
 			this->discardbody();
@@ -85,7 +83,7 @@ public:
 };
 
 template<typename conn_type>
-void testhttp10() throw(LIBCXX_NAMESPACE::exception)
+void testhttp10()
 {
 	typename conn_type::filedesc sclient, sserver;
 
@@ -135,7 +133,7 @@ void testhttp10() throw(LIBCXX_NAMESPACE::exception)
 }
 
 template<typename conn_type>
-void testhttp11() throw(LIBCXX_NAMESPACE::exception)
+void testhttp11()
 {
 	typename conn_type::filedesc sclient, sserver;
 
@@ -193,7 +191,6 @@ void testhttp11() throw(LIBCXX_NAMESPACE::exception)
 
 template<typename conn_type>
 void fillpipe(const typename conn_type::filedesc &fd)
-	throw(LIBCXX_NAMESPACE::exception)
 {
 	fd->getFd()->nonblock(true);
 
@@ -205,7 +202,7 @@ void fillpipe(const typename conn_type::filedesc &fd)
 }
 
 template<typename conn_type>
-void testhttpsendmsgerror() throw(LIBCXX_NAMESPACE::exception)
+void testhttpsendmsgerror()
 {
 	typename conn_type::filedesc sclient, sserver;
 
@@ -245,21 +242,21 @@ template<typename conn_type>
 class endlessinputiter : public std::iterator<std::input_iterator_tag, char> {
 
 public:
-	endlessinputiter() throw() {}
-	~endlessinputiter() throw() {}
+	endlessinputiter() {}
+	~endlessinputiter() {}
 
-	char operator*() throw() { return 0; }
+	char operator*() { return 0; }
 
-	endlessinputiter<conn_type> &operator++() throw() { return *this; }
+	endlessinputiter<conn_type> &operator++() { return *this; }
 
-	endlessinputiter<conn_type> &operator++(int) throw() { return *this; }
+	endlessinputiter<conn_type> &operator++(int) { return *this; }
 
-	bool operator==(const endlessinputiter<conn_type> &o) throw()
+	bool operator==(const endlessinputiter<conn_type> &o)
 	{
 		return false;
 	}
 
-	bool operator!=(const endlessinputiter<conn_type> &o) throw()
+	bool operator!=(const endlessinputiter<conn_type> &o)
 	{
 		return false;
 	}
@@ -270,24 +267,22 @@ class testhttpresponsemsgerrorObj : public conn_type::fdserverObj {
 
 public:
 	testhttpresponsemsgerrorObj()
-		throw(LIBCXX_NAMESPACE::exception)
 	{
 	}
 
-	~testhttpresponsemsgerrorObj() throw()
+	~testhttpresponsemsgerrorObj()
 	{
 	}
 
 	void received(const LIBCXX_NAMESPACE::http::requestimpl &req,
 		      bool bodyflag)
-		throw(LIBCXX_NAMESPACE::exception)
 	{
 		throw EXCEPTION("Dummy");
 	}
 };
 
 template<typename conn_type>
-void testhttpresponsemsgerror() throw(LIBCXX_NAMESPACE::exception)
+void testhttpresponsemsgerror()
 {
 	typename conn_type::filedesc sclient, sserver;
 
@@ -333,16 +328,15 @@ class hugeheaderwriter : virtual public LIBCXX_NAMESPACE::obj {
 public:
 
 	hugeheaderwriter(const typename conn_type::filedesc &write2fdArg)
-		throw(LIBCXX_NAMESPACE::exception) : write2fd(write2fdArg)
+		: write2fd(write2fdArg)
 	{
 	}
 
-	~hugeheaderwriter() throw()
+	~hugeheaderwriter()
 	{
 	}
 
 	void run()
-		throw(LIBCXX_NAMESPACE::exception)
 	{
 		LIBCXX_NAMESPACE::http::fdimplbase::output_iter_t
 			o(write2fd->getostream());
@@ -374,17 +368,16 @@ public:
 
 	requestwriter(const std::string &msg2writeArg,
 		      const typename conn_type::filedesc &write2fdArg)
-		throw(LIBCXX_NAMESPACE::exception) : msg2write(msg2writeArg),
-						   write2fd(write2fdArg)
+		: msg2write(msg2writeArg),
+		write2fd(write2fdArg)
 	{
 	}
 
-	~requestwriter() throw()
+	~requestwriter()
 	{
 	}
 
 	void run()
-		throw(LIBCXX_NAMESPACE::exception)
 	{
 		try {
 			LIBCXX_NAMESPACE::http::fdimplbase::output_iter_t
@@ -407,16 +400,15 @@ class discardthread : virtual public LIBCXX_NAMESPACE::obj {
 public:
 
 	discardthread(const typename conn_type::filedesc &readfdArg)
-	throw(LIBCXX_NAMESPACE::exception) : readfd(readfdArg)
+		: readfd(readfdArg)
 	{
 	}
 
-	~discardthread() throw()
+	~discardthread()
 	{
 	}
 
 	void run()
-		throw(LIBCXX_NAMESPACE::exception)
 	{
 		std::pair<LIBCXX_NAMESPACE::http::fdimplbase::input_iter_t,
 			LIBCXX_NAMESPACE::http::fdimplbase::input_iter_t>
@@ -515,7 +507,7 @@ static void testheadertimeout()
 }
 
 template<typename conn_type>
-void testwritetimeout() throw(LIBCXX_NAMESPACE::exception)
+void testwritetimeout()
 {
 	typename conn_type::filedesc sclient, sserver;
 
