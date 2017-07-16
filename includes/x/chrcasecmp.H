@@ -9,7 +9,7 @@
 #include <algorithm>
 #include <functional>
 #include <string>
-#include <experimental/string_view>
+#include <string_view>
 
 #include <x/namespace.h>
 
@@ -93,20 +93,20 @@ typedef cmp_char< std::less_equal<char> > char_less_equal;
 //! A negative or a positive value that specifies whether the first string
 //! sorts before or after the second string.
 
-int compare(const std::experimental::string_view &a, const std::experimental::string_view &b) noexcept;
+int compare(const std::string_view &a, const std::string_view &b) noexcept;
 
-//! Template function for generating a comparison object for a std::experimental::string_view
+//! Template function for generating a comparison object for a std::string_view
 
 template<typename cmp> class cmp_str
-	: public std::binary_function<std::experimental::string_view, std::experimental::string_view, bool> {
+	: public std::binary_function<std::string_view, std::string_view, bool> {
 
 public:
 	cmp_str() noexcept=default;
 	~cmp_str()=default;
 
 	//! Comparison function
-	constexpr bool operator()(const std::experimental::string_view &a,
-				  const std::experimental::string_view &b) const
+	constexpr bool operator()(const std::string_view &a,
+				  const std::string_view &b) const
 	{
 		return cmp()(compare(a, b), 0);
 	}

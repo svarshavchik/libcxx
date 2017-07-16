@@ -14,7 +14,7 @@
 #include <x/fditer.H>
 #include <x/namespace.h>
 
-#include <experimental/string_view>
+#include <string_view>
 
 namespace LIBCXX_NAMESPACE {
 
@@ -580,7 +580,7 @@ inline from_fd_container from_file(const fd &filedesc)
 //! If the type cannot be determined, application/octet-stream gets returned.
 
 std::string filetype(//! Filename
-		     const std::experimental::string_view &filename,
+		     const std::string_view &filename,
 
 		     //! If set to true, and extension not found in /etc/mime.types, use libmagic to figure it out.
 		     bool check_contents=false);
@@ -594,7 +594,7 @@ std::string filetype(//! File handle
 
 //! Determine the character set of a file.
 
-std::string filecharset(const std::experimental::string_view &filename);
+std::string filecharset(const std::string_view &filename);
 
 //! Determine the character set of a file.
 

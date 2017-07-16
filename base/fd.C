@@ -32,7 +32,7 @@ extern property::value<unsigned int> lockf_attempts LIBCXX_HIDDEN;
 property::value<unsigned int>
 lockf_attempts(LIBCXX_NAMESPACE_STR "::fd::lockf::count", 1000);
 
-fd fdBase::open(const std::experimental::string_view &s,
+fd fdBase::open(const std::string_view &s,
 		int flags,
 		mode_t mode)
 {
@@ -53,7 +53,7 @@ fd fdBase::open(const std::experimental::string_view &s,
 	}
 }
 
-fd fdBase::newobj::create(const std::experimental::string_view &filename,
+fd fdBase::newobj::create(const std::string_view &filename,
 			  mode_t mode)
 {
 	char tmpname[filename.size()+5];
@@ -67,7 +67,7 @@ fd fdBase::newobj::create(const std::experimental::string_view &filename,
 	return newfd;
 }
 
-std::string fdBase::realpath(const std::experimental::string_view &pathname)
+std::string fdBase::realpath(const std::string_view &pathname)
 {
 	char buf[pathname.size()+1];
 
@@ -91,8 +91,8 @@ std::string fdBase::realpath(const std::experimental::string_view &pathname)
 	return ret;
 }
 
-std::string fdBase::combinepath(const std::experimental::string_view &reference,
-				const std::experimental::string_view &combined)
+std::string fdBase::combinepath(const std::string_view &reference,
+				const std::string_view &combined)
 {
 	std::string path{reference};
 
@@ -167,7 +167,7 @@ std::string fdBase::combinepath(const std::experimental::string_view &reference,
 	return path;
 }
 
-fdptr fdBase::lockf(const std::experimental::string_view &filename,
+fdptr fdBase::lockf(const std::string_view &filename,
 		    int lockmode,
 		    mode_t mode)
 {
@@ -271,7 +271,7 @@ fd fdBase::adopt(int filedesc)
 	return ptrrefBase::objfactory<fd>::create(filedesc);
 }
 
-fd fdBase::shm_open(const std::experimental::string_view &filename,
+fd fdBase::shm_open(const std::string_view &filename,
 		    int flags,
 		    mode_t mode)
 {
@@ -292,7 +292,7 @@ fd fdBase::shm_open(const std::experimental::string_view &filename,
 	}
 }
 
-void fdBase::shm_unlink(const std::experimental::string_view &filename)
+void fdBase::shm_unlink(const std::string_view &filename)
 {
 	char buf[filename.size()+1];
 
@@ -310,7 +310,7 @@ fd fdBase::tmpfile()
 	return tmpfile(tmpdir);
 }
 
-fd fdBase::tmpfile(const std::experimental::string_view &dirname)
+fd fdBase::tmpfile(const std::string_view &dirname)
 {
 	int nfd;
 

@@ -13,7 +13,7 @@ namespace LIBCXX_NAMESPACE {
 };
 #endif
 
-int compare(const std::experimental::string_view &a, const std::experimental::string_view &b) noexcept
+int compare(const std::string_view &a, const std::string_view &b) noexcept
 {
 	auto ab{a.begin()}, ae{a.end()},
 	     bb{b.begin()}, be{b.end()};

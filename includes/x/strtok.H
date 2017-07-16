@@ -10,7 +10,8 @@
 
 #include <algorithm>
 #include <cstring>
-#include <experimental/string_view>
+#include <string_view>
+#include <string>
 
 namespace LIBCXX_NAMESPACE {
 
@@ -198,7 +199,7 @@ void strtok_str( const char_type *str,
 		 const char_type *toks,
 		 container_type &Container) noexcept
 {
-	strtok_str(std::experimental::basic_string_view<char_type>(str), toks,
+	strtok_str(std::basic_string_view<char_type>(str), toks,
 		   Container);
 }
 
@@ -256,7 +257,7 @@ void strtok_str( const char_type *str,
 		 char_type quoting_character,
 		 container_type &Container) noexcept
 {
-	strtok_str(std::experimental::basic_string_view<char_type>(str), toks,
+	strtok_str(std::basic_string_view<char_type>(str), toks,
 		   quoting_character, Container);
 }
 

@@ -275,8 +275,8 @@ class fdObj::closeactionObj::rename : public closeactionObj {
 	std::string renameto;
 	pid_t p;
 
-	rename(const std::experimental::string_view &renamefromArg,
-	       const std::experimental::string_view &renametoArg)
+	rename(const std::string_view &renamefromArg,
+	       const std::string_view &renametoArg)
 		: renamefrom(renamefromArg), renameto(renametoArg), p(getpid())
 	{
 	}
@@ -306,7 +306,7 @@ class fdObj::closeactionObj::lockunlink : public closeactionObj {
 
 	std::string lockname;
 
-	lockunlink(const std::experimental::string_view &locknameArg)
+	lockunlink(const std::string_view &locknameArg)
 		: lockname(locknameArg)
 	{
 	}
@@ -344,8 +344,8 @@ fdObj::~fdObj()
 	}
 }
 
-void fdObj::renameonclose(const std::experimental::string_view &tmpname,
-			  const std::experimental::string_view &filename)
+void fdObj::renameonclose(const std::string_view &tmpname,
+			  const std::string_view &filename)
 {
 	auto hook=ref<closeactionObj::rename>::create(tmpname, filename);
 
@@ -354,7 +354,7 @@ void fdObj::renameonclose(const std::experimental::string_view &tmpname,
 	closeaction=hook;
 }
 
-void fdObj::unlinkonclose(const std::experimental::string_view &filename)
+void fdObj::unlinkonclose(const std::string_view &filename)
 {
 	auto hook=ref<closeactionObj::lockunlink>::create(filename);
 
@@ -1577,7 +1577,7 @@ std::string fdBase::mktempdir(mode_t mode)
 }
 
 std::pair<fd, std::string>
-fdBase::tmpunixfilesock(const std::experimental::string_view &pfix)
+fdBase::tmpunixfilesock(const std::string_view &pfix)
 {
 	timespec ts=timespec::getclock();
 

@@ -19,7 +19,7 @@
 #include <x/threads/timertaskfwd.H>
 #include <string>
 #include <vector>
-#include <experimental/string_view>
+#include <string_view>
 
 #include <sys/types.h>
 #include <sys/stat.h>
@@ -117,14 +117,14 @@ public:
 	//! \note The opened file descriptor's closeon-exec flag is set
 	//! automatically.
 
-	static fd open(const std::experimental::string_view &filename,
+	static fd open(const std::string_view &filename,
 		       int flags,
 		       mode_t mode=0666);
 
 	//! Open POSIX shared memory
 
 	static fd shm_open(//! The name of the shared memory segment.
-			   const std::experimental::string_view &filename,
+			   const std::string_view &filename,
 
 			   //! File open flags.
 			   int flags,
@@ -133,7 +133,7 @@ public:
 			   mode_t mode=0666);
 
 	//! Unlink POSIX shared memory segment
-	static void shm_unlink(const std::experimental::string_view &filename);
+	static void shm_unlink(const std::string_view &filename);
 
 	//! Create a temporary file.
 
@@ -142,7 +142,7 @@ public:
 	//! Create a temporary file in a given directory.
 
 	static fd tmpfile(//! Directory name
-			  const std::experimental::string_view &tmpdir);
+			  const std::string_view &tmpdir);
 
 	//! %dup() another file descriptor
 
@@ -188,7 +188,7 @@ public:
 	tmpunixfilesock(//! Prefix for the filesystem domain socket.
 
 			//! Should be "/tmp/<something>".
-			const std::experimental::string_view &pfix);
+			const std::string_view &pfix);
 
 	//! Make fd::create() work as expected, without a template
 
@@ -206,7 +206,7 @@ public:
 		//! The file open flags are always \c O_CREAT|O_TRUNC|O_RDWR.
 
 		static fd create(//! The final filename
-				 const std::experimental::string_view &filename,
+				 const std::string_view &filename,
 
 				 //! File creation mode
 				 mode_t mode=0666);
@@ -236,7 +236,7 @@ public:
 	//! unlink-ed.
 
 	static fdptr lockf(//! The lock filename to create
-			   const std::experimental::string_view &filename,
+			   const std::string_view &filename,
 
 			   //! Locking mode
 
@@ -273,12 +273,12 @@ public:
 
 	//! C++-friendly realpath()
 
-	static std::string realpath(const std::experimental::string_view &pathname);
+	static std::string realpath(const std::string_view &pathname);
 
 	//! Combine two paths.
 
-	static std::string combinepath(const std::experimental::string_view &reference,
-				       const std::experimental::string_view &combined);
+	static std::string combinepath(const std::string_view &reference,
+				       const std::string_view &combined);
 
 	//! Common code for pipe() and socketpair()
 
@@ -437,17 +437,17 @@ public:
 	//!
 	void renameonclose(//! The filename.tmp file that was created.
 
-			   const std::experimental::string_view &tmpname,
+			   const std::string_view &tmpname,
 
 			   //! Rename to filename, upon close.
 
-			   const std::experimental::string_view &filename);
+			   const std::string_view &filename);
 
 	//! Unlink this file when it gets closed.
 
 	//! This is used by \ref fdBase::lockf "fd::base::lockf()".
 
-	void unlinkonclose(const std::experimental::string_view &filename);
+	void unlinkonclose(const std::string_view &filename);
 
 	//! Cancel the newly-created file
 
