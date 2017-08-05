@@ -26,6 +26,8 @@ namespace LIBCXX_NAMESPACE {
 };
 #endif
 
+extern int obj_debug;
+
 class obj;
 class weakinfo;
 class ondestroyObj;
@@ -97,6 +99,12 @@ protected:
 
 	mutable std::mutex objmutex;
 public:
+
+	//! Dump all objects in existence.
+
+	//! obj_debug must be set to true.
+
+	static void dump_all();
 
 	//! Demangle a C++ type
 

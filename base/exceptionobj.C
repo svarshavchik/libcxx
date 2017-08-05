@@ -32,7 +32,7 @@ namespace LIBCXX_NAMESPACE {
 static property::value<bool> show_filename(LIBCXX_NAMESPACE_STR
 					   "::exception::fileline", false);
 
-exceptionObj::exceptionObj() noexcept
+stacktrace::stacktrace() noexcept
 {
 #if HAVE_BACKTRACE
 	int n=32;
@@ -194,9 +194,11 @@ exceptionObj::exceptionObj() noexcept
 #endif
 }
 
-exceptionObj::~exceptionObj()
+exceptionObj::exceptionObj() noexcept
 {
 }
+
+exceptionObj::~exceptionObj()=default;
 
 void exceptionObj::fileline(const char *file, int line) noexcept
 {

@@ -41,14 +41,67 @@ void ref_in_constructor(obj *p)
 	abort();
 }
 
+int obj_debug __attribute__((weak))=0;
+
+static std::mutex &get_obj_map_mutex()
+{
+	static std::mutex obj_map_mutex;
+
+	return obj_map_mutex;
+}
+
+static std::map<obj *, std::string> &get_obj_list()
+{
+	static std::map<obj *, std::string> obj_list;
+
+	return obj_list;
+}
+
 obj::obj() noexcept : refcnt(-1)
 {
+	if (obj_debug)
+	{
+		stacktrace trace;
+
+		std::unique_lock lock{get_obj_map_mutex()};
+
+		get_obj_list().insert({this, trace.backtrace});
+	}
 }
 
 obj::~obj()
 {
+	if (obj_debug)
+	{
+		std::unique_lock lock{get_obj_map_mutex()};
+
+		auto &obj_list=get_obj_list();
+
+		auto p=obj_list.find(this);
+
+		if (p != obj_list.end())
+			obj_list.erase(p);
+	}
 }
 
+void obj::dump_all()
+{
+	std::unique_lock lock{get_obj_map_mutex()};
+
+	for (const auto &objs:get_obj_list())
+	{
+		std::cout << objs.first->objname() << ":" << std::endl;
+
+		std::istringstream i{objs.second};
+
+		std::string l;
+
+		while (std::getline(i, l))
+		{
+			std::cout << "    " << l << std::endl;
+		}
+	}
+}
 
 void obj::demangle(const char *mangled,
 		   std::string &demangled) noexcept

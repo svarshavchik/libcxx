@@ -10,6 +10,7 @@
 #include <sstream>
 #include <x/namespace.h>
 #include <x/obj.H>
+#include <x/stacktrace.H>
 
 namespace LIBCXX_NAMESPACE {
 #if 0
@@ -23,17 +24,13 @@ namespace LIBCXX_NAMESPACE {
 //! accessed directly, but rather constructed by a
 //! \ref EXCEPTION "EXCEPTION macro".
 
-class exceptionObj : virtual public obj, public std::ostringstream {
+class exceptionObj : virtual public obj, public stacktrace,
+		     public std::ostringstream {
 
 	//! Buffer returned by what().
 	std::string what_buf;
 
 public:
-	//! This buffer stores the stack backtrace dump.
-
-	//! save() prepends the accumulated error message text to the backtrace.
-
-	std::string backtrace;
 
 	//! Return a native C pointer, called by std::exception::what's override.
 	const char *what() noexcept;
