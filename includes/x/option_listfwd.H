@@ -40,7 +40,7 @@ typedef ptr<listObj, listBase> listptr;
 
 //! Base class for the %option list reference
 
-class listBase : public ptrrefBase {
+class listBase : public ptrref_base {
 
 public:
 	//! This %option takes a value

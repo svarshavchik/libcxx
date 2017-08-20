@@ -24,7 +24,7 @@ namespace LIBCXX_NAMESPACE {
 
 //! Refer to this class \c yaml::docnode::base
 
-class docnodeBase : public ptrrefBase {
+class docnodeBase : public ptrref_base {
 };
 
 #if 0

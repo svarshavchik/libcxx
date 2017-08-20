@@ -19,7 +19,7 @@ namespace LIBCXX_NAMESPACE {
 //! Refer to this class as \c customweaktype::base or \c customweaktypeptr::base
 //!
 template<typename T, typename Allocator>
-class weaklistBase : public ptrrefBase {
+class weaklistBase : public ptrref_base {
 
 public:
 

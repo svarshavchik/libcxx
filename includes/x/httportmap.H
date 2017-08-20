@@ -22,7 +22,7 @@ namespace LIBCXX_NAMESPACE {
 //! \see httportmap
 //!
 
-class httportmapBase : public ptrrefBase {
+class httportmapBase : public ptrref_base {
 
 public:
 	//! Flag: exclusive service registration

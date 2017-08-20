@@ -74,7 +74,7 @@ using const_vectorptr=const_ptr<vectorObj<T, Allocator>,
 //! Imports \c typedefs for \c iterator and \c const_iterator
 
 template<class T, class Allocator>
-class vectorBase : public ptrrefBase {
+class vectorBase : public ptrref_base {
 
 public:
 	//! Import the \c iterator typedef

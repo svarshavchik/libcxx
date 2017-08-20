@@ -54,7 +54,7 @@ public:
 
 	public:
 		friend class sharedlockObj;
-		friend class ptrrefBase;
+		friend class ptrref_base;
 
 		sharedObj();
 		~sharedObj();
@@ -76,7 +76,7 @@ public:
 
 	public:
 		friend class sharedlockObj;
-		friend class ptrrefBase;
+		friend class ptrref_base;
 
 		uniqueObj();
 		~uniqueObj();

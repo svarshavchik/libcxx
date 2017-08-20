@@ -491,7 +491,7 @@ public:
 
 //! Refer to this class as \c tzfile::base or \c tzfileptr::base.
 
-class tzfileBase : public ptrrefBase {
+class tzfileBase : public ptrref_base {
 public:
 
 	//! Return the local system timezone name

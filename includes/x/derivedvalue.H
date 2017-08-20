@@ -259,7 +259,7 @@ void derivedvalueListObj<basedon_t>::calcObj<begin_calc_functor_t,
 //! \see derivedvalue
 
 template<typename basedon_t>
-class derivedvalueListBase : public ptrrefBase {
+class derivedvalueListBase : public ptrref_base {
 
 public:
 

@@ -18,7 +18,7 @@ namespace LIBCXX_NAMESPACE {
 
 //! Refer to this class as \c INSERT_LIBX_NAMESPACE::mutex::base or \c INSERT_LIBX_NAMESPACE::mutexptr::base
 
-class mutexBase : public ptrrefBase {
+class mutexBase : public ptrref_base {
 
 public:
 

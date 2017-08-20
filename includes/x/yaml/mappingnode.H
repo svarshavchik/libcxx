@@ -29,7 +29,7 @@ namespace LIBCXX_NAMESPACE {
 
 //! Refer to this class as \c INSERT_LIBX_NAMESPACE::yaml::mapping::base
 
-class mappingnodeBase : public ptrrefBase {
+class mappingnodeBase : public ptrref_base {
 
 public:
 

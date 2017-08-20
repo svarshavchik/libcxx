@@ -21,7 +21,7 @@ namespace LIBCXX_NAMESPACE {
 
 //! Refer to this base class as \c dir::base or \c dirptr::base
 
-class dirBase : public ptrrefBase {
+class dirBase : public ptrref_base {
 
 public:
 	//! A convenience typedef

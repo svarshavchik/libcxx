@@ -249,7 +249,7 @@ using lockpoolptr=ptr<lockpoolObj<lockid_t, compare_t, traits_t, starve>,
 //!
 
 template<typename lockid_t, typename compare_t, typename traits_t, bool starve>
-class lockpoolBase : public ptrrefBase {
+class lockpoolBase : public ptrref_base {
 	//! My object implementation type
 
 	typedef lockpoolObj<lockid_t, compare_t, traits_t, starve> impl_t;

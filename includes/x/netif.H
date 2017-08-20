@@ -28,7 +28,7 @@ typedef ptr<netifObj, netifBase> netifptr;
 
 //! Refer to this class as \c netif::base or \c netifptr::base
 
-class netifBase : public ptrrefBase {
+class netifBase : public ptrref_base {
 
 public:
 

@@ -30,7 +30,7 @@ namespace LIBCXX_NAMESPACE {
 
 //! Refer to this class as \c INSERT_LIBX_NAMESPACE::yaml::sequence::base
 
-class sequencenodeBase : public ptrrefBase {
+class sequencenodeBase : public ptrref_base {
 
 public:
 

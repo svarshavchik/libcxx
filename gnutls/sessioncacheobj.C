@@ -93,7 +93,7 @@ public:
 
 gnutls::sessioncache gnutls::sessioncacheBase::create()
 {
-	return ptrrefBase::objfactory<ref<sessioncacheObj::basic_implObj>>
+	return ptrref_base::objfactory<ref<sessioncacheObj::basic_implObj>>
 		::create();
 }
 

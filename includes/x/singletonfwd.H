@@ -16,7 +16,7 @@ namespace LIBCXX_NAMESPACE {
 #endif
 
 template<typename ref_type,
-	 typename baseClass=ptrrefBase> class singleton;
+	 typename baseClass=ptrref_base> class singleton;
 
 #if 0
 {

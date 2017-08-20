@@ -20,7 +20,7 @@ namespace LIBCXX_NAMESPACE {
 //! Refer to this class as \c INSERT_LIBX_NAMESPACE::timer::base or \c INSERT_LIBX_NAMESPACE::timerptr::base
 //!
 
-class timerbaseObj : public ptrrefBase {
+class timerbaseObj : public ptrref_base {
 
 public:
 

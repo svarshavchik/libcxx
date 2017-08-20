@@ -40,7 +40,7 @@ namespace LIBCXX_NAMESPACE {
 //! or
 //! \c INSERT_LIBX_NAMESPACE::gnutls::x509::crtptr::base.
 
-class gnutls::x509::crtBase : public ptrrefBase {
+class gnutls::x509::crtBase : public ptrref_base {
 
 public:
 	//! Import a list of certificates

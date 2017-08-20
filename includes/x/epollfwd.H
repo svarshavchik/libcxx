@@ -158,7 +158,7 @@ typedef ptr<epollObj, epollBase> epollptr;
 
 //! This is \c epoll::base and \c epollptr::base
 
-class epollBase : public ptrrefBase {
+class epollBase : public ptrref_base {
 
 public:
 

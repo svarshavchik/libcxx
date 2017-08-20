@@ -41,7 +41,7 @@ template<typename signature, typename container_type>
 class callback_container_implObj;
 
 template<typename signature, typename container_type>
-class callback_container_implBase : public ptrrefBase {
+class callback_container_implBase : public ptrref_base {
 
 public:
 

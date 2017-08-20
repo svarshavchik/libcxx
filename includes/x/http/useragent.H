@@ -23,7 +23,7 @@ namespace LIBCXX_NAMESPACE {
 
 //! Refer to this class as \c http::useragent::base or \c http::useragentptr::base
 
-class useragentBase : public ptrrefBase {
+class useragentBase : public ptrref_base {
 
 public:
 	//! A challenge factory

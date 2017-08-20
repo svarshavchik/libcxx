@@ -20,7 +20,7 @@ namespace LIBCXX_NAMESPACE {
 
 //! Refer to this base class as \c INSERT_LIBX_NAMESPACE::dirwalk::base or \c INSERT_LIBX_NAMESPACE::dirwalkptr::base
 
-class dirwalkBase : public ptrrefBase {
+class dirwalkBase : public ptrref_base {
 
 public:
 

@@ -224,7 +224,7 @@ public:
 //! This class defines the iterator type returned by
 //! encoder->begin() and encoder->end().
 
-class encoderBase : public ptrrefBase {
+class encoderBase : public ptrref_base {
 
 public:
 

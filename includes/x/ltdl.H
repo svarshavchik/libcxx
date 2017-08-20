@@ -22,7 +22,7 @@ namespace LIBCXX_NAMESPACE {
 
 //! Refer to this class as \c INSERT_LIBX_NAMESPACE::ltdl::base
 
-class ltdlBase : public ptrrefBase {
+class ltdlBase : public ptrref_base {
 
 public:
 

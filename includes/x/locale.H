@@ -19,7 +19,7 @@ namespace LIBCXX_NAMESPACE {
 
 //! Refer to this class as \c locale::base or \c localeptr::base
 
-class localeBase : public ptrrefBase {
+class localeBase : public ptrref_base {
 public:
 
 	//! The global locale

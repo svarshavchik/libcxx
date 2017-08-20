@@ -26,7 +26,7 @@ namespace LIBCXX_NAMESPACE {
 
 //! Refer to this class is \c gnutls::x509::privkey::base or  \c gnutls::x509::privkeyptr::base
 
-class privkeyBase : public ptrrefBase {
+class privkeyBase : public ptrref_base {
 
 public:
 

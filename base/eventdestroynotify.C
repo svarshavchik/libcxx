@@ -15,7 +15,7 @@ eventdestroynotify
 eventdestroynotifyBase::newobj::create(const eventfd &eventfdArg,
 				       const ref<obj> &objArg)
 {
-	auto r(ptrrefBase::objfactory<eventdestroynotify>::create());
+	auto r(ptrref_base::objfactory<eventdestroynotify>::create());
 
 	r->install(eventfdArg, objArg);
 

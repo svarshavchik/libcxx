@@ -17,7 +17,7 @@ namespace LIBCXX_NAMESPACE {
 
 //! Base class for \c INSERT_LIBX_NAMESPACE::sharedlock and \c INSERT_LIBX_NAMESPACE::sharedlockptr with some convenience typedefs
 
-class sharedlockBase : public ptrrefBase {
+class sharedlockBase : public ptrref_base {
 
 public:
 

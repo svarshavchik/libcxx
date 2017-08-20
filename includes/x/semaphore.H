@@ -162,7 +162,7 @@ typedef ptr<semaphoreObj, semaphoreBase> semaphoreptr;
 
 //! Refer to this class as \c INSERT_LIBX_NAMESPACE::semaphore::base or \c INSERT_LIBX_NAMESPACE::semaphoreptr::base
 
-class semaphoreBase : public ptrrefBase {
+class semaphoreBase : public ptrref_base {
 
 public:
 
@@ -183,7 +183,7 @@ public:
 
 //! Implements a custom create() for \ref semaphoreObj::ownerObj "semaphore owners".
 
-class semaphoreBase::ownerBase : public ptrrefBase {
+class semaphoreBase::ownerBase : public ptrref_base {
 
 public:
 

@@ -25,7 +25,7 @@ template<typename K,
 	 typename H,
 	 typename KE,
 	 typename Allocator>
-class mcguffinunordered_multimapBase : public ptrrefBase {
+class mcguffinunordered_multimapBase : public ptrref_base {
 
 public:
 

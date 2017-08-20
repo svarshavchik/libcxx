@@ -7,6 +7,7 @@
 #define x_reffwd_H
 
 #include <utility>
+#include <type_traits>
 #include <x/namespace.h>
 
 namespace LIBCXX_NAMESPACE {
@@ -23,10 +24,10 @@ namespace LIBCXX_NAMESPACE {
 //! \ref ref "INSERT_LIBX_NAMESPACE::ref<class>::base" and
 //! \ref ptr "INSERT_LIBX_NAMESPACE::ptr<class>::base".
 //!
-//! 
+//!
 class obj;
 
-class ptrrefBase {
+class ptrref_base {
 
 public:
 
@@ -68,15 +69,55 @@ public:
 	};
 };
 
-template<typename objClass, typename baseType=ptrrefBase> class ptr;
-template<typename objClass, typename baseType=ptrrefBase> class const_ptr;
-template<typename objClass, typename baseType=ptrrefBase> class ref;
-template<typename objClass, typename baseType=ptrrefBase> class const_ref;
+//! Define the default base class for a \ref ptr "ptr" or a \ref ref "ref".
 
+//! The default base class is ptrref_base
+
+template<typename>
+struct base_type {
+public:
+
+	typedef ptrref_base type;
+};
+
+template<typename objClass, typename type=typename base_type<objClass>
+	 ::type> class ptr;
+
+template<typename objClass, typename type=typename base_type<objClass>
+	 ::type> class const_ptr;
+
+template<typename objClass, typename type=typename base_type<objClass>
+	 ::type> class ref;
+
+template<typename objClass, typename type=typename base_type<objClass>
+	 ::type> class const_ref;
+
+//! Deduction guide for a \ref ptr "ptr".
+
+template<typename objClass> ptr(objClass *) -> ptr<objClass>;
+
+//! Deduction guide for a \ref const_ptr "const_ptr".
+
+template<typename objClass> const_ptr(objClass *) -> const_ptr<objClass>;
+
+//! Deduction guide for a \ref const_ptr "const_ptr".
+
+template<typename objClass> const_ptr(const objClass *) -> const_ptr<objClass>;
+
+//! Deduction guide for a \ref ref "ref".
+
+template<typename objClass> ref(objClass *) -> ref<objClass>;
+
+//! Deduction guide for a \ref const_ref "const_ref".
+
+template<typename objClass> const_ref(objClass *) -> const_ref<objClass>;
+
+//! Deduction guide for a \ref const_ref "const_ref".
+
+template<typename objClass> const_ref(const objClass *) -> const_ref<objClass>;
 
 #if 0
 {
 #endif
 }
 #endif
-

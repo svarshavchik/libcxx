@@ -27,7 +27,7 @@ namespace LIBCXX_NAMESPACE {
 
 //! Refer to this class as \c http::cookiejar::base or \c http::cookiejarptr::base
 
-class cookiejarBase : public ptrrefBase {
+class cookiejarBase : public ptrref_base {
 
 public:
 

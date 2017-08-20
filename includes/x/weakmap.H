@@ -23,7 +23,7 @@ namespace LIBCXX_NAMESPACE {
 template<typename K, typename T,
 	 typename C,
 	 typename Allocator>
-class weakmapBase : public ptrrefBase {
+class weakmapBase : public ptrref_base {
 
 public:
 	//! The underlying reference-counted object.

@@ -97,7 +97,7 @@ public:
 		       //! When this object goes out of scope
 		       const ref<obj> &objArg)
 		{
-			auto r(ptrrefBase::objfactory<refptrType>
+			auto r(ptrref_base::objfactory<refptrType>
 			       ::create(eventqueueArg, argArg));
 			r->install(objArg);
 

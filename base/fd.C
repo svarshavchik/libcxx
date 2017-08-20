@@ -268,7 +268,7 @@ std::pair<fd, fd> fdBase::pipesocket_common(int *pipefd)
 
 fd fdBase::adopt(int filedesc)
 {
-	return ptrrefBase::objfactory<fd>::create(filedesc);
+	return ptrref_base::objfactory<fd>::create(filedesc);
 }
 
 fd fdBase::shm_open(const std::string_view &filename,

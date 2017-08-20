@@ -696,7 +696,7 @@ button quit(button::create(100, 100));</programlisting>
       calling it, and is the expected return type from
       <methodname>create</methodname>().
       By default, <classname>base</classname> gets typedef-ed to
-      <classname>&ns;::ptrrefBase</classname>, which defines the
+      <classname>&ns;::ptrref_base</classname>, which defines the
       <classname>objfactory</classname> template class parameter with a
       static <methodname>create</methodname>() method that constructs a new
       object, for the &ref; or the &ptr;.
@@ -707,7 +707,7 @@ button quit(button::create(100, 100));</programlisting>
       forwards its arguments to
       <methodname>base::objfactory&lt;<replaceable>T</replaceable>&gt;::create</methodname>().
       The default implementation,
-      <methodname>&ns;::ptrrefBase::objfactory&lt;<replaceable>T</replaceable>&gt;::create</methodname>(),
+      <methodname>&ns;::ptrref_base::objfactory&lt;<replaceable>T</replaceable>&gt;::create</methodname>(),
       constructs the object on the heap with <literal>new</literal>,
       and forwards the arguments to the object's constructor.
       In nearly all cases, it's sufficient to define a constructor in
@@ -719,7 +719,7 @@ button quit(button::create(100, 100));</programlisting>
     <para>
       Reference-counted objects do not get explicitly
       <literal>delete</literal>d, as this is done by the reference-counting
-      templates.
+      templates; and
       <methodname>create</methodname>() removes all the <literal>new</literal>s
       too. With <methodname>create</methodname>(), &ref;, and &ptr;, an application
       that uses &app; will not have any <literal>new</literal>s and
@@ -856,8 +856,9 @@ b-&gt;click();</programlisting>
     <para>
       &ref;'s and &ptr;'s <classname>base</classname> typedef actually
       comes from an optional second parameter to the &ref; and the &ptr;
-      template class, which defaults to <classname>&ns;::ptrrefbase</classname>.
-      This can be overridden:
+      template class, which defaults to <classname>&ns;::ptrref_base</classname>.
+      This can be overridden in two different ways. The first way is to
+      specify an additional parameter to the template:
     </para>
 
     <blockquote>
@@ -885,13 +886,54 @@ public:
 };</programlisting></informalexample></blockquote>
 
     <para>
+      The second way is to
+      <ulink url="&link-typedef-x--base-type-type;">specialize
+	<classname>&ns;::base_type</classname> and define a
+	<varname>type</varname> class member</ulink>:
+    </para>
+
+    <blockquote>
+      <informalexample>
+	<programlisting>
+class buttonObj;
+
+template&lt;&gt;
+struct &ns;::base_type&lt;buttonObj&gt; {
+
+    typedef buttonBase type;
+};
+
+typedef &ns;::ref&lt;buttonObj&gt; button;
+typedef &ns;::ptr&lt;buttonObj&gt; buttonptr;
+
+
+</programlisting>
+      </informalexample>
+    </blockquote>
+
+    <para>
+      Specializing <classname>&ns;::base_type</classname> in this manner
+      ends up specifying the default second parameter to the
+      &ref; and &ptr; templates (also &const_ref; and &const_ptr; too).
+      With this specialization,
+      <classname>&ns;::ref&lt;buttonObj&gt;</classname>
+      and
+      <classname>&ns;::ref&lt;buttonObj, buttonBase&gt;</classname>
+      is the same type, with the second template parameter setting
+      the &ref;'s or the &ptr;'s <varname>base</varname> member.
+      This specialization also takes effect when
+      <link linkend="refptrdeduction">constructing an &reforptr; from
+	<varname>this</varname></link>.
+    </para>
+
+    <para>
       An &reforptr;'s <methodname>create</methodname>() method invokes
       <methodname>base::objfactory&lt;<replaceable>T</replaceable>&gt;::create</methodname>(), where
       <replaceable>T</replaceable> is either the &ref; or the &ptr; type.
 
       in this example, <classname>button::base</classname> gets typedef-ed to
       <classname>buttonBase</classname> instead of
-      <classname>&ns;::ptrrefBase</classname>, so invoking
+      <classname>&ns;::ptrref_base</classname>, so invoking
       <methodname>button::create</methodname>() invokes the custom
       <methodname>create</methodname>() method that returns an &reforptr;,
       with
@@ -935,7 +977,7 @@ class buttonObj;
 typedef &ns;::ref&lt;buttonObj, buttonBase&gt; button;
 typedef &ns;::ptr&lt;buttonObj, buttonBase&gt; buttonptr;
 
-class buttonBase : public &ns;::ptrrefBase {
+class buttonBase : public &ns;::ptrref_base {
 
 public:
     static const int default_width=50, default_height=50;
@@ -943,17 +985,17 @@ public:
 
     <para>
       Here, <classname>buttonBase</classname> subclasses
-      <classname>&ns;::ptrrefBase</classname>, which is the default
+      <classname>&ns;::ptrref_base</classname>, which is the default
       <classname>base</classname> of an &reforptr;, and inherits the
       default implementation of <classname>objfactory</classname>.
       For completeness, here's the actual definition of
-      <classname>&ns;::ptrrefBase</classname>:
+      <classname>&ns;::ptrref_base</classname>:
     </para>
 
     <blockquote>
       <informalexample>
 	<programlisting>
-class ptrrefBase {
+class ptrref_base {
 public:
 
     template&lt;typename ptrrefType&gt; class objfactory {
@@ -1271,6 +1313,68 @@ void widgetObj::method()
 	assigning it to an &reforptr;, also aborts the program.
       </para>
     </note>
+
+    <section id="refptrdeduction">
+      <title>Using deduction guides with an &reforptr;</title>
+
+
+      <blockquote>
+	<informalexample>
+	  <programlisting>
+class buttonObj : virtual public &ns;::obj {
+
+// ...
+
+     void clicked();
+};
+
+void buttonObj::clicked()
+{
+auto r=&ns;::ref(this);
+
+};</programlisting></informalexample></blockquote>
+
+      <para>
+	A natural deduction guide for an &reforptr; (also &const_ref; and
+	&const_ptr; too) simplifies creating an &reforptr; from
+	<varname>this</varname> (or from some other native pointer).
+	Note that this results in the
+	<link linkend="custombase">default <classname>base</classname></link>
+	<literal>typedef</literal> of
+	<classname>&ns;::ptrref_base</classname>, for the constructed
+	reference or a pointer. However the deduction guide uses the
+	<classname>&ns;::base_type</classname> specialization, if one is
+	available:
+      </para>
+
+      <blockquote>
+	<informalexample>
+	  <programlisting>
+class buttonObj : virtual public &ns;::obj {
+
+// ...
+
+     void clicked();
+};
+
+template&lt;&gt;
+struct &ns;::base_type&lt;buttonObj&gt; {
+
+    typedef buttonBase type;
+};
+
+void buttonObj::clicked()
+{
+auto r=&ns;::ref(this);
+
+};</programlisting></informalexample></blockquote>
+
+      <para>
+	Because this specialization overrides the second template parameter
+	to an &reforptr;, this constructs a
+	<classname>&ns;::ref&lt;buttonObj, buttonBase&gt;</classname>.
+      </para>
+    </section>
   </section>
 
   <section id="multinherit">

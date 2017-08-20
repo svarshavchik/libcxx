@@ -26,7 +26,7 @@ namespace LIBCXX_NAMESPACE {
 
 //! Base class for \ref client "FTP clients".
 
-class clientBase : public ptrrefBase {
+class clientBase : public ptrref_base {
 
 public:
 

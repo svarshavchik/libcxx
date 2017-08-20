@@ -21,16 +21,11 @@ template<typename value_type> class outputrefiteratorObj;
 template<typename value_type, typename ...TupleType>
 class outputrefiteratorTupleObj;
 
-template<typename value_type, typename ...Args>
-refobjiterator<ref<outputrefiteratorTupleObj<value_type, typename
-					     std::decay<Args>::type...>>>
-make_outputrefiterator(Args && ...args);
-
 //! A referenced-counted pointer that implements iterator requirements.
 
 //! \see refobjiterator
 
-template<typename obj_type, typename baseType=ptrrefBase>
+template<typename obj_type, typename baseType=ptrref_base>
 
 #ifndef DOXYGEN
 using refiterator=refobjiterator<ref<obj_type, baseType>>;
@@ -42,7 +37,7 @@ class refiterator {};
 
 //! \see refobjiterator
 
-template<typename obj_type, typename baseType=ptrrefBase>
+template<typename obj_type, typename baseType=ptrref_base>
 #ifndef DOXYGEN
 using ptriterator=refobjiterator<ptr<obj_type, baseType>>;
 #else
@@ -53,14 +48,14 @@ class ptriterator {};
 
 //! \see refobjiterator
 
-template<typename obj_type, typename baseType=ptrrefBase>
+template<typename obj_type, typename baseType=ptrref_base>
 using const_refiterator=refobjiterator<const_ref<obj_type, baseType>>;
 
 //! A referenced-counted pointer that implements iterator requirements.
 
 //! \see refobjiterator
 
-template<typename obj_type, typename baseType=ptrrefBase>
+template<typename obj_type, typename baseType=ptrref_base>
 using const_ptriterator=refobjiterator<const_ptr<obj_type, baseType>>;
 
 //! A referenced-counted output iterator.
@@ -90,6 +85,11 @@ using const_outputrefiterator=const_refiterator<outputrefiteratorObj<value_type>
 
 template<typename value_type>
 using const_outputrefiteratorptr=const_ptriterator<outputrefiteratorObj<value_type>>;
+
+template<typename value_type, typename ...Args>
+inline refiterator< outputrefiteratorTupleObj<value_type, typename
+					      std::decay<Args>::type...> >
+make_outputrefiterator(Args && ...args);
 
 #if 0
 {

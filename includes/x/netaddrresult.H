@@ -24,7 +24,7 @@ namespace LIBCXX_NAMESPACE {
 //! a reference to an object that holds
 //! unresolved network addresses.
 
-class netaddrResultBase : public ptrrefBase {
+class netaddrResultBase : public ptrref_base {
 
 public:
 	//! A resolved address

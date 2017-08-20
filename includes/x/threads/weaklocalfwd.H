@@ -14,7 +14,7 @@ namespace LIBCXX_NAMESPACE {
 };
 #endif
 
-template<typename objClass, typename baseType=ptrrefBase>
+template<typename objClass, typename baseType=ptrref_base>
 class weakthreadlocalObj;
 
 //! Weak local thread objects
@@ -22,22 +22,22 @@ class weakthreadlocalObj;
 //! \see makeweakthreadlocal
 //!
 
-template<typename objClass, typename baseType=ptrrefBase>
+template<typename objClass, typename baseType=ptrref_base>
 using weakthreadlocal=ref<weakthreadlocalObj<objClass, baseType> >;
 
 //! A nullable pointer reference to a weak local thread object.
 
-template<typename objClass, typename baseType=ptrrefBase>
+template<typename objClass, typename baseType=ptrref_base>
 using weakthreadlocalptr=ptr<weakthreadlocalObj<objClass, baseType> >;
 
 //! A constant reference to a weak local thread object.
 
-template<typename objClass, typename baseType=ptrrefBase>
+template<typename objClass, typename baseType=ptrref_base>
 using const_weakthreadlocal=const_ref<weakthreadlocalObj<objClass, baseType> >;
 
 //! A nullable pointer reference to a constant weak local thread object.
 
-template<typename objClass, typename baseType=ptrrefBase>
+template<typename objClass, typename baseType=ptrref_base>
 using const_weakthreadlocalptr=const_ptr<weakthreadlocalObj<objClass, baseType> >;
 
 //! A weak local thread object reference

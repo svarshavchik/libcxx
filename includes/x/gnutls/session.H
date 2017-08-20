@@ -33,7 +33,7 @@ namespace LIBCXX_NAMESPACE {
 //! This is the base class for \ref session "INSERT_LIBX_NAMESPACE::gnutls::session"
 //! and  \ref sessionptr "INSERT_LIBX_NAMESPACE::gnutls::sessionptr"
 
-class sessionBase : public ptrrefBase {
+class sessionBase : public ptrref_base {
 
 public:
 

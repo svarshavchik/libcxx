@@ -485,7 +485,7 @@ template<typename objClass2> inline const_ptr<objClass, baseClass>
 //!
 //! This pointer class contains a \c typedef member named "base" that contains
 //! pointer-related static methods. The default base class is
-//! \ref ptrrefBase "ptrrefBase", which supplies a single static
+//! \ref ptrref_base "ptrref_base", which supplies a single static
 //! create() method that returns a \ref ptr "ptr" to a new-ed instance of the
 //! object class, constructed using the default constructor.
 //!

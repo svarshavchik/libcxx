@@ -46,6 +46,7 @@
 <!ENTITY mimeencoder SYSTEM "mimeencoder.xml">
 <!ENTITY mimeparser SYSTEM "mimeparser.xml">
 <!ENTITY number SYSTEM "number.xml">
+<!ENTITY visitor SYSTEM "visitor.xml">
 <!ENTITY pwdgrp SYSTEM "pwdgrp.xml">
 <!ENTITY uri SYSTEM "uri.xml">
 <!ENTITY headers SYSTEM "headers.xml">
@@ -161,6 +162,7 @@ See COPYING for distribution information.
     <title>Miscellaneous classes and functions</title>
 
     &number;
+    &visitor;
     &miscfunctional;
     &miscsentry;
     &miscstringability;

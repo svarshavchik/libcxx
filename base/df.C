@@ -153,7 +153,7 @@ void dfObj::dfvfsfdObj::refresh()
 df dfBase::newobj::create(const std::string &pathname)
 
 {
-	auto d(ptrrefBase::objfactory< ref<dfObj::dfvfspathObj> >
+	auto d(ptrref_base::objfactory< ref<dfObj::dfvfspathObj> >
 	       ::create(pathname));
 
 	d->refresh();
@@ -164,7 +164,7 @@ df dfBase::newobj::create(const std::string &pathname)
 df dfBase::newobj::create(const fd &filedesc)
 
 {
-	auto d(ptrrefBase::objfactory< ref<dfObj::dfvfsfdObj> >
+	auto d(ptrref_base::objfactory< ref<dfObj::dfvfsfdObj> >
 	       ::create(filedesc));
 
 	d->refresh();

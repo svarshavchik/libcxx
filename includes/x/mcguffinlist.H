@@ -21,7 +21,7 @@ namespace LIBCXX_NAMESPACE {
 //! Refer to this class as \c INSERT_LIBX_NAMESPACE::mcguffinlist<ref_type>::base
 
 template<typename ref_type, typename Allocator>
-class mcguffinlistBase : public ptrrefBase {
+class mcguffinlistBase : public ptrref_base {
 
 public:
 

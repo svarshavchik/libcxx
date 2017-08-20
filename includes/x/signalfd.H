@@ -21,7 +21,7 @@ namespace LIBCXX_NAMESPACE {
 
 //! The base class defines the getsignal_t convenience typedef
 
-class signalfdBase : public ptrrefBase {
+class signalfdBase : public ptrref_base {
 
 public:
 	//! Convenience typedef

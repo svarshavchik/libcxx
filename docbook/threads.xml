@@ -43,6 +43,9 @@ See COPYING for distribution information.
       <ulink url="&link-x--mpcobj;"><classname>&ns;::mpcobj</classname></ulink>
       supplements <classname>&ns;::mpobj</classname> with a condition
       variable.
+      <ulink url="&link-x--mp;"><classname>&ns;::mp</classname></ulink>
+      is an alternative design pattern for
+      a mutex-protected wrapper around a reference-counted object.
     </para>
 
     <para>
@@ -146,6 +149,70 @@ typedef &ns;::mpcobj&lt;messages_t&gt;::lock lock_t;
       the <classname>&ns;::mpcobj</classname>
       template overrides <classname>std::mutex</classname> as the
       underlying mutex type.
+    </para>
+  </section>
+
+  <section id="mp">
+    <title>Mutex-protected references</title>
+
+    <blockquote>
+      <informalexample>
+	<programlisting>
+#include &lt;&ns;/mp.H&gt;
+
+class mpobject {
+
+public:
+    int v;
+};
+
+&ns;::mp&lt;mpobject&gt; mpv{4};
+
+int nv=mpv->v;
+
+auto old=mpv.get();
+
+mpv.update([=](auto &amp;v){v.v=nv+1;});</programlisting>
+      </informalexample>
+    </blockquote>
+
+    <para>
+      <ulink url="&link-x--mp;"><classname>&ns;::mp</classname></ulink>'s
+      template parameter must be a class that implements a copy-constructor.
+      <classname>&ns;::mp</classname>'s constructor's parameters
+      get forwarded to the class, constructing an internal mutex-protected
+      reference-counted object containing this class;
+    </para>
+
+    <para>
+      <methodname>get()</methodname>() returns an
+      <link linkend="constrefobj"><classname>&ns;::const_ref</classname></link>
+      to the wrapped object, with <methodname>-&gt;</methodname>() overloaded
+      as an alias for <methodname>get</methodname>().
+      The internal mutex lock is acquired only for the duration of
+      <methodname>get()</methodname>().
+    </para>
+
+    <para>
+      Modifying the object requires passing a lambda or a functor to
+      <methodname>update()</methodname>(). The lambda receives a mutable
+      reference to the object. The reference gets copy-constructed first,
+      so any outstanding <methodname>get</methodname>()s do not get impacted.
+      An internally lock gets held for the duration of the
+      <methodname>update()</methodname>() blocking any new
+      <methodname>get</methodname>()s,
+      and the internally-wrapped reference gets updated after the lambda
+      returns, and before releasing the lock.
+      A thrown exception in the lambda results in any changes to the object
+      getting discarded, and the unmodified object getting unlocked.
+    </para>
+
+    <para>
+      Nested <methodname>update</methodname>()s (made during the execution
+      of the lambda) are allowed, but each <methodname>update</methodname>()
+      lambda receives a reference to a separate copy of the original object,
+      with changes to the initial <methodname>update</methodname>() getting
+      unlocked, when it returns.
     </para>
   </section>
 

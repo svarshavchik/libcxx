@@ -23,7 +23,7 @@ namespace LIBCXX_NAMESPACE {
 //! Refer to this class as \c %INSERT_LIBX_NAMESPACE:%hier<...>::%base.
 
 template<typename hier_type, typename ref_type>
-class hierBase : public ptrrefBase {
+class hierBase : public ptrref_base {
 
 public:
 

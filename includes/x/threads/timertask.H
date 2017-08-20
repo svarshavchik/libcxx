@@ -22,7 +22,7 @@ namespace LIBCXX_NAMESPACE {
 //! Refer to this class as \c INSERT_LIBX_NAMESPACE::timertask::base or
 //! \c INSERT_LIBX_NAMESPACE::timertaskptr::base.
 
-class timertaskBase : public ptrrefBase {
+class timertaskBase : public ptrref_base {
 
 	template<typename tuple_args> class invoke;
 

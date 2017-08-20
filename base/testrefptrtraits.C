@@ -10,7 +10,7 @@
 
 class obj : public LIBCXX_NAMESPACE::obj {};
 
-class base : public LIBCXX_NAMESPACE::ptrrefBase {};
+class base : public LIBCXX_NAMESPACE::ptrref_base {};
 
 using LIBCXX_NAMESPACE::ref;
 using LIBCXX_NAMESPACE::ptr;

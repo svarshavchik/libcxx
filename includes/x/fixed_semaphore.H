@@ -52,7 +52,7 @@ public:
 
 //! Refer to this class as \c INSERT_LIBX_NAMESPACE::fixed_semaphore::base.
 
-class fixed_semaphoreBase : public ptrrefBase {
+class fixed_semaphoreBase : public ptrref_base {
 
 public:
 	//! Convenience typedef.

@@ -557,7 +557,7 @@ public:
 
 //! Refer to this class as \c INSERT_LIBX_NAMESPACE::form::parameters::base or \c INSERT_LIBX_NAMESPACE::form::parametersptr::base
 
-class parametersBase : public ptrrefBase {
+class parametersBase : public ptrref_base {
 
 public:
 

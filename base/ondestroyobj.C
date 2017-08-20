@@ -18,7 +18,7 @@ ondestroy ondestroyBase::do_create(const ref<obj::destroyCallbackObj> &cb,
 				   const ref<obj> &objArg,
 				   bool autodestroy)
 {
-	return ptrrefBase::objfactory<ondestroy>::create(cb, objArg,
+	return ptrref_base::objfactory<ondestroy>::create(cb, objArg,
 							 autodestroy);
 }
 

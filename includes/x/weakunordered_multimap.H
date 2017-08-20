@@ -24,7 +24,7 @@ template<typename K, typename T,
 	 typename H,
 	 typename KE,
 	 typename Allocator>
-class weakunordered_multimapBase : public ptrrefBase {
+class weakunordered_multimapBase : public ptrref_base {
 
 public:
 	//! The underlying reference-counted object.

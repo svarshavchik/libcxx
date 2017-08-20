@@ -21,7 +21,7 @@ namespace LIBCXX_NAMESPACE {
 //!
 
 template<typename K, typename T, typename C, typename Allocator>
-class weakmultimapBase : public ptrrefBase {
+class weakmultimapBase : public ptrref_base {
 
 public:
 

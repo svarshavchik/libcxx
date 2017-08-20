@@ -25,7 +25,7 @@ namespace LIBCXX_NAMESPACE {
 //! Refer to this class as \ref md "INSERT_LIBX_NAMESPACE::gcrypt::md::base".
 //!
 
-class mdBase : public ptrrefBase {
+class mdBase : public ptrref_base {
 
 public:
 	//! Fill algos with a list of available message digests

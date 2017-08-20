@@ -476,7 +476,7 @@ public:
 	typedef const_ptr<responseObj, responseBase> const_responseptr;
 
 	//! The base class defines an iterator over the response contents.
-	class responseBase : public ptrrefBase {
+	class responseBase : public ptrref_base {
 
 	public:
 

@@ -24,7 +24,7 @@ template<typename K,
 	 typename ref_type,
 	 typename C,
 	 typename Allocator>
-class mcguffinmultimapBase : public ptrrefBase {
+class mcguffinmultimapBase : public ptrref_base {
 
 public:
 

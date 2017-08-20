@@ -25,7 +25,7 @@ namespace LIBCXX_NAMESPACE {
 
 //! Refer to this class as \c INSERT_LIBX_NAMESPACE::http::serverauth::base
 
-class serverauthBase : public ptrrefBase {
+class serverauthBase : public ptrref_base {
 
 public:
 

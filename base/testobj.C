@@ -36,12 +36,16 @@
 #include "x/dirwalk.H"
 #include "x/destroy_callback.H"
 #include "x/sentry.H"
+#include "x/mp.H"
+#include "x/visitor.H"
 
 #include <iostream>
 #include <algorithm>
 #include <vector>
 #include <cstring>
 #include <unistd.h>
+#include <variant>
+#include <utility>
 #include <sys/types.h>
 #include <sys/wait.h>
 
@@ -2614,6 +2618,58 @@ void testsentry()
 	}
 }
 
+class mpobject {
+
+public:
+	int v;
+};
+
+void testmp()
+{
+	LIBCXX_NAMESPACE::mp<mpobject> mpv{4};
+
+	int nv=mpv->v;
+
+	auto old=mpv.get();
+
+	mpv.update([=](auto &v){v.v=nv+1;});
+
+	if (mpv->v != 5 || old->v != 4)
+	{
+		std::cerr << "testmp failed" << std::endl;
+		exit(1);
+	}
+}
+
+struct one{};
+struct two{};
+
+void foo(const std::variant<one, two> &bar)
+{
+	std::visit( LIBCXX_NAMESPACE::visitor{
+			[](const one &o) {},
+				[](const two &t) {}
+		}, bar);
+}
+
+class deductedObj : virtual public LIBCXX_NAMESPACE::obj {};
+
+class deducted_base : public LIBCXX_NAMESPACE::ptrref_base {};
+
+template<>
+struct LIBCXX_NAMESPACE::base_type<deductedObj> {
+
+	typedef deducted_base type;
+};
+
+void deduction_guide(deductedObj *p, LIBCXX_NAMESPACE::ref<deductedObj,
+		     deducted_base> **q)
+{
+	auto r=LIBCXX_NAMESPACE::ref(p);
+
+	*q= &r;
+}
+
 int main()
 {
 	alarm(60);
@@ -2688,5 +2744,6 @@ int main()
 	alarm(0);
 	testfditer();
 	testequality();
+	testmp();
 	return 0;
 }

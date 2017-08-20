@@ -218,7 +218,7 @@ typedef ptr<netaddrObj, netaddrBase> netaddrptr;
 //! unresolved network addresses.
 //!
 
-class netaddrBase : public ptrrefBase {
+class netaddrBase : public ptrref_base {
 
 public:
 

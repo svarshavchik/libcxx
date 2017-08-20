@@ -39,7 +39,7 @@ typedef ptr<parserObj, parserBase> parserptr;
 
 //! Refer to this class as \c parser::base or \c parserptr::base
 
-class parserBase : public ptrrefBase {
+class parserBase : public ptrref_base {
 
 public:
 

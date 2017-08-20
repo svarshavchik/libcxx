@@ -17,7 +17,7 @@ namespace LIBCXX_NAMESPACE {
 
 //! Refer to this class as \c destroy_callback::base
 
-class destroy_callbackBase : public ptrrefBase {
+class destroy_callbackBase : public ptrref_base {
 
 public:
 

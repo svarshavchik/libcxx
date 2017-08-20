@@ -1,0 +1,43 @@
+<!--
+
+Copyright 2016 Double Precision, Inc.
+See COPYING for distribution information.
+
+-->
+
+<chapter id="visitor">
+  <title>Constructing visitors for <classname>std::variant</classname>s</title>
+
+  <blockquote>
+    <informalexample>
+      <programlisting>
+#include &lt;&ns;/visitor.H&gt;
+
+struct one{};
+struct two{};
+
+void foo(const std::variant&lt;one, two&gt; &amp;bar)
+{
+        std::visit( &ns;::visitor{
+            [](const one &amp;o) {},
+            [](const two &amp;t) {}
+        }, bar);
+}</programlisting>
+    </informalexample>
+  </blockquote>
+
+  <para>
+    The <ulink url="&link-function-x-visitor;"><classname>&ns;::visitor</classname></ulink> template
+    constructs a callable object for passing to
+    <function>std::visit</function>. The intended usage is to pass
+    a variadic list of lambdas to the template, using uniform initialization
+    syntax. This constructs a callable object that inherits all passed lambas,
+    which then gets passed to <function>std::visit</function>.
+  </para>
+</chapter>
+<!--
+Local Variables:
+mode: sgml
+sgml-parent-document: ("book.xml" "part" "chapter")
+End:
+-->
