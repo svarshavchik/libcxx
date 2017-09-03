@@ -89,6 +89,7 @@
 /testshm
 /testsignalfd
 /testsingleton
+/testsingletonptr
 /testsortedvector
 /teststoppable
 /testthreadlocal

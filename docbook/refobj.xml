@@ -1729,18 +1729,19 @@ if (!origw.null())
       </para>
 
       <para>
-	It's quite often to have a situation that involves construction
-	of a bunch of &ref;s. However, each one's construction is rather
-	involved. Perhaps, for some reason, some of the &ref;'s can only
-	be constructed in a different, inner scope, then saved outside of their
-	construction scope.
+	It is common situation to have a bunch of &ref;s getting created
+	as part of an initialization phase, of some kind; however each
+	&ref;'s construction is a non-trivial process.
+	Perhaps, for some reason, some of the &ref;'s can only
+	be constructed in a different, inner scope, then retrieved outside of
+	their construction scope.
       </para>
 
       <para>
 	A common design pattern is to initially declare &ptr;s, construct and
 	define each one of them when needed, then permanently save each one
-	as a &ref;. When all objects
-	are constructed they get all converted to &ref;s.
+	as a &ref;. When the entire set of objects get constructed,
+	they get all converted to &ref;s.
 	The <filename>refcollection.xsl</filename> stylesheet generates
 	a framework for this kind of a design pattern. The stylesheet
 	converts an <acronym>XML</acronym> header file into a C++
@@ -1772,7 +1773,7 @@ if (!origw.null())
       <blockquote>
 	<informalexample>
 	  <programlisting>
-# $datadir/libcxx is installed by the library
+# $datadir/libcxx is where &appshort; installs its stylesheets
 
 xsltproc $datadir/libcxx/refcollection.xsl refcollection.xml &gt;refcollection.H
 </programlisting>
@@ -1780,7 +1781,7 @@ xsltproc $datadir/libcxx/refcollection.xsl refcollection.xml &gt;refcollection.H
       </blockquote>
 
       <para>
-	The resulting header file declares the following classes:
+	The stylesheet generates a C++ header declaring the following classes:
       </para>
       <blockquote>
 	<informalexample>

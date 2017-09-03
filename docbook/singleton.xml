@@ -44,6 +44,65 @@ c-&gt;method();</programlisting>
   </para>
 
   &singletonlimits;
+
+  <para>
+    An <ulink url="&link-x--singletonptr;"><classname>&ns;::singletonptr</classname></ulink>
+    also implements a singleton object, but with a slightly different lifetime
+    scope.
+  </para>
+
+  <blockquote>
+    <informalexample>
+      <programlisting>
+class global_dataObj : virtual public &ns;::obj {
+
+	// ...
+};
+
+typedef refsingleton&lt;global_dataObj&gt; global_data_t;
+
+int main()
+{
+    global_data_t global_data{&ns;::ref&lt;global_dataObj&gt;::create()};
+}
+
+// ...
+
+if (foo())
+{
+    global_data_t global_data;
+
+    global_data-&gt;method();
+}</programlisting>
+    </informalexample>
+  </blockquote>
+
+  <para>
+    An <classname>&ns;::singleton</classname> object gets declared in static
+    or application-global scope, the first <methodname>get</methodname>()
+    constructs an object that persists for the duration of the application,
+    and the object gets destroyed during the global destruction phase.
+
+    An <classname>&ns;::singletonptr</classname> gets constructed in
+    automatic scope, on the stack. An <classname>&ns;::singletonptr</classname>
+    is a subclass of an
+    <classname>&ns;::ptr</classname>, and gets used like one.
+  </para>
+
+  <para>
+    After an <classname>&ns;::singletonptr</classname> gets constructed
+    in automatic scope with an explicit object, until that instance goes
+    out of scope and gets destroyed, all additional default-constructed
+    instances of the <classname>&ns;::singletonptr</classname>
+    end up referencing the same object.
+  </para>
+
+  <para>
+    A default-constructed <classname>&ns;::singletonptr</classname>
+    gets constructed as a null &ptr; when no other instance of an
+    explicitly-constructed <classname>&ns;::singletonptr</classname>
+    exists.
+  </para>
 </chapter>
 <!--
 Local Variables:

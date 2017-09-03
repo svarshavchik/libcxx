@@ -349,6 +349,7 @@ noinst_PROGRAMS=\
 	testqp                        \
 	testrefiterator               \
 	testrefptrtraits	      \
+	testsingletonptr	      \
 	testrun                       \
 	testrunsingleton	      \
 	testsemaphore                 \
@@ -743,6 +744,10 @@ testconvert_SOURCES=testconvert.C
 testconvert_LDADD=libcxx.la
 testconvert_LDFLAGS=$(TESTLINKTYPE)
 
+testsingletonptr_SOURCES=testsingletonptr.C testsingletonptr2.C testsingletonptr.H
+testsingletonptr_LDADD=libcxx.la
+testsingletonptr_LDFLAGS=$(TESTLINKTYPE)
+
 propertiescli.h : propertiescli.h.tmp
 	perl -p -e 's/^#include.*//;s/\b@LIBCXX_NAMESPACE@::/LIBCXX_NAMESPACE::/g' <propertiescli.h.tmp >propertiescli.h.tmp2
 	mv propertiescli.h.tmp2 propertiescli.h
@@ -773,6 +778,7 @@ check-am: $(noinst_PROGRAMS) $(noinst_DATA)
 	./testsingleton 2>testsingleton.tst.tmp >&2
 	diff $(srcdir)/testsingleton.tst testsingleton.tst.tmp
 	rm -f testsingleton.tst.tmp
+	./testsingletonptr
 	./testuuid
 	./testymd 2>testymd.txt.tmp >&2
 	diff $(srcdir)/testymd.txt testymd.txt.tmp
