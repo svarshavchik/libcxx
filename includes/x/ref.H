@@ -431,11 +431,10 @@ inline bool const_ref<objClass, baseClass>
 
 template<typename objClass, typename baseClass>
 template<typename... Args_t>
-inline auto const_ref<objClass, baseClass>
-::create(Args_t &&...args)
+inline auto const_ref<objClass, baseClass>::create(Args_t &&...args)
 {
 	return baseClass
-		::template objfactory< ref<objClass, baseClass> >
+		::template objfactory< const_ref<objClass, baseClass> >
 		::create(std::forward<Args_t>(args)...);
 }
 
@@ -768,6 +767,11 @@ public:
 		return this->p;
 	}
 
+	//! Forward create() to the base class.
+
+	template<typename... Args_t>
+	static inline auto create(Args_t &&...args) LIBCXX_INLINE;
+
 	//! Make a weak pointer.
 
 	inline auto weaken() const
@@ -854,6 +858,15 @@ ref<objClass, baseClass>::operator=(objClass2 *o)
 {
 	const_ref<objClass, baseClass>::operator=(o);
 	return *this;
+}
+
+template<typename objClass, typename baseClass>
+template<typename... Args_t>
+inline auto ref<objClass, baseClass>::create(Args_t &&...args)
+{
+	return baseClass
+		::template objfactory< ref<objClass, baseClass> >
+		::create(std::forward<Args_t>(args)...);
 }
 
 #if 0

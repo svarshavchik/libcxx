@@ -217,7 +217,7 @@ public:
 	static inline auto create(Args_t &&...args)
 	{
 		return baseClass
-			::template objfactory< ptr<objClass, baseClass> >
+			::template objfactory< const_ptr<objClass, baseClass> >
 			::create(std::forward<Args_t>(args)...);
 	}
 
@@ -931,6 +931,11 @@ public:
 		return operator=((objClass *)0);
 	}
 
+	//! Forward create() to the base type
+
+	template<typename... Args_t>
+	static inline auto create(Args_t &&...args) LIBCXX_INLINE;
+
 	//! Make a weak pointer out of me.
 
 	inline auto weaken() const
@@ -984,6 +989,15 @@ inline ptr<objClass, baseClass>
 {
 	const_ptr<objClass, baseClass>::operator=(o);
 	return *this;
+}
+
+template<typename objClass, typename baseClass>
+template<typename... Args_t>
+inline auto ptr<objClass, baseClass>::create(Args_t &&...args)
+{
+	return baseClass
+		::template objfactory< ptr<objClass, baseClass> >
+		::create(std::forward<Args_t>(args)...);
 }
 
 #if 0

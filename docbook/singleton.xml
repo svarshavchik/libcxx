@@ -59,11 +59,13 @@ class global_dataObj : virtual public &ns;::obj {
 	// ...
 };
 
-typedef refsingleton&lt;global_dataObj&gt; global_data_t;
+typedef singletonptr&lt;global_dataObj&gt; global_data_t;
 
 int main()
 {
     global_data_t global_data{&ns;::ref&lt;global_dataObj&gt;::create()};
+
+    // ...
 }
 
 // ...
@@ -78,14 +80,15 @@ if (foo())
   </blockquote>
 
   <para>
-    An <classname>&ns;::singleton</classname> object gets declared in static
-    or application-global scope, the first <methodname>get</methodname>()
-    constructs an object that persists for the duration of the application,
-    and the object gets destroyed during the global destruction phase.
+    An <classname>&ns;::singleton</classname> object always
+    gets declared in static
+    or application-global scope, and its first <methodname>get</methodname>()
+    constructs an object that persists for the duration of the application.
+    The object gets destroyed during the global destruction phase.
 
-    An <classname>&ns;::singletonptr</classname> gets constructed in
-    automatic scope, on the stack. An <classname>&ns;::singletonptr</classname>
-    is a subclass of an
+    An <classname>&ns;::singletonptr</classname> object always gets created in
+    automatic scope, on the stack. The <classname>&ns;::singletonptr</classname>
+    itself is a subclass of an
     <classname>&ns;::ptr</classname>, and gets used like one.
   </para>
 
@@ -103,6 +106,35 @@ if (foo())
     explicitly-constructed <classname>&ns;::singletonptr</classname>
     exists.
   </para>
+
+  <para>
+    This is the intended design pattern for
+    <classname>&ns;::singletonptr</classname>s:
+  </para>
+
+  <itemizedlist>
+    <listitem>
+      <para>
+	<function>main</function>() constructs the initial
+	<classname>&ns;::singletonptr</classname> referencing the underlying
+	object, and all of its contents, during the application's
+	initialization phase. The
+	<classname>&ns;::singletonptr</classname> object gets constructed
+	in automatic scope, and automatically gets destroyed before
+	<function>main</function>() returns.
+      </para>
+    </listitem>
+
+    <listitem>
+      <para>
+	Other parts of the application, with multiple execution threads,
+	default-construct the
+	<classname>&ns;::singletonptr</classname> in their automatic scope,
+	as needed, and have convenient access to the initialized objects in
+	the singleton.
+      </para>
+    </listitem>
+  </itemizedlist>
 </chapter>
 <!--
 Local Variables:
