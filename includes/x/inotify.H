@@ -8,22 +8,11 @@
 
 #include <x/inotifyfwd.H>
 #include <x/inotifyobj.H>
-#include <x/functionalrefptr.H>
 
 namespace LIBCXX_NAMESPACE {
 #if 0
 };
 #endif
-
-template<typename functor_type>
-ref<obj> inotifyObj::create(const std::string &pathname,
-			    uint32_t mask,
-			    functor_type &&functor)
-{
-	return do_create(pathname, mask,
-			 watch_callback_t::create(std::forward<functor_type>
-						  (functor)));
-}
 
 #if 0
 {

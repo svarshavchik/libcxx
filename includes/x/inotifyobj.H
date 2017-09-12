@@ -8,11 +8,11 @@
 
 #include <x/fdobj.H>
 #include <x/mpobj.H>
-#include <x/functionalrefptrfwd.H>
 #include <x/weakmultimapfwd.H>
 #include <x/ptrfwd.H>
 
 #include <map>
+#include <functional>
 
 namespace LIBCXX_NAMESPACE {
 
@@ -27,8 +27,8 @@ class LIBCXX_PUBLIC inotifyObj : public fdObj {
 public:
 	//! Functor callback reference
 
-	typedef functionref<void(uint32_t, uint32_t,
-				 const char *)> watch_callback_t;
+	typedef std::function<void(uint32_t, uint32_t,
+				   const char *)> watch_callback_t;
 private:
 
 #pragma GCC visibility push(hidden)
@@ -58,7 +58,6 @@ public:
 
 	//! Adds a new watcher
 
-	template<typename functor_type>
 	ref<obj> create(//! Pathname to watch
 			const std::string &pathname,
 
@@ -67,17 +66,10 @@ public:
 
 			//! Functor to invoke
 
-			functor_type &&functor);
+			const watch_callback_t &functor);
 
 	//! Process the next inotify event
 	void read();
-
-private:
-	//! Internal implementation function
-
-	ref<obj> do_create(const std::string &pathname,
-			   uint32_t mask,
-			   const watch_callback_t &functor);
 };
 
 #if 0

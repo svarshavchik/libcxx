@@ -111,7 +111,7 @@ inotifyObj::~inotifyObj()
 {
 }
 
-ref<obj> inotifyObj::do_create(const std::string &pathname,
+ref<obj> inotifyObj::create(const std::string &pathname,
 			       uint32_t mask,
 			       const watch_callback_t &functor)
 {
@@ -166,7 +166,7 @@ void inotifyObj::read()
 
 		if (!w.null())
 			try {
-				w->cb->invoke(e->mask, e->cookie, e->name);
+				w->cb(e->mask, e->cookie, e->name);
 			} catch (const exception &e)
 			{
 				LOG_ERROR(e);
