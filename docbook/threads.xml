@@ -30,7 +30,7 @@ See COPYING for distribution information.
       templates create formal design patterns that force acquisition of an
       appropriate
       lock in order to gain access to a protected object.
-      <ulink url="&link-x--mpobj;"><classname>&ns;::mpobj</classname></ulink>
+      <ulink url="&link-typedef-x-mpobj;"><classname>&ns;::mpobj</classname></ulink>
       implements a basic
       design pattern that forces lock acquisition in order to access
       and underlying resource in a thread-safe manner.
@@ -40,7 +40,7 @@ See COPYING for distribution information.
       Access to the object requires obtaining a lock
       structure that's typically short-lived, so this is not a reference-counted
       object.
-      <ulink url="&link-x--mpcobj;"><classname>&ns;::mpcobj</classname></ulink>
+      <ulink url="&link-typedef-x-mpcobj;"><classname>&ns;::mpcobj</classname></ulink>
       supplements <classname>&ns;::mpobj</classname> with a condition
       variable.
       <ulink url="&link-x--mp;"><classname>&ns;::mp</classname></ulink>
@@ -117,7 +117,7 @@ typedef &ns;::mpcobj&lt;messages_t&gt;::lock lock_t;
 
     <para>
       The
-      <ulink url="&link-x--mpcobj;"><classname>&ns;::mpcobj</classname></ulink>
+      <ulink url="&link-typedef-x-mpcobj;"><classname>&ns;::mpcobj</classname></ulink>
       template class implements a design pattern for a
       <quote>mutex-protected object</quote>, which
       attaches a <classname>std::mutex</classname> and a
@@ -137,7 +137,7 @@ typedef &ns;::mpcobj&lt;messages_t&gt;::lock lock_t;
 
     <para>
       An
-      <ulink url="&link-x--mpobj;"><classname>&ns;::mpobj</classname></ulink>
+      <ulink url="&link-typedef-x-mpobj;"><classname>&ns;::mpobj</classname></ulink>
       template class implements a mutex-protected object without a condition
       variable. Use it when a condition variable is not needed, only an
       object that's protected by a mutex.

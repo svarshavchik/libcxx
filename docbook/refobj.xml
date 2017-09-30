@@ -9,11 +9,11 @@ See COPYING for distribution information.
   <title>Reference-counted objects</title>
 
   <para>
-    Nearly all objects in &app; are reference-counted objects, which
-    are similar to what <classname>std::shared_ptr</classname>
-    implements, but with notable differences, as described here.
+    Nearly all objects in &app; are reference-counted objects,
+    similar to what <classname>std::shared_ptr</classname>
+    implements, but with notable differences as described here.
     In this context, this is not the same kind of a <quote>reference</quote>
-    that's defined in the C++ language.
+    that's a part of the C++ language itself.
     For clarity, <quote>native references</quote> will refer to traditional
     C++ references, while the general usage of the term <quote>reference
       pointer</quote>, or a
@@ -24,25 +24,26 @@ See COPYING for distribution information.
     Reference-counted objects do not get
     accessed with an ordinary pointer, but by using a <emphasis>reference
       pointer</emphasis>, an &reforptr;.
-    A reference-counted object gets instantiated on the heap, using
+    A reference-counted object gets instantiated in dynamic scope using
     a variadic <methodname>create</methodname>() function that forwards its
     arguments to the object's constructor;
     <methodname>create</methodname>()
-    instantiates the object on the heap and
-    constructs the first, initial reference pointer to the
+    instantiates the object in dynamic scope and
+    creates the first, initial reference pointer to the
     newly-instantiated object.
   </para>
 
   <para>
     Reference pointers look like ordinary pointers. They have
-    <literal>*</literal> and <literal>-&gt;</literal> operators that
-    have the expected behavior. Reference pointers may be freely copied and
+    <literal>*</literal> and <literal>-&gt;</literal> operators with
+    the expected behavior. Reference pointers may be freely copied and
     passed around.
   </para>
 
   <para>
-    <function>new</function> does not get used, explicitly, to instantiate
-    objects on the heap, this is taken care of by <methodname>create</methodname>().
+    <methodname>create()</methodname> replaces <function>new</function>.
+    <function>new</function> does not get used to construct reference-
+    counter object in dynamic scope, and must not be used.
     Similarly, <function>delete</function> does not get used, explicitly, with
     reference-counted objects.
     When the last reference to an object goes out of scope and longer exists,
@@ -66,19 +67,9 @@ See COPYING for distribution information.
     <itemizedlist>
       <listitem>
 	<para>
-	  gcc's implementation of <classname>shared_ptr</classname>
-	  is derived from an implementation in the Boost library, which
-	  appears to be not
-	  <ulink url="http://gcc.gnu.org/ml/libstdc++/2013-08/msg00161.html">thread-safe</ulink>.
-	  This implementation of reference-counted objects is thread safe.
-	</para>
-      </listitem>
-
-      <listitem>
-	<para>
 	  A <classname>shared_ptr</classname>
 	  contains a pointer to a small heap-allocated object
-	  that stores the reference count, and a second pointer to the
+	  that tracks the reference count, and a second pointer to the
 	  actual object:
 	</para>
 
@@ -93,8 +84,8 @@ See COPYING for distribution information.
 	<para>
 	  &app;'s reference-counted objects use a different approach
 	  that's similar to Java's implementation of managed objects.
-	  &app;'s reference-counted objects are derived from an
-	  <classname>&ns;::obj</classname> superclass, which stores
+	  &app;'s reference-counted objects are derived from the
+	  <classname>&ns;::obj</classname> superclass, which tracks
 	  the reference
 	  count.
 	  There are two main reference pointer classes,
@@ -116,14 +107,15 @@ See COPYING for distribution information.
 	  <methodname>-&gt;</methodname> operators
 	  dereference a mutable object,
 	  and dereferencing a <literal>nullptr</literal> is
-	  ill-formed.
+	  undefined behavior.
 	  &ptr; can also be a <literal>nullptr</literal>, but dereferencing a
-	  <literal>nullptr</literal> is not ill-formed:
+	  <literal>nullptr</literal> is not undefined behavior:
 	  an exception gets thrown, with defined semantics.
 	  &ref;'s <methodname>*</methodname> and <methodname>-&gt;</methodname>
 	  operators do not check for a <literal>nullptr</literal>
-	  because &ref; cannot be a <literal>nullptr</literal>, it must always
-	  refer to an object. This is enforced by contract.
+	  because &ref; cannot be a <literal>nullptr</literal>.
+	  It always
+	  refers to an object. This is enforced by contract.
 	  The <literal>nullptr</literal>
 	  gets checked when an &ref; gets assigned to.
 	  &ref; is proven, by contract, never to contain a
@@ -173,7 +165,7 @@ See COPYING for distribution information.
 
     <para>
       However, there are several disadvantages to
-      <classname>shared_ptr</classname> that &ref; and &ptr; seek to address.
+      <classname>shared_ptr</classname> that &ref; and &ptr; aim to address.
     </para>
 
     <itemizedlist>
@@ -213,7 +205,7 @@ See COPYING for distribution information.
       &app; stores the reference count in each object's superclass,
       <classname>&ns;::obj</classname> which is
       directly accessible by any subclass. A new &reforptr;
-      gets constructed directly from <varname>this</varname>,
+      gets trivially constructed from <varname>this</varname>,
       without much fanfare.
       This creates a new reference, and increments
       the object's reference count.
@@ -242,8 +234,8 @@ See COPYING for distribution information.
     <title>Objects</title>
 
     <para>
-      In this library, all reference-counted
-      objects are virtually derived from the
+      &app; virtually derives all reference-counted
+      objects from the
       <ulink url="&link-x--obj;"><classname>&ns;::obj</classname></ulink>
     class:</para>
 
@@ -306,9 +298,7 @@ button okButton=button::create(100, 100);</programlisting>
       <classname>&ns;::obj</classname> end with <quote>Obj</quote>.
       <classname>&ns;::obj</classname> maintains an internal counter tracking
       all outstanding references to the object.
-      All classes derived from
-      <classname>&ns;::obj</classname>
-      must be derived virtually.
+      <classname>&ns;::obj</classname> must use virtual inheritance.
       This is required to correctly implement multiple inheritance.
       Inheriting from multiple
       <classname>&ns;::obj</classname>-derived classes ends up with a single
@@ -316,14 +306,6 @@ button okButton=button::create(100, 100);</programlisting>
       the derived class, and a single counter, that properly tracks all
       references to the derived object.
     </para>
-
-    <note>
-      <para>
-	Destructors of reference-counted objects cannot throw exceptions.
-	All classes derived from <classname>&ns;::obj</classname> should
-	not use the <literal>noexcept(false)</literal> override.
-      </para>
-    </note>
   </section>
 
   <section id="ref">
@@ -361,8 +343,8 @@ button b(button::create(200, 300));</programlisting>
     </blockquote>
 
     <para>
-      As previously mentioned, reference-counted objects get allocated on the
-      heap, but not by using <literal>new</literal>.
+      As previously mentioned, reference-counted objects get allocated in
+      dynamic scope, but not by <literal>new</literal>.
       This is done by the overloaded <function>create</function>()
       function.
       The <link linkend="create">description of this variadic method</link>,
@@ -371,7 +353,7 @@ button b(button::create(200, 300));</programlisting>
       follows later.
       The variadic <methodname>create</methodname>() forwards its parameters
       to the constructor for the
-      reference-counted class, that gets instantiated on the heap.
+      reference-counted class, that gets instantiated in dynamic scope.
       In this example,
       when <varname>b</varname>, and all other references go out of scope, the
       underlying object gets destroyed. An explicit
@@ -387,8 +369,8 @@ button b(button::create(200, 300));</programlisting>
       since it must be constructed with some object, usually a
       <methodname>create</methodname>() one, at hand.
       &ptr;, however, does not have to refer to an instance of a
-      reference-counted class, and may be undefined, this is
-      analogous to a <literal>nullptr</literal>:
+      reference-counted class. This is logically
+      equivalent to a <literal>nullptr</literal>:
     </para>
 
     <blockquote>
@@ -401,19 +383,23 @@ buttonptr b;
 // ...
 
 if (!b.null())
-   b->method();</programlisting>
+    b->method();
+
+// Or simply:
+if (!b)
+    b->method();</programlisting>
       </informalexample>
     </blockquote>
 
     <para>
       An &ref; does not have a
       <methodname>null</methodname>(), because it always refers to some object.
-      An &ref; can always be converted to an
+      An &ref; is convertible to an
       &ptr; to the same class.
-      An &ptr; can also be converted to an
-      &ref;, but if its unbound, an
+      An &ptr; is also convertible to an
+      &ref;, but an
       <link linkend="exceptions">exception</link> gets thrown at the point the
-      conversion is attempted.
+      conversion is attempted if the &ptr; is unbound.
     </para>
 
     <para>
@@ -460,7 +446,7 @@ b-&gt;click();</programlisting>
 
     <para id="thrsafenote">
       Each individual &reforptr; can only be accessed by one thread, at a time,
-      but different threads may have separate &ref;s and &ptr;s referencing
+      but different threads may have their own &ref;s and &ptr;s referencing
       the same object, and use their own &ref;s and &ptr;s, without
       coordinating with other threads. Reference counting by different
       &ref;s and &ptr;s is thread-safe.
@@ -489,7 +475,7 @@ b-&gt;click();</programlisting>
 
     <para>
       As mentioned previously,
-      unlike an &ref;, a &ptr; may not be bound to any actual
+      unlike an &ref;, an &ptr; may not be bound to any actual
       object:
     </para>
 
@@ -502,7 +488,7 @@ button b;
 
 // ...
 
-if (b.null())
+if (!b)     // Or if (b.null()), to be more verbose.
 {
 
     // ...
@@ -516,7 +502,8 @@ if (b.null())
 	unbound &ptr; throws an exception, until the &ptr; is assigned
 	to an actual object.
 	<methodname>null</methodname>() returns true when the &ptr; is
-	not bound to any object.
+	not bound to any object. An &ptr; in boolean context is equivalent to
+	<literal>!null()</literal>.
       </para>
   </section>
 
@@ -709,7 +696,9 @@ button quit(button::create(100, 100));</programlisting>
       The default implementation,
       <methodname>&ns;::ptrref_base::objfactory&lt;<replaceable>T</replaceable>&gt;::create</methodname>(),
       constructs the object on the heap with <literal>new</literal>,
-      and forwards the arguments to the object's constructor.
+      and forwards the arguments to the object's constructor
+      (and <link linkend="constructor">optionally calls
+	<methodname>constructor</methodname>() too</link>).
       In nearly all cases, it's sufficient to define a constructor in
       the reference-counted subclass of <classname>&ns;::obj</classname>,
       but it's possible to define a custom <classname>base</classname> with
@@ -732,11 +721,13 @@ button quit(button::create(100, 100));</programlisting>
 
     <note>
       <para>
-	<methodname>create</methodname>() must be used to create
+	<methodname>create</methodname>() is required to create
 	subclasses of <classname>&ns;::obj</classname>. An explicit
 	<literal>new</literal>, and assigning the result to an &reforptr;
-	will not work. Assigning a native pointer, to an existing
-	<classname>&ns;::obj</classname> subclass instance, to an &reforptr;
+	will not work. Assigning <link linkend="reffromthis">a native pointer,
+	  to an existing
+	  <classname>&ns;::obj</classname> subclass instance, to an
+	  &reforptr;</link>
 	is permitted, and has the expected result of incrementing the
 	internal reference count.
       </para>
@@ -1230,10 +1221,10 @@ void widgetObj::method()
 	to other objects or methods, for example. Note, however:
       </para>
 
-    <note>
+    <note id="this_in_constructor">
       <para>
 	Creating an &reforptr;
-	to <varname>this</varname> in the object's constructor
+	from <varname>this</varname> in the object's constructor
 	<methodname>abort</methodname>()s. Consider the following scenario:
       </para>
 
@@ -1272,11 +1263,11 @@ void widgetObj::method()
       </itemizedlist>
 
       <para>
-	Undefined behavior is guaranteed here. The same holds true with
-	creating an &ref; to an object from one of its destructors. The
-	object's reference count is zero, and it's going to get destroyed
-	no matter what, after all destructors are done. A new &ref;
-	(or a &ns;::ptr, doesn't matter) to the object does not prevent that
+	This is undefined behavior. The same holds true with
+	creating an &ref; to an object its destructor. The
+	object's reference count is zero, and it's getting destroyed
+	no matter what. A new &ref;
+	(or an &ns;::ptr, doesn't matter) to the object does not prevent that
 	from happening. The end result is an &reforptr; to a destroyed object.
       </para>
 
@@ -1314,6 +1305,67 @@ void widgetObj::method()
       </para>
     </note>
 
+    <section id="constructor">
+      <title>Second phase constructor</title>
+
+      <para>
+	<methodname>constructor</methodname>() is an ordinary class method,
+	but if it exists
+	<link linkend="create"><methodname>create</methodname></link>()
+	calls it automatically after constructing a new
+	<link linkend="obj">object</link>, but before returning the new
+	&ref; or the new &ptr;.
+	This is a convenient workaround for not being able to
+	<link linkend="this_in_constructor">create an &reforptr; in
+	  a real constructor</link>.
+      </para>
+
+      <blockquote>
+	<informalexample>
+	  <programlisting>
+class buttonObj : virtual public &ns;::obj {
+
+public:
+    buttonObj(int width, int height);
+
+    void constructor(int width, int height);
+};
+
+auto b=&ns;::ref&lt;buttonObj&gt;::create(100, 200);</programlisting>
+	</informalexample>
+      </blockquote>
+
+      <para>
+	<methodname>create</methodname>() forwards its parameters to
+	the newly-constructed object. Afterwards,
+	<methodname>create</methodname>() calls its
+	<methodname>constructor</methodname>() method if the class has an
+	ordinary
+	<methodname>constructor</methodname>() method which is callable with
+	the same parameters and returns <classname>void</classname>.
+      </para>
+
+      <para>
+	When <methodname>constructor</methodname>() gets invoked its object
+	is fully constructed, for the purpose of the C++ language itself,
+	and for the purpose of using &ref;s and &ptr;s.
+	The bad on creating &ref;s and &ptr;s from
+	<literal>this</literal> in constructors do not apply to the
+	<methodname>constructor</methodname>() method itseld. It's just
+	an ordinary class method.
+      </para>
+
+      <para>
+	A <methodname>constructor</methodname>() may be viewed as a
+	<quote>second phase</quote> of constructing an object, and may be
+	utilized for other reasons besides the ability to create
+	&ref;s and &ptr;s from this. If the class's contract requires
+	some kind of an initialization method to always be invoked after
+	its construction, <methodname>constructor</methodname>() is this
+	method. This becomes a part of the class's contract.
+      </para>
+    </section>
+
     <section id="refptrdeduction">
       <title>Using deduction guides with an &reforptr;</title>
 
@@ -1330,7 +1382,7 @@ class buttonObj : virtual public &ns;::obj {
 
 void buttonObj::clicked()
 {
-auto r=&ns;::ref(this);
+    auto r=&ns;::ref(this);
 
 };</programlisting></informalexample></blockquote>
 
@@ -1365,7 +1417,7 @@ struct &ns;::base_type&lt;buttonObj&gt; {
 
 void buttonObj::clicked()
 {
-auto r=&ns;::ref(this);
+    auto r=&ns;::ref(this);
 
 };</programlisting></informalexample></blockquote>
 

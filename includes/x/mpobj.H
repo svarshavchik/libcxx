@@ -52,6 +52,9 @@ public:
 	~mpobjmeta() {}
 };
 
+template<typename obj_type, typename mutex_type, bool hascondvar>
+class mpobjimpl_lock;
+
 //! Methods of \ref mpobj "mpobj" and \ref mpcobj "mpcobj".
 
 //! Instantiate a mutex, with an optional condition variable, define the
@@ -80,133 +83,137 @@ public:
 	//! Destructor
 	~mpobjimpl() {}
 
-	class lock;
+	//! Alias
+	typedef mpobjimpl_lock<obj_type, mutex_type, hascondvar> lock;
 
-	friend class lock;
+	friend lock;
+};
 
-	//! Obtain access to the object
+//! A lock on a mutex-protected object.
 
-	class lock {
+template<typename obj_type, typename mutex_type, bool hascondvar>
+class mpobjimpl_lock {
 
-		//! The underlying VIP object
-		mpobj_t &objp;
+	//! The mutex-protected type.
 
-		//! Whether the mutex has been locked
-		std::unique_lock<mutex_type> mlock;
+	typedef mpobjimpl<obj_type, mutex_type, hascondvar> mpobj_t;
 
-	public:
-		//! The constructor takes a mpobj_t
-		lock(//! The mutex-protected object to lock
-		     mpobj_t &objpArg,
+	//! The underlying VIP object
+	mpobj_t &objp;
 
-		     //! Whether to wait until a lock is available, or return
-		     //! immediately without locking it.
-		     //! Use locked() to see if this lock was
-		     //! acquired.
+	//! Whether the mutex has been locked
+	std::unique_lock<mutex_type> mlock;
 
-		     bool waitflag=true)
-			: objp(objpArg), mlock(objp.meta.mutex,
-					       std::defer_lock_t())
-		{
-			if (waitflag)
-				mlock.lock();
-			else
-				mlock.try_lock();
-		}
+public:
+	//! The constructor takes a mpobj_t
+	mpobjimpl_lock(//! The mutex-protected object to lock
+		       mpobj_t &objpArg,
 
-		//! Whether the lock was acquired
+		       //! Whether to wait until a lock is available, or return
+		       //! immediately without locking it.
+		       //! Use locked() to see if this lock was
+		       //! acquired.
 
-		bool locked() const { return mlock.owns_lock(); }
+		       bool waitflag=true)
+		: objp(objpArg), mlock(objp.meta.mutex,
+				       std::defer_lock_t())
+	{
+		if (waitflag)
+			mlock.lock();
+		else
+			mlock.try_lock();
+	}
 
-		//! Destructor
-		~lock()
-		{
-		}
+	//! Whether the lock was acquired
 
-		//! Access the underlying object
-		const obj_type &operator*() const noexcept
-		{
-			return objp.obj;
-		}
+	bool locked() const { return mlock.owns_lock(); }
 
-		//! Access the underlying object
-		const obj_type *operator->() const noexcept
-		{
-			return &objp.obj;
-		}
+	//! Destructor
+	~mpobjimpl_lock()=default;
 
-		//! Access the underlying object
-		obj_type &operator*() noexcept
-		{
-			return objp.obj;
-		}
+	//! Access the underlying object
+	const obj_type &operator*() const noexcept
+	{
+		return objp.obj;
+	}
 
-		//! Access the underlying object
-		obj_type *operator->() noexcept
-		{
-			return &objp.obj;
-		}
+	//! Access the underlying object
+	const obj_type *operator->() const noexcept
+	{
+		return &objp.obj;
+	}
 
-		//! Signal the condition variable, if this is an \ref mpcobj "mpcobj".
-		void notify_one()
-		{
-			objp.meta.cond.notify_one();
-		}
+	//! Access the underlying object
+	obj_type &operator*() noexcept
+	{
+		return objp.obj;
+	}
 
-		//! Broadcast the condition variable, if this is an \ref mpcobj "mpcobj"/
-		void notify_all()
-		{
-			objp.meta.cond.notify_all();
-		}
+	//! Access the underlying object
+	obj_type *operator->() noexcept
+	{
+		return &objp.obj;
+	}
 
-		//! Wait on the condition variable, if this is an \ref mpcobj "mpcobj".
+	//! Signal the condition variable, if this is an \ref mpcobj "mpcobj".
+	void notify_one()
+	{
+		objp.meta.cond.notify_one();
+	}
 
-		void wait()
-		{
-			objp.meta.cond.wait(mlock);
-		}
+	//! Broadcast the condition variable, if this is an \ref mpcobj "mpcobj"/
+	void notify_all()
+	{
+		objp.meta.cond.notify_all();
+	}
 
-		//! Wait on the condition variable, if this is an \ref mpcobj "mpcobj".
-		template<class Predicate>
-		void wait(Predicate pred)
-		{
-			objp.meta.cond.wait(mlock, pred);
-		}
+	//! Wait on the condition variable, if this is an \ref mpcobj "mpcobj".
 
-		//! Timed waiting on the condition variable, if this is an \ref mpcobj "mpcobj".
+	void wait()
+	{
+		objp.meta.cond.wait(mlock);
+	}
 
-		template<typename timeout_type>
-		bool wait_for(const timeout_type &t)
-		{
-			return objp.meta.cond.wait_for(mlock, t) == std::cv_status::no_timeout;
-		}
+	//! Wait on the condition variable, if this is an \ref mpcobj "mpcobj".
+	template<class Predicate>
+	void wait(Predicate pred)
+	{
+		objp.meta.cond.wait(mlock, pred);
+	}
 
-		//! Timed waiting on the condition variable, if this is an \ref mpcobj "mpcobj".
+	//! Timed waiting on the condition variable, if this is an \ref mpcobj "mpcobj".
 
-		template<typename timeout_type>
-		bool wait_until(const timeout_type &t)
-		{
-			return objp.meta.cond.wait_until(mlock, t) == std::cv_status::no_timeout;
-		}
+	template<typename timeout_type>
+	bool wait_for(const timeout_type &t)
+	{
+		return objp.meta.cond.wait_for(mlock, t) == std::cv_status::no_timeout;
+	}
 
-		//! Timed waiting on the condition variable, if this is an \ref mpcobj "mpcobj".
+	//! Timed waiting on the condition variable, if this is an \ref mpcobj "mpcobj".
 
-		template<typename timeout_type, class Predicate>
-		bool wait_for(const timeout_type &t, Predicate pred)
-		{
-			return objp.meta.cond.wait_for(mlock, t, pred);
-		}
+	template<typename timeout_type>
+	bool wait_until(const timeout_type &t)
+	{
+		return objp.meta.cond.wait_until(mlock, t) == std::cv_status::no_timeout;
+	}
 
-		//! Timed waiting on the condition variable, if this is an \ref mpcobj "mpcobj".
+	//! Timed waiting on the condition variable, if this is an \ref mpcobj "mpcobj".
 
-		template<typename timeout_type, class Predicate>
-		auto wait_until(const timeout_type &t, Predicate pred)
-			-> decltype(pred())
-		{
-			return objp.meta.cond.wait_until(mlock, t, pred);
-		}
+	template<typename timeout_type, class Predicate>
+	bool wait_for(const timeout_type &t, Predicate pred)
+	{
+		return objp.meta.cond.wait_for(mlock, t, pred);
+	}
 
-	};
+	//! Timed waiting on the condition variable, if this is an \ref mpcobj "mpcobj".
+
+	template<typename timeout_type, class Predicate>
+	auto wait_until(const timeout_type &t, Predicate pred)
+		-> decltype(pred())
+	{
+		return objp.meta.cond.wait_until(mlock, t, pred);
+	}
+
 };
 
 //! A mutex-protected object
@@ -225,20 +232,7 @@ public:
 //! See also: \ref vipobj "Very Important object".
 
 template<typename obj_type, typename mutex_type=std::mutex>
-class mpobj : public mpobjimpl<obj_type, mutex_type, false> {
-
-public:
-
-	//! Constructor forwards its arguments to the underlying object.
-
-	template<typename ...Args_t>
-	mpobj(Args_t && ...args) :
-		mpobjimpl<obj_type, mutex_type, false>
-		(std::forward<Args_t>(args)...) {}
-
-	//! Destructor
-	~mpobj() {}
-};
+using mpobj=mpobjimpl<obj_type, mutex_type, false>;
 
 //! A mutex-protected object, with a condition variable.
 
@@ -257,20 +251,17 @@ public:
 //! See also: \ref vipobj "Very Important object".
 
 template<typename obj_type, typename mutex_type=std::mutex>
-class mpcobj : public mpobjimpl<obj_type, mutex_type, true> {
+using mpcobj=mpobjimpl<obj_type, mutex_type, true>;
 
-public:
+//! A lock on a \ref mpobj "mutex-protected object".
 
-	//! Constructor forwards its arguments to the underlying object.
+template<typename obj_type, typename mutex_type=std::mutex>
+using mpobj_lock=mpobjimpl_lock<obj_type, mutex_type, false>;
 
-	template<typename ...Args_t>
-	mpcobj(Args_t && ...args) :
-		mpobjimpl<obj_type, mutex_type, true>
-		(std::forward<Args_t>(args)...) {}
+//! A lock on a \ref mpcobj "mutex-protected object with a condition variable".
 
-	//! Destructor
-	~mpcobj() {}
-};
+template<typename obj_type, typename mutex_type=std::mutex>
+using mpcobj_lock=mpobjimpl_lock<obj_type, mutex_type, true>;
 
 #if 0
 {

@@ -2670,6 +2670,62 @@ void deduction_guide(deductedObj *p, LIBCXX_NAMESPACE::ref<deductedObj,
 	*q= &r;
 }
 
+
+static int objinit1_n=0;
+
+class objinit1 : virtual public LIBCXX_NAMESPACE::obj {
+
+public:
+	int n;
+
+	objinit1(int n) : n(n)
+	{
+		++objinit1_n;
+	}
+
+	void constructor(int v)
+	{
+		if (v == -1)
+			throw 1;
+		n=1;
+	};
+
+	~objinit1()
+	{
+		--objinit1_n;
+	}
+};
+
+void testobjinit()
+{
+	int thrown=0;
+
+	{
+		auto p=LIBCXX_NAMESPACE::const_ref<objinit1>::create(0);
+
+		if (p->n != 1)
+		{
+			std::cerr << "constructor() did not get called." << std::endl;
+			exit(1);
+		}
+
+		try {
+			LIBCXX_NAMESPACE::const_ref<objinit1>::create(-1);
+		} catch (int n)
+		{
+			thrown=n;
+		}
+	}
+
+	if (thrown != 1)
+		std::cerr << "constructor() did not throw." << std::endl;
+	if (objinit1_n)
+	{
+		std::cerr << "constructor() leaked." << std::endl;
+	}
+}
+
+
 int main()
 {
 	alarm(60);
@@ -2745,5 +2801,6 @@ int main()
 	testfditer();
 	testequality();
 	testmp();
+	testobjinit();
 	return 0;
 }

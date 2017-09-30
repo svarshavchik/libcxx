@@ -43,31 +43,61 @@ public:
 	{
 	public:
 
-
-		//! The default %create() method.
-
-		//! This is a default implementation for the %create() method:
-		//!
-		//! \code
-		//! typedef ptr<widgetObj> widget;
-		//!
-		//! widget myWidget=widget::create();
-		//!
-		//! \endcode
 		template<typename... Args_t>
 		static inline ptrrefType
-		create(Args_t &&...args)
-		{
-			auto p=new typename ptrrefType
-				::obj_type(std::forward<Args_t>(args)...);
-
-
-			p->obj::refadd(1); // Set refcnt's constructor
-
-			return ptrrefType(p);
-		}
+		create(Args_t &&...args) LIBCXX_INLINE;
 	};
+
+	//! Used by create() to determine if an object implement constructor().
+
+	//! The first parameter is an object class. The second parameter is a
+	//! tuple of types of the parameters to create().
+
+	template<typename objClass, typename tuple_type, typename C=void>
+	struct has_init {
+
+		//! The object does not have a suitable init().
+
+		static constexpr bool value=false;
+	};
+
+	template<typename ...Args> struct create_args;
+
+	//! Specialization that determines if an object implement constructor().
+
+	template<typename objClass, typename ...Args>
+	struct has_init<objClass, create_args<Args...>,
+			decltype( std::declval<objClass &>().constructor
+				  ( std::declval<Args &&>()... ))> {
+
+		//! The object has a suitable init().
+
+		static constexpr bool value=true;
+	};
+	template<typename ptrrefType, typename args,
+		 bool has_init=has_init<typename ptrrefType::obj_type,
+					args>::value>
+	struct create_and_init;
 };
+
+//! The default %create() method.
+
+//! This is a default implementation for the %create() method:
+//!
+//! \code
+//! typedef ptr<widgetObj> widget;
+//!
+//! widget myWidget=widget::create();
+//! \endcode
+
+template<typename ptrrefType>
+template<typename... Args_t>
+inline ptrrefType ptrref_base::objfactory<ptrrefType>::create(Args_t &&...args)
+{
+	return create_and_init<ptrrefType,
+			       create_args<Args_t...>
+			       >::create(std::forward<Args_t>(args)...);
+}
 
 //! Define the default base class for a \ref ptr "ptr" or a \ref ref "ref".
 
@@ -115,6 +145,56 @@ template<typename objClass> const_ref(objClass *) -> const_ref<objClass>;
 //! Deduction guide for a \ref const_ref "const_ref".
 
 template<typename objClass> const_ref(const objClass *) -> const_ref<objClass>;
+
+//! create() and object that does not have a constructor().
+template<typename ptrrefType, typename args >
+struct ptrref_base::create_and_init<ptrrefType, args, false> {
+
+	template<typename ...Args>
+	static inline ptrrefType create(Args && ...argsValue) LIBCXX_INLINE;
+};
+
+//! create() and object with a constructor().
+template<typename ptrrefType, typename args >
+struct ptrref_base::create_and_init<ptrrefType, args, true> {
+
+	template<typename ...Args>
+	static inline ptrrefType create(Args && ...argsValue) LIBCXX_INLINE;
+};
+
+//! SFINAE-resolved create() for a class without a suitable constructor().
+
+template<typename ptrrefType, typename args >
+template<typename ...Args>
+inline ptrrefType ptrref_base::create_and_init<ptrrefType, args, false>
+::create(Args && ...argsValue)
+{
+	auto p=new typename ptrrefType
+		::obj_type(std::forward<Args>(argsValue)...);
+
+	p->obj::refadd(1); // Set refcnt's constructor
+
+	return ptrrefType(p);
+}
+
+//! SFINAE-resolved create() for a class with a suitable constructor().
+
+template<typename ptrrefType, typename args >
+template<typename ...Args>
+inline ptrrefType ptrref_base::create_and_init<ptrrefType, args, true>
+::create(Args && ...argsValue)
+{
+	auto p=new typename ptrrefType
+		::obj_type(std::forward<Args>(argsValue)...);
+
+	p->obj::refadd(1); // Set refcnt's constructor
+
+	auto r=ref(p);
+
+	r->constructor(std::forward<Args>(argsValue)...);
+
+	return ptrrefType(r);
+}
 
 #if 0
 {
