@@ -87,6 +87,32 @@ public:
 	typedef mpobjimpl_lock<obj_type, mutex_type, hascondvar> lock;
 
 	friend lock;
+
+	//! The assignment operator
+
+	//! A shortcut for acquiring a lock, using it to set the
+	//! value, then releasing the lock.
+
+	template<typename V>
+	auto &operator=(V &&v)
+	{
+		lock l{*this};
+
+		*l=std::forward<V>(v);
+		return *this;
+	}
+
+	//! get() the value.
+
+	//! A shortcut for acquiring a lock, using it to get the
+	//! mutex-protected value, then releasing the lock.
+
+	auto get()
+	{
+		lock l{*this};
+
+		return *l;
+	}
 };
 
 //! A lock on a mutex-protected object.

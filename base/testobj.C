@@ -2639,6 +2639,16 @@ void testmp()
 		std::cerr << "testmp failed" << std::endl;
 		exit(1);
 	}
+
+	LIBCXX_NAMESPACE::mpobj<bool> mpbool{false};
+
+	mpbool=true;
+
+	if (!mpbool.get())
+	{
+		std::cerr << "testmp fubarage" << std::endl;
+		exit(1);
+	}
 }
 
 struct one{};
