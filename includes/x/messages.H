@@ -446,9 +446,6 @@ std::ostream
 //!
 //! In this example, \c ncols and \c nrows still appear where they should be.
 //!
-//! The object returned by gettextmsg() implements the \c << operator, or
-//! is convertible to a string:
-//!
 //! \code
 //!
 //! std::string s=INSERT_LIBX_NAMESPACE::gettextmsg(msgcat->get("Window size: %2% columns, %1% rows"),
@@ -472,9 +469,8 @@ std::ostream
 //! referenced by the appropriate %%n% placeholder in the formatting string.
 
 template<typename ...Args>
-gettext_helper_ref<Args...>
-gettextmsg(const std::string &msg,
-	   Args && ...args)
+std::string gettextmsg(const std::string &msg,
+		       Args && ...args)
 {
 	return gettext_helper_ref<Args...>
 		(msg, std::forward<Args>(args)...);
@@ -484,15 +480,14 @@ gettextmsg(const std::string &msg,
 
 //! \overload
 template<typename ...Args>
-gettext_helper_ref<Args...>
-gettextmsg(const char *msg, Args && ...args)
+std::string gettextmsg(const char *msg, Args && ...args)
 {
 	return gettext_helper_ref<Args...>
 		(msg, std::forward<Args>(args)...);
 }
 
 template<typename ...Args>
-gettext_helper_ref<Args...>::operator std::string() const
+inline gettext_helper_ref<Args...>::operator std::string() const
 {
 	std::ostringstream o;
 

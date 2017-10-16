@@ -204,9 +204,8 @@ std::cout &lt;&lt; &ns;::gettextmsg(msgcat-&gt;get("Window size: %1% rows, %2% c
 	variadic parameter.
 	The message catalog may specify a string with placeholders appearing
 	in a different order, the parameters get rearranged accordingly.
-	<function>gettextmsg</function> returns an object that can be
-	used with the <quote><literal>&lt;&lt;</literal></quote> for an
-	output stream, or assigned directly to a string.
+	<function>gettextmsg</function> returns a
+	<classname>std::string</classname>.
       </para>
 
       <para>
@@ -223,18 +222,6 @@ std::cout &lt;&lt; &ns;::gettextmsg(msgcat-&gt;get("Window size: %1% rows, %2% c
 	<literal>&lt;&lt;</literal> operator into an output stream.
 	This includes I/O manipulators, which are treated no differently than
 	any other parameter.
-	The <literal>&lt;&lt;</literal> operator may write large amounts of
-	output into an output stream.
-	<function>gettextmsg</function> uses the
-	<literal>&lt;&lt;</literal> operator to process the formatting string
-	and its parameters, in the specified order.
-	The parameters will write their output directly into an output stream,
-	or into a temporary string stream if the result of
-	<function>gettextmsg</function> gets assigned to a string; but when
-	the output goes to an output stream directly, no temporary buffer is
-	needed, so large output from a class's
-	<literal>&lt;&lt;</literal> operator does not get buffered, and goes
-	directly to the output stream.
       </para>
 
       <para>
