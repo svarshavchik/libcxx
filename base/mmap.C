@@ -7,7 +7,6 @@
 #include "x/mmap.H"
 #include "x/mmapfile.H"
 #include "x/fd.H"
-#include "x/filestat.H"
 #include "x/logger.H"
 #include "x/sysexception.H"
 #include <errno.h>
@@ -22,7 +21,7 @@ void mmapbaseObj::mminit(void *addrArg, const fd &filedesc, int prot, int flags,
 {
 	if (lengthArg == 0)
 	{
-		auto l=filedesc->stat()->st_size;
+		auto l=filedesc->stat().st_size;
 
 		if ((decltype(l))(lengthArg=l) != l)
 		{

@@ -14,7 +14,6 @@
 #include "x/property_properties.H"
 #include "x/property_list.H"
 #include "x/singleton.H"
-#include "x/filestat.H"
 #include "x/threads/runfwd.H"
 #include <cstdlib>
 #include <sstream>
@@ -236,11 +235,10 @@ public:
 logger::handlerObj::fd::filetime::filetime(const char *filenameArg) noexcept
 	: filename(filenameArg), mtime(0)
 {
-	try {
-		mtime=fileattr::create(filename)->stat()->st_mtime;
-	} catch (...)
-	{
-	}
+	auto st=fileattr::create(filename)->try_stat();
+
+	if (st)
+		mtime=st->st_mtime;
 }
 
 logger::handlerObj::fd::filetime::~filetime()

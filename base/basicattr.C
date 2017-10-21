@@ -28,7 +28,7 @@ void basic_attr::fatal(const char *syscall)
 	std::ostringstream o;
 
 	o << syscall << "(" << whoami() << ")";
-	
+
 	throw SYSEXCEPTION(o.str());
 }
 
@@ -100,7 +100,7 @@ ssize_t fileattrObj::listattr_internal(const listattr_internal_args &args)
 {
 #if HAVE_XATTR
 	return readsymlinks
-		? llistxattr(filename.c_str(), args.list, args.size) 
+		? llistxattr(filename.c_str(), args.list, args.size)
 		: listxattr(filename.c_str(), args.list, args.size);
 #else
 #if HAVE_EXTATTR
@@ -270,13 +270,24 @@ ssize_t basic_attr::readlink_internal(char *buf,
 	return -1;
 }
 
-filestat basic_attr::stat()
+std::optional<struct ::stat> basic_attr::try_stat() noexcept
 {
-	filestat s=filestat::create();
+	struct ::stat st;
 
-	if (stat_internal(&*s) < 0)
+	if (stat_internal(&st) < 0)
+		return {};
+
+	return st;
+}
+
+struct ::stat basic_attr::stat()
+{
+	auto s=try_stat();
+
+	if (!s)
 		throw SYSEXCEPTION(whoami());
-	return s;
+
+	return s.value();
 }
 
 void basic_attr::get_chk(ssize_t l)

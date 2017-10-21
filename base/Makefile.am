@@ -83,7 +83,6 @@ libcxx_la_SOURCES=\
 	fdtimeoutconfig.C	\
 	fdtimeoutobj.C		\
 	fileattrobj.C		\
-	filestat.C		\
 	fixed_semaphore.C	\
 	fmtsize.C		\
 	forkexec.C              \

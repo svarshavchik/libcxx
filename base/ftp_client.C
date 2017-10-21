@@ -19,7 +19,6 @@
 #include "x/messages.H"
 #include "x/refiterator.H"
 #include "x/chrcasecmp.H"
-#include "x/filestat.H"
 #include "gettext_in.h"
 #include <sstream>
 #include <chrono>
@@ -1408,7 +1407,7 @@ struct LIBCXX_HIDDEN clientObj::put_fd_callback : public stor_callback_base {
 
  public:
 	fd filedesc;
-	LIBCXX_NAMESPACE::filestat stat;
+	struct ::stat stat;
 
 	put_fd_callback(const std::string &filename)
 		: filedesc(fd::base::open(filename, O_RDONLY)),
@@ -1427,12 +1426,12 @@ struct LIBCXX_HIDDEN clientObj::put_fd_callback : public stor_callback_base {
 
 	bool can_allo()
 	{
-		return S_ISREG(stat->st_mode);
+		return S_ISREG(stat.st_mode);
 	}
 
 	off64_t allo_size()
 	{
-		return stat->st_size;
+		return stat.st_size;
 	}
 };
 

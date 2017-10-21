@@ -275,7 +275,7 @@ fdinputiter from_file_container::end()
 
 fd from_fd_container::check_filedesc(const fd &filedescArg)
 {
-	if (S_ISREG(filedescArg->stat()->st_mode))
+	if (S_ISREG(filedescArg->stat().st_mode))
 		return filedescArg;
 
 	auto tmpfile=fd::base::tmpfile();

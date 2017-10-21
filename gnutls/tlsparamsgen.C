@@ -69,12 +69,12 @@ static void create(tlsparamsgen &gen, const std::string &filename,
 	try {
 		uid_t uid;
 		gid_t gid;
-				
-		{
-			LIBCXX_NAMESPACE::filestat st(newfile->stat());
 
-			uid=st->st_uid;
-			gid=st->st_gid;
+		{
+			auto st=newfile->stat();
+
+			uid=st.st_uid;
+			gid=st.st_gid;
 		}
 
 		std::string user_given=gen.user->value;
@@ -132,4 +132,3 @@ int main(int argc, char **argv)
 	}
 	return 0;
 }
-

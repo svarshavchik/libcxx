@@ -9,10 +9,11 @@
 #include <string>
 #include <set>
 #include <vector>
+#include <optional>
 #include <errno.h>
 #include <sys/types.h>
+#include <sys/stat.h>
 #include <x/exceptionfwd.H>
-#include <x/filestat.H>
 #include <x/namespace.h>
 #include <x/sys/xattrsys.h>
 
@@ -184,13 +185,15 @@ private:
 public:
 	//! Return file status
 
-	//! This function retrieves the file status. See the %stat(2)
-	//! man page for more information.
-	//! \return a ::filestat reference. An %exception gets thrown if the
-	//! underlying system call fails. This is a reference to an object
-	//! that contains all the fields described in the %stat(2) man page.
+	//! Calls stat(2). No struct stat structure gets returned if the
+	//! underlying system call fails, check errno.
 
-	filestat stat();
+	std::optional<struct ::stat> try_stat() noexcept;
+
+	//! Return file status
+
+	//! Calls stat(2), throwing an \%exception if the call fails.
+	struct ::stat stat();
 
 	//! Return the names of all defined attributes
 

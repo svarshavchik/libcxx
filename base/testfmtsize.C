@@ -27,7 +27,7 @@ int main(int argc, char **argv)
 
 	(*t->getostream()) << std::setw(1023) << "" << std::flush;
 
-	TESTFMTSIZE(t->stat()->st_size) ;
+	TESTFMTSIZE(t->stat().st_size) ;
 	TESTFMTSIZE(1024) ;
 	TESTFMTSIZE(5000) ;
 	TESTFMTSIZE(1024 * 10 - 1) ;

@@ -116,6 +116,18 @@ See COPYING for distribution information.
 	  remove unsightly camel-case.
 	</para>
       </listitem>
+
+      <listitem>
+	<para>
+	  Removed <classname>filestat</classname>.
+	  <methodname>fileattr->stat()</methodname> returns a
+	  <literal>struct stat</literal> value directly, or throws an
+	  exception.
+	  <methodname>fileattr->try_stat()</methodname>, returns a
+	  <classname>std::optional</classname>, and returns an undefined
+	  value instead of throwing an exception.
+	</para>
+      </listitem>
     </varlistentry>
   </variablelist>
 </section>

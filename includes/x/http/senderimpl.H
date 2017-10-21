@@ -187,7 +187,7 @@ namespace senderimpl_encode {
 			iter=content_length::send(req, iter,
 						  std::istreambuf_iterator<char> (*o),
 						  std::istreambuf_iterator<char>(),
-						  t->stat()->st_size,
+						  t->stat().st_size,
 						  do_sendbody, true);
 			if (o->fail())
 				requestimpl::tmpfile_error();

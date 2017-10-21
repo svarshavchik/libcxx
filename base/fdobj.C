@@ -7,7 +7,6 @@
 #include "x/fdobj.H"
 #include "x/fd.H"
 #include "x/fdbase.H"
-#include "x/filestat.H"
 #include "x/sockaddr.H"
 #include "x/fdstreambufobj.H"
 #include "x/epoll.H"
@@ -69,13 +68,13 @@ void fdbaseObj::write_full(const char *buffer,
 
 void fdbaseObj::write(const fd &otherFile)
 {
-	filestat st(otherFile->stat());
+	auto st=otherFile->stat();
 
-	if (S_ISREG(st->st_mode))
+	if (S_ISREG(st.st_mode))
 	{
-		off64_t n=st->st_size;
+		off64_t n=st.st_size;
 
-		if (n == st->st_size) // Unlikely overflow
+		if (n == st.st_size) // Unlikely overflow
 		{
 			write(otherFile, 0, n);
 			return;
@@ -1562,8 +1561,8 @@ std::string fdBase::mktempdir(mode_t mode)
 
 	auto s=fileattr::create(n, true)->stat();
 
-	if (s->st_uid == geteuid() && s->st_gid == getegid() &&
-	    S_ISDIR(s->st_mode) && (s->st_mode & 0777) == mode)
+	if (s.st_uid == geteuid() && s.st_gid == getegid() &&
+	    S_ISDIR(s.st_mode) && (s.st_mode & 0777) == mode)
 		return n;
 
 	char pfix_buf[sizeof(pfix)+10];
@@ -1622,10 +1621,12 @@ fdBase::tmpunixfilesock(const std::string_view &pfix)
 
 			nn= (nn << 8) | (nn >> 56);
 
-			try {
-				nn += fileattr::create(s, true)->stat()->st_ino;
+			auto st=fileattr::create(s, true)->try_stat();
+
+			if (st)
+			{
+				nn += st->st_ino;
 				continue;
-			} catch (...) {
 			}
 			nn += timespec::getclock().tv_nsec;
 		}

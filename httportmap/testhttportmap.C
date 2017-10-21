@@ -152,14 +152,16 @@ int main(int argc, char **argv)
 			if (!s.size())
 				throw EXCEPTION("pid2exe() failed");
 
-			LIBCXX_NAMESPACE::filestat
-				stat1(LIBCXX_NAMESPACE::fileattr
-				      ::create(s)->stat()),
-				stat2(LIBCXX_NAMESPACE::fileattr
-				      ::create(LIBCXX_NAMESPACE::exename())
-				      ->stat());
-			if (stat1->st_dev != stat2->st_dev ||
-			    stat1->st_ino != stat2->st_ino)
+
+			auto stat1=
+				LIBCXX_NAMESPACE::fileattr::create(s)->stat();
+			auto stat2=
+				LIBCXX_NAMESPACE::fileattr
+				::create(LIBCXX_NAMESPACE::exename())
+				->stat();
+
+			if (stat1.st_dev != stat2.st_dev ||
+			    stat1.st_ino != stat2.st_ino)
 				throw EXCEPTION("pid2exe() mismatch");
 
 		}

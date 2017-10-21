@@ -41,15 +41,29 @@ namespace LIBCXX_NAMESPACE {
 //!
 //! \code
 //!
-//! filestat stat_flags=myFileAttr->stat();
+//! auto stat_flags=myFileAttr->stat();
 //!
-//! if (stat_flags->st_uid == 0)
+//! if (stat_flags.st_uid == 0)
 //! {
 //!    // ....
 //! \endcode
 //!
-//! The %stat() function retrives a reference-counted object that holds
-//! the fields described in the %stat(2) man page.
+//! The %stat() function returns the structure described in the %stat(2) man
+//! page. An exception gets thrown if the %stat(2) system call fails.
+//!
+//! \code
+//! auto stat_flags=myFileAttr->try_stat();
+//!
+//! if (stat_flags)
+//! {
+//!     if (stat_flags->st_uid == 0)
+//!     {
+//!        // ....
+//! \endcode
+//!
+//! \c try_stat() does not throw an exception if %stat(2) fails.
+//! try_stat() returns a \c std::optional. An undefined \c std::optional
+//! indicates a failed \%stat(2) call.
 //!
 //! \par Extended file attributes
 //!

@@ -14,23 +14,23 @@ int main()
 	try {
 		LIBCXX_NAMESPACE::fd fd(LIBCXX_NAMESPACE::fd::base::tmpfile());
 
-		time_t t=fd->stat()->st_atime;
+		time_t t=fd->stat().st_atime;
 
 		LIBCXX_NAMESPACE::ptr<LIBCXX_NAMESPACE::obj> mcguffin=
 			fd->futimens_interval(std::chrono::milliseconds(250));
 
 		sleep(2);
 
-		if (fd->stat()->st_atime == t)
+		if (fd->stat().st_atime == t)
 			throw EXCEPTION("File access time did not update");
 
 		mcguffin=LIBCXX_NAMESPACE::ptr<LIBCXX_NAMESPACE::obj>();
 
-		t=fd->stat()->st_atime;
+		t=fd->stat().st_atime;
 
 		sleep(2);
 
-		if (fd->stat()->st_atime != t)
+		if (fd->stat().st_atime != t)
 			throw EXCEPTION("File access time keeps getting updated");
 	} catch (const LIBCXX_NAMESPACE::exception &e)
 	{
