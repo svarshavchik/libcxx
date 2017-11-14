@@ -38,7 +38,7 @@ struct weak_capture_unpack<tuple_param_pack<n...>> {
 	template<typename ...tuple_t>
 	static bool got(const std::tuple<tuple_t...> &t)
 	{
-		return (std::get<n>(t) && ...);
+		return !!(std::get<n>(t) && ...);
 	}
 };
 

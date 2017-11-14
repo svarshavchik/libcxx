@@ -78,5 +78,23 @@ int main()
 		exit(1);
 	}
 
+	auto captured2=LIBCXX_NAMESPACE::make_weak_capture(a);
+
+	auto got=captured2.get();
+
+	if (got)
+		;
+	else
+	{
+		std::cerr << "Test 6 failed" << std::endl;
+		exit(1);
+	}
+
+	if (!got)
+	{
+		std::cerr << "Test 7 failed" << std::endl;
+		exit(1);
+	}
+
 	return 0;
 }
