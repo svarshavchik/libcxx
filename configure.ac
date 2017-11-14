@@ -95,7 +95,7 @@ AC_LINK_IFELSE(
 LIBS="$save_LIBS"
 
 # Also update -std in includes/x/libcxx.m4.in
-CXXFLAGS="$CXXFLAGS -std=c++1z -fno-omit-frame-pointer"
+CXXFLAGS="$CXXFLAGS -std=c++17 -fno-omit-frame-pointer"
 
 AC_CHECK_PROGS(XML2_CONFIG,xml2-config,none)
 if test "$XML2_CONFIG" = "none"

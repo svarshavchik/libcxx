@@ -801,58 +801,52 @@ public:
 	<programlisting>
 #include &lt;&ns;/weakcapture.H&gt;
 
+auto a=&ns;::ref&lt;aObj&gt;::create();
+
+auto b=&ns;::ref&lt;bObj&gt;::create();
 // ...
-auto cb=&ns;::functionref&lt;void()&gt;::create(
-	    [refs=&ns;::make_weak_capture(a(this))]
-	  {
-              bool flag=refs.get([]
-                                (const a &amp;me)
-                                {
-                                     me-&gt;do_something();
-                                });
-          });
+
+auto cb=[refs=&ns;::make_weak_capture(a, b)]
+	{
+           auto got=refs.get();
+
+           if (got)
+           {
+              auto& [a, b]=*got;
+
+              // ...
+        };
         </programlisting>
       </informalexample>
     </blockquote>
 
     <para>
       <ulink url="&link-function-x-make-weak-capture;"><function>&ns;::make_weak_capture</function></ulink>()
-      takes a variadic list of <classname>&ns;::ref</classname>s to any
-      object, and returns an opaque container of weak references to all the
+      takes a list of <classname>&ns;::ref</classname>s to objects,
+      and returns an opaque container of weak references to all the
       referenced objects.
-      This ends up being captured by this lambda.
+      This ends up being captured by the lambda.
     </para>
 
     <para>
       The opaque container's <methodname>get</methodname>()
       method recovers the strong references from the weakly-referenced
-      objects, and invokes the lambda parameter, passing them as its arguments.
-      If <methodname>get</methodname>() can
-      <link linkend="weakcontainers">getptr</link>() back all
-      weak pointers, <function>&ns;::get_weak_capture</function>()
-      invokes the lambda it receives as its second parameter, forwarding
-      to the lambda all the references to the recovered objects.
+      objects, and returns a <classname>std::optional</classname> of a
+      <classname>std::tuple</classname> of the original strong references,
+      provided that none of the objects went out of scope and got destroyed.
+      The <classname>std::optional</classname> will not contain the tuple
+      if one or more of the original object is destroyed. It's an all-or-nothing
+      proposition.
     </para>
 
     <para>
-      <methodname>get</methodname>() returns
-      <literal>true</literal>, if
-      <methodname>get</methodname>() was able to
-      recover strong references from all weak references, and invoke
-      the lambda,
-      <methodname>get</methodname>() returns
-      <literal>false</literal>, and does not invoke the lambda,
-      if one or more weakly-referenced object already went out of scope
-      and got destroyed.
-    </para>
-
-    <para>
-      With this approach, the callback action only takes place if all
-      weakly-referenced objects still exist. In most situations, a
-      callback getting invoked with one of them already destroyed usually
-      happens in a transient race condition, where related object are
-      being destroyed, but some of them, including the ones involved with
-      the callback, still existing.
+      With this approach, the callback action easily chooses to take action only
+      if all weakly-referenced objects still exist. A common situation is
+      that the callback needs to be in effect if several objects still
+      exist, but without capturing its own references to the objects.
+      This design pattern takes care of a race condition where the related
+      related objects are in the middle of getting destroyed, but some of them
+      still exist.
     </para>
   </section>
 </chapter>

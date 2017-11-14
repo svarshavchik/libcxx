@@ -104,25 +104,29 @@ rm -rf $RPM_BUILD_ROOT
 %post
 /sbin/ldconfig
 %{_bindir}/properties --set %{_sysconfdir}/httportmapd.properties %{_sbindir}/httportmapd >/dev/null
-/bin/systemctl daemon-reload || :
-/bin/systemctl enable httportmap.service &> /dev/null || :
-/bin/systemctl reload-or-try-restart httportmap.service &> /dev/null || :
 for f in %{_localstatedir}/tlsparams/system.dh
 do
 	test -f $f || ln $f.dist $f
 done
 
+%systemd_post httportmap.service
+
+if [ $1 -eq 1 ]
+then
+    /bin/systemctl daemon-reload >/dev/null 2>&1 || :
+fi
+/bin/systemctl try-reload-or-restart httportmap.service &> /dev/null || :
+
 %preun
+%systemd_preun httportmap.service
 if test "$1" = 0
 then
-	/bin/systemctl stop httportmap.service
-	/bin/systemctl disable httportmap.service
 	rm -f %{_localstatedir}/tlsparams/system.dh
 fi
 
 %postun
 /sbin/ldconfig
-/bin/systemctl daemon-reload || :
+%systemd_postun_with_restart httportmap.service
 
 %files
 %defattr(-,root,root,-)
