@@ -812,9 +812,10 @@ auto cb=[refs=&ns;::make_weak_capture(a, b)]
 
            if (got)
            {
-              auto& [a, b]=*got;
+              auto&amp; [a, b]=*got;
 
               // ...
+           }
         };
         </programlisting>
       </informalexample>
