@@ -305,19 +305,19 @@ std::string tzfileObj::localname()
 
 	// Maybe /etc/localtime is a symlink
 
-	try {
-		std::string link=
-			fd::base::combinepath("/etc/localtime",
-					      fileattr::create("/etc/localtime",
-							       true)
-					      ->readlink());
+	auto localtime_link=fileattr::create("/etc/localtime", true)
+		->try_readlink();
+
+	if (localtime_link)
+	{
+		auto link=fd::base::combinepath("/etc/localtime",
+						*localtime_link);
+
 
 		auto pfix=tzfile::base::tzdir() + "/";
 
 		if (link.substr(0, pfix.size()) == pfix)
 			return link.substr(pfix.size());
-	} catch (exception &e)
-	{
 	}
 
 	return localnameid;
@@ -345,6 +345,9 @@ void tzfileBase::enumerate(std::set<std::string> &set)
 			continue;
 
 		if ( ((std::string)direntry).find('.') != std::string::npos)
+			continue;
+
+		if ((std::string)direntry == "leapseconds")
 			continue;
 
 		set.insert(direntry.fullpath().substr(dirname.size()+1));

@@ -67,6 +67,7 @@
 <!ENTITY miscorderedcache SYSTEM "miscorderedcache.xml">
 <!ENTITY miscdf SYSTEM "miscdf.xml">
 <!ENTITY miscpostponed SYSTEM "miscpostponed.xml">
+<!ENTITY miscconfig SYSTEM "miscconfig.xml">
 <!ENTITY xml_parse SYSTEM "xml_parse.xml">
 <!ENTITY xml_readlock SYSTEM "xml_readlock.xml">
 <!ENTITY xml_writelock SYSTEM "xml_writelock.xml">
@@ -163,6 +164,7 @@ See COPYING for distribution information.
 
     &number;
     &visitor;
+    &miscconfig;
     &miscfunctional;
     &miscsentry;
     &miscstringability;

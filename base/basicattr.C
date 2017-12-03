@@ -327,6 +327,16 @@ void basic_attr::removeattr(const char *name)
 
 std::string basic_attr::readlink()
 {
+	auto ret=try_readlink();
+
+	if (!ret)
+		throw SYSEXCEPTION(whoami());
+
+	return *ret;
+}
+
+std::optional<std::string> basic_attr::try_readlink()
+{
 	std::vector<char> buf;
 	ssize_t n;
 
@@ -337,10 +347,11 @@ std::string basic_attr::readlink()
 		n=readlink_internal(&buf[0], buf.size());
 
 		if (n < 0)
-			fatal("readlink");
+			return {};
+
 	} while ((size_t)n == buf.size());
 
-	return std::string(&buf[0], &buf[n]);
+	return std::string{&buf[0], &buf[n]};
 }
 
 int basic_attr::chmod_internal(mode_t mode) noexcept

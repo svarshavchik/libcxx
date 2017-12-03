@@ -512,6 +512,8 @@ static void dirtest() noexcept
 
 		std::vector<std::string> dirContents;
 
+		LIBCXX_NAMESPACE::dir::create("testdir/nonexistent-subdir-does-not-throw-exception")->begin();
+
 		LIBCXX_NAMESPACE::dir d=LIBCXX_NAMESPACE::dir::create("testdir");
 
 		dirContents.insert(dirContents.end(), d->begin(), d->end());

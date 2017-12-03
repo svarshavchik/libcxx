@@ -17,6 +17,8 @@
 #include <x/namespace.h>
 #include <x/sys/xattrsys.h>
 
+#include <optional>
+
 namespace LIBCXX_NAMESPACE {
 
 #if 0
@@ -366,7 +368,13 @@ public:
 	//! Read the symbolic link.
 
 	//! This function returns the value of the symbolic link.
-	//!
+	//! No value indicates an error.
+
+	std::optional<std::string> try_readlink();
+
+	//! Read the symbolic link.
+
+	//! Throw an exception if the symlink could not be read.
 	std::string readlink();
 
 	//! Set the file's permissions

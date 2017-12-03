@@ -58,7 +58,7 @@ bool pid2devino(pid_t pid, dev_t &dev, ino_t &ino)
 	mib[1]=KERN_PROC;
 	mib[2]=KERN_PROC_FILEDESC;
 	mib[3]=pid;
-	
+
 	if (sysctl(mib, 4, NULL, &len, NULL, 0) < 0)
 		return false;
 
@@ -82,7 +82,7 @@ bool pid2devino(pid_t pid, dev_t &dev, ino_t &ino)
 			return true;
 		}
 	}
-		
+
 	return false;
 }
 

@@ -1439,14 +1439,11 @@ std::string fdObj::whoami()
 
 	o << filedesc;
 
-	int save_err=errno;
+	auto target=fileattr::create(o.str())->try_readlink();
 
-	try {
-		return fileattr::create(o.str())->readlink();
-	} catch (...)
-	{
-		errno=save_err;
-	}
+	if (target)
+		return *target;
+
 	return o.str();
 }
 

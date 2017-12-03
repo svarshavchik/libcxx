@@ -53,7 +53,11 @@ dirObj::iterator dirObj::begin() const
 
 	if ((b.val.d->dirp=opendir((b.val.d->dirname=getDirname()).c_str()))
 	    == NULL)
-		throw SYSEXCEPTION(b.val.d->dirname);
+	{
+		if (errno != ENOENT)
+			throw SYSEXCEPTION(b.val.d->dirname);
+		return end();
+	}
 
 	return ++b;
 }

@@ -77,6 +77,10 @@ public:
 
 	//! Constructor
 
+	// Sadly, cannot use uniform initialization syntax here because
+	// it warns about narrowing conversion when passing, say a literal
+	// 100 constant to a constructor that takes a size_t parameter.
+
 	template<typename ...Args_t>
 	mpobjimpl(Args_t && ...args) : obj(std::forward<Args_t>(args)...) {}
 

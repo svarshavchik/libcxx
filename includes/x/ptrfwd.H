@@ -169,6 +169,10 @@ template<typename ...Args>
 inline ptrrefType ptrref_base::create_and_init<ptrrefType, args, false>
 ::create(Args && ...argsValue)
 {
+	// Sadly, cannot use uniform initialization syntax here because
+	// it warns about narrowing conversion when passing, say a literal
+	// 100 constant int to a constructor that takes a size_t parameter.
+
 	auto p=new typename ptrrefType
 		::obj_type(std::forward<Args>(argsValue)...);
 
@@ -184,6 +188,9 @@ template<typename ...Args>
 inline ptrrefType ptrref_base::create_and_init<ptrrefType, args, true>
 ::create(Args && ...argsValue)
 {
+	// Sadly, cannot use uniform initialization syntax here because
+	// it warns about narrowing conversion when passing, say a literal
+	// 100 constant int to a constructor that takes a size_t parameter.
 	auto p=new typename ptrrefType
 		::obj_type(std::forward<Args>(argsValue)...);
 

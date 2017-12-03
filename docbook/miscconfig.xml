@@ -1,0 +1,46 @@
+<!--
+
+Copyright 2017 Double Precision, Inc.
+See COPYING for distribution information.
+
+-->
+
+<chapter id="configdir">
+  <title>Application-specific configuration directories</title>
+
+  <blockquote>
+    <informalexample>
+      <programlisting>
+#include &lt;&ns;/config.H&gt;
+
+std::string configdir=&ns;::configdir("example@libcxx.com");</programlisting>
+    </informalexample>
+  </blockquote>
+
+  <para>
+    <ulink url="&link-function-x-configdir;"><function>&ns;::configdir</function></ulink>()'s
+    parameter is an application identifier string.
+    <function>&ns;::configdir</function>() creates the directory
+    <filename>$HOME/.libcxx/<replaceable>appid</replaceable></filename> if it
+    does not exist already, and returns an absolute pathname to this directory.
+    <function>&ns;::configdir</function>() installs a hidden symbolic links
+    to the running process's executable in this directory; and ignores
+    all of its other contents.
+  </para>
+
+  <para>
+    <function>&ns;::configdir</function>() makes periodic checks of all
+    subdirectories in <filename>$HOME/.libcxx</filename>, and removes
+    subdirectories with broken symbolic links. This is meant to be used for
+    a per-user application configuration directories; with a mechanism that
+    automatically purges configuration directories linked to uninstalled
+    applications, as long as at least one &appshort; application gets
+    run regularly.
+  </para>
+</chapter>
+<!--
+Local Variables:
+mode: sgml
+sgml-parent-document: ("book.xml" "part" "chapter")
+End:
+-->

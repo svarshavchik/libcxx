@@ -53,6 +53,7 @@ libcxx_la_SOURCES=\
 	basicattr.C		\
 	callback.C		\
 	chrcasecmp.C		\
+	config.C		\
 	condobj.C		\
 	csv.C			\
 	dequemsgdispatcher.C	\
@@ -290,6 +291,7 @@ noinst_PROGRAMS=\
 	testcallbacks		      \
 	testcgiimpl                   \
 	testcombinepath		      \
+	testconfig		      \
 	testconvert		      \
 	testcredentials               \
 	testcsv                       \
@@ -739,6 +741,10 @@ testcombinepath_SOURCES=testcombinepath.C
 testcombinepath_LDADD=libcxx.la
 testcombinepath_LDFLAGS=$(TESTLINKTYPE)
 
+testconfig_SOURCES=testconfig.C
+testconfig_LDADD=libcxx.la
+testconfig_LDFLAGS=$(TESTLINKTYPE)
+
 testconvert_SOURCES=testconvert.C
 testconvert_LDADD=libcxx.la
 testconvert_LDFLAGS=$(TESTLINKTYPE)
@@ -933,6 +939,7 @@ check-am: $(noinst_PROGRAMS) $(noinst_DATA)
 	./testsortedvector
 	./testcombinepath
 	./testconvert
+	./testconfig
 
 $(XTEST_MO_DIR)/$(XTEST_MO_FILE): testmessages.po
 	mkdir -p $(XTEST_MO_DIR)

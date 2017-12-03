@@ -126,6 +126,23 @@ See COPYING for distribution information.
 	  <methodname>fileattr->try_stat()</methodname>, returns a
 	  <classname>std::optional</classname>, and returns an undefined
 	  value instead of throwing an exception.
+	  <methodname>fileattr->try_readlink()</methodname> is an analogous
+	  version of <methodname>readlink</methodname>() that returns a
+	  <classname>std::optional</classname> instead of throwing an
+	  exception.
+	</para>
+
+	<para>
+	  Attempting to <link linkend="dir">read the contents</link>
+	  of a nonexistent directory will not throw an exception, rather
+	  <methodname>begin</methodname>() quietly returns the ending iterator
+	  value.
+	</para>
+      </listitem>
+
+      <listitem>
+	<para>
+	  <link linkend="configdir"><function>&ns;::configdir</function></link>.
 	</para>
       </listitem>
     </varlistentry>
