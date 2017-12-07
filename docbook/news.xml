@@ -114,6 +114,7 @@ See COPYING for distribution information.
 	  <classname>&ns;::destroyCallbackFlagWait4</classname> to
 	  <classname>&ns;::destroy_callback_wait4</classname>, in order to
 	  remove unsightly camel-case.
+	  Ditto: getEventfd() to get_eventfd().
 	</para>
       </listitem>
 

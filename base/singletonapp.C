@@ -284,7 +284,7 @@ void singletonapp::thr::run(ptr<obj> &threadmsgdispatcher_mcguffin,
 	struct pollfd pfd[2];
 
 	{
-		fd efd=msgqueue->getEventfd();
+		fd efd=msgqueue->get_eventfd();
 
 		pfd[0].fd=efd->getFd();
 
@@ -318,7 +318,7 @@ void singletonapp::thr::run(ptr<obj> &threadmsgdispatcher_mcguffin,
 			poll(pfd, termflag ? 1:2, -1);
 
 			if (pfd[0].revents & POLLIN)
-				msgqueue->getEventfd()->event();
+				msgqueue->get_eventfd()->event();
 		}
 	} catch (const stopexception &e)
 	{

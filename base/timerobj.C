@@ -245,7 +245,7 @@ timerObj::implObj::drain()
 	auto msgqueue=get_msgqueue();
 	struct pollfd pfd;
 
-	pfd.fd=msgqueue->getEventfd()->getFd();
+	pfd.fd=msgqueue->get_eventfd()->getFd();
 
 	while (1)
 	{
@@ -279,7 +279,7 @@ timerObj::implObj::drain()
 		poll(&pfd, 1, ms);
 
 		if (pfd.revents & POLLIN)
-			msgqueue->getEventfd()->event();
+			msgqueue->get_eventfd()->event();
 	}
 }
 
@@ -337,7 +337,7 @@ bool timerObj::implObj::runjob()
 void timerObj::implObj::run(x::ptr<x::obj> &threadmsgdispatcher_mcguffin,
 			    msgqueue_obj &msgqueue)
 {
-	(*msgqueue)->getEventfd()->nonblock(true);
+	(*msgqueue)->get_eventfd()->nonblock(true);
 
 	threadmsgdispatcher_mcguffin=nullptr;
 

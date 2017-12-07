@@ -150,7 +150,7 @@ namespace LIBCXX_NAMESPACE {
 //! \code
 //!    if (q->empty())
 //!    {
-//!          INSERT_LIBX_NAMESPACE::eventfd fd=q->getEventfd();
+//!          INSERT_LIBX_NAMESPACE::eventfd fd=q->get_eventfd();
 //! \endcode
 //!
 //! Because \c msgqueue_auto is a subclass of an \ref eventqueue "event queue",

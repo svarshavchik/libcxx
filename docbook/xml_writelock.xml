@@ -521,6 +521,102 @@ wlock->remove();</programlisting>
       </para>
     </note>
   </section>
+
+  <section id="xml_write_example">
+    <title>An example of creating an XML document</title>
+
+    <blockquote>
+      <informalexample>
+	<programlisting>
+
+    // Create the document, and the top level &lt;windows&gt; element.
+    auto doc=&ns;::xml::doc::create();
+
+    auto lock=doc-&gt;writelock();
+
+    auto windows=lock-&gt;create_child()-&gt;element({"windows"});
+
+    for (const auto &amp;coords:coordinates)
+    {
+        // Position the lock. At the end of the iteration of this loop,
+        // the lock's position remains on the last created XML element, and
+        // this is the simplest way to bring it back on the top level
+        // &lt;windows&gt; element.
+
+        lock-&gt;get_xpath("/windows")-&gt;to_node();
+
+        // Create a child factory. Use it to create the new &lt;window&gt;
+        // element, then it's &lt;name&gt; child, then it's child text element.
+
+        auto window=lock-&gt;create_child()-&gt;element({"window"});
+            -&gt;element({"name"})-&gt;text(coords.first);
+
+        std::ostringstream x, y, width, height;
+
+        x &lt;&lt; coords.second.x;
+        y &lt;&lt; coords.second.y;
+        width &lt;&lt; coords.second.width;
+        height &lt;&lt; coords.second.height;
+
+        // At this point the creator is pointing to the text child element
+        // of the &lt;name&gt; element. Move the creator back to the
+        // &lt;name&gt; using parent(), use create_next_sibling() to construct
+        // a factory that creates the next sibling element, then create the
+        // &lt;x&gt; element, then its text child.
+        window=window-&gt;parent()-&gt;create_next_sibling()-&gt;element({"x"})
+            -&gt;create_child()-&gt;text(x.str());
+
+        // In the same manner create the remaining elements.
+        window=window-&gt;parent()-&gt;create_next_sibling()-&gt;element({"y"})
+            -&gt;create_child()-&gt;text(y.str());
+        window=window-&gt;parent()-&gt;create_next_sibling()-&gt;element({"width"})
+            -&gt;create_child()-&gt;text(width.str());
+        window-&gt;parent()-&gt;create_next_sibling()-&gt;element({"height"})
+            -&gt;create_child()-&gt;text(height.str());
+    }
+
+    lock-&gt;save_file(filename);</programlisting>
+      </informalexample>
+    </blockquote>
+
+    <para>
+      This example creates an &xml; file that looks like this:
+    </para>
+
+    <blockquote>
+      <informalexample>
+	<programlisting><![CDATA[
+<?xml version="1.0"?>
+<windows>
+  <window>
+    <name>dummy</name>
+    <x>100</x>
+    <y>200</y>
+    <width>50</width>
+    <height>50</height>
+  </window>
+  <window>
+    <name>main</name>
+    <x>752</x>
+    <y>397</y>
+    <width>416</width>
+    <height>338</height>
+  </window>
+</windows>]]>
+	</programlisting>
+      </informalexample>
+    </blockquote>
+
+    <para>
+      In this example, <varname>coordinates</varname> is a map containing
+      a <classname>std::string</classname> for a key, and a value with
+      <varname>x</varname>,
+      <varname>y</varname>,
+      <varname>width</varname> and
+      <varname>height</varname> members. This data gets written out into
+      a simple, basic, XML file.
+    </para>
+  </section>
 </chapter>
 <!--
 Local Variables:

@@ -47,7 +47,7 @@ public:
 
 	//! Retrieve the associated event handler
 
-	eventfd getEventfd() noexcept { return fd; }
+	eventfd get_eventfd() noexcept { return fd; }
 
 	//! Put a new event into the queue
 

@@ -48,7 +48,7 @@ threadmsgdispatcherObj::msgqueue_auto
 threadmsgdispatcherObj::msgqueue_auto
 ::msgqueue_auto(const ref<threadmsgdispatcherObj> &me,
 		active_queue_t &auxqueue)
-	: msgqueue_auto(msgqueue_t::create(me->get_msgqueue()->getEventfd()),
+	: msgqueue_auto(msgqueue_t::create(me->get_msgqueue()->get_eventfd()),
 			auxqueue)
 {
 }
