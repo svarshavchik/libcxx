@@ -29,7 +29,7 @@ void mmapbaseObj::mminit(void *addrArg, const fd &filedesc, int prot, int flags,
 			throw EXCEPTION("mmap");
 		}
 	}
-	mminit(addrArg, lengthArg, prot, flags, filedesc->getFd(), offset);
+	mminit(addrArg, lengthArg, prot, flags, filedesc->get_fd(), offset);
 }
 
 void mmapbaseObj::mminit(void *addrArg, size_t lengthArg, int prot, int flags)

@@ -149,7 +149,7 @@ void portmap_server::run2(reexec_fd_recvptr &restore)
 
 	fds.push_back(pollfd());
 
-	fds[0].fd=stop_pipe.first->getFd();
+	fds[0].fd=stop_pipe.first->get_fd();
 	fds[0].events=POLLIN;
 
 	listenfds.push_back(stop_pipe.first);
@@ -175,7 +175,7 @@ void portmap_server::run2(reexec_fd_recvptr &restore)
 		struct pollfd pfd;
 
 		listenfds.push_back(*b);
-		pfd.fd=(*b)->getFd();
+		pfd.fd=(*b)->get_fd();
 		pfd.events=POLLIN;
 		fds.push_back(pfd);
 	}
@@ -258,7 +258,7 @@ void portmap_server::run2(reexec_fd_recvptr &restore)
 
 				newconn(conn, fds, clientinfos);
 				LOG_DEBUG("New client connection: " <<
-					  conn->getFd());
+					  conn->get_fd());
 			} catch (const LIBCXX_NAMESPACE::exception &e)
 			{
 				LOG_ERROR(e);
@@ -326,7 +326,7 @@ void portmap_server::newconn(const x::fd &conn,
 {
 	struct pollfd pfd;
 
-	pfd.fd=conn->getFd();
+	pfd.fd=conn->get_fd();
 	pfd.events=POLLIN;
 	pfd.revents=0;
 
@@ -341,7 +341,7 @@ void portmap_server::newconn(const x::fd &conn,
 void portmap_server::install_client(clientinfoObj &cl)
 {
 	LOG_DEBUG("Client connection "
-		  << cl.fd->getFd()
+		  << cl.fd->get_fd()
 		  << ": pid "
 		  << cl.pid
 		  << ", userid "
@@ -376,7 +376,7 @@ void portmap_server::send_client_fd(struct pollfd &pfd,
 
 	newsock.second->nonblock(true);
 	newsock.second->recv_credentials(true);
-	pfd.fd=newsock.second->getFd();
+	pfd.fd=newsock.second->get_fd();
 	cl.fd=newsock.second;
 }
 
@@ -389,7 +389,7 @@ bool portmap_server::handle_client(struct pollfd &pfd,
 		break;
 	case cl.state_need_cred:
 		LOG_DEBUG("Receiving credentials from client connection "
-			  << cl.fd->getFd());
+			  << cl.fd->get_fd());
 
 		{
 			LIBCXX_NAMESPACE::fd::base::credentials_t uc;
@@ -406,7 +406,7 @@ bool portmap_server::handle_client(struct pollfd &pfd,
 		if (cl.fd->write("\n", 1) != 1)
 		{
 			LOG_DEBUG("Client connection "
-				  << cl.fd->getFd()
+				  << cl.fd->get_fd()
 				  << ": write failed");
 			return false;
 		}
@@ -428,7 +428,7 @@ bool portmap_server::handle_client(struct pollfd &pfd,
 		return true;
 	case cl.state_need_cred2:
 		LOG_DEBUG("Receiving credentials from client connection "
-			  << cl.fd->getFd() << " again");
+			  << cl.fd->get_fd() << " again");
 
 		{
 			LIBCXX_NAMESPACE::fd::base::credentials_t uc;
@@ -463,7 +463,7 @@ bool portmap_server::handle_client(struct pollfd &pfd,
 			    cl.exe != now_exe)
 			{
 				LOG_ERROR("Client connection "
-					  << cl.fd->getFd()
+					  << cl.fd->get_fd()
 					  << ": " << cl.exe
 					  << ": credentials have changed");
 				return false;
@@ -473,7 +473,7 @@ bool portmap_server::handle_client(struct pollfd &pfd,
 		if (cl.fd->write("\n", 1) != 1)
 		{
 			LOG_DEBUG("Client connection "
-				  << cl.fd->getFd()
+				  << cl.fd->get_fd()
 				  << ": write failed");
 			return false;
 		}
@@ -484,7 +484,7 @@ bool portmap_server::handle_client(struct pollfd &pfd,
 			      cl.readbuf.size() - cl.readbufp);
 
 	LOG_DEBUG("Read " << n << " bytes from client connection "
-		  << cl.fd->getFd());
+		  << cl.fd->get_fd());
 
 	if (n == 0)
 	{
@@ -529,7 +529,7 @@ bool portmap_server::handle_client_line(clientinfoObj &cl,
 					std::vector<clientinfo> &clientinfos,
 					const std::string &line)
 {
-	LOG_DEBUG("Client connection " << cl.fd->getFd() << ": " << line);
+	LOG_DEBUG("Client connection " << cl.fd->get_fd() << ": " << line);
 
 	std::list<std::string> cmd;
 
@@ -583,7 +583,7 @@ bool portmap_server::handle_client_line(clientinfoObj &cl,
 		if (cl.fd->write("+Ok\n", 4) != 4)
 		{
 			LOG_DEBUG("Client connection "
-				  << cl.fd->getFd()
+				  << cl.fd->get_fd()
 				  << ": write failed");
 			return false;
 		}
@@ -625,7 +625,7 @@ bool portmap_server::handle_client_line(clientinfoObj &cl,
 		     b != e; ++b)
 		{
 			LOG_DEBUG("Client connection "
-				  << cl.fd->getFd()
+				  << cl.fd->get_fd()
 				  << ": register "
 				  << b->service
 				  << ", port "
@@ -641,7 +641,7 @@ bool portmap_server::handle_client_line(clientinfoObj &cl,
 		    != resp.size())
 		{
 			LOG_DEBUG("Client connection "
-				  << cl.fd->getFd()
+				  << cl.fd->get_fd()
 				  << ": write failed");
 			return false;
 		}
@@ -698,7 +698,7 @@ bool portmap_server::handle_client_line(clientinfoObj &cl,
 			}
 
 			LOG_DEBUG("Client connection "
-				  << cl.fd->getFd()
+				  << cl.fd->get_fd()
 				  << ": deregister "
 				  << service
 				  << ", port "
@@ -707,7 +707,7 @@ bool portmap_server::handle_client_line(clientinfoObj &cl,
 		if (cl.fd->write("+Ok\n", 4) != 4)
 		{
 			LOG_DEBUG("Client connection "
-				  << cl.fd->getFd()
+				  << cl.fd->get_fd()
 				  << ": write failed");
 			return false;
 		}
@@ -748,7 +748,7 @@ bool portmap_server::handle_client_line(clientinfoObj &cl,
 		if (cl.fd->write("+Ok\n", 4) != 4)
 		{
 			LOG_DEBUG("Client connection "
-				  << cl.fd->getFd()
+				  << cl.fd->get_fd()
 				  << ": write failed");
 			return false;
 		}
@@ -800,7 +800,7 @@ bool portmap_server::handle_client_line(clientinfoObj &cl,
 
 			for (auto ci:clientinfos)
 			{
-				if (ci->fd->getFd() == cl.fd->getFd())
+				if (ci->fd->get_fd() == cl.fd->get_fd())
 					continue;
 				reexec.send_fd(ci->fd);
 				ci->serialize_toiter(reexec.iter);

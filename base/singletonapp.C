@@ -286,12 +286,12 @@ void singletonapp::thr::run(ptr<obj> &threadmsgdispatcher_mcguffin,
 	{
 		fd efd=msgqueue->get_eventfd();
 
-		pfd[0].fd=efd->getFd();
+		pfd[0].fd=efd->get_fd();
 
 		efd->nonblock(true);
 
 		listensock->nonblock(true);
-		pfd[1].fd=listensock->getFd();
+		pfd[1].fd=listensock->get_fd();
 	}
 
 	pfd[0].events=pfd[1].events=POLLIN;
@@ -470,7 +470,7 @@ uid_t singletonapp::validate_peer(const httportmap &portmapper,
 
 	struct pollfd pfd;
 
-	pfd.fd=connection->getFd();
+	pfd.fd=connection->get_fd();
 	pfd.events=POLLIN;
 
 	if (::poll(&pfd, 1, impl::credtimeoutprop.getValue() * 1000) < 0 ||

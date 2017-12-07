@@ -86,7 +86,7 @@ class inotifyObj::watcherObj : virtual public obj {
 		   uint32_t mask,
 		   const watch_callback_t &cbArg)
 		: i(std::move(iArg)),
-		  w(inotify_add_watch(i->getFd(), pathname.c_str(),
+		  w(inotify_add_watch(i->get_fd(), pathname.c_str(),
 				      mask)),
 		  cb(cbArg)
 	{
@@ -97,7 +97,7 @@ class inotifyObj::watcherObj : virtual public obj {
 
 	~watcherObj()
 	{
-		inotify_rm_watch(i->getFd(), w);
+		inotify_rm_watch(i->get_fd(), w);
 	}
 };
 #pragma GCC visibility pop

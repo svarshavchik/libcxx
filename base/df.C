@@ -146,7 +146,7 @@ void dfObj::dfvfsfdObj::refresh()
 	commited_free=0;
 	commited_inodes=0;
 
-	if (fstatvfs(filedesc->getFd(), &s) < 0)
+	if (fstatvfs(filedesc->get_fd(), &s) < 0)
 		throw EXCEPTION("fstatvfs");
 }
 

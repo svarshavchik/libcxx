@@ -85,7 +85,7 @@ void forkexec::exec()
 
 	for (auto &fd:filedescs)
 	{
-		int n=fd.second->getFd();
+		int n=fd.second->get_fd();
 
 		if (n < 0)
 		{
@@ -110,7 +110,7 @@ void forkexec::exec()
 	{
 		fd.second->closeonexec(false);
 
-		if (dup2(fd.second->getFd(), fd.first) < 0)
+		if (dup2(fd.second->get_fd(), fd.first) < 0)
 			throw EXCEPTION("dup2");
 		fd.second->close();
 	}

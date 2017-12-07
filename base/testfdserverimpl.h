@@ -192,13 +192,13 @@ void testhttp11()
 template<typename conn_type>
 void fillpipe(const typename conn_type::filedesc &fd)
 {
-	fd->getFd()->nonblock(true);
+	fd->get_fd()->nonblock(true);
 
 	char dummy=0;
 
-	while (fd->getFd()->write(&dummy, 1) > 0)
+	while (fd->get_fd()->write(&dummy, 1) > 0)
 		;
-	fd->getFd()->nonblock(false);
+	fd->get_fd()->nonblock(false);
 }
 
 template<typename conn_type>
@@ -514,13 +514,13 @@ void testwritetimeout()
 	conn_type::createClientServerPair(sclient, sserver);
 
 	{
-		sserver->getFd()->nonblock(true);
+		sserver->get_fd()->nonblock(true);
 
 		char dummy=0;
 
-		while (sserver->getFd()->write(&dummy, 1) > 0)
+		while (sserver->get_fd()->write(&dummy, 1) > 0)
 			;
-		sserver->getFd()->nonblock(false);
+		sserver->get_fd()->nonblock(false);
 	}
 
 	FORCE_PROP(LIBCXX_NAMESPACE_STR "::http::server::body_timeout", "2");

@@ -136,7 +136,7 @@ public:
 				::output_iter_t(sess);
 		}
 
-		LIBCXX_NAMESPACE::fd &getFd() throw()
+		LIBCXX_NAMESPACE::fd &get_fd() throw()
 		{
 			return filedesc;
 		}

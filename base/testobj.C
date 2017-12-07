@@ -1147,7 +1147,7 @@ static void testeventfd() noexcept
 
 		struct pollfd pfd;
 
-		pfd.fd=eventfd->getFd();
+		pfd.fd=eventfd->get_fd();
 		pfd.events=POLLIN;
 
 		if (poll(&pfd, 1, 0) != 0)

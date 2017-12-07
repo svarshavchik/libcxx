@@ -1150,7 +1150,7 @@ public:
 
 	//! \return the currently open file descriptor, or -1.
 	//!
-	int getFd() const noexcept override;
+	int get_fd() const noexcept override;
 
 private:
 	//! Implement pubread(), inherited from fdbaseObj

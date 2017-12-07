@@ -89,7 +89,7 @@ public:
 
 	//! Expose the underlying file descriptor, for those who want it
 
-	using fdObj::getFd;
+	using fdObj::get_fd;
 
 private:
 

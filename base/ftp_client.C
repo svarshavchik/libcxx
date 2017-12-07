@@ -227,8 +227,8 @@ clientObj::conn_infoObj::~conn_infoObj()
 
 clientObj::impl_common::impl_common(const fdbase &connArg)
 	: socket(connArg),
-	  sockname(fd::base::getsockname(connArg->getFd())),
-	  peername(fd::base::getpeername(connArg->getFd())),
+	  sockname(fd::base::getsockname(connArg->get_fd())),
+	  peername(fd::base::getpeername(connArg->get_fd())),
 	  timeout(fdtimeout::create(connArg))
 {
 }

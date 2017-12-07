@@ -341,7 +341,7 @@ std::string magicObj::lookup(const fd &filedesc, int type)
 	if (magic_setflags(handle, type) < 0)
 		throw SYSEXCEPTION("magic_setflags");
 
-	const char *p=magic_descriptor(handle, filedesc->getFd());
+	const char *p=magic_descriptor(handle, filedesc->get_fd());
 
 	if (!p)
 	{

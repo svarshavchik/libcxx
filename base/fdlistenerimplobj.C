@@ -284,17 +284,17 @@ void fdlistenerImplObj::runimpl(const ref<startArgObj> &startarg)
 			     b=listeners.begin(),
 			     e=listeners.end(); b != e; ++b, ++j)
 		{
-			pfd[j].fd=(*b)->getFd();
+			pfd[j].fd=(*b)->get_fd();
 			pfd[j].events=POLLIN;
 		}
 
 		// Last one is the stop signal pipe
 
-		pfd[j].fd=startarg->pipe.first->getFd();
+		pfd[j].fd=startarg->pipe.first->get_fd();
 		pfd[j].events=POLLIN;
 
 		++j;
-		pfd[j].fd=terminated_eventfd->getFd();
+		pfd[j].fd=terminated_eventfd->get_fd();
 		pfd[j].events=POLLIN;
 
 	}

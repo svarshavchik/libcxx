@@ -30,7 +30,7 @@ class fdstreambufObj;
 //! File descriptor interface
 
 //! This base class defines five methods, pubread(), pubwrite(), pubseek(),
-//! connect(), and getFd(), which must be implemented in its subclass.
+//! connect(), and get_fd(), which must be implemented in its subclass.
 //!
 //! Additional methods are also defined that operate on the underlying file
 //! descriptor.
@@ -54,7 +54,7 @@ public:
 
 	//! \return the currently open file descriptor, or -1.
 	//!
-	virtual int getFd() const noexcept=0;
+	virtual int get_fd() const noexcept=0;
 
 	//! Connect the socket
 
@@ -371,10 +371,10 @@ public:
 
 	//! Pass through method
 
-	//! The default adapter invokes ptr->getFd().
+	//! The default adapter invokes ptr->get_fd().
 	//!
 
-	int getFd() const noexcept override;
+	int get_fd() const noexcept override;
 
 	//! Pass through method
 

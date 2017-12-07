@@ -899,11 +899,11 @@ iostream gnutls::sessionObj::getiostream()
 	return ref<basic_streamObj<std::iostream> >::create(getStreamBuffer());
 }
 
-int gnutls::sessionObj::getFd() const noexcept
+int gnutls::sessionObj::get_fd() const noexcept
 {
 	LOCK_SESSION;
 
-	return transport->getFd();
+	return transport->get_fd();
 }
 
 size_t gnutls::sessionObj::pubread(char *buffer, size_t cnt)

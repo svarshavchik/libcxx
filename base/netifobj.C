@@ -119,13 +119,13 @@ void netifBase::enumerate(//! Enumerated interfaces placed here
 
 		short fflags=0;
 
-		if (ioctl(sock->getFd(), SIOCGIFFLAGS, &i) >= 0)
+		if (ioctl(sock->get_fd(), SIOCGIFFLAGS, &i) >= 0)
 			fflags=i.ifr_flags;
 
 		init_ifr(i, b->first);
 
 		int index= -1;
-		if (ioctl(sock->getFd(), SIOCGIFINDEX, &i) >= 0)
+		if (ioctl(sock->get_fd(), SIOCGIFINDEX, &i) >= 0)
 			index=i.ifr_ifindex;
 
 		init_ifr(i, b->first);
@@ -134,7 +134,7 @@ void netifBase::enumerate(//! Enumerated interfaces placed here
 
 		int l=0;
 
-		if (ioctl(sock->getFd(), SIOCGIFHWADDR, &i) >= 0)
+		if (ioctl(sock->get_fd(), SIOCGIFHWADDR, &i) >= 0)
 		{
 			switch (i.ifr_hwaddr.sa_family) {
 			case ARPHRD_ETHER:
@@ -232,13 +232,13 @@ void netifBase::enumerate(//! Enumerated interfaces placed here
 
 		short fflags=0;
 
-		if (ioctl(sock->getFd(), SIOCGIFFLAGS, &i) >= 0)
+		if (ioctl(sock->get_fd(), SIOCGIFFLAGS, &i) >= 0)
 			fflags=i.ifr_flags;
 
 		init_ifr(i, b->first);
 
 		int index= -1;
-		if (ioctl(sock->getFd(), SIOCGIFINDEX, &i) >= 0)
+		if (ioctl(sock->get_fd(), SIOCGIFINDEX, &i) >= 0)
 			index=i.ifr_index;
 
 		interfaces.push_back(netif::create(b->first,

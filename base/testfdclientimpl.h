@@ -58,13 +58,13 @@ void testwritetimeout()
 	conn_type::createClientServerPair(sclient, sserver);
 
 	{
-		sclient->getFd()->nonblock(true);
+		sclient->get_fd()->nonblock(true);
 
 		char dummy=0;
 
-		while (sclient->getFd()->write(&dummy, 1) > 0)
+		while (sclient->get_fd()->write(&dummy, 1) > 0)
 			;
-		sclient->getFd()->nonblock(false);
+		sclient->get_fd()->nonblock(false);
 	}
 
 	FORCE_PROP(LIBCXX_NAMESPACE_STR "::http::client::timeout", "2");
@@ -212,7 +212,7 @@ void testbodytimeout(const char *str)
 		FORCE_PROP(LIBCXX_NAMESPACE_STR "::https::client::bye_timeout",
 			   "30");
 		thr->wait();
-		sclient->getFd()->close();
+		sclient->get_fd()->close();
 		thr2->wait();
 		return;
 	}
@@ -285,7 +285,7 @@ void testheaderlimit()
 
 	} catch (const LIBCXX_NAMESPACE::exception &exc)
 	{
-		sclient->getFd()->close();
+		sclient->get_fd()->close();
 		thr->wait();
 		thr2->wait();
 		return;
@@ -337,7 +337,7 @@ void testrequest()
 		}
 	}
 
-	sclient->getFd()->close();
+	sclient->get_fd()->close();
 	thr->wait();
 	thr2->wait();
 }

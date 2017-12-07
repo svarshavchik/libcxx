@@ -143,9 +143,9 @@ fdbaseObj::adapterObj::~adapterObj()
 {
 }
 
-int fdbaseObj::adapterObj::getFd() const noexcept
+int fdbaseObj::adapterObj::get_fd() const noexcept
 {
-	return ptr->getFd();
+	return ptr->get_fd();
 }
 
 size_t fdbaseObj::adapterObj::pubread(char *buffer,
@@ -217,7 +217,7 @@ size_t fdbaseObj::get_buffer_size()
 
 ref<fdstreambufObj> fdbaseObj::getStreamBuffer(size_t bufsiz)
 {
-	size_t filedesc=getFd();
+	size_t filedesc=get_fd();
 
 	struct stat stat_buf;
 
@@ -361,7 +361,7 @@ void fdObj::unlinkonclose(const std::string_view &filename)
 	closeaction=hook;
 }
 
-int fdObj::getFd() const noexcept
+int fdObj::get_fd() const noexcept
 {
 	return filedesc;
 }

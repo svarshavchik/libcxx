@@ -245,7 +245,7 @@ timerObj::implObj::drain()
 	auto msgqueue=get_msgqueue();
 	struct pollfd pfd;
 
-	pfd.fd=msgqueue->get_eventfd()->getFd();
+	pfd.fd=msgqueue->get_eventfd()->get_fd();
 
 	while (1)
 	{

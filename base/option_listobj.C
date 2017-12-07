@@ -340,7 +340,7 @@ size_t listObj::getTtyWidth()
 		struct winsize ws;
 		fd ttyfd(fd::base::open("/dev/tty", O_RDWR));
 
-		if (ioctl(ttyfd->getFd(), TIOCGWINSZ, &ws) == 0)
+		if (ioctl(ttyfd->get_fd(), TIOCGWINSZ, &ws) == 0)
 			return ws.ws_col;
 	} catch (...)
 	{

@@ -324,7 +324,7 @@ void serverRehandshakeThread::run(const LIBCXX_NAMESPACE::fd &fd)
 	{
 		struct pollfd pfd;
 
-		pfd.fd= fd->getFd();
+		pfd.fd= fd->get_fd();
 		pfd.events=direction;
 		poll(&pfd, 1, -1);
 	}
@@ -345,7 +345,7 @@ void serverRehandshakeThread::run(const LIBCXX_NAMESPACE::fd &fd)
 		}
 		struct pollfd pfd;
 
-		pfd.fd= fd->getFd();
+		pfd.fd= fd->get_fd();
 		pfd.events=direction;
 		poll(&pfd, 1, -1);
 	}
@@ -364,7 +364,7 @@ void serverRehandshakeThread::run(const LIBCXX_NAMESPACE::fd &fd)
 
 				struct pollfd pfd;
 
-				pfd.fd= fd->getFd();
+				pfd.fd= fd->get_fd();
 				pfd.events=direction;
 				poll(&pfd, 1, -1);
 			}
@@ -391,7 +391,7 @@ void serverRehandshakeThread::run(const LIBCXX_NAMESPACE::fd &fd)
 		}
 		struct pollfd pfd;
 
-		pfd.fd= fd->getFd();
+		pfd.fd= fd->get_fd();
 		pfd.events=direction;
 		poll(&pfd, 1, -1);
 	}
@@ -407,7 +407,7 @@ void serverRehandshakeThread::run(const LIBCXX_NAMESPACE::fd &fd)
 
 		struct pollfd pfd;
 
-		pfd.fd= fd->getFd();
+		pfd.fd= fd->get_fd();
 		pfd.events=direction;
 		poll(&pfd, 1, -1);
 	}
@@ -423,7 +423,7 @@ void serverRehandshakeThread::run(const LIBCXX_NAMESPACE::fd &fd)
 
 		struct pollfd pfd;
 
-		pfd.fd= fd->getFd();
+		pfd.fd= fd->get_fd();
 		pfd.events=direction;
 		poll(&pfd, 1, -1);
 	}
@@ -473,7 +473,7 @@ static void testrehandshake()
 		{
 			struct pollfd pfd;
 
-			pfd.fd= b->getFd();
+			pfd.fd= b->get_fd();
 			pfd.events=direction;
 			poll(&pfd, 1, -1);
 		}
@@ -486,7 +486,7 @@ static void testrehandshake()
 				{
 					struct pollfd pfd;
 
-					pfd.fd= b->getFd();
+					pfd.fd= b->get_fd();
 					pfd.events=direction;
 					poll(&pfd, 1, -1);
 				}
@@ -508,7 +508,7 @@ static void testrehandshake()
 		{
 			struct pollfd pfd;
 
-			pfd.fd= b->getFd();
+			pfd.fd= b->get_fd();
 			pfd.events=direction;
 			poll(&pfd, 1, -1);
 		}
@@ -523,7 +523,7 @@ static void testrehandshake()
 			}
 			struct pollfd pfd;
 
-			pfd.fd=b->getFd();
+			pfd.fd=b->get_fd();
 			pfd.events=direction;
 			poll(&pfd, 1, -1);
 		}
@@ -532,7 +532,7 @@ static void testrehandshake()
 		{
 			struct pollfd pfd;
 
-			pfd.fd= b->getFd();
+			pfd.fd= b->get_fd();
 			pfd.events=direction;
 			poll(&pfd, 1, -1);
 		}
@@ -548,7 +548,7 @@ static void testrehandshake()
 		{
 			struct pollfd pfd;
 
-			pfd.fd= b->getFd();
+			pfd.fd= b->get_fd();
 			pfd.events=direction;
 			poll(&pfd, 1, -1);
 		}
@@ -599,7 +599,7 @@ void readAbortThread::run(const LIBCXX_NAMESPACE::fd &fd)
 	{
 		struct pollfd pfd;
 
-		pfd.fd= fd->getFd();
+		pfd.fd= fd->get_fd();
 		pfd.events=direction;
 		poll(&pfd, 1, -1);
 	}
@@ -614,7 +614,7 @@ void readAbortThread::run(const LIBCXX_NAMESPACE::fd &fd)
 	{
 		struct pollfd pfd;
 
-		pfd.fd= fd->getFd();
+		pfd.fd= fd->get_fd();
 		pfd.events=direction;
 		poll(&pfd, 1, -1);
 	}
@@ -623,7 +623,7 @@ void readAbortThread::run(const LIBCXX_NAMESPACE::fd &fd)
 	{
 		struct pollfd pfd;
 
-		pfd.fd= fd->getFd();
+		pfd.fd= fd->get_fd();
 		pfd.events=direction;
 		poll(&pfd, 1, -1);
 	}
@@ -675,7 +675,7 @@ static void testreadabort()
 	{
 		struct pollfd pfd;
 
-		pfd.fd= b->getFd();
+		pfd.fd= b->get_fd();
 		pfd.events=direction;
 		poll(&pfd, 1, -1);
 	}
@@ -684,7 +684,7 @@ static void testreadabort()
 	{
 		struct pollfd pfd;
 
-		pfd.fd= b->getFd();
+		pfd.fd= b->get_fd();
 		pfd.events=direction;
 		poll(&pfd, 1, -1);
 	}
@@ -698,7 +698,7 @@ static void testreadabort()
 	{
 		struct pollfd pfd;
 
-		pfd.fd= b->getFd();
+		pfd.fd= b->get_fd();
 		pfd.events=direction;
 		poll(&pfd, 1, -1);
 	}
@@ -708,7 +708,7 @@ static void testreadabort()
 		{
 			struct pollfd pfd;
 
-			pfd.fd= b->getFd();
+			pfd.fd= b->get_fd();
 			pfd.events=direction;
 			poll(&pfd, 1, -1);
 		}
@@ -765,7 +765,7 @@ void writeAbortThread::run(const LIBCXX_NAMESPACE::fd &fd)
 		}
 		struct pollfd pfd;
 
-		pfd.fd= fd->getFd();
+		pfd.fd= fd->get_fd();
 		pfd.events=direction;
 		poll(&pfd, 1, -1);
 	}
@@ -783,7 +783,7 @@ void writeAbortThread::run(const LIBCXX_NAMESPACE::fd &fd)
 
 		struct pollfd pfd;
 
-		pfd.fd= fd->getFd();
+		pfd.fd= fd->get_fd();
 		pfd.events=direction;
 		poll(&pfd, 1, -1);
 	}
@@ -829,7 +829,7 @@ static void testwriteabort()
 	{
 		struct pollfd pfd;
 
-		pfd.fd= b->getFd();
+		pfd.fd= b->get_fd();
 		pfd.events=direction;
 		poll(&pfd, 1, -1);
 	}
@@ -838,7 +838,7 @@ static void testwriteabort()
 	{
 		struct pollfd pfd;
 
-		pfd.fd= b->getFd();
+		pfd.fd= b->get_fd();
 		pfd.events=direction;
 		poll(&pfd, 1, -1);
 	}
@@ -857,7 +857,7 @@ static void testwriteabort()
 
 		struct pollfd pfd;
 
-		pfd.fd= b->getFd();
+		pfd.fd= b->get_fd();
 		pfd.events=direction;
 		poll(&pfd, 1, -1);
 	}

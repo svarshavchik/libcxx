@@ -54,8 +54,8 @@ accept_server_socket(LIBCXX_NAMESPACE::fd &sock,
 	{
 		struct pollfd pfd[2];
 
-		pfd[0].fd=sock->getFd();
-		pfd[1].fd=terminator->getFd();
+		pfd[0].fd=sock->get_fd();
+		pfd[1].fd=terminator->get_fd();
 		pfd[0].events=POLLIN;
 		pfd[1].events=POLLIN;
 

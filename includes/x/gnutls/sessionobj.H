@@ -499,7 +499,7 @@ private:
 
 	//! Return the underlying file descriptor
 
-	int getFd() const noexcept override;
+	int get_fd() const noexcept override;
 
 	//! Implement pubconnect(), inherited from fdbaseObj
 

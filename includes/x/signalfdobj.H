@@ -93,7 +93,7 @@ public:
 	getsignal_t getsignal();
 
 	using fdObj::nonblock;
-	using fdObj::getFd;
+	using fdObj::get_fd;
 	using fdObj::closeonexec;
 	using fdObj::epoll_add;
 	using fdObj::epoll_mod;

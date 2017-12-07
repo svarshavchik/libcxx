@@ -63,7 +63,7 @@ public:
 				::output_iter_t(filedesc);
 		}
 
-		LIBCXX_NAMESPACE::fdptr &getFd() noexcept
+		LIBCXX_NAMESPACE::fdptr &get_fd() noexcept
 		{
 			return filedesc;
 		}

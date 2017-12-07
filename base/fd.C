@@ -188,7 +188,7 @@ fdptr fdBase::lockf(const std::string_view &filename,
 		if (!lockfile->lockf(lockmode))
 			return fdptr();
 
-		if (fstat(lockfile->getFd(), &s1) < 0)
+		if (fstat(lockfile->get_fd(), &s1) < 0)
 			throw SYSEXCEPTION("fstat");
 
 		if (::stat(buf, &s2) < 0)
@@ -360,7 +360,7 @@ fd fdBase::tmpfile(const std::string_view &dirname)
 
 fd fdBase::dup(const fd &ofiledesc)
 {
-	return dup(ofiledesc->getFd());
+	return dup(ofiledesc->get_fd());
 }
 
 fd fdBase::dup(int ofiledesc)

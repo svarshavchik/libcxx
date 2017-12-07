@@ -245,8 +245,8 @@ void sighandlerObj::priv::threadimpl::run(const ref<handlers> &h)
 
 	struct pollfd pfd[2];
 
-	pfd[0].fd=startupfd.first->getFd();
-	pfd[1].fd=startupfd.second->getFd();
+	pfd[0].fd=startupfd.first->get_fd();
+	pfd[1].fd=startupfd.second->get_fd();
 
 	pfd[0].events=pfd[1].events=POLLIN;
 

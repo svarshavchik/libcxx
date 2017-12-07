@@ -353,7 +353,7 @@ eventfd_t cnt=ev-&gt;event();
       <link linkend="epoll">epoll set</link>),
       <methodname>closeonexec</methodname>(),
       <methodname>nonblock</methodname>(), and
-      <methodname>getFd</methodname>(). Using other methods is discouraged,
+      <methodname>get_fd</methodname>(). Using other methods is discouraged,
       to avoid unintended side-effects.
     </para>
   </section>
@@ -391,7 +391,7 @@ eventfd_t cnt=ev-&gt;event();
       <link linkend="epoll">epoll set</link>),
       <methodname>closeonexec</methodname>(),
       <methodname>nonblock</methodname>(), and
-      <methodname>getFd</methodname>(). Using other methods is discouraged,
+      <methodname>get_fd</methodname>(). Using other methods is discouraged,
       to avoid unintended side-effects.
     </para>
 
@@ -551,7 +551,7 @@ i-&gt;read();</programlisting>
 
       <listitem>
 	<para>
-	  getFd() returns the underlying open file descriptor.
+	  get_fd() returns the underlying open file descriptor.
 	</para>
       </listitem>
     </itemizedlist>

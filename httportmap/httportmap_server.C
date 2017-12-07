@@ -869,9 +869,9 @@ static void systemd_brain_damage(const std::string &me,
 
 	std::ostringstream lockfile_ss, listenfd_ss, cl_ss;
 
-	lockfile_ss << lockfile->getFd();
-	listenfd_ss << listenfd->getFd();
-	cl_ss << cl->getFd();
+	lockfile_ss << lockfile->get_fd();
+	listenfd_ss << listenfd->get_fd();
+	cl_ss << cl->get_fd();
 
 	const char *n=me.c_str();
 

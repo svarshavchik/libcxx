@@ -220,12 +220,12 @@ void fdtimeoutObj::pubconnect(const struct ::sockaddr *serv_addr,
 		badconnect(serv_addr, addrlen);
 	}
 
-	int fm=fcntl(getFd(), F_GETFL);
+	int fm=fcntl(get_fd(), F_GETFL);
 
 	if (fm < 0)
 		throw SYSEXCEPTION("fcntl(F_GETFL)");
 
-	if (fcntl(getFd(), F_SETFL, fm | O_NONBLOCK) < 0)
+	if (fcntl(get_fd(), F_SETFL, fm | O_NONBLOCK) < 0)
 		throw SYSEXCEPTION("fcntl(F_SETFL)");
 
 	try {
@@ -250,7 +250,7 @@ void fdtimeoutObj::pubconnect(const struct ::sockaddr *serv_addr,
 
 			so_error_l=sizeof(so_error);
 
-			if (getsockopt(getFd(), SOL_SOCKET, SO_ERROR,
+			if (getsockopt(get_fd(), SOL_SOCKET, SO_ERROR,
 				       &so_error, &so_error_l)
 			    < 0)
 				throw SYSEXCEPTION("getsockopt(SOL_SOCKET, SO_ERROR)");
@@ -262,10 +262,10 @@ void fdtimeoutObj::pubconnect(const struct ::sockaddr *serv_addr,
 			}
 		}
 
-		if (fcntl(getFd(), F_SETFL, fm) < 0)
+		if (fcntl(get_fd(), F_SETFL, fm) < 0)
 			throw SYSEXCEPTION("fcntl(F_SETFL)");
 	} catch (...) {
-		fcntl(getFd(), F_SETFL, fm);
+		fcntl(get_fd(), F_SETFL, fm);
 		throw;
 	}
 }
@@ -281,12 +281,12 @@ fdptr fdtimeoutObj::pubaccept(sockaddrptr &peername)
 		throw SYSEXCEPTION("accept");
 	}
 
-	int fm=fcntl(getFd(), F_GETFL);
+	int fm=fcntl(get_fd(), F_GETFL);
 
 	if (fm < 0)
 		throw SYSEXCEPTION("fcntl(F_GETFL)");
 
-	if (fcntl(getFd(), F_SETFL, fm | O_NONBLOCK) < 0)
+	if (fcntl(get_fd(), F_SETFL, fm | O_NONBLOCK) < 0)
 		throw SYSEXCEPTION("fcntl(F_SETFL)");
 
 	try
@@ -304,7 +304,7 @@ fdptr fdtimeoutObj::pubaccept(sockaddrptr &peername)
 
 				if (!p.null())
 				{
-					fcntl(getFd(), F_SETFL, fm);
+					fcntl(get_fd(), F_SETFL, fm);
 					return p;
 				}
 			} catch (const sysexception &e)
@@ -317,7 +317,7 @@ fdptr fdtimeoutObj::pubaccept(sockaddrptr &peername)
 		errno=ETIMEDOUT;
 		throw SYSEXCEPTION("pubaccept");
 	} catch (...) {
-		fcntl(getFd(), F_SETFL, fm);
+		fcntl(get_fd(), F_SETFL, fm);
 		throw;
 	}
 }
@@ -336,14 +336,14 @@ bool fdtimeoutObj::wait_timer(bool timer_set,
 {
 	struct pollfd pfd[2];
 
-	pfd[0].fd=getFd();
+	pfd[0].fd=get_fd();
 	pfd[0].events=events;
 
 	size_t n=1;
 
 	if (!terminatefdref.null())
 	{
-		pfd[n].fd=terminatefdref->getFd();
+		pfd[n].fd=terminatefdref->get_fd();
 		pfd[n].events=POLLIN;
 		++n;
 	}
