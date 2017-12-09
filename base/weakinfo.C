@@ -35,7 +35,7 @@ ptr<obj> weakinfo::getstrongref() const
 
 	if (!objp)
 		return ptr<obj>();
-	if (objp->refadd(1) == 1)
+	if (++objp->refcnt == 1)
 	{
 		SELFTEST_HOOK();
 
@@ -51,14 +51,14 @@ ptr<obj> weakinfo::getstrongref() const
 			cond.wait(mutex_lock);
 		} catch (const exception &e)
 		{
-			objp->refadd(-1);
+			--objp->refcnt;
 			throw;
 		}
 	}
 
 	ptr<obj> dummy(objp);
 
-	objp->refadd(-1);
+	--objp->refcnt;
 
 	return dummy;
 }

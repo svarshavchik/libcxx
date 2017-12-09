@@ -27,10 +27,10 @@ class dfObj : virtual public obj {
 
 protected:
 	//! Reserved blocks
-	refcnt res_blks;
+	std::atomic_int64_t res_blks;
 
 	//! Reserved inodes
-	refcnt res_inodes;
+	std::atomic_int64_t res_inodes;
 
 public:
 	class dfvfsObj;

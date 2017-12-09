@@ -57,7 +57,7 @@ static std::map<obj *, std::string> &get_obj_list()
 	return obj_list;
 }
 
-obj::obj() noexcept : refcnt(-1)
+obj::obj() noexcept : refcnt{-1}
 {
 	if (obj_debug)
 	{
@@ -159,7 +159,7 @@ void obj::destroy() noexcept
 	{
 		try {
 
-			refadd(-1); // Prevent ref(this) in the destructor
+			--refcnt; // Prevent ref(this) in the destructor
 			delete this;
 		} catch (const exception &e)
 		{
@@ -183,7 +183,7 @@ void obj::destroy() noexcept
 		{
 			std::lock_guard<std::mutex> weaklock(wi.mutex);
 
-			if ( refget() > 0)
+			if ( refcnt.load() > 0)
 			{
 				// Someone obtained a strong ptr on this object
 				// after setRef() decrement refcnt to 0.
@@ -201,7 +201,7 @@ void obj::destroy() noexcept
 
 		}
 
-		refadd(-1); // Prevent ref(this) in the destructor
+		--refcnt; // Prevent ref(this) in the destructor
 		delete this;
 
 		// Destructor callback invocations must be protected by

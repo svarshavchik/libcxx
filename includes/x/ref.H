@@ -8,6 +8,7 @@
 
 #include <x/ptr.H>
 #include <x/namespace.h>
+#include <utility>
 
 namespace LIBCXX_NAMESPACE {
 
@@ -112,7 +113,7 @@ public:
 		if (o.null())
 			null_ptr_deref();
 
-		__atomic_exchange(&p.refP, &o.refP, &o.refP, __ATOMIC_SEQ_CST);
+		std::swap(p.refP, o.refP);
 
 		return *this;
 	}
@@ -128,11 +129,7 @@ public:
 		   //! its reference count gets incremented.
 
 		   const const_ref<objClass, baseClass> &o)
-		noexcept LIBCXX_INLINE
-	{
-		p=o.p;
-		return *this;
-	}
+		noexcept LIBCXX_INLINE;
 
 	//! The move operator
 
@@ -147,8 +144,7 @@ public:
 		   const_ref<objClass, baseClass> &&o)
 		noexcept LIBCXX_INLINE
 	{
-		__atomic_exchange(&p.refP, &o.p.refP, &o.p.refP, __ATOMIC_SEQ_CST);
-
+		std::swap(p.refP, o.p.refP);
 		return *this;
 	}
 
@@ -868,6 +864,10 @@ inline auto ref<objClass, baseClass>::create(Args_t &&...args)
 		::template objfactory< ref<objClass, baseClass> >
 		::create(std::forward<Args_t>(args)...);
 }
+
+#define x_ref_H_included
+
+#include <x/ref_obj.H>
 
 #if 0
 {

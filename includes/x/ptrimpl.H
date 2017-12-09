@@ -6,17 +6,19 @@
 #ifndef x_ptrimpl_H
 #define x_ptrimpl_H
 
-#include <x/refcnt.H>
 #include <x/ptrfwd.H>
 #include <x/namespace.h>
 
 #include <typeinfo>
+#include <utility>
 
 namespace LIBCXX_NAMESPACE {
 
 #if 0
 };
 #endif
+
+class obj;
 
 //! Reference pointer implementation
 
@@ -25,7 +27,7 @@ namespace LIBCXX_NAMESPACE {
 
 template<typename objClass> class ptrImpl {
 
-public:
+protected:
 	//! Object that this reference is bound to
 
 	//! \internal
@@ -33,12 +35,18 @@ public:
 	//! any object.
 	objClass *refP;
 
+public:
+	template<typename, typename> friend class const_ref;
+	template<typename, typename> friend class ref;
+	template<typename, typename> friend class const_ptr;
+	template<typename, typename> friend class ptr;
+
 	//! Check if this is an unbound reference
 
 	//! \return \c true, if this reference is not bound to an instance,
 	//! \c false otherwise.
 
-	inline bool null() const noexcept __attribute__((artificial))
+	inline bool null() const noexcept LIBCXX_INLINE
 	{
 		return refP == 0;
 	}
@@ -77,54 +85,44 @@ public:
 		       //! \c objClass, its reference count gets incremented.
 		       const ptrImpl<objClass> &o ) noexcept;
 
-	//! Copy constructor from a known non-NULL reference
+	template<typename baseClass>
+	explicit
+	ptrImpl(const const_ref<objClass, baseClass> &o) noexcept;
+
+	template<typename baseClass>
+	explicit
+	ptrImpl(const ref<objClass, baseClass> &o) noexcept;
+
+	template<typename baseClass>
+	explicit
+	ptrImpl(const_ref<objClass, baseClass> &&o) noexcept;
 
 	template<typename baseClass>
 	inline explicit
-	ptrImpl(const const_ref<objClass, baseClass> &o) noexcept
-		: refP(o.p.refP)
-	{
-		refP->refcnt::refadd(1);
-	}
-
-	//! Copy constructor from a known non-NULL reference
-
-	template<typename baseClass>
-	inline explicit
-	ptrImpl(const ref<objClass, baseClass> &o) noexcept
-		: refP(o.p.refP)
-	{
-		refP->refcnt::refadd(1);
-	}
-
-	//! Move constructor from a known non-NULL reference
-
-	template<typename baseClass>
-	inline explicit
-	ptrImpl(const_ref<objClass, baseClass> &&o) noexcept
-		: refP(o.p.refP)
-	{
-		refP->refcnt::refadd(1);
-	}
-
-	//! Move constructor from a known non-NULL reference
-
-	template<typename baseClass>
-	inline explicit
-	ptrImpl(ref<objClass, baseClass> &&o) noexcept
-		: refP(o.p.refP)
-	{
-		refP->refcnt::refadd(1);
-	}
+	ptrImpl(ref<objClass, baseClass> &&o) noexcept;
 
 	//! Move constructor
 
 	inline ptrImpl(//! An existing reference.
 		       ptrImpl<objClass> &&o )
-		noexcept __attribute__((artificial)) : refP(nullptr)
+		noexcept LIBCXX_INLINE : refP{nullptr}
 	{
-		__atomic_exchange(&refP, &o.refP, &o.refP, __ATOMIC_SEQ_CST);
+		std::swap(refP, o.refP);
 	}
+
+	//! Move constructor
+
+	template<typename baseClass>
+	inline ptrImpl(//! An existing reference.
+		       const_ptr<objClass, baseClass> &&o )
+		noexcept LIBCXX_INLINE;
+
+	//! Move constructor
+
+	template<typename baseClass>
+	inline ptrImpl(//! An existing reference.
+		       ptr<objClass, baseClass> &&o )
+		noexcept LIBCXX_INLINE;
 
 	//! The default assignment operator
 
@@ -135,7 +133,7 @@ public:
 		   //! its reference count gets incremented.
 
 		   const ptrImpl<objClass> &o)
-		noexcept __attribute__((artificial))
+		noexcept LIBCXX_INLINE
 	{
 		setRef_noconscheck(o.refP);
 
@@ -148,9 +146,9 @@ public:
 	&operator=(//! An existing reference.
 
 		   ptrImpl<objClass> &&o)
-		noexcept __attribute__((artificial))
+		noexcept LIBCXX_INLINE
 	{
-		__atomic_exchange(&refP, &o.refP, &o.refP, __ATOMIC_SEQ_CST);
+		std::swap(refP, o.refP);
 
 		return *this;
 	}
@@ -166,7 +164,7 @@ protected:
 	//! object the reference points to gets destroyed. The reference
 	//! gets repointed to the new object.
 	inline void setRef(//! New object, may be \c NULL
-		    objClass *newRefP) noexcept __attribute__((artificial));
+		    objClass *newRefP) noexcept LIBCXX_INLINE;
 
 	//! Update reference pointer
 
@@ -177,12 +175,37 @@ protected:
 	//! ref_in_constructor() check.
 
 	inline void setRef_noconscheck(objClass *newRefP)
-		noexcept __attribute__((artificial));
+		noexcept LIBCXX_INLINE;
 
 };
+
+	//! Move constructor
+template<typename objClass>
+template<typename baseClass>
+inline ptrImpl<objClass>::ptrImpl(//! An existing reference.
+	       const_ptr<objClass, baseClass> &&o )
+	noexcept : refP{nullptr}
+{
+	std::swap(refP, o.refP);
+}
+
+	//! Move constructor
+template<typename objClass>
+template<typename baseClass>
+inline ptrImpl<objClass>::ptrImpl(//! An existing reference.
+				  ptr<objClass, baseClass> &&o )
+		noexcept : refP{nullptr}
+{
+	std::swap(refP, o.refP);
+}
+
+#define x_ptrimpl_H_included
+
+#include <x/ptrimpl_obj.H>
 
 #if 0
 {
 #endif
 }
+
 #endif

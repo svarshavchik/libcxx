@@ -7,13 +7,14 @@
 #define x_obj_H
 
 #include <x/namespace.h>
-#include <x/refcnt.H>
 #include <x/ref.H>
 
 #include <list>
 #include <string>
 #include <mutex>
 #include <type_traits>
+#include <atomic>
+#include <utility>
 
 //! Library namespace
 
@@ -82,7 +83,7 @@ template<class refType> class weakptr;
 //! isa() is a convenience method for trying a dynamic cast to another
 //! \ref ref "ref"'s or \ref ptr "ptr"'s object.
 
-class obj : public refcnt {
+class obj {
 
 	//! The weak reference information associated with this object.
 
@@ -99,6 +100,10 @@ protected:
 
 	mutable std::mutex objmutex;
 public:
+
+	//! Reference count of this object.
+
+	mutable std::atomic_int32_t refcnt;
 
 	//! Dump all objects in existence.
 
@@ -300,29 +305,25 @@ void ref_in_constructor(obj *p) __attribute__((noreturn));
 template<typename objClass>
 inline void ptrImpl<objClass>::setRef(objClass *newRefP) noexcept
 {
-	if (newRefP && newRefP->refcnt::refadd(1) == 0)
+	if (newRefP && ++newRefP->obj::refcnt == 0)
 		ref_in_constructor(newRefP);
 
-	objClass *oldRef;
+	std::swap(refP, newRefP);
 
-	__atomic_exchange(&refP, &newRefP, &oldRef, __ATOMIC_SEQ_CST);
-
-	if (oldRef && oldRef->refcnt::refadd(-1) == 0)
-		oldRef->obj::destroy();
+	if (newRefP && --newRefP->obj::refcnt == 0)
+		newRefP->obj::destroy();
 }
 
 template<typename objClass>
 inline void ptrImpl<objClass>::setRef_noconscheck(objClass *newRefP) noexcept
 {
 	if (newRefP)
-		newRefP->refcnt::refadd(1);
+		++newRefP->obj::refcnt;
 
-	objClass *oldRef;
+	std::swap(refP, newRefP);
 
-	__atomic_exchange(&refP, &newRefP, &oldRef, __ATOMIC_SEQ_CST);
-
-	if (oldRef && oldRef->refcnt::refadd(-1) == 0)
-		oldRef->obj::destroy();
+	if (newRefP && --newRefP->obj::refcnt == 0)
+		newRefP->obj::destroy();
 }
 
 template<typename objClass>
@@ -330,14 +331,14 @@ inline ptrImpl<objClass>::ptrImpl(objClass *pArg)
 	noexcept
 	: refP(pArg)
 {
-	if (refP && refP->refcnt::refadd(1) == 0)
+	if (refP && ++refP->obj::refcnt == 0)
 		ref_in_constructor(refP);
 }
 
 template<typename objClass>
 inline ptrImpl<objClass>::~ptrImpl()
 {
-	if (refP && refP->refcnt::refadd(-1) == 0)
+	if (refP && --refP->obj::refcnt == 0)
 		refP->obj::destroy();
 }
 
@@ -346,11 +347,18 @@ inline ptrImpl<objClass>::ptrImpl(const ptrImpl<objClass> &o )
 	noexcept : refP(o.refP)
 {
 	if (refP)
-		refP->refcnt::refadd(1);
+		++refP->obj::refcnt;
 }
+
+#define x_obj_H_included
+
+#include <x/ptrimpl_obj.H>
+#include <x/ptrfwd_obj.H>
+#include <x/ref_obj.H>
 
 #if 0
 {
 #endif
 }
+
 #endif

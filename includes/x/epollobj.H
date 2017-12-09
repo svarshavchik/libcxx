@@ -34,7 +34,7 @@ class epollObj : public fdObj {
 
 	//! This is tracked manually, in order to size the event array.
 	//!
-	refcnt fdcnt;
+	std::atomic_int32_t fdcnt;
 
 public:
 	//! Default constructor.

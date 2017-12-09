@@ -7,7 +7,6 @@
 #define x_weakinfo_H
 
 #include <x/namespace.h>
-#include <x/refcnt.H>
 #include <x/ref.H>
 #include <x/weakptrfwd.H>
 #include <x/obj.H>

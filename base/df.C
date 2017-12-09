@@ -16,13 +16,11 @@ namespace LIBCXX_NAMESPACE {
 };
 #endif
 
-dfObj::dfObj()
+dfObj::dfObj() : res_blks{0}, res_inodes{0}
 {
 }
 
-dfObj::~dfObj()
-{
-}
+dfObj::~dfObj()=default;
 
 class dfObj::dfvfsObj : public dfObj {
 
@@ -64,8 +62,8 @@ void dfObj::dfvfsObj::commit(long s, long i)
 	commited_free += s;
 	commited_inodes += i;
 
-	res_blks.refadd(-s);
-	res_inodes.refadd(-i);
+	res_blks.fetch_add(-s);
+	res_inodes.fetch_add(-i);
 }
 
 uint64_t dfObj::dfvfsObj::allocFree()
@@ -74,7 +72,7 @@ uint64_t dfObj::dfvfsObj::allocFree()
 
 	uint64_t n=s.f_bavail;
 
-	uint64_t r=res_blks.refget() + commited_free;
+	uint64_t r=res_blks.load() + commited_free;
 
 	return (r > n ? 0:n-r);
 }
@@ -85,7 +83,7 @@ uint64_t dfObj::dfvfsObj::inodeFree()
 
 	uint64_t n=s.f_favail;
 
-	uint64_t r=res_inodes.refget() + commited_inodes;
+	uint64_t r=res_inodes.load() + commited_inodes;
 
 	return (r > n ? 0:n-r);
 }
@@ -181,16 +179,16 @@ dfObj::reservationObj::reservationObj(long res_blksArg,
 {
 	dfObj &r= *space;
 
-	r.res_blks.refadd(res_blks);
-	r.res_inodes.refadd(res_inodes);
+	r.res_blks.fetch_add(res_blks);
+	r.res_inodes.fetch_add(res_inodes);
 }
 
 dfObj::reservationObj::~reservationObj()
 {
 	dfObj &r= *space;
 
-	r.res_blks.refadd(-res_blks);
-	r.res_inodes.refadd(-res_inodes);
+	r.res_blks.fetch_add(-res_blks);
+	r.res_inodes.fetch_add(-res_inodes);
 }
 
 df::base::reservation dfObj::reserve(long alloc,

@@ -337,10 +337,7 @@ public:
 
 		bool operator==(const iterator &o) const noexcept
 		{
-			if (!container_ref.refP)
-				return o.container_ref.refP == 0;
-
-			return container_ref.refP == o.container_ref.refP &&
+			return container_ref == o.container_ref &&
 				iter == o.iter;
 		}
 

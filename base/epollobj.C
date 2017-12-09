@@ -166,16 +166,16 @@ void epollObj::epoll_ctl(int op, fdObj *fileObj, uint32_t eventmask)
 		throw SYSEXCEPTION("epoll_ctl");
 
 	if (op == EPOLL_CTL_ADD)
-		fdcnt.refadd(1);
+		fdcnt.fetch_add(1);
 	if (op == EPOLL_CTL_DEL)
-		fdcnt.refadd(-1);
+		fdcnt.fetch_add(-1);
 }
 
 void epollObj::epoll_wait(int timeout)
 {
 	std::vector<struct epoll_event> eventbuf;
 
-	size_t cap=fdcnt.refadd(0);
+	size_t cap=fdcnt;
 
 	if (cap < 16)
 		cap=16;

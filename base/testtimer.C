@@ -27,7 +27,7 @@ public:
 
 	void run()
 	{
-		std::cout << "run, thread ref=" << refadd(0)
+		std::cout << "run, thread ref=" << refcnt
 
 			  << ", thread " << name
 			  << std::endl;

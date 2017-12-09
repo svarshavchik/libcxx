@@ -89,12 +89,15 @@ public:
 
 	//! Move constructor
 
-	inline explicit
-	const_ptr(ptrImpl<objClass> &&o) noexcept
-		LIBCXX_INLINE
-		: ptrImpl<objClass>(std::move(o))
-	{
-	}
+	template<typename baseClass2>
+	explicit const_ptr(const_ptr<objClass, baseClass2> &&o)
+		noexcept LIBCXX_INLINE;
+
+	//! Move constructor
+
+	template<typename baseClass2>
+	explicit const_ptr(ptr<objClass, baseClass2> &&o)
+		noexcept LIBCXX_INLINE;
 
 	//! Copy constructor
 
@@ -416,6 +419,24 @@ template<typename objClass2> inline const_ptr<objClass, baseClass>
 	this->setRef(newRefP);
 	return *this;
 }
+
+template<typename objClass, typename baseClass>
+template<typename baseClass2>
+inline const_ptr<objClass, baseClass>
+::const_ptr(const_ptr<objClass, baseClass2> &&o)
+	noexcept
+	: ptrImpl<objClass>(std::move(o))
+{
+}
+
+template<typename objClass, typename baseClass>
+template<typename baseClass2>
+inline const_ptr<objClass, baseClass>::const_ptr(ptr<objClass, baseClass2> &&o)
+	noexcept
+	: ptrImpl<objClass>(std::move(o))
+{
+}
+
 
 //! A pointer to a reference-counted object.
 

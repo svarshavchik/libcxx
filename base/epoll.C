@@ -43,7 +43,7 @@ static int create_epoll_fd()
 	return nfd;
 }
 
-epollObj::epollObj() : fdObj(-1)
+epollObj::epollObj() : fdObj{-1}, fdcnt{0}
 {
 #if HAVE_KQUEUE
 	KQUEUE_NONBLOCK_INIT;
