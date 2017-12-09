@@ -140,15 +140,15 @@ void obj::destroy() noexcept
 	** created for this object. Therefore, if weakinforef is null, and
 	** we're here, then this is the last remaining reference to the object
 	** and it is not possible for any other thread to have any other
-	** reference, of any kind, to it.
+	** reference, strong or weak, to it.
 	*/
 
-	weakinfo *weakinfop;
+	ptr<weakinfo> weakinfop;
 
 	{
 		std::lock_guard<std::mutex> weaklock(objmutex);
 
-		weakinfop=weakinforef.refP;
+		weakinfop=weakinforef;
 
 		SELFTEST_HOOK();
 	}
@@ -171,10 +171,6 @@ void obj::destroy() noexcept
 	}
 
 	try {
-		// Make sure that the weak info object doesn't go out of scope.
-
-		ref<weakinfo> weakinforef_cpy(weakinforef);
-
 		weakinfo &wi= *weakinfop;
 
 		std::lock_guard<std::recursive_mutex>
@@ -187,7 +183,8 @@ void obj::destroy() noexcept
 			{
 				// Someone obtained a strong ptr on this object
 				// after setRef() decrement refcnt to 0.
-				// That thread is now waiting on the condition variable
+				// That thread is now waiting on the condition
+				// variable.
 
 				wi.cond.notify_one();
 				return;
@@ -235,12 +232,12 @@ void obj::destroy() noexcept
 
 }
 
-ptr<weakinfo> obj::weak()
+ref<weakinfo> obj::weak()
 {
 	std::lock_guard<std::mutex> weaklock(objmutex);
 
-	if (weakinforef.null())
-		weakinforef=ptr<weakinfo>::create(this);
+	if (!weakinforef)
+		weakinforef=ref<weakinfo>::create(this);
 
 	return weakinforef;
 }
@@ -248,18 +245,14 @@ ptr<weakinfo> obj::weak()
 std::list< ref<obj::destroyCallbackObj> >::iterator
 obj::do_add_ondestroy(const ref<destroyCallbackObj> &callback)
 {
-	std::lock_guard<std::mutex> weaklock(objmutex);
+	auto weakinfop=weak();
 
-	if (weakinforef.null())
-		weakinforef=ptr<weakinfo>::create(this);
+	std::lock_guard<std::mutex>
+		weakinfolock(weakinfop->mutex);
 
-	weakinfo &wi= *weakinforef;
+	weakinfop->callback_list.push_back(callback);
 
-	std::lock_guard<std::mutex> weakinfolock(wi.mutex);
-
-	wi.callback_list.push_back(callback);
-
-	return --wi.callback_list.end();
+	return --weakinfop->callback_list.end();
 }
 
 LOG_FUNC_SCOPE_DECL(LIBCXX_NAMESPACE::destroyCallbackObj::destroyed,

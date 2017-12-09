@@ -7,7 +7,7 @@
 #define x_weakinfo_H
 
 #include <x/namespace.h>
-#include <x/ref.H>
+#include <x/ptrfwd.H>
 #include <x/weakptrfwd.H>
 #include <x/obj.H>
 #include <list>
@@ -21,8 +21,6 @@ namespace LIBCXX_NAMESPACE {
 #endif
 
 template<class refType> class weakptr;
-
-class obj;
 
 //! Weak pointer information.
 

@@ -28,7 +28,7 @@ inline weakptr<ptr<objClass, baseType>>::weakptr()
 template<typename objClass, typename baseType>
 inline weakptr<ptr<objClass, baseType>>::weakptr(const ptrType &refArg)
 {
-	if (!refArg.null())
+	if (refArg)
 		ptr<weakinfo>::operator=(refArg->obj::weak());
 }
 

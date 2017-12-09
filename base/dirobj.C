@@ -7,6 +7,7 @@
 #include "x/dirobj.H"
 #include "x/opendirobj.H"
 #include "x/sysexception.H"
+#include "x/weakinfo.H"
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <cstddef>

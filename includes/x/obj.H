@@ -7,7 +7,7 @@
 #define x_obj_H
 
 #include <x/namespace.h>
-#include <x/ref.H>
+#include <x/ptrfwd.H>
 
 #include <list>
 #include <string>
@@ -33,6 +33,7 @@ class obj;
 class weakinfo;
 class ondestroyObj;
 class exception;
+class weakinfo;
 
 template<class refType> class weakptr;
 
@@ -99,11 +100,19 @@ protected:
 	//! and can be used by subclasses for very short term locking needs.
 
 	mutable std::mutex objmutex;
-public:
+private:
 
 	//! Reference count of this object.
 
 	mutable std::atomic_int32_t refcnt;
+public:
+
+	template<typename, typename> friend class ref;
+	template<typename, typename> friend class const_ref;
+	template<typename, typename> friend class ptr;
+	template<typename, typename> friend class const_ptr;
+	template<typename> friend class ptrImpl;
+	friend class ptrref_base;
 
 	//! Dump all objects in existence.
 
@@ -220,7 +229,7 @@ private:
 	//! class.
 	//! \return a weak reference to this object.
 
-	ptr<weakinfo> weak();
+	ref<weakinfo> weak();
 };
 
 //! Destructor callbacks
@@ -270,22 +279,6 @@ public:
 	}
 };
 
-template<typename functor_type>
-ref<obj::destroyCallbackObj> obj::create_ondestroy(functor_type &&functor)
-{
-	// If the passed functor is itself a reference, it is
-	// a near certainty that this is wrong.
-
-	typedef typename std::enable_if<
-		! std::is_lvalue_reference<functor_type>::value &&
-		! std::is_rvalue_reference<functor_type>::value,
-		functor_type>::type functor_cannot_be_a_reference
-		__attribute__((unused));
-
-	return ref<functorCallbackObj< functor_type > >
-		::create(std::forward<functor_type>(functor));
-}
-
 #if 0
 {
 #endif
@@ -301,54 +294,6 @@ namespace LIBCXX_NAMESPACE {
 //! ref(this) or ptr(this) cannot be used in a constructor or destructor
 
 void ref_in_constructor(obj *p) __attribute__((noreturn));
-
-template<typename objClass>
-inline void ptrImpl<objClass>::setRef(objClass *newRefP) noexcept
-{
-	if (newRefP && ++newRefP->obj::refcnt == 0)
-		ref_in_constructor(newRefP);
-
-	std::swap(refP, newRefP);
-
-	if (newRefP && --newRefP->obj::refcnt == 0)
-		newRefP->obj::destroy();
-}
-
-template<typename objClass>
-inline void ptrImpl<objClass>::setRef_noconscheck(objClass *newRefP) noexcept
-{
-	if (newRefP)
-		++newRefP->obj::refcnt;
-
-	std::swap(refP, newRefP);
-
-	if (newRefP && --newRefP->obj::refcnt == 0)
-		newRefP->obj::destroy();
-}
-
-template<typename objClass>
-inline ptrImpl<objClass>::ptrImpl(objClass *pArg)
-	noexcept
-	: refP(pArg)
-{
-	if (refP && ++refP->obj::refcnt == 0)
-		ref_in_constructor(refP);
-}
-
-template<typename objClass>
-inline ptrImpl<objClass>::~ptrImpl()
-{
-	if (refP && --refP->obj::refcnt == 0)
-		refP->obj::destroy();
-}
-
-template<typename objClass>
-inline ptrImpl<objClass>::ptrImpl(const ptrImpl<objClass> &o )
-	noexcept : refP(o.refP)
-{
-	if (refP)
-		++refP->obj::refcnt;
-}
 
 #define x_obj_H_included
 

@@ -23,39 +23,7 @@ class ltdlObj : virtual public obj {
 
 public:
 
-	//! Options for loading shared libraries
-
-	//! \see ltdlbase::options
-
-	class optionsObj : virtual public obj {
-
-	public:
-		class implObj;
-
-		//! Internal implementation
-		const ref<implObj> impl;
-
-		//! Constructor
-		optionsObj();
-
-		//! Destructor
-		~optionsObj();
-
-		//! Use system standard extensions
-		void set_ext();
-
-		//! Export symbols in the loaded library
-		void set_global();
-
-		//! Do not export symbols in the loaded library
-		void set_local();
-
-		//! Make this library resident
-		void set_resident();
-
-		//! Only open a preloaded module (if none available, throw an exception)
-		void set_preload();
-	};
+	class optionsObj;
 
 	class implObj;
 

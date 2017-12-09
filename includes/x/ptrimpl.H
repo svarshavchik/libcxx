@@ -6,7 +6,6 @@
 #ifndef x_ptrimpl_H
 #define x_ptrimpl_H
 
-#include <x/ptrfwd.H>
 #include <x/namespace.h>
 
 #include <typeinfo>
@@ -19,6 +18,11 @@ namespace LIBCXX_NAMESPACE {
 #endif
 
 class obj;
+template<typename, typename> class const_ref;
+template<typename, typename> class ref;
+template<typename, typename> class const_ptr;
+template<typename, typename> class ptr;
+
 
 //! Reference pointer implementation
 
@@ -72,18 +76,18 @@ public:
 
 	ptrImpl(//! If pArg is not NULL, the object's reference count gets incremented.
 		//! When pArg is NULL, this is an unbound reference.
-		objClass *pArg) noexcept;
+		objClass *pArg) noexcept LIBCXX_INLINE;
 
 	//! Default destructor
-	~ptrImpl();
+	~ptrImpl() LIBCXX_INLINE;
 
 	//! The default copy constructor
 
-	inline ptrImpl(//! An existing reference.
+	ptrImpl(//! An existing reference.
 
-		       //! If this reference is bound to an instance of
-		       //! \c objClass, its reference count gets incremented.
-		       const ptrImpl<objClass> &o ) noexcept;
+		//! If this reference is bound to an instance of
+		//! \c objClass, its reference count gets incremented.
+		const ptrImpl<objClass> &o ) noexcept LIBCXX_INLINE;
 
 	template<typename baseClass>
 	explicit

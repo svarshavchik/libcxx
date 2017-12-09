@@ -17,7 +17,6 @@ object.
 #include <x/errors.H>
 #include <x/ptrfwd.H>
 #include <x/weakptrfwd.H>
-#include <x/ptrimpl.H>
 #include <x/convert.H>
 #include <utility>
 #include <typeinfo>
@@ -29,362 +28,332 @@ namespace LIBCXX_NAMESPACE {
 };
 #endif
 
-//! A pointer to a reference-counted constant object. \anchor ptrAnchor
+//! Initialize a constant reference.
+//! \see ptr
+template<typename objClass, typename baseClass>
+inline const_ptr<objClass,baseClass>::const_ptr() noexcept
+	: ptrImpl<objClass>(nullptr)
+{
+}
 
-//! This is a version of \ref ptr "ptr"
-//! that dereferences into a constant object.
-//! See \ref ptr "ptr" for more information. With the sole %exception being that
-//! dereferencing gives a constant object,
-//! \ref const_ptr "const_ptr" is identical in all
-//! other respects to \ref ptr "ptr". This is similar to the relationship
-//! between an \c iterator and a \c const_iterator in the C++ Standard
-//! Template library.
+//! Initialize a constant reference.
+//! \see ptr
+
+template<typename objClass, typename baseClass>
+inline const_ptr<objClass,baseClass>::
+const_ptr(const objClass *pArg) noexcept
+	: ptrImpl<objClass>(const_cast<objClass *>(pArg))
+{
+}
+
+//! Copy constructor
+
+template<typename objClass, typename baseClass>
+inline const_ptr<objClass,baseClass>::
+const_ptr(const ptrImpl<objClass> &o) noexcept
+
+	: ptrImpl<objClass>(o)
+{
+}
+
+
+//! Copy constructor
+
+template<typename objClass, typename baseClass>
+template<typename baseClass2>
+const_ptr<objClass,baseClass>::
+const_ptr(const const_ref<objClass, baseClass2> &o) noexcept
+	: ptrImpl<objClass>(o)
+{
+}
+
+//! Move constructor
+
+template<typename objClass, typename baseClass>
+template<typename baseClass2>
+const_ptr<objClass,baseClass>::
+const_ptr(const_ref<objClass, baseClass2> &&o) noexcept
+	: ptrImpl<objClass>(std::move(o))
+{
+}
+
+//! Copy constructor called by const_ref
+
+template<typename objClass, typename baseClass>
+template<typename baseClass2>
+const_ptr<objClass,baseClass>::
+const_ptr(const ref<objClass, baseClass2> &o) noexcept
+	: ptrImpl<objClass>(o)
+{
+}
+
+//! Move constructor called by const_ref
+
+template<typename objClass, typename baseClass>
+template<typename baseClass2>
+const_ptr<objClass,baseClass>::
+const_ptr(ref<objClass, baseClass2> &&o) noexcept
+	: ptrImpl<objClass>(std::move(o))
+{
+}
+
+//! The default destructor
+
+template<typename objClass, typename baseClass>
+inline const_ptr<objClass,baseClass>::~const_ptr()=default;
+
+//! Implement the "*" operator for pointer references
+
+//! Dereferencing results in a constant object.
 //!
-//! And similar to STL iterators,
-//! \c ptr<objClass> can be converted to \c const_ptr<objClass>, but not the
-//! other
-//! way around.
-
-template<typename objClass,
-	 typename baseClass> class const_ptr : public ptrImpl<objClass> {
-public:
-
-	using ptrImpl<objClass>::operator bool;
-	using ptrImpl<objClass>::operator !;
-	//! Provide for this pointer's base class.
-
-	typedef baseClass base;
-
-	//! Define this pointer's object class.
-
-	typedef objClass obj_type;
-
-	//! Initialize a constant reference.
-	//! \see ptr
-
-	inline const_ptr() noexcept
-		LIBCXX_INLINE
-		: ptrImpl<objClass>(nullptr)
-	{
-	}
-
-	//! Initialize a constant reference.
-	//! \see ptr
-
-	inline explicit
-	const_ptr(const objClass *pArg) noexcept
-		LIBCXX_INLINE
-		: ptrImpl<objClass>(const_cast<objClass *>(pArg))
-	{
-	}
-
-	//! Copy constructor
-
-	inline explicit
-	const_ptr(const ptrImpl<objClass> &o) noexcept
-		LIBCXX_INLINE
-		: ptrImpl<objClass>(o)
-	{
-	}
-
-	//! Move constructor
-
-	template<typename baseClass2>
-	explicit const_ptr(const_ptr<objClass, baseClass2> &&o)
-		noexcept LIBCXX_INLINE;
-
-	//! Move constructor
-
-	template<typename baseClass2>
-	explicit const_ptr(ptr<objClass, baseClass2> &&o)
-		noexcept LIBCXX_INLINE;
-
-	//! Copy constructor
-
-	template<typename baseClass2>
-	inline explicit
-	const_ptr(const const_ref<objClass, baseClass2> &o) noexcept
-		: ptrImpl<objClass>(o)
-	{
-	}
-
-	//! Move constructor
-
-	template<typename baseClass2>
-	inline explicit
-	const_ptr(const_ref<objClass, baseClass2> &&o) noexcept
-		: ptrImpl<objClass>(std::move(o))
-	{
-	}
-
-	//! Copy constructor called by const_ref
-
-	template<typename baseClass2>
-	inline explicit
-	const_ptr(const ref<objClass, baseClass2> &o) noexcept
-		: ptrImpl<objClass>(o)
-	{
-	}
-
-	//! Move constructor called by const_ref
-
-	template<typename baseClass2>
-	inline explicit
-	const_ptr(ref<objClass, baseClass2> &&o) noexcept
-		: ptrImpl<objClass>(std::move(o))
-	{
-	}
-
-	//! The default destructor
-
-	inline ~const_ptr() LIBCXX_INLINE
-	{
-	}
-
-	//! Implement the "*" operator for pointer references
-
-	//! Dereferencing results in a constant object.
-	//!
-	inline const objClass &operator*() const
-		LIBCXX_INLINE
-	{
-		if (!this->refP)
-			null_ptr_deref();
-
-		return *this->refP;
-	}
-
-	//! Implement the "->" operator for pointer references
-
-	//! Dereferencing results in a constant object.
-	//!
-
-	inline const objClass *operator->() const
-		LIBCXX_INLINE
-	{
-		if (!this->refP)
-			null_ptr_deref();
-
-		return this->refP;
-	}
-
-	//! The assignment operator
-
-	inline const_ptr<objClass, baseClass>
-	&operator=(const ptrImpl<objClass> &o)
-		noexcept LIBCXX_INLINE
-	{
-		ptrImpl<objClass>::operator=(o);
-
-		return *this;
-	}
-
-	//! The move operator
-
-	inline const_ptr<objClass, baseClass>
-	&operator=(ptrImpl<objClass> &&o)
-		noexcept LIBCXX_INLINE
-	{
-		ptrImpl<objClass>::operator=(std::move(o));
-
-		return *this;
-	}
-
-	//! A const_ptr of one type is friends with all const_ptrs.
-	template<typename objClass2, typename baseClass2>
-	friend class const_ptr;
-
-	//! Construct from a reference to a subclass or a superclass
-
-	template<typename objClass2>
-	inline const_ptr(const ptrImpl<objClass2> &o)
-		LIBCXX_INLINE;
-
-	//! Convert from a pointer reference to a different type
-
-	//! This operator= function allows getting a reference to this
-	//! object type's superclass or subclass.
-	template<typename objClass2> inline const_ptr<objClass, baseClass>
-	&operator=(const ptrImpl<objClass2> &o)
-		LIBCXX_INLINE;
-
-	//! Convert from a native pointer to a subclass or a superclass
-
-	template<typename objClass2> inline const_ptr<objClass, baseClass>
-	&operator=(const objClass2 *o)
-		LIBCXX_INLINE;
-
-	//! Forward create() to the base type
-
-	template<typename... Args_t>
-	static inline auto create(Args_t &&...args)
-	{
-		return baseClass
-			::template objfactory< const_ptr<objClass, baseClass> >
-			::create(std::forward<Args_t>(args)...);
-	}
-
-	//! Comparison operator
-
-	//! C++11 allows pointer comparisons.
-
-	template<typename objClass2, typename baseClass2>
-	inline bool operator==(const const_ptr<objClass2, baseClass2> &o)
-		const noexcept
-	{
-		return this->refP == o.refP;
-	}
-
-	//! Comparison operator
-
-	//! C++11 allows pointer comparisons.
-
-	template<typename objClass2, typename baseClass2>
-	inline bool operator!=(const const_ptr<objClass2, baseClass2> &o)
-		const noexcept
-	{
-		return !operator==(o);
-	}
-
-
-	//! Comparison operator
-
-	//! C++11 allows pointer comparisons.
-	//!
-	//! \note
-	//! A pair of null pointers do not compare as equal.
-	template<typename objClass2, typename baseClass2>
-	inline bool operator==(const const_ref<objClass2, baseClass2> &o)
-		const noexcept
-	{
-		return operator==(const_ptr<objClass2, baseClass2>(o));
-	}
-
-	//! Comparison operator
-
-	//! C++11 allows pointer comparisons.
-	//!
-	//! \note
-	//! A pair of null pointers do not compare as equal.
-
-	template<typename objClass2, typename baseClass2>
-	inline bool operator!=(const const_ref<objClass2, baseClass2> &o)
-		const noexcept
-	{
-		return !operator==(o);
-	}
-
-	//! Comparison operator
-
-	//! C++11 allows pointer comparisons.
-
-	template<typename objClass2, typename baseClass2>
-	inline bool operator<(const const_ptr<objClass2, baseClass2> &o)
-		const noexcept
-	{
-		return std::less<obj *>()(this->refP, o.refP);
-	}
-
-	//! Comparison operator
-
-	//! C++11 allows pointer comparisons.
-
-	template<typename objClass2, typename baseClass2>
-	inline bool operator>=(const const_ptr<objClass2, baseClass2> &o)
-		const noexcept
-	{
-		return !operator<(o);
-	}
-
-	//! Comparison operator
-
-	//! C++11 allows pointer comparisons.
-	//!
-	//! \note
-	//! A pair of null pointers do not compare as equal.
-	template<typename objClass2, typename baseClass2>
-	inline bool operator<(const const_ref<objClass2, baseClass2> &o)
-		const noexcept
-	{
-		return operator<(const_ptr<objClass2, baseClass2>(o));
-	}
-
-	//! Comparison operator
-
-	//! C++11 allows pointer comparisons.
-	//!
-	//! \note
-	//! A pair of null pointers do not compare as equal.
-
-	template<typename objClass2, typename baseClass2>
-	inline bool operator>=(const const_ref<objClass2, baseClass2> &o)
-		const noexcept
-	{
-		return !operator<(o);
-	}
-
-	//! Comparison operator
-
-	//! C++11 allows pointer comparisons.
-
-	template<typename objClass2, typename baseClass2>
-	inline bool operator>(const const_ptr<objClass2, baseClass2> &o)
-		const noexcept
-	{
-		return std::greater<obj *>()(this->refP, o.refP);
-	}
-
-	//! Comparison operator
-
-	//! C++11 allows pointer comparisons.
-
-	template<typename objClass2, typename baseClass2>
-	inline bool operator<=(const const_ptr<objClass2, baseClass2> &o)
-		const noexcept
-	{
-		return !operator>(o);
-	}
-
-
-	//! Comparison operator
-
-	//! C++11 allows pointer comparisons.
-	//!
-	//! \note
-	//! A pair of null pointers do not compare as equal.
-	template<typename objClass2, typename baseClass2>
-	inline bool operator>(const const_ref<objClass2, baseClass2> &o)
-		const noexcept
-	{
-		return operator>(const_ptr<objClass2, baseClass2>(o));
-	}
-
-	//! Comparison operator
-
-	//! C++11 allows pointer comparisons.
-	//!
-	//! \note
-	//! A pair of null pointers do not compare as equal.
-
-	template<typename objClass2, typename baseClass2>
-	inline bool operator<=(const const_ref<objClass2, baseClass2> &o)
-		const noexcept
-	{
-		return !operator>(o);
-	}
-};
+template<typename objClass, typename baseClass>
+inline const objClass &const_ptr<objClass,baseClass>::operator*() const
+
+{
+	if (!this->refP)
+		null_ptr_deref();
+
+	return *this->refP;
+}
+
+//! Implement the "->" operator for pointer references
+
+//! Dereferencing results in a constant object.
+//!
+
+template<typename objClass, typename baseClass>
+inline const objClass *const_ptr<objClass,baseClass>::operator->() const
+{
+	if (!this->refP)
+		null_ptr_deref();
+
+	return this->refP;
+}
+
+//! The assignment operator
+
+template<typename objClass, typename baseClass>
+inline const_ptr<objClass, baseClass>
+&const_ptr<objClass,baseClass>::operator=(const ptrImpl<objClass> &o)
+	noexcept
+{
+	ptrImpl<objClass>::operator=(o);
+
+	return *this;
+}
+
+//! The move operator
+
+template<typename objClass, typename baseClass>
+inline const_ptr<objClass, baseClass>
+&const_ptr<objClass,baseClass>::operator=(ptrImpl<objClass> &&o)
+	noexcept
+{
+	ptrImpl<objClass>::operator=(std::move(o));
+
+	return *this;
+}
+
+
+//! Forward create() to the base type
+
+template<typename objClass, typename baseClass>
+template<typename... Args_t>
+inline auto const_ptr<objClass,baseClass>::create(Args_t &&...args)
+{
+	return baseClass
+		::template objfactory< const_ptr<objClass, baseClass> >
+		::create(std::forward<Args_t>(args)...);
+}
+
+//! Comparison operator
+
+//! C++11 allows pointer comparisons.
+
+template<typename objClass, typename baseClass>
+template<typename objClass2, typename baseClass2>
+inline bool const_ptr<objClass,baseClass>::
+operator==(const const_ptr<objClass2, baseClass2> &o)
+	const noexcept
+{
+	return this->refP == o.refP;
+}
+
+//! Comparison operator
+
+//! C++11 allows pointer comparisons.
+
+template<typename objClass, typename baseClass>
+template<typename objClass2, typename baseClass2>
+inline bool const_ptr<objClass,baseClass>::
+operator!=(const const_ptr<objClass2, baseClass2> &o)
+	const noexcept
+{
+	return !operator==(o);
+}
+
+
+//! Comparison operator
+
+//! C++11 allows pointer comparisons.
+//!
+//! \note
+//! A pair of null pointers do not compare as equal.
+template<typename objClass, typename baseClass>
+template<typename objClass2, typename baseClass2>
+inline bool const_ptr<objClass,baseClass>
+::operator==(const const_ref<objClass2, baseClass2> &o)
+	const noexcept
+{
+	return operator==(const_ptr<objClass2, baseClass2>(o));
+}
+
+//! Comparison operator
+
+//! C++11 allows pointer comparisons.
+//!
+//! \note
+//! A pair of null pointers do not compare as equal.
+
+template<typename objClass, typename baseClass>
+template<typename objClass2, typename baseClass2>
+inline bool const_ptr<objClass,baseClass>
+::operator!=(const const_ref<objClass2, baseClass2> &o)
+	const noexcept
+{
+	return !operator==(o);
+}
+
+//! Comparison operator
+
+//! C++11 allows pointer comparisons.
+
+template<typename objClass, typename baseClass>
+template<typename objClass2, typename baseClass2>
+inline bool const_ptr<objClass,baseClass>
+::operator<(const const_ptr<objClass2, baseClass2> &o)
+	const noexcept
+{
+	return std::less<obj *>()(this->refP, o.refP);
+}
+
+//! Comparison operator
+
+//! C++11 allows pointer comparisons.
+
+template<typename objClass, typename baseClass>
+template<typename objClass2, typename baseClass2>
+inline bool const_ptr<objClass,baseClass>
+::operator>=(const const_ptr<objClass2, baseClass2> &o)
+	const noexcept
+{
+	return !operator<(o);
+}
+
+//! Comparison operator
+
+//! C++11 allows pointer comparisons.
+//!
+//! \note
+//! A pair of null pointers do not compare as equal.
+template<typename objClass, typename baseClass>
+template<typename objClass2, typename baseClass2>
+inline bool const_ptr<objClass,baseClass>
+::operator<(const const_ref<objClass2, baseClass2> &o)
+	const noexcept
+{
+	return operator<(const_ptr<objClass2, baseClass2>(o));
+}
+
+//! Comparison operator
+
+//! C++11 allows pointer comparisons.
+//!
+//! \note
+//! A pair of null pointers do not compare as equal.
+
+template<typename objClass, typename baseClass>
+template<typename objClass2, typename baseClass2>
+inline bool const_ptr<objClass,baseClass>
+::operator>=(const const_ref<objClass2, baseClass2> &o)
+	const noexcept
+{
+	return !operator<(o);
+}
+
+//! Comparison operator
+
+//! C++11 allows pointer comparisons.
+
+template<typename objClass, typename baseClass>
+template<typename objClass2, typename baseClass2>
+inline bool const_ptr<objClass,baseClass>
+::operator>(const const_ptr<objClass2, baseClass2> &o)
+	const noexcept
+{
+	return std::greater<obj *>()(this->refP, o.refP);
+}
+
+//! Comparison operator
+
+//! C++11 allows pointer comparisons.
+
+template<typename objClass, typename baseClass>
+template<typename objClass2, typename baseClass2>
+inline bool const_ptr<objClass,baseClass>
+::operator<=(const const_ptr<objClass2, baseClass2> &o)
+	const noexcept
+{
+	return !operator>(o);
+}
+
+
+//! Comparison operator
+
+//! C++11 allows pointer comparisons.
+//!
+//! \note
+//! A pair of null pointers do not compare as equal.
+template<typename objClass, typename baseClass>
+template<typename objClass2, typename baseClass2>
+inline bool const_ptr<objClass,baseClass>
+::operator>(const const_ref<objClass2, baseClass2> &o)
+	const noexcept
+{
+	return operator>(const_ptr<objClass2, baseClass2>(o));
+}
+
+//! Comparison operator
+
+//! C++11 allows pointer comparisons.
+//!
+//! \note
+//! A pair of null pointers do not compare as equal.
+
+template<typename objClass, typename baseClass>
+template<typename objClass2, typename baseClass2>
+inline bool const_ptr<objClass,baseClass>
+::operator<=(const const_ref<objClass2, baseClass2> &o)
+	const noexcept
+{
+	return !operator>(o);
+}
 
 template<typename objClass, typename baseClass>
 template<typename objClass2>
 inline const_ptr<objClass, baseClass>::const_ptr(const ptrImpl<objClass2> &o)
-
 	: ptrImpl<objClass>(nullptr)
 {
 	operator=(o);
 }
 
+//! Convert from a pointer reference to a different type
+
+//! This operator= function allows getting a reference to this
+//! object type's superclass or subclass.
+
 template<typename objClass, typename baseClass>
-template<typename objClass2> inline const_ptr<objClass, baseClass>
+template<typename objClass2> const_ptr<objClass, baseClass>
 &const_ptr<objClass, baseClass>::operator=(const ptrImpl<objClass2> &o)
 {
 	objClass *newRefP=0;
@@ -402,7 +371,7 @@ template<typename objClass2> inline const_ptr<objClass, baseClass>
 }
 
 template<typename objClass, typename baseClass>
-template<typename objClass2> inline const_ptr<objClass, baseClass>
+template<typename objClass2> const_ptr<objClass, baseClass>
 &const_ptr<objClass, baseClass>::operator=(const objClass2 *o)
 {
 	objClass *newRefP=0;
@@ -437,533 +406,188 @@ inline const_ptr<objClass, baseClass>::const_ptr(ptr<objClass, baseClass2> &&o)
 {
 }
 
+//! Default constructor
 
-//! A pointer to a reference-counted object.
+template<typename objClass, typename baseClass>
+inline  ptr<objClass, baseClass>::ptr() noexcept
+: const_ptr<objClass, baseClass>(nullptr)
+{
+}
 
-//! This template defines a pointer to a reference-counted object.
-//! Most objects implemented by this library are reference-counted objects.
-//!
-//! All reference-counted objects are virtually derived from \ref obj "obj".
-//! Reference-counted objects are always allocated from the heap.
-//! The template argument to \ref ptr "ptr<>" is the reference-counted object
-//! class, which must be virtually derived from \ref obj "obj".
-//! Most reference-based classes provide convenient static create() methods that
-//! allocate a new reference-counted object on the heap.
-//!
-//! Reference-counted objects are not accessed directly, but via this
-//! pointer object, which looks and acts like an ordinary pointer.
-//! The \c * and \c -> operators work as expected. There's also a
-//! \ref const_ptr "const_ptr" template class that dereferences to a constant
-//! instance of an object. When the last
-//! \ref ptr "ptr" or \ref const_ptr "const_ptr"
-//! to a given object goes out of scope, the
-//! object gets automatically destroyed, via \c delete,
-//! and any existing \ref weakptr "weak pointers" get invalidated.
-//!
-//! An \c INSERT_LIBX_NAMESPACE::ptr can be unbound and not refer to an
-//! instance of its class, this is equivalent to a NULL pointer. Dereferencing
-//! a NULL \c INSERT_LIBX_NAMESPACE::ptr throws an exception.
-//!
-//! Additionally, a \ref ref "INSERT_LIBX_NAMESPACE::ref" template defines
-//! a non-NULL reference point, like a \ref ptr "ptr", but it always
-//! refers to some instance of its class, and can never be NULL.
-//!
-//! Reference-counting is thread-safe. Note that this doesn't mean that the
-//! objects themselves are automatically thread safe, just that the
-//! recordkeeping, of how many pointer references to the object are outstanding,
-//! is thread-safe.
-//!
-//! The naming convention is for reference-counted object classes having "Obj"
-//! suffix, and define a \c typedef for the reference-counted pointer class:
-//!
-//! \code
-//! class myClassObj : virtual public INSERT_LIBX_NAMESPACE::obj  {
-//!
-//! public:
-//!     void myMethod();
-//!
-//!     myClassObj();
-//!     ~myClassObj();
-//! };
-//!
-//! typedef INSERT_LIBX_NAMESPACE::ref<myClassObj> myClass;
-//!
-//! typedef INSERT_LIBX_NAMESPACE::ptr<myClassObj> myClassptr;
-//!
-//! // ...
-//!
-//! myClass classP(myClass::create());
-//!
-//! classP->myMethod();  // And so on...
-//! \endcode
-//!
-//! The subclass of \ref obj "obj" must, as shown in the
-//! above example, declare its destructor with \c "noexcept". Subclasses
-//! of \ref obj "obj" are not allowed to throw any exceptions in their
-//! destructors.
-//!
-//! \par The \c base class
-//!
-//! This pointer class contains a \c typedef member named "base" that contains
-//! pointer-related static methods. The default base class is
-//! \ref ptrref_base "ptrref_base", which supplies a single static
-//! create() method that returns a \ref ptr "ptr" to a new-ed instance of the
-//! object class, constructed using the default constructor.
-//!
-//! A second optional parameter to the \ref ptr "ptr" template is syntactical
-//! sugar that
-//! replaces \c ptrBase as the \c base class:
-//!
-//! \code
-//! class myClassObj : virtual public INSERT_LIBX_NAMESPACE::obj {
-//!
-//! // ...
-//!
-//! };
-//!
-//! class myClassBase;
-//!
-//! typedef INSERT_LIBX_NAMESPACE::ptr<myClassObj, myClassBase> myClassptr;
-//!
-//! class myClassBase {
-//! public:
-//!
-//!      static myClassptr create();
-//!
-//!      // ... Other static methods and definitions can go here
-//! };
-//! \endcode
-//!
-//! myClassptr::create() now calls this custom create() method, that
-//! provides a custom construction of a new pointer. The base class can
-//! define other methods, objects, and classes, that may be referenced
-//! as "myClassptr::base::{name}".
-//!
-//! \par Unbound pointer references
-//!
-//! \code
-//! myClassptr classP;
-//! \endcode
-//!
-//! creates an unbound pointer
-//! reference, which is equivalent to a \c NULL pointer.
-//! Dereferencing it throws a null pointer %exception.
-//!
-//! \par Making weak pointers
-//!
-//! \code
-//! INSERT_LIBX_NAMESPACE::weakptr<ptr<<obj>> weakling=classP.weaken();
-//! \endcode
-//!
-//! weaken() is provided for convenience, which constructs
-//! a \ref weakptr "weak pointer" from this strong pointer.
-//!
-//! \par Thread safety
-//!
-//! This reference pointer
-//! implementation is thread safe. This does not mean that the underlying
-//! objects, which the pointer references point to, are automatically
-//! thread safe, just that all references to the same underlying object by
-//! multiple threads are safely accounted for. Note that each pointer can
-//! be used by a single thread only. Each individual thread can have its own
-//! pointer to to the same referenced object. Different threads can use
-//! the same actual pointer only if they arbitrate it amognst themselves, using
-//! a mutex or some equivalent facility, so that no two threads use
-//! the same pointer concurrently.
-//!
-//! The referenced object's destructor gets invoked by whichever thread ends
-//! up having the last reference to the object go out of scope. This may not
-//! be the same thread that constructed the object.
-//!
-//! \par Destructor callbacks
-//!
-//! \code
-//! class mcguffinObj : virtual public INSERT_LIBX_NAMESPACE::obj  {
-//!
-//! // ...
-//!
-//! };
-//!
-//! INSERT_LIBX_NAMESPACE::<mcguffinObj> myobj=INSERT_LIBX_NAMESPACE::<mcguffinObj>::create();
-//!
-//! myobj->ondestroy([] {
-//!              //! Your lambda goes here
-//!         });
-//! \endcode
-//!
-//! The \ref obj::ondestroy "ondestroy()" methods installs a functor or lambda
-//! which gets invoked when the last pointer
-//! reference to the object goes out of scope, and the object gets
-//! destroyed.
-//!
-//! A destructor callback can be attached to any object derived from
-//! \ref obj "INSERT_LIBX_NAMESPACE::obj". ondestroy() may be invoked more
-//! than once, and each lambda gets invoked accordingly.
-//!
-//! Notes:
-//!
-//! - The lambda gets invoked by the thread in which the last
-//! reference to the first object goes out of scope. This may not necessarily
-//! be the same thread that created the first object, or the callback object.
-//!
-//! - The lambda may not reference the object being destroyed in
-//! any fashion, not even through a weak reference. Doing so will may lead to
-//! a thread deadlock, or memory corruption. For all practical purposes, the
-//! original object no longer exists when the lambda gets invoked.
-//!
-//! - \c ondestroy() returns an iterator to an internal list. The internal
-//! list is generally not visible. The return value gets used by
-//! cancellable destructor callbacks.
-//!
-//! \par Simple destructor callbacks
-//!
-//! \code
-//! #include <destroy_callback.H>
-//!
-//! INSERT_LIBX_NAMESPACE::destroy_callback cb(INSERT_LIBX_NAMESPACE::destroy_callback::create());
-//!
-//! INSERT_LIBX_NAMESPACE::ref<obj> someobj;
-//!
-//! // ...
-//! someobj->ondestroy([cb]{cb->destroyed();});
-//!
-//! // ...
-//!
-//! cb->wait();
-//!
-//! \endcode
-//!
-//! \ref destroy_callback "INSERT_LIBX_NAMESPACE::destroyCallbackFlag"
-//! implements a frequent design pattern where some object's destruction
-//! does not itself takes any immediate action. Rather, at some point later,
-//! a check is made whether the object is already destroyed. If not,
-//! wait for its destruction.
-//!
-//! \c INSERT_LIBX_NAMESPACE::destroy_callback is itself a reference to
-//! a reference-counted object.
-//!
-//! Use \c ondestroy() on another object to invoke
-//! \c INSERT_LIBX_NAMESPACE::destroy_callback's destroyed() method.
-//!
-//! The \c wait() method blocks if \c destroyed() was not already invoked,
-//! until it gets invoked (presumably, by some other execution thread).
-//!
-//! \par Cancellable destructor callbacks.
-//!
-//! Adding a destructor callback is irrevocable. The destructor
-//! will now be invoked whenever the object gets destroyed.
-//!
-//! Using \ref ondestroy "INSERT_LIBX_NAMESPACE::ondestroy"
-//! sets up a cancellable destructor callback, which allows
-//! the destructor callback to be detached from the object it was
-//! originally attached to.
-//!
-//! \code
-//! #include <ondestroy.H>
-//!
-//! class mcguffinObj : virtual public INSERT_LIBX_NAMESPACE::obj {
-//!
-//! // ...
-//!
-//! };
-//!
-//! auto mcguffin=INSERT_LIBX_NAMESPACE::ref<mcguffinObj>::create();
-//!
-//! auto ondestroyHook=INSERT_LIBX_NAMESPACE::ondestroy::create([]
-//!                        {
-//!                            // ...
-//!                        }, mcguffin, true);
-//!
-//! // ...
-//!
-//! ondestroyHook->cancel();
-//!
-//! \endcode
-//!
-//! Instead of invoking an object's ondestroy() function, instantiate a
-//! standalone \c ondestroy object (which is itself a reference-counted
-//! object). ondestroy()'s first parameter is a callback lambda, and
-//! the second parameter is the object the destructor callback lambda gets
-//! attached to. The lambda gets invoked, as usual,
-//! when the object goes out of scope and gets destroyed.
-//! If, for some reason it might be necessary to detach the destructor callback
-//! from the object, use
-//! \ref ondestroyObj::cancel() "cancel()"
-//! at the appopriate time.
-//!
-//! \c INSERT_LIBX_NAMESPACE::ondestroy is itself
-//! a pointer to a reference-counted object. If the third
-//! parameter is \c true, \c cancel() gets invoked automatically when its last
-//! reference goes out of scope. Otherwise, the third parameter's default
-//! value of \c false leaves the destructor callback in place, and it gets
-//! invoked when the object gets destroyed, as usual (if it's not destroyed
-//! already).
-//!
-//! \note
-//! cancel() can get invoked while the destructor callback is being executed
-//! by another thread. cancel() blocks until the lambda returns.
+//! The default constructor from \c this
 
-template<typename objClass,
-	 typename baseClass> class ptr : public const_ptr<objClass, baseClass> {
-public:
-	using const_ptr<objClass, baseClass>::operator bool;
-	using const_ptr<objClass, baseClass>::operator !;
+//! Allows construction of a \c ptr from \c this.
 
-	inline ptr() noexcept
-		LIBCXX_INLINE
-		: const_ptr<objClass, baseClass>(nullptr)
-	{
-	}
+template<typename objClass, typename baseClass>
+inline ptr<objClass,baseClass>::ptr(objClass *pArg) noexcept
+	: const_ptr<objClass, baseClass>(pArg)
+{
+}
 
-	//! The default constructor
+//! Copy constructor
 
-	//! \c pArg, which must
-	//! be a pointer to a heap-allocated instance of \c objClass .
-	//! pArg \b must point to an object created by \c new, whose
-	//! reference count gets incremented.
-	//!
-	//! Newly-created objects' initial reference count is zero, so here's
-	//! the usual way to create new objects:
-	//! \code
-	//! typedef INSERT_LIBX_NAMESPACE::ptr<myClassObj> myClass;
-	//!
-	//! // ...
-	//!
-	//! myClass newObject(new myClassObj);
-	//! \endcode
-	//!
-	//! \c newObject becomes a reference to a newly-created \c myClassObj
-	//! object. A plain
-	//! \code
-	//! myClass newObject;
-	//! \endcode
-	//! becomes an unbound reference. Attempting to access \c
-	//! newObject->method()
-	//! throws a null pointer exception.
+template<typename objClass, typename baseClass>
+inline ptr<objClass,baseClass>::ptr(const ptr<objClass, baseClass> &o) noexcept
+	: const_ptr<objClass, baseClass>(o)
+{
+}
 
-	inline explicit ptr(objClass *pArg) noexcept
-		LIBCXX_INLINE
-		: const_ptr<objClass, baseClass>(pArg)
-	{
-	}
+//! Move constructor
 
-	//! Copy constructor
+template<typename objClass, typename baseClass>
+inline ptr<objClass,baseClass>::ptr(ptr<objClass, baseClass> &&o) noexcept
+	: const_ptr<objClass, baseClass>(std::move(o))
+{
+}
 
-	inline explicit
-	ptr(const ptr<objClass, baseClass> &o) noexcept
-		LIBCXX_INLINE
-		: const_ptr<objClass, baseClass>(o)
-	{
-	}
+//! Copy constructor
 
-	//! Move constructor
+template<typename objClass, typename baseClass>
+template<typename baseClass2>
+ptr<objClass,baseClass>::ptr(const ref<objClass, baseClass2> &o) noexcept
+	: const_ptr<objClass, baseClass>(o)
+{
+}
 
-	inline explicit
-	ptr(ptr<objClass, baseClass> &&o) noexcept
-		LIBCXX_INLINE
-		: const_ptr<objClass, baseClass>(std::move(o))
-	{
-	}
+//! Move constructor
 
-	//! Copy constructor
+template<typename objClass, typename baseClass>
+template<typename baseClass2>
+ptr<objClass,baseClass>::ptr(ref<objClass, baseClass2> && o) noexcept
+	: const_ptr<objClass, baseClass>(std::move(o))
+{
+}
 
-	template<typename baseClass2>
-	inline explicit
-	ptr(const ref<objClass, baseClass2> &o) noexcept
-		: const_ptr<objClass, baseClass>(o)
-	{
-	}
+//! Copy constructor called by const_ref
 
-	//! Move constructor
+template<typename objClass, typename baseClass>
+template<typename baseClass2>
+ptr<objClass,baseClass>::ptr(const const_ref<objClass, baseClass2> &o)
+	noexcept
+	: const_ptr<objClass, baseClass>(o)
+{
+}
 
-	template<typename baseClass2>
-	inline explicit
-	ptr(ref<objClass, baseClass2> && o) noexcept
-		: const_ptr<objClass, baseClass>(std::move(o))
-	{
-	}
+//! Move constructor called by const_ref
 
-	// A const_ref is allowed to call the following constructors
+template<typename objClass, typename baseClass>
+template<typename baseClass2>
+ptr<objClass,baseClass>::ptr(const_ref<objClass, baseClass2> && o) noexcept
+	: const_ptr<objClass, baseClass>(std::move(o))
+{
+}
 
-	template<typename objClass2, typename baseClass2>
-	friend class const_ref;
+//! The default destructor
 
-private:
-	//! Copy constructor called by const_ref
+//! If this is the last reference bound to an object, the object
+//! gets automatically destroyed via \c delete.
 
-	template<typename baseClass2>
-	inline explicit
-	ptr(const const_ref<objClass, baseClass2> &o) noexcept
-		: const_ptr<objClass, baseClass>(o)
-	{
-	}
+template<typename objClass, typename baseClass>
+inline ptr<objClass,baseClass>::~ptr()=default;
 
-	//! Move constructor called by const_ref
+//! Implement the "*" operator for object references
 
-	template<typename baseClass2>
-	inline explicit
-	ptr(const_ref<objClass, baseClass2> && o) noexcept
-		: const_ptr<objClass, baseClass>(std::move(o))
-	{
-	}
+//! Using "*" on a reference works as expected, as if the reference
+//! was a native pointer.
+//! An exception gets thrown if this reference is not bound to an
+//! instance of \c objClass.
+template<typename objClass, typename baseClass>
+inline objClass &ptr<objClass,baseClass>::operator*() const
 
-public:
-	//! The default destructor
+{
+	if (!this->refP)
+		null_ptr_deref();
 
-	//! If this is the last reference bound to an object, the object
-	//! gets automatically destroyed via \c delete.
+	return const_cast<objClass &>(*this->refP);
+}
 
-	inline ~ptr() LIBCXX_INLINE
-	{
-	}
+//! Implement the "->" operator for object references
 
-	//! Implement the "*" operator for object references
+//! Using "->" on a reference works as expected, as if the reference
+//! was a native pointer.
+//! An exception gets thrown if this reference is not bound to an
+//! instance of \c objClass.
+template<typename objClass, typename baseClass>
+inline objClass *ptr<objClass,baseClass>::operator->() const
 
-	//! Using "*" on a reference works as expected, as if the reference
-	//! was a native pointer.
-	//! An exception gets thrown if this reference is not bound to an
-	//! instance of \c objClass.
-	inline objClass &operator*() const
-		 LIBCXX_INLINE
-	{
-		if (!this->refP)
-			null_ptr_deref();
+{
+	if (!this->refP)
+		null_ptr_deref();
 
-		return const_cast<objClass &>(*this->refP);
-	}
+	return const_cast<objClass *>(this->refP);
+}
 
-	//! Implement the "->" operator for object references
+//! The assignment operator
 
-	//! Using "->" on a reference works as expected, as if the reference
-	//! was a native pointer.
-	//! An exception gets thrown if this reference is not bound to an
-	//! instance of \c objClass.
-	inline objClass *operator->() const
-		LIBCXX_INLINE
-	{
-		if (!this->refP)
-			null_ptr_deref();
+//! If this reference is bound to an object, its reference count
+//! gets decremented, and if this is its last reference, the object
+//! gets destroyed via \c delete. If \c o is bound to an instance of
+//! \c objClass, its reference count gets incremented.
 
-		return const_cast<objClass *>(this->refP);
-	}
+template<typename objClass, typename baseClass>
+inline ptr<objClass, baseClass> &ptr<objClass,baseClass>
+::operator=(//! An existing reference.
 
-	//! The assignment operator
+	    //! If this reference is bound to an instance of \c objClass,
+	    //! its reference count gets incremented.
 
-	//! If this reference is bound to an object, its reference count
-	//! gets decremented, and if this is its last reference, the object
-	//! gets destroyed via \c delete. If \c o is bound to an instance of
-	//! \c objClass, its reference count gets incremented.
+	   const ptr<objClass, baseClass> &o)
+	noexcept
+{
+	const_ptr<objClass, baseClass>::operator=(o);
 
-	inline ptr<objClass, baseClass>
-	&operator=(//! An existing reference.
+	return *this;
+}
 
-		   //! If this reference is bound to an instance of \c objClass,
-		   //! its reference count gets incremented.
+//! The move operator
 
-		   const ptr<objClass, baseClass> &o)
-		noexcept LIBCXX_INLINE
-	{
-		const_ptr<objClass, baseClass>::operator=(o);
+template<typename objClass, typename baseClass>
+inline ptr<objClass, baseClass> &ptr<objClass,baseClass>
+::operator=(//! An existing reference.
 
-		return *this;
-	}
+	    //! If this reference is bound to an instance of \c objClass,
+	    //! its reference count gets incremented.
 
-	//! The move operator
+	    ptr<objClass, baseClass> &&o)
+	noexcept
+{
+	const_ptr<objClass, baseClass>::operator=(std::move(o));
 
-	inline ptr<objClass, baseClass>
-	&operator=(//! An existing reference.
+	return *this;
+}
 
-		   //! If this reference is bound to an instance of \c objClass,
-		   //! its reference count gets incremented.
 
-		   ptr<objClass, baseClass> &&o)
-		noexcept LIBCXX_INLINE
-	{
-		const_ptr<objClass, baseClass>::operator=(std::move(o));
+//! Convert from a nullptr
+template<typename objClass, typename baseClass>
+inline ptr<objClass, baseClass>
+&ptr<objClass,baseClass>::operator=(std::nullptr_t)
+{
+	return operator=((objClass *)0);
+}
 
-		return *this;
-	}
+//! Make a weak pointer out of me.
 
-	using const_ptr<objClass, baseClass>::operator==;
-	using const_ptr<objClass, baseClass>::operator!=;
+template<typename objClass, typename baseClass>
+auto ptr<objClass,baseClass>::weaken() const
+{
+	return weakptr<ptr<objClass, baseClass>>(*this);
+}
 
-	//! A ref of one type is friends with refs of all other types.
-	template<typename objClass2, typename baseClass2> friend class ptr;
 
-	//! Construct from a reference to a subclass or a superclass.
 
-	//! \overload
-	//! This constructor allows getting a reference to this
-	//! object type's superclass or subclass.
 
-	template<typename objClass2, typename baseClass2> inline
-	ptr(//! A reference to another subclass or a superclass of this object.
 
-	    //! An exception gets thrown if o cannot be converted to the right
-	    //! object type.
-	    const ptr<objClass2, baseClass2> &o) LIBCXX_INLINE;
 
-	//! Move constructor from a subclass or a superclass.
 
-	template<typename objClass2, typename baseClass2> inline
-	ptr(//! Some other subclass or a superclass of this object.
 
-	    //! An %exception gets thrown if o cannot be converted to the right
-	    //! object type.
-	    ptr<objClass2, baseClass2> &&o)
-		LIBCXX_INLINE;
 
-	//! Convert from a reference to a different type.
 
-	//! This operator= function allows getting a reference to this
-	//! object type's superclass or subclass.
-	template<typename objClass2, typename baseClass2>
-	inline ptr<objClass, baseClass>
-	&operator=(//! Reference to this object's superclass or subclass instance.
 
-		   //! An exception gets thrown if the reference cannot be
-		   //! converted to this instance's object type.
-		   const ptr<objClass2, baseClass2> &o)
-		LIBCXX_INLINE;
+//! Construct from a reference to a subclass or a superclass.
 
-	//! Move from a reference to a different type.
-
-	template<typename objClass2, typename baseClass2>
-	inline ptr<objClass, baseClass>
-	&operator=(//! A pointer to a superclass or a subclass.
-
-		   //! An %exception gets thrown if the reference cannot be
-		   //! converted to this instance's object type.
-		   ptr<objClass2, baseClass2> &&o)
-		LIBCXX_INLINE;
-
-	//! Convert from a reference to a different type.
-
-	//! This operator= function allows getting a reference to this
-	//! object type's superclass or subclass.
-	template<typename objClass2> inline ptr<objClass, baseClass>
-	&operator=(objClass2 *o)
-		LIBCXX_INLINE;
-
-	//! Convert from a nullptr
-	inline ptr<objClass, baseClass>
-	&operator=(std::nullptr_t) LIBCXX_INLINE
-	{
-		return operator=((objClass *)0);
-	}
-
-	//! Forward create() to the base type
-
-	template<typename... Args_t>
-	static inline auto create(Args_t &&...args) LIBCXX_INLINE;
-
-	//! Make a weak pointer out of me.
-
-	inline auto weaken() const
-	{
-		return weakptr<ptr<objClass, baseClass>>(*this);
-	}
-};
+//! \overload
+//! This constructor allows getting a reference to this
+//! object type's superclass or subclass.
 
 template<typename objClass, typename baseClass>
 template<typename objClass2, typename baseClass2> inline
@@ -974,6 +598,8 @@ ptr<objClass, baseClass>::ptr(const ptr<objClass2, baseClass2> &o)
 	operator=(o);
 }
 
+//! Move constructor from a subclass or a superclass.
+
 template<typename objClass, typename baseClass>
 template<typename objClass2, typename baseClass2> inline
 ptr<objClass, baseClass>::ptr(ptr<objClass2, baseClass2> &&o)
@@ -983,9 +609,13 @@ ptr<objClass, baseClass>::ptr(ptr<objClass2, baseClass2> &&o)
 	operator=(std::forward<ptr<objClass2, baseClass2> >(o));
 }
 
+//! Convert from a reference to a different type.
+
+//! This operator= function allows getting a reference to this
+//! object type's superclass or subclass.
 template<typename objClass, typename baseClass>
 template<typename objClass2, typename baseClass2>
-inline ptr<objClass, baseClass>
+ptr<objClass, baseClass>
 &ptr<objClass, baseClass>::operator=(const ptr<objClass2, baseClass2> &o)
 
 {
@@ -993,24 +623,33 @@ inline ptr<objClass, baseClass>
 	return *this;
 }
 
+//! Move from a reference to a different type.
+
 template<typename objClass, typename baseClass>
 template<typename objClass2, typename baseClass2>
-inline ptr<objClass, baseClass>
+ptr<objClass, baseClass>
 &ptr<objClass, baseClass>::operator=(ptr<objClass2, baseClass2> &&o)
 {
 	const_ptr<objClass, baseClass>::operator=(std::move(o));
 	return *this;
 }
 
+//! Convert from a reference to a different type.
+
+//! This operator= function allows getting a reference to this
+//! object type's superclass or subclass.
+
 template<typename objClass, typename baseClass>
 template<typename objClass2>
-inline ptr<objClass, baseClass>
+ptr<objClass, baseClass>
 &ptr<objClass, baseClass>::operator=(objClass2 *o)
 
 {
 	const_ptr<objClass, baseClass>::operator=(o);
 	return *this;
 }
+
+//! Forward create() to the base type.
 
 template<typename objClass, typename baseClass>
 template<typename... Args_t>
