@@ -16,9 +16,10 @@ namespace LIBCXX_NAMESPACE {
 };
 #endif
 
+//! Initialize a constant reference from "this".
 
-//! Initialize a constant reference.
 //! \see ref
+
 template<typename objClass, typename baseClass>
 inline const_ref<objClass, baseClass>
 ::const_ref(const objClass *pArg)
@@ -26,6 +27,78 @@ inline const_ref<objClass, baseClass>
 {
 	if (p.null())
 		null_ptr_deref();
+}
+
+//! Copy constructor
+
+template<typename objClass, typename baseClass>
+inline const_ref<objClass, baseClass>
+::const_ref(const const_ref<objClass, baseClass> &o) noexcept
+	: p(o)
+{
+}
+
+////////////////////////////////////////////////////////////////////////
+//
+// Assignment operators of const_ref
+
+//! The assignment operator from a nullable pointer reference.
+
+template<typename objClass, typename baseClass>
+inline const_ref<objClass, baseClass>
+&const_ref<objClass, baseClass>::operator=(const ptrImpl<objClass> &o)
+{
+	if (o.null())
+		null_ptr_deref();
+
+	ptrImpl<objClass> &r=this->p;
+
+	r.operator=(o);
+
+	return *this;
+}
+
+//! Assignment from a nullable ptr to a different class.
+
+template<typename objClass, typename baseClass>
+template<typename objClass2> inline const_ref<objClass, baseClass>
+&const_ref<objClass, baseClass>::operator=(const ptrImpl<objClass2> &o)
+
+{
+	*this=const_ref<objClass, baseClass>(o);
+	return *this;
+}
+
+////////////////////////////////////////////////////////////////////////
+//
+// Move operators of const_ref
+
+//! The move operator from a nullable pointer reference.
+
+template<typename objClass, typename baseClass>
+inline const_ref<objClass, baseClass>
+&const_ref<objClass, baseClass>::operator=(ptrImpl<objClass> &&o)
+{
+	if (o.null())
+		null_ptr_deref();
+
+	std::swap(p.refP, o.refP);
+
+	return *this;
+}
+
+//! The move operator
+
+//! \overload
+
+template<typename objClass, typename baseClass>
+inline const_ref<objClass, baseClass>
+&const_ref<objClass, baseClass>
+::operator=(const_ref<objClass, baseClass> &&o)
+	noexcept
+{
+	std::swap(p.refP, o.p.refP);
+	return *this;
 }
 
 //! Destructor
@@ -52,74 +125,6 @@ template<typename objClass, typename baseClass>
 inline const objClass *const_ref<objClass, baseClass>::operator->() const
 {
 	return this->p.refP;
-}
-
-//! The assignment operator
-
-template<typename objClass, typename baseClass>
-inline const_ref<objClass, baseClass>
-&const_ref<objClass, baseClass>::operator=(const ptrImpl<objClass> &o)
-{
-	if (o.null())
-		null_ptr_deref();
-
-	ptrImpl<objClass> &r=this->p;
-
-	r.operator=(o);
-
-	return *this;
-}
-
-//! The move operator
-
-template<typename objClass, typename baseClass>
-inline const_ref<objClass, baseClass>
-&const_ref<objClass, baseClass>::operator=(ptrImpl<objClass> &&o)
-{
-	if (o.null())
-		null_ptr_deref();
-
-	std::swap(p.refP, o.refP);
-
-	return *this;
-}
-
-//! The move operator
-
-//! \overload
-
-template<typename objClass, typename baseClass>
-inline const_ref<objClass, baseClass>
-&const_ref<objClass, baseClass>
-::operator=(//! An existing reference.
-
-	   //! If this reference is bound to an instance of \c objClass,
-	   //! its reference count gets incremented.
-
-	   const_ref<objClass, baseClass> &&o)
-	noexcept
-{
-	std::swap(p.refP, o.p.refP);
-	return *this;
-}
-
-//! Copy constructor
-
-template<typename objClass, typename baseClass>
-inline
-const_ref<objClass, baseClass>
-::const_ref(const const_ref<objClass, baseClass> &o) noexcept
-	: p(o)
-{
-}
-
-//! Move constructor
-
-template<typename objClass, typename baseClass>
-inline const_ref<objClass, baseClass>
-::const_ref(const_ref<objClass, baseClass> &&o) noexcept
-	: p(std::move(o))
-{
 }
 
 
@@ -275,16 +280,6 @@ inline auto const_ref<objClass, baseClass>::create(Args_t &&...args)
 }
 
 template<typename objClass, typename baseClass>
-template<typename objClass2>
-inline const_ref<objClass, baseClass>::const_ref(const ptrImpl<objClass2> &o)
-{
-	static_cast<const_ptr<objClass, baseClass> &>(p)=o;
-
-	if (p.null())
-		null_ptr_deref();
-}
-
-template<typename objClass, typename baseClass>
 template<typename objClass2, typename baseClass2>
 inline const_ref<objClass, baseClass>
 ::operator const const_ptr<objClass2, baseClass2>() const
@@ -292,44 +287,10 @@ inline const_ref<objClass, baseClass>
 	return this->p;
 }
 
-template<typename objClass, typename baseClass>
-template<typename objClass2>
-inline const_ref<objClass, baseClass>::const_ref(ptrImpl<objClass2> &&o)
-{
-	static_cast<const_ptr<objClass, baseClass> &>(p)=std::move(o);
-
-	if (p.null())
-		null_ptr_deref();
-}
-
-template<typename objClass, typename baseClass>
-template<typename objClass2, typename baseClass2>
-inline const_ref<objClass, baseClass>::const_ref(const const_ref<objClass2, baseClass2> &o)
-
-{
-	p.operator=(o.p);
-}
-
-template<typename objClass, typename baseClass>
-template<typename objClass2, typename baseClass2>
-inline const_ref<objClass, baseClass>::const_ref(const_ref<objClass2, baseClass2> &&o)
-
-{
-	p.operator=(std::move(o.p));
-}
-
-template<typename objClass, typename baseClass>
-template<typename objClass2> inline const_ref<objClass, baseClass>
-&const_ref<objClass, baseClass>::operator=(const ptrImpl<objClass2> &o)
-
-{
-	*this=const_ref<objClass, baseClass>(o);
-	return *this;
-}
 
 //////////////////////////////////////////////////////////////////////////////
 
-//! Construct for a pointer to an existing instance of the object.
+//! Constructor for a pointer to an existing instance of the object.
 
 template<typename objClass, typename baseClass>
 inline ref<objClass, baseClass>
@@ -345,20 +306,10 @@ inline ref<objClass, baseClass>
 template<typename objClass, typename baseClass>
 inline ref<objClass, baseClass>
 ::ref(const ref<objClass, baseClass> &o) noexcept
-
 	: const_ref<objClass, baseClass>(o)
 {
 }
 
-//! Move constructor
-
-template<typename objClass, typename baseClass>
-inline ref<objClass, baseClass>
-::ref(ref<objClass, baseClass> &&o) noexcept
-
-	: const_ref<objClass, baseClass>(std::move(o))
-{
-}
 
 //! The destructor
 
@@ -419,8 +370,7 @@ inline ref<objClass, baseClass> &ref<objClass, baseClass>
 template<typename objClass, typename baseClass>
 inline ref<objClass, baseClass> &ref<objClass, baseClass>
 ::operator=(//! An existing reference.
-
-	   const ref<objClass, baseClass> &o)
+	    const ref<objClass, baseClass> &o)
 	noexcept
 {
 	const_ref<objClass, baseClass>::operator=(static_cast<const const_ref<objClass, baseClass> &>(o));
@@ -488,6 +438,8 @@ inline auto ref<objClass, baseClass>::weaken() const
 	return this->p.weaken();
 }
 
+//! Copy constructor
+
 template<typename objClass, typename baseClass>
 template<typename objClass2, typename baseClass2>
 inline ref<objClass, baseClass>::ref(const ptr<objClass2, baseClass2> &o)
@@ -498,20 +450,6 @@ inline ref<objClass, baseClass>::ref(const ptr<objClass2, baseClass2> &o)
 template<typename objClass, typename baseClass>
 template<typename objClass2, typename baseClass2>
 inline ref<objClass, baseClass>::ref(ptr<objClass2, baseClass2> &&o)
-	: const_ref<objClass, baseClass>(std::move(o))
-{
-}
-
-template<typename objClass, typename baseClass>
-template<typename objClass2, typename baseClass2>
-inline ref<objClass, baseClass>::ref(const ref<objClass2, baseClass2> &o)
-	: const_ref<objClass, baseClass>(o)
-{
-}
-
-template<typename objClass, typename baseClass>
-template<typename objClass2, typename baseClass2>
-inline ref<objClass, baseClass>::ref(ref<objClass2, baseClass2> &&o)
 	: const_ref<objClass, baseClass>(std::move(o))
 {
 }
@@ -538,7 +476,6 @@ template<typename objClass, typename baseClass>
 template<typename objClass2, typename baseClass2>
 inline ref<objClass, baseClass> &
 ref<objClass, baseClass>::operator=(const ref<objClass2, baseClass2> &o)
-
 {
 	const_ref<objClass, baseClass>
 		::operator=(static_cast<const const_ref<objClass2,

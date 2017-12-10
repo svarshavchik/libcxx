@@ -109,9 +109,9 @@ public:
 
 	inline ptrImpl(//! An existing reference.
 		       ptrImpl<objClass> &&o )
-		noexcept LIBCXX_INLINE : refP{nullptr}
+		noexcept LIBCXX_INLINE : refP{o.refP}
 	{
-		std::swap(refP, o.refP);
+		o.refP=nullptr;
 	}
 
 	//! Move constructor

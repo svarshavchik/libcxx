@@ -162,11 +162,24 @@ public:
 //! Most objects implemented by this library are reference-counted objects.
 //!
 //! All reference-counted objects are virtually derived from \ref obj "obj".
-//! Reference-counted objects are always allocated from the heap.
-//! The template argument to \ref ptr "ptr<>" is the reference-counted object
+//! All reference-counted objects must be constructed with create():
+//!
+//! \code
+//! class widgetObj : virtual public INSERT_LIBX_NAMESPACE::obj {
+//!  // ...
+//! };
+//!
+//! typedef INSERT_LIBX_NAMESPACE::ref<widgetObj> widget;
+//!
+//! typedef INSERT_LIBX_NAMESPACE::ref<widgetObj> widgetptr;
+//!
+//! widget w=widget::create();
+//!
+//! widgerptr wp=widgetptr::create();
+//! \endcode
+//!
+//! The template argument to \ref ptr "ptr" is the reference-counted object
 //! class, which must be virtually derived from \ref obj "obj".
-//! Most reference-based classes provide convenient static create() methods that
-//! allocate a new reference-counted object on the heap.
 //!
 //! Reference-counted objects are not accessed directly, but via this
 //! pointer object, which looks and acts like an ordinary pointer.
@@ -184,12 +197,14 @@ public:
 //!
 //! Additionally, a \ref ref "INSERT_LIBX_NAMESPACE::ref" template defines
 //! a non-NULL reference point, like a \ref ptr "ptr", but it always
-//! refers to some instance of its class, and can never be NULL.
+//! refers to some instance of its class and can never be NULL.
 //!
-//! Reference-counting is thread-safe. Note that this doesn't mean that the
-//! objects themselves are automatically thread safe, just that the
-//! recordkeeping, of how many pointer references to the object are outstanding,
-//! is thread-safe.
+//! Each ptr/const_ptr/ref/const_ref can be moved/copied, and each instance
+//! of it included in the reference count. When the last
+//! ptr/const_ptr/ref/const_ref goes out of scope, the referenced object
+//! gets \c deleted-d.
+//!
+//! \par Naming convention
 //!
 //! The naming convention is for reference-counted object classes having "Obj"
 //! suffix, and define a \c typedef for the reference-counted pointer class:
@@ -520,10 +535,9 @@ public:
 //! dereferencing gives a constant object,
 //! \ref const_ref "const_ref" is identical in all
 //! other respects to \ref ref "ref". This is similar to the relationship
-//! between an \c iterator and a \c const_iterator in the C++ Standard
-//! Template library.
+//! between an \c iterator and a \c const_iterator in the C++ library.
 //!
-//! And similar to STL iterators,
+//! And similar to iterators,
 //! \c ref<objClass> can be converted to \c const_ref<objClass>, but not the
 //! other
 //! way around.
@@ -581,10 +595,6 @@ public:
 	const_ref(const const_ref<objClass, baseClass> &o) noexcept
 		LIBCXX_INLINE;
 
-	explicit
-	const_ref(const_ref<objClass, baseClass> &&o) noexcept
-		LIBCXX_INLINE;
-
 	template<typename objClass2>
 	const_ref(const ptrImpl<objClass2> &o)
 		LIBCXX_INLINE;
@@ -595,10 +605,6 @@ public:
 
 	template<typename objClass2, typename baseClass2>
 	const_ref(const const_ref<objClass2, baseClass2> &o)
-		LIBCXX_INLINE;
-
-	template<typename objClass2, typename baseClass2>
-	const_ref(const_ref<objClass2, baseClass2> &&o)
 		LIBCXX_INLINE;
 
 	template<typename objClass2> const_ref<objClass, baseClass>
@@ -680,8 +686,10 @@ public:
 //! \ref ref "INSERT_LIBX_NAMESPACE::ref" also has a \c * and a \c -> operators,
 //! which work exactly like their
 //! \ref ptr "INSERT_LIBX_NAMESPACE::ptr" counterparts, except that they
-//! never throw an %exception because
-//! a \ref ptr "INSERT_LIBX_NAMESPACE::ptr" can never be a NULL pointer.
+//! do not check if the underlying native point is NULL and
+//! throw an %exception because
+//! a \ref ptr "INSERT_LIBX_NAMESPACE::ptr" can never be a NULL pointer,
+//!
 //! This is similar to a relationship between a native C++ pointer and a
 //! reference.
 //!
@@ -714,9 +722,6 @@ public:
 
 
 	inline ref(const ref<objClass, baseClass> &o) noexcept
-		LIBCXX_INLINE;
-
-	inline ref(ref<objClass, baseClass> &&o) noexcept
 		LIBCXX_INLINE;
 
 	inline ~ref() LIBCXX_INLINE;
@@ -759,10 +764,6 @@ public:
 	template<typename objClass2, typename baseClass2> inline
 	ref(const ref<objClass2, baseClass2> &o)
 		LIBCXX_INLINE;
-
-	template<typename objClass2, typename baseClass2> inline
-	ref(ref<objClass2, baseClass2> &&o)
-		LIBCXX_INLINE;;
 
 	template<typename objClass2, typename baseClass2>
 	inline ref<objClass, baseClass>

@@ -191,6 +191,17 @@ int threadtestproc::run(const LIBCXX_NAMESPACE::ref<threadtestinfo> &arg)
 
 static void objtest()
 {
+	std::vector<LIBCXX_NAMESPACE::ref<LIBCXX_NAMESPACE::obj>> v;
+
+	v.reserve(10);
+
+	v.push_back(LIBCXX_NAMESPACE::ref<LIBCXX_NAMESPACE::obj>::create());
+
+	LIBCXX_NAMESPACE::ref<LIBCXX_NAMESPACE::obj>
+		a[2]={LIBCXX_NAMESPACE::ref<LIBCXX_NAMESPACE::obj>::create(),
+		      LIBCXX_NAMESPACE::ref<LIBCXX_NAMESPACE::obj>::create()};
+
+	v.insert(v.begin(), a, a+2);
 
 	LIBCXX_NAMESPACE::ptr<base>
 		p4=LIBCXX_NAMESPACE::ptr<base>::create(4),
