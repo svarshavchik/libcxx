@@ -11,7 +11,7 @@
 #include <iostream>
 #include <algorithm>
 
-class xx : virtual public LIBX_NAMESPACE::obj {
+class xx : virtual public LIBCXX_NAMESPACE::obj {
 
 public:
 	int y[16];
@@ -19,11 +19,11 @@ public:
 	xx(int yArg) { y[0]=yArg;}
 };
 
-void foo(const LIBX_NAMESPACE::const_ref<xx> &a)
+void foo(const LIBCXX_NAMESPACE::const_ref<xx> &a)
 {
 }
 
-void bar(const LIBX_NAMESPACE::ref<xx> &a)
+void bar(const LIBCXX_NAMESPACE::ref<xx> &a)
 {
 	foo(a);
 }
@@ -32,10 +32,10 @@ int main(int argc, char **argv)
 {
 	std::cout << std::ifstream("/proc/self/status").rdbuf();
 
-	std::vector<LIBX_NAMESPACE::ref<xx> > vec, vec2;
+	std::vector<LIBCXX_NAMESPACE::ref<xx> > vec, vec2;
 
 	for (size_t i=0; i<1000000; ++i)
-		vec.push_back(LIBX_NAMESPACE::ref<xx>::create(4));
+		vec.push_back(LIBCXX_NAMESPACE::ref<xx>::create(4));
 
 	vec2=vec;
 

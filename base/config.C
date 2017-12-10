@@ -49,7 +49,7 @@ std::string configdir(const std::string &appid)
 	{
 		unlink(dotexe.c_str());
 		if (symlink(me.c_str(), dotexe.c_str()) < 0)
-			throw SYSEXCEPTION("symlink(" << exename << ")");
+			throw SYSEXCEPTION("symlink(" << dotexe << ")");
 	}
 
 	// Check ~/.libcxx/$appid/.exe's timestamp; if it too old, time

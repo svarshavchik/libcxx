@@ -9,7 +9,7 @@
 #include <sys/time.h>
 #include <iomanip>
 
-class xx : virtual public LIBX_NAMESPACE::obj {
+class xx : virtual public LIBCXX_NAMESPACE::obj {
 
 public:
 	int y;
@@ -21,9 +21,9 @@ int main(int argc, char **argv)
 {
 	struct timeval tv1, tv2;
 
-	LIBX_NAMESPACE::ptr<xx>
-		a=LIBX_NAMESPACE::ptr<xx>::create(4),
-		b=LIBX_NAMESPACE::ptr<xx>::create(5);
+	LIBCXX_NAMESPACE::ptr<xx>
+		a=LIBCXX_NAMESPACE::ptr<xx>::create(4),
+		b=LIBCXX_NAMESPACE::ptr<xx>::create(5);
 
 	size_t n;
 
@@ -31,7 +31,7 @@ int main(int argc, char **argv)
 
 	for (n=0; n<10000000; n++)
 	{
-		LIBX_NAMESPACE::ptr<xx> c=a;
+		LIBCXX_NAMESPACE::ptr<xx> c=a;
 
 		a=b;
 		b=c;

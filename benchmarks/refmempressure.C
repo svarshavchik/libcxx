@@ -12,7 +12,7 @@
 #include <iostream>
 #include <algorithm>
 
-class xx : virtual public LIBX_NAMESPACE::obj {
+class xx : virtual public LIBCXX_NAMESPACE::obj {
 
 public:
 	int y[16];
@@ -20,11 +20,11 @@ public:
 	xx(int yArg) { y[0]=yArg;}
 };
 
-void foo(const LIBX_NAMESPACE::const_ref<xx> &a)
+void foo(const LIBCXX_NAMESPACE::const_ref<xx> &a)
 {
 }
 
-void bar(const LIBX_NAMESPACE::ref<xx> &a)
+void bar(const LIBCXX_NAMESPACE::ref<xx> &a)
 {
 	foo(a);
 }
@@ -33,10 +33,10 @@ int main(int argc, char **argv)
 {
 	std::cout << std::ifstream("/proc/self/status").rdbuf();
 
-	std::vector<LIBX_NAMESPACE::ptr<xx> > vec;
+	std::vector<LIBCXX_NAMESPACE::ptr<xx> > vec;
 
 	for (size_t i=0; i<100000; ++i)
-		vec.push_back(LIBX_NAMESPACE::ptr<xx>::create(4));
+		vec.push_back(LIBCXX_NAMESPACE::ptr<xx>::create(4));
 
 	srand(1);
 
@@ -45,9 +45,9 @@ int main(int argc, char **argv)
 		size_t j=rand() % vec.size();
 
 		if (vec[j].null())
-			vec[j]=LIBX_NAMESPACE::ptr<xx>::create(4);
+			vec[j]=LIBCXX_NAMESPACE::ptr<xx>::create(4);
 		else
-			vec[j]=LIBX_NAMESPACE::ptr<xx>();
+			vec[j]=LIBCXX_NAMESPACE::ptr<xx>();
 	}
 
 	std::cout << std::ifstream("/proc/self/status").rdbuf();

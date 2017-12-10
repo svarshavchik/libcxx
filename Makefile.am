@@ -131,6 +131,7 @@ libcxx.pc: Makefile
 	echo "includedir=${includedir}" >>libcxx.pc.tmp
 	echo "CC=$(CC)" >>libcxx.pc.tmp
 	echo "CXX=$(CXX)" >>libcxx.pc.tmp
+	echo "STDTHREAD_CXXFLAGS=@STDTHREAD_CXXFLAGS@" >>libcxx.pc.tmp
 	echo "" >>libcxx.pc.tmp
 	echo "Name: libcxx" >>libcxx.pc.tmp
 	echo "Description: libcxx library" >>libcxx.pc.tmp

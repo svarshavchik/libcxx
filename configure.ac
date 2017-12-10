@@ -84,7 +84,7 @@ GCRYPT_CFLAGS=`$GCRYPT_CONFIG --cflags`
 AC_SUBST(GCRYPT_LIBS)
 AC_SUBST(GCRYPT_CFLAGS)
 
-save_LIBS="$LIBS"
+libcxx_save_LIBS="$LIBS"
 LIBS="-lcourier-unicode"
 AC_LINK_IFELSE(
 [AC_LANG_PROGRAM([
@@ -92,7 +92,7 @@ AC_LINK_IFELSE(
 ],[
 	unicode_default_chset();
 ])],[:],[AC_MSG_ERROR([The Courier Unicode Library 1.2 appears not to be installed. You may need to install a separate development subpackage, in addition to the main package])])
-LIBS="$save_LIBS"
+LIBS="$libcxx_save_LIBS"
 
 # Also update -std in includes/x/libcxx.m4.in
 CXXFLAGS="$CXXFLAGS -std=c++17 -fno-omit-frame-pointer"
@@ -310,6 +310,59 @@ AC_SUBST(LIBCXX_LOCALE_SAVE_ENV_T)
 AC_SUBST(LIBCXX_LOCALE_T_GLOBLOCK)
 AC_SUBST(HAVE_XLOCALE)
 
+AC_CACHE_CHECK([whether std::thread requires -pthread],
+               [libcxx_cv_pthread],
+[
+libcxx_cv_pthread=""
+libcxx_save_CXXFLAGS="$CXXFLAGS"
+
+   AC_TRY_LINK([
+#include <thread>
+
+void foo(int)
+{
+}
+
+], [
+    std::thread x{foo, 0};
+    ],
+    [
+       libcxx_cv_pthread="no"
+    ],
+
+    [
+        CXXFLAGS="$CXXFLAGS -lpthread"
+
+	AC_TRY_LINK([
+#include <thread>
+
+void foo(int)
+{
+}
+], [
+     std::thread x{foo, 0};
+], [
+      libcxx_cv_pthread="yes"
+      ], [
+
+      AC_MSG_ERROR("Cannot link a test program that uses std::thread")
+]
+
+
+	)
+]
+)
+CXXFLAGS="$libcxx_save_CXXFLAGS"
+])
+
+STDTHREAD_CXXFLAGS=""
+if test "$libcxx_cv_pthread" = "yes"
+then
+	STDTHREAD_CXXFLAGS="-pthread"
+fi
+
+AC_SUBST(STDTHREAD_CXXFLAGS)
+
 AC_TRY_LINK([
 #include <execinfo.h>
 #include <stdio.h>
@@ -321,7 +374,7 @@ AC_TRY_LINK([
 ], [ AC_DEFINE_UNQUOTED(HAVE_BACKTRACE, 1, [Found glibc backtrace()]) ],
 [
 
-save_LIBS="$LIBS"
+libcxx_save_LIBS="$LIBS"
 LIBS="$LIBS -lunwind"
 
 	AC_TRY_LINK([
@@ -344,7 +397,7 @@ LIBS="$LIBS -lunwind"
 ], [AC_MSG_ERROR([Cannot find backtrace() or libunwind])]
 )
 
-LIBS="$save_LIBS"
+LIBS="$libcxx_save_LIBS"
 
 ])
 AC_SUBST(LIBUNWIND)
@@ -368,7 +421,7 @@ char **p=environ;
   AC_MSG_ERROR([Unable to find extern char **environ])
 ]))
 
-save_LIBS="$LIBS"
+libcxx_save_LIBS="$LIBS"
 LIBS="$LIBS $LIBCONV"
 
 AC_COMPILE_IFELSE([AC_LANG_SOURCE([
@@ -394,10 +447,10 @@ size_t foo(iconv_t cd, char **inbuf, size_t *inbytesleft,
 [ AC_MSG_ERROR([Unable to find a working iconv()]) ])
 ])
 
-LIBS="$save_LIBS"
+LIBS="$libcxx_save_LIBS"
 AC_DEFINE_UNQUOTED(ICONV_INBUF_ARG,$iconv_in_type,[type of third argument to iconv()])
 
-LIBS="$save_LIBS -lidn"
+LIBS="$libcxx_save_LIBS -lidn"
 
 AC_TRY_LINK([
 #include <idna.h>
@@ -412,9 +465,9 @@ AC_TRY_LINK([
 ],[LIBIDN=-lidn],AC_MSG_ERROR([Could not find or link with libidn]))
 
 AC_SUBST(LIBIDN)
-LIBS="$save_LIBS"
+LIBS="$libcxx_save_LIBS"
 
-save_LIBS="$LIBS"
+libcxx_save_LIBS="$LIBS"
 AC_TRY_LINK([
 #include <libintl.h>
 
@@ -453,7 +506,7 @@ const char *foo(const char *domain, const char *msgid)
    ])
 ])
 
-LIBS="$save_LIBS"
+LIBS="$libcxx_save_LIBS"
 
 AC_SUBST(LINKLIBINTL)
 AC_SUBST(EXTRACXXLIBS)
@@ -622,8 +675,8 @@ AC_ARG_WITH(mime-types,
 	[AS_HELP_STRING([--with-mime-types=file],[Override default location of /etc/mime.types])], [mimetypes="$withval"])
 AC_DEFINE_UNQUOTED(MIMETYPES,"$mimetypes",[Location of mime.types file])
 
-save_CPPFLAGS="$CPPFLAGS"
-save_LIBS="$LIBS"
+libcxx_save_CPPFLAGS="$CPPFLAGS"
+libcxx_save_LIBS="$LIBS"
 if test "$YAMLLIBS" = ""
 then
 	YAMLLIBS="-lyaml"
@@ -638,8 +691,8 @@ AC_TRY_LINK([
    yaml_get_version(0, 0, 0);
 ], [ : ], AC_MSG_ERROR([Test link with LibYAML failed. Please install the LibYAML library and its development package. See config.log for more details about this error.]))
 
-CPPFLAGS="$save_CPPFLAGS"
-LIBS="$save_LIBS"
+CPPFLAGS="$libcxx_save_CPPFLAGS"
+LIBS="$libcxx_save_LIBS"
 
 AC_SUBST(YAMLLIBS)
 AC_SUBST(YAMLCPPFLAGS)

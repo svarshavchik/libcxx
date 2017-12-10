@@ -268,10 +268,10 @@ void strtok_str( const char_type *str,
 template<typename iter_type>
 void trim(iter_type &b, iter_type &e)
 {
-	while (b != e && *b == ' ' || *b == '\t' || *b == '\r' || *b == '\n')
+	while (b != e && (*b == ' ' || *b == '\t' || *b == '\r' || *b == '\n'))
 		++b;
-	while (b != e && e[-1] == ' ' || e[-1] == '\t' || e[-1] == '\r'
-	       || e[-1] == '\n')
+	while (b != e && (e[-1] == ' ' || e[-1] == '\t' || e[-1] == '\r'
+			  || e[-1] == '\n'))
 		--e;
 }
 

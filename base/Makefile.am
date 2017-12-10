@@ -6,6 +6,7 @@
 include $(shell pwd)/../includes/x/libcxx.mk
 
 AM_CPPFLAGS=-I . -I $(srcdir)/../includes -I ../includes $(LIBXML2_CFLAGS)
+AM_CXXFLAGS=@STDTHREAD_CXXFLAGS@
 
 LDFLAGS += -export-dynamic
 
@@ -280,7 +281,7 @@ effective_tld_names.dat.timestamp:
 	touch effective_tld_names.dat.timestamp
 endif
 
-libcxx_la_LIBADD=-lpthread -lrt -lpcre -lmagic -lxml2 @LIBEXTRAPATH@ @LIBUNWIND@ @EXTRACXXLIBS@ @LINKLIBINTL@ @LIBIDN@ @LIBXML2_CFLAGS@ -lcourier-unicode
+libcxx_la_LIBADD=-lrt -lpcre -lmagic -lxml2 @LIBEXTRAPATH@ @LIBUNWIND@ @EXTRACXXLIBS@ @LINKLIBINTL@ @LIBIDN@ @LIBXML2_CFLAGS@ -lcourier-unicode
 
 libcxx_la_LDFLAGS=-version-info @VERSION_INFO@
 
