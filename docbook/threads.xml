@@ -476,6 +476,8 @@ bool status=ret->get();</programlisting>
       </informalexample>
     </blockquote>
 
+    &stdthread_cxxflags;
+
     <para>
       The first parameter to
       <ulink url="&link-function-x-run;"><function>&ns;::run</function></ulink>()

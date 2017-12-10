@@ -1,0 +1,33 @@
+<!--
+
+Copyright 2012 Double Precision, Inc.
+See COPYING for distribution information.
+
+-->
+<note>
+  <para>
+    In <filename>Makefile.am</filename>:
+  </para>
+
+  <blockquote>
+    <informalexample>
+      <programlisting>
+AM_CXXFLAGS=@STDTHREAD_CXXFLAGS@</programlisting>
+    </informalexample>
+  </blockquote>
+
+  <para>
+    <link linkend="ethreads"><function>&ns;::run</function>()</link> and
+    <link linkend="msgdispatcherrun"><function>&ns;::start_threadmsgdispatcher</function>()</link>
+    requires additional compilation flags for threading support added
+    to the <filename>Makefile.am</filename>, from the
+    <literal>@STDTHREAD_CXXFLAGS@</literal> which gets set up
+    <link linkend="using">from <filename>configure.ac</filename></link>.
+  </para>
+</note>
+<!--
+Local Variables:
+mode: sgml
+sgml-parent-document: ("book.xml" "section" "note")
+End:
+-->

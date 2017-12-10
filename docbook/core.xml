@@ -43,9 +43,7 @@ See COPYING for distribution information.
     <title>Using &app; to build C++ applications</title>
 
     <para>
-      This manual is a work
-      in progress. Everything is documented, perhaps not as thorough as it
-      should be, but it's documented. You're reading &app;'s manual that's
+      You're reading &app;'s manual that's
       organized as a loosely-structured tutorial. The tutorial contains
       additional links to doxygen-generated class references, where more
       information can be found.
@@ -82,6 +80,7 @@ LIBCXX_INIT</programlisting>
 	      <programlisting>
 @LIBCXX_AM@
 
+AM_CXXFLAGS=@STDTHREAD_CXXFLAGS@
 bin_PROGRAMS=application
 
 application_SOURCES=source1.C source2.C
@@ -98,9 +97,14 @@ application_LDADD=-lcxx</programlisting>
       sets them to the compiler that built &app;.
       The same compiler must be used to build
       any code that links with it. The macro also adds any additional compiler
-      flags (currently <quote>-std=c++0x -fno-omit-frame-pointer</quote>).
+      flags (currently <quote><option>&buildoptions;</option></quote>).
       The <quote>-export-dynamic</quote> compiler flag is also recommended,
       but is not required.
+      The <literal>@STDTHREAD_CXXFLAGS@</literal> substitution variable gets
+      set to any additional flags required for compiling and linking with
+      thread classes and functions, specifically:
+      <link linkend="ethreads"><function>&ns;::run</function>()</link> and
+      <link linkend="msgdispatcherrun"><function>&ns;::start_threadmsgdispatcher</function>()</link>.
     </para>
 
     <para>
@@ -128,14 +132,13 @@ $ ./configure
 $ make
 make  all-am
 make[1]: Entering directory `/home/mrsam/src/ng/examples/managedsingleton'
-g++ -DHAVE_CONFIG_H -I.     -g -O2 -fno-omit-frame-pointer -std=c++0x -I/usr/inc
+g++ -DHAVE_CONFIG_H -I.     -g -O2 &buildoptions; -I/usr/inc
 lude/p11-kit-1   -MT managedsingleton.o -MD -MP -MF .deps/managedsingleton.Tpo -
 c -o managedsingleton.o managedsingleton.C
 mv -f .deps/managedsingleton.Tpo .deps/managedsingleton.Po
-/bin/sh ./libtool --tag=CXX   --mode=link g++  -g -O2 -fno-omit-frame-pointer -s
-td=c++0x -I/usr/include/p11-kit-1     -o managedsingleton managedsingleton.o -lcxx
+/bin/sh ./libtool --tag=CXX   --mode=link g++  -g -O2 &buildoptions; -I/usr/include/p11-kit-1     -o managedsingleton managedsingleton.o -lcxx
 
-libtool: link: g++ -g -O2 -fno-omit-frame-pointer -std=c++0x -I/usr/include/p11-
+libtool: link: g++ -g -O2 -fno-omit-frame-pointer &buildoptions; -I/usr/include/p11-
 kit-1 -o managedsingleton managedsingleton.o  /usr/lib64/libcxx.so -lpthread -lrt -lpcre</programlisting>
       </informalexample>
     </blockquote>
@@ -160,9 +163,14 @@ kit-1 -o managedsingleton managedsingleton.o  /usr/lib64/libcxx.so -lpthread -lr
 	  Link with <literal>-lcxx</literal>;
 	  <literal>-lcxxtls</literal> gets the
 	  <link linkend="gnutls">GnuTLS-based classes</link>.
-	  Also, link with <literal>-lpthread</literal>,
+	  Also, link with
 	  <literal>-lrt</literal>, and
-	  <literal>-lpcre</literal> (for Linux).
+	  <literal>-lpcre</literal>.
+	  On most Linux distirbutions
+	  the <literal>-pthread</literal> compiler and link flag must be
+	  used when using any thread-based methods and classes,
+	  like <link linkend="ethreads"><function>&ns;::run</function>()</link>,
+	  or <link linkend="msgdispatcherrun"><function>&ns;::start_threadmsgdispatcher</function></link>.
 	</para>
       </listitem>
 
@@ -170,7 +178,7 @@ kit-1 -o managedsingleton managedsingleton.o  /usr/lib64/libcxx.so -lpthread -lr
 	<para>
 	  <literal>LIBCXX_INIT</literal> sets the C compiler to the same one
 	  that was used to build &app; and the correct options
-	  (<quote><literal>-std=c++0x -fno-omit-frame-pointer</literal></quote>).
+	  (<quote><option>&buildoptions;</option></quote>).
 	</para>
       </listitem>
 

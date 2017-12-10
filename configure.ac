@@ -95,6 +95,7 @@ AC_LINK_IFELSE(
 LIBS="$libcxx_save_LIBS"
 
 # Also update -std in includes/x/libcxx.m4.in
+# and in docbook/core.xml
 CXXFLAGS="$CXXFLAGS -std=c++17 -fno-omit-frame-pointer"
 
 AC_CHECK_PROGS(XML2_CONFIG,xml2-config,none)

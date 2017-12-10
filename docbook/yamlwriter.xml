@@ -463,7 +463,7 @@ auto scalar=&ns;::newscalarnode::create("Albuquerque");
 scalar-&gt;anchor="left_turn_location";</programlisting>
       </informalexample>
     </blockquote>
-      
+
     <para>
       <ulink url="&link-typedef-x--yaml-newscalarnode;"><classname>&ns;::yaml::newscalarnode</classname></ulink>
       is a
@@ -485,7 +485,7 @@ scalar-&gt;anchor="left_turn_location";</programlisting>
 	  map.
 	</para>
       </listitem>
- 
+
       <listitem>
 	<para>
 	  <literal>YAML_ANY_SCALAR_STYLE</literal> (the default),
@@ -594,7 +594,7 @@ auto scalar=&ns;::newaliasnode::create("left_turn_location");</programlisting>
 
     <informalexample>
       <computeroutput>
-	<literallayout>$ g++ -std=c++0x -fno-omit-frame-pointer -o writer writer.C -lcxxyaml -lcxx 
+	<literallayout>$ g++ &buildoptions; -o writer writer.C -lcxxyaml -lcxx
 $ ./writer
 - {continent: Africa, highest_point: Mount Kilimanjaro, country: Tanzania}
 - {continent: Antarctica, highest_point: Vinson Massif, country: Antarctica}

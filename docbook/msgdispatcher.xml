@@ -206,6 +206,8 @@ auto clinstance = myClass::create();
       </informalexample>
     </blockquote>
 
+    &stdthread_cxxflags;
+
     <para>
       <ulink url="&link-function-x-start-threadmsgdispatcher;"><function>&ns;::start_threadmsgdispatcher</function></ulink>
       must be used to start an execution thread for a subclass of
@@ -255,7 +257,7 @@ auto clinstance = myClass::create();
 	  Constructs an instance of the
 	  <ulink url="&link-x--threadmsgdispatcherObj--msgqueue-auto;"><classname>msgqueue_auto</classname></ulink>
 	  class in automatic scope.
-	  <classname>msgqueue_auto</classname> is inherited from
+	  <classname>msgqueue_auto</classname> gets inherited from
 	  <classname>&ns;::threadmsgdispatcherObj</classname>.
 	  This represents the execution thread's message queue.
 	</para>
@@ -288,10 +290,13 @@ auto clinstance = myClass::create();
     </itemizedlist>
 
     <para>
-      <function>&ns;::start_threadmsgdispatcher</function>()	waits until the mcguffin
-      gets destroyed before it returns. This is why the mcguffin parameter
-      must be passed to <methodname>run</methodname>() by reference, rather
-      than value.
+      <function>&ns;::start_threadmsgdispatcher</function>() does not return
+      until the new execution thread destroys the mcguffin.
+      This is why the mcguffin parameter
+      gets passed to <methodname>run</methodname>() by reference, rather
+      than value. This ensures that the new threads message queue exists
+      after
+      <function>&ns;::start_threadmsgdispatcher</function>() returns.
     </para>
   </section>
 
@@ -302,10 +307,11 @@ auto clinstance = myClass::create();
       <ulink url="&link-x--threadmsgdispatcherObj--msgqueue-auto;"><classname>msgqueue_auto</classname></ulink>
       represents the execution thread's internal message queue. It is
       constructed in automatic scope, so it exists when
-      <function>&ns;::start_threadmsgdispatcher</function>()	returns, and the thread is
-      immediately ready to process messages. When the execution thread
-      terminates, the internal message queue, in automatic scope, gets
-      destroyed as well.
+      <function>&ns;::start_threadmsgdispatcher</function>()
+      returns. The new thread is
+      immediately ready to process messages. Because the message queue exists
+      in automatic scope it gets destroyed when the execution thread
+      terminates.
       Any unprocessed messages in the queue get destroyed as well.
     </para>
 
@@ -314,8 +320,8 @@ auto clinstance = myClass::create();
       thread is not running, and the message queue does not exist. In that
       situation <methodname>sendevent</methodname>() does nothing,
       and returns immediately.
-      The correct design pattern for sending messages to the execution thread
-      is as follows:
+      This is the expected design pattern for sending messages to the
+      execution thread:
     </para>
 
     <itemizedlist>
@@ -330,7 +336,7 @@ auto clinstance = myClass::create();
 
       <listitem>
 	<para>
-	  The execution thread updates the status object to indicate that
+	  The execution thread updates the status object to indicate how
 	  the message was received and processed.
 	</para>
       </listitem>
@@ -345,8 +351,8 @@ auto clinstance = myClass::create();
 
     <para>
       The mcguffin gets destroyed when
-      the message dispatching thread's private method, that processes
-      the message, returns. No more references to the mcguffin exist, at
+      the message dispatching thread's private method (which processes
+      the message) returns. No more references to the mcguffin exist, at
       this point.
       If the execution thread is not running and
       <methodname>sendevent</methodname>() does nothing, the mcguffin
