@@ -240,7 +240,7 @@ useragentObj::response useragentObj::do_request(const fd *terminate_fd,
 
 		initial=false;
 
-		if (i >= maxredirects.getValue())
+		if (i >= maxredirects.get())
 			return response; // Too many redirections
 
 		LOG_DEBUG("Processing redirect " + tostring(i+1));
@@ -300,7 +300,7 @@ useragentObj::response
 
 		if (h.first == h.second)
 			req.append("User-Agent",
-				   user_agent_header.getValue());
+				   user_agent_header.get());
 	}
 
 	uriimpl &uri=req.getURI();

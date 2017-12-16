@@ -124,7 +124,7 @@ int main(int argc, char **argv)
 		{
 			std::cout <<
 				LIBCXX_NAMESPACE::property::value<std::string>
-				(*b, "").getValue() << std::endl;
+				(*b, "").get() << std::endl;
 		}
 	} catch (LIBCXX_NAMESPACE::exception &e)
 	{

@@ -30,7 +30,7 @@ fdclientimpl::timeout_cnt(LIBCXX_NAMESPACE_STR "::http::client::timeout_cnt",
 	fdclientimpl::headers_limit(LIBCXX_NAMESPACE_STR "::http::client::headers::limit",
 				    1024);
 
-fdclientimpl::fdclientimpl() : superclass_t(headers_limit.getValue())
+fdclientimpl::fdclientimpl() : superclass_t(headers_limit.get())
 {
 }
 
@@ -49,7 +49,7 @@ void fdclientimpl::install(const fd &filedescArg,
 			      output_iter_t(filedesc()),
 			      input_iter_t(filedesc()),
 			      input_iter_t(),
-			      headers_limit.getValue());
+			      headers_limit.get());
 }
 
 void fdclientimpl::install(const fd &filedescArg,
@@ -62,8 +62,8 @@ void fdclientimpl::begin_write_message()
 {
 	filedesc_timeout->cancel_read_timer();
 	filedesc_readlimit->cancel_read_limit();
-	filedesc_timeout->set_write_timeout(timeout_cnt.getValue(),
-					    timeout.getValue().seconds());
+	filedesc_timeout->set_write_timeout(timeout_cnt.get(),
+					    timeout.get().seconds());
 }
 
 void fdclientimpl::end_write_message()
@@ -77,10 +77,10 @@ void fdclientimpl::header_begin()
 	sender_t::iter.flush();
 	filedesc_timeout->cancel_write_timer();
 
-	filedesc_readlimit->set_read_limit(headers_maxsize.getValue(),
+	filedesc_readlimit->set_read_limit(headers_maxsize.get(),
 					   "HTTP response header limit exceeded"
 					   );
-	filedesc_timeout->set_read_timeout(response_timeout.getValue()
+	filedesc_timeout->set_read_timeout(response_timeout.get()
 					   .seconds());
 }
 
@@ -92,8 +92,8 @@ void fdclientimpl::body_begin()
 	superclass_t::header_begin();
 
 	filedesc_readlimit->cancel_read_limit();
-	filedesc_timeout->set_read_timeout(timeout_cnt.getValue(),
-					   timeout.getValue().seconds());
+	filedesc_timeout->set_read_timeout(timeout_cnt.get(),
+					   timeout.get().seconds());
 }
 
 void fdclientimpl::body_end()

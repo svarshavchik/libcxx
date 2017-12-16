@@ -42,7 +42,7 @@ formmaxsize(LIBCXX_NAMESPACE_STR "::http::form::maxsize", 1024 * 1024 * 10);
 
 size_t getformmaxsize()
 {
-	return formmaxsize.getValue();
+	return formmaxsize.get();
 }
 
 const char hex[]="0123456789ABCDEFabcdef";

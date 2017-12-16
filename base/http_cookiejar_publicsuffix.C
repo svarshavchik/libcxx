@@ -71,7 +71,7 @@ public:
 	{
 		tld_t tld=tld_t::create();
 
-		std::ifstream i(effective_tld_names_filename.getValue()
+		std::ifstream i(effective_tld_names_filename.get()
 				.c_str());
 
 		while (i.is_open() && !i.eof())

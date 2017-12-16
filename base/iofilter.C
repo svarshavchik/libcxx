@@ -20,7 +20,7 @@ property::value<size_t> iofilter_bufsizeprop LIBCXX_INTERNAL
 
 size_t iofilter_bufsize()
 {
-	return iofilter_bufsizeprop.getValue();
+	return iofilter_bufsizeprop.get();
 }
 
 template class iofilter<char, char>;

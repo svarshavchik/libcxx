@@ -64,7 +64,7 @@ gnutls::datum_t gnutls::pkparamsObj::open_default(const std::string &suffix)
 {
 	std::vector<std::string> filenames;
 
-	std::string dir=tlsparamsdir.getValue() + "/";
+	std::string dir=tlsparamsdir.get() + "/";
 
 	filenames.push_back(dir + "user." +
 			    passwd(geteuid())->pw_name + "."

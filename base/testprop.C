@@ -109,12 +109,12 @@ void test2()
 	LIBCXX_NAMESPACE::property::value<std::string>
 		prop3(props, "prop3", "xyz");
 
-	if (prop3.getValue() != "prop3val2")
+	if (prop3.get() != "prop3val2")
 		throw EXCEPTION("test2 failed(5)");
 
 	props->load("prop3=prop3val3\n", true, true);
 
-	if (prop3.getValue() != "prop3val3")
+	if (prop3.get() != "prop3val3")
 		throw EXCEPTION("test2 failed(6)");
 }
 
@@ -135,7 +135,7 @@ public:
 
 	void event()
 	{
-		i=p->getValue();
+		i=p->get();
 	}
 
 };
@@ -197,15 +197,15 @@ int main(int argc, char **argv)
 		{
 			LIBCXX_NAMESPACE::property::value<int> value("", 4);
 
-			value.getValue();
+			value.get();
 		}
 
 		LIBCXX_NAMESPACE::property::value<double> double_value("");
 
-		double_value.setValue( LIBCXX_NAMESPACE::value_string<double>
+		double_value.set( LIBCXX_NAMESPACE::value_string<double>
 				       ::fromString("1.2",
 						    LIBCXX_NAMESPACE::locale::create("C")));
-		std::cout << double_value.getValue() << std::endl;
+		std::cout << double_value.get() << std::endl;
 
 		UPD("property.int=4\n"
 		    "property.str=foo\n");
@@ -215,26 +215,26 @@ int main(int argc, char **argv)
 
 		LIBCXX_NAMESPACE::property::value<int> int2value("property.int2", 5);
 
-		std::cout << "Initial int value: " << intvalue.getValue()
+		std::cout << "Initial int value: " << intvalue.get()
 			  << std::endl;
 
-		std::cout << "Initial str value: " << strvalue.getValue()
+		std::cout << "Initial str value: " << strvalue.get()
 			  << std::endl;
 
-		std::cout << "Initial int2 value: " << int2value.getValue()
+		std::cout << "Initial int2 value: " << int2value.get()
 			  << std::endl;
 
 		UPD("property::int=5\n"
 		    "property::int2=6\n"
 		    "property::str=bar\n");
 
-		std::cout << "int value: " << intvalue.getValue()
+		std::cout << "int value: " << intvalue.get()
 			  << std::endl;
 
-		std::cout << "str value: " << strvalue.getValue()
+		std::cout << "str value: " << strvalue.get()
 			  << std::endl;
 
-		std::cout << "int2 value: " << int2value.getValue()
+		std::cout << "int2 value: " << int2value.get()
 			  << std::endl;
 
 
@@ -242,24 +242,24 @@ int main(int argc, char **argv)
 
 		UPD("property::bool=0\n");
 
-		std::cout << "bool value: " << boolvalue.getValue()
+		std::cout << "bool value: " << boolvalue.get()
 			  << std::endl;
 		UPD("property::bool=true\n");
 
-		std::cout << "bool value: " << boolvalue.getValue()
+		std::cout << "bool value: " << boolvalue.get()
 			  << std::endl;
 		UPD("property::bool=false\n");
 
-		std::cout << "bool value: " << boolvalue.getValue()
+		std::cout << "bool value: " << boolvalue.get()
 			  << std::endl;
 		UPD("property::bool=YES\n");
 
-		std::cout << "bool value: " << boolvalue.getValue()
+		std::cout << "bool value: " << boolvalue.get()
 			  << std::endl;
 
 		UPD("property::bool=no\n");
 
-		std::cout << "bool value: " << boolvalue.getValue()
+		std::cout << "bool value: " << boolvalue.get()
 			  << std::endl;
 
 		UPD("property::hms=1 hour, 2 minutes\n"
@@ -269,7 +269,7 @@ int main(int argc, char **argv)
 			LIBCXX_NAMESPACE::property::value<LIBCXX_NAMESPACE::hms>("property::hms",
 						   LIBCXX_NAMESPACE::hms(),
 						   LIBCXX_NAMESPACE::locale::create("C")
-						   ).getValue()
+						   ).get()
 			.verboseString()
 			  << std::endl;
 
@@ -279,12 +279,12 @@ int main(int argc, char **argv)
 							     LIBCXX_NAMESPACE::locale
 							     ::create("C")
 							     )
-			.getValue() << std::endl;
+			.get() << std::endl;
 
 		UPD("property::yyyymmdd=03-Aug-1969\n");
 
 		if (LIBCXX_NAMESPACE::property::value<LIBCXX_NAMESPACE::ymd>
-		    ("property::yyyymmdd").getValue() !=
+		    ("property::yyyymmdd").get() !=
 		    LIBCXX_NAMESPACE::ymd(1969,8,3))
 			throw EXCEPTION("ymd property parse failed");
 
@@ -293,27 +293,27 @@ int main(int argc, char **argv)
 		LIBCXX_NAMESPACE::property::value<LIBCXX_NAMESPACE::memsize>
 			memsize_prop("memsize", LIBCXX_NAMESPACE::memsize(4100));
 
-		std::cout << memsize_prop.getValue().bytes << " bytes"
+		std::cout << memsize_prop.get().bytes << " bytes"
 			  << std::endl;
 
 		{
 			LIBCXX_NAMESPACE::property::value<std::string>
 				memsize_propstr("memsize", "0");
 
-			std::cout << memsize_propstr.getValue()
+			std::cout << memsize_propstr.get()
 				  << std::endl;
 		}
 
 		UPD("memsize=5000");
 
-		std::cout << memsize_prop.getValue().bytes << " bytes"
+		std::cout << memsize_prop.get().bytes << " bytes"
 			  << std::endl;
 
 		{
 			LIBCXX_NAMESPACE::property::value<std::string>
 				memsize_propstr("memsize", "0");
 
-			std::cout << memsize_propstr.getValue()
+			std::cout << memsize_propstr.get()
 				  << std::endl;
 		}
 

@@ -50,7 +50,7 @@ void cookiejarObj::store(const uriimpl &request,
 	for (auto &cookie:cookies)
 	{
 		if (cookie.name.size() + cookie.value.size()
-		    >maxbytesprop.getValue())
+		    >maxbytesprop.get())
 			continue; // Too big of a cookie
 
 		std::string path=cookie.getValidatedPath(request);
@@ -117,7 +117,7 @@ void cookiejarObj::store(const ref<storedcookieObj> &cookie)
 {
 	cookiemrulist_t::lock allcookies_lock(allcookies);
 
-	size_t maxcookies=maxdomaincookiesprop.getValue();
+	size_t maxcookies=maxdomaincookiesprop.get();
 
 	if (maxcookies < 2)
 		maxcookies=2;

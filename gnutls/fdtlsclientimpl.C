@@ -127,7 +127,7 @@ void gnutls::http::fdtlsclientimpl::init(sendmsg &msg)
 		}
 	}
 
-	set_readwrite_timeout(handshake_timeout.getValue().seconds());
+	set_readwrite_timeout(handshake_timeout.get().seconds());
 
 	int dummy;
 
@@ -187,7 +187,7 @@ void gnutls::http::fdtlsclientimpl::ran()
 
 	sess=sessionptr();
 
-	set_readwrite_timeout(bye_timeout.getValue().seconds());
+	set_readwrite_timeout(bye_timeout.get().seconds());
 	try {
 		int dummy;
 

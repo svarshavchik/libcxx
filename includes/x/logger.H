@@ -796,7 +796,7 @@ public:
 
 	//! \internal
 	//! This is used by the LOG mactos.
-	inline short getDebugLevel() const noexcept { return scope.debuglevel.getValue(); }
+	inline short getDebugLevel() const noexcept { return scope.debuglevel.get(); }
 
 	//! Make a log entry
 

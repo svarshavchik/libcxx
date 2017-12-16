@@ -82,13 +82,13 @@ namespace LIBCXX_NAMESPACE {
 //!
 //! // ...
 //!
-//! int window_width_value=window_width.getValue();
+//! int window_width_value=window_width.get();
 //! \endcode
 //!
-//! \c property::value is a template with a getValue() method which
+//! \c property::value is a template with a get() method which
 //! retrieves the current %value of the %property (the %property's name,
 //! as a wide string, is given to the
-//! constructor). The %value returned by getValue() is a natural type
+//! constructor). The %value returned by get() is a natural type
 //! that's given by the template's parameter.
 //!
 //! An optional second argument to \c property::value's constructor gives
@@ -127,11 +127,11 @@ namespace LIBCXX_NAMESPACE {
 //! \endcode
 //!
 //! Two specializations exists that allow convenient specification of elapsed
-//! time intervals. The property::value<hms> specialization has a getValue()
+//! time intervals. The property::value<hms> specialization has a get()
 //! method that returns an hms object, suitable for specifying elapsed intervals
 //! of time that are less than a day. Any string permitted by hms's constructor
 //! can initialize the property. The property::value<ymd::interval>
-//! specialization's getValue() method returns an ymd::interval object,
+//! specialization's get() method returns an ymd::interval object,
 //! suitable for specifying elapsed intervals as days.
 //!
 //! As with all other property::value implementations, the second parameter
@@ -248,7 +248,7 @@ namespace LIBCXX_NAMESPACE {
 //! object's installNotify() method, the callback object's event() gets invoked
 //! after any changes to the %property's value.
 //!
-//! event() is permitted to access the %property's getValue(), however it may
+//! event() is permitted to access the %property's get(), however it may
 //! not invoke any methods that modify or change %properties, as a deadlock
 //! may occur.
 //!
@@ -295,10 +295,10 @@ namespace LIBCXX_NAMESPACE {
 //! objects cannot). If you want a reference-counted object (and instantiate
 //! it on the heap), inherit from this class and obj.
 //!
-//! Use getValue() to retrieve the %property %value.
+//! Use get() to retrieve the %property %value.
 //! If the %property %value gets changed by
 //! property::update_properties(),
-//! the %value returned by getValue() gets updated automatically.
+//! the %value returned by get() gets updated automatically.
 //!
 //! \note
 //! This class does not implement the copy constructor and the assignment
@@ -330,7 +330,7 @@ public:
 	      const const_locale &l=locale::base::environment())
  : valueimpl<argType>(initValue)
 	{
-		install(propname, stringType::tostr(this->getValue(), l), l);
+		install(propname, stringType::tostr(this->get(), l), l);
 	}
 
 	//! Initialize the %property %value
@@ -349,7 +349,7 @@ public:
  : valueimpl<argType>(initValue)
 	{
 		install(props, propname,
-			stringType::tostr(this->getValue(), l), l);
+			stringType::tostr(this->get(), l), l);
 	}
 
 	//! Initialize the %property %value
@@ -364,7 +364,7 @@ public:
 	      const const_locale &l=locale::base::environment())
  : valueimpl<argType>(initValue)
 	{
-		install(propname, stringType::tostr(this->getValue(), l), l);
+		install(propname, stringType::tostr(this->get(), l), l);
 	}
 
 	//! Initialize the %property %value
@@ -383,7 +383,7 @@ public:
  : valueimpl<argType>(initValue)
 	{
 		install(props, propname,
-			stringType::tostr(this->getValue(), l), l);
+			stringType::tostr(this->get(), l), l);
 	}
 
 protected:
@@ -424,18 +424,18 @@ private:
 		//! Destructor
 		~sentry()
 		{
-			*v.first=stringType::tostr(prop->getValue(), v.second);
+			*v.first=stringType::tostr(prop->get(), v.second);
 		}
 	};
 
 	//! Update the %property %value
 
-	void set(//! The new value
-		 const propvalueset_t &value)
+	void update(//! The new value
+		    const propvalueset_t &value) override
 	{
 		sentry reset(value, this);
 
-		this->setValue(stringType::fromstr(*value.first, value.second));
+		this->set(stringType::fromstr(*value.first, value.second));
 	}
 };
 

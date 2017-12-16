@@ -102,14 +102,14 @@ public:
 
 	size_t getMaxthreads() const
 	{
-		return maxthreadcount_prop.getValue();
+		return maxthreadcount_prop.get();
 	}
 
 	//! Get the minimum number of thread jobs
 
 	size_t getMinthreads() const
 	{
-		return minthreadcount_prop.getValue();
+		return minthreadcount_prop.get();
 	}
 };
 
@@ -424,8 +424,8 @@ void workerpoolObj<workerThreadType>::addJob(//! The job to execute, ASAP
 
 	// Get thread parameters, make them sane.
 
-	size_t minthreads=minthreadcount_prop.getValue();
-	size_t maxthreads=maxthreadcount_prop.getValue();
+	size_t minthreads=minthreadcount_prop.get();
+	size_t maxthreads=maxthreadcount_prop.get();
 
 	if (minthreads < 1)
 		minthreads=1;
@@ -447,7 +447,7 @@ void workerpoolObj<workerThreadType>::addJob(//! The job to execute, ASAP
 	{
 		workers->push_back(LIBCXX_NAMESPACE::run
 				   (ref<workerObj>::create(threadnames_prop
-							   .getValue()),
+							   .get()),
 				    jobqueue));
 		++lock->threadcount_started;
 	}

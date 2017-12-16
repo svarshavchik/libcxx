@@ -115,6 +115,8 @@ See COPYING for distribution information.
 	  <classname>&ns;::destroy_callback_wait4</classname>, in order to
 	  remove unsightly camel-case.
 	  Ditto: getFd() to get_fd() and getEventfd() to get_eventfd().
+	  Ditto: getValue() to get() and setValue() to set(), in
+	  <classname>&ns;::property::value</classname>.
 	</para>
       </listitem>
 

@@ -23,7 +23,7 @@ template<typename argType, int intsizeType, bool intType> class valueImplBase;
 //! valueimpl implementation for natural integer types
 
 //! This is a specialization for natural integer types, that
-//! implements getValue() and setValue() using atomic instructions.
+//! implements get() and set() using atomic instructions.
 
 template<typename argType, int intsizeType>
 class valueImplBase<argType, intsizeType, true> {
@@ -41,11 +41,11 @@ public:
 	~valueImplBase() {}
 
 	//! Retrieve current %value
-	argType getValue() const noexcept { return __sync_fetch_and_add(&v, 0); }
+	argType get() const noexcept { return __sync_fetch_and_add(&v, 0); }
 
 	//! Store a new %value
 
-	void setValue(//! New %value
+	void set(//! New %value
 
 		      argType n) noexcept
 	{
@@ -72,11 +72,11 @@ public:
 	~valueImplBase() {}
 
 	//! Retrieve current %value
-	bool getValue() const noexcept { return __sync_fetch_and_add(&v, 0); }
+	bool get() const noexcept { return __sync_fetch_and_add(&v, 0); }
 
 	//! Store a new %value
 
-	void setValue(//! New %value
+	void set(//! New %value
 
 		      bool n) noexcept
 	{
@@ -88,7 +88,7 @@ public:
 //! valueimpl implementation for a non-int type.
 
 //! This is a specialization for non-int types that use
-//! a mutex to implement thread-safe getValue() and setValue().
+//! a mutex to implement thread-safe get() and set().
 
 template<typename argType, int intsizeType>
 class valueImplBase<argType, intsizeType, false> {
@@ -108,7 +108,7 @@ public:
 
 	//! Retrieve current %value
 
-	argType getValue() const noexcept
+	argType get() const noexcept
 	{
 		std::lock_guard<std::mutex> lock(mutex);
 
@@ -117,7 +117,7 @@ public:
 
 	//! Store a new %value
 
-	void setValue(//! New value
+	void set(//! New value
 
 		      const argType &n) noexcept
 	{
@@ -144,9 +144,9 @@ public:
 //!
 //! The template class defines two methods:
 //!
-//! - getValue() - retrieve the %value
+//! - get() - retrieve the %value
 //!
-//! - setValue() - store the %value
+//! - set() - store the %value
 //!
 //! These functions are thread safe. They use either atomic instructions, or
 //! use a protecting mutex.

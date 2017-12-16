@@ -437,7 +437,7 @@ void singletonapp::impl::installsighandler(const sighandler &handler,
 {
 	std::list<std::string> signalnames;
 
-	strtok_str(signallistprop.getValue(), " \t\r\n,;", signalnames);
+	strtok_str(signallistprop.get(), " \t\r\n,;", signalnames);
 
 	while (!signalnames.empty())
 	{
@@ -473,7 +473,7 @@ uid_t singletonapp::validate_peer(const httportmap &portmapper,
 	pfd.fd=connection->get_fd();
 	pfd.events=POLLIN;
 
-	if (::poll(&pfd, 1, impl::credtimeoutprop.getValue() * 1000) < 0 ||
+	if (::poll(&pfd, 1, impl::credtimeoutprop.get() * 1000) < 0 ||
 	    (pfd.revents & POLLIN) == 0 ||
 	    !connection->recv_credentials(uc))
 	{
@@ -496,7 +496,7 @@ uid_t singletonapp::validate_peer(const httportmap &portmapper,
 
 	char dummy;
 
-	if (::poll(&pfd, 1, impl::credtimeoutprop.getValue() * 1000) < 0 ||
+	if (::poll(&pfd, 1, impl::credtimeoutprop.get() * 1000) < 0 ||
 	    (pfd.revents & POLLIN) == 0 ||
 	    connection->read(&dummy, 1) != 1)
 	{

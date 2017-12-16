@@ -67,7 +67,7 @@ uint64_t parsesize(const std::string &s,
 //! or file size value to be specified as %property or an %option.
 //!
 //! \c property::value<memsize> allows a memory or file size be specified as
-//! a property. Use the resulting object's getValue(), as usual, to retrieve
+//! a property. Use the resulting object's get(), as usual, to retrieve
 //! the property value.
 //!
 //! \par Properties
@@ -79,7 +79,7 @@ uint64_t parsesize(const std::string &s,
 //!
 //! // ...
 //!
-//! uint64_t bytes=memsize_prop.getValue().bytes;
+//! uint64_t bytes=memsize_prop.get().bytes;
 //! \endcode
 //!
 //! In the property file:

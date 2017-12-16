@@ -74,7 +74,7 @@ void gnutls::http::fdtlsserverimpl::filedesc_installed(const fdbase &transport)
 {
 	sess->setTransport(transport);
 
-	set_readwrite_timeout(handshake_timeout.getValue().seconds());
+	set_readwrite_timeout(handshake_timeout.get().seconds());
 
 	int dummy;
 
@@ -86,7 +86,7 @@ void gnutls::http::fdtlsserverimpl::filedesc_installed(const fdbase &transport)
 
 void gnutls::http::fdtlsserverimpl::ran()
 {
-	set_readwrite_timeout(bye_timeout.getValue().seconds());
+	set_readwrite_timeout(bye_timeout.get().seconds());
 	try {
 		int dummy;
 

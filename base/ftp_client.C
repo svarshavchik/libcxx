@@ -67,12 +67,12 @@ public:
 	{
 		auto new_timeout=fdtimeout::create(fdinst);
 
-		new_timeout->set_read_timeout(read_timeout_bytes.getValue(),
-					      read_timeout.getValue()
+		new_timeout->set_read_timeout(read_timeout_bytes.get(),
+					      read_timeout.get()
 					      .seconds());
 
-		new_timeout->set_write_timeout(write_timeout_bytes.getValue(),
-					       write_timeout.getValue()
+		new_timeout->set_write_timeout(write_timeout_bytes.get(),
+					       write_timeout.get()
 					       .seconds());
 		return new_timeout;
 	}
@@ -119,7 +119,7 @@ class LIBCXX_INTERNAL clientObj::response_collector::str
 
 	void operator()(const char *ptr) const override
 	{
-		if (n >= read_response_max_lines.getValue())
+		if (n >= read_response_max_lines.get())
 			return;
 
 		++n;
@@ -310,7 +310,7 @@ void clientObj::throw_error_from_response_str(const std::string &command,
 
 void clientObj::impl::response(const response_collector &collector)
 {
-	auto max_linesize=read_response_max_linesize.getValue()+2;
+	auto max_linesize=read_response_max_linesize.get()+2;
 
 	// First response line received
 	char resp1[max_linesize];
@@ -443,10 +443,10 @@ void clientObj::impl::set_default_timeouts()
 	broken=true;
 	// We set the default timeouts for both read and write operations,
 	// which can be used during TLS.
-	timeout->set_read_timeout(read_timeout_bytes.getValue(),
-				  read_timeout.getValue().seconds());
-	timeout->set_write_timeout(write_timeout_bytes.getValue(),
-				   write_timeout.getValue().seconds());
+	timeout->set_read_timeout(read_timeout_bytes.get(),
+				  read_timeout.get().seconds());
+	timeout->set_write_timeout(write_timeout_bytes.get(),
+				   write_timeout.get().seconds());
 }
 
 void clientObj::impl::cancel_default_timeouts()

@@ -47,11 +47,11 @@ default_algorithms(LIBCXX_NAMESPACE_STR
 serverauthObj::serverauthObj(const std::string &realmArg,
 			     const std::set<uriimpl> &domainArg)
 	: realm(realmArg), domain(domainArg),
-	  nonce_expiration(default_nonce_expiration.getValue().seconds())
+	  nonce_expiration(default_nonce_expiration.get().seconds())
 {
 	std::list<std::string> algorithm_strs;
 
-	strtok_str(default_algorithms.getValue(), " \t\r\n,", algorithm_strs);
+	strtok_str(default_algorithms.get(), " \t\r\n,", algorithm_strs);
 
 	for (const auto &name:algorithm_strs)
 	{

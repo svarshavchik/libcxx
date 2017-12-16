@@ -176,7 +176,7 @@ fdptr fdBase::lockf(const std::string_view &filename,
 	*std::copy(filename.begin(), filename.end(), buf)=0;
 
 	struct stat s1, s2;
-	unsigned int cnt=lockf_attempts.getValue();
+	unsigned int cnt=lockf_attempts.get();
 
 	while (1)
 	{

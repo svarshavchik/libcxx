@@ -212,7 +212,7 @@ void fdbaseObj::badconnect(const struct ::sockaddr *serv_addr,
 
 size_t fdbaseObj::get_buffer_size()
 {
-	return buffer_size.getValue();
+	return buffer_size.get();
 }
 
 ref<fdstreambufObj> fdbaseObj::getStreamBuffer(size_t bufsiz)

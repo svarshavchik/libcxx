@@ -768,7 +768,7 @@ void propvaluebaseObj::event(const propvalueset_t &newvalue)
 	std::lock_guard<std::mutex> lock(objmutex);
 
 	if (p)
-		p->set(newvalue);
+		p->update(newvalue);
 }
 
 void propvaluebaseObj::install(const notify &notifyRef)

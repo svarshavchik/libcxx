@@ -52,7 +52,7 @@ void invalid_cast(const char *fromTypeArg,
 	if (toType)
 		free(toType);
 
-	if (invalid_cast_exception.getValue())
+	if (invalid_cast_exception.get())
 	{
 		std::cerr << fmtbuf << std::endl << std::flush;
 		abort();
@@ -65,7 +65,7 @@ void null_ptr_deref()
 {
 	static const char msg[]="Null pointer dereference";
 
-	if (null_ptr_exception.getValue())
+	if (null_ptr_exception.get())
 	{
 		std::cerr << msg << std::endl << std::flush;
 		abort();

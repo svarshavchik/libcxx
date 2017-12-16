@@ -232,7 +232,7 @@ void gnutls::credentials::certificateObj
 void gnutls::credentials::certificateObj::set_x509_trust_default()
 
 {
-	set_x509_trust_file(calist.getValue(), GNUTLS_X509_FMT_PEM);
+	set_x509_trust_file(calist.get(), GNUTLS_X509_FMT_PEM);
 }
 
 

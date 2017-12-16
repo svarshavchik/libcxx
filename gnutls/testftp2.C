@@ -59,11 +59,11 @@ LIBCXX_NAMESPACE::ftp::client new_client(const LIBCXX_NAMESPACE::fdbase
 	auto credentials=
 		LIBCXX_NAMESPACE::gnutls::credentials::certificate::create();
 
-	credentials->set_x509_trust_file(cert.getValue(), GNUTLS_X509_FMT_PEM);
+	credentials->set_x509_trust_file(cert.get(), GNUTLS_X509_FMT_PEM);
 
 	return LIBCXX_NAMESPACE::ftp::client::create(connArg,
 						     credentials,
-						     domain.getValue(),
+						     domain.get(),
 						     passive);
 }
 
@@ -76,11 +76,11 @@ LIBCXX_NAMESPACE::ftp::client new_client(const LIBCXX_NAMESPACE::fdbase
 	auto credentials=
 		LIBCXX_NAMESPACE::gnutls::credentials::certificate::create();
 
-	credentials->set_x509_trust_file(cert.getValue(), GNUTLS_X509_FMT_PEM);
+	credentials->set_x509_trust_file(cert.get(), GNUTLS_X509_FMT_PEM);
 
 	return LIBCXX_NAMESPACE::ftp::client::create(connArg,
 						     credentials,
 						     config,
-						     domain.getValue(),
+						     domain.get(),
 						     passive);
 }

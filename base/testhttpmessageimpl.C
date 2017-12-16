@@ -365,7 +365,7 @@ static void testsendchunked(size_t chunksize)
 
 	parsemsg(lmsg, msg);
 
-	LIBCXX_NAMESPACE::http::senderimpl_encode::chunksize.setValue(chunksize);
+	LIBCXX_NAMESPACE::http::senderimpl_encode::chunksize.set(chunksize);
 
 	std::ostringstream o;
 

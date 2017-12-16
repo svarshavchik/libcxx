@@ -51,10 +51,10 @@ void gnutls::init::init_impl() noexcept
 	gnutls_global_init();
 	gcry_set_progress_handler(int_progress_handler_cb, 0);
 
-	if (high_random_prop.getValue() != "high")
+	if (high_random_prop.get() != "high")
 		gcry_control(GCRYCTL_ENABLE_QUICK_RANDOM);
 
-	int loglevelValue=loglevel.getValue();
+	int loglevelValue=loglevel.get();
 
 	if (loglevelValue > 0)
 	{
@@ -124,7 +124,7 @@ void gnutls::chkerr_throw(int errcode,
 {
 	LOG_FUNC_SCOPE(gnutls_logger);
 
-	if (init::logerrors.getValue())
+	if (init::logerrors.get())
 		LOG_ERROR(funcname << ": " << gnutls_strerror(errcode));
 	throw errexception(errcode, funcname);
 }

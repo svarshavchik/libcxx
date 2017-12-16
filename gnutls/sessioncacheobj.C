@@ -59,7 +59,7 @@ public:
 	ordered_cache<ordered_cache_traits<datum_t, datum_t, datum_comparator,
 					   datum_comparator>, true> cache;
 
-	basic_implObj() : cache(cache_size_property.getValue()) {}
+	basic_implObj() : cache(cache_size_property.get()) {}
 
 	~basic_implObj() {}
 

@@ -95,7 +95,7 @@ private:
 		//! Retrieve the current repeat interval
 		duration_t getDuration()
 		{
-			time_t n=repeatProperty.getValue().seconds();
+			time_t n=repeatProperty.get().seconds();
 
 			return n == 0 ? defaultRepeatDuration
 				: std::chrono::duration_cast<duration_t>

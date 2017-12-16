@@ -57,8 +57,8 @@ std::string configdir(const std::string &appid)
 
 	time_t now=time(NULL);
 
-	time_t when=now-configupdate_interval.getValue() * (60 * 60 * 24 / 2);
-	time_t cutoff=now-configupdate_interval.getValue() * 60 * 60 * 24;
+	time_t when=now-configupdate_interval.get() * (60 * 60 * 24 / 2);
+	time_t cutoff=now-configupdate_interval.get() * 60 * 60 * 24;
 
 	auto timestamp=fileattr::create(dotexe)->stat().st_mtime;
 

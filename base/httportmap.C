@@ -35,7 +35,7 @@ const char httportmapBase::pid2exe_service[]="pid2exe.libcxx";
 
 int httportmapObj::getDefaultPort()
 {
-	return default_portmaport_prop.getValue();
+	return default_portmaport_prop.get();
 }
 
 class LIBCXX_HIDDEN httportmapBase::regpid2exeObj : virtual public x::obj {

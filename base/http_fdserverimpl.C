@@ -35,7 +35,7 @@ fdserverimpl::headers_maxsize(LIBCXX_NAMESPACE_STR "::http::server::headers::max
 				       "::http::server::body_timeout_cnt",
 				       65536);
 
-fdserverimpl::fdserverimpl() : superclass_t(headers_limit.getValue())
+fdserverimpl::fdserverimpl() : superclass_t(headers_limit.get())
 {
 }
 
@@ -65,7 +65,7 @@ void fdserverimpl::run(const fd &connection,
 	superclass_t::install(input_iter_t(filedesc()),
 			      input_iter_t(),
 			      output_iter_t(filedesc()),
-			      headers_limit.getValue());
+			      headers_limit.get());
 
 	try {
 		superclass_t::run();
@@ -92,7 +92,7 @@ bool fdserverimpl::eof()
 	sender_t::iter.flush();
 	filedesc_timeout->cancel_write_timer();
 
-	filedesc_timeout->set_read_timeout(pipeline_timeout.getValue()
+	filedesc_timeout->set_read_timeout(pipeline_timeout.get()
 					   .seconds());
 
 	bool flag;
@@ -116,10 +116,10 @@ void fdserverimpl::header_begin()
 
 	superclass_t::header_begin();
 
-	filedesc_readlimit->set_read_limit(headers_maxsize.getValue(),
+	filedesc_readlimit->set_read_limit(headers_maxsize.get(),
 					   "HTTP request header limit exceeded"
 					   );
-	filedesc_timeout->set_read_timeout(headers_timeout.getValue()
+	filedesc_timeout->set_read_timeout(headers_timeout.get()
 					   .seconds());
 }
 
@@ -129,8 +129,8 @@ void fdserverimpl::body_begin()
 	// reading message body. Need to flush here.
 	sender_t::iter.flush();
 	filedesc_timeout->cancel_write_timer();
-	filedesc_timeout->set_read_timeout(body_timeout_cnt.getValue(),
-					   body_timeout.getValue().seconds());
+	filedesc_timeout->set_read_timeout(body_timeout_cnt.get(),
+					   body_timeout.get().seconds());
 
 	superclass_t::body_begin();
 }
@@ -144,8 +144,8 @@ void fdserverimpl::body_end()
 void fdserverimpl::begin_write_message()
 {
 	filedesc_timeout->cancel_read_timer();
-	filedesc_timeout->set_write_timeout(body_timeout_cnt.getValue(),
-					    body_timeout.getValue().seconds());
+	filedesc_timeout->set_write_timeout(body_timeout_cnt.get(),
+					    body_timeout.get().seconds());
 }
 
 void fdserverimpl::end_write_message()

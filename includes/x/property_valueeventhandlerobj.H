@@ -38,7 +38,7 @@ typedef std::pair<std::string *, const_locale> propvalueset_t;
 //! Call \ref propvaluesetbase::installNotify "property::value<>::installNotify()"
 //! to have event() invoked whenever the %property's %value changes.
 //!
-//! The callback is allowed to invoke getValue(), on its %property but may not
+//! The callback is allowed to invoke get(), on its %property but may not
 //! modify any %properties, otherwise a deadlock may occur.
 
 class notifyObj : public eventhandlerObj<propvalueset_t> {
@@ -54,8 +54,7 @@ public:
 
 	//! The default implementation invokes event(void)
 	//!
-	void event(const propvalueset_t &newvalue)
-;
+	void event(const propvalueset_t &newvalue);
 
 	//! The fallback callback
 
@@ -92,32 +91,28 @@ protected:
 
 	void install(const char *namestr, //!< Property name
 		     const std::string &initvalue, //!< Initial property value
-		     const const_locale &locale) //!< Locale
-;
+		     const const_locale &locale); //!< Locale
+
 
 	//! Install the property callback
 
 	void install(const ptr<listObj> &props, //!< Property list
 		     const char *namestr, //!< Property name
 		     const std::string &initvalue, //!< Initial property value
-		     const const_locale &locale) //!< Locale
-;
+		     const const_locale &locale); //!< Locale
 
 	//! Install the property callback
 
 	void install(const std::string &namestr, //!< Property name
 		     const std::string &initvalue, //!< Initial property value
-		     const const_locale &locale) //!< Locale
-;
+		     const const_locale &locale); //!< Locale
 
 	//! Install the property callback
 
 	void install(const ref<listObj> &props, //!< Property list
 		     const std::string &namestr, //!< Property name
 		     const std::string &initvalue, //!< Initial property value
-		     const const_locale &locale) //!< Locale
-;
-
+		     const const_locale &locale); //!< Locale
 
 	//! Break the property callback
 
@@ -139,9 +134,8 @@ public:
 
 	//! This is implemented by the actual subclass.
 	//!
-	virtual void set(//! Updated property %value
-			 const propvalueset_t &newvalue)
-=0;
+	virtual void update(//! Updated property %value
+			    const propvalueset_t &newvalue)=0;
 
 	//! Install a notification callback when the %property %value changes
 

@@ -112,7 +112,7 @@ void semaphoreObj::process(const ref<ownerObj> *push,
 			{
 				pen=pending_list.front();
 
-				size_t size=semaphore_size.getValue();
+				size_t size=semaphore_size.get();
 
 				// If there's nothing acquired, always take the
 				// first request, even if it's larger than the

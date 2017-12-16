@@ -390,12 +390,12 @@ public:
 
 		     //! Maximum number of persistent connections cached by useragent
 
-		     size_t connectionlist_maxsizeArg=maxconn.getValue(),
+		     size_t connectionlist_maxsizeArg=maxconn.get(),
 
 		     //! Maximum number of persistent connections to the same host cached by useragent
 
 		     size_t hostconnectionlist_maxsizeArg
-		     =maxhostconn.getValue());
+		     =maxhostconn.get());
 
 	//! Default destructor
 	~useragentObj();

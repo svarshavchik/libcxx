@@ -202,7 +202,7 @@ exceptionObj::~exceptionObj()=default;
 
 void exceptionObj::fileline(const char *file, int line) noexcept
 {
-	if (show_filename.getValue())
+	if (show_filename.get())
 		(std::ostringstream &)*this << file << "(" << line << "): ";
 }
 

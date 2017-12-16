@@ -292,7 +292,7 @@ namespace senderimpl_encode {
 			if (!body_expected || !do_sendbody())
 				return iter;
 
-			size_t n=chunksize.getValue();
+			size_t n=chunksize.get();
 
 			if (n <= 0)
 				n=1; // Sanity check

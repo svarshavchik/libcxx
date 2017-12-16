@@ -1503,7 +1503,7 @@ ptr<logger::inheritObj> logger::scopebase::getscope(const std::string &name)
 				property::value<bool> inheritflag(inherit,
 								  true);
 
-				if (!inheritflag.getValue())
+				if (!inheritflag.get())
 					h->handlers.clear();
 			}
 		}
@@ -1662,7 +1662,7 @@ void logger::domsg(std::map<std::string, std::string> &vars,
 	{
 		scopedestObj &hep=*hb->second;
 
-		std::string fmtstr=tostring(hep.fmt.getValue().fmt, global);
+		std::string fmtstr=tostring(hep.fmt.get().fmt, global);
 
 		const char *fmt=fmtstr.c_str();
 
@@ -1751,7 +1751,7 @@ void logger::domsg(std::map<std::string, std::string> &vars,
 
 		o.write(fmtstart, fmt-fmtstart);
 
-		msg_list.push_back(std::make_pair(hep.name.getValue().h,
+		msg_list.push_back(std::make_pair(hep.name.get().h,
 						  o.str()));
 	}
 

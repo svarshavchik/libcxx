@@ -24,7 +24,7 @@ static property::value&lt;int&gt; window_width("main::window::width", 400);
 
 // ...
 
-int window_width_value=window_width.getValue();</programlisting>
+int window_width_value=window_width.get();</programlisting>
     </informalexample>
   </blockquote>
 
@@ -32,7 +32,7 @@ int window_width_value=window_width.getValue();</programlisting>
     This example defines a property named <quote>main::window::width</quote>.
     Its value gets specified in the application's property file. If not
     specified in the property file, its default value is given as 400.
-    <methodname>getValue()</methodname> returns the property's value from the
+    <methodname>get()</methodname> returns the property's value from the
     configuration file, or its default value.
   </para>
 

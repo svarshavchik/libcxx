@@ -319,7 +319,7 @@ void gnutls::sessionObj::set_session_data(const datum_t &session_dataArg)
 
 void gnutls::sessionObj::session_cache(const sessioncache &cacheArg)
 {
-	session_cache(cacheArg, session_cache_expiration.getValue().seconds());
+	session_cache(cacheArg, session_cache_expiration.get().seconds());
 }
 
 void gnutls::sessionObj::session_cache(const sessioncache &cacheArg,
@@ -642,7 +642,7 @@ size_t gnutls::sessionObj::send(const void *data, size_t cnt, int &direction)
 	}
 
 	if (n == GNUTLS_E_PREMATURE_TERMINATION &&
-	    ignore_premature_termination.getValue())
+	    ignore_premature_termination.get())
 	{
 		errno=0;
 		direction=0;
@@ -724,7 +724,7 @@ size_t gnutls::sessionObj::recv(void *data, size_t cnt, int &direction)
 	}
 
 	if (n == GNUTLS_E_PREMATURE_TERMINATION &&
-	    ignore_premature_termination.getValue())
+	    ignore_premature_termination.get())
 	{
 		errno=0;
 		direction=0;

@@ -576,7 +576,7 @@ bool portmap_server::handle_client_line(clientinfoObj &cl,
 		}
 
 		if (cl.pending_registrations.size() <=
-		    maxregs.getValue())
+		    maxregs.get())
 			cl.pending_registrations.push_back(newentry);
 
 
@@ -607,7 +607,7 @@ bool portmap_server::handle_client_line(clientinfoObj &cl,
 
 		if (cl.pending_registrations.size() +
 		    cl.registered_services.size() <=
-		    maxregs.getValue()
+		    maxregs.get()
 		    &&
 		    portmap.regsvcs(cl.pending_registrations.begin(),
 				    cl.pending_registrations.end(),
