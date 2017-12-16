@@ -1976,15 +1976,12 @@ $(call REFCOLLECTION_GEN,refcollection.H,$(srcdir)/refcollection.xml)
     <title>Destructor callbacks and mcguffins</title>
 
     <para>
-      It is possible to set up one or more <quote>callbacks</quote> that get
-      invoked
-      when some subclass of <classname>&ns;::obj</classname>,
-      some <quote>mcguffin</quote>, gets destroyed after the last &reforptr;
+      It is possible to make arrangements to have a closure, or some
+      callable object, a.k.a. a <quote>callback</quote> get invoked
+      when a specific <classname>&ns;::obj</classname> or its subclass,
+      a.k.a. a <quote>mcguffin</quote>, gets destroyed when the last &reforptr;
       to the mcguffin goes out of scope.
-      This <quote>callback</quote> is some method in an instance of a different,
-      otherwise unrelated, class. The method gets invoked whenever the
-      first class gets destroyed. Here, the first class is called a
-      <quote>mcguffin</quote>. This name comes from
+      This object then becomes a <quote>mcguffin</quote>. This name comes from
       the film director Alfred Hitchcock who used it
       to describe some minor prop or gadget that is of little inherent value,
       but is responsible for driving the major plot of a movie.
@@ -1994,8 +1991,9 @@ $(call REFCOLLECTION_GEN,refcollection.H,$(srcdir)/refcollection.xml)
     </para>
 
     <para>
-      A mcguffin is some
-      <link linkend="refobj">reference-counted object</link>
+      A mcguffin is a
+      <link linkend="refobj">reference-counted object</link> whose methods
+      and members may not be necessarily important, but
       whose own implicit existence has some inherent purpose, and defines some
       part of its functionality, loosely speaking.
       Consider a typical situation of a thread sending some kind of a message
@@ -2004,12 +2002,12 @@ $(call REFCOLLECTION_GEN,refcollection.H,$(srcdir)/refcollection.xml)
     </para>
 
     <para>
-      You can write and implement an acknowledgement mechanism of some kind,
+      You can write and code a separate notification mechanism of some kind,
       but this quickly gets complicated. What if, for
       example, the second thread ended
       normally, but before it had a chance to process the message? You'll
-      have to handle that eventuality too. In most non-trivial situations
-      there will be other ways for things to go off the rails.
+      have to handle that eventuality too. With typical situations
+      there will be other ways for things to go off the beaten path, too.
     </para>
 
     <para>
@@ -2020,8 +2018,8 @@ $(call REFCOLLECTION_GEN,refcollection.H,$(srcdir)/refcollection.xml)
       message object goes out of scope and the mcguffin gets destroyed.
       If the thread stops, presumably its message queue, together with all
       of its messages, also gets destroyed. In all cases, the message object
-      gets destroyed. The message object is a mcguffin, so its destructor
-      callbacks gets invoked in all cases.
+      gets destroyed. The message object is a mcguffin because its destructor
+      callbacks get invoked in all cases.
     </para>
 
     <para>
@@ -2049,7 +2047,7 @@ $(call REFCOLLECTION_GEN,refcollection.H,$(srcdir)/refcollection.xml)
       By the time the destructor callbacks get called, the mcguffin is already
       destroyed, and the destructor callback has no means to access it. But
       that's fine, the object's existence was what made it a mcguffin, and
-      now the destructor callbacks get invoked because the object got
+      now the destructor callbacks get invoked because the object was
       destroyed.
     </para>
 
@@ -2142,8 +2140,8 @@ cb->wait();</programlisting>
       </blockquote>
 
       <para>
-	This subclass implements a
-	<methodname>wait</methodname>(), that waits indefinitely until
+	<classname>&ns;::destroy_callback</classname> implements
+	<methodname>wait</methodname>() which does not return until
 	its <methodname>destroyed</methodname>() gets invoked, presumably
 	by another thread.
 	<methodname>wait</methodname>() returns immediately
@@ -2171,9 +2169,9 @@ cb->wait();</programlisting>
       <para>
 	A
 	<ulink url="&link-x--destroy-callbackBase--guard;"><classname>&ns;::destroy_callback::base::guard</classname></ulink>
-	is an object meant to be instantiated on the stack, or as a class
+	is an object meant to be instantiated in automatic scope or as a class
 	member.
-	Its destructor waits until other objects placed in its care get
+	Its destructor waits until the objects placed in its care get
 	destroyed, before the destructor itself returns:
       </para>
 
@@ -2256,7 +2254,7 @@ void run()
 	<para>
 	  <classname>&ns;::destroy_callback::base::guard</classname>
 	  does not implement copy contructors or assignment operators.
-	  It should always be instantiated either on the stack, or as a
+	  It should always be instantiated either in automatic scope, or as a
 	  class member.
 	</para>
       </note>

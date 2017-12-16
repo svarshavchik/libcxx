@@ -60,7 +60,10 @@ std::string configdir(const std::string &appid)
 	time_t when=now-configupdate_interval.getValue() * (60 * 60 * 24 / 2);
 	time_t cutoff=now-configupdate_interval.getValue() * 60 * 60 * 24;
 
-	if (fileattr::create(dotexe)->stat().st_mtime < when)
+	auto timestamp=fileattr::create(dotexe)->stat().st_mtime;
+
+	// When will then be now?
+	if (timestamp < now || timestamp < when)
 	{
 		utimensat(AT_FDCWD, dotexe.c_str(), NULL,
 			  AT_SYMLINK_NOFOLLOW);

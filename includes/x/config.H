@@ -27,11 +27,12 @@ namespace LIBCXX_NAMESPACE {
 //! that belongs to the application.
 //!
 //! configdir() creates "$HOME/.libcxx-config/<appid>" if it does not exist
-//! already, and creates a "$HOME/.libcxx-config/<appid>/.exe" that points toe
-//! the application's executable. At regular intervals, configdir() reads
-//! all directories in "$HOME/.libcxx-config" and checks that these symbolic
+//! already, and creates a "$HOME/.libcxx-config/<appid>/.exe" that points to
+//! the application's executable. configdir() reads all directories in
+//! "$HOME/.libcxx-config" at regular intervals and checks that these symbolic
 //! links are valid, then rudely deletes every subdirectory with a broken .exe
-//! symbolic link.
+//! symbolic link. This maintenance check does not occur with every
+//! call to configdir(), but happens at predetermined intervals.
 //!
 //! In this manner, once an application gets uninstalled its configuration
 //! directory still gets removed, at some point, by a different LibCXX
@@ -41,7 +42,7 @@ namespace LIBCXX_NAMESPACE {
 //! \ref explicit_property_namespace "INSERT_LIBX_NAMESPACE::configdir::update_interval property"
 //! sets
 //! the number of days (60 by default), that determines the frequency of
-//! these maintenance checks, in the following manner
+//! these maintenance checks, in the following manner:
 //!
 //! - the next maintenance check occurs when configdir() gets called the
 //! first time it's called after half the update interval from the previous

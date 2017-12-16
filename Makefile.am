@@ -34,7 +34,10 @@ EXTRA_DIST=config.rpath DoxygenLayout.xml abi.xml.in $(man_MANS) \
 DOCS_SRC = $(shell find includes/x -name '*.H' -print)
 
 docs: html/index.html html/book.css html/logo.png html/robots.txt html/.htaccess html/frame.js html/icon.gif $(patsubst %,html/%,$(notdir $(wildcard $(srcdir)/docbook/*.png)))
-	-chcon -R -t httpd_sys_content_t html/. 2>/dev/null || true
+	chcon -R -t httpd_sys_content_t html. 2>/dev/null || true
+	cd html; for d in `ls */. | sed 's@/.$$@@'`; do rm -rf ~/www/www.courier-mta.org/libcxx/$$d; done
+	cd ~/www/www.courier-mta.org/libcxx || exit 1; rm -f * 2>/dev/null; exit 0
+	rsync -a -X html/* ~/www/www.courier-mta.org/libcxx
 
 html/%.png: html/index.html docbook/%.png
 	$(INSTALL) -m 0644 $(srcdir)/docbook/$(notdir $@) html
@@ -55,7 +58,6 @@ html/icon.gif: html/index.html docbook/icon.gif
 	$(INSTALL) -m 0644 $(srcdir)/docbook/icon.gif html/icon.gif
 
 html/index.html: html/ref/index.html $(wildcard docbook/*.xml) docbook/xmllinks.xsl
-	-cd ../libcxxsql && $(MAKE) docs
 	mkdir -p docbook
 	xsltproc $(srcdir)/docbook/xmllinks.xsl xml/index.xml >docbook/entities
 	rm -rf html.tmp
@@ -67,17 +69,14 @@ html/index.html: html/ref/index.html $(wildcard docbook/*.xml) docbook/xmllinks.
 		--stringparam generate.id.attributes 1 \
 		--param local.l10n.xml 'document("'`pwd`/docbook/l10.xml'")' \
 		$(srcdir)/docbook/docbook.xsl $(srcdir)/docbook/book.xml
-	-rm -f html/* 2>/dev/null >/dev/null || :
-	mv html.tmp/* html
-	rm -rf html.tmp
-	rm -rf html/examples
-	find examples -depth \( -type d -o -name '*.[CH]' -o -name '*.xml' -o -name Makefile.am -o -name configure.ac \) -print | cpio -o --quiet | (cd html; cpio -i --quiet --make-directories)
-	echo 'ForceType text/plain' >html/examples/.htaccess
-	rm -rf html/stasher html/sql
-	ln -s ../stasher html
-	rsync -a ../libcxxsql/html/. html/sql || exit 0
-	links -dump -no-numbering -no-references html/INSTALL.html >INSTALL.tmp
+	find examples -depth \( -type d -o -name '*.[CH]' -o -name '*.xml' -o -name Makefile.am -o -name configure.ac \) -print | cpio -o --quiet | (cd html.tmp; cpio -i --quiet --make-directories)
+	echo 'ForceType text/plain' >html.tmp/examples/.htaccess
+	links -dump -no-numbering -no-references html.tmp/INSTALL.html >INSTALL.tmp
 	mv -f INSTALL.tmp INSTALL
+	mkdir html.tmp/ref
+	ln html/ref/* html.tmp/ref
+	rm -rf html
+	mv html.tmp html
 
 html/ref/index.html: $(DOCS_SRC) Doxyfile header.html
 	rm -rf html/ref
