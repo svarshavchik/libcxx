@@ -91,29 +91,29 @@ protected:
 
 	void install(const char *namestr, //!< Property name
 		     const std::string &initvalue, //!< Initial property value
-		     const const_locale &locale); //!< Locale
-
+		     const const_locale &locale //!< Locale
+		     );
 
 	//! Install the property callback
 
 	void install(const ptr<listObj> &props, //!< Property list
 		     const char *namestr, //!< Property name
 		     const std::string &initvalue, //!< Initial property value
-		     const const_locale &locale); //!< Locale
-
+		     const const_locale &locale //!< Locale
+		     );
 	//! Install the property callback
 
 	void install(const std::string &namestr, //!< Property name
 		     const std::string &initvalue, //!< Initial property value
-		     const const_locale &locale); //!< Locale
-
+		     const const_locale &locale //!< Locale
+		     );
 	//! Install the property callback
 
 	void install(const ref<listObj> &props, //!< Property list
 		     const std::string &namestr, //!< Property name
 		     const std::string &initvalue, //!< Initial property value
-		     const const_locale &locale); //!< Locale
-
+		     const const_locale &locale //!< Locale
+		     );
 	//! Break the property callback
 
 	//! This function disables automatic forwarding of updated property

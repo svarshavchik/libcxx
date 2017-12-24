@@ -11,7 +11,7 @@ See COPYING for distribution information.
     <title>Introduction</title>
 
     <para>
-      This is a library of C++11 application classes and templates that's
+      This is a library of C++ application classes and templates that's
       focused on the following areas of functionality:
     </para>
 
@@ -29,7 +29,7 @@ See COPYING for distribution information.
       <listitem>
 	<para>
 	  <link linkend="refobj">Templates for reference-counted objects</link>
-	  that offer a much richer set
+	  that offer a richer set
 	  of functionality than <classname>shared_ptr</classname>.
 	  The &ref;, &ptr;, &const_ref;, and &const_ptr; templates implement
 	  semantic concepts that are analogous to the conceptual differences
@@ -44,12 +44,8 @@ See COPYING for distribution information.
 	  multiple inheritance in the context of a reference-counted
 	  object-based framework; as well as
 	  <link linkend="ondestroy">destructor callbacks</link> that
-	  implement useful design patterns where
-	  <quote>something</quote> needs to be done after
-	  <quote>something else</quote>,
-	  such as a request or a message of some kind,
-	  gets processed, without <quote>something else</quote> really
-	  caring what <quote>something</quote> is.
+	  implement useful design patterns that are frequently used
+	  in multithreaded and message-based applications.
 	</para>
       </listitem>
 

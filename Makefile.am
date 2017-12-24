@@ -71,10 +71,12 @@ html/index.html: html/ref/index.html $(wildcard docbook/*.xml) docbook/xmllinks.
 		$(srcdir)/docbook/docbook.xsl $(srcdir)/docbook/book.xml
 	find examples -depth \( -type d -o -name '*.[CH]' -o -name '*.xml' -o -name Makefile.am -o -name configure.ac \) -print | cpio -o --quiet | (cd html.tmp; cpio -i --quiet --make-directories)
 	echo 'ForceType text/plain' >html.tmp/examples/.htaccess
+	echo 'Options +Indexes' >>html.tmp/examples/.htaccess
 	links -dump -no-numbering -no-references html.tmp/INSTALL.html >INSTALL.tmp
 	mv -f INSTALL.tmp INSTALL
 	mkdir html.tmp/ref
 	ln html/ref/* html.tmp/ref
+	ln -s ../stasher html.tmp/stasher
 	rm -rf html
 	mv html.tmp html
 

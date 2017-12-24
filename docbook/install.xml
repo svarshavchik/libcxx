@@ -8,58 +8,56 @@ See COPYING for distribution information.
 <section id="INSTALL">
   <title>Installation, and requirements</title>
 
-  <informaltable id="externallinks">
-    <thead cols="1">
-      <tr>
-	<th>
-	  <simpara>Links</simpara>
-	</th>
-      </tr>
-    </thead>
+    <informaltable class='externallinks'>
+      <thead cols="1">
+	<tr>
+	  <th>
+	    <simpara>Links</simpara>
+	  </th>
+	</tr>
+      </thead>
 
-    <tbody>
-      <tr>
-	<td>
-	  <simpara>
-	    <ulink url="https://fedorahosted.org/released/libcxx/">Download</ulink>
-	  </simpara>
+      <tbody>
+	<tr>
+	  <td>
+	    <simpara>
+	      <ulink url="https://pagure.io/LibCXX/releases/">Download</ulink>
+	    </simpara>
 
-	  <simpara>
-	    <ulink url="https://lists.fedorahosted.org/mailman/listinfo/libcxx-users">Mailing list</ulink>
-	  </simpara>
+	    <simpara>
+	      <ulink url="https://lists.libcxx.org/mailman/listinfo/libcxx-users_lists.libcxx.org">Mailing list</ulink>
+	    </simpara>
 
-	  <simpara>
-	    <ulink url="http://git.fedorahosted.org/git/libcxx.git">fedorahosted</ulink> or
-	    <ulink url="https://github.com/svarshavchik/libcxx.git">GitHUB</ulink>
-	    <acronym>GIT</acronym>
-	  </simpara>
-	  <simpara>
-	    (<quote>libcxx/master</quote> branch).
-	  </simpara>
+	    <simpara>
+	      <ulink url="https://pagure.io/LibCXX.git">Pagure</ulink> or
+	      <ulink url="https://github.com/svarshavchik/libcxx.git">GitHUB</ulink>
+	      <acronym>GIT</acronym>
+	    </simpara>
+	    <simpara>
+	      (<quote>libcxx/master</quote> branch).
+	    </simpara>
 
-	  <simpara>
-	    <ulink url="http://www.courier-mta.org/KEYS.bin">PGP key</ulink>
-	  </simpara>
-	</td>
-      </tr>
-    </tbody>
-  </informaltable>
+	    <simpara>
+	      <ulink url="http://www.courier-mta.org/KEYS.bin">PGP key</ulink>
+	    </simpara>
+	  </td>
+	</tr>
+      </tbody>
+    </informaltable>
 
   <para>
-    &app; uses Linux-specific APIs;
-    and with one exception &app; compiles only on Linux,
-    The exception is that currently it builds on &freebsdver; with
-    an alternative implementation of Linux-specific APIs,
-    see <xref linkend="freebsdport" />
+    &app; uses Linux-specific APIs. An earlier version of &app; could
+    also be be built on &freebsdver;, but the port is not maintained at
+    present, see <xref linkend="freebsdport" />
     for more information.
   </para>
 
   <para>
     &app; targets the current generally-available version of
-    <application>gcc</application>. Since this library uses
-    C++17 classes, applications must be compiled with the
-    <option>-std=c++1z</option> option, as well as
-    <option>-fno-omit-frame-pointer</option>. This is done automatically
+    <application>gcc</application>, and code that uses &app; should
+    use
+    <option>&buildoptions;</option> options to compile.
+    This is done automatically
     when <link linkend="using">using autotools</link>.
   </para>
 
@@ -149,7 +147,10 @@ See COPYING for distribution information.
 
       <listitem>
 	<para>
-	  The <application>libtool 2.4</application>.
+	  <application>libtool</application>,
+	  <application>autoconf</application>,
+	  <application>automake</application>, and
+	  <application>gettext</application>.
 	</para>
       </listitem>
 
@@ -163,14 +164,6 @@ See COPYING for distribution information.
 	<para>
 	  An installed list of default certificate authorities, in
 	  <filename>/etc/pki/tls/cert.pem</filename> by default.
-	</para>
-      </listitem>
-
-      <listitem>
-	<para>
-	  Other non-Linux platforms (currently consists
-	  of one specific version of FreeBSD) might have additional
-	  requirements for Linux compatibility.
 	</para>
       </listitem>
     </itemizedlist>

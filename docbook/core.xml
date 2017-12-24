@@ -110,7 +110,7 @@ application_LDADD=-lcxx</programlisting>
     <para>
       <literal>LIBCXX_INIT</literal> defines the
       <literal>LIBCXX_AM</literal> automake macro which pulls in Makefile
-      used in <xref linkend="msgdispatcher" /> and
+      macros used in <xref linkend="msgdispatcher" /> and
       <xref linkend="options" />.
     </para>
 
