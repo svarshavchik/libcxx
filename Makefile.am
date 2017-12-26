@@ -164,9 +164,8 @@ ACLOCAL_AMFLAGS = -I m4
 www: html
 	rsync -a --delete-after html/. ~/www/www.courier-mta.org/libcxx/.
 
-tag:
+upload:
 	git tag -s -a @PACKAGE@/@VERSION@/`date +%Y%m%d%H%M%S` -m 'Tag version @VERSION@'
-
-scp:
 	rm -f @PACKAGE@-@VERSION@.tar.bz2.sig; gpg --detach-sign --default-key mrsam@courier-mta.com @PACKAGE@-@VERSION@.tar.bz2; test -f @PACKAGE@-@VERSION@.tar.bz2.sig || exit 1
-	scp @PACKAGE@-@VERSION@.tar.bz2 @PACKAGE@-@VERSION@.tar.bz2.sig fedorahosted.org:libcxx
+	pag upload @PACKAGE@-@VERSION@.tar.bz2
+	pag upload @PACKAGE@-@VERSION@.tar.bz2.sig

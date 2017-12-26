@@ -21,7 +21,7 @@ See COPYING for distribution information.
 	<tr>
 	  <td>
 	    <simpara>
-	      <ulink url="https://pagure.io/LibCXX/releases/">Download</ulink>
+	      <ulink url="https://releases.pagure.org/LibCXX/">Download</ulink>
 	    </simpara>
 
 	    <simpara>
@@ -32,9 +32,6 @@ See COPYING for distribution information.
 	      <ulink url="https://pagure.io/LibCXX.git">Pagure</ulink> or
 	      <ulink url="https://github.com/svarshavchik/libcxx.git">GitHUB</ulink>
 	      <acronym>GIT</acronym>
-	    </simpara>
-	    <simpara>
-	      (<quote>libcxx/master</quote> branch).
 	    </simpara>
 
 	    <simpara>
