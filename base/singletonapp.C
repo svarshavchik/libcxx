@@ -128,7 +128,7 @@ class LIBCXX_HIDDEN singletonapp::impl::mysighandler : public sighandlerObj {
 	{
 	}
 
-	void signal(int signum)
+	void signal(int signum) override
 	{
 		LOG_FUNC_SCOPE(singletonapp::logger);
 
@@ -339,7 +339,7 @@ public:
 	destroycb(const ref<thr> &ptrArg) : tptr(ptrArg) {}
 	~destroycb() {}
 
-	void destroyed()
+	void destroyed() override
 	{
 		tptr->terminated();
 	}

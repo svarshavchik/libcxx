@@ -36,7 +36,7 @@ public:
 		return a->getd();
 	}
 
-	D *getd() { ++counter; return this; }
+	D *getd() override { ++counter; return this; }
 };
 
 void testconvert()

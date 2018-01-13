@@ -53,7 +53,7 @@ public:
 	//! Generate new DH parameters
 
 	void generate(//! Number of bits, 768, 1024, 2048, 3072 or 4096.
-		      unsigned int bits);
+		      unsigned int bits) override;
 
 	//! Export the DH parameters
 
@@ -64,7 +64,7 @@ public:
 	void import_pk(//! The DH parameters
 		       datum_t dhparams,
 		       //! \c GNUTLS_X509_FMT_DER or \c GNUTLS_X509_FMT_PEM
-		       gnutls_x509_crt_fmt_t format);
+		       gnutls_x509_crt_fmt_t format) override;
 
 	//! Export raw key exchange parameters
 
@@ -85,14 +85,14 @@ public:
 			//! This must be a two-element array
 			//! (\c prime and \c generator values).
 
-			const std::vector<datum_t> &raw_datum);
+			const std::vector<datum_t> &raw_datum) override;
 
 	//! Return the public key type
 
 	//! \return \c GNUTLS_PK_DSA
 	//!
 
-	gnutls_pk_algorithm_t get_pk_algorithm() const;
+	gnutls_pk_algorithm_t get_pk_algorithm() const override;
 
 	//! Disown this DH parameter
 
@@ -124,7 +124,7 @@ public:
 	//!
 	//! - system.dh
 
-	void import();
+	void import() override;
 };
 
 #if 0

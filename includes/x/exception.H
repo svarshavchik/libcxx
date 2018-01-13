@@ -77,7 +77,7 @@ public:
 
 	//! Inherited from std::exception
 
-	const char *what() const noexcept;
+	const char *what() const noexcept override;
 
 	//! A new exception under construction, pretending to be a std::ostream.
 
@@ -281,7 +281,7 @@ struct custom_exception_base_class<false> {
 		//! Use void instead
 		typedef void base_t;
 	};
-		
+
 };
 
 //! Specialization: the class defines a \c base typedef
@@ -299,7 +299,7 @@ struct custom_exception_base_class<true> {
 		//! Use it.
 		typedef typename T::base base_t;
 	};
-		
+
 };
 
 //! Custom subclass of an exception

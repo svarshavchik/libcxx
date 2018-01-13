@@ -52,7 +52,7 @@ public:
 	//! Put a new event into the queue
 
 	void event(//! The new event
-		   const argType &arg)
+		   const argType &arg) override
 	{
 		std::unique_lock<std::mutex> lock(this->objmutex);
 

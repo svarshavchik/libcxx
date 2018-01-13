@@ -28,7 +28,7 @@ class timerObj::implObj
 
 	std::string timername;
 
-	std::string getName() const
+	std::string getName() const override
 	{
 		return timername;
 	}

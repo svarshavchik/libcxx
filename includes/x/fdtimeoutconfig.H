@@ -64,7 +64,7 @@ public:
 	//! Attach the terminator file descriptor.
 
 	fdbase operator()(const fd &fdinst)
-		const;
+		const override;
 };
 
 //! Helper class returned from make_fdtimeoutconfig()

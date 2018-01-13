@@ -15,7 +15,10 @@
 
 #include <type_traits>
 
+#if LIBCXX_INTERNAL_BUILD
+#else
 #warning "Deprecated - use threadmsgdispatcher.H"
+#endif
 
 namespace LIBCXX_NAMESPACE {
 
@@ -158,7 +161,7 @@ private:
 public:
 	//! Queue up a message that throws an %exception, when it gets dispatched.
 
-	void stop();
+	void stop() override;
 };
 
 #if 0

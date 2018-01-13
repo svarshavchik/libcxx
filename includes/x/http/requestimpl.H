@@ -362,7 +362,7 @@ public:
 	static const char *methodstr(method_t) noexcept;
 private:
 	//! This message could not be parsed
-	void bad_message() __attribute__((noreturn));
+	void bad_message() override __attribute__((noreturn));
 
 public:
 	//! Convert a string to a method_t

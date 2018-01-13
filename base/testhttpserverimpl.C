@@ -87,8 +87,7 @@ public:
 	~bodycollecter();
 
 	void received(const LIBCXX_NAMESPACE::http::requestimpl &req,
-		      bool bodyflag)
-;
+		      bool bodyflag) override;
 
 	std::string str() const noexcept
 	{
@@ -209,18 +208,15 @@ public:
 	bodycollecter_timeout(const LIBCXX_NAMESPACE::fd &fdArg,
 			      time_t eofTimeoutArg,
 			      time_t messageTimeoutArg,
-			      time_t bodyTimeoutArg)
-;
+			      time_t bodyTimeoutArg);
 	~bodycollecter_timeout();
 
-	bool eof();
+	bool eof() override;
 
-	bool message(LIBCXX_NAMESPACE::http::requestimpl &req)
-;
+	bool message(LIBCXX_NAMESPACE::http::requestimpl &req) override;
 
 	void received(const LIBCXX_NAMESPACE::http::requestimpl &req,
-		      bool bodyflag)
-;
+		      bool bodyflag) override;
 };
 
 bodycollecter_timeout::bodycollecter_timeout(const LIBCXX_NAMESPACE::fd &fdArg,
@@ -270,7 +266,7 @@ bool bodycollecter_timeout::message(LIBCXX_NAMESPACE::http::requestimpl &req)
 	{
 		filedesc_timeout->set_read_timeout(messageTimeout);
 	}
-		
+
 	try {
 		flag=bodycollecter::message(req);
 
@@ -498,4 +494,3 @@ int main(int argc, char **argv)
 	}
 	return (0);
 }
-

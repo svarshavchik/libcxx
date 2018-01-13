@@ -65,7 +65,7 @@ public:
 	//! Override the set() method.
 
 	int set(//! The parser object that's setting this option
-		 parserObj &parserArg) const LIBCXX_HIDDEN;
+		 parserObj &parserArg) const override LIBCXX_HIDDEN;
 
 	//! Override the set() method.
 
@@ -79,14 +79,14 @@ public:
 		 const const_locale &localeArg) const
 		LIBCXX_HIDDEN;
 
-	void reset() LIBCXX_HIDDEN;
+	void reset() override LIBCXX_HIDDEN;
 
 private:
 	//! Override the multiple() method.
 
 	//! \internal
 	//!
-	bool multiple() const noexcept LIBCXX_HIDDEN;
+	bool multiple() const noexcept override LIBCXX_HIDDEN;
 
 	//! Override the help() method.
 
@@ -96,7 +96,7 @@ private:
 
 	void help(std::ostream &o,
 		  size_t indentlevel,
-		  size_t width) const LIBCXX_HIDDEN;
+		  size_t width) const override LIBCXX_HIDDEN;
 
 	//! Override the usage() method.
 
@@ -106,7 +106,7 @@ private:
 
 	bool usage(std::ostream &o,
 		   size_t indentlevel,
-		   size_t width) const LIBCXX_HIDDEN;
+		   size_t width) const override LIBCXX_HIDDEN;
 
 };
 

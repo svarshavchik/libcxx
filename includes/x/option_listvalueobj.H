@@ -51,7 +51,7 @@ public:
 		const std::string &valueArg,
 
 		//! The locale to parse the %value
-		const const_locale &localeArg) noexcept
+		const const_locale &localeArg) noexcept override
 	{
 		try {
 			values.push_back(value_string<value_type>
@@ -66,21 +66,21 @@ public:
 
 	//! Implement the reset operation
 
-	void reset() noexcept
+	void reset() noexcept override
 	{
 		values.clear();
 	}
 
 	//! Set the %option to the default value
 
-	int set() noexcept
+	int set() noexcept override
 	{
 		return option::parser::base::err_invalidoption; // No default value
 	}
 
 	//! This %option takes multiple values
 
-	bool multiple() const noexcept
+	bool multiple() const noexcept override
 	{
 		return true;
 	}

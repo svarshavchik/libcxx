@@ -21,7 +21,7 @@ public:
 	amIstoppedObj() : flag(false) {}
 	~amIstoppedObj() {}
 
-	void stop()
+	void stop() override
 	{
 		LIBCXX_NAMESPACE::mpcobj<bool>::lock lock(flag);
 

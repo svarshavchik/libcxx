@@ -26,17 +26,27 @@ void check_me()
 		std::is_same<typename traits_t::ref_t,
 			     ref<obj, base>>::value>::type is_same1;
 
+	is_same1 *p1=nullptr;
+
 	typedef typename std::enable_if<
 		std::is_same<typename traits_t::ptr_t,
 			     ptr<obj, base>>::value>::type is_same2;
+
+	is_same2 *p2=nullptr;
 
 	typedef typename std::enable_if<
 		std::is_same<typename traits_t::const_ref_t,
 			     const_ref<obj, base>>::value>::type is_same3;
 
+	is_same3 *p3=nullptr;
 	typedef typename std::enable_if<
 		std::is_same<typename traits_t::const_ptr_t,
 			     const_ptr<obj, base>>::value>::type is_same4;
+
+	is_same4 *p4=nullptr;
+
+	if (p1 && p2 && p3 && p4)
+		;
 }
 
 void check_all()

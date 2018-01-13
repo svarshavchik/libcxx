@@ -87,7 +87,7 @@ public:
 
 			//! Error message
 			const std::string &errtxt)
-		const;
+		const override;
 };
 
 //! Report an error by writing out an error message to a file.
@@ -113,7 +113,7 @@ public:
 			const std::string &location,
 
 			//! Error message
-			const std::string &errtxt) const;
+			const std::string &errtxt) const override;
 };
 
 //! Report an error by writing out an error message to a file.
@@ -136,7 +136,7 @@ public:
 			const std::string &location,
 
 			//! Error message
-			const std::string &errtxt) const;
+			const std::string &errtxt) const override;
 };
 
 //! Parse a %property name, defined by an input iterator sequence

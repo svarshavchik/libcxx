@@ -284,7 +284,7 @@ class fdObj::closeactionObj::rename : public closeactionObj {
 	{
 	}
 
-	void afterclose()
+	void afterclose() override
 	{
 		if (p == getpid() &&
 		    ::rename(renamefrom.c_str(), renameto.c_str()) < 0)
@@ -292,7 +292,7 @@ class fdObj::closeactionObj::rename : public closeactionObj {
 					   + "\", \"" + renameto + "\")");
 	}
 
-	void cancel()
+	void cancel() override
 	{
 		if (p == getpid())
 			unlink(renamefrom.c_str());
@@ -314,7 +314,7 @@ class fdObj::closeactionObj::lockunlink : public closeactionObj {
 	{
 	}
 
-	void beforeclose()
+	void beforeclose() override
 	{
 		unlink(lockname.c_str());
 	}
@@ -1504,7 +1504,7 @@ public:
 
 		~task() {}
 
-		void run() LIBCXX_HIDDEN
+		void run() override LIBCXX_HIDDEN
 		{
 			update->futimens();
 		}

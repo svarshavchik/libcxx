@@ -311,7 +311,7 @@ public:
 		       //! Element count
 
 		       size_t cnt)
-		LIBCXX_HIDDEN;
+		override LIBCXX_HIDDEN;
 
 	//! Implement the write timeout
 
@@ -321,7 +321,7 @@ public:
 
 			//! Element count
 
-			size_t cnt) LIBCXX_HIDDEN;
+			size_t cnt) override LIBCXX_HIDDEN;
 
 private:
 	//! Wait for the file descriptor to be available for reading or writing

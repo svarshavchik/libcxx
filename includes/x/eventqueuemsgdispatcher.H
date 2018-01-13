@@ -15,7 +15,10 @@ namespace LIBCXX_NAMESPACE {
 };
 #endif
 
+#if LIBCXX_INTERNAL_BUILD
+#else
 #warning "Deprecated - use threadmsgdispatcher.H"
+#endif
 
 //! An event file descriptor queue-based message dispatcher
 
@@ -52,7 +55,7 @@ protected:
 	//! Implement event()
 
 	void event(//! A reference to the request message
-		   const dispatchablebase &msg);
+		   const dispatchablebase &msg) override;
 };
 
 #if 0

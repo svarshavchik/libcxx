@@ -67,7 +67,7 @@ public:
 	//! Implement the set() method.
 
 	int set(//! The parser object that's setting this option
-		 parserObj &parserArg) const LIBCXX_HIDDEN;
+		 parserObj &parserArg) const override LIBCXX_HIDDEN;
 
 	//! Implement the set() method.
 
@@ -78,18 +78,18 @@ public:
 		 const std::string &valueArg)
 		const override LIBCXX_HIDDEN;
 
-	void reset() LIBCXX_HIDDEN;
+	void reset() override LIBCXX_HIDDEN;
 
 	//! Check the isSet() method.
 
-	bool isSet() const LIBCXX_HIDDEN;
+	bool isSet() const override LIBCXX_HIDDEN;
 
 private:
 	//! Return an indication if the option can be specified more than once.
 
 	//! \internal
 	//!
-	bool multiple() const LIBCXX_HIDDEN;
+	bool multiple() const override LIBCXX_HIDDEN;
 
 };
 

@@ -68,7 +68,7 @@ public:
 		throw EXCEPTION(exception_test);
 	}
 
-	std::string getName() const
+	std::string getName() const override
 	{
 		return "foo";
 	}
@@ -105,7 +105,7 @@ int main()
 	try {
 		int n=exception_call->get();
 
-	
+
 		std::cout << "How did a thrown exception return "
 			  << n << "?" << std::endl;
 	} catch (const LIBCXX_NAMESPACE::exception &e)

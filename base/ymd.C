@@ -578,6 +578,11 @@ ymd::parser::parser(const const_locale &locArg)
 		month_names[i]=unicode::toupper(month_names[i]);
 		month_names_long[i]=unicode::toupper(month_names_long[i]);
 	}
+
+	auto time_get=locArg->get_facet<facets::time_get_facet<char> >();
+
+	if (time_get->getFacetConstRef().date_order()==std::time_base::mdy)
+		usmdy=true;
 }
 
 ymd::parser::~parser()

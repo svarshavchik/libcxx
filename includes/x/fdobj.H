@@ -1009,14 +1009,14 @@ private:
 	//! \see basic_attr::stat_internal().
 
 	int stat_internal(//! The buffer where file status is placed, on success.
-			  struct ::stat *buf) noexcept LIBCXX_HIDDEN;
+			  struct ::stat *buf) noexcept override LIBCXX_HIDDEN;
 
 	//! List this file descriptor's extended attributes.
 
 	//! \internal
 	//! \see basic_attr::listattr_internal().
 	ssize_t listattr_internal(const listattr_internal_args &args)
-		noexcept LIBCXX_HIDDEN;
+		noexcept override LIBCXX_HIDDEN;
 
 	//! Return the value of an attribute
 
@@ -1030,7 +1030,7 @@ private:
 
 				 //! Size of the value buffer.
 				 size_t size)
-		noexcept LIBCXX_HIDDEN;
+		noexcept override LIBCXX_HIDDEN;
 
 	//! Set the attribute's value.
 
@@ -1045,7 +1045,7 @@ private:
 			     size_t size,
 			     //! Optional flags: \c XATTR_CREATE or \c XATTR_REPLACE.
 			     int flags)
-		noexcept LIBCXX_HIDDEN;
+		noexcept override LIBCXX_HIDDEN;
 
 	//! Remove an attribute.
 
@@ -1053,24 +1053,25 @@ private:
 	//! \see basic_attr::removeattr_internal().
 	int removeattr_internal(//! Attribute's name
 				const char *name)
-		noexcept LIBCXX_HIDDEN;
+		noexcept override LIBCXX_HIDDEN;
 
 	//! Set the file permission bits
 
 	//! \internal
 	//! \see basic_attr::chmod_internal().
-	int chmod_internal(mode_t mode) noexcept LIBCXX_HIDDEN;
+	int chmod_internal(mode_t mode) noexcept override LIBCXX_HIDDEN;
 
 	//! Set the file ownership and permissions
 
 	//! \internal
 	//! \see basic_attr::chown_internal().
-	int chown_internal(uid_t uid, gid_t group) noexcept LIBCXX_HIDDEN;
+	int chown_internal(uid_t uid, gid_t group) noexcept override
+		LIBCXX_HIDDEN;
 
 	//! I am a file descriptor.
 
 	//! \internal
-	std::string whoami() LIBCXX_HIDDEN;
+	std::string whoami() override LIBCXX_HIDDEN;
 
 public:
 

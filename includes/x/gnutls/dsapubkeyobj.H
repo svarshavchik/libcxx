@@ -44,7 +44,7 @@ public:
 
 	//! \return \c GNUTLS_PK_DSA
 
-	gnutls_pk_algorithm_t get_pk_algorithm() const;
+	gnutls_pk_algorithm_t get_pk_algorithm() const override;
 };
 
 #if 0

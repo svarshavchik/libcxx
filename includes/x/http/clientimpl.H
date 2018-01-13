@@ -74,7 +74,7 @@ namespace LIBCXX_NAMESPACE {
 //! time, setPeerHttp11() may be invoked if the server is known to support
 //! HTTP 1.1. If so, the first message's body will be sent using chunked
 //! encoding, if the body's beginning and ending iterators are not random
-//! access iterators. 
+//! access iterators.
 
 template<typename output_iter, typename input_iter>
 class clientimpl : protected receiverimpl<responseimpl, input_iter>,
@@ -226,7 +226,7 @@ private:
 		}
 
 		//! Send the request and the body
-		virtual void send()
+		virtual void send() override
 		{
 			this->sender.send(this->req, beg_iter, end_iter,
 					  do_sendbody);
@@ -303,7 +303,7 @@ public:
 		bool isfirstmsg=firstmsg;
 
 		firstmsg=false;
-		
+
 		try {
 			{
 				sendmsg msg(req, *this);
@@ -380,7 +380,7 @@ private:
 
 		//! Wait for the server to response to the Expect: 100-continue message
 
-		bool operator()()
+		bool operator()() override
 		{
 			receiver.message(resp, req);
 			if (resp.getStatusCode() != 100)

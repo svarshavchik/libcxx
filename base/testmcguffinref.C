@@ -35,8 +35,7 @@ public:
 	cb() {}
 	~cb() {}
 
-	void destroyed(const LIBCXX_NAMESPACE::ptr<intval> &s)
-
+	void destroyed(const LIBCXX_NAMESPACE::ptr<intval> &s) override
 	{
 		++s->v;
 	}

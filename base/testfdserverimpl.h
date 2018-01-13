@@ -63,7 +63,7 @@ public:
 	}
 
 	void received(const LIBCXX_NAMESPACE::http::requestimpl &req,
-		      bool bodyflag)
+		      bool bodyflag) override
 	{
 		if (bodyflag)
 			this->discardbody();
@@ -275,7 +275,7 @@ public:
 	}
 
 	void received(const LIBCXX_NAMESPACE::http::requestimpl &req,
-		      bool bodyflag)
+		      bool bodyflag) override
 	{
 		throw EXCEPTION("Dummy");
 	}

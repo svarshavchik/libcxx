@@ -218,7 +218,7 @@ private:
 	//! Text of a standard HTTP error message
 	static const char msg_505[];
 	//! This message could not be parsed
-	void bad_message() __attribute__((noreturn));
+	void bad_message() override __attribute__((noreturn));
 
 public:
 
@@ -287,7 +287,7 @@ public:
 	//! Throw an HTTP-related %exception
 	static void throw_bad_request() __attribute__((noreturn))
 	{
-		throwResponseException(400, msg_400); 
+		throwResponseException(400, msg_400);
 	}
 
 	//! Throw an HTTP-related %exception
@@ -299,31 +299,31 @@ public:
 	//! Throw an HTTP-related %exception
 	static void throw_payment_required() __attribute__((noreturn))
 	{
-		throwResponseException(402, msg_402); 
+		throwResponseException(402, msg_402);
 	}
 
 	//! Throw an HTTP-related %exception
 	static void throw_forbidden() __attribute__((noreturn))
 	{
-		throwResponseException(403, msg_403); 
+		throwResponseException(403, msg_403);
 	}
 
 	//! Throw an HTTP-related %exception
 	static void throw_not_found() __attribute__((noreturn))
 	{
-		throwResponseException(404, msg_404); 
+		throwResponseException(404, msg_404);
 	}
 
 	//! Throw an HTTP-related %exception
 	static void throw_method_not_allowed() __attribute__((noreturn))
 	{
-		throwResponseException(405, msg_405); 
+		throwResponseException(405, msg_405);
 	}
 
 	//! Throw an HTTP-related %exception
 	static void throw_not_acceptable() __attribute__((noreturn))
 	{
-		throwResponseException(406, msg_406); 
+		throwResponseException(406, msg_406);
 	}
 
 	//! Throw an HTTP-related %exception
@@ -335,97 +335,97 @@ public:
 	//! Throw an HTTP-related %exception
 	static void throw_request_timeout() __attribute__((noreturn))
 	{
-		throwResponseException(408, msg_408); 
+		throwResponseException(408, msg_408);
 	}
 
 	//! Throw an HTTP-related %exception
 	static void throw_conflict() __attribute__((noreturn))
 	{
-		throwResponseException(409, msg_409); 
+		throwResponseException(409, msg_409);
 	}
 
 	//! Throw an HTTP-related %exception
 	static void throw_gone() __attribute__((noreturn))
 	{
-		throwResponseException(410, msg_410); 
+		throwResponseException(410, msg_410);
 	}
 
 	//! Throw an HTTP-related %exception
 	static void throw_length_required() __attribute__((noreturn))
 	{
-		throwResponseException(411, msg_411); 
+		throwResponseException(411, msg_411);
 	}
 
 	//! Throw an HTTP-related %exception
 	static void throw_precondition_failed() __attribute__((noreturn))
 	{
-		throwResponseException(412, msg_412); 
+		throwResponseException(412, msg_412);
 	}
 
 	//! Throw an HTTP-related %exception
 	static void throw_request_entity_too_large() __attribute__((noreturn))
 	{
-		throwResponseException(413, msg_413); 
+		throwResponseException(413, msg_413);
 	}
 
 	//! Throw an HTTP-related %exception
 	static void throw_request_uri_too_long() __attribute__((noreturn))
 	{
-		throwResponseException(414, msg_414); 
+		throwResponseException(414, msg_414);
 	}
 
 	//! Throw an HTTP-related %exception
 	static void throw_unsupported_media_type() __attribute__((noreturn))
 	{
-		throwResponseException(415, msg_415); 
+		throwResponseException(415, msg_415);
 	}
 
 	//! Throw an HTTP-related %exception
 	static void throw_requested_range_not_satisfiable() __attribute__((noreturn))
 	{
-		throwResponseException(416, msg_416); 
+		throwResponseException(416, msg_416);
 	}
 
 	//! Throw an HTTP-related %exception
 	static void throw_expectation_failed() __attribute__((noreturn))
 	{
-		throwResponseException(417, msg_417); 
+		throwResponseException(417, msg_417);
 	}
 
 	//! Throw an HTTP-related %exception
 	static void throw_internal_server_error() __attribute__((noreturn))
 	{
-		throwResponseException(500, msg_500); 
+		throwResponseException(500, msg_500);
 	}
 
 	//! Throw an HTTP-related %exception
 	static void throw_not_implemented() __attribute__((noreturn))
 	{
-		throwResponseException(501, msg_501); 
+		throwResponseException(501, msg_501);
 	}
 
 	//! Throw an HTTP-related %exception
 	static void throw_bad_gateway() __attribute__((noreturn))
 	{
-		throwResponseException(502, msg_502); 
+		throwResponseException(502, msg_502);
 	}
 
 	//! Throw an HTTP-related %exception
 	static void throw_service_unavailable() __attribute__((noreturn))
 	{
-		throwResponseException(503, msg_503); 
+		throwResponseException(503, msg_503);
 	}
 
 	//! Throw an HTTP-related %exception
 	static void throw_gateway_timeout() __attribute__((noreturn))
 	{
-		throwResponseException(504, msg_504); 
+		throwResponseException(504, msg_504);
 	}
 
 	//! Throw an HTTP-related %exception
 	static void throw_http_version_not_supported() __attribute__((noreturn))
 	{
-		throwResponseException(505, msg_505); 
+		throwResponseException(505, msg_505);
 	}
 
 	//! Check if this is a 401 response
@@ -595,7 +595,7 @@ public:
 	void add_authenticate(Args && ...args)
 	{
 		add_authorization(www_authenticate,
-				  std::forward<Args>(args)...); 
+				  std::forward<Args>(args)...);
 	}
 
 	//! Add a Proxy-Authenticate header
@@ -604,7 +604,7 @@ public:
 	void add_proxy_authenticate(Args && ...args)
 	{
 		add_authorization(proxy_authenticate,
-				  std::forward<Args>(args)...); 
+				  std::forward<Args>(args)...);
 	}
 
 private:

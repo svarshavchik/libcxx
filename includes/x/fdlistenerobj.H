@@ -63,6 +63,7 @@ class fdlistenerObj : virtual public obj {
 		//! Invoke the handler's run() method
 		void run(const fd &socket, //!< The new socket
 			 const fd &termpipe) //!< The termination filedesc
+			override
 		{
 			invoke<typename
 			       tuple_2_param_pack<sizeof...(Args)>::type>

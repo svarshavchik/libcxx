@@ -47,7 +47,7 @@ public:
 	~mycb() {}
 
 	void event(const LIBCXX_NAMESPACE::property::propvalueset_t &arg)
-
+		override
 	{
 		val=*arg.first;
 	}
@@ -133,7 +133,7 @@ public:
 
 	~mynotifycb() {}
 
-	void event()
+	void event() override
 	{
 		i=p->get();
 	}

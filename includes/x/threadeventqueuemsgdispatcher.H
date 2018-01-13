@@ -19,7 +19,10 @@ namespace LIBCXX_NAMESPACE {
 };
 #endif
 
+#if LIBCXX_INTERNAL_BUILD
+#else
 #warning "Deprecated - use threadmsgdispatcher.H"
+#endif
 
 //! An event file descriptor queue-based message dispatcher, tied to a thread.
 
@@ -114,7 +117,7 @@ protected:
 	//! quietly discarded.
 
 	void event(//! A reference to the request message
-		   const dispatchablebase &msg)
+		   const dispatchablebase &msg) override
 	{
 		auto p=msgqueue_ref->getptr();
 

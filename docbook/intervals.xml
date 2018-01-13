@@ -180,11 +180,13 @@ std::cout &lt;&lt; (std::string)&ns;::ymd(firstDayOfYear) &lt;&lt; std::endl;</p
   <note>
     <para>
       <quote><replaceable>dd</replaceable>/<replaceable>dd</replaceable>/<replaceable>dddd</replaceable></quote>
-      is parsed by default as
-      <quote><replaceable>dd</replaceable>/<replaceable>mm</replaceable>/<replaceable>yyyy</replaceable></quote>.
-      Use the mdy() method to have this sequence parsed as
+      uses the system environment locale to interpret this as
+      either day/month/year or month/day/year.
+      Use <methodname>mdy</methodname>() to explicitly set whether this gets
+      parsed as
       <quote><replaceable>mm</replaceable>/<replaceable>dd</replaceable>/<replaceable>yyyy</replaceable></quote>
-      (the US date format).
+      (the US date format), or
+      <quote><replaceable>dd</replaceable>/<replaceable>mm</replaceable>/<replaceable>yyyy</replaceable></quote>.
     </para>
   </note>
 

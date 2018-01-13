@@ -64,7 +64,7 @@ class run_async::runthreadObj : public runthreadbaseObj {
 	//! The cleanup thread invokes
 	//! joined() after it joins the terminated thread.
 
-	void joined() noexcept
+	void joined() noexcept override
 	{
 		typename meta_container_t::lock lock(meta);
 
@@ -134,7 +134,7 @@ public:
 	//! A return of \c true means that the thread which invokes the thread
 	//! object's %run() method terminated and was joined.
 
-	bool terminated() const
+	bool terminated() const override
 	{
 		typename meta_container_t::lock lock(meta);
 
@@ -158,7 +158,7 @@ public:
 
 	//! After returning from wait(), terminate() will be true.
 
-	void wait()
+	void wait() override
 	{
 		getwait lock(meta);
 

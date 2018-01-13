@@ -62,7 +62,7 @@ public:
 		 const LIBCXX_NAMESPACE::fd &terminator);
 
 	void received(const LIBCXX_NAMESPACE::http::requestimpl &req,
-		      bool bodyflag);
+		      bool bodyflag) override;
 };
 
 class testserverObj : virtual public LIBCXX_NAMESPACE::obj {
@@ -658,7 +658,7 @@ public:
 	~formpost_serverimpl() {}
 
 	void received(const LIBCXX_NAMESPACE::http::requestimpl &req,
-		      bool bodyflag)
+		      bool bodyflag) override
 	{
 		std::vector<std::string> files;
 
@@ -1059,7 +1059,7 @@ public:
 	~basic_httpauth_serverimpl() {}
 
 	void received(const LIBCXX_NAMESPACE::http::requestimpl &req,
-		      bool bodyflag)
+		      bool bodyflag) override
 	{
 		auto val=getform(req, bodyflag);
 
@@ -1444,7 +1444,7 @@ public:
 	}
 
 	void received(const LIBCXX_NAMESPACE::http::requestimpl &req,
-		      bool bodyflag)
+		      bool bodyflag) override
 	{
 		auto val=getform(req, bodyflag);
 
@@ -1576,7 +1576,7 @@ public:
 	}
 
 	void received(const LIBCXX_NAMESPACE::http::requestimpl &req,
-		      bool bodyflag)
+		      bool bodyflag) override
 	{
 		std::string p=req.getURI().getPath();
 

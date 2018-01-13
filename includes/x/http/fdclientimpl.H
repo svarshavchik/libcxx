@@ -37,7 +37,7 @@ namespace LIBCXX_NAMESPACE {
 //!
 //! - When receiving the body of the HTTP request response, or sending the
 //! HTTP request message if
-//! \c INSERT_LIBX_NAMESPACE::http::client::timeout_cnt bytes are not 
+//! \c INSERT_LIBX_NAMESPACE::http::client::timeout_cnt bytes are not
 //! received/sent in
 //! \c INSERT_LIBX_NAMESPACE::http::client::timeout seconds, an internal
 //! %exception gets thrown.
@@ -99,27 +99,27 @@ public:
 	//! If this is called via the fdimplbase superclass, intercept it,
 	//! and call our install(), with the default client options.
 	void install(const fd &filedescArg,
-		     const fdptr &terminatorArg);
+		     const fdptr &terminatorArg) override;
 
 protected:
 	//! Subclass hook to set a timeout.
-	void begin_write_message();
+	void begin_write_message() override;
 
 	//! Subclass hook to clear any timeouts
-	void end_write_message();
+	void end_write_message() override;
 
 private:
 	//! Begin header retrieval with a timeout
-	void header_begin();
+	void header_begin() override;
 
 	//! Begin body retrieval with a timeout
-	void body_begin();
+	void body_begin() override;
 
 	//! End body retrieval with a timeout
-	void body_end();
+	void body_end() override;
 
 	//! Finish up iterating over the body
-	void check_body_status();
+	void check_body_status() override;
 };
 
 

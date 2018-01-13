@@ -1,7 +1,7 @@
 /*
 ** Copyright 2012 Double Precision, Inc.
 ** See COPYING for distribution information.
-*/ 
+*/
 #ifndef x_mime_encoderbase_H
 #define x_mime_encoderbase_H
 
@@ -42,7 +42,7 @@ public:
 	virtual inputrefiterator<char> begin() const=0;
 
 	//! Return an ending interator value for a MIME-encoded section
- 
+
 	virtual inputrefiterator<char> end() const;
 };
 
@@ -143,7 +143,7 @@ public:
 
 	//! Fill the input buffer with the next MIME-encoded chunk.
 
-	void fill() const
+	void fill() const override
 	{
 		auto n=fdbaseObj::get_buffer_size();
 

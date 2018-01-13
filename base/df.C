@@ -34,10 +34,10 @@ public:
 	dfvfsObj();
 	~dfvfsObj();
 
-	size_t allocSize();
-	uint64_t allocFree();
-	uint64_t inodeFree();
-	void commit(long, long);
+	size_t allocSize() override;
+	uint64_t allocFree() override;
+	uint64_t inodeFree() override;
+	void commit(long, long) override;
 };
 
 dfObj::dfvfsObj::dfvfsObj()
@@ -95,7 +95,7 @@ public:
 
 	dfvfspathObj(const std::string &pathnameArg);
 	~dfvfspathObj();
-	void refresh();
+	void refresh() override;
 };
 
 dfObj::dfvfspathObj::dfvfspathObj(const std::string &pathnameArg)
@@ -125,7 +125,7 @@ public:
 
 	dfvfsfdObj(const fd &filedescArg);
 	~dfvfsfdObj();
-	void refresh();
+	void refresh() override;
 };
 
 dfObj::dfvfsfdObj::dfvfsfdObj(const fd &filedescArg)

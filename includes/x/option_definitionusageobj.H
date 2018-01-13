@@ -44,7 +44,7 @@ public:
 	//! Invokes parser's \c usage() function
 	//!
 	int set(//! The parser object that's setting this option
-		 parserObj &parserArg) const noexcept LIBCXX_HIDDEN;
+		 parserObj &parserArg) const noexcept override LIBCXX_HIDDEN;
 
 	//! Implement the set() method.
 
@@ -60,7 +60,7 @@ public:
 
 	//! Dummy isSet() function
 
-	bool isSet() const noexcept LIBCXX_HIDDEN;
+	bool isSet() const noexcept override LIBCXX_HIDDEN;
 
 	//! Dummy usage() function
 
@@ -70,7 +70,7 @@ public:
 
 	//! Dummy reset() function
 
-	void reset() noexcept LIBCXX_HIDDEN;
+	void reset() noexcept override LIBCXX_HIDDEN;
 
 	//! Dummy usage() function
 

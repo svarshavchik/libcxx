@@ -254,7 +254,7 @@ public:
 	{
 	}
 
-	void operator()(const std::string &s)
+	void operator()(const std::string &s) override
 	{
 		try {
 			if (regex->match(s))

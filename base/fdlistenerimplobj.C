@@ -53,7 +53,7 @@ class fdlistenerImplObj::listenerJobObj : public runthreadname,
 	// Signal mask for the job
 	sigset mask;
 
-	std::string getName() const;
+	std::string getName() const override;
 
 public:
 	listenerJobObj(const std::string &nameArg,

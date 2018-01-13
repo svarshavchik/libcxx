@@ -54,7 +54,7 @@ public:
 
 	//! The default implementation invokes event(void)
 	//!
-	void event(const propvalueset_t &newvalue);
+	void event(const propvalueset_t &newvalue) override;
 
 	//! The fallback callback
 

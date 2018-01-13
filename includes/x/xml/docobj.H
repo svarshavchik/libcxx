@@ -543,7 +543,7 @@ public:
 			}
 
 			//! Save XML fragment into an output iterator
-			void save(const char *c, int n)
+			void save(const char *c, int n) override
 			{
 				while (n)
 				{

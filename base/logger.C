@@ -198,7 +198,7 @@ public:
 			struct tm &tmbuf,
 
 			//! Time formatter
-			const std::time_put<char> &timecvt);
+			const std::time_put<char> &timecvt) override;
 };
 
 logger::handlerObj::fd::fd(int nArg) noexcept
@@ -453,7 +453,7 @@ public:
 			struct tm &tmbuf,
 
 			//! Time formatter
-			const std::time_put<char> &timecvt);
+			const std::time_put<char> &timecvt) override;
 };
 
 std::once_flag logger::handlerObj::syslogger::syslog_init_once;

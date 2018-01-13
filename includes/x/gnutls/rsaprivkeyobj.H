@@ -50,7 +50,7 @@ public:
 		q,		//!< The \c q value
 		u;		//!< The \c u value
 
-	x509::privkey import_raw() const;
+	x509::privkey import_raw() const override;
 };
 
 #if 0

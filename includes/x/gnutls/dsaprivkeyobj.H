@@ -47,7 +47,7 @@ public:
 
 	datum_t x;	//!< The \c x value
 
-	x509::privkey import_raw() const;
+	x509::privkey import_raw() const override;
 };
 
 #if 0

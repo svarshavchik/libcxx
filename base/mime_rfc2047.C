@@ -42,7 +42,7 @@ class LIBCXX_HIDDEN rfc2047_std_encoding : public rfc2047_encode_base {
 	rfc2047_std_encoding() {}
 	~rfc2047_std_encoding() {}
 
-	bool do_encode(char32_t c)
+	bool do_encode(char32_t c) override
 	{
 		return false;
 	}

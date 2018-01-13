@@ -35,7 +35,7 @@ public:
 	}
 
 	void process(const LIBCXX_NAMESPACE::ref<LIBCXX_NAMESPACE::obj> &mcguffin)
-
+		override
 	{
 		{
 			std::lock_guard<std::mutex> lock(mutex);

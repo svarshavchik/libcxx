@@ -915,7 +915,7 @@ public:
 	}
 
 	void event(const LIBCXX_NAMESPACE::fd &fileDesc,
-		   event_t events)
+		   event_t events) override
 	{
 		flag=true;
 	}
@@ -968,7 +968,7 @@ public:
 	}
 
 	void event(const LIBCXX_NAMESPACE::fd &fileDesc,
-		   event_t events)
+		   event_t events) override
 	{
 		LIBCXX_NAMESPACE::sockaddrptr addr;
 		const LIBCXX_NAMESPACE::fdptr newfd= fileDesc->accept(addr);
@@ -1458,7 +1458,7 @@ public:
 	testdestroy() noexcept;
 	~testdestroy();
 
-	void destroyed();
+	void destroyed() override;
 };
 
 testdestroy::testdestroy() noexcept
@@ -1694,7 +1694,7 @@ public:
 		l->log += id;
 	}
 
-	void destroyed()
+	void destroyed() override
 	{
 		l->log += "[" + id + "]";
 	}

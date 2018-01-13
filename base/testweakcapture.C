@@ -18,10 +18,18 @@ template<typename foo> int Foo(const foo &f)
 					  LIBCXX_NAMESPACE
 					  ::ref<LIBCXX_NAMESPACE::obj>>> a_t;
 
+		a_t *p1=nullptr;
+
 		typedef std::enable_if_t<std::is_same_v
 					 <decltype(b),
 					  LIBCXX_NAMESPACE
 					  ::ref<LIBCXX_NAMESPACE::obj>>> b_t;
+
+		b_t *p2=nullptr;
+
+
+		if (p1 || p2)
+			;
 		val=1;
 	}
 	return val;

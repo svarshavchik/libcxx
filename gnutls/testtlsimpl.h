@@ -13,7 +13,7 @@ public:
 
 	LIBCXX_NAMESPACE::gnutls::session create(unsigned mode,
 						 const LIBCXX_NAMESPACE::fdbase
-						 &transportArg);
+						 &transportArg) override;
 };
 
 

@@ -72,7 +72,7 @@ private:
 	//! Invokes the function.
 	//!
 	int set(//! The parser object that's setting this option
-		 parserObj &parserArg) const
+		 parserObj &parserArg) const override
 	{
 		if (flags & option::list::base::hasvalue)
 			return false;
@@ -113,7 +113,7 @@ private:
 
 	//! Check if this option was specified
 
-	bool isSet() const noexcept
+	bool isSet() const noexcept override
 	{
 		return was_set;
 	}
@@ -123,7 +123,7 @@ private:
 
 	//! Implement the reset function
 
-	void reset() noexcept
+	void reset() noexcept override
 	{
 		was_set=false;
 	}
@@ -199,13 +199,13 @@ public:
 
 private:
 	//! Set the default value
-	virtual int set_default() const
+	virtual int set_default() const override
 	{
 		return option::parser::base::err_invalidoption;
 	}
 
 	//! Set an explicit value
-	virtual int set_explicit(const value_type &arg) const
+	virtual int set_explicit(const value_type &arg) const override
 	{
 		return (*this->optfunc)(arg);
 	}
@@ -307,10 +307,10 @@ public:
 
 private:
 	//! Set the default value
-	int set_default() const;
+	int set_default() const override;
 
 	//! Set an explicit value
-	int set_explicit(const bool &arg) const;
+	int set_explicit(const bool &arg) const override;
 };
 
 #if 0

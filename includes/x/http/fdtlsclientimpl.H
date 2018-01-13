@@ -119,7 +119,7 @@ public:
 	//! superclass.
 
 	void install(const fd &filedescArg,
-		     const fdptr &terminatorArg);
+		     const fdptr &terminatorArg) override;
 
 	//! Override superclass
 
@@ -128,19 +128,19 @@ public:
 
 	void install(const fd &filedescArg,
 		     const fdptr &terminatorArg,
-		     clientopts_t options);
+		     clientopts_t options) override;
 
 	//! Override clear() in the superclass.
 
 	//! Also clear the session pointer, too.
-	void clear();
+	void clear() override;
 
 	//! Use the current TLS session to read/write HTTP
 
 	//! \internal
 	//! (must be public for "make check")
 
-	fdbase filedesc();
+	fdbase filedesc() override;
 
 private:
 	//! Perform handshake
@@ -156,7 +156,7 @@ private:
 	//! Check if a TLS handshake is required, before sending a request
 
 	void internal_send(//! Request to be sent
-			   sendmsg &msg) LIBCXX_HIDDEN;
+			   sendmsg &msg) override LIBCXX_HIDDEN;
 
 	//! Flag - whether to passthrough the proxy error message
 
@@ -172,14 +172,14 @@ protected:
 	//! \internal
 	//!
 	void internal_get_message(LIBCXX_NAMESPACE::http::responseimpl &msg)
-		LIBCXX_HIDDEN;
+		override LIBCXX_HIDDEN;
 
 private:
 
 	//! Attach session to the given file descriptor
 
 	//! \internal
-	void filedesc_installed(const fdbase &transport);
+	void filedesc_installed(const fdbase &transport) override;
 };
 
 #if 0

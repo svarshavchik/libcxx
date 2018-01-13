@@ -16,7 +16,7 @@ public:
 	~myserverimpl();
 
 	void received(const LIBCXX_NAMESPACE::http::requestimpl &req,
-		      bool bodyflag);
+		      bool bodyflag) override;
 };
 
 myserverimpl::myserverimpl()

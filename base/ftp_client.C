@@ -1424,12 +1424,12 @@ struct LIBCXX_HIDDEN clientObj::put_fd_callback : public stor_callback_base {
 		o.write(filedesc);
 	}
 
-	bool can_allo()
+	bool can_allo() override
 	{
 		return S_ISREG(stat.st_mode);
 	}
 
-	off64_t allo_size()
+	off64_t allo_size() override
 	{
 		return stat.st_size;
 	}

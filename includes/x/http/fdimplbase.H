@@ -118,7 +118,7 @@ public:
 		//! by fdtimeoutObj, and invoke throw_request_timeout().
 
 		size_t pubread(const fdbase &fdref, char *ptr, size_t cnt)
-			const;
+			const override;
 
 	};
 
@@ -169,7 +169,7 @@ public:
 
 		//! Iterator operator
 
-		void flush();
+		void flush() override;
 	};
 
 	//! Constructor

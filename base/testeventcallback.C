@@ -51,6 +51,10 @@ template<typename vip_t> void test4_pass()
 	typedef typename vip_t::updatelock updatelock;
 	typedef typename vip_t::handlerlock handlerlock;
 
+	handlerlock *p=nullptr;
+
+	if (p)
+		;
 	if (readlock(vip)->n != 2)
 		throw EXCEPTION("test4 failed (1)");
 

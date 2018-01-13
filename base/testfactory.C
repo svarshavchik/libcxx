@@ -14,7 +14,7 @@ public:
 	inteventhandlerObj() noexcept {}
 	~inteventhandlerObj() {}
 
-	void event(const int &n)
+	void event(const int &n) override
 	{
 		std::cout << "Event " << n << std::endl;
 	}

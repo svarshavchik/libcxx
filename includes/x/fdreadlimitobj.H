@@ -115,7 +115,7 @@ public:
 		       //! Element count
 
 		       size_t cnt)
-		LIBCXX_HIDDEN;
+		override LIBCXX_HIDDEN;
 };
 
 #if 0

@@ -35,7 +35,7 @@ public:
 	~myfdserverObj();
 
 	void received(const LIBCXX_NAMESPACE::http::requestimpl &req,
-		      bool bodyflag);
+		      bool bodyflag) override;
 
 	x::ref<myfdserverObj> create() { return x::ref<myfdserverObj>(this); }
 };

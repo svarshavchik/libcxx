@@ -250,8 +250,8 @@ public:
 	csv();
 	~csv();
 
-	void getnextrow(const httportmap_server::iterator &i);
-	void getlastrow();
+	void getnextrow(const httportmap_server::iterator &i) override;
+	void getlastrow() override;
 };
 
 httpserverimpl::svclistiter::svclistiter::csv
@@ -309,14 +309,13 @@ class httpserverimpl::svclistiter::xml : public svclistiter {
 public:
 	xml(httportmap_server &portmap,
 	    const LIBCXX_NAMESPACE::http::form::parameters &params,
-	    bool external_query)
-;
+	    bool external_query);
 	xml();
 	~xml();
 
-	void getnextrow(const httportmap_server::iterator &i)
-;
-	void getlastrow();
+	void getnextrow(const httportmap_server::iterator &i) override;
+
+	void getlastrow() override;
 };
 
 httpserverimpl::svclistiter::svclistiter::xml

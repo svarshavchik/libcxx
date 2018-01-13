@@ -649,10 +649,7 @@ public:
 
 		//! Set flag to interpret dd/dd/dddd as mm/dd/yyyy.
 
-		//! The default is dd/mm/yyyy
-		//!
-
-		inline parser &mdy(bool flag=true) noexcept
+		inline parser &mdy(bool flag) noexcept
 		{
 			usmdy=flag;
 			return *this;

@@ -131,7 +131,7 @@ struct LIBCXX_HIDDEN structured_content_header::format_words_wrap :
 	{
 	}
 
-	void operator()(const std::string &s)
+	void operator()(const std::string &s) override
 	{
 		if (!first && maxwidth && curwidth+s.size()+1 > maxwidth)
 			emit();
@@ -452,7 +452,7 @@ struct LIBCXX_HIDDEN structured_content_header::format_cb_string
 	~format_cb_string();
 
 	//! Callback.
-	void operator()(const std::string &s);
+	void operator()(const std::string &s) override;
 };
 
 structured_content_header::format_cb_string::format_cb_string()

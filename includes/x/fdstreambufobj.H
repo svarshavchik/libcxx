@@ -88,31 +88,31 @@ public:
 	//! \return a \c NULL if there was an error, or the pointer
 	//! to this \c std::streambuf
 
-	std::streambuf *setbuf(char_type *s, std::streamsize n);
+	std::streambuf *setbuf(char_type *s, std::streamsize n) override;
 
 	//! Implement \c std::streambuf::underflow()
 
 	//! See the description of \c std::streambuf::underflow() for more
 	//! information.
-	int_type underflow();
+	int_type underflow() override;
 
 	//! Implement \c std::streambuf::sync()
 
 	//! See the description of \c std::streambuf::sync() for more
 	//! information.
 
-	int sync();
+	int sync() override;
 
 	//! Implement the \c std::basic_streambuf::showmanyc() method
 
-	std::streamsize showmanyc();
+	std::streamsize showmanyc() override;
 
 	//! Implement \c std::streambuf::overflow()
 
 	//! See the description of \c std::streambuf::overflow() for more
 	//! information.
 
-	int_type overflow(int_type c);
+	int_type overflow(int_type c) override;
 
 	//! Implement \c std::streambuf::seekoff()
 
@@ -120,7 +120,7 @@ public:
 	//! information.
 
 	pos_type seekoff(off_type off, std::ios_base::seekdir way,
-			 std::ios_base::openmode which);
+			 std::ios_base::openmode which) override;
 
 	//! Implement \c std::streambuf::seekpos()
 
@@ -128,7 +128,7 @@ public:
 	//! information.
 
 	pos_type seekpos(pos_type sp,
-			 std::ios_base::openmode which);
+			 std::ios_base::openmode which) override;
 
 };
 

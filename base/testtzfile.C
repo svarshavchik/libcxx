@@ -290,7 +290,8 @@ OutputIterator tzfileObj::debugDump(OutputIterator iter,
 			}
 			else
 			{
-				if (bb->first == 0xf800000000000000)
+				if (bb->first == (decltype(bb->first))
+				    0xf800000000000000)
 					continue;
 
 				iter=dump_time_t::dump(iter, ios,

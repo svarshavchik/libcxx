@@ -69,7 +69,7 @@ public:
 
 	//! Use the current TLS session to read/write HTTP
 
-	fdbase filedesc();
+	fdbase filedesc() override;
 
 	class LIBCXX_HIDDEN cleanup_helper;
 
@@ -79,18 +79,18 @@ private:
 	//! Perform TLS connection termination
 
 	//! \internal
-	void ran();
+	void ran() override;
 
 	//! Internal cleanup function used by run()
 
 	//! \internal
-	void clear();
+	void clear() override;
 
 	//! Perform TLS handshake
 
 	//! \internal
 
-	void filedesc_installed(const fdbase &transport);
+	void filedesc_installed(const fdbase &transport) override;
 };
 
 #if 0

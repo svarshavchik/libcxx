@@ -118,7 +118,7 @@ public:
 	}
 
 	//! Invoke the postponed call.
-	retType invoke()
+	retType invoke() override
 	{
 		return helper_t::invoke(callback, callback_args);
 	}

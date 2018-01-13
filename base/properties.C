@@ -717,8 +717,7 @@ public:
 			  propvaluesetbase *pArg);
 
 	//! Update the property
-	void event(const propvalueset_t &newvalue)
-;
+	void event(const propvalueset_t &newvalue) override;
 
 	//! Register this handler with a property list
 

@@ -43,7 +43,7 @@ public:
 		       const std::list<std::string> &hostname_list,
 		       const std::vector<gnutls_pk_algorithm_t> &algos,
 		       const gnutls_datum_t *req_ca_dn,
-		       size_t n_req_ca_dn);
+		       size_t n_req_ca_dn) override;
 };
 
 credCallback::credCallback() noexcept

@@ -47,7 +47,7 @@ public:
 	~iconviofilter();
 
 	//! Convert between character sets
-	void filter();
+	void filter() override;
 
 private:
 

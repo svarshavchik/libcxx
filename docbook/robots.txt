@@ -2,3 +2,4 @@ User-Agent: *
 Disallow: /ref/
 Disallow: /sql/ref/
 Disallow: /stasher/ref/
+Disallow: /w/ref/

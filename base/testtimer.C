@@ -25,7 +25,7 @@ public:
 		std::cout << "destructor, thread " << name << std::endl;
 	}
 
-	void run()
+	void run() override
 	{
 		std::cout << "run, thread " << name
 			  << std::endl;
@@ -99,7 +99,7 @@ public:
 	dummyThread() noexcept {}
 	~dummyThread() {}
 
-	void run()
+	void run() override
 	{
 		std::cout << "In dummy thread, sleeping" << std::endl;
 
@@ -170,7 +170,7 @@ public:
 	selfcancel() {}
 	~selfcancel() {}
 
-	void run()
+	void run() override
 	{
 		cancel();
 		cancel();

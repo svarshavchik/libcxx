@@ -140,7 +140,7 @@ public:
 	{
 	}
 
-	void fill() const
+	void fill() const override
 	{
 		buffer.clear();
 		buffer.insert(buffer.end(), s.begin(), s.end());

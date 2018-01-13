@@ -180,6 +180,7 @@ private:
 
 				   //! Destructor callback to attach to the new thread object
 				   const ref<obj::destroyCallbackObj> &cb)
+			override
 		{
 			auto obj=app->newThread();
 			obj->ondestroy([cb]{cb->destroyed();});

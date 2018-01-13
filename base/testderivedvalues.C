@@ -111,6 +111,8 @@ void make_sure_this_compiles(const LIBCXX_NAMESPACE::derivedvalue<int,
 	decltype(ptr)::base::vipobj_t *ptr_p;
 
 	ptr_p=&*ptr;
+
+	++ptr_p;
 }
 
 int main(int argc, char **argv)

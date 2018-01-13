@@ -26,7 +26,7 @@ public:
 
 	~throwstopexceptionObj() LIBCXX_HIDDEN;
 
-	void dispatch() LIBCXX_HIDDEN;
+	void dispatch() override LIBCXX_HIDDEN;
 };
 
 msgdispatcherObj::throwstopexceptionObj::throwstopexceptionObj()
@@ -51,4 +51,3 @@ void msgdispatcherObj::stop()
 {
 #endif
 }
-

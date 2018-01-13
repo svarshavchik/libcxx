@@ -1,7 +1,7 @@
 /*
 ** Copyright 2012 Double Precision, Inc.
 ** See COPYING for distribution information.
-*/ 
+*/
 #ifndef x_yaml_parserobj_H
 #define x_yaml_parserobj_H
 
@@ -75,7 +75,7 @@ private:
 		//! Implement the callback from libyaml
 
 		int read(unsigned char *buffer, size_t size,
-			 size_t *size_read)
+			 size_t *size_read) override
 		{
 			*size_read=0;
 

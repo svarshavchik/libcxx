@@ -125,7 +125,7 @@ public:
 		const std::string &valueArg,
 
 		//! The locale to parse the %value
-		const const_locale &locale) noexcept
+		const const_locale &locale) noexcept override
 	{
 		try {
 			this->op(valueref->value, value_string<value_type>
@@ -140,7 +140,7 @@ public:
 
 	//! Set the %option using the default operation value
 
-	int set() noexcept
+	int set() noexcept override
 	{
 		this->op(valueref->value, opvalue);
 		return 0;
@@ -148,14 +148,14 @@ public:
 
 	//! Implement the reset operation
 
-	void reset() noexcept
+	void reset() noexcept override
 	{
 		valueref->reset();
 	}
 
 	//! This is a single %option value.
 
-	bool multiple() const noexcept
+	bool multiple() const noexcept override
 	{
 		return false;
 	}

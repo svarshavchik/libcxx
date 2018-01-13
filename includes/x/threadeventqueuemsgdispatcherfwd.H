@@ -8,7 +8,10 @@
 
 #include <x/ptrfwd.H>
 
+#if LIBCXX_INTERNAL_BUILD
+#else
 #warning "Deprecated - use threadmsgdispatcher.H"
+#endif
 
 namespace LIBCXX_NAMESPACE {
 

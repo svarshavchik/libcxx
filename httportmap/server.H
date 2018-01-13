@@ -33,7 +33,7 @@ public:
 	~httpserverimpl();
 
 	void received(const LIBCXX_NAMESPACE::http::requestimpl &req,
-		      bool bodyflag);
+		      bool bodyflag) override;
 };
 
 class httpserver : virtual public LIBCXX_NAMESPACE::obj {

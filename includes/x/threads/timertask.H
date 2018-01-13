@@ -51,7 +51,7 @@ public:
 		}
 
 		//! Run the functor
-		void run()
+		void run() override
 		{
 			functor();
 		}

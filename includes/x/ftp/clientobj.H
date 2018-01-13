@@ -369,7 +369,7 @@ private:
 		~string_callback_impl() {}
 
 		//! Write the file to the output iterator
-		virtual void operator()(const std::string &filename)
+		void operator()(const std::string &filename) override
 		{
 			*iter=filename;
 			++iter;
@@ -980,13 +980,13 @@ public:
 	~stor_callback_impl_allo() {}
 
 	//! Yes, ALLO can be done
-	bool can_allo()
+	bool can_allo() override
 	{
 		return true;
 	}
 
 	//! Size of the file to be STORed
-	off64_t allo_size()
+	off64_t allo_size() override
 	{
 		return std::distance(b, e);
 	}
@@ -1015,13 +1015,13 @@ public:
 	~stor_callback_impl_allo() {}
 
 	//! We can't
-	bool can_allo()
+	bool can_allo() override
 	{
 		return false;
 	}
 
 	//! Zero, unknown
-	off64_t allo_size()
+	off64_t allo_size() override
 	{
 		return 0;
 	}

@@ -1,7 +1,7 @@
 /*
 ** Copyright 2012 Double Precision, Inc.
 ** See COPYING for distribution information.
-*/ 
+*/
 #ifndef x_mime_sectiondecoder_H
 #define x_mime_sectiondecoder_H
 
@@ -276,7 +276,7 @@ public:
 				       ::content_transfer_encoding).value,
 				      std::forward<iter_type>(iter));
 		}
-		
+
 		//! Create a transcoding decoder, get transfer encoding and from charset from headers
 		template<typename iter_type>
 		static ref_type create(//! Headers
@@ -366,7 +366,7 @@ public:
 
 	//! Iterator operator
 
-	void operator=(int c)
+	void operator=(int c) override
 	{
 		*decoder=c;
 		if (c == eof)

@@ -70,7 +70,6 @@ public:
 
 		template<typename type_t>
 		auto runserver(const type_t &obj)
-			-> decltype(LIBCXX_NAMESPACE::run(obj, filedesc))
 		{
 			return LIBCXX_NAMESPACE::run(obj, filedesc);
 		}

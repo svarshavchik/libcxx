@@ -97,7 +97,7 @@ class LIBCXX_HIDDEN http::useragentObj::challengeObj::digestObj
 				 username, algorithm_number, a1_hash);
 	}
 
-	gcry_md_algos algorithm()
+	gcry_md_algos algorithm() override
 	{
 		return algorithm_number;
 	}

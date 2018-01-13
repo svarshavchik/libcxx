@@ -48,7 +48,7 @@ protected:
 
 		//! Retrieve the thread's name, for logging purposes.
 
-		std::string getName() const;
+		std::string getName() const override;
 	public:
 		//! Constructor
 		workerbaseObj(const std::string &nameArg);
@@ -265,7 +265,7 @@ class workerpoolObj : public workerpoolbase, virtual public obj {
 		}
 
 		//! Invoke the worker therad object's run() method.
-		void job(workerThreadType *worker)
+		void job(workerThreadType *worker) override
 		{
 			run_invoke<void>::invoke(worker, args);
 		}

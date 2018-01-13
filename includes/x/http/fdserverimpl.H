@@ -109,7 +109,7 @@ namespace LIBCXX_NAMESPACE {
 //!
 //! - When receiving the body of the HTTP request message, or sending the
 //! HTTP response message if
-//! \c INSERT_LIBX_NAMESPACE::http::server::body_timeout_cnt bytes are not 
+//! \c INSERT_LIBX_NAMESPACE::http::server::body_timeout_cnt bytes are not
 //! received/sent in
 //! \c INSERT_LIBX_NAMESPACE::http::server::body_timeout seconds, an internal
 //! %exception gets thrown by begin(), end(), or send().
@@ -161,7 +161,7 @@ protected:
 	//! Invoked by run_helper, before returning from run()
 
 	//! \internal
-	void clear();
+	void clear() override;
 
 	//! For use by regression tests
 
@@ -204,31 +204,31 @@ private:
 	//! \internal
 	//!
 
-	bool eof();
+	bool eof() override;
 
 private:
 	//! Begin header retrieval with a timeout
-	void header_begin();
+	void header_begin() override;
 
 	//! Check for a previous timeout before beginning to retrieve the message body
 
 	//! \internal
 	//!
 
-	void body_begin();
+	void body_begin() override;
 
 	//! Check for a timeout after retrieving the message body
 
 	//! \internal
 	//!
 
-	void body_end();
+	void body_end() override;
 
 	//! Subclass hook to set any timeouts.
-	void begin_write_message();
+	void begin_write_message() override;
 
 	//! Subclass hook to clear any timeouts
-	void end_write_message();
+	void end_write_message() override;
 
 };
 

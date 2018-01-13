@@ -103,7 +103,7 @@ class two_second_timeout : public LIBCXX_NAMESPACE::fdtimeoutconfig {
 public:
 
 	LIBCXX_NAMESPACE::fdbase operator()(const LIBCXX_NAMESPACE::fd &fd)
-		const
+		const override
 	{
 		LIBCXX_NAMESPACE::fdtimeout
 			to(LIBCXX_NAMESPACE::fdtimeout::create(fd));
@@ -261,4 +261,3 @@ int main(int argc, char **argv)
 	}
 	return (0);
 }
-

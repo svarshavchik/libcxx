@@ -43,7 +43,7 @@ public:
 	//! Invokes parser's \c help() function
 	//!
 	int set(//! The parser object that's setting this option
-		 parserObj &parserArg) const noexcept;
+		 parserObj &parserArg) const noexcept override;
 
 	//! Implement the set() method.
 
@@ -58,7 +58,7 @@ public:
 
 	//! Dummy isSet() function
 
-	bool isSet() const noexcept;
+	bool isSet() const noexcept override;
 
 	//! Dummy usage() function
 
@@ -68,7 +68,7 @@ public:
 
 	//! Dummy reset() function
 
-	void reset() noexcept;
+	void reset() noexcept override;
 
 	//! Dummy help() function
 

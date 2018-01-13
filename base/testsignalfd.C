@@ -41,7 +41,7 @@ public:
 
 	~h() {}
 
-	void signal(int signum)
+	void signal(int signum) override
 	{
 		std::lock_guard<std::mutex> lock(mutex);
 
@@ -91,4 +91,3 @@ int main(int argc, char **argv)
 
 	return (0);
 }
-

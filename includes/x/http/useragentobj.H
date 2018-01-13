@@ -200,7 +200,7 @@ class useragentObj : virtual public obj {
 		//! The connection must've been closed. Delink it.
 
 		void event(const fd &fdRef,
-			   event_t event);
+			   event_t event) override;
 	};
 
 	//! A reference to a cached idle connection
@@ -997,7 +997,7 @@ private:
 
 		bool operator()(fdclientimpl &client,
 				requestimpl &req,
-				responseimpl &resp)
+				responseimpl &resp) override
 		{
 			return client.send(req, beg_iter, end_iter, resp);
 		}

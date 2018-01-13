@@ -1,7 +1,7 @@
 /*
 ** Copyright 2012 Double Precision, Inc.
 ** See COPYING for distribution information.
-*/ 
+*/
 #ifndef x_mime_headeriter_H
 #define x_mime_headeriter_H
 
@@ -25,7 +25,7 @@ namespace LIBCXX_NAMESPACE {
 class header_iterbase {
 
 	//! Current state, current element handler.
-	
+
 	typedef void (header_iterbase::*state_func)(int);
 
 	//! The underlying iterator.
@@ -142,7 +142,7 @@ public:
 private:
 	//! Write to the output iterator
 
-	void emit(int c)
+	void emit(int c) override
 	{
 		*iter++=c;
 	}

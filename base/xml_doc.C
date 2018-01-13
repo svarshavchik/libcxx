@@ -567,6 +567,7 @@ class LIBCXX_HIDDEN impldocObj::readlockImplObj : public writelockObj {
 	}
 
 	std::string get_any_attribute(const std::string &attribute_name) const
+		override
 	{
 		std::string s;
 
@@ -578,6 +579,7 @@ class LIBCXX_HIDDEN impldocObj::readlockImplObj : public writelockObj {
 	}
 
 	void get_all_attributes(std::set<docAttribute> &attributes) const
+		override
 	{
 		if (!n || n->type != XML_ELEMENT_NODE)
 			return;
@@ -593,7 +595,7 @@ class LIBCXX_HIDDEN impldocObj::readlockImplObj : public writelockObj {
 
 	ref<xpathObj> get_xpath(const std::string &expr) override;
 
-	bool is_blank() const
+	bool is_blank() const override
 	{
 		bool flag=true;
 
@@ -602,7 +604,7 @@ class LIBCXX_HIDDEN impldocObj::readlockImplObj : public writelockObj {
 		return flag;
 	}
 
-	bool is_text() const
+	bool is_text() const override
 	{
 		bool flag=false;
 
@@ -611,7 +613,7 @@ class LIBCXX_HIDDEN impldocObj::readlockImplObj : public writelockObj {
 		return flag;
 	}
 
-	std::string get_text() const
+	std::string get_text() const override
 	{
 		std::string s;
 
@@ -620,7 +622,7 @@ class LIBCXX_HIDDEN impldocObj::readlockImplObj : public writelockObj {
 		return s;
 	}
 
-	std::string get_lang() const
+	std::string get_lang() const override
 	{
 		std::string s;
 
@@ -629,7 +631,7 @@ class LIBCXX_HIDDEN impldocObj::readlockImplObj : public writelockObj {
 		return s;
 	}
 
-	int get_space_preserve() const
+	int get_space_preserve() const override
 	{
 		int s=-1;
 
@@ -638,7 +640,7 @@ class LIBCXX_HIDDEN impldocObj::readlockImplObj : public writelockObj {
 		return s;
 	}
 
-	std::string get_base() const
+	std::string get_base() const override
 	{
 		std::string s;
 
@@ -919,7 +921,7 @@ class LIBCXX_HIDDEN impldocObj::createnodeImplObj : public createnodeObj {
 		}
 	};
 
-	ref<createnodeObj> element(const newElement &e)
+	ref<createnodeObj> element(const newElement &e) override
 	{
 		if (e.prefix_given)
 		{
@@ -989,7 +991,7 @@ class LIBCXX_HIDDEN impldocObj::createnodeImplObj : public createnodeObj {
 		return ref<createnodeObj>(this);
 	}
 
-	ref<createnodeObj> entity(const std::string &text)
+	ref<createnodeObj> entity(const std::string &text) override
 	{
 		create(guard(xmlNewCharRef(lock.impl->p,
 					   reinterpret_cast<const xmlChar *>
@@ -1227,13 +1229,13 @@ class LIBCXX_HIDDEN impldocObj::writelockImplObj
 	}
 
 	void do_create_namespace(const std::string &prefix,
-				 const uriimpl &uri)
+				 const uriimpl &uri) override
 	{
 		do_create_namespace(prefix, tostring(uri));
 	}
 
 	void do_create_namespace(const std::string &prefix,
-				 const char *uri)
+				 const char *uri) override
 	{
 		do_create_namespace(prefix, std::string(uri));
 	}
@@ -1374,12 +1376,12 @@ class LIBCXX_HIDDEN impldocObj::writelockImplObj
 		return removal_mcguffin;
 	}
 
-	void do_set_base(const char *uri)
+	void do_set_base(const char *uri) override
 	{
 		do_set_base(std::string(uri));
 	}
 
-	void do_set_base(const uriimpl &uri)
+	void do_set_base(const uriimpl &uri) override
 	{
 		do_set_base(tostring(uri));
 	}
@@ -1429,7 +1431,7 @@ class LIBCXX_HIDDEN impldocObj::writelockImplObj
 	}
 
 	newdtd create_external_dtd(const std::string &external_id,
-				      const std::string &system_id)
+				   const std::string &system_id) override
 	{
 		auto root=xmlDocGetRootElement(impl->p);
 
@@ -1464,7 +1466,7 @@ class LIBCXX_HIDDEN impldocObj::writelockImplObj
 	}
 
 	newdtd create_internal_dtd(const std::string &external_id,
-				   const std::string &system_id)
+				   const std::string &system_id) override
 	{
 		auto root=xmlDocGetRootElement(impl->p);
 

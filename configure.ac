@@ -369,9 +369,14 @@ AC_TRY_LINK([
 #include <stdio.h>
 
 ],[
-	backtrace(NULL, 0);
+	void *ptr;
 
-	char **p=backtrace_symbols( NULL, 0);
+	backtrace(&ptr, 0);
+
+	char **p=backtrace_symbols( &ptr, 0);
+
+	*p=0;
+
 ], [ AC_DEFINE_UNQUOTED(HAVE_BACKTRACE, 1, [Found glibc backtrace()]) ],
 [
 
@@ -408,6 +413,9 @@ AC_TRY_LINK([
 
 ], [
 char **p=environ;
+
+*p=0;
+
 ], [ : ],
    AC_TRY_LINK([
 
@@ -415,6 +423,9 @@ extern "C" char **environ;
 
 ], [
 char **p=environ;
+
+*p=0;
+
 ] , [
 	AC_DEFINE_UNQUOTED(ENVIRON_EXPLICIT_DECLARE, 1, [ Whether "extern char **environ" is not defined in unistd.h ])
 	],
@@ -545,18 +556,23 @@ AC_SUBST(TID_T_DEF)
 AC_COMPILE_IFELSE([AC_LANG_SOURCE([
 #include <chrono>
 
+typedef std::chrono::steady_clock my_clock_t;
+my_clock_t *ptr;
+
 int main()
 {
- typedef std::chrono::steady_clock clock_t;
 }])],[
 sys_clock_t=std::chrono::steady_clock
 ],[
 AC_COMPILE_IFELSE([AC_LANG_SOURCE([
 #include <chrono>
 
+typedef std::chrono::monotonic_clock my_clock_t;
+my_clock_t *ptr;
+
 int main()
 {
- typedef std::chrono::monotonic_clock clock_t;
+
 }])],[
 sys_clock_t=std::chrono::monotonic_clock
 ],[
@@ -713,6 +729,8 @@ eval "httportmapd=\"$sbindir/httportmapd\""
 AC_SUBST(httportmapd)
 
 AM_CONDITIONAL(HAVE_REPO, test -d ${srcdir}/docbook)
+
+AC_DEFINE_UNQUOTED(LIBCXX_INTERNAL_BUILD,1,[Building LibCXX])
 
 AC_CONFIG_FILES([Doxyfile po/Makefile.in
 		 Makefile

@@ -485,7 +485,7 @@ public:
 		digestauth_serverObj::received(req, bodyflag);
 	}
 
-	std::string getcontent(const std::string &username)
+	std::string getcontent(const std::string &username) override
 	{
 		if (nonce_changed)
 			return "NONCE CHANGED";
@@ -642,7 +642,7 @@ public:
 
 	void prethrow_unauthorized(std::list<LIBCXX_NAMESPACE::http
 				   ::responseimpl::challenge_info>
-				   &challenges)
+				   &challenges) override
 	{
 		for (auto &challenge:challenges)
 			challenge.params.erase("qop");
@@ -716,7 +716,7 @@ public:
 		return ret;
 	}
 
-	std::string getcontent(const std::string &username)
+	std::string getcontent(const std::string &username) override
 	{
 		return content + " " + username;
 	}

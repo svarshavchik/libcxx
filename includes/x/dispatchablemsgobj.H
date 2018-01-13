@@ -70,7 +70,7 @@ public:
 
 	//! Dispatch the message
 
-	void dispatch()
+	void dispatch() override
 	{
 		objp->dispatch(static_cast<msg_type &>(*this));
 	}
