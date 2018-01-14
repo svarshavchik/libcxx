@@ -55,7 +55,7 @@ private:
 
 	//! A year whose January 1st falls on a Sunday
 
-	static const int jan1suyear=2006;
+	static constexpr int jan1suyear=2006;
 
 	//! Jan 1, 0001 is day 0.
 
@@ -285,19 +285,19 @@ public:
 
 	//! Gregorian reformation's year
 
-	static const uint16_t gregorian_reformation_date_year=1752;
+	static constexpr uint16_t gregorian_reformation_date_year=1752;
 
 	//! Gregorian reformation's month
 
-	static const uint8_t gregorian_reformation_date_month=9;
+	static constexpr uint8_t gregorian_reformation_date_month=9;
 
 	//! Gregorian reformation's day
 
-	static const uint8_t gregorian_reformation_date_day=2;
+	static constexpr uint8_t gregorian_reformation_date_day=2;
 
 	//! Number of days skipped in the Gregorian reformation
 
-	static const int gregorian_reformation_days=11;
+	static constexpr int gregorian_reformation_days=11;
 
 	//! The day number for Gregorian reformation
 
