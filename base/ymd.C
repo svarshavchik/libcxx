@@ -92,6 +92,11 @@ ymd::ymd(uint16_t yearArg, uint8_t monthArg, uint8_t dayArg)
 	compute_daynum();
 }
 
+uint16_t ymd::get_last_day_of_month() const noexcept
+{
+	return LDOM(month, year);
+}
+
 ymd::ymd(daynum_t dayNumber)
 {
 	daynum=dayNumber;

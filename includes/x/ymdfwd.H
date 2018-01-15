@@ -99,6 +99,9 @@ public:
 		return day;
 	}
 
+	//! Retrieve the last day of this month
+	uint16_t get_last_day_of_month() const noexcept;
+
 	//! A date %interval
 
 	//! This class represents some date %interval
