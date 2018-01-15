@@ -228,7 +228,7 @@ OutputIterator tzfileObj::debugDump(OutputIterator iter,
 			    tz_alt_start.offset != tz_alt_end.offset)
 			{
 				year=compute_ymdhms(transitions->end()[-1])
-					.getYear()+1;
+					.get_year()+1;
 				while (year < 2100)
 				{
 					time_t alt_start, alt_end;

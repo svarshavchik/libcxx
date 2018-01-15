@@ -30,9 +30,9 @@ void ymdhmsBase::internal_overflow() const
 {
 	std::ostringstream o;
 
-	o << getYear() << "-" << std::setw(2) << std::setfill('0')
-	  << getMonth() << "-" << std::setw(2) << std::setfill('0')
-	  << getDay();
+	o << get_year() << "-" << std::setw(2) << std::setfill('0')
+	  << get_month() << "-" << std::setw(2) << std::setfill('0')
+	  << get_day();
 
 	throw EXCEPTION(gettextmsg(libmsg(_txt("Time arithmetic overflow for %1% %2%")),
 				   o.str(), hms::hhmmss()));

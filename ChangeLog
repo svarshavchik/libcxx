@@ -1,9 +1,16 @@
+2018-01-14  Sam Varshavchik  <mrsam@courier-mta.com>
+
+	* Fix fedora rpm spec file to restart httportmap correctly.
+
+	* x::ymd - rename various get...() methods, replacing camelCase
+	with under_scores().
+
 2018-01-12  Sam Varshavchik  <mrsam@courier-mta.com>
 
 	* Add explicit override declarator to virtual methods, where
 	appropriate.
 
-	* x::ymd::parser: Constructor usesthe time_get facet to set the
+	* x::ymd::parser: Constructor uses the time_get facet to set the
 	mdy() default.
 
 0.10 Initial public release.

@@ -56,9 +56,9 @@ namespace LIBCXX_NAMESPACE {
 //! Alternatively, ymd's and hms's methods and members can be accessed directly:
 //!
 //! \code
-//! uint16_t year=now.getYear();
-//! uint16_t month=now.getMonth();
-//! uint16_t day=now.getDay();
+//! uint16_t year=now.get_year();
+//! uint16_t month=now.get_month();
+//! uint16_t day=now.get_day();
 //!
 //! int32_t h=now.h;
 //! int32_t m=now.m;

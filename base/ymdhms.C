@@ -22,12 +22,12 @@ ymdhms::operator struct tm() const
 	tmValue.tm_sec=s;
 	tmValue.tm_min=m;
 	tmValue.tm_hour=h;
-	tmValue.tm_mday=getDay();
-	tmValue.tm_mon=getMonth()-1;
-	tmValue.tm_year=getYear()-1900;
-	tmValue.tm_wday=getDayOfWeek();
+	tmValue.tm_mday=get_day();
+	tmValue.tm_mon=get_month()-1;
+	tmValue.tm_year=get_year()-1900;
+	tmValue.tm_wday=get_day_of_week();
 	tmValue.tm_yday= static_cast<const ymd &>(*this)
-		- ymd(getYear(), 1, 1);
+		- ymd(get_year(), 1, 1);
 	tmValue.tm_isdst=getAltzone() ? 1:0;
 	tmValue.tm_gmtoff=getUTCoffset();
 	tmValue.tm_zone=const_cast<char *>(getTzname().c_str());

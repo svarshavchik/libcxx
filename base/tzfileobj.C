@@ -145,7 +145,7 @@ ymd tzfileObj::tzinfo::getDayOfGivenYear(int32_t year) const
 	{
 		ymd curday(year, m, 1);
 
-		curday += (d + 7 - curday.getDayOfWeek()) % 7;
+		curday += (d + 7 - curday.get_day_of_week()) % 7;
 
 		curday += (w-1) * 7;
 
@@ -164,7 +164,7 @@ ymd tzfileObj::tzinfo::getDayOfGivenYear(int32_t year) const
 		{
 			curday += 31+28;
 
-			if (curday.getDay() == 29)
+			if (curday.get_day() == 29)
 				++curday;
 
 			curday += d-31-28-1;
@@ -932,7 +932,7 @@ void tzfileObj::compute_transition(time_t timeValue,
 								dummy)
 				     ) / (60 * 60 * 24);
 
-			year=get_year.getYear();
+			year=get_year.get_year();
 
 		}
 

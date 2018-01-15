@@ -47,7 +47,7 @@ See COPYING for distribution information.
 
 independence_day += &ns;::ymd::interval("200 years");
 
-std::cout &lt;&lt; independence_day.formatDate("%F", en_us) &lt;&lt; std::endl;</programlisting>
+std::cout &lt;&lt; independence_day.format_date("%F", en_us) &lt;&lt; std::endl;</programlisting>
 
     </informalexample>
   </blockquote>
@@ -65,9 +65,9 @@ std::cout &lt;&lt; independence_day.formatDate("%F", en_us) &lt;&lt; std::endl;<
     <classname>&ns;::ymd</classname>'s date accordingly.
     Subtracting two <classname>&ns;::ymd</classname> objects results in an
     integer giving the number of days between the dates.
-    <methodname>getYear()</methodname>,
-    <methodname>getMonth()</methodname>, and
-    <methodname>getDay()</methodname> methods return the corresponding portions
+    <methodname>get_year()</methodname>,
+    <methodname>get_month()</methodname>, and
+    <methodname>get_day()</methodname> methods return the corresponding portions
     of the date value.
   </para>
 
@@ -98,7 +98,7 @@ std::cout &lt;&lt; independence_day.formatDate("%F", en_us) &lt;&lt; std::endl;<
 
   <para>
     <classname>&ns;::ymd</classname>'s
-    <methodname>formatDate()</methodname> method formats the date as a string.
+    <methodname>format_date()</methodname> method formats the date as a string.
     Its second parameter is an optional <link linkend="localeobj">locale</link>:
   </para>
 
@@ -111,7 +111,7 @@ std::cout &lt;&lt; independence_day.formatDate("%F", en_us) &lt;&lt; std::endl;<
 
 &ns;::locale en_us(&ns;::locale::create("en_US.utf-8"));
 
-std::cout &lt;&lt; &ns;::ymd(firstDayOfYear).formatDate("%F", en_us) &lt;&lt; std::endl;</programlisting>
+std::cout &lt;&lt; &ns;::ymd(firstDayOfYear).format_date("%F", en_us) &lt;&lt; std::endl;</programlisting>
     </informalexample>
   </blockquote>
 

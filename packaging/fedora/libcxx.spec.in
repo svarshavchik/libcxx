@@ -126,7 +126,9 @@ fi
 
 %postun
 /sbin/ldconfig
-%systemd_postun_with_restart httportmap.service
+
+# Do not use systemd_postun_with_restart. This stops httportmap completely.
+# try-reload-or-restart in %post is sufficient for our purposes.
 
 %files
 %defattr(-,root,root,-)

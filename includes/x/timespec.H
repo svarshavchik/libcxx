@@ -37,7 +37,7 @@ class timespec : public ::timespec {
 
 	//! Number of nanoseconds in a second
 
-	static const long billion=1000000000;
+	static constexpr long billion=1000000000;
 
 public:
 	//! Default constructor -- initialize timespec to 0 seconds

@@ -464,11 +464,11 @@ ymd::interval::operator std::string() const
 }
 
 ymd::iso8601::iso8601(const ymd &date)
-	: year(date.getYear())
+	: year(date.get_year())
 {
 	sdaynum_t dayCount;
 
-	if (date.getMonth() == 12)
+	if (date.get_month() == 12)
 	{
 		ymd firstDay(ymd::firstDayOfWeek(year+1, 4)-3);
 
@@ -537,14 +537,14 @@ std::string ymd::iso8601::toString() const
 
 ymd::ymd(const ymd::iso8601 &iso8601Date)
 {
-	ymd firstDay(firstDayOfWeek(iso8601Date.getYear(), 4));
+	ymd firstDay(firstDayOfWeek(iso8601Date.get_year(), 4));
 
 	firstDay -= 3;
 
 	interval ival;
 
-	ival.weeks=iso8601Date.getWeek()-1;
-	ival.days=iso8601Date.getDayOfWeek()-1;
+	ival.weeks=iso8601Date.get_week()-1;
+	ival.days=iso8601Date.get_day_of_week()-1;
 
 	*this= firstDay + ival;
 }
@@ -565,13 +565,13 @@ ymd::parser::parser(const const_locale &locArg)
 
 		fmtbuf[1]='b';
 
-		unicode::iconvert::convert(day.formatDate(fmtbuf, utf8),
+		unicode::iconvert::convert(day.format_date(fmtbuf, utf8),
 					   unicode::utf_8,
 					   month_names[i]);
 
 		fmtbuf[1]='B';
 
-		unicode::iconvert::convert(day.formatDate(fmtbuf, utf8),
+		unicode::iconvert::convert(day.format_date(fmtbuf, utf8),
 					   unicode::utf_8,
 					   month_names_long[i]);
 
@@ -778,7 +778,7 @@ ymd ymd::parser::parse_internal(const std::u32string &ustr)
 	return ymd(year, month, day);
 }
 
-std::string ymd::formatDate(const char *pattern,
+std::string ymd::format_date(const char *pattern,
 			    const const_locale &localeRef)
 	const
 {
@@ -790,16 +790,16 @@ std::string ymd::formatDate(const char *pattern,
 	return strftime(*this, localeRef)(pattern);
 }
 
-std::string ymd::formatDate(const std::string &pattern,
+std::string ymd::format_date(const std::string &pattern,
 			    const const_locale &localeRef)
 	const
 {
-	return formatDate(pattern.c_str(), localeRef);
+	return format_date(pattern.c_str(), localeRef);
 }
 
 ymd::operator std::string() const
 {
-	return formatDate();
+	return format_date();
 }
 
 #ifndef DOXYGEN

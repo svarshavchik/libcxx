@@ -23,7 +23,7 @@ OutputIterator ymd::toString(OutputIterator iter,
 			     const char *pattern)
 	const
 {
-	std::string dt(formatDate(pattern, localeRef));
+	std::string dt(format_date(pattern, localeRef));
 
 	return std::copy(dt.begin(), dt.end(), iter);
 }

@@ -109,17 +109,17 @@ void Testymd::test()
 
 	VERIFYFAIL( LIBCXX_NAMESPACE::ymd(9999,12,31)+0x7FFFFFFF);
 
-	VERIFY( LIBCXX_NAMESPACE::ymd(1, 1, 1).getDayOfWeek() == 6);
+	VERIFY( LIBCXX_NAMESPACE::ymd(1, 1, 1).get_day_of_week() == 6);
 
-	VERIFY( LIBCXX_NAMESPACE::ymd(1752, 9, 2).getDayOfWeek() == 3);
+	VERIFY( LIBCXX_NAMESPACE::ymd(1752, 9, 2).get_day_of_week() == 3);
 
-	VERIFY( LIBCXX_NAMESPACE::ymd(1752, 9, 14).getDayOfWeek() == 4);
+	VERIFY( LIBCXX_NAMESPACE::ymd(1752, 9, 14).get_day_of_week() == 4);
 
-	VERIFY( LIBCXX_NAMESPACE::ymd(1905, 1, 1).getDayOfWeek() == 0);
+	VERIFY( LIBCXX_NAMESPACE::ymd(1905, 1, 1).get_day_of_week() == 0);
 
-	VERIFY( LIBCXX_NAMESPACE::ymd(1970, 1, 1).getDayOfWeek() == 4);
+	VERIFY( LIBCXX_NAMESPACE::ymd(1970, 1, 1).get_day_of_week() == 4);
 
-	VERIFY( LIBCXX_NAMESPACE::ymd(2009, 5, 17).getDayOfWeek() == 0);
+	VERIFY( LIBCXX_NAMESPACE::ymd(2009, 5, 17).get_day_of_week() == 0);
 
 	VERIFY( LIBCXX_NAMESPACE::ymd(2009, 1, 1) + LIBCXX_NAMESPACE::ymd::months(12) ==
 		LIBCXX_NAMESPACE::ymd(2010, 1, 1));
@@ -161,22 +161,22 @@ void Testymd::testdateput()
 
 	LIBCXX_NAMESPACE::ymd ymd(2009,1,1);
 
-	std::cout << ymd.formatDate("std=%C %d %F %j %m %u %w %y %Y %a %A %b %B%n"
-				    "alt%%=%EC %Od %Om %Ou %Ow %Ey %EY",
+	std::cout << ymd.format_date("std=%C %d %F %j %m %u %w %y %Y %a %A %b %B%n"
+				     "alt%%=%EC %Od %Om %Ou %Ow %Ey %EY",
 				    en_us) << std::endl;
 
 	std::cout << (std::string)ymd << std::endl;
 
 	std::cout <<
-		ymd.formatDate(std::string("std=%C %d %F %j %m %u %w %y %Y %a %A %b %B%n"
+		ymd.format_date(std::string("std=%C %d %F %j %m %u %w %y %Y %a %A %b %B%n"
 					   "alt%%=%EC %Od %Om %Ou %Ow %Ey %EY"),
 			       en_us) << std::endl;
 
-	std::cout << LIBCXX_NAMESPACE::ymd(2009,1,1).formatDate("%U%n", en_us);
-	std::cout << LIBCXX_NAMESPACE::ymd(2009,1,3).formatDate("%U%n", en_us);
-	std::cout << LIBCXX_NAMESPACE::ymd(2009,1,4).formatDate("%U%n", en_us);
-	std::cout << LIBCXX_NAMESPACE::ymd(2009,1,1).formatDate("%g %G-W%V-%u%n", en_us);
-	std::cout << LIBCXX_NAMESPACE::ymd(2008,1,1).formatDate("%g %G-W%V-%u%n", en_us);
+	std::cout << LIBCXX_NAMESPACE::ymd(2009,1,1).format_date("%U%n", en_us);
+	std::cout << LIBCXX_NAMESPACE::ymd(2009,1,3).format_date("%U%n", en_us);
+	std::cout << LIBCXX_NAMESPACE::ymd(2009,1,4).format_date("%U%n", en_us);
+	std::cout << LIBCXX_NAMESPACE::ymd(2009,1,1).format_date("%g %G-W%V-%u%n", en_us);
+	std::cout << LIBCXX_NAMESPACE::ymd(2008,1,1).format_date("%g %G-W%V-%u%n", en_us);
 	VERIFY(LIBCXX_NAMESPACE::ymd(LIBCXX_NAMESPACE::ymd::iso8601(LIBCXX_NAMESPACE::ymd(2009,1,1))) == LIBCXX_NAMESPACE::ymd(2009,1,1));
 	VERIFY(LIBCXX_NAMESPACE::ymd(LIBCXX_NAMESPACE::ymd::iso8601(LIBCXX_NAMESPACE::ymd(2008,1,1))) == LIBCXX_NAMESPACE::ymd(2008,1,1));
 
@@ -213,9 +213,9 @@ void Testymd::testdateput()
 					       isochk[i][1],
 					       isochk[i][2]));
 
-		if (iso8601.getYear() != isochk[i][3] ||
-		    iso8601.getWeek() != isochk[i][4] ||
-		    iso8601.getDayOfWeek() != isochk[i][5])
+		if (iso8601.get_year() != isochk[i][3] ||
+		    iso8601.get_week() != isochk[i][4] ||
+		    iso8601.get_day_of_week() != isochk[i][5])
 		{
 			std::ostringstream errmsg;
 

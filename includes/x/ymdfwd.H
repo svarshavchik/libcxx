@@ -81,20 +81,20 @@ public:
 				       uint8_t day);
 
 	//! Retrieve the year
-	uint16_t getYear() const noexcept
+	uint16_t get_year() const noexcept
 	{
 		return year;
 	}
 
 	//! Retrieve the month
-	uint16_t getMonth() const noexcept
+	uint16_t get_month() const noexcept
 	{
 		return month;
 	}
 
-	//! Retrieve the day of week. Sunday is day 0.
+	//! Retrieve the day of the month.
 
-	uint16_t getDay() const noexcept
+	uint16_t get_day() const noexcept
 	{
 		return day;
 	}
@@ -321,7 +321,7 @@ public:
 
 	//! \return 0 for Sunday.
 
-	int getDayOfWeek() const noexcept
+	int get_day_of_week() const noexcept
 	{
 		return (jd()+6) % 7;
 	}
@@ -491,7 +491,7 @@ public:
 	{
 		ymd d(year, 1, 1);
 
-		d += (weekday + 7 - d.getDayOfWeek()) % 7;
+		d += (weekday + 7 - d.get_day_of_week()) % 7;
 
 		return d;
 	}
@@ -530,15 +530,15 @@ public:
 
 		//! Return the ISO8601 year
 
-		inline uint16_t getYear() const noexcept { return year; }
+		inline uint16_t get_year() const noexcept { return year; }
 
 		//! Return the ISO8601 week
 
-		inline uint16_t getWeek() const noexcept { return week; }
+		inline uint16_t get_week() const noexcept { return week; }
 
 		//! Return the ISO8601 day of week. Monday is day 1.
 
-		inline uint16_t getDayOfWeek() const noexcept { return daynum; }
+		inline uint16_t get_day_of_week() const noexcept { return daynum; }
 
 		//! Convert this object to a text string
 
@@ -600,22 +600,22 @@ public:
 
 	//! \overload
 	//!
-	std::string formatDate(//! Formatting pattern
-			       const char *pattern=0,
-			       //! Locale for the conversion
-			       const const_locale
-			       &localeRef=locale::base::global())
+	std::string format_date(//! Formatting pattern
+				const char *pattern=0,
+				//! Locale for the conversion
+				const const_locale
+				&localeRef=locale::base::global())
 		const;
 
 	//! Convert date to a text string.
 
 	//! \overload
 	//!
-	std::string formatDate(//! Pattern for the conversion
-			       const std::string &pattern,
-			       //! Locale for the conversion
-			       const const_locale
-			       &localeRef=locale::base::global())
+	std::string format_date(//! Pattern for the conversion
+				const std::string &pattern,
+				//! Locale for the conversion
+				const const_locale
+				&localeRef=locale::base::global())
 		const;
 
 	//! Convert date to a text string.
