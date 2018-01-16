@@ -21,6 +21,7 @@
 #include <iterator>
 #include <ctime>
 #include <type_traits>
+#include <optional>
 #include <courier-unicode.h>
 
 namespace LIBCXX_NAMESPACE {
@@ -314,7 +315,7 @@ public:
 
 	//! Initialize the date to a given date
 
-	ymd(uint16_t year, uint8_t month, uint8_t day);
+	ymd(uint16_t year, uint16_t month, uint16_t day);
 
 	//! Return the largest date
 
@@ -603,8 +604,8 @@ public:
 
 	//! \overload
 	//!
-	std::string format_date(//! Formatting pattern
-				const char *pattern=0,
+	std::string format_date(//! Pattern for the conversion
+				const std::string_view &pattern,
 				//! Locale for the conversion
 				const const_locale
 				&localeRef=locale::base::global())
@@ -614,11 +615,11 @@ public:
 
 	//! \overload
 	//!
-	std::string format_date(//! Pattern for the conversion
-				const std::string &pattern,
-				//! Locale for the conversion
-				const const_locale
-				&localeRef=locale::base::global())
+	std::u32string format_date(//! Pattern for the conversion
+				   const std::u32string_view &pattern,
+				   //! Locale for the conversion
+				   const const_locale
+				   &localeRef=locale::base::global())
 		const;
 
 	//! Convert date to a text string.
@@ -668,44 +669,35 @@ public:
 		//! \return an mdy object, or throws an %exception if the
 		//! string cannot be parsed.
 
-		template<typename InputIterator>
-		ymd parse(InputIterator beg_iter,
-			  InputIterator end_iter);
-
-		//! Internal parser
-
-		//! \internal
-		ymd parse_internal(const std::u32string &);
+		ymd parse(const std::string_view &s);
 
 		//! Make some sense out of a string
 
 		//! \overload
+		ymd parse(const std::u32string_view &s);
 
-		ymd parse(//! The string
-			  const char *string);
+		//! Make some sense out of a string.
 
-		//! Make some sense out of a string
+		//! Same as parse(), but returns nothing instead of throwing
+		//! an exception on an error.
+
+		std::optional<ymd> try_parse(const std::string_view &);
+
+		//! Make some sense out of a string.
 
 		//! \overload
-		inline ymd parse(//! The string
-				 const std::string &s)
-
-		{
-			return parse(s.c_str());
-		}
+		std::optional<ymd> try_parse(const std::u32string_view &);
 	};
 
 	//! Initialize the date from a string
 
-	ymd(const char *string,
-	    bool mdyflag=false,
-	    const const_locale &loc=locale::base::global());
+	explicit ymd(const std::string_view &string,
+		     const const_locale &loc=locale::base::global());
 
 	//! Initialize the date from a string
 
-	ymd(const std::string &string,
-	    bool mdyflag=false,
-	    const const_locale &loc=locale::base::global());
+	explicit ymd(const std::u32string_view &string,
+		     const const_locale &loc=locale::base::global());
 
 	//! Instantiate a new object from an input iterator
 
@@ -724,7 +716,17 @@ public:
 				     const const_locale &localeArg
 				     =locale::base::global())
 	{
-		return parser(localeArg).parse(beg_iter, end_iter);
+		parser p{localeArg};
+
+		if constexpr(sizeof(typename std::iterator_traits<InputIterator>
+				    ::value_type) == 1)
+	        {
+			return p.parse(std::string{beg_iter, end_iter});
+		}
+		else
+		{
+			return p.parse(std::u32string{beg_iter, end_iter});
+		}
 	}
 
 	//! Serialization function

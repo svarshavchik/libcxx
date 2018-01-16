@@ -364,6 +364,40 @@ fi
 
 AC_SUBST(STDTHREAD_CXXFLAGS)
 
+AC_CACHE_CHECK([whether std::time_get implements date_order],
+               [libcxx_cv_time_get_date_order],
+[
+   AC_ARG_WITH(dateorder,[AS_HELP_STRING([--with-dateorder=yes/no],
+	[Specify whether the C++ library implements std::time_get::date_order])
+	],
+
+	[libcxx_cv_time_get_date_order="$withval"],
+	[
+
+AC_RUN_IFELSE([AC_LANG_PROGRAM([[
+#include <locale>
+]],
+[[
+
+	std::locale loc{"en_US.UTF-8"};
+	std::time_get<char>::dateorder order;
+	order = std::use_facet<std::time_get<char> >(loc).date_order();
+
+        if (order == std::time_get<char>::mdy)
+	     exit(0);
+	exit(1);
+
+]])
+], [libcxx_cv_time_get_date_order=yes],[libcxx_cv_time_get_date_order=no])
+
+])
+])
+
+if test "$libcxx_cv_time_get_date_order" = "no"
+then
+	AC_DEFINE_UNQUOTED(DATE_ORDER_NOT_SUPPORTED,1,[Need to reverse-engineer date_order()])
+fi
+
 AC_TRY_LINK([
 #include <execinfo.h>
 #include <stdio.h>

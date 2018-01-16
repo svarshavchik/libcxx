@@ -52,14 +52,14 @@ ymd::ymd()
 	compute_daynum();
 }
 
-ymd::ymd(const char *string, bool mdyflag, const const_locale &loc)
+ymd::ymd(const std::string_view &string, const const_locale &loc)
 {
-	*this= parser(loc).mdy(mdyflag).parse(string);
+	*this= parser(loc).parse(string);
 }
 
-ymd::ymd(const std::string &string, bool mdyflag, const const_locale &loc)
+ymd::ymd(const std::u32string_view &string, const const_locale &loc)
 {
-	*this= parser(loc).mdy(mdyflag).parse(string);
+	*this= parser(loc).parse(string);
 }
 
 ymd::~ymd()
@@ -71,7 +71,7 @@ ymd ymd::max()
 	return ymd(EPOCHEND, 12, 31);
 }
 
-ymd::ymd(uint16_t yearArg, uint8_t monthArg, uint8_t dayArg)
+ymd::ymd(uint16_t yearArg, uint16_t monthArg, uint16_t dayArg)
 
 {
 	if (yearArg < 1 || yearArg > EPOCHEND
@@ -584,27 +584,63 @@ ymd::parser::parser(const const_locale &locArg)
 		month_names_long[i]=unicode::toupper(month_names_long[i]);
 	}
 
+#if DATE_ORDER_NOT_SUPPORTED
+
+	ymd test_date{2009,1,3};
+
+	auto s=test_date.format_date("%x", locArg);
+
+	auto c=s.c_str();
+
+	while (*c == '0')
+		++c;
+
+	if (*c == '1')
+		usmdy=true;
+
+#else
 	auto time_get=locArg->get_facet<facets::time_get_facet<char> >();
 
 	if (time_get->getFacetConstRef().date_order()==std::time_base::mdy)
 		usmdy=true;
+#endif
 }
 
 ymd::parser::~parser()
 {
 }
 
-ymd ymd::parser::parse(const char *string)
+ymd ymd::parser::parse(const std::string_view &s)
 {
-	size_t n;
+	std::u32string uc;
 
-	for (n=0; string[n]; ++n)
-		;
-
-	return parse(string, string+n);
+	unicode::iconvert::tou::convert(s.begin(), s.end(),
+					loc->charset(),
+                                       uc);
+	return parse(uc);
 }
 
-ymd ymd::parser::parse_internal(const std::u32string &ustr)
+ymd ymd::parser::parse(const std::u32string_view &ustr)
+{
+	auto ret=try_parse(ustr);
+
+	if (!ret)
+		throw EXCEPTION(_("Date parsing failed"));
+
+	return *ret;
+}
+
+std::optional<ymd> ymd::parser::try_parse(const std::string_view &s)
+{
+	std::u32string uc;
+
+	unicode::iconvert::tou::convert(s.begin(), s.end(),
+					loc->charset(),
+                                       uc);
+	return try_parse(uc);
+}
+
+std::optional<ymd> ymd::parser::try_parse(const std::u32string_view &ustr)
 {
 	int md[2];
 	int md_cnt=0;
@@ -636,7 +672,7 @@ ymd ymd::parser::parse_internal(const std::u32string &ustr)
 			// Can't see 5 or more consecutive digits.
 
 			if (++in_number > 4)
-				goto bad;
+				return std::nullopt;
 			++b;
 			continue;
 		}
@@ -650,7 +686,7 @@ ymd ymd::parser::parse_internal(const std::u32string &ustr)
 				// Saw four digits, must be a year.
 
 				if (yearfound)
-					goto bad;
+					return std::nullopt;
 
 				yearfound=true;
 				yearfirst=first;
@@ -661,10 +697,10 @@ ymd ymd::parser::parse_internal(const std::u32string &ustr)
 				// Can't see three or more numbers
 
 				if (md_cnt >= 2)
-					goto bad;
+					return std::nullopt;
 
 				if ((uint8_t)current_number != current_number)
-					goto bad;
+					return std::nullopt;
 
 				md[md_cnt]=current_number;
 				++md_cnt;
@@ -686,7 +722,7 @@ ymd ymd::parser::parse_internal(const std::u32string &ustr)
 		// Seeing letters, must be a month name
 
 		if (md_str)
-			goto bad;
+			return std::nullopt;
 
 		while (b != e && unicode_isalnum(*b))
 		{
@@ -702,12 +738,12 @@ ymd ymd::parser::parse_internal(const std::u32string &ustr)
 	uint16_t month, day;
 
 	if (!yearfound)
-		goto bad;
+		return std::nullopt;
 
 	if (md_str)
 	{
 		if (md_cnt != 1)
-			goto bad;
+			return std::nullopt;
 
 		if (mstr.size() > 1 && mstr[0] == 'W')
 		{
@@ -755,18 +791,14 @@ ymd ymd::parser::parse_internal(const std::u32string &ustr)
 				break;
 
 		if (month >= 12)
-			goto bad;
+			return std::nullopt;
 		++month;
 		day=md[0];
 	}
 	else
 	{
 		if (md_cnt != 2)
-		{
-		bad:
-
-			throw EXCEPTION(_("Date parsing failed"));
-		}
+			return std::nullopt;
 
 		if (yearfirst || usmdy)
 		{
@@ -783,33 +815,24 @@ ymd ymd::parser::parse_internal(const std::u32string &ustr)
 	return ymd(year, month, day);
 }
 
-std::string ymd::format_date(const char *pattern,
-			    const const_locale &localeRef)
+std::string ymd::format_date(const std::string_view &pattern,
+			     const const_locale &localeRef)
 	const
 {
-	static const char isodate[]="%d-%b-%Y";
-
-	if (!pattern)
-		pattern=isodate;
-
 	return strftime(*this, localeRef)(pattern);
 }
 
-std::string ymd::format_date(const std::string &pattern,
-			    const const_locale &localeRef)
+std::u32string ymd::format_date(const std::u32string_view &pattern,
+				const const_locale &localeRef)
 	const
 {
-	return format_date(pattern.c_str(), localeRef);
+	return strftime(*this, localeRef)(pattern);
 }
 
 ymd::operator std::string() const
 {
-	return format_date();
+	return format_date("%d-%b-%Y");
 }
-
-#ifndef DOXYGEN
-template ymd ymd::parser::parse(const char *, const char *);
-#endif
 
 #if 0
 {

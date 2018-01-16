@@ -45,7 +45,8 @@ void hms::construct(InputIterator beg_iter,
 		    InputIterator end_iter,
 		    const const_locale &l)
 {
-	typedef typename InputIterator::value_type char_type;
+	typedef typename std::iterator_traits<InputIterator>
+		::value_type char_type;
 
 	std::basic_string<char_type> str(beg_iter, end_iter);
 

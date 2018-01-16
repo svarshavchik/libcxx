@@ -198,14 +198,14 @@ public:
 	//!
 	//! An exception gets thrown if the string cannot be parsed, as such.
 
-	ymdhms(//! Formatted string
-	       const std::string &timeValue,
+	explicit ymdhms(//! Formatted string
+			const std::string &timeValue,
 
-	       //! Timezone specification
-	       const const_tzfile &tzfileArg=tzfile::base::local(),
+			//! Timezone specification
+			const const_tzfile &tzfileArg=tzfile::base::local(),
 
-	       //! Locale for parsing the month name
-	       const const_locale &localeRef=locale::base::utf8())
+			//! Locale for parsing the month name
+			const const_locale &localeRef=locale::base::utf8())
 		: ymdhmsBase(tzfileArg->compute_ymdhms
 			     (to_time_t(timeValue, localeRef))),
 		  tz(tzfileArg)

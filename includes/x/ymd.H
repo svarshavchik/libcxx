@@ -46,19 +46,6 @@ OutputIterator ymd::interval::toString(OutputIterator iter,
 	return std::copy(str.begin(), str.end(), iter);
 }
 
-template<typename InputIterator>
-inline ymd ymd::parser::parse(InputIterator beg_iter,
-			      InputIterator end_iter)
-{
-	std::u32string uc;
-
-	unicode::iconvert::tou::convert(beg_iter, end_iter,
-					loc->charset(),
-					uc);
-
-	return parse_internal(uc);
-}
-
 #if 0
 {
 #endif

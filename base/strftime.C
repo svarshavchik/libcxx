@@ -7,6 +7,7 @@
 #include "x/strftime.H"
 #include "x/ymdhms.H"
 #include "x/imbue.H"
+#include <courier-unicode.h>
 
 namespace LIBCXX_NAMESPACE {
 #if 0
@@ -127,42 +128,36 @@ strftime &strftime::operator()(const hms &time)
 	return operator()(ymdhms(ymdhms::epoch(), time, tzfile::base::utc()));
 }
 
-std::string strftime::operator()(const std::string &str)
-
-{
-	return operator()(str.c_str());
-}
-
-std::string strftime::operator()(const char *str)
+std::string strftime::operator()(const std::string_view &str)
 {
 	std::ostringstream o;
 
-	this->operator()(str, o);
+	operator()(str, o);
 
 	return o.str();
 }
 
-strftime &strftime::operator()(const std::string &str,
-			       std::ostream &o)
-
+std::u32string strftime::operator()(const std::u32string_view &str)
 {
-	return this->operator()(str.c_str(), o);
+	std::string s;
+	bool flag=false;
+
+	unicode::iconvert::fromu::convert(str.begin(), str.end(),
+					  l->charset(), s, flag);
+
+	return unicode::iconvert::tou::convert(operator()(s),
+					       l->charset()).first;
 }
 
-strftime &strftime::operator()(const char *str,
+strftime &strftime::operator()(const std::string_view &str,
 			       std::ostream &o)
-
 {
-	const char *strend;
-
-	for (strend=str; *strend; ++strend)
-		;
-
-	imbue<std::ios> im(this->l, this->ios);
+	imbue<std::ios> im{l, ios};
 
 	strftime_base::
 		facetRefImpl.put( std::ostreambuf_iterator<char>(o),
-				  this->ios, ' ', &this->tm, str, strend);
+				  ios, ' ', &tm, str.begin(),
+				  str.end());
 	return *this;
 }
 

@@ -12,6 +12,7 @@
 #include <x/exception.H>
 #include <x/ymdfwd.H>
 #include <string>
+#include <string_view>
 #include <algorithm>
 #include <type_traits>
 #include <stdint.h>
@@ -94,16 +95,11 @@ public:
 	//! "HH:MM". A string consisting of a single number gets processed
 	//! as a number of seconds.
 
-	hms(//! The %interval
-	    const std::string &intervalStr,
+	explicit hms(//! The %interval
+		     const std::string_view &intervalStr,
 
-	    //! The locale of the given string
-	    const const_locale &l=locale::base::global());
-
-	//! Construct from a descriptive string
-
-	hms(const char *intervalStr,
-	    const const_locale &l=locale::base::global());
+		     //! The locale of the given string
+		     const const_locale &l=locale::base::global());
 
 	//! Construct from a beginning and ending iterator
 

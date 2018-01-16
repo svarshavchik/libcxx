@@ -3,7 +3,8 @@
 	* Fix fedora rpm spec file to restart httportmap correctly.
 
 	* x::ymd - rename various get...() methods, replacing camelCase
-	with under_scores().
+	with under_scores(). Convert constructor parameters to string views.
+	Add unicode version of format_date().
 
 2018-01-12  Sam Varshavchik  <mrsam@courier-mta.com>
 

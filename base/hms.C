@@ -59,18 +59,10 @@ hms::hms(time_t seconds)
 	s=seconds;
 }
 
-hms::hms(const std::string &intervalStr,
+hms::hms(const std::string_view &intervalStr,
 	 const const_locale &l)
 {
 	construct(intervalStr.begin(), intervalStr.end(), l);
-}
-
-hms::hms(const char *intervalStr,
-	 const const_locale &l)
-{
-	std::string s(intervalStr);
-
-	construct(s.begin(), s.end(), l);
 }
 
 template void hms::construct(std::string::const_iterator,

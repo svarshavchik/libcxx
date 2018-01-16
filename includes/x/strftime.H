@@ -55,14 +55,14 @@ protected:
 
 	//! Reference to the std::time_put locale.
 	strftime_ref_t facetRef;
-
+#if 0
 	//! Shortcut for the locale facet nullable pointer.
 	typedef ptr<facetObj< std::time_put<char> > >
 	strftime_ptr_t;
 
 	//! Nullable pointer to the std::time_put locale.
 	strftime_ptr_t facetPtr;
-
+#endif
 	//! Direct reference to the native C++ library facet object.
 
 	const std::time_put<char> &facetRefImpl;
@@ -276,15 +276,7 @@ public:
 			       //! See \c strftime(3) for more
 			       //! information on the time format
 			       //! template string.
-			       const std::string &str);
-
-	//! Format the specified time
-
-	//! \overload
-	//!
-
-	std::string operator()(//! Time format string
-			       const char *str);
+			       const std::string_view &str);
 
 	//! Format the specified time
 
@@ -293,19 +285,21 @@ public:
 	//! gets written to an output stream.
 
 	strftime &operator()(//! Time format string
-			     const std::string &str,
+			     const std::string_view &str,
 
 			     //! Formatted time gets written to this stream
 			     std::ostream &o);
 
 	//! Format the specified time
 
-	//! \overload
-	//!
-	strftime &operator()(//! Time format string
-			     const char *str,
-			     //! Formatted time gets written to this stream
-			     std::ostream &o);
+	//! \return the formatted string for the previously specified time
+	//! value, as a string.
+	std::u32string operator()(//! Time format string
+
+				  //! See \c strftime(3) for more
+				  //! information on the time format
+				  //! template string.
+				  const std::u32string_view &str);
 };
 
 #if 0

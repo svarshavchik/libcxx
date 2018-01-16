@@ -231,8 +231,11 @@ void Testymd::testdateput()
 	LIBCXX_NAMESPACE::ymd::parser cp;
 
 	std::cout << (std::string)cp.parse("3-aug-2009") << std::endl;
-	std::cout << (std::string)LIBCXX_NAMESPACE::ymd("3/8/2009", false, en_us) << std::endl;
-	std::cout << (std::string)LIBCXX_NAMESPACE::ymd(std::string("2009-8-3"), false, en_us)
+
+	auto time_get=en_us->get_facet<x::facets::time_get_facet<char> >();
+
+	std::cout << (std::string)LIBCXX_NAMESPACE::ymd("8/3/2009", en_us) << std::endl;
+	std::cout << (std::string)LIBCXX_NAMESPACE::ymd(std::string("2009-8-3"), en_us)
 		  << std::endl;
 	std::cout << (std::string)LIBCXX_NAMESPACE::ymd::iso8601(cp.parse("2009-W2-3")) << std::endl;
 }
@@ -243,6 +246,11 @@ int main(int argc, char **argv)
 
 	try {
 		LIBCXX_NAMESPACE::locale::create("en_US.UTF-8")->global();
+		LIBCXX_NAMESPACE::locale en_us{
+			LIBCXX_NAMESPACE::locale::create("en_US.UTF-8")};
+		LIBCXX_NAMESPACE::locale de_DE{
+			LIBCXX_NAMESPACE::locale::create("de_DE.UTF-8")};
+
 		Testymd::testdateput();
 		Testymd::test();
 
@@ -316,13 +324,17 @@ int main(int argc, char **argv)
 
 		LIBCXX_NAMESPACE::ymd Feb1(2010, 02, 01);
 
+		if (Feb1.format_date(U"%x", en_us) != U"02/01/2010")
+			throw EXCEPTION("format_date(unicode) failed");
+
+
 		if (LIBCXX_NAMESPACE::ymd("2010-02-01") != Feb1)
 			throw EXCEPTION("YYYY-MM-DD is not parsed properly");
 
-		if (LIBCXX_NAMESPACE::ymd("01-02-2010") != Feb1)
+		if (LIBCXX_NAMESPACE::ymd("01-02-2010", de_DE) != Feb1)
 			throw EXCEPTION("DD-MM-YYYY is not parsed properly");
 
-		if (LIBCXX_NAMESPACE::ymd("02/01/2010", true) != Feb1)
+		if (LIBCXX_NAMESPACE::ymd("02/01/2010", en_us) != Feb1)
 			throw EXCEPTION("MM/DD/YYYY is not parsed properly");
 
 		if (LIBCXX_NAMESPACE::ymd("01-Feb-2010") != Feb1)
