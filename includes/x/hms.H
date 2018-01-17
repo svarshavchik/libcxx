@@ -24,20 +24,11 @@ namespace LIBCXX_NAMESPACE {
 template<typename OutputIterator>
 OutputIterator hms::toString(OutputIterator iter,
 			     const const_locale &localeRef,
-			     const char *pattern) const
+			     const std::string_view &pattern) const
 {
-	std::string str(this->hhmmss(pattern, localeRef));
+	std::string str(this->format_time(pattern, localeRef));
 
 	return std::copy(str.begin(), str.end(), iter);
-}
-
-template<typename OutputIterator>
-OutputIterator hms::toString(OutputIterator iter,
-			     const const_locale &localeRef,
-			     const std::string &pattern)
-	const
-{
-	return toString(iter, localeRef, pattern.c_str());
 }
 
 template<typename InputIterator>
@@ -130,6 +121,10 @@ void hms::construct(InputIterator beg_iter,
 
 	parsing_error();
 }
+
+//! Overload the << operator.
+
+std::ostream &operator<<(std::ostream &o, const hms &);
 
 #ifndef DOXYGEN
 extern template

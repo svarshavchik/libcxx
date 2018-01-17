@@ -187,20 +187,17 @@ public:
 
 	//! Convert to hh:mm:ss
 
-	std::string hhmmss(//! Pattern for the conversion
-			   const char *pattern=0,
-			   //! Locale for the conversion
+	std::string hhmmss(//! Locale for the conversion
 			   const const_locale
 			   &localeRef=locale::base::global())
 		const;
 
-	//! Convert to hh:mm:ss
+	//! Convert using a strftime format.
 
-	std::string hhmmss(//! Pattern for the conversion
-			   const std::string &pattern,
-			   //! Locale for the conversion
-			   const const_locale
-			   &localeRef=locale::base::global())
+	std::string format_time(const std::string_view &pattern,
+				//! Locale for the conversion
+				const const_locale
+				&localeRef=locale::base::global())
 		const;
 
 	//! Convert to "x hours, x minutes, x seconds"
@@ -232,20 +229,7 @@ public:
 				const const_locale &localeRef,
 
 				//! Pattern for the conversion
-				const char *pattern)
-		const;
-
-	//! Convert to a strftime-formatted string
-
-	template<typename OutputIterator>
-	OutputIterator toString(//! Output iterator
-				OutputIterator iter,
-
-				//! Locale for the conversion
-				const const_locale &localeRef,
-
-				//! Pattern for the conversion
-				const std::string &pattern)
+				const std::string_view &pattern)
 		const;
 
 	//! Create an interval from a string

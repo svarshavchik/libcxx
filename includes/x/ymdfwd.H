@@ -570,6 +570,10 @@ public:
 
 	ymd(const iso8601 &iso8601Date);
 
+	//! Format that the std::string cast operator uses.
+
+	static const char default_date_format[];
+
 	//! Convert the date to a text string.
 
 	//! The date is formatted according to the given \c strftime(3)
@@ -582,7 +586,7 @@ public:
 				//! Locale for the conversion
 				const const_locale &localeRef=locale::base::global(),
 				//! Start of the pattern
-				const char *pattern=0)
+				const char *pattern=default_date_format)
 		const;
 
 	//! Convert date to a text string.

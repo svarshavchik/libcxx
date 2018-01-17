@@ -161,6 +161,10 @@ void Testymd::testdateput()
 
 	LIBCXX_NAMESPACE::ymd ymd(2009,1,1);
 
+	std::ostringstream o;
+
+	o << ymd;
+
 	std::cout << ymd.format_date("std=%C %d %F %j %m %u %w %y %Y %a %A %b %B%n"
 				     "alt%%=%EC %Od %Om %Ou %Ow %Ey %EY",
 				    en_us) << std::endl;
@@ -234,8 +238,8 @@ void Testymd::testdateput()
 
 	auto time_get=en_us->get_facet<x::facets::time_get_facet<char> >();
 
-	std::cout << (std::string)LIBCXX_NAMESPACE::ymd("8/3/2009", en_us) << std::endl;
-	std::cout << (std::string)LIBCXX_NAMESPACE::ymd(std::string("2009-8-3"), en_us)
+	std::cout << LIBCXX_NAMESPACE::ymd("8/3/2009", en_us) << std::endl;
+	std::cout << LIBCXX_NAMESPACE::ymd(std::string("2009-8-3"), en_us)
 		  << std::endl;
 	std::cout << (std::string)LIBCXX_NAMESPACE::ymd::iso8601(cp.parse("2009-W2-3")) << std::endl;
 }
@@ -280,6 +284,8 @@ int main(int argc, char **argv)
 			  << std::endl;
 		std::cout << LIBCXX_NAMESPACE::hms("04:01:30").verboseString()
 			  << std::endl;
+		std::cout << LIBCXX_NAMESPACE::hms("04:01:30")
+			  << std::endl;
 
 		std::cout << (LIBCXX_NAMESPACE::hms("00:58:30")+
 			      LIBCXX_NAMESPACE::hms("00:01:40")).verboseString()
@@ -308,7 +314,7 @@ int main(int argc, char **argv)
 				  std::string("%l:%M:%S %p"));
 		std::cout << std::endl;
 
-		std::cout << testTime.hhmmss(std::string("%l:%M:%S %p"))
+		std::cout << testTime.format_time("%l:%M:%S %p")
 			  << std::endl;
 
 		std::cout << LIBCXX_NAMESPACE::tostring(testTime) << std::endl;
@@ -352,12 +358,12 @@ int main(int argc, char **argv)
 				 LIBCXX_NAMESPACE::tzfile::base::utc())
 			  << std::endl;
 
-		std::cout << (std::string)LIBCXX_NAMESPACE
+		std::cout << LIBCXX_NAMESPACE
 			::ymdhms(std::string("Friday, 03-Aug-12 19:30:31 GMT"),
 				 LIBCXX_NAMESPACE::tzfile::base::utc())
 			  << std::endl;
 
-		std::cout << (std::string)LIBCXX_NAMESPACE
+		std::cout << LIBCXX_NAMESPACE
 			::ymdhms(std::string("Fri Aug 3 19:30:31 2012"),
 				 LIBCXX_NAMESPACE::tzfile::base::utc())
 			  << std::endl;

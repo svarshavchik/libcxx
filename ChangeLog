@@ -1,3 +1,11 @@
+2018-01-16  Sam Varshavchik  <mrsam@courier-mta.com>
+
+	* Declare << overload for std::ostream with x::ymd, x::hms,
+	x::ymdhms.
+
+	* base/hms.C: Remove custom format from hhmmss(), replace with
+	format_time(), consistent with x::ymd's format_date().
+
 2018-01-14  Sam Varshavchik  <mrsam@courier-mta.com>
 
 	* Fix fedora rpm spec file to restart httportmap correctly.

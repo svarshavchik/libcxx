@@ -9,6 +9,7 @@
 #include <x/ymdhmsfwd.H>
 #include <x/strftime.H>
 #include <x/namespace.h>
+#include <ostream>
 
 namespace LIBCXX_NAMESPACE {
 #if 0
@@ -24,6 +25,10 @@ inline OutputIterator ymdhms::formatter::toString(OutputIterator iter,
 
 	return std::copy(s.begin(), s.end(), iter);
 }
+
+//! Overload the << operator.
+
+std::ostream &operator<<(std::ostream &o, const ymdhms &);
 
 #if 0
 {

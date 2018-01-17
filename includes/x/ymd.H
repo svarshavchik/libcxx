@@ -12,6 +12,8 @@
 #include <x/interval.H>
 #include <x/locale.H>
 
+#include <ostream>
+
 namespace LIBCXX_NAMESPACE {
 #if 0
 };
@@ -45,6 +47,10 @@ OutputIterator ymd::interval::toString(OutputIterator iter,
 
 	return std::copy(str.begin(), str.end(), iter);
 }
+
+//! Overload the << operator.
+
+std::ostream &operator<<(std::ostream &o, const ymd &);
 
 #if 0
 {

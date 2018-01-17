@@ -322,22 +322,21 @@ std::string hms::verboseString(const const_locale &l) const
 	return o.str();
 }
 
-std::string hms::hhmmss(const char *pattern,
-			const const_locale &localeRef)
+std::string hms::hhmmss(const const_locale &localeRef)
 	const
 {
-	const char def_time[]="%X";
+	return strftime(*this, localeRef)("%X");
+}
 
-	if (!pattern)
-		pattern=def_time;
-
+std::string hms::format_time(const std::string_view &pattern,
+			     const const_locale &localeRef) const
+{
 	return strftime(*this, localeRef)(pattern);
 }
 
-std::string hms::hhmmss(const std::string &pattern,
-			const const_locale &localeRef) const
+std::ostream &operator<<(std::ostream &o, const hms &t)
 {
-	return hhmmss(pattern.c_str(), localeRef);
+	return o << t.hhmmss();
 }
 
 #if 0

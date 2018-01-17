@@ -831,7 +831,14 @@ std::u32string ymd::format_date(const std::u32string_view &pattern,
 
 ymd::operator std::string() const
 {
-	return format_date("%d-%b-%Y");
+	return format_date(default_date_format);
+}
+
+const char ymd::default_date_format[]="%d-%b-%Y";
+
+std::ostream &operator<<(std::ostream &o, const ymd &d)
+{
+	return o << (std::string)d;
 }
 
 #if 0

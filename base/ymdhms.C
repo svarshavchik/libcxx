@@ -292,6 +292,11 @@ ymdhms::short_formatter::short_formatter(const ymdhms &objArg,
 {
 }
 
+std::ostream &operator<<(std::ostream &o, const ymdhms &datetime)
+{
+	return o << (std::string)datetime;
+}
+
 #if 0
 {
 #endif
