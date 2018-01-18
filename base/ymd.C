@@ -20,6 +20,7 @@
 #include <list>
 #include <algorithm>
 #include <limits>
+#include <cstdlib>
 
 #include "ymd_internal.h"
 
@@ -691,6 +692,29 @@ std::optional<ymd> ymd::parser::try_parse(const std::u32string_view &ustr)
 				yearfound=true;
 				yearfirst=first;
 				year=current_number;
+			}
+			else if (md_cnt == 2 && !yearfound && in_number <= 2)
+			{
+				ymd today;
+
+#ifdef TEST_2YEAR_PARSE
+				TEST_2YEAR_PARSE();
+#endif
+				int cur_year=today.get_year();
+				int century=cur_year / 100 * 100;
+
+				int year1=century + current_number;
+				int year2=year1 - 100;
+				int year3=year1 + 100;
+
+				if ( abs(year2-cur_year) < (year1-cur_year))
+					year1=year2;
+
+				if ( abs(year3-cur_year) < (year1-cur_year))
+					year1=year3;
+
+				yearfound=true;
+				year=year1;
 			}
 			else
 			{

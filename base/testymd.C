@@ -11,6 +11,15 @@
 
 #include <iostream>
 
+bool have_fake_today=false;
+LIBCXX_NAMESPACE::ymd fake_today;
+#define TEST_2YEAR_PARSE() do {			\
+		if (have_fake_today)		\
+			today=fake_today;	\
+	} while(0)
+
+#include "ymd.C"
+
 #define VERIFY(cond) do {						\
 		if (!(cond)) throw EXCEPTION("Assertion failed: " #cond); \
 	} while(0)
@@ -249,9 +258,32 @@ int main(int argc, char **argv)
 	alarm(30);
 
 	try {
-		LIBCXX_NAMESPACE::locale::create("en_US.UTF-8")->global();
-		LIBCXX_NAMESPACE::locale en_us{
-			LIBCXX_NAMESPACE::locale::create("en_US.UTF-8")};
+		auto en_us=LIBCXX_NAMESPACE::locale::create("en_US.UTF-8");
+
+		auto old_global=LIBCXX_NAMESPACE::locale::base::global();
+
+		if (old_global != LIBCXX_NAMESPACE::locale::base::global())
+			throw EXCEPTION("Should be global");
+
+		en_us->global();
+		if (old_global == LIBCXX_NAMESPACE::locale::base::global())
+			throw EXCEPTION("Shouldn't be global");
+
+		if (x::ymd(2017,1,1).format_date("%x")  != "01/01/2017")
+			throw EXCEPTION("Global format_date() doesn't work");
+
+		have_fake_today=true;
+		fake_today=LIBCXX_NAMESPACE::ymd(2001,1,1);
+
+		if (LIBCXX_NAMESPACE::ymd::parser().parse("2/3/04") !=
+		    LIBCXX_NAMESPACE::ymd(2004,2,3))
+			throw EXCEPTION("2 digit year parse #1 failed");
+
+		if (LIBCXX_NAMESPACE::ymd::parser().parse("8/3/69") !=
+		    LIBCXX_NAMESPACE::ymd(1969,8,3))
+			throw EXCEPTION("2 digit year parse #2 failed");
+
+		have_fake_today=false;
 		LIBCXX_NAMESPACE::locale de_DE{
 			LIBCXX_NAMESPACE::locale::create("de_DE.UTF-8")};
 

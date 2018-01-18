@@ -24,17 +24,17 @@ public:
 
 	//! The global locale
 
-	static locale global();
+	static const_locale global();
 
 	//! A UTF-8 locale
 
 	//! \c locale::base::utf8() returns the en_US.UTF-8 locale.
 
-	static locale utf8();
+	static const_locale utf8();
 
 	//! The global system environment locale
 
-	static locale environment();
+	static const_locale environment();
 };
 
 #if 0

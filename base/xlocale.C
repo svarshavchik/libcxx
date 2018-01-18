@@ -31,7 +31,7 @@ xlocale::xlocale(const char *localeName)
 }
 
 xlocale::xlocale(const std::string &localeName)
-	: h(newlocale(LC_ALL_MASK, localeName.c_str(), NULL))
+	: h(newlocale(LC_ALL_MASK, localeName.c_str(), NULL)), n(localeName)
 {
 	if (h == NULL)
 		localeObj::throw_locale_exception

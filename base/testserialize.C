@@ -412,7 +412,7 @@ void testserialize6()
 {
 	LIBCXX_NAMESPACE::locale::create("")->global();
 
-	LIBCXX_NAMESPACE::locale l(LIBCXX_NAMESPACE::locale::base::global());
+	auto l=LIBCXX_NAMESPACE::locale::base::global();
 
 	std::vector<char> buffer;
 
@@ -420,7 +420,7 @@ void testserialize6()
 
 	LIBCXX_NAMESPACE::serialize::object(l, buffer.begin());
 
-	LIBCXX_NAMESPACE::locale l2(LIBCXX_NAMESPACE::locale::base::global());
+	auto l2=LIBCXX_NAMESPACE::locale::create("");
 
 	LIBCXX_NAMESPACE::deserialize::object(l2, buffer);
 }

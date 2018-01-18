@@ -300,8 +300,8 @@ static void searchlogs_pattern(outputbase &output,
 
 int main2(int argc, char **argv)
 {
-	LIBCXX_NAMESPACE::locale locale(LIBCXX_NAMESPACE::locale::
-					base::environment());
+	LIBCXX_NAMESPACE::const_locale locale(LIBCXX_NAMESPACE::locale::
+					      base::environment());
 	LIBCXX_NAMESPACE::messages
 		msgs(LIBCXX_NAMESPACE::messages::create(locale, LIBCXX_DOMAIN));
 

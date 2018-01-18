@@ -57,7 +57,7 @@ public:
 	{
 	}
 
-	static tld_t load_tlds(const locale &utf8)
+	static tld_t load_tlds(const const_locale &utf8)
 	{
 		try {
 			return init(utf8);
@@ -67,7 +67,7 @@ public:
 		}
 	}
 
-	static tld_t init(const locale &utf8)
+	static tld_t init(const const_locale &utf8)
 	{
 		tld_t tld=tld_t::create();
 

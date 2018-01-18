@@ -111,7 +111,7 @@ static void testoptions2()
 		  << p->validate()
 		  << std::endl;
 
-	LIBCXX_NAMESPACE::locale l(LIBCXX_NAMESPACE::locale::base::environment());
+	auto l=LIBCXX_NAMESPACE::locale::base::environment();
 
 	std::cout << "A: " << (a_value->value ? 1:0) << std::endl;
 	std::cout << "B: " << (b_value->value ? 1:0) << std::endl;
@@ -269,7 +269,7 @@ static void testoptions4()
 		  << p->validate()
 		  << std::endl;
 
-	LIBCXX_NAMESPACE::locale l(LIBCXX_NAMESPACE::locale::base::environment());
+	auto l=LIBCXX_NAMESPACE::locale::base::environment();
 
 	std::cout << "A: " << a_value->value << std::endl;
 	std::cout << "B: " << b_value->value << std::endl;

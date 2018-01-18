@@ -20,7 +20,7 @@ alt%=20 01 01 4 4 09 2009
 1 minute, 7 seconds
 1 minute
 4 hours, 1 minute, 30 seconds
-04:01:30
+04:01:30 AM
 1 hour, 10 seconds
 56 minutes, 50 seconds
 -2 minutes, -10 seconds

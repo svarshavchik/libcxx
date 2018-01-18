@@ -17,67 +17,76 @@ namespace LIBCXX_NAMESPACE {
 };
 #endif
 
-class global_localeObj {
+class LIBCXX_HIDDEN singleton_localeObj {
 
 public:
 	template<const char *(*init_func)()>
 		class singletonObj : public localeObj {
 	public:
-		singletonObj() LIBCXX_HIDDEN : localeObj(init_func())
-		{
-		}
-		~singletonObj() LIBCXX_HIDDEN
+		singletonObj() : localeObj(init_func())
 		{
 		}
 
-		static singleton<singletonObj<init_func>> instance LIBCXX_HIDDEN;
+		~singletonObj()=default;
 
-		static LIBCXX_NAMESPACE::locale get() LIBCXX_HIDDEN
+
+		static singleton<singletonObj<init_func>> instance;
+
+		static LIBCXX_NAMESPACE::locale get()
 		{
 			localeptr p=instance.get();
 
-			if (p.null()) //! Application shutdown, perhaps
+			if (!p) //! Application shutdown, perhaps
 				p=ptr<singletonObj<init_func> >::create();
 			return p;
 		}
 	};
 
-	static const char *utf8_locale() noexcept LIBCXX_HIDDEN
+	static const char *utf8_locale() noexcept
 	{
 		return "en_US.UTF-8";
 	}
 
-	static const char *sysenviron_locale() noexcept LIBCXX_HIDDEN
+	static const char *sysenviron_locale() noexcept
 	{
 		return "";
-	}
-
-	static const char *glob_locale() noexcept LIBCXX_HIDDEN
-	{
-		return 0;
 	}
 };
 
 template<const char *(*init_func)()>
-singleton<global_localeObj::singletonObj<init_func>>
-global_localeObj::singletonObj<init_func>::instance LIBCXX_HIDDEN ;
+singleton<singleton_localeObj::singletonObj<init_func>>
+singleton_localeObj::singletonObj<init_func>::instance LIBCXX_HIDDEN ;
 
+class LIBCXX_HIDDEN global_localeObj : virtual public obj {
 
-locale localeBase::global()
+ public:
+
+	mpobj<const_localeptr> global_locale;
+};
+
+singleton<global_localeObj> global_locale_singleton LIBCXX_HIDDEN;
+
+const_locale localeBase::global()
 {
-	return global_localeObj::singletonObj<global_localeObj::glob_locale>
+	auto p=global_locale_singleton.get();
+
+	mpobj<const_localeptr>::lock lock{p->global_locale};
+
+	if (!*lock)
+		*lock=locale::create(nullptr);
+
+	return *lock;
+}
+
+const_locale localeBase::utf8()
+{
+	return singleton_localeObj::singletonObj<singleton_localeObj::utf8_locale>
 		::get();
 }
 
-locale localeBase::utf8()
+const_locale localeBase::environment()
 {
-	return global_localeObj::singletonObj<global_localeObj::utf8_locale>
-		::get();
-}
-
-locale localeBase::environment()
-{
-	return global_localeObj::singletonObj<global_localeObj::sysenviron_locale>
+	return singleton_localeObj::singletonObj<singleton_localeObj::sysenviron_locale>
 		::get();
 }
 
@@ -148,7 +157,12 @@ void localeObj::throw_locale_exception(const std::string &what)
 
 void localeObj::global() const noexcept
 {
-	setlocale(LC_ALL, x.n.c_str());
+	auto p=global_locale_singleton.get();
+
+	mpobj<const_localeptr>::lock lock{p->global_locale};
+
+	std::locale::global(locale);
+	*lock=const_localeptr(this);
 }
 
 std::string localeObj::tolower(const std::string &text) const

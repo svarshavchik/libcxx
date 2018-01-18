@@ -473,7 +473,7 @@ testuuid_LDFLAGS=$(TESTLINKTYPE)
 
 testymd_SOURCES=testymd.C
 testymd_LDADD=libcxx.la
-testymd_LDFLAGS=$(TESTLINKTYPE)
+testymd_LDFLAGS=-static
 
 testsingleton_SOURCES=testsingleton.C
 testsingleton_LDADD=libcxx.la

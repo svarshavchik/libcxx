@@ -590,7 +590,7 @@ public:
 				    iter_type &i,
 
 				    //! Output value
-				    const ptr<obj_type, base_type> &value,
+				    const const_ptr<obj_type, base_type> &value,
 
 				    //! Serialization_object
 				    serialize_toiter_type &toiter
@@ -634,7 +634,7 @@ public:
 				    iter_type &i,
 
 				    //! Output value
-				    const ref<obj_type, base_type> &value,
+				    const const_ref<obj_type, base_type> &value,
 
 				    //! Serialization_object
 				    serialize_toiter_type &toiter
@@ -647,6 +647,14 @@ public:
 		toiter(*value);
 	}
 };
+
+template<typename obj_type, typename base_type>
+class serialize_value<const_ptr<obj_type, base_type> >
+	: public serialize_value<ptr<obj_type, base_type> > {};
+
+template<typename obj_type, typename base_type>
+class serialize_value<const_ref<obj_type, base_type> >
+	: public serialize_value<ref<obj_type, base_type> > {};
 
 //! A minimal output iterator that counts the serialized bytes
 

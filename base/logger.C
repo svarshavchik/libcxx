@@ -540,7 +540,7 @@ public:
 	std::map<std::string, handler> loghandlers;
 
 	//! Default locale
-	locale default_locale;
+	const_locale default_locale;
 
 	configmeta() noexcept;
 	~configmeta();
@@ -933,7 +933,7 @@ logger::logconfig_init::logconfig_init() noexcept
 
 	ptr<property::listObj> globprops=property::listObj::global();
 
-	locale global_locale(locale::base::environment());
+	const_locale global_locale{locale::base::environment()};
 
 	auto chset=global_locale->charset();
 
@@ -1464,7 +1464,7 @@ ptr<logger::inheritObj> logger::scopebase::getscope(const std::string &name)
 
 	ptr<property::listObj> globprops=property::listObj::global();
 
-	locale global(locale::base::environment());
+	const_locale global{locale::base::environment()};
 
 	property::listObj::iterator iter=
 		globprops->find(LOG_NAMESPACE "::logger::log", global);
@@ -1655,7 +1655,7 @@ void logger::domsg(std::map<std::string, std::string> &vars,
 {
 	std::list<std::pair<logger::handler, std::string> > msg_list;
 
-	locale global=locale::base::environment();
+	const_locale global=locale::base::environment();
 
 	for (scopebase::handlers_t::const_iterator hb=scope.handlers.begin(),
 		     he=scope.handlers.end(); hb != he; ++hb)
