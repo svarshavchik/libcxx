@@ -283,6 +283,46 @@ int main(int argc, char **argv)
 		    LIBCXX_NAMESPACE::ymd(1969,8,3))
 			throw EXCEPTION("2 digit year parse #2 failed");
 
+
+		static const struct {
+			int m,d;
+
+			int today_y,today_m,today_d;
+
+			int y;
+		} md_tests[]={
+			{1, 10, 2001, 3, 1, 2001},
+			{4, 10, 2001, 3, 1, 2001},
+			{12, 10, 2001, 3, 1, 2000},
+
+
+			{1, 10, 2000, 12, 10, 2001},
+			{10, 10, 2000, 12, 10,2000}
+		};
+
+		for (const auto &md_test:md_tests)
+		{
+			std::ostringstream o;
+
+			o << md_test.m << "/" << md_test.d;
+
+			fake_today=LIBCXX_NAMESPACE::ymd(md_test.today_y,
+				       md_test.today_m,
+				       md_test.today_d);
+
+			auto res=LIBCXX_NAMESPACE::ymd::parser().parse(o.str());
+
+			if (res.get_month() != md_test.m ||
+			    res.get_day() != md_test.d ||
+			    res.get_year() != md_test.y)
+				throw EXCEPTION("Expected year "
+						<< md_test.y
+						<< " for "
+						<< o.str()
+						<< ", got "
+						<< res);
+		}
+
 		have_fake_today=false;
 		LIBCXX_NAMESPACE::locale de_DE{
 			LIBCXX_NAMESPACE::locale::create("de_DE.UTF-8")};

@@ -1,3 +1,8 @@
+2018-01-18  Sam Varshavchik  <mrsam@courier-mta.com>
+
+	* ymd.c: be able to parse dates from only day+month, picking
+	the year intelligently.
+
 2018-01-17  Sam Varshavchik  <mrsam@courier-mta.com>
 
 	* Fix semantics of x::locale. Make global() locale actually

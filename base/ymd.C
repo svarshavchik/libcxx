@@ -761,9 +761,6 @@ std::optional<ymd> ymd::parser::try_parse(const std::u32string_view &ustr)
 
 	uint16_t month, day;
 
-	if (!yearfound)
-		return std::nullopt;
-
 	if (md_str)
 	{
 		if (md_cnt != 1)
@@ -782,6 +779,9 @@ std::optional<ymd> ymd::parser::try_parse(const std::u32string_view &ustr)
 					 })
 			    == mstr.end())
 			{
+				if (!yearfound)
+					return std::nullopt;
+
 				std::transform(mstr.begin()+1,
 					       mstr.end(),
 					       mstr.begin()+1,
@@ -834,6 +834,38 @@ std::optional<ymd> ymd::parser::try_parse(const std::u32string_view &ustr)
 			day=md[0];
 			month=md[1];
 		}
+	}
+
+	if (!yearfound)
+	{
+		// Only month and day, find the closest year.
+
+		ymd today;
+
+#ifdef TEST_2YEAR_PARSE
+		TEST_2YEAR_PARSE();
+#endif
+
+		int yyyymm1=today.get_year();
+
+		int yyyymmref=yyyymm1 * 12 + (today.get_month()-1);
+
+		// We compute the same for the parsed month plus current year,
+		// year-1, and year+1, then figure out which one of them is
+		// closest to yyyymmref;
+
+		yyyymm1 = yyyymm1 * 12 + (month-1);
+
+		int yyyymm2=yyyymm1-12;
+		int yyyymm3=yyyymm1+12;
+
+		if (abs(yyyymm2-yyyymmref) < abs(yyyymm1-yyyymmref))
+			yyyymm1=yyyymm2;
+
+		if (abs(yyyymm3-yyyymmref) < abs(yyyymm1-yyyymmref))
+			yyyymm1=yyyymm3;
+
+		year=yyyymm1 / 12;
 	}
 
 	return ymd(year, month, day);
