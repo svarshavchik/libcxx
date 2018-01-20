@@ -324,6 +324,10 @@ int main(int argc, char **argv)
 		}
 
 		have_fake_today=false;
+
+		if (LIBCXX_NAMESPACE::ymd::parser().try_parse("13/1"))
+			throw EXCEPTION("Shouldn't happen.");
+
 		LIBCXX_NAMESPACE::locale de_DE{
 			LIBCXX_NAMESPACE::locale::create("de_DE.UTF-8")};
 

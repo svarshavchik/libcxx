@@ -72,8 +72,7 @@ ymd ymd::max()
 	return ymd(EPOCHEND, 12, 31);
 }
 
-ymd::ymd(uint16_t yearArg, uint16_t monthArg, uint16_t dayArg)
-
+bool ymd::valid_ymd(uint16_t yearArg, uint16_t monthArg, uint16_t dayArg)
 {
 	if (yearArg < 1 || yearArg > EPOCHEND
 	    || monthArg < 1 || monthArg > 12 ||
@@ -85,6 +84,14 @@ ymd::ymd(uint16_t yearArg, uint16_t monthArg, uint16_t dayArg)
 	     dayArg <=
 	     gregorian_reformation_date_day+gregorian_reformation_days)
 	    )
+		return false;
+	return true;
+}
+
+ymd::ymd(uint16_t yearArg, uint16_t monthArg, uint16_t dayArg)
+
+{
+	if (!valid_ymd(yearArg, monthArg, dayArg))
 		throw EXCEPTION(_("Invalid date"));
 
 	year=yearArg;
@@ -504,13 +511,22 @@ ymd::iso8601::iso8601(const ymd &date)
 	daynum = (dayCount % 7)+1;
 }
 
-ymd::iso8601::iso8601(uint16_t yearArg,
-		      int weekArg,
-		      int dayArg)
+static bool valid_iso8601(uint16_t yearArg,
+			  int weekArg,
+			  int dayArg)
 {
 	if (yearArg < 1 || yearArg > EPOCHEND ||
 	    weekArg < 1 || weekArg > 53 ||
 	    dayArg < 1 || dayArg > 7)
+		return false;
+	return true;
+}
+
+ymd::iso8601::iso8601(uint16_t yearArg,
+		      int weekArg,
+		      int dayArg)
+{
+	if (!valid_iso8601(yearArg, weekArg, dayArg))
 		throw EXCEPTION(_("Invalid ISO 8601 date"));
 
 	year=yearArg;
@@ -800,8 +816,13 @@ std::optional<ymd> ymd::parser::try_parse(const std::u32string_view &ustr)
 				i >> n;
 
 				if (!i.fail())
+				{
+					if (!valid_iso8601(year, n, md[0]))
+						return std::nullopt;
+
 					return ymd(ymd::iso8601(year, n,
 								md[0]));
+				}
 			}
 		}
 
@@ -867,6 +888,9 @@ std::optional<ymd> ymd::parser::try_parse(const std::u32string_view &ustr)
 
 		year=yyyymm1 / 12;
 	}
+
+	if (!valid_ymd(year, month, day))
+		return std::nullopt;
 
 	return ymd(year, month, day);
 }

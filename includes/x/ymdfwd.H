@@ -317,6 +317,10 @@ public:
 
 	ymd(uint16_t year, uint16_t month, uint16_t day);
 
+	//! Whether the given year, month, and day, are valid.
+
+	static bool valid_ymd(uint16_t year, uint16_t month, uint16_t day);
+
 	//! Return the largest date
 
 	static ymd max();
