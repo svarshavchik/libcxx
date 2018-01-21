@@ -5,10 +5,22 @@
 
 #include "libcxx_config.h"
 #include "x/cups/available.H"
+#include "x/cups/destination.H"
+#include "x/exception.H"
+#include "x/locale.H"
+#include "x/visitor.H"
 #include <iostream>
 #include <algorithm>
+#include <optional>
+
+#include "testcups.h"
+#include "../base/gettext_in.h"
 
 using namespace LIBCXX_NAMESPACE;
+
+void foobar()
+{
+}
 
 void list()
 {
@@ -43,8 +55,245 @@ void list()
 	}
 }
 
-int main()
+bool dump_values(std::ostream &o,
+		 const char *sep,
+		 const cups::option_values_t &values)
 {
-	list();
+	std::vector<std::string> sorted_option_values;
+
+	if (!std::visit(visitor {
+			[](const std::monostate) { return false; },
+			[&](const std::unordered_map<std::string,
+			    std::string> &m)
+			{
+				for (const auto &v:m)
+				{
+					auto n=v.first;
+
+					if (!v.second.empty())
+						n = n + " ("
+							+ v.second
+							+ ")";
+
+					sorted_option_values
+						.push_back(n);
+				}
+
+				std::sort(sorted_option_values.begin(),
+					  sorted_option_values.end());
+				return true;
+			},
+			[&](const std::unordered_map<int, std::string> &s)
+			{
+				for (const auto &v:s)
+				{
+					std::ostringstream o;
+
+					o << v.second << " ("
+					  << v.first << ")";
+
+					sorted_option_values
+						.push_back(o.str());
+				}
+
+				std::sort(sorted_option_values.begin(),
+					  sorted_option_values.end());
+				return true;
+			},
+			[&](const std::unordered_set<int> &s)
+			{
+				std::vector<int> sorted_s{s.begin(),
+						s.end()};
+
+				std::sort(sorted_s.begin(),
+					  sorted_s.end());
+
+				for (const auto &v:sorted_s)
+				{
+					std::ostringstream o;
+
+					o << v;
+
+					sorted_option_values.push_back
+						(o.str());
+				}
+				return true;
+			},
+			[&](const std::unordered_set<bool> &s)
+			{
+				if (s.find(false) != s.end())
+					sorted_option_values.push_back
+						("false");
+				if (s.find(true) != s.end())
+					sorted_option_values.push_back
+						("true");
+				return true;
+			},
+			[&](const std::vector<cups::resolution> &v)
+			{
+				for (const auto &r:v)
+				{
+					std::ostringstream o;
+
+					o << r.xres << "x" << r.yres;
+
+					switch (r.units) {
+					case cups::resolution::per_inch:
+						o << "dpi";
+						break;
+					case cups::resolution::per_cm:
+						o << "dpcm";
+						break;
+					default:
+						break;
+					}
+					sorted_option_values.push_back(o.str());
+				}
+				return true;
+			},
+			[&](const std::vector<cups::const_collection> &cv)
+			{
+				sorted_option_values.reserve(cv.size());
+
+				foobar();
+
+				for (const auto &c:cv)
+				{
+					std::vector<std::string> values;
+
+					values.reserve(c->size());
+
+					for (const auto &value:*c)
+					{
+						std::ostringstream o;
+
+						o << value.first;
+
+						dump_values(o, "=",
+							    value.second);
+						values.push_back(o.str());
+					}
+					std::sort(values.begin(),
+						  values.end());
+
+					std::ostringstream o;
+
+					o << "[";
+					const char *sep="";
+
+					for (const auto &s:values)
+					{
+						o << sep << s;
+						sep=", ";
+					}
+					o << "]";
+					sorted_option_values.push_back(o.str());
+				}
+				return true;
+			}}, values))
+		return false;
+
+	if (sorted_option_values.empty())
+		return false;
+
+	for (const auto &v:sorted_option_values)
+	{
+		o << sep << v;
+		sep=", ";
+	}
+	return true;
+}
+
+int info(const std::optional<std::string> &printer)
+{
+	auto dests=cups::available_destinations();
+
+	auto iter=std::find_if
+		(dests.begin(), dests.end(),
+		 [&]
+		 (const auto &v)
+		 {
+			 return printer ? v->name() == *printer:v->is_default();
+		 });
+
+	if (iter == dests.end())
+	{
+		std::cerr << "Printer not found." << std::endl;
+		return 1;
+	}
+
+	auto info=(*iter)->info();
+
+	auto options=info->supported_options();
+
+	std::vector<std::string> sorted_options{options.begin(), options.end()};
+
+	std::sort(sorted_options.begin(), sorted_options.end());
+	for (const auto &option:sorted_options)
+	{
+		std::cout << option;
+
+		auto values=info->option_values(option);
+
+		dump_values(std::cout, ": ", values);
+		std::cout << std::endl;
+
+		values=info->ready_option_values(option);
+		if (dump_values(std::cout, "    (ready: ", values))
+			std::cout << ")" << std::endl;
+
+		values=info->default_option_values(option);
+		if (dump_values(std::cout, "    (default: ", values))
+			std::cout << ")" << std::endl;
+	}
+
+	auto user_defaults=info->user_defaults();
+
+	if (!user_defaults.empty())
+	{
+		std::cout << std::endl
+			  << "User defaults:" << std::endl;
+
+		sorted_options.clear();
+		sorted_options.reserve(user_defaults.size());
+
+		for (const auto &d:user_defaults)
+			sorted_options.push_back(d.first + "=" + d.second);
+
+		std::sort(sorted_options.begin(), sorted_options.end());
+		for (const auto &option:sorted_options)
+		{
+			std::cout << "    " << option << std::endl;
+		}
+	}
+
+	return 0;
+}
+
+int main(int argc, char *argv[])
+{
+	try {
+		auto l=locale::base::environment();
+
+		l->global();
+
+		testcups options{messages::create(l, LIBCXX_DOMAIN)};
+
+		auto args=options.parse(argc, argv)->args;
+
+		if (options.info->value)
+		{
+			std::optional<std::string> printer;
+
+			if (!args.empty())
+				printer=*args.begin();
+
+			return (info(printer));
+		}
+		list();
+	} catch (const LIBCXX_NAMESPACE::exception &e)
+	{
+		e->caught();
+	}
 	return 0;
 }

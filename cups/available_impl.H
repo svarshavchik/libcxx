@@ -61,6 +61,10 @@ class LIBCXX_HIDDEN available_implObj : public availableObj {
 	bool is_default() const override;
 
 	std::unordered_map<std::string, std::string> options() const override;
+
+	const_destination info() const override;
+
+	destination info() override;
 };
 
 #if 0

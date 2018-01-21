@@ -97,7 +97,7 @@ messages libmsg();
 
 //! \internal
 //!
-std::string libmsg(const char *str) LIBCXX_HIDDEN;
+std::string libmsg(const char *str);
 
 #if 0
 {

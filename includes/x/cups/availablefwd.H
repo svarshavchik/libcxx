@@ -47,6 +47,13 @@ class availableObj;
 //! the user's default printer. options() returns a list of printer attributes,
 //! or options. See https://www.cups.org/doc/cupspm.html#basic-destination-information
 //! for more information.
+//!
+//! \code
+//! INSERT_LIBX_NAMESPACE::cups::destination printer=default_printer->info();
+//! \endcode
+//!
+//! info() queries the print destination for its properties. This executes
+//! cupsCopyDestInfo().
 
 typedef ref<availableObj> available;
 

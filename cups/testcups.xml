@@ -1,0 +1,12 @@
+<optclass name="testcups">
+
+  <option>
+    <name>info</name>
+    <type>bool</type>
+    <opt>i</opt>
+    <longopt>info</longopt>
+    <descr>Return detailed information about a printer</descr>
+  </option>
+
+  <defaultoptions />
+</optclass>

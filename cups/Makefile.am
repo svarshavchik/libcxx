@@ -17,9 +17,15 @@ libcxxcups_la_SOURCES=\
 	available_dests.H				\
 	available_impl.C				\
 	available_impl.H				\
+	destination.C					\
+	destination_impl.C				\
+	destination_impl.H				\
 \
 	#
+
+$(call OPTIONS_GEN,testcups.h,$(srcdir)/testcups.xml)
 
 noinst_PROGRAMS=testcups
 testcups_SOURCES=testcups.C
 testcups_LDADD=libcxxcups.la
+testcups_LDFLAGS=$(TESTLINKTYPE)

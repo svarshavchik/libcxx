@@ -7,6 +7,7 @@
 #define x_cups_availableobj_H
 
 #include <x/cups/availablefwd.H>
+#include <x/cups/destinationfwd.H>
 #include <x/obj.H>
 #include <string>
 #include <unordered_map>
@@ -40,6 +41,14 @@ public:
 
 	//! Options
 	virtual std::unordered_map<std::string, std::string> options() const=0;
+
+	//! Return detailed information about this available printer.
+
+	virtual const_destination info() const=0;
+
+	//! Return detailed information about this available printer.
+
+	virtual destination info()=0;
 };
 
 #if 0

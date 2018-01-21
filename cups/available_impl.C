@@ -5,6 +5,7 @@
 
 #include "libcxx_config.h"
 #include "available_impl.H"
+#include "destination_impl.H"
 
 #include <utility>
 #include <algorithm>
@@ -62,6 +63,22 @@ std::unordered_map<std::string,std::string> available_implObj::options() const
 	}
 
 	return m;
+}
+
+const_destination available_implObj::info() const
+{
+	dest_t::lock lock{*this};
+
+	return ref<destination_implObj>::create(available_destinations,
+						lock->dest);
+}
+
+destination available_implObj::info()
+{
+	dest_t::lock lock{*this};
+
+	return ref<destination_implObj>::create(available_destinations,
+						lock->dest);
 }
 
 #if 0
