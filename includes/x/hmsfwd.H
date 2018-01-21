@@ -194,7 +194,8 @@ public:
 
 	//! Convert using a strftime format.
 
-	std::string format_time(const std::string_view &pattern,
+	std::string format_time(//! Time formatting pattern
+				const std::string_view &pattern,
 				//! Locale for the conversion
 				const const_locale
 				&localeRef=locale::base::global())

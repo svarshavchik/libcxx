@@ -748,6 +748,21 @@ LIBS="$libcxx_save_LIBS"
 AC_SUBST(YAMLLIBS)
 AC_SUBST(YAMLCPPFLAGS)
 
+AC_PATH_PROG(CUPS_CONFIG,cups-config,none)
+
+if test "CUPS_CONFIG" = "none"
+then
+	AC_MSG_ERROR([Unable to find cups-config, the CUPS development libraries are not installed])
+fi
+
+CUPS_CFLAGS="`$CUPS_CONFIG --cflags`"
+CUPS_LDFLAGS="`$CUPS_CONFIG --ldflags`"
+CUPS_LIBS="`$CUPS_CONFIG --libs`"
+
+AC_SUBST(CUPS_CFLAGS)
+AC_SUBST(CUPS_LDFLAGS)
+AC_SUBST(CUPS_LIBS)
+
 AC_SUBST(LIBCXX_NAMESPACE,x)
 
 VERSION_INFO=10:0:0
@@ -779,6 +794,7 @@ AC_CONFIG_FILES([Doxyfile po/Makefile.in
 		 includes/x/threads/Makefile
 		 includes/x/xml/Makefile
 		 includes/x/yaml/Makefile
+		 includes/x/cups/Makefile
 		 includes/x/epoll_def.h
 		 includes/x/namespace.h
 		 includes/x/libcxx.mk
@@ -806,6 +822,7 @@ AC_CONFIG_FILES([Doxyfile po/Makefile.in
 		 includes/x/threadmsgdispatcher.xsl
 		 includes/x/refcollection.xsl
                  base/Makefile
+		 cups/Makefile
 		 gnutls/Makefile
 		 gnutls/tlsparamsgen.sh
 		 yaml/Makefile

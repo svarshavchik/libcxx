@@ -4,7 +4,7 @@
 #
 
 AUTOMAKE_OPTIONS=dist-bzip2 -Wno-portability
-SUBDIRS=includes/x libltdl base yaml gnutls httportmap cxxltdl packaging/fedora po
+SUBDIRS=includes/x libltdl base cups yaml gnutls httportmap cxxltdl packaging/fedora po
 
 define reverse
 $(if $(1), $(call reverse,$(wordlist 2,$(words $(1)),$(1))) $(firstword $(1)))
