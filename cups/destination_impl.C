@@ -189,6 +189,22 @@ destination_implObj::parse_attribute_values(ipp_attribute_t *attrs,
 	switch (tag_value) {
 	case IPP_TAG_NOVALUE:
 		return {};
+	case IPP_TAG_RANGE:
+		{
+			std::vector<std::tuple<int, int>> v;
+
+			v.reserve(count);
+
+			for (decltype (count) i=0; i<count; i++)
+			{
+				int upper;
+
+				int lower=ippGetRange(attrs, i, &upper);
+
+				v.emplace_back(lower, upper);
+			}
+			return v;
+		}
 	case IPP_TAG_RESOLUTION:
 		{
 			std::vector<resolution> v;

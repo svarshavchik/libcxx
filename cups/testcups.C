@@ -120,6 +120,21 @@ bool dump_values(std::ostream &o,
 				}
 				return true;
 			},
+			[&](const std::vector<std::tuple<int,int>> &s)
+			{
+				for (const auto &v:s)
+				{
+					auto &[lower,upper]=v;
+
+					std::ostringstream o;
+
+					o << lower << "-" << upper;
+
+					sorted_option_values.push_back
+						(o.str());
+				}
+				return true;
+			},
 			[&](const std::unordered_set<bool> &s)
 			{
 				if (s.find(false) != s.end())

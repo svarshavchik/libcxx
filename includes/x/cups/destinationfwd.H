@@ -110,6 +110,7 @@ struct resolution {
 //!
 //! - a set of integers: possible integer values for the option.
 //!
+//! - a vector of integer tuple pairs: possible lower/upper ranges for the option.
 //! - a set of bool values: this is used for boolean options
 //!
 //! - a vector of \ref resolution "resolutions" specifying available print
@@ -123,6 +124,7 @@ typedef std::variant< std::monostate,
 		      std::unordered_set<int>,
 		      std::unordered_set<bool>,
 		      std::vector<resolution>,
+		      std::vector<std::tuple<int, int>>,
 		      std::vector<const_collection>> option_values_t;
 #if 0
 {
