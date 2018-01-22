@@ -8,5 +8,26 @@
     <descr>Return detailed information about a printer</descr>
   </option>
 
+  <option>
+    <name>print</name>
+    <type>bool</type>
+    <opt>p</opt>
+    <longopt>print</longopt>
+    <descr>Print a file</descr>
+  </option>
+
+  <option>
+    <name>printer</name>
+    <type>std::string</type>
+    <opt>P</opt>
+    <longopt>printer</longopt>
+    <descr>Printer</descr>
+    <hasvalue />
+  </option>
+
+  <mutex>
+    <name>info</name>
+    <name>print</name>
+  </mutex>
   <defaultoptions />
 </optclass>

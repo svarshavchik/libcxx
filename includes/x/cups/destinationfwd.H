@@ -62,6 +62,14 @@ class destinationObj;
 //!
 //! user_defaults() returns the user-specified default configuration for this
 //! print destination. This returns the list of options from \c cups_dinfo_t.
+//!
+//! \code
+//! #include <INSERT_LIBX_NAMESPACE/cups/job.H>
+//!
+//! INSERT_LIBX_NAMESPACE::cups::job job=destination->create_job();
+//! \endcode
+//!
+//! create_job() creates a new print job to this destination.
 
 typedef ref<destinationObj> destination;
 

@@ -20,6 +20,9 @@ libcxxcups_la_SOURCES=\
 	destination.C					\
 	destination_impl.C				\
 	destination_impl.H				\
+	job.C						\
+	job_impl.C					\
+	job_impl.H					\
 \
 	#
 

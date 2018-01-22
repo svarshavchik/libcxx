@@ -80,6 +80,8 @@ class LIBCXX_HIDDEN destination_implObj : public destinationObj {
 	std::unordered_map<std::string, std::string> user_defaults() const
 		override;
 
+	job create_job() override;
+
  private:
 	static option_values_t
 		parse_attribute_values(ipp_attribute_t *, const char *);

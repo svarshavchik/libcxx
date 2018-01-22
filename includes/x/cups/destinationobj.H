@@ -7,6 +7,7 @@
 #define x_cups_destinationobj_H
 
 #include <x/cups/destinationfwd.H>
+#include <x/cups/jobfwd.H>
 #include <x/obj.H>
 #include <string_view>
 #include <unordered_set>
@@ -57,6 +58,10 @@ public:
 	//! User-specified default configuration.
 	virtual std::unordered_map<std::string, std::string>
 	user_defaults() const=0;
+
+	//! Create a new job.
+
+	virtual job create_job()=0;
 };
 
 #if 0

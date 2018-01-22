@@ -6,6 +6,7 @@
 #include "libcxx_config.h"
 #include "x/cups/available.H"
 #include "x/cups/destination.H"
+#include "x/cups/job.H"
 #include "x/exception.H"
 #include "x/locale.H"
 #include "x/visitor.H"
@@ -270,6 +271,34 @@ int info(const std::optional<std::string> &printer)
 	return 0;
 }
 
+void print(const std::optional<std::string> &printer,
+	   const std::list<std::string> &files)
+{
+	if (files.empty())
+		return;
+
+	auto dests=cups::available_destinations();
+
+	auto iter=std::find_if
+		(dests.begin(), dests.end(),
+		 [&]
+		 (const auto &v)
+		 {
+			 return printer ? v->name() == *printer:v->is_default();
+		 });
+
+	if (iter == dests.end())
+		throw EXCEPTION("Printer not found.");
+
+	auto job=(*iter)->info()->create_job();
+
+	for (const auto &f:files)
+		job->add_document_file(f, f);
+
+	std::cout << "Created print job " << job->submit("testcups")
+		  << std::endl;
+}
+
 int main(int argc, char *argv[])
 {
 	try {
@@ -290,6 +319,18 @@ int main(int argc, char *argv[])
 
 			return (info(printer));
 		}
+
+		if (options.print->value)
+		{
+			std::optional<std::string> printer;
+
+			if (options.printer->isSet())
+				printer=options.printer->value;
+
+			print(printer, args);
+			return 0;
+		}
+
 		list();
 	} catch (const LIBCXX_NAMESPACE::exception &e)
 	{

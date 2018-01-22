@@ -5,6 +5,7 @@
 
 #include "libcxx_config.h"
 #include "destination_impl.H"
+#include "job_impl.H"
 #include "x/messages.H"
 #include "x/exception.H"
 #include "../base/gettext_in.h"
@@ -317,6 +318,11 @@ destination_implObj::user_defaults() const
 	}
 
 	return ret;
+}
+
+job destination_implObj::create_job()
+{
+	return ref<job_implObj>::create(ref(this));
 }
 
 #if 0
