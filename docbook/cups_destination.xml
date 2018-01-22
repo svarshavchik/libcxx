@@ -1,0 +1,59 @@
+<!--
+
+Copyright 2018 Double Precision, Inc.
+See COPYING for distribution information.
+
+-->
+
+<chapter id="cups_destination">
+  <title>Printer information</title>
+
+  <blockquote>
+    <informalexample>
+      <programlisting>
+#include &lt;&ns;/cups/destination.H&gt;
+
+&ns;::cups::destination info=available_printer->info();
+</programlisting>
+    </informalexample>
+  </blockquote>
+
+  <para>
+    Invoke an <link linkend="cups_available">available destination</link>'s
+    <methodname>info</methodname>() method returns an
+    <ulink url="&link-typedef-x--cups-destination;"><classname>&ns;::cups::destination</classname></ulink>
+    object that provides additional information about the printer:
+  </para>
+
+  <itemizedlist>
+    <listitem>
+      <para>
+	The destination's <methodname>supported</methodname>() and
+	<methodname>suppported_options</methodname>() methods describe
+	the printer's options and capabilities.
+      </para>
+    </listitem>
+    <listitem>
+      <para>
+	<methodname>option_values</methodname>(),
+	<methodname>default_option_values</methodname>(), and
+	<methodname>ready_option_values</methodname>() methods provide the
+	possible values for the printer's options, their default values,
+	and their currently available values.
+      </para>
+    </listitem>
+    <listitem>
+      <para>
+	<methodname>user_defaults</methodname>() provide the default settings
+	for this printer, specified by the user using the printer administration
+	and configuration utility.
+      </para>
+    </listitem>
+  </itemizedlist>
+</chapter>
+<!--
+Local Variables:
+mode: sgml
+sgml-parent-document: ("book.xml" "book" "chapter")
+End:
+-->

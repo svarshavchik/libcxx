@@ -1,0 +1,48 @@
+<!--
+
+Copyright 2018 Double Precision, Inc.
+See COPYING for distribution information.
+
+-->
+
+<chapter id="cups_available">
+  <title>Available printing destinations</title>
+
+  <blockquote>
+    <informalexample>
+      <programlisting>
+#include &lt;&ns;/cups/available.H&gt;
+
+std::vector&lt;&ns;::cups::available&gt; printers=&ns;::cups::available_destinations();
+
+auto iter=std::find(printers.begin(), printers.end(),
+                    []
+                    (const auto &amp;available_printer)
+                    {
+                        return available_printer->is_default();
+                    });
+
+if (iter != printers.end())
+{
+    &ns;::cups::available available_destination=*iter;
+
+    std::cout &lt;&lt; available_destination-&gt;name() &lt;&lt; std::endl;
+    do_something_with_default_printer(available_destination);
+}</programlisting>
+    </informalexample>
+  </blockquote>
+
+  <para>
+    <ulink url="&link-function-x--cups-available-destinations;"><function>&ns;::cups::available_destinations</function></ulink>()
+    queries the local network, and return a vector
+    of available print destinations. Each destination is
+    an <ulink url="&link-typedef-x--cups-available;"><classname>&ns;::cups::available</classname></ulink> object
+    that provides some basic information about the printer.
+  </para>
+</chapter>
+<!--
+Local Variables:
+mode: sgml
+sgml-parent-document: ("book.xml" "book" "chapter")
+End:
+-->

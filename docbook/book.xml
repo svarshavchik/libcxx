@@ -91,6 +91,9 @@
 <!ENTITY httpserver SYSTEM "httpserver.xml">
 <!ENTITY ftpclient SYSTEM "ftpclient.xml">
 <!ENTITY ltdl SYSTEM "ltdl.xml">
+<!ENTITY cups_available SYSTEM "cups_available.xml">
+<!ENTITY cups_destination SYSTEM "cups_destination.xml">
+<!ENTITY cups_job SYSTEM "cups_job.xml">
 <!ENTITY news SYSTEM "news.xml">
 <!ENTITY ns "x">
 <!ENTITY ref "<classname>&ns;::ref</classname>">
@@ -371,6 +374,26 @@ See COPYING for distribution information.
 
     &ftpclient;
   </part>
+
+  <part id="cups">
+    <title>Printing using the CUPS library</title>
+    <partintro>
+      <para>
+	The <ulink url="&namespace-x--cups;"><classname>&ns;::cups</classname></ulink>
+	namespace defines classes and templates for submitting print jobs
+	to the printer using the <ulink url="https://www.cups.org/"><acronym>CUPS</acronym></ulink>
+	library.
+	These classes are implemented using the <acronym>CUPS</acronym>
+	library, and this namespace requires additional linkage with
+	<option>-lcxxcups</option>.
+      </para>
+    </partintro>
+
+    &cups_available;
+    &cups_destination;
+    &cups_job;
+  </part>
+
   <part id="extras">
     <title>Extra <application>LibCXX</application> components</title>
 

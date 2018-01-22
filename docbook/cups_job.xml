@@ -1,0 +1,59 @@
+<!--
+
+Copyright 2018 Double Precision, Inc.
+See COPYING for distribution information.
+
+-->
+
+<chapter id="cups_job">
+  <title>Creating print jobs</title>
+
+  <blockquote>
+    <informalexample>
+      <programlisting>
+#include &lt;&ns;/cups/job.H&gt;
+
+&ns;::w::job print_job=info-&gt;create_job();
+
+print_job-&gt;set_option("copies", 2);
+print_job-&gt;add_document_file("letter", "letter.pdf");
+
+int job_id=print_job-&gt;submit("Letter");
+</programlisting>
+    </informalexample>
+  </blockquote>
+
+  <para>
+    <link linkend="cups_destination"><classname>&ns;::cups::destination</classname></link>'s
+    <methodname>create_job</methodname>()
+    creates an <ulink url="&link-typedef-x--cups-job;"><classname>&ns;::cups::job</classname></ulink>
+    object. This object represents a new print job.
+    This object's <methodname>set_option</methodname>()'s methods set the
+    new print job's options and properties. See <acronym>CUPS</acronym>'s
+    documentation for more information on the available options. The options
+    set here must take into account what
+    <link linkend="cups_destination"><classname>&ns;::cups::destination</classname></link>
+    defines for this print destination.
+  </para>
+
+  <para>
+    The actual content to be printed gets specified by
+    <methodname>add_document_file</methodname>().
+    As an alternative,
+    <methodname>add_document</methodname>() specifies an arbitrary data source
+    for the document.
+  </para>
+
+  <para>
+    <methodname>submit</methodname>() prepares and schedules the actual
+    print job. <methodname>submit</methodname>() does the actual work,
+    the other methods merely collect the required information, and save it
+    internally for <methodname>submit</methodname>()'s use.
+  </para>
+</chapter>
+<!--
+Local Variables:
+mode: sgml
+sgml-parent-document: ("book.xml" "book" "chapter")
+End:
+-->

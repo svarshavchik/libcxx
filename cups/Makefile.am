@@ -26,6 +26,12 @@ libcxxcups_la_SOURCES=\
 \
 	#
 
+# automake generates a direct all: all-am dependency if BUILT_SOURCES is not
+# set. We need it to generate a dependency on BUILT_SOURCES, and a rule
+# to manually make all-am, in order to get the dependencies right.
+
+BUILT_SOURCES=testcups.h
+
 $(call OPTIONS_GEN,testcups.h,$(srcdir)/testcups.xml)
 
 noinst_PROGRAMS=testcups

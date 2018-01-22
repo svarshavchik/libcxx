@@ -32,7 +32,7 @@ class jobBase;
 //! \endcode
 //!
 //! set_option() sets the various options for this print job. The various
-//! option names are defined in \c <cups.h>.
+//! option names are defined in the \c <cups.h> header file.
 //!
 //! \code
 //! job->add_document_file("letter", "letter.pdf");

@@ -27,6 +27,7 @@ BuildRequires: file-devel
 BuildRequires: libidn-devel
 BuildRequires: libtool-ltdl-devel
 BuildRequires: libxml2-devel
+BuildRequires: cups-devel
 Requires(post): /bin/systemctl
 Requires(preun): /bin/systemctl
 
@@ -39,14 +40,21 @@ Group: System Environment/Libraries
 Summary: libcxx libtool wrapper
 Requires: %{name} = 0:%{version}-%{release}
 
+%package cups
+Group: System Environment/Libraries
+Summary: libcxx CUPS library
+Requires: %{name} = 0:%{version}-%{release}
+
 %package devel
 Group: Development/Libraries
 Summary: libcxx development libraries
 Requires: %{name} = 0:%{version}-%{release}
 Requires: %{name}-ltdl = 0:%{version}-%{release}
+Requires: %{name}-cups = 0:%{version}-%{release}
 Requires: %{_datadir}/aclocal
 Requires: libxslt
 Requires: pcre-devel
+Requires: cups-devel
 Requires: courier-unicode-devel
 
 %package httpd
@@ -56,7 +64,10 @@ Requires: %{name} = 0:%{version}-%{release}
 Requires: /etc/httpd/conf.d
 
 %description ltdl
-This package install the libcxxltdl wrapper for libtool's ltdl library.
+This package installs the libcxxltdl wrapper for libtool's ltdl library.
+
+%description cups
+This package installs the libcxxcups wrapper for the CUPS framework.
 
 %description devel
 This package installs files needed to develop applications that use libcxx.
@@ -160,6 +171,10 @@ fi
 %files ltdl
 %defattr(-,root,root,-)
 %{_libdir}/libcxxltdl.so.*
+
+%files cups
+%defattr(-,root,root,-)
+%{_libdir}/libcxxcups.so.*
 
 %files devel
 %defattr(-,root,root,-)
