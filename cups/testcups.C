@@ -64,6 +64,15 @@ bool dump_values(std::ostream &o,
 
 	if (!std::visit(visitor {
 			[](const std::monostate) { return false; },
+
+				// Shouldn't get:
+			[&](const std::unordered_map<std::u32string,
+			    std::string> &m) { return false; },
+
+				// Shouldn't get:
+			[&](const std::unordered_map<int, std::u32string> &m)
+			{ return false; },
+
 			[&](const std::unordered_map<std::string,
 			    std::string> &m)
 			{
@@ -253,6 +262,8 @@ int info(const std::optional<std::string> &printer)
 
 		dump_values(std::cout, ": ", values);
 		std::cout << std::endl;
+
+		(void)info->option_values("{unicode}" + option);
 
 		values=info->ready_option_values(option);
 		if (dump_values(std::cout, "    (ready: ", values))

@@ -84,7 +84,7 @@ class LIBCXX_HIDDEN destination_implObj : public destinationObj {
 
  private:
 	static option_values_t
-		parse_attribute_values(ipp_attribute_t *, const char *);
+		parse_attribute_values(ipp_attribute_t *, const char *, bool);
 
 };
 

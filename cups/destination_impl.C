@@ -9,10 +9,12 @@
 #include "x/messages.H"
 #include "x/exception.H"
 #include "../base/gettext_in.h"
+#include <courier-unicode.h>
 #include <algorithm>
 #include <sstream>
 #include <iomanip>
 #include <iostream>
+#include <cstring>
 
 namespace LIBCXX_NAMESPACE {
 	namespace cups {
@@ -115,6 +117,19 @@ std::unordered_set<std::string> destination_implObj::supported_options() const
 	return s;
 }
 
+static std::tuple<const char *, bool> parse_unicode_option(const char *o)
+{
+	bool flag=false;
+
+	if (strncmp(o, "{unicode}", 9) == 0)
+	{
+		o += 9;
+		flag=true;
+	}
+
+	return {o, flag};
+}
+
 option_values_t
 destination_implObj::option_values(const std::string_view &option)
 	const
@@ -126,13 +141,14 @@ destination_implObj::option_values(const std::string_view &option)
 	std::copy(option.begin(), option.end(), option_s);
 	option_s[s]=0;
 
+	auto[name, unicode_flag]=parse_unicode_option(option_s);
 	info_t::lock lock{*this};
 
 	auto attrs=cupsFindDestSupported(CUPS_HTTP_DEFAULT, lock->dest,
 					 lock->info,
-					 option_s);
+					 name);
 
-	return parse_attribute_values(attrs, option_s);
+	return parse_attribute_values(attrs, name, unicode_flag);
 }
 
 option_values_t
@@ -146,13 +162,15 @@ destination_implObj::default_option_values(const std::string_view &option)
 	std::copy(option.begin(), option.end(), option_s);
 	option_s[s]=0;
 
+	auto[name, unicode_flag]=parse_unicode_option(option_s);
+
 	info_t::lock lock{*this};
 
 	auto attrs=cupsFindDestDefault(CUPS_HTTP_DEFAULT, lock->dest,
 				       lock->info,
-				       option_s);
+				       name);
 
-	return parse_attribute_values(attrs, option_s);
+	return parse_attribute_values(attrs, name, unicode_flag);
 }
 
 option_values_t
@@ -166,18 +184,20 @@ destination_implObj::ready_option_values(const std::string_view &option)
 	std::copy(option.begin(), option.end(), option_s);
 	option_s[s]=0;
 
+	auto[name, unicode_flag]=parse_unicode_option(option_s);
 	info_t::lock lock{*this};
 
 	auto attrs=cupsFindDestReady(CUPS_HTTP_DEFAULT, lock->dest,
 				     lock->info,
-				     option_s);
+				     name);
 
-	return parse_attribute_values(attrs, option_s);
+	return parse_attribute_values(attrs, name, unicode_flag);
 }
 
 option_values_t
 destination_implObj::parse_attribute_values(ipp_attribute_t *attrs,
-					    const char *option_s)
+					    const char *option_s,
+					    bool unicode_flag)
 {
 	if (!attrs)
 		return {};
@@ -255,6 +275,26 @@ destination_implObj::parse_attribute_values(ipp_attribute_t *attrs,
 			return v;
 		}
 	case IPP_TAG_ENUM:
+		if (unicode_flag)
+		{
+			auto l=locale::base::environment();
+
+			std::unordered_map<int, std::u32string> v;
+
+			for (decltype (count) i=0; i<count; i++)
+			{
+				auto value=ippGetInteger(attrs, i);
+
+				auto s=ippEnumString(option_s, value);
+
+				auto us=unicode::iconvert::tou
+					::convert(s, l->charset()).first;
+
+				v.emplace(value, us);
+			}
+			return v;
+		}
+		else
 		{
 			std::unordered_map<int, std::string> v;
 
@@ -285,7 +325,8 @@ destination_implObj::parse_attribute_values(ipp_attribute_t *attrs,
 				{
 					std::string n=ippGetName(attr);
 					c->emplace(n, parse_attribute_values
-						   (attr, n.c_str()));
+						   (attr, n.c_str(),
+						    unicode_flag));
 				}
 				v.push_back(c);
 			}
@@ -316,7 +357,20 @@ destination_implObj::parse_attribute_values(ipp_attribute_t *attrs,
 		v.emplace(val, lang ? lang:"");
 	}
 
-	return v;
+	if (!unicode_flag)
+		return v;
+
+	auto l=locale::base::environment();
+
+	std::unordered_map<std::u32string, std::string> uv;
+
+	for (const auto &s:v)
+	{
+		uv.emplace(unicode::iconvert::tou::convert(s.first,
+							   l->charset()).first,
+			   s.second);
+	}
+	return uv;
 }
 
 std::unordered_map<std::string, std::string>

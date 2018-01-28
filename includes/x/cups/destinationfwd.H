@@ -57,6 +57,13 @@ class destinationObj;
 //! \ref option_values_t "option_values_t" object.
 //!
 //! \code
+//! INSERT_LIBX_NAMESPACE::cups::option_values_t values=destination->option_values("{unicode}finishings");
+//! \endcode
+//!
+//! Specifying a "{unicode}" prefix for some options uses unicode strings
+//! instead of localized string, for the returned values.
+//!
+//! \code
 //! std::unordered_map<std::string, std::string> values=destination->user_defaults();
 //! \endcode
 //!
@@ -103,10 +110,12 @@ struct resolution {
 //!
 //! - a map of strings: text string option values. The text strings are the
 //! map keys, the values are each string's language, if specified. An empty
-//! string indicates no language specified.
+//! string indicates no language specified. The map key is a std::u32string
+//! if the option's name has a "{unicode}" prefix.
 //!
 //! - a map of integers: enumerated value. The enumerated values are the map
-//! keys, the map value is a label for the enumerated values.
+//! keys, the map value is a label for the enumerated values. The map label
+//! is a std::u32string if the option's name has a "{unicode}" prefix.
 //!
 //! - a set of integers: possible integer values for the option.
 //!
@@ -120,7 +129,9 @@ struct resolution {
 
 typedef std::variant< std::monostate,
 		      std::unordered_map<std::string, std::string>,
+		      std::unordered_map<std::u32string, std::string>,
 		      std::unordered_map<int, std::string>,
+		      std::unordered_map<int, std::u32string>,
 		      std::unordered_set<int>,
 		      std::unordered_set<bool>,
 		      std::vector<resolution>,

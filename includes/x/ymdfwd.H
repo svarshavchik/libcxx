@@ -654,7 +654,7 @@ public:
 
 	public:
 		//! Constructor
-		parser(const const_locale &loc=locale::base::environment());
+		parser(const const_locale &loc=locale::base::global());
 
 		//! Destructor
 		~parser();
