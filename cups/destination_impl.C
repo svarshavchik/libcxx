@@ -8,6 +8,7 @@
 #include "job_impl.H"
 #include "x/messages.H"
 #include "x/exception.H"
+#include "x/property_value.H"
 #include "../base/gettext_in.h"
 #include <courier-unicode.h>
 #include <algorithm>
@@ -15,13 +16,17 @@
 #include <iomanip>
 #include <iostream>
 #include <cstring>
-
+#include <cstdint>
 namespace LIBCXX_NAMESPACE {
 	namespace cups {
 #if 0
 	}
 };
 #endif
+
+static property::value<int> connect_timeout(LIBCXX_NAMESPACE_STR
+					    "::cups::connect_timeout_ms",
+					    30000);
 
 destination_implObj::info_t::lock::lock(const destination_implObj &me)
 	: available_destsObj::dests_t::lock{me.available_destinations->dests},
@@ -33,24 +38,47 @@ destination_implObj::info_t::lock::~lock()=default;
 
 collectionObj::~collectionObj()=default;
 
+destination_implObj::cups_http_t_wrapper::cups_http_t_wrapper(cups_dest_t *dest)
+	: http{cupsConnectDest(dest, CUPS_DEST_FLAGS_NONE,
+			       connect_timeout.get(),
+			       NULL, NULL, 0, NULL, NULL)}
+{
+	if (!http)
+		throw EXCEPTION(libmsg(_("Print queue connection failed.")));
+}
+
+destination_implObj::cups_http_t_wrapper::~cups_http_t_wrapper()
+{
+	httpClose(http);
+}
+
+destination_implObj::cups_dinfo_t_wrapper
+::cups_dinfo_t_wrapper(http_t *http, cups_dest_t *dest)
+	: info{cupsCopyDestInfo(http, dest)}
+{
+	if (!info)
+		throw EXCEPTION(libmsg(_("Print destination not available.")));
+}
+
+destination_implObj::cups_dinfo_t_wrapper::~cups_dinfo_t_wrapper()
+{
+	cupsFreeDestInfo(info);
+}
+
+destination_implObj::lock_info_s::lock_info_s(cups_dest_t *dest)
+	: dest{dest}, http{dest}, info{http, dest}
+{
+}
+
 destination_implObj
 ::destination_implObj(const available_dests &available_destinations,
 		      cups_dest_t *dest)
 	: available_destinations{available_destinations},
-	  info{lock_info_s{dest, cupsCopyDestInfo(CUPS_HTTP_DEFAULT, dest)}}
+	  info{dest}
 {
-	info_t::lock lock{*this};
-
-	if (!lock->info)
-		throw EXCEPTION(libmsg(_("Print destination not available.")));
 }
 
-destination_implObj::~destination_implObj()
-{
-	info_t::lock lock{*this};
-
-	cupsFreeDestInfo(lock->info);
-}
+destination_implObj::~destination_implObj()=default;
 
 bool destination_implObj::supported(const std::string_view &option) const
 {
@@ -63,7 +91,7 @@ bool destination_implObj::supported(const std::string_view &option) const
 
 	info_t::lock lock{*this};
 
-	return !!cupsCheckDestSupported(CUPS_HTTP_DEFAULT,
+	return !!cupsCheckDestSupported(lock->http,
 					lock->dest,
 					lock->info,
 					option_s,
@@ -88,7 +116,7 @@ bool destination_implObj::supported(const std::string_view &option,
 
 	info_t::lock lock{*this};
 
-	return !!cupsCheckDestSupported(CUPS_HTTP_DEFAULT,
+	return !!cupsCheckDestSupported(lock->http,
 					lock->dest,
 					lock->info,
 					option_s,
@@ -101,7 +129,7 @@ std::unordered_set<std::string> destination_implObj::supported_options() const
 
 	info_t::lock lock{*this};
 
-	auto attrs=cupsFindDestSupported(CUPS_HTTP_DEFAULT, lock->dest,
+	auto attrs=cupsFindDestSupported(lock->http, lock->dest,
 					 lock->info,
 					 "job-creation-attributes");
 
@@ -144,11 +172,11 @@ destination_implObj::option_values(const std::string_view &option)
 	auto[name, unicode_flag]=parse_unicode_option(option_s);
 	info_t::lock lock{*this};
 
-	auto attrs=cupsFindDestSupported(CUPS_HTTP_DEFAULT, lock->dest,
+	auto attrs=cupsFindDestSupported(lock->http, lock->dest,
 					 lock->info,
 					 name);
 
-	return parse_attribute_values(attrs, name, unicode_flag);
+	return parse_attribute_values(lock, attrs, name, unicode_flag);
 }
 
 option_values_t
@@ -166,11 +194,11 @@ destination_implObj::default_option_values(const std::string_view &option)
 
 	info_t::lock lock{*this};
 
-	auto attrs=cupsFindDestDefault(CUPS_HTTP_DEFAULT, lock->dest,
+	auto attrs=cupsFindDestDefault(lock->http, lock->dest,
 				       lock->info,
 				       name);
 
-	return parse_attribute_values(attrs, name, unicode_flag);
+	return parse_attribute_values(lock, attrs, name, unicode_flag);
 }
 
 option_values_t
@@ -187,15 +215,16 @@ destination_implObj::ready_option_values(const std::string_view &option)
 	auto[name, unicode_flag]=parse_unicode_option(option_s);
 	info_t::lock lock{*this};
 
-	auto attrs=cupsFindDestReady(CUPS_HTTP_DEFAULT, lock->dest,
+	auto attrs=cupsFindDestReady(lock->http, lock->dest,
 				     lock->info,
 				     name);
 
-	return parse_attribute_values(attrs, name, unicode_flag);
+	return parse_attribute_values(lock, attrs, name, unicode_flag);
 }
 
 option_values_t
-destination_implObj::parse_attribute_values(ipp_attribute_t *attrs,
+destination_implObj::parse_attribute_values(info_t::lock &lock,
+					    ipp_attribute_t *attrs,
 					    const char *option_s,
 					    bool unicode_flag)
 {
@@ -277,7 +306,7 @@ destination_implObj::parse_attribute_values(ipp_attribute_t *attrs,
 	case IPP_TAG_ENUM:
 		if (unicode_flag)
 		{
-			auto l=locale::base::environment();
+			auto l=locale::base::global();
 
 			std::unordered_map<int, std::u32string> v;
 
@@ -325,7 +354,7 @@ destination_implObj::parse_attribute_values(ipp_attribute_t *attrs,
 				{
 					std::string n=ippGetName(attr);
 					c->emplace(n, parse_attribute_values
-						   (attr, n.c_str(),
+						   (lock, attr, n.c_str(),
 						    unicode_flag));
 				}
 				v.push_back(c);
@@ -337,6 +366,8 @@ destination_implObj::parse_attribute_values(ipp_attribute_t *attrs,
 	}
 
 	std::unordered_map<std::string, std::string> v;
+
+	bool is_media=strcmp(option_s, CUPS_MEDIA) == 0;
 
 	for (decltype (count) i=0; i<count; i++)
 	{
@@ -354,21 +385,51 @@ destination_implObj::parse_attribute_values(ipp_attribute_t *attrs,
 			v.emplace(o.str(), "");
 			continue;
 		}
-		v.emplace(val, lang ? lang:"");
+
+		std::string lang_s;
+
+		if (is_media)
+		{
+			cups_size_t size;
+
+			if (cupsGetDestMediaByName(lock->http,
+						   lock->dest,
+						   lock->info,
+						   val,
+						   CUPS_MEDIA_FLAGS_DEFAULT,
+						   &size))
+			{
+				auto l=cupsLocalizeDestMedia
+					(lock->http,
+					 lock->dest,
+					 lock->info,
+					 CUPS_MEDIA_FLAGS_DEFAULT,
+					 &size);
+
+				if (l)
+					lang_s=l;
+			}
+		}
+
+		v.emplace(val, lang_s);
 	}
 
 	if (!unicode_flag)
 		return v;
 
-	auto l=locale::base::environment();
+	auto l=locale::base::global();
 
-	std::unordered_map<std::u32string, std::string> uv;
+	std::unordered_map<std::string, std::u32string> uv;
 
 	for (const auto &s:v)
 	{
-		uv.emplace(unicode::iconvert::tou::convert(s.first,
-							   l->charset()).first,
-			   s.second);
+		auto n=s.first;
+
+
+		uv.emplace(s.first,
+			   unicode::iconvert::tou::convert(s.second,
+							   l->charset())
+			   .first);
 	}
 	return uv;
 }

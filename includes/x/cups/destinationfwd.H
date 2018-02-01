@@ -109,9 +109,10 @@ struct resolution {
 //! - no value (monostate): option does not exist or has no value
 //!
 //! - a map of strings: text string option values. The text strings are the
-//! map keys, the values are each string's language, if specified. An empty
-//! string indicates no language specified. The map key is a std::u32string
-//! if the option's name has a "{unicode}" prefix.
+//! map keys, the values are the localized string for the option's value. If
+//! the option's name has a "{unicode}" prefix, then the map value is a
+//! std::u32string. If no localized string is available, the map value is the
+//! same as the map key.
 //!
 //! - a map of integers: enumerated value. The enumerated values are the map
 //! keys, the map value is a label for the enumerated values. The map label
@@ -129,7 +130,7 @@ struct resolution {
 
 typedef std::variant< std::monostate,
 		      std::unordered_map<std::string, std::string>,
-		      std::unordered_map<std::u32string, std::string>,
+		      std::unordered_map<std::string, std::u32string>,
 		      std::unordered_map<int, std::string>,
 		      std::unordered_map<int, std::u32string>,
 		      std::unordered_set<int>,

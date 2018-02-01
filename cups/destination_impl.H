@@ -26,6 +26,48 @@ class LIBCXX_HIDDEN destination_implObj : public destinationObj {
 
 	const available_dests available_destinations;
 
+	// RAII wrapper for http_t.
+
+	// Uses cupsConnectDest() to create the http_t object, and
+	// httpClose() to free it.
+
+	class cups_http_t_wrapper {
+
+		http_t *http;
+
+	public:
+		cups_http_t_wrapper(cups_dest_t *);
+		~cups_http_t_wrapper();
+
+		inline operator http_t *() { return http; }
+
+		cups_http_t_wrapper(const cups_http_t_wrapper &)=delete;
+
+		cups_http_t_wrapper &operator=(const cups_http_t_wrapper &)
+		=delete;
+	};
+
+	// RAII wrapper for a cups_dinfo_t
+
+	// Uses cupsCopyDestInfo() to create a cups_dinfo_t *, and
+	// cupsFreeDestInfo() to free it.
+
+	class cups_dinfo_t_wrapper {
+
+		cups_dinfo_t *info;
+
+	public:
+		cups_dinfo_t_wrapper(http_t *http, cups_dest_t *dest);
+		~cups_dinfo_t_wrapper();
+
+		inline operator cups_dinfo_t *() { return info; }
+
+		cups_dinfo_t_wrapper(const cups_dinfo_t_wrapper &)=delete;
+
+		cups_dinfo_t_wrapper &operator=(const cups_dinfo_t_wrapper &)
+		=delete;
+	};
+
 	// As long as cups.h insists on the library taking non-const
 	// cups_dest_t parameters we will use locking to protect ourselves.
 	//
@@ -34,7 +76,10 @@ class LIBCXX_HIDDEN destination_implObj : public destinationObj {
 
 	struct lock_info_s {
 		cups_dest_t *dest;
-		cups_dinfo_t *info;
+		cups_http_t_wrapper http;
+		cups_dinfo_t_wrapper info;
+
+		lock_info_s(cups_dest_t *dest);
 	};
 
 	struct info_t : public mpobj<lock_info_s> {
@@ -84,7 +129,8 @@ class LIBCXX_HIDDEN destination_implObj : public destinationObj {
 
  private:
 	static option_values_t
-		parse_attribute_values(ipp_attribute_t *, const char *, bool);
+		parse_attribute_values(info_t::lock &,
+				       ipp_attribute_t *, const char *, bool);
 
 };
 

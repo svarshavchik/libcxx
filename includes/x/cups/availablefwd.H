@@ -35,7 +35,14 @@ class availableObj;
 //! {
 //!     auto default_pinter=*default_printer_iter;
 //!
-//!     std::cout << default_printer->name() << std::endl;
+//!     std::cout << default_printer->name();
+//!
+//!     if (default_printer->is_discovered())
+//!     {
+//!          std::cout << " (discovered)";
+//!     }
+//!
+//!     std::cout << std::endl;
 //!
 //!     std::unordered_map<std::string, std::string> options=default_printer->options();
 //! }
@@ -44,7 +51,10 @@ class availableObj;
 //! available_destinations() returns a list of available printers.
 //!
 //! name() returns the printer's name. is_default() indicates whether this is
-//! the user's default printer. options() returns a list of printer attributes,
+//! the user's default printer. is_discovered() indicates whether this is
+//! a remote printer located via IPP autodiscovery.
+//!
+//! options() returns a list of printer attributes,
 //! or options. See https://www.cups.org/doc/cupspm.html#basic-destination-information
 //! for more information.
 //!
@@ -52,8 +62,9 @@ class availableObj;
 //! INSERT_LIBX_NAMESPACE::cups::destination printer=default_printer->info();
 //! \endcode
 //!
-//! info() queries the print destination for its properties. This executes
-//! cupsCopyDestInfo().
+//! info() connects to the print destination, and queries
+//! its properties. This executes cupsCopyDestInfo(), and
+//! cupsConnectDest().
 
 typedef ref<availableObj> available;
 

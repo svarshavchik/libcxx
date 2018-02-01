@@ -39,6 +39,9 @@ public:
 	//! Whether this is the default available printer.
 	virtual bool is_default() const=0;
 
+	//! Whether this printer was discovered on the network (remote printer).
+	virtual bool is_discovered() const=0;
+
 	//! Options
 	virtual std::unordered_map<std::string, std::string> options() const=0;
 

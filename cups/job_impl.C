@@ -76,25 +76,6 @@ void job_implObj::add_document(const std::string &name,
 	lock->documents.push_back({name, document});
 }
 
-class LIBCXX_HIDDEN http_dest {
-
- public:
-	http_t	*http;
-
-	http_dest(cups_dest_t *dest)
-		: http{cupsConnectDest(dest, CUPS_DEST_FLAGS_NONE, 30000,
-				       NULL, NULL, 0, NULL, NULL)}
-	{
-		if (!http)
-			throw EXCEPTION("Print queue connection failed.");
-	}
-
-	~http_dest()
-	{
-		httpClose(http);
-	}
-};
-
 int job_implObj::submit(const std::string_view &title)
 {
 	size_t s=title.size();
@@ -113,9 +94,7 @@ int job_implObj::submit(const std::string_view &title)
 
 	int job_id;
 
-	http_dest dest{lock->dest};
-
-	auto status=cupsCreateDestJob(dest.http,
+	auto status=cupsCreateDestJob(lock->http,
 				      lock->dest,
 				      lock->info,
 				      &job_id,
@@ -128,7 +107,7 @@ int job_implObj::submit(const std::string_view &title)
 
 	auto job_sentry=make_sentry([&]
 				    {
-					    cupsCancelDestJob(dest.http,
+					    cupsCancelDestJob(lock->http,
 							      lock->dest,
 							      job_id);
 				    });
@@ -139,7 +118,7 @@ int job_implObj::submit(const std::string_view &title)
 	{
 		auto [mime_type, contents]=doc.document();
 
-		auto status=cupsStartDestDocument(dest.http,
+		auto status=cupsStartDestDocument(lock->http,
 						  lock->dest, lock->info,
 						  job_id,
 						  doc.name.c_str(),
@@ -151,7 +130,7 @@ int job_implObj::submit(const std::string_view &title)
 		auto doc_sentry=make_sentry
 			([&]
 			 {
-				 cupsFinishDestDocument(dest.http,
+				 cupsFinishDestDocument(lock->http,
 							lock->dest,
 							lock->info);
 			 });
@@ -159,7 +138,7 @@ int job_implObj::submit(const std::string_view &title)
 
 		while (auto res=contents())
 		{
-			status=cupsWriteRequestData(dest.http,
+			status=cupsWriteRequestData(lock->http,
 						    res->data(),
 						    res->size());
 
@@ -168,7 +147,7 @@ int job_implObj::submit(const std::string_view &title)
 		}
 		doc_sentry.unguard();
 
-		auto ipp_status=cupsFinishDestDocument(dest.http,
+		auto ipp_status=cupsFinishDestDocument(lock->http,
 						       lock->dest,
 						       lock->info);
 
@@ -178,7 +157,7 @@ int job_implObj::submit(const std::string_view &title)
 
 	job_sentry.unguard();
 
-	auto ipp_status=cupsCloseDestJob(dest.http,
+	auto ipp_status=cupsCloseDestJob(lock->http,
 					 lock->dest,
 					 lock->info,
 					 job_id);

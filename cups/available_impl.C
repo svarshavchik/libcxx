@@ -9,6 +9,8 @@
 
 #include <utility>
 #include <algorithm>
+#include <sstream>
+#include <cstdint>
 
 namespace LIBCXX_NAMESPACE {
 	namespace cups {
@@ -63,6 +65,29 @@ std::unordered_map<std::string,std::string> available_implObj::options() const
 	}
 
 	return m;
+}
+
+bool available_implObj::is_discovered() const
+{
+	auto options=this->options();
+
+	auto iter=options.find("printer-type");
+
+	if (iter != options.end())
+	{
+		uint32_t type;
+
+		std::istringstream i{iter->second};
+
+		if (i >> type)
+		{
+			if (type & CUPS_PRINTER_DISCOVERED)
+			{
+				return true;
+			}
+		}
+	}
+	return false;
 }
 
 const_destination available_implObj::info() const

@@ -36,9 +36,24 @@ void list()
 		first=false;
 		std::cout << d->name();
 
+		const char *sep=" (";
+		const char *suf="";
+		static const char close_paren[]=")";
+
 		if (d->is_default())
-			std::cout << " (default)";
-		std::cout << std::endl;
+		{
+			std::cout << sep << "default";
+			sep=", ";
+			suf=close_paren;
+		}
+
+		if (d->is_discovered())
+		{
+			std::cout << sep << "discovered";
+			suf=close_paren;
+		}
+
+		std::cout << suf << std::endl;
 
 		auto options=d->options();
 
@@ -66,8 +81,8 @@ bool dump_values(std::ostream &o,
 			[](const std::monostate) { return false; },
 
 				// Shouldn't get:
-			[&](const std::unordered_map<std::u32string,
-			    std::string> &m) { return false; },
+			[&](const std::unordered_map<std::string,
+			    std::u32string> &m) { return false; },
 
 				// Shouldn't get:
 			[&](const std::unordered_map<int, std::u32string> &m)
@@ -258,12 +273,11 @@ int info(const std::optional<std::string> &printer)
 	{
 		std::cout << option;
 
+		info->supported(option);
 		auto values=info->option_values(option);
 
 		dump_values(std::cout, ": ", values);
 		std::cout << std::endl;
-
-		(void)info->option_values("{unicode}" + option);
 
 		values=info->ready_option_values(option);
 		if (dump_values(std::cout, "    (ready: ", values))
