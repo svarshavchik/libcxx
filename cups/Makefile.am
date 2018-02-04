@@ -34,7 +34,14 @@ BUILT_SOURCES=testcups.h
 
 $(call OPTIONS_GEN,testcups.h,$(srcdir)/testcups.xml)
 
-noinst_PROGRAMS=testcups
+noinst_PROGRAMS=testcups testserialize
 testcups_SOURCES=testcups.C
 testcups_LDADD=libcxxcups.la
 testcups_LDFLAGS=$(TESTLINKTYPE)
+
+testserialize_SOURCES=testserialize.C
+testserialize_LDADD=libcxxcups.la
+testserialize_LDFLAGS=-static
+
+check-am: $(noinst_PROGRAMS)
+	./testserialize

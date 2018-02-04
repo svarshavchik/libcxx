@@ -53,6 +53,9 @@ class LIBCXX_HIDDEN job_implObj : public jobObj {
 
 	void set_option(const std::string_view &name, int value) override;
 
+	void set_option(const std::string_view &name,
+			const option_values_t &values) override;
+
 	void add_document(const std::string &name,
 			  const document_t &document) override;
 

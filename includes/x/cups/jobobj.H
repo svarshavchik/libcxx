@@ -7,6 +7,7 @@
 #define x_cups_jobobj_H
 
 #include <x/cups/jobfwd.H>
+#include <x/cups/destinationfwd.H>
 #include <x/obj.H>
 #include <string_view>
 #include <functional>
@@ -58,6 +59,11 @@ public:
 	//! Set a job option.
 	virtual void set_option(const std::string_view &name,
 				int value)=0;
+
+	//! Set a job option.
+
+	virtual void set_option(const std::string_view &name,
+				const option_values_t &values)=0;
 
 	//! Add a document to the job.
 

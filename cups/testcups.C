@@ -115,7 +115,7 @@ bool dump_values(std::ostream &o,
 					std::ostringstream o;
 
 					o << v.second << " ("
-					  << v.first << ")";
+					  << std::to_string(v.first) << ")";
 
 					sorted_option_values
 						.push_back(o.str());
@@ -135,12 +135,8 @@ bool dump_values(std::ostream &o,
 
 				for (const auto &v:sorted_s)
 				{
-					std::ostringstream o;
-
-					o << v;
-
 					sorted_option_values.push_back
-						(o.str());
+						(std::to_string(v));
 				}
 				return true;
 			},
@@ -152,7 +148,8 @@ bool dump_values(std::ostream &o,
 
 					std::ostringstream o;
 
-					o << lower << "-" << upper;
+					o << std::to_string(lower)
+					  << "-" << std::to_string(upper);
 
 					sorted_option_values.push_back
 						(o.str());
@@ -175,7 +172,8 @@ bool dump_values(std::ostream &o,
 				{
 					std::ostringstream o;
 
-					o << r.xres << "x" << r.yres;
+					o << std::to_string(r.xres)
+					  << "x" << std::to_string(r.yres);
 
 					switch (r.units) {
 					case cups::resolution::per_inch:
