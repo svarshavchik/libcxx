@@ -222,6 +222,59 @@ destination_implObj::ready_option_values(const std::string_view &option)
 	return parse_attribute_values(lock, attrs, name, unicode_flag);
 }
 
+static constexpr int str_to_int(const char *p, int v)
+{
+	if (!*p)
+		return v;
+
+	return str_to_int(p+1, v * 10 + *p-'0');
+}
+
+static const char *enum_string(const char *n, int value)
+{
+	if (strcmp(n, CUPS_ORIENTATION) == 0)
+		switch (value) {
+		case str_to_int(CUPS_ORIENTATION_PORTRAIT, 0):
+			return _("Portrait");
+		case str_to_int(CUPS_ORIENTATION_LANDSCAPE, 0):
+			return _("Landscape");
+		case 5:
+			return _("Reverse Portrait");
+		case 6:
+			return _("Reverse Landscape");
+		}
+
+	if (strcmp(n, CUPS_PRINT_QUALITY) == 0)
+		switch (value) {
+		case str_to_int(CUPS_PRINT_QUALITY_DRAFT, 0):
+			return _("Draft");
+		case str_to_int(CUPS_PRINT_QUALITY_NORMAL, 0):
+			return _("Normal");
+		case str_to_int(CUPS_PRINT_QUALITY_HIGH, 0):
+			return _("High");
+		}
+
+	if (strcmp(n, CUPS_FINISHINGS) == 0)
+		switch (value) {
+		case str_to_int(CUPS_FINISHINGS_BIND, 0):
+			return _("Bind");
+		case str_to_int(CUPS_FINISHINGS_COVER, 0):
+			return _("Cover");
+		case str_to_int(CUPS_FINISHINGS_FOLD, 0):
+			return _("Fold");
+		case str_to_int(CUPS_FINISHINGS_NONE, 0):
+			return _("None");
+		case str_to_int(CUPS_FINISHINGS_PUNCH, 0):
+			return _("Punch");
+		case str_to_int(CUPS_FINISHINGS_STAPLE, 0):
+			return _("Staple");
+		case str_to_int(CUPS_FINISHINGS_TRIM, 0):
+			return _("Trim");
+		}
+
+	return ippEnumString(n, value);
+}
+
 option_values_t
 destination_implObj::parse_attribute_values(info_t::lock &lock,
 					    ipp_attribute_t *attrs,
@@ -314,7 +367,7 @@ destination_implObj::parse_attribute_values(info_t::lock &lock,
 			{
 				auto value=ippGetInteger(attrs, i);
 
-				auto s=ippEnumString(option_s, value);
+				auto s=enum_string(option_s, value);
 
 				auto us=unicode::iconvert::tou
 					::convert(s, l->charset()).first;
@@ -331,8 +384,8 @@ destination_implObj::parse_attribute_values(info_t::lock &lock,
 			{
 				auto value=ippGetInteger(attrs, i);
 
-				v.emplace(value, ippEnumString(option_s,
-							       value));
+
+				v.emplace(value, enum_string(option_s, value));
 			}
 			return v;
 		}
@@ -392,6 +445,8 @@ destination_implObj::parse_attribute_values(info_t::lock &lock,
 		{
 			cups_size_t size;
 
+			lang_s=val;
+
 			if (cupsGetDestMediaByName(lock->http,
 						   lock->dest,
 						   lock->info,
@@ -410,7 +465,19 @@ destination_implObj::parse_attribute_values(info_t::lock &lock,
 					lang_s=l;
 			}
 		}
+		else
+		{
+			auto c=cupsLocalizeDestValue(lock->http,
+						     lock->dest,
+						     lock->info,
+						     option_s,
+						     val);
 
+			if (!c)
+				c=val;
+
+			lang_s=c;
+		}
 		v.emplace(val, lang_s);
 	}
 
