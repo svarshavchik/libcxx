@@ -10,6 +10,7 @@
 #include "x/exception.H"
 #include "x/property_value.H"
 #include "../base/gettext_in.h"
+#include <string_view>
 #include <courier-unicode.h>
 #include <algorithm>
 #include <sstream>
@@ -275,6 +276,33 @@ static const char *enum_string(const char *n, int value)
 	return ippEnumString(n, value);
 }
 
+static std::string print_color_mode(const std::string_view &v)
+{
+	if (v == CUPS_PRINT_COLOR_MODE_AUTO)
+		return _("Automatic");
+	if (v == CUPS_PRINT_COLOR_MODE_MONOCHROME)
+		return _("Monochrome");
+	if (v == CUPS_PRINT_COLOR_MODE_COLOR)
+		return _("Color");
+	return {v.begin(), v.end()};
+}
+
+static std::string sides(const std::string_view &v)
+{
+	if (v == CUPS_SIDES_ONE_SIDED)
+		return _("Off");
+	if (v == CUPS_SIDES_TWO_SIDED_PORTRAIT)
+		return _("Duplex (Long Edge)");
+	if (v == CUPS_SIDES_TWO_SIDED_LANDSCAPE)
+		return _("Duplex (Short Edge)");
+	return {v.begin(), v.end()};
+}
+
+static std::string no_localizer(const std::string_view &v)
+{
+	return {v.begin(), v.end()};
+}
+
 option_values_t
 destination_implObj::parse_attribute_values(info_t::lock &lock,
 					    ipp_attribute_t *attrs,
@@ -422,6 +450,12 @@ destination_implObj::parse_attribute_values(info_t::lock &lock,
 
 	bool is_media=strcmp(option_s, CUPS_MEDIA) == 0;
 
+	auto localizer=strcmp(option_s, CUPS_SIDES) == 0
+		? sides
+		: strcmp(option_s, CUPS_PRINT_COLOR_MODE) == 0
+		? print_color_mode
+		: no_localizer;
+
 	for (decltype (count) i=0; i<count; i++)
 	{
 		const char *lang=0;
@@ -473,10 +507,14 @@ destination_implObj::parse_attribute_values(info_t::lock &lock,
 						     option_s,
 						     val);
 
-			if (!c)
-				c=val;
-
-			lang_s=c;
+			if (c && strcmp(c, val))
+			{
+				lang_s=c;
+			}
+			else
+			{
+				lang_s=localizer(val);
+			}
 		}
 		v.emplace(val, lang_s);
 	}
