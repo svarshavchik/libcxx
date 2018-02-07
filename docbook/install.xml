@@ -117,9 +117,14 @@ See COPYING for distribution information.
 	<para>
 	  The current generally-available version of
 	  <application>GCC</application>.
-	  As new <application>GCC</application> releases improve support for
-	  C++x, this library will probably be updated to take advantage of
-	  them.
+	  As new <application>GCC</application> releases include support for
+	  new C++ standards, this library gets accordingly.
+	</para>
+      </listitem>
+
+      <listitem>
+	<para>
+	  The <ulink url="https://www.cups.org/">CUPS</ulink> libraries.
 	</para>
       </listitem>
 

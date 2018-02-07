@@ -169,24 +169,8 @@ bool dump_values(std::ostream &o,
 			[&](const std::vector<cups::resolution> &v)
 			{
 				for (const auto &r:v)
-				{
-					std::ostringstream o;
+					sorted_option_values.push_back(r);
 
-					o << std::to_string(r.xres)
-					  << "x" << std::to_string(r.yres);
-
-					switch (r.units) {
-					case cups::resolution::per_inch:
-						o << "dpi";
-						break;
-					case cups::resolution::per_cm:
-						o << "dpcm";
-						break;
-					default:
-						break;
-					}
-					sorted_option_values.push_back(o.str());
-				}
 				return true;
 			},
 			[&](const std::vector<cups::const_collection> &cv)

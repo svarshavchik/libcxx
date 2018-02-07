@@ -11,6 +11,8 @@
 #include "x/property_value.H"
 #include "../base/gettext_in.h"
 #include <string_view>
+#include <string>
+#include <sstream>
 #include <courier-unicode.h>
 #include <algorithm>
 #include <sstream>
@@ -559,6 +561,29 @@ destination_implObj::user_defaults() const
 job destination_implObj::create_job()
 {
 	return ref<job_implObj>::create(ref(this));
+}
+
+
+resolution::operator std::string() const
+{
+	std::ostringstream o;
+
+	o << std::to_string(xres);
+
+	if (xres != yres)
+		o << "x" << std::to_string(yres);
+
+	switch (units) {
+	case cups::resolution::per_inch:
+		o << "dpi";
+		break;
+	case cups::resolution::per_cm:
+		o << "dpcm";
+		break;
+	default:
+		break;
+	}
+	return o.str();
 }
 
 #if 0

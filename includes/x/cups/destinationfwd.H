@@ -13,6 +13,7 @@
 #include <unordered_set>
 #include <vector>
 #include <variant>
+#include <string>
 
 namespace LIBCXX_NAMESPACE {
 	namespace cups {
@@ -94,11 +95,13 @@ typedef const_ptr<destinationObj> const_destinationptr;
 
 //! Destination resultion
 //!
-//! \see option-values_t
+//! \see option_values_t
 struct resolution {
 	enum units_t { per_inch, per_cm, unknown } units;
 	int xres;
 	int yres;
+
+	operator std::string() const;
 };
 
 //! Option values
