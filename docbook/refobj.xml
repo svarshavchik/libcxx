@@ -1833,8 +1833,10 @@ xsltproc $datadir/libcxx/refcollection.xsl refcollection.xml &gt;refcollection.H
       </blockquote>
 
       <para>
-	The stylesheet generates a C++ header declaring the following classes:
+	The stylesheet generates a C++ header declaring two classes that look
+	something like this:
       </para>
+
       <blockquote>
 	<informalexample>
 	  <programlisting>
@@ -1889,6 +1891,8 @@ mycollectionptr ptrs;
 
 // Long-winded code that ends up initializing ptrs.a and ptrs.b
 
+ptrs.validate_or_throw_exception();
+
 auto newobj=&ns;::ref&lt;refcollectionObj&gt;::create(ptrs);
 
 // So, now, newobj-&gt;a and newobj-&gt; are ready for action, and are
@@ -1903,6 +1907,14 @@ auto newobj=&ns;::ref&lt;refcollectionObj&gt;::create(ptrs);
 	Afterwards, the collection of &ptr;s gets passed to a constructor
 	of equivalent &ref;s, to convert them all to references, going
 	forward.
+	The first structure has a
+	<methodname>validate_or_throw_exception</methodname>()
+	that verifies that all &ptr;s were initialized, otherwise an
+	exception gets thrown naming the offending &ptr;.
+	Not using <methodname>validate_or_throw_exception</methodname>()
+	results in an unhelpful <quote>Null pointer dereference</quote>
+	getting thrown from the constructor, without any indication as to
+	who the guilty party is.
       </para>
 
       <para>

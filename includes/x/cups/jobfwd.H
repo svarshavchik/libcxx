@@ -22,8 +22,8 @@ class jobBase;
 //! A print job.
 
 //! A \ref destination "print destination"'s create_job() method
-//! creates this job object. Various method set the job properties
-//! and the print job gets submit()ed.
+//! creates this job object. Various methods set the job properties,
+//! then the print job gets submit()ed.
 //!
 //! \code
 //! job->set_option("copies", 2);

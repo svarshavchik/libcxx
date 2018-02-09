@@ -22,15 +22,19 @@ namespace LIBCXX_NAMESPACE {
 
 //! \ref job "Job" document data from an arbitrary source.
 
-//! This specifies the raw contents of a print job documents via an
-//! opaque closure. The closure gets invoked before sending th print
+//! Specify raw contents of a print job document from some arbitrary source.
+//! This closure gets invoked before sending the print
 //! The closure returns a tuple with two values: a MIME type, and
-//! a second closure. The second closure returns \c std::optional<string>.
+//! a second closure. The second closure takes no parameters and returns a
+//! \c std::optional<string>.
 //!
-//! The MIME type specifies the document's type, and the second closure gets
-//! repeatedly called. It's returned std::string forms the document's data.
+//! The MIME type specifies the document's type. The second closure gets
+//! repeatedly invoke in order to obtain the document's contents. Each call
+//! to the second closure returns the next chunk of the document's contents.
+//! The second closure return sa \c std::nullopt after the entire contents
+//! have been returned.
 //!
-//! Invoking submit() again also invokes the first closure again.
+//! Invoking submit() again invokes the first closure again.
 
 typedef std::function<std::tuple<std::string,
 				 std::function<

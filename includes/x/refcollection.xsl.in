@@ -25,6 +25,22 @@ See COPYING for distribution information.
       <xsl:text>;&#10;</xsl:text>
     </xsl:for-each>
 
+    <xsl:text>&#10;&#9;inline void validate_or_throw_exception() const&#10;&#9;{&#10;</xsl:text>
+
+    <xsl:for-each select="ref">
+      <xsl:text>&#9;&#9;if (!</xsl:text>
+      <xsl:value-of select="name" />
+      <xsl:text>) validation_failed("</xsl:text>
+      <xsl:value-of select="name" />
+      <xsl:text>");&#10;</xsl:text>
+    </xsl:for-each>
+    <xsl:text>&#9;}&#10;
+	static inline void validation_failed(const char *object_name)
+			__attribute__((noreturn))
+	{
+		throw EXCEPTION("Internal error: object \"" &lt;&lt; object_name
+				&lt;&lt; "\" was not created.");
+	}&#10;</xsl:text>
     <xsl:text>};&#10;&#10;struct </xsl:text>
     <xsl:value-of select="name" />
     <xsl:text> {&#10;</xsl:text>
