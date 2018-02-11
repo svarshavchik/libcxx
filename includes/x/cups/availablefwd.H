@@ -64,7 +64,7 @@ class availableObj;
 //!
 //! info() connects to the print destination, and queries
 //! its properties. This executes cupsCopyDestInfo(), and
-//! cupsConnectDest().
+//! cupsConnectDest(). An exception gets thrown if the connection fails.
 
 typedef ref<availableObj> available;
 

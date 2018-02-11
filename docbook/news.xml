@@ -1,155 +1,41 @@
 <!--
 
-Copyright 2015-2016 Double Precision, Inc.
+Copyright 2018 Double Precision, Inc.
 See COPYING for distribution information.
 
 -->
 
 <section id="news">
-  <title>Announcing release 0.10 of &app;</title>
+  <title>Announcing release 0.11 of &app;</title>
 
-  <variablelist>
-    <varlistentry>
-      <term>New features and major API changes</term>
+  <para>
+    New features and major API changes:
+  </para>
 
-      <listitem>
-	<para>
-	  <link linkend="functional"><classname>&ns;::function</classname></link>
-	  template, similar to <classname>std::function</classname>, but
-	  uses virtual inheritance instead of dynamic memory allocation.
-	</para>
+  <itemizedlist>
+    <listitem>
+      <para>
+	New <classname>&ns;::cups</classname> namespace implements support
+	for the <link linkend="cups">major functions of the CUPS library</link>.
+      </para>
+    </listitem>
 
-	<para>
-	  Then,
-	  <link linkend="functionalref">reference-counted lambdas</link> and the
-	  <link linkend="derived">derived values</link> design pattern
-	  provide a more generic replacement for event callbacks.
-	</para>
-      </listitem>
+    <listitem>
+      <para>
+	Cleanup of locale-related <classname>&ns;::ymd</classname>,
+	<classname>&ns;::hms</classname>, and
+	<classname>&ns;::ymdhms</classname> classes to improve compatibility
+	with the C++ library's locale functionality.
+      </para>
+    </listitem>
 
-      <listitem>
-	<para>
-	  <link linkend="inotify">Inotify</link> classes.
-	</para>
-      </listitem>
-
-      <listitem>
-	<para>
-	  Removed various ctype-related classes, replaced with courier-unicode
-	  based functionality.
-	</para>
-      </listitem>
-
-      <listitem>
-	<para>
-	  <link linkend="ltdl">Loading shared libraries</link>.
-	</para>
-      </listitem>
-
-      <listitem>
-	<para>
-	  <link linkend="sentry">Sentries</link>.
-	</para>
-      </listitem>
-
-      <listitem>
-	<para>
-	  <link linkend="sortedvector">Sorted vectors</link>.
-	</para>
-      </listitem>
-
-      <listitem>
-	<para>
-	  <link linkend="number">Type-safe numerical aliases</link>.
-	</para>
-      </listitem>
-
-      <listitem>
-	<para>
-	  <link linkend="functionalref">Function references</link>.
-	</para>
-      </listitem>
-
-      <listitem>
-	<para>
-	  <link linkend="mcguffincontainers">Mcguffin containers</link>.
-	</para>
-      </listitem>
-
-      <listitem>
-	<para>
-	  <link linkend="fixed_semaphores">Fixed semaphores</link>.
-	</para>
-      </listitem>
-
-      <listitem>
-	<para>
-	  Removed <classname>&ns;::rwmutex</classname> and several related
-	  classes (including <classname>&ns;::rwmutexdebug</classname> and
-	  <classname>&ns;::vipobjdebug</classname> that was based on
-	  <classname>&ns;::rwmutexdebug</classname>).
-	  This functionality is supported by
-	  <classname>std::shared_mutex</classname> in C++17.
-	</para>
-      </listitem>
-
-      <listitem>
-	<para>
-	  <link linkend="weakcontainers"><classname>weakunordered_map</classname>,
-	    and <classname>weakunordered_multimap</classname></link>.
-	</para>
-      </listitem>
-
-      <listitem>
-	<para>
-	  Deprecated <classname>eventqueuemsgdispatcher</classname>,
-	  <classname>threadeventqueuemsgdispatcher</classname>, and
-	  <classname>dequemsgdispatcher</classname>.
-	  Replaced with a more generic and simpler
-	  <link linkend="msgdispatcher"><classname>threadmsgdispatcher</classname></link>.
-	</para>
-	<para>
-	  Renamed <classname>&ns;::destroyCallbackFlag</classname> to
-	  <classname>&ns;::destroy_callback</classname> and
-	  <classname>&ns;::destroyCallbackFlagWait4</classname> to
-	  <classname>&ns;::destroy_callback_wait4</classname>, in order to
-	  remove unsightly camel-case.
-	  Ditto: getFd() to get_fd() and getEventfd() to get_eventfd().
-	  Ditto: getValue() to get() and setValue() to set(), in
-	  <classname>&ns;::property::value</classname>.
-	</para>
-      </listitem>
-
-      <listitem>
-	<para>
-	  Removed <classname>filestat</classname>.
-	  <methodname>fileattr->stat()</methodname> returns a
-	  <literal>struct stat</literal> value directly, or throws an
-	  exception.
-	  <methodname>fileattr->try_stat()</methodname>, returns a
-	  <classname>std::optional</classname>, and returns an undefined
-	  value instead of throwing an exception.
-	  <methodname>fileattr->try_readlink()</methodname> is an analogous
-	  version of <methodname>readlink</methodname>() that returns a
-	  <classname>std::optional</classname> instead of throwing an
-	  exception.
-	</para>
-
-	<para>
-	  Attempting to <link linkend="dir">read the contents</link>
-	  of a nonexistent directory will not throw an exception, rather
-	  <methodname>begin</methodname>() quietly returns the ending iterator
-	  value.
-	</para>
-      </listitem>
-
-      <listitem>
-	<para>
-	  <link linkend="configdir"><function>&ns;::configdir</function></link>.
-	</para>
-      </listitem>
-    </varlistentry>
-  </variablelist>
+    <listitem>
+      <para>
+	Other <classname>&ns;::locale</classname> fixes.
+	<function>&ns;::locale::global()</function> returns a singleton.
+      </para>
+    </listitem>
+  </itemizedlist>
 </section>
 
 <!--

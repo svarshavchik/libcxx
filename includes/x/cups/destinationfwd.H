@@ -26,7 +26,12 @@ class destinationObj;
 
 //! Printer destination.
 
-//! This object encapsulates CUPS's \c cups_dinfo_t object.
+//! This object encapsulates CUPS's \c cups_dinfo_t object. Its methods return
+//! detailed information about a particular print destination. The following
+//! methods may throw exceptions if the are unable to receive a response from
+//! the print destination. This object maintains an internal connection, and
+//! the application should not store this object for a lengthy period of time,
+//! before using it.
 //!
 //! \code
 //! std::unordered_set<std::string> all_options=destination->supported_options();
@@ -62,7 +67,7 @@ class destinationObj;
 //! \endcode
 //!
 //! Specifying a "{unicode}" prefix for some options uses unicode strings
-//! instead of localized string, for the returned values.
+//! instead of localized strings, for the returned values.
 //!
 //! \code
 //! std::unordered_map<std::string, std::string> values=destination->user_defaults();
@@ -130,6 +135,8 @@ struct resolution {
 //! resolutions.
 //!
 //! - an option \ref collection "collection group".
+//!
+//! \see destination
 
 typedef std::variant< std::monostate,
 		      std::unordered_map<std::string, std::string>,

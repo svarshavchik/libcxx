@@ -53,7 +53,12 @@ Requires: %{name}-ltdl = 0:%{version}-%{release}
 Requires: %{name}-cups = 0:%{version}-%{release}
 Requires: %{_datadir}/aclocal
 Requires: libxslt
+Requires: gnutls-devel
+Requires: libgcrypt-devel
 Requires: pcre-devel
+Requires: libyaml-devel
+Requires: file-devel
+Requires: libidn-devel
 Requires: cups-devel
 Requires: courier-unicode-devel
 

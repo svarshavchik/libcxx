@@ -46,6 +46,8 @@ class jobBase;
 //!                            {
 //!                                 std::option<std::string> ret;
 //!
+//!                                 // ...
+//!
 //!                                 return ret;
 //!                            }};
 //!      });
@@ -68,6 +70,26 @@ class jobBase;
 //! documents (using add_document() to define an artbirary document data
 //! source) results in the document's closure getting invoked again, which
 //! may return different data.
+//!
+//! \par Using add_document()
+//!
+//! add_document() is an interface for specifying the contents of a print
+//! document from some arbitrary source, instead of a discrete file.
+//!
+//! add_document() receives a closure, or a callable object, as a parameter.
+//! The closure gets invoked by submit(), before sending the print
+//! The closure returns a tuple with two values: a MIME type, and
+//! a second closure. The second closure takes no parameters and returns a
+//! \c std::optional<string>.
+//!
+//! The MIME type specifies the document's type, and the second closure gets
+//! repeatedly invoked in order to obtain the document's contents. Each call
+//! to the second closure returns the next chunk of the document's data.
+//! The second closure returns a \c std::nullopt to indicate no more data
+//! to print.
+//!
+//! Invoking submit() again invokes the first closure again.
+
 
 typedef ref<jobObj> job;
 

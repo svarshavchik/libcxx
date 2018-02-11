@@ -1,3 +1,9 @@
+0.11
+
+2018-02-11  Sam Varshavchik  <mrsam@courier-mta.com>
+
+	* x::cups namespace implements an API to the CUPS library.
+
 2018-01-18  Sam Varshavchik  <mrsam@courier-mta.com>
 
 	* ymd.c: be able to parse dates from only day+month, picking

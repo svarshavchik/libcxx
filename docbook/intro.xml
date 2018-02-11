@@ -85,6 +85,12 @@ See COPYING for distribution information.
 
       <listitem>
 	<para>
+	  Printing documents <link linkend="cups">using the CUPS library</link>.
+	</para>
+      </listitem>
+
+      <listitem>
+	<para>
 	  Two optional subcomponents:
 	  an <ulink url="/sql"><acronym>SQL</acronym>
 	    database</ulink> API, and <ulink url="/w">LibCXXW</ulink>, an

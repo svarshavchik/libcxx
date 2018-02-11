@@ -1,9 +1,9 @@
 #
-# Copyright 2012-2013 Double Precision, Inc.
+# Copyright 2012-2018 Double Precision, Inc.
 # See COPYING for distribution information.
 
 AC_PREREQ(2.61)
-AC_INIT(libcxx, 0.10, [mrsam@courier-mta.com])
+AC_INIT(libcxx, 0.11, [mrsam@courier-mta.com])
 
 AC_CONFIG_SRCDIR([includes/x/obj.H])
 AC_CONFIG_HEADER([libcxx_config.h])
@@ -765,7 +765,7 @@ AC_SUBST(CUPS_LIBS)
 
 AC_SUBST(LIBCXX_NAMESPACE,x)
 
-VERSION_INFO=10:0:0
+VERSION_INFO=11:0:0
 AC_SUBST(VERSION_INFO)
 
 test "x$prefix" = xNONE && prefix=$ac_default_prefix
