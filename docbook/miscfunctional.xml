@@ -78,8 +78,8 @@ int n=method(closure);</programlisting>
       provide a <link linkend="refobj">reference-counted</link> wrapper for
       an
       <link linkend="functional"><classname>&ns;::function&lt;return_type(Args...)&gt;</classname></link>.
-      This is more in line with
-      <classname>std::function</classname>'s semantics,
+      This implements very similar semantics as
+      <classname>std::function</classname>,
       but with all the reference-counted goodies:
     </para>
 
@@ -95,28 +95,24 @@ int method(const &ns;::function&lt;int(const char *)&gt; &amp;func)
 
 // ...
 
-auto closure=&ns;::functionref&lt;int(const char *)&gt;::create([]
+&ns;::functionref&lt;int(const char *)&gt; auto closure=[]
              (const char *arg)
              {
                  return strlen(arg);
-             });
+             };
 
     &ns;::function&lt;int(const char *)&gt; &amp;fr = *f;
 
-    return method(fr) + f-&gt;invoke("!");
+    return method(fr) + f("!");
 }</programlisting>
       </informalexample>
     </blockquote>
 
     <para>
       <ulink url="&link-typedef-x-functionref;"><classname>&ns;::functionref</classname></ulink>
-      is a reference to an
+      inherits from a reference to an
       <link linkend="obj">obj</link> that also inherits from an
       <classname>&ns;::function</classname>.
-      Although its <methodname>operator()</methodname> is available,
-      it's more convenient to use its <methodname>invoke</methodname>()
-      method, which is just a wrapper for its
-      <methodname>operator()</methodname>().
     </para>
   </section>
 
@@ -171,11 +167,11 @@ callback_list_t callback_list=callback_list_t::create();
 
 // ....
 
-auto new_callback=callback_t::create([]
-                                     (int callback_argument)
-                                     {
-                                          // Callback action
-                                     });
+callback_t new_callback=[]
+                        (int callback_argument)
+                        {
+                            // Callback action
+                        };
 
 // Install the callback:
 
@@ -203,9 +199,9 @@ for (const auto &amp;ptr : *callback_list)
 {
     callbackptr_t p=ptr.getptr();
 
-    if (!p.null())
+    if (p)
     {
-       p->invoke(4);
+       p(4);
     }
 }</programlisting>
       </informalexample>
@@ -684,12 +680,12 @@ typedef &ns;::ref&lt;widgetObj&gt; widget;
 
 widget w=widget::create();
 
-auto cb=&ns;::functionref&lt;void(int)&gt;::create(
+&ns;::functionref&lt;void(int)&gt; cb=
         [w]
         (int n)
         {
                w-&gt;method(str, n);
-        });</programlisting>
+        };</programlisting>
       </informalexample>
     </blockquote>
 
@@ -738,14 +734,14 @@ public:
 
     void initialize(const b &amp;b_object)
     {
-        auto cb=&ns;::functionref&lt;void()&gt;::create(
+        &ns;::functionref&lt;void()&gt; cb=
 	    [weak_a=&ns;::weakptr&lt;aptr&gt;(aptr(this))]
 	    {
 	        auto a_strong=weak_a.getptr();
 
 		if (!a_strong.null())
 		    a_strong-&gt;do_something();
-	    });
+	    };
 
         b_object-&gt;install(cb);
         b_callback=cb;

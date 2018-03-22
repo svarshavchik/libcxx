@@ -54,7 +54,7 @@ public:
 		// invoke them, so the callbacks do not get invoked with a
 		// held lock.
 
-		std::vector<functionref<ret_type(Args...)>> callbacks;
+		std::vector<ref<functionObj<ret_type(Args...)>>> callbacks;
 
 		for (const auto &weakptr:*l)
 		{
@@ -66,8 +66,7 @@ public:
 
 		for (const auto &cb:callbacks)
 		{
-			auto value=cb->invoke(std::forward<invokeArgs>
-					      (args)...);
+			auto value=cb(std::forward<invokeArgs>(args)...);
 
 			if (stop_calling(value))
 				return value;
@@ -108,7 +107,7 @@ public:
 		// invoke them, so the callbacks do not get invoked with a
 		// held lock.
 
-		std::vector<functionref<ret_type(Args...)>> callbacks;
+		std::vector<ref<functionObj<ret_type(Args...)>>> callbacks;
 
 		for (const auto &weakptr:*l)
 		{
@@ -121,8 +120,8 @@ public:
 		for (const auto &cb:callbacks)
 		{
 			try {
-				auto value=cb->invoke(std::forward<invokeArgs>
-						      (args)...);
+				auto value=cb(std::forward<invokeArgs>
+					      (args)...);
 
 				if (stop_calling(value))
 					return value;
@@ -153,7 +152,7 @@ public:
 	static void invoke(const weaklist<functionObj<void(Args...)>> &l,
 			   invokeArgs && ...args)
 	{
-		std::vector<functionref<void(Args...)>> callbacks;
+		std::vector<ref<functionObj<void(Args...)>>> callbacks;
 
 		for (const auto &weakptr:*l)
 		{
@@ -161,9 +160,8 @@ public:
 			if (!cb.null())
 				callbacks.push_back(cb);
 		}
-
 		for (const auto &cb:callbacks)
-			cb->invoke(std::forward<invokeArgs>(args)...);
+			(*cb)(std::forward<invokeArgs>(args)...);
 	}
 
 	//! Invoke all callbacks in a weak list, and log any exceptions.
@@ -172,7 +170,7 @@ public:
 	static void invoke_log(const weaklist<functionObj<void(Args...)>> &l,
 			       invokeArgs && ...args)
 	{
-		std::vector<functionref<void(Args...)>> callbacks;
+		std::vector<ref<functionObj<void(Args...)>>> callbacks;
 
 		for (const auto &weakptr:*l)
 		{
@@ -183,7 +181,7 @@ public:
 
 		for (const auto &cb:callbacks)
 			try {
-				cb->invoke(std::forward<invokeArgs>(args)...);
+				(*cb)(std::forward<invokeArgs>(args)...);
 			} catch (const exception &e)
 			{
 				e->caught();

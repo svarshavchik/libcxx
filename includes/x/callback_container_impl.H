@@ -220,7 +220,7 @@ public:
 		auto mcguffin=create_mcguffin();
 
 		mcguffin->install(functionref<signature>
-				  ::create(std::forward<functor_type>(functor)),
+				  {std::forward<functor_type>(functor)},
 				  std::forward<Args>(args)...);
 		return mcguffin;
 	}
@@ -483,8 +483,8 @@ public:
 				});
 
 			try {
-				auto ret=value->invoke(std::forward<invokeArgs>
-						       (invokeargs)...);
+				auto ret=value(std::forward<invokeArgs>
+					       (invokeargs)...);
 
 				if (!keepgoing(ret))
 				{
@@ -555,8 +555,7 @@ public:
 				});
 
 			try {
-				value->invoke(std::forward<invokeArgs>
-					      (invokeargs)...);
+				value(std::forward<invokeArgs>(invokeargs)...);
 			} catch (const exception &e)
 			{
 				e->caught();

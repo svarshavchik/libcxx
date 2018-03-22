@@ -146,15 +146,24 @@ public:
 	}
 
 	//! Find a key in the map, if not exists, create the value using the passed lambda
-	template<typename lambda_type>
+	template<typename functor,
+		 typename lambda_must_return_a_ref=
+		 std::enable_if_t<std::is_same_v
+				  <decltype(std::declval<functor &&>()()),
+				   typename refptr_traits
+				   <decltype(std::declval<functor &&>()())>
+				   ::ref_t>>>
+
 	auto find_or_create(//! The key to search for
 			    const K &key,
 
 			    //! If not found, call lambda
-			    lambda_type &&lambda)
-		-> decltype( handle_find_or_create<M>
-			     ::mcguffin_return_value(lambda()))
+			    functor &&lambda)
 	{
+		typedef decltype(handle_find_or_create<M>
+				 ::insert_into_mcguffin(this, key,
+							lambda())) ret_t;
+
 		std::unique_lock<std::recursive_mutex>
 			insert_lock(insert_mutex);
 
@@ -167,8 +176,8 @@ public:
 					->second.get_internal_mcguffin();
 
 				if (!mcguffin.null())
-					return std::pair<ref<obj>, ref_type>
-						(mcguffin, mcguffin->strongref);
+					return ret_t{mcguffin,
+							mcguffin->strongref};
 				++range.first;
 			}
 		}

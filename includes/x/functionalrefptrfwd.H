@@ -16,49 +16,62 @@ namespace LIBCXX_NAMESPACE {
 template<typename signature> class functionObj;
 template<typename signature> class functionBase;
 
+template<typename signature> class functionrefptr_impl;
+
 //! A reference-counted \ref function "function object".
 
-//! create(lambda) returns an implemenation subclass of a
+//! Implement type-erasure of callable object, like \c std::function
+//! and \ref function "INSERT_LIBX_NAMESPACE::function",
+//! but based on a reference-counted object derived from
 //! \ref functionObj "INSERT_LIBX_NAMESPACE::functionObj<signature>".
 //!
-//! Typical usage of a callback object:
+//! Typical usage of a callable object:
 //!
 //! \code
-//! INSERT_LIBX_NAMESPACE::functionref<size_t(const char *)> ref=INSERT_LIBX_NAMESPACE::functionref<size_t(const char *)>::create(
-//!                                           (const char *p)
-//!                                           {
-//!                                                 return strlen(p);
-//!                                           });
-//! INSERT_LIBX_NAMESPACE::function< size_t(const char *)> &p= *ref;
+//! INSERT_LIBX_NAMESPACE::functionref<size_t(const char *)> r{[]
+//!                                        (const char *p)
+//!                                        {
+//!                                              return strlen(p);
+//!                                        }};
+//!
+//! auto r2=r;
+//!
+//! INSERT_LIBX_NAMESPACE::function< size_t(const char *)> &p= *r;
 //!
 //! int l=p("foo");
 //!
-//! int l=ref->invoke("bar");
+//! int l=r("bar");
 //! \endcode
 //!
-//! create() constructs a
+//! This is a
 //1 \ref ref "reference-counted object" that inherits from
 //! \ref function "INSERT_LIBX_NAMESPACE::function". It serves the
-//! same type-erasure function as
+//! same type-erasure purpose as
 //! \ref function "INSERT_LIBX_NAMESPACE::function", but as a reference-counted
 //! object.
 //!
+//! This means that, once constructed, copying
+//! \c INSERT_LIBX_NAMESPACE::functionref
+//! does not create a new function object. In the above example \c r2 and
+//! \c r reference the same function object. A callable object may have
+//! non-trivial amount of captured members, but copying it is cheap, and
+//! involves only updating the internal reference count.
+//!
 //! This is a reference to a \ref functionObj "functionObj<signature>".
-//! In addition to having the \c operator() operator available,
-//! the \c invoke() method offers a more convenient syntax of invoking the
-//! type-erased lambda, using the reference pointer.
 //!
 //! \see functionObj
 //! \see functionptr
 
 template<typename signature>
-using functionref=ref<functionObj<signature>, functionBase<signature>>;
+using functionref=functionrefptr_impl<ref<functionObj<signature>,
+					  functionBase<signature>>>;
 
 //! A nullable pointer to a \ref functionref "reference to a function object".
 
 //! \see functionref
 template<typename signature>
-using functionptr=ptr<functionObj<signature>, functionBase<signature>>;
+using functionptr=functionrefptr_impl<ptr<functionObj<signature>,
+					  functionBase<signature>>>;
 
 #if 0
 {

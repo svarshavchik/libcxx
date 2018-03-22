@@ -13,7 +13,7 @@ namespace LIBCXX_NAMESPACE {
 };
 #endif
 
-template<typename ref_type> class mcguffincontainerObj;
+template<typename ref_type, typename=void> class mcguffincontainerObj;
 
 #if 0
 {

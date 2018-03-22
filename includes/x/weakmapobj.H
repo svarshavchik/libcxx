@@ -7,6 +7,7 @@
 #define x_weakmapobj_H
 
 #include <x/weakcontainerobj.H>
+#include <x/refptr_traits.H>
 #include <x/ptr.H>
 
 namespace LIBCXX_NAMESPACE {
@@ -183,66 +184,40 @@ class handle_find_or_create {
 
 public:
 
-	//! Calculate the return type from weakmap::find_or_create().
-
-	//! The callback lambda must return a ref. A compilation error here
-	//! means that the callback lambda is not returning a ref.
-	//!
-	//! It's a ptr, since find_or_create() can fail.
-
-	template<typename objClass, typename baseType>
-	static ptr<objClass, baseType>
-	weak_return_value(ref<objClass, baseType> &&value)
-	{
-		return ptr<objClass, baseType>();
-	}
-
-	//! Calculate the return type from mcguffinmap::find_or_create().
-
-	//! The callback lambda must return a ref. A compilation error here
-	//! means that the callback lambda is not returning a ref.
-	//!
-	//! It's a ptr, since find_or_create() can fail.
-
-	template<typename objClass, typename baseType>
-	static std::pair<ptr<obj>, ptr<objClass, baseType>>
-	mcguffin_return_value(ref<objClass, baseType> &&value)
-	{
-		return std::pair<ptr<obj>, ptr<objClass, baseType>>();
-	}
-
 	//! Try valiantly to create, after we couldn't find anything.
 
-	template<typename objClass, typename baseType,
+	template<typename ref_type,
 		 typename key_type,
 		 typename ptr_type>
-	static inline ptr<objClass, baseType>
+	static inline typename refptr_traits<ref_type>::ptr_t
 	insert_into_map(ptr_type *m,
 			const key_type &key,
-			const ref<objClass, baseType> &value)
+			const ref_type &value)
 	{
 		if (!m->insert(key, value))
-			return ptr<objClass, baseType>();
+			return {};
 		return value;
 	}
 
 	//! Try valiantly to create, after we couldn't find anything.
 
-	template<typename objClass, typename baseType,
+	template<typename ref_type,
 		 typename key_type,
 		 typename ptr_type>
-	static std::pair<ptr<obj>, ptr<objClass, baseType>>
-		insert_into_mcguffin(ptr_type *m,
-				     const key_type &key,
-				     const ref<objClass, baseType> &value)
+	static std::pair<ptr<obj>,
+			 typename refptr_traits<ref_type>::ptr_t>
+	insert_into_mcguffin(ptr_type *m,
+			     const key_type &key,
+			     const ref_type &value)
 	{
+		typedef typename refptr_traits<ref_type>::ptr_t ptr_t;
+
 		auto mcguffin=m->insert(key, value);
 
 		if (mcguffin.null())
-			return std::pair<ptr<obj>, ptr<objClass, baseType>>();
+			return { ptr<obj>{}, ptr_t{} };
 
-		return std::pair<ptr<obj>, ptr<objClass, baseType>>
-			(mcguffin, value);
+		return {mcguffin, value};
 	}
 };
 
@@ -293,15 +268,22 @@ public:
 	~weakmapObj()=default;
 
 	//! Find a key in the map, if not exists, create the value using the passed lambda
-	template<typename lambda_type>
+	template<typename functor,
+		 typename lambda_must_return_a_ref=
+		 std::enable_if_t<std::is_same_v
+				  <decltype(std::declval<functor &&>()()),
+				   typename refptr_traits
+				   <decltype(std::declval<functor &&>()())>
+				   ::ref_t>>>
 	auto find_or_create(//! The key to search for
 			    const K &key,
 
 			    //! If not found, call lambda
-			    lambda_type &&lambda)
-		-> decltype( handle_find_or_create<M>
-			     ::weak_return_value(lambda()))
+			    functor &&lambda)
 	{
+		typedef decltype(handle_find_or_create<M>
+				 ::insert_into_map(this, key, lambda())) ret_t;
+
 		std::unique_lock<std::recursive_mutex>
 			insert_lock(insert_mutex);
 
@@ -312,7 +294,7 @@ public:
 			{
 				auto ptr=range.first->second.getptr();
 				if (!ptr.null())
-					return ptr;
+					return ret_t{ptr};
 				++range.first;
 			}
 		}

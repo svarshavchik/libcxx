@@ -147,8 +147,8 @@ $(man_MANS): man.stamp
 	touch $@
 
 man.stamp: $(wildcard docbook/man*.xml)
-	test -f docbook/entities || $(MAKE) docs; \
 	if test ! -f docbook/book.xml; then touch man.stamp; exit 0; fi; \
+	test -f docbook/entities || $(MAKE) docs; \
 	set -e; rm -rf manpages; \
 	xsltproc --nonet -o manpages/ http://docbook.sourceforge.net/release/xsl/current/manpages/docbook.xsl docbook/book.xml; \
 	mv -f manpages/* . ; touch man.stamp

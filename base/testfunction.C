@@ -5,6 +5,7 @@
 
 #include "libcxx_config.h"
 #include "x/functionalrefptr.H"
+#include "x/mcguffinmap.H"
 #include "x/exception.H"
 #include <iostream>
 #include <cstdlib>
@@ -69,30 +70,101 @@ void testfunctionref()
 {
 	int index=1;
 
-	auto obj=LIBCXX_NAMESPACE::functionref<void(int)>
-		::create([&index](int n)
-			 {
-				 index += n;
-			 });
+	LIBCXX_NAMESPACE::functionref<void(int)> obj{
+		[&index](int n)
+		{
+			index += n;
+		}};
 
-	auto obj2=LIBCXX_NAMESPACE::functionref<int(int)>
-		::create([&index](int n)
-			 {
-				 return index+n;
-			 });
+	LIBCXX_NAMESPACE::functionref<int(int)> obj2{
+		[&index](int n)
+		{
+			return index+n;
+		}};
 
 	functionref<void(int)> *p=&obj;
 
-	(**p)(3);
+	(*p)(3);
 
-	(*p)->invoke(5);
+	obj(5);
 
-	if (obj2->invoke(1) != 10)
+	if (obj2(1) != 10)
 		throw EXCEPTION("Test 6 failed");
 
 	if (index != 9)
 		throw EXCEPTION("Test 5 failed");
 
+	auto obj3=obj2;
+
+	obj3=[&index](int n)
+		{
+			return index+n*2;
+		};
+
+	if (obj3(1) != 11)
+		throw EXCEPTION("test 7 failed");
+
+	functionptr<int(int)> obj4;
+
+	if (obj4)
+		throw EXCEPTION("test 8 failed");
+
+	auto obj5=obj4;
+
+	obj4=nullptr;
+
+	if (obj5)
+		throw EXCEPTION("test 9 failed");
+
+	obj5=[](int n)
+		{
+			return n;
+		};
+
+	if (!obj5)
+		throw EXCEPTION("test 10 failed");
+
+	if (obj5(7) != 7)
+		throw EXCEPTION("test 11 failed");
+
+	obj5=nullptr;
+
+	if (obj5)
+		throw EXCEPTION("test 12 failed");
+}
+
+void testmcguffinmap()
+{
+	auto x=LIBCXX_NAMESPACE::mcguffinmap
+		<int,
+		 LIBCXX_NAMESPACE::functionref<int()>>::create();
+
+	LIBCXX_NAMESPACE::functionref<int()> f=[]{ return 1; };
+
+	auto mcguffin=x->find_or_create(0,
+					[&]
+					{
+						return f;
+					});
+
+	auto mcguffin2=x->find_or_create(0,
+					 [&]
+					 ()
+					 ->LIBCXX_NAMESPACE::functionref<int()>
+					 {
+						 return []{return 1;};
+					 });
+
+	if (mcguffin != mcguffin2)
+		throw EXCEPTION("testmcguffinmap 0 failed");
+
+	if (x->find(0)->second.getptr()() != 1)
+		throw EXCEPTION("testmcguffinmap 1 failed");
+
+	mcguffin2=mcguffin={};
+
+	if (x->find(0) != x->end())
+		throw EXCEPTION("testmcguffinmap 2 failed");
 }
 
 int main()
@@ -100,6 +172,8 @@ int main()
 	try {
 		testfunction();
 		testfunctionref();
+		testmcguffinmap();
+
 	} catch (const exception &e)
 	{
 		std::cerr << e << std::endl;

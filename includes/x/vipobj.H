@@ -214,8 +214,7 @@ public:
 		auto install_front(//! The handler being installed
 				   functor_type &&functor)
 		{
-			auto cb=callback_t::create(std::forward<functor_type>
-						   (functor));
+			callback_t cb{std::forward<functor_type>(functor)};
 
 			objp.callbacks->push_front(cb);
 			return cb;
@@ -238,7 +237,7 @@ public:
 		{
 			auto cb=install_front(std::forward<functor_type>
 					      (functor));
-			cb->invoke(v);
+			cb(v);
 
 			return cb;
 		}
@@ -251,8 +250,7 @@ public:
 		auto install_back(//! The handler being installed
 				  functor_type &&functor)
 		{
-			auto cb=callback_t::create(std::forward<functor_type>
-						   (functor));
+			callback_t cb{std::forward<functor_type>(functor)};
 
 			objp.callbacks->push_back(cb);
 
@@ -276,7 +274,7 @@ public:
 		{
 			auto cb=install_back(std::forward<functor_type>
 					     (functor));
-			cb->invoke(v);
+			cb(v);
 
 			return cb;
 		}

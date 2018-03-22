@@ -54,31 +54,6 @@ template<typename K, typename V, typename C, typename A>
 class handle_find_or_create<std::multimap<K, V, C, A>> {
 
  public:
-	//! Calculate the return type from weakmap::find_or_create().
-
-	//! The callback lambda must return a ref. A compilation error here
-	//! means that the callback lambda is not returning a ref.
-
-	template<typename objClass, typename baseType>
-	static ref<objClass, baseType>
-	weak_return_value(ref<objClass, baseType> &&value)
-	{
-		return std::move(value);
-	}
-
-	//! Calculate the return type from mcguffinmap::find_or_create().
-
-	//! The callback lambda must return a ref. A compilation error here
-	//! means that the callback lambda is not returning a ref.
-
-	template<typename objClass, typename baseType>
-	static std::pair<ref<obj>, ref<objClass, baseType>>
-	mcguffin_return_value(ref<objClass, baseType> &&value)
-	{
-		return std::pair<ref<obj>, ref<objClass, baseType>>
-			(ref<obj>::create(), value);
-	}
-
 	//! Ho-hum.
 
 	template<typename objClass, typename baseType,

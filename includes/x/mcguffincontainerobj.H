@@ -10,6 +10,8 @@
 #include <x/ptrfwd.H>
 #include <x/weakptr.H>
 #include <x/mpobj.H>
+#include <x/refptr_traits.H>
+#include <type_traits>
 
 namespace LIBCXX_NAMESPACE {
 #if 0
@@ -27,21 +29,25 @@ namespace LIBCXX_NAMESPACE {
 //!
 //! \internal
 
-template<typename objClass, typename baseType>
-class mcguffincontainerObj<ref<objClass, baseType>> : virtual public obj {
+template<typename ref_type>
+class mcguffincontainerObj<ref_type,
+			   std::void_t<std::enable_if_t<
+				   std::is_base_of_v<
+				   ref<typename ref_type::obj_type,
+				       typename ref_type::base>, ref_type>>>
+			   > : virtual public obj {
 
  public:
-
 	//! The value \c INSERT_LIBX_NAMESPACE::ref type.
 
-	typedef ref<objClass, baseType> ref_t;
+	typedef ref_type ref_t;
 
 	//! The value \c INSERT_LIBX_NAMESPACE::ptr type.
-	typedef ptr<objClass, baseType> ptr_t;
+	typedef typename refptr_traits<ref_type>::ptr_t ptr_t;
 
 	//! This specialization.
 
-	typedef mcguffincontainerObj<ref<objClass, baseType>> container_t;
+	typedef mcguffincontainerObj<ref_type> container_t;
 
 	//! Actual weak container value.
 
