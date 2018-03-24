@@ -167,6 +167,20 @@ void testmcguffinmap()
 		throw EXCEPTION("testmcguffinmap 2 failed");
 }
 
+void foo(int n=5)
+{
+}
+
+void foo(const functionptr<void()> &f)
+{
+}
+
+void bar()
+{
+	foo(3);
+	foo([]{});
+}
+
 int main()
 {
 	try {

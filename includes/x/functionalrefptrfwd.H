@@ -16,7 +16,8 @@ namespace LIBCXX_NAMESPACE {
 template<typename signature> class functionObj;
 template<typename signature> class functionBase;
 
-template<typename signature> class functionrefptr_impl;
+template<typename type,
+	 typename signature> class functionrefptr_impl;
 
 //! A reference-counted \ref function "function object".
 
@@ -64,14 +65,16 @@ template<typename signature> class functionrefptr_impl;
 
 template<typename signature>
 using functionref=functionrefptr_impl<ref<functionObj<signature>,
-					  functionBase<signature>>>;
+					  functionBase<signature>>,
+				      signature>;
 
 //! A nullable pointer to a \ref functionref "reference to a function object".
 
 //! \see functionref
 template<typename signature>
 using functionptr=functionrefptr_impl<ptr<functionObj<signature>,
-					  functionBase<signature>>>;
+					  functionBase<signature>>,
+				      signature>;
 
 #if 0
 {
