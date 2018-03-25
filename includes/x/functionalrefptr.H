@@ -13,8 +13,6 @@
 #include <x/refptr_traits.H>
 #include <x/obj.H>
 
-#include <type_traits>
-
 namespace LIBCXX_NAMESPACE {
 #if 0
 };
@@ -146,15 +144,6 @@ struct functionrefptr_conv<base_ref, ref_or_ptr,
 //! SFINAE for \ref "reference-counted function object"'s constructor overload resolution.
 
 //! \internal
-
-template<typename functionrefptr_impl_t,
-	 typename constructor_parameter_t,
-	 typename tuple_args_t,
-	 typename=void> struct functionrefptr_impl_constructible;
-
-//! SFINAE for \ref "reference-counted function object"'s constructor overload resolution.
-
-//! \internal
 template<typename functionrefptr_impl_t,
 	 typename constructor_parameter_t,
 	 typename ...Args>
@@ -168,99 +157,110 @@ struct functionrefptr_impl_constructible<
 	typedef void type_t;
 };
 
-//! Implementation of a \ref functionref "reference-counted function object".
-
-//! Inherits of a \ref ref "ref" or a \ref ptr "ptr" and implements the \c () operator.
+//! Only implemented for \ref functionptr "functionptr"s.
 
 template<typename base_ref,
 	 typename return_type,
 	 typename ...Args>
-class functionrefptr_impl<base_ref, return_type(Args...)> : public base_ref {
+inline functionrefptr_impl<base_ref, return_type(Args...)>
+::functionrefptr_impl()=default;
 
-	using base_ref::create;
+//! Pretty much the default constructor.
 
-	typedef functionrefptr_impl<base_ref, return_type(Args...)> class_t;
+//! Only implemented for \ref functionptr "functionptr"s.
+template<typename base_ref,
+	 typename return_type,
+	 typename ...Args>
+inline functionrefptr_impl<base_ref, return_type(Args...)>
+::functionrefptr_impl(std::nullptr_t)
+{
+}
 
-public:
+//! Constructor
 
-	//! Default constructor.
+//! Determines whether this instance should be copy-constructed
+//! from another, existing, function object; or create a new one
+//! that uses the callable object that gets passed as a parameter.
 
-	//! Only implemented for \ref functionptr "functionptr"s.
+template<typename base_ref,
+	 typename return_type,
+	 typename ...Args>
+template<typename ref_or_ptr,
+	 typename>
+inline functionrefptr_impl<base_ref, return_type(Args...)>
+::functionrefptr_impl(ref_or_ptr &&v)
+	: base_ref{functionrefptr_conv<base_ref, ref_or_ptr>
+		::conv(std::forward<ref_or_ptr>(v))}
+{
+}
 
-	inline functionrefptr_impl()=default;
+//! Implement boolean operator.
 
-	//! Pretty much the default constructor.
+//! Only implemented for \ref functionptr "functionptr"s.
 
-	//! Only implemented for \ref functionptr "functionptr"s.
-	inline functionrefptr_impl(std::nullptr_t) {}
+template<typename base_ref,
+	 typename return_type,
+	 typename ...Args>
+inline functionrefptr_impl<base_ref, return_type(Args...)>
+::operator bool() const noexcept
+{
+	return base_ref::operator bool();
+}
 
-	//! Constructor
+//! Implement boolean operator.
 
-	//! Determines whether this instance should be copy-constructed
-	//! from another, existing, function object; or create a new one
-	//! that uses the callable object that gets passed as a parameter.
+//! Only implemented for \ref functionptr "functionptr"s.
+template<typename base_ref,
+	 typename return_type,
+	 typename ...Args>
+inline bool functionrefptr_impl<base_ref, return_type(Args...)>
+::operator!() const noexcept
+{
+	return base_ref::operator !();
+}
 
-	template<typename ref_or_ptr,
-		 typename=typename functionrefptr_impl_constructible
-		 <class_t, std::decay_t<ref_or_ptr>, std::tuple<Args...>>
-		 ::type_t>
-	inline functionrefptr_impl(ref_or_ptr &&v)
-		: base_ref{functionrefptr_conv<base_ref, ref_or_ptr>
-			::conv(std::forward<ref_or_ptr>(v))}
-	{
-	}
+//! Invoke the wrapped callable object.
+template<typename base_ref,
+	 typename return_type,
+	 typename ...Args>
+template<typename ...callArgs>
+inline auto functionrefptr_impl<base_ref, return_type(Args...)>
+::operator()(callArgs && ...args) const
+{
+	return this->operator*()(std::forward<callArgs>(args)...);
+}
 
-	using base_ref::operator *;
+//! Assignment operator.
 
-	//! Implement boolean operator.
+//! Figures out if this is assigning from a different reference-counted
+//! function object, or from another callable object.
 
-	//! Only implemented for \ref functionptr "functionptr"s.
+template<typename base_ref,
+	 typename return_type,
+	 typename ...Args>
+template<typename ref_or_ptr,
+	 typename>
+inline auto &functionrefptr_impl<base_ref, return_type(Args...)>
+::operator=(ref_or_ptr &&arg)
+{
+	base_ref::operator=(functionrefptr_conv<base_ref, ref_or_ptr>
+			    ::conv(std::forward<ref_or_ptr>(arg)));
+	return *this;
+}
 
-	explicit operator bool() const noexcept
-	{
-		return base_ref::operator bool();
-	}
+//! Assign a null value, effectively clearing the \ref functionptr "functionptr".
 
-	//! Implement boolean operator.
+//! Only implemented for \ref functionptr "functionptr"s.
+template<typename base_ref,
+	 typename return_type,
+	 typename ...Args>
+inline auto &functionrefptr_impl<base_ref, return_type(Args...)>
+::operator=(std::nullptr_t v)
+{
+	base_ref::operator=(v);
+	return *this;
+}
 
-	//! Only implemented for \ref functionptr "functionptr"s.
-	bool operator!() const noexcept
-	{
-		return base_ref::operator !();
-	}
-
-	//! Invoke the wrapped callable object.
-	template<typename ...callArgs>
-	auto operator()(callArgs && ...args) const
-	{
-		return this->operator*()(std::forward<callArgs>(args)...);
-	}
-
-	//! Assignment operator.
-
-	//! Figures out if this is assigning from a different reference-counted
-	//! function object, or from another callable object.
-
-	template<typename ref_or_ptr,
-		 typename=typename functionrefptr_impl_constructible
-		 <class_t, std::decay_t<ref_or_ptr>, std::tuple<Args...>>
-		 ::type_t>
-	inline auto &operator=(ref_or_ptr &&arg)
-	{
-		base_ref::operator=(functionrefptr_conv<base_ref, ref_or_ptr>
-				    ::conv(std::forward<ref_or_ptr>(arg)));
-		return *this;
-	}
-
-	//! Assign a null value, effectively clearing the \ref functionptr "functionptr".
-
-	//! Only implemented for \ref functionptr "functionptr"s.
-	inline auto &operator=(std::nullptr_t v)
-	{
-		base_ref::operator=(v);
-		return *this;
-	}
-};
 
 //! Implement ref and ptr traits for \ref functionref "function objects".
 

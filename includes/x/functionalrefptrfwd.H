@@ -7,6 +7,7 @@
 #define x_functionalrefptrfwd_H
 
 #include <x/ptrfwd.H>
+#include <type_traits>
 
 namespace LIBCXX_NAMESPACE {
 #if 0
@@ -18,6 +19,87 @@ template<typename signature> class functionBase;
 
 template<typename type,
 	 typename signature> class functionrefptr_impl;
+
+//! SFINAE for \ref "reference-counted function object"'s constructor overload resolution.
+
+//! \internal
+
+template<typename functionrefptr_impl_t,
+	 typename constructor_parameter_t,
+	 typename tuple_args_t,
+	 typename=void> struct functionrefptr_impl_constructible;
+
+//! Implementation of a \ref functionref "reference-counted function object".
+
+//! Inherits of a \ref ref "ref" or a \ref ptr "ptr" and implements the \c () operator.
+
+template<typename base_ref,
+	 typename return_type,
+	 typename ...Args>
+class functionrefptr_impl<base_ref, return_type(Args...)> : public base_ref {
+
+	using base_ref::create;
+
+	typedef functionrefptr_impl<base_ref, return_type(Args...)> class_t;
+
+public:
+
+	//! Default constructor.
+
+	//! Only implemented for \ref functionptr "functionptr"s.
+
+	functionrefptr_impl();
+
+	//! Pretty much the default constructor.
+
+	//! Only implemented for \ref functionptr "functionptr"s.
+	functionrefptr_impl(std::nullptr_t);
+
+	//! Constructor
+
+	//! Determines whether this instance should be copy-constructed
+	//! from another, existing, function object; or create a new one
+	//! that uses the callable object that gets passed as a parameter.
+
+	template<typename ref_or_ptr,
+		 typename=typename functionrefptr_impl_constructible
+		 <class_t, std::decay_t<ref_or_ptr>, std::tuple<Args...>>
+		 ::type_t>
+	functionrefptr_impl(ref_or_ptr &&v);
+
+	using base_ref::operator *;
+
+	//! Implement boolean operator.
+
+	//! Only implemented for \ref functionptr "functionptr"s.
+
+	explicit operator bool() const noexcept;
+
+	//! Implement boolean operator.
+
+	//! Only implemented for \ref functionptr "functionptr"s.
+	bool operator!() const noexcept;
+
+	//! Invoke the wrapped callable object.
+	template<typename ...callArgs>
+	auto operator()(callArgs && ...args) const;
+
+	//! Assignment operator.
+
+	//! Figures out if this is assigning from a different reference-counted
+	//! function object, or from another callable object.
+
+	template<typename ref_or_ptr,
+		 typename=typename functionrefptr_impl_constructible
+		 <class_t, std::decay_t<ref_or_ptr>, std::tuple<Args...>>
+		 ::type_t>
+	auto &operator=(ref_or_ptr &&arg);
+
+	//! Assign a null value, effectively clearing the \ref functionptr "functionptr".
+
+	//! Only implemented for \ref functionptr "functionptr"s.
+	auto &operator=(std::nullptr_t v);
+};
 
 //! A reference-counted \ref function "function object".
 

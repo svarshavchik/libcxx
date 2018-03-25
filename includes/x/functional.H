@@ -69,7 +69,7 @@ public:
 	//! Constructor
 	template<typename functor_arg>
 	function_impl(functor_arg &&functorArg)
-		: functor(std::forward<functor_arg>(functorArg))
+		: functor{std::forward<functor_arg>(functorArg)}
 	{
 	}
 
