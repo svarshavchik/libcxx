@@ -20,7 +20,7 @@ template<typename signature> class functionBase;
 template<typename type,
 	 typename signature> class functionrefptr_impl;
 
-//! SFINAE for \ref "reference-counted function object"'s constructor overload resolution.
+//! SFINAE for \ref functionref "reference-counted function object"'s constructor overload resolution.
 
 //! \internal
 

@@ -141,7 +141,7 @@ struct functionrefptr_conv<base_ref, ref_or_ptr,
 	}
 };
 
-//! SFINAE for \ref "reference-counted function object"'s constructor overload resolution.
+//! SFINAE for \ref functionref "reference-counted function object"'s constructor overload resolution.
 
 //! \internal
 template<typename functionrefptr_impl_t,

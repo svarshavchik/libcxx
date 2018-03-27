@@ -6,36 +6,14 @@ See COPYING for distribution information.
 -->
 
 <section id="news">
-  <title>Announcing release 0.11 of &app;</title>
+  <title>Release 0.12 of &app;</title>
 
   <para>
-    New features and major API changes:
+    This is a minor release that updates
+    <link linkend="functionalref"><classname>&ns;::functionref</classname>
+      and <classname>&ns;::functionptr</classname></link> templates to be
+    more similar to <classname>std::function</classname> in usage.
   </para>
-
-  <itemizedlist>
-    <listitem>
-      <para>
-	New <classname>&ns;::cups</classname> namespace implements support
-	for the <link linkend="cups">major functions of the CUPS library</link>.
-      </para>
-    </listitem>
-
-    <listitem>
-      <para>
-	Cleanup of locale-related <classname>&ns;::ymd</classname>,
-	<classname>&ns;::hms</classname>, and
-	<classname>&ns;::ymdhms</classname> classes to improve compatibility
-	with the C++ library's locale functionality.
-      </para>
-    </listitem>
-
-    <listitem>
-      <para>
-	Other <classname>&ns;::locale</classname> fixes.
-	<function>&ns;::locale::global()</function> returns a singleton.
-      </para>
-    </listitem>
-  </itemizedlist>
 </section>
 
 <!--

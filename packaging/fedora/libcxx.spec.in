@@ -15,7 +15,7 @@ Source0: libcxx-%{version}.tar.bz2
 %define _hardened_build 1
 
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root
-BuildRequires: courier-unicode-devel
+BuildRequires: courier-unicode-devel >= 2.0
 BuildRequires: gettext
 BuildRequires: gnutls-devel
 BuildRequires: libgcrypt-devel
