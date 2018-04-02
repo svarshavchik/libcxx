@@ -71,7 +71,6 @@ public:
 			if (stop_calling(value))
 				return value;
 		}
-
 		return default_value();
 	}
 

@@ -167,7 +167,7 @@ inline bool const_ref<objClass, baseClass>
 ::operator==(const const_ref<objClass2, baseClass2> &o)
 	const noexcept
 {
-	return p == o;
+	return p == o.p;
 }
 
 //! C++11 allows pointer comparisons.
@@ -177,7 +177,7 @@ inline bool const_ref<objClass, baseClass>
 ::operator!=(const const_ref<objClass2, baseClass2> &o)
 	const noexcept
 {
-	return p != o;
+	return p != o.p;
 }
 
 //! Comparison operator
@@ -211,7 +211,7 @@ inline bool const_ref<objClass, baseClass>
 ::operator<(const const_ref<objClass2, baseClass2> &o)
 	const noexcept
 {
-	return p < o;
+	return p < o.p;
 }
 
 //! C++11 allows pointer comparisons.
@@ -221,7 +221,7 @@ inline bool const_ref<objClass, baseClass>
 ::operator>=(const const_ref<objClass2, baseClass2> &o)
 	const noexcept
 {
-	return p >= o;
+	return p >= o.p;
 }
 
 //! Comparison operator
@@ -255,7 +255,7 @@ inline bool const_ref<objClass, baseClass>
 ::operator>(const const_ref<objClass2, baseClass2> &o)
 	const noexcept
 {
-	return p < o;
+	return p < o.p;
 }
 
 //! C++11 allows pointer comparisons.
@@ -265,7 +265,7 @@ inline bool const_ref<objClass, baseClass>
 ::operator<=(const const_ref<objClass2, baseClass2> &o)
 	const noexcept
 {
-	return p >= o;
+	return p >= o.p;
 }
 
 //! Forward create() to the base type

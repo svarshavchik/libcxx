@@ -2510,22 +2510,30 @@ static void testfditer()
 	}
 }
 
+class not_obj : virtual public LIBCXX_NAMESPACE::obj {};
+
+template<typename a_type, typename b_type>
 void testequality()
 {
-	auto ra=LIBCXX_NAMESPACE::ref<LIBCXX_NAMESPACE::obj>::create(),
-		rb=LIBCXX_NAMESPACE::ref<LIBCXX_NAMESPACE::obj>::create();
+	auto ra=LIBCXX_NAMESPACE::ref<a_type>::create();
+	auto rb=LIBCXX_NAMESPACE::ref<b_type>::create();
 
-	LIBCXX_NAMESPACE::const_ref<LIBCXX_NAMESPACE::obj> cra=ra, crb=rb;
+	LIBCXX_NAMESPACE::const_ref<a_type> cra=ra;
+	LIBCXX_NAMESPACE::const_ref<b_type> crb=rb;
 
-	LIBCXX_NAMESPACE::ptr<LIBCXX_NAMESPACE::obj> pa=ra, pb=rb, pc;
+	LIBCXX_NAMESPACE::ptr<a_type> pa=ra;
+	LIBCXX_NAMESPACE::ptr<b_type> pb=rb;
+	LIBCXX_NAMESPACE::ptr<LIBCXX_NAMESPACE::obj> pc;
 
-	LIBCXX_NAMESPACE::ptr<LIBCXX_NAMESPACE::obj> cpa=ra, cpb=rb, cpc;
+	LIBCXX_NAMESPACE::const_ptr<a_type> cpa=ra;
+	LIBCXX_NAMESPACE::const_ptr<b_type> cpb=rb;
+	LIBCXX_NAMESPACE::const_ptr<LIBCXX_NAMESPACE::obj> cpc;
 
 #define COMPAREOP(a,op,b)						\
 	do {								\
 		COMPARE(a op b);					\
-		COMPARE(a < b || a >= b);				\
-		COMPARE(a > b || a <= b);				\
+		COMPARE((a < b ? 1:0)+(a >= b ? 1:0) == 1);		\
+		COMPARE((a > b ? 1:0)+(a <= b ? 1:0) == 1);		\
 	} while (0)
 
 #define COMPARE(x) if (!(x)) { std::cout <<  "Test failed: " #x << std::endl; exit(1); }
@@ -2595,6 +2603,21 @@ void testequality()
 	COMPAREOP(cpc , != , cpa);
 	COMPAREOP(cpc , != , cpb);
 	COMPAREOP(cpc , == , cpc);
+}
+
+class undeclaredObj;
+
+bool foo(const LIBCXX_NAMESPACE::ref<undeclaredObj> &a,
+	 const LIBCXX_NAMESPACE::ref<undeclaredObj> &b)
+{
+	static_assert(sizeof(a) == sizeof(LIBCXX_NAMESPACE::obj *),
+		      "No extra overhead");
+
+	static_assert(sizeof(LIBCXX_NAMESPACE::ref<LIBCXX_NAMESPACE::obj>)
+		      == sizeof(LIBCXX_NAMESPACE::obj *),
+		      "No extra overhead");
+
+	return a == b;
 }
 
 void testsentry()
@@ -2822,7 +2845,9 @@ int main()
 
 	alarm(0);
 	testfditer();
-	testequality();
+	testequality<LIBCXX_NAMESPACE::obj, LIBCXX_NAMESPACE::obj>();
+	testequality<LIBCXX_NAMESPACE::obj, not_obj>();
+	testequality<not_obj, LIBCXX_NAMESPACE::obj>();
 	testmp();
 	testobjinit();
 	return 0;

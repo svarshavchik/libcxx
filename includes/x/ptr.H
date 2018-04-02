@@ -171,12 +171,74 @@ inline auto const_ptr<objClass,baseClass>::create(Args_t &&...args)
 //! C++11 allows pointer comparisons.
 
 template<typename objClass, typename baseClass>
+inline bool const_ptr<objClass, baseClass>::operator==(const const_ptr<objClass, baseClass> &o)
+	const noexcept
+{
+	return std::equal_to<objClass *>::operator()(this->refP, o.refP);
+}
+
+//! Comparison operator
+
+//! C++11 allows pointer comparisons.
+template<typename objClass, typename baseClass>
+inline bool const_ptr<objClass, baseClass>::operator!=(const const_ptr<objClass, baseClass> &o)
+	const noexcept
+{
+	return !operator==(o);
+}
+
+//! Comparison operator
+
+//! C++11 allows pointer comparisons.
+template<typename objClass, typename baseClass>
+inline bool const_ptr<objClass, baseClass>::operator<(const const_ptr<objClass, baseClass> &o)
+	const noexcept
+{
+	return std::less<objClass *>::operator()(this->refP, o.refP);
+}
+
+//! Comparison operator
+
+//! C++11 allows pointer comparisons.
+template<typename objClass, typename baseClass>
+inline bool const_ptr<objClass, baseClass>::operator>=(const const_ptr<objClass, baseClass> &o)
+	const noexcept
+{
+	return !operator<(o);
+}
+
+//! Comparison operator
+
+//! C++11 allows pointer comparisons.
+template<typename objClass, typename baseClass>
+inline bool const_ptr<objClass, baseClass>::operator>(const const_ptr<objClass, baseClass> &o)
+	const noexcept
+{
+	return o < *this;
+}
+
+//! Comparison operator
+
+//! C++11 allows pointer comparisons.
+template<typename objClass, typename baseClass>
+inline bool const_ptr<objClass, baseClass>::operator<=(const const_ptr<objClass, baseClass> &o)
+	const noexcept
+{
+	return !operator>(o);
+}
+
+
+//! Comparison operator
+
+//! C++11 allows pointer comparisons.
+
+template<typename objClass, typename baseClass>
 template<typename objClass2, typename baseClass2>
 inline bool const_ptr<objClass,baseClass>::
 operator==(const const_ptr<objClass2, baseClass2> &o)
 	const noexcept
 {
-	return this->refP == o.refP;
+	return std::equal_to<obj *>::operator()(this->refP, o.refP);
 }
 
 //! Comparison operator
@@ -205,7 +267,7 @@ inline bool const_ptr<objClass,baseClass>
 ::operator==(const const_ref<objClass2, baseClass2> &o)
 	const noexcept
 {
-	return operator==(const_ptr<objClass2, baseClass2>(o));
+	return std::equal_to<obj *>::operator()(this->refP, o.p.refP);
 }
 
 //! Comparison operator
@@ -234,7 +296,7 @@ inline bool const_ptr<objClass,baseClass>
 ::operator<(const const_ptr<objClass2, baseClass2> &o)
 	const noexcept
 {
-	return std::less<obj *>()(this->refP, o.refP);
+	return std::less<obj *>::operator()(this->refP, o.refP);
 }
 
 //! Comparison operator
@@ -262,7 +324,7 @@ inline bool const_ptr<objClass,baseClass>
 ::operator<(const const_ref<objClass2, baseClass2> &o)
 	const noexcept
 {
-	return operator<(const_ptr<objClass2, baseClass2>(o));
+	return std::less<obj *>::operator()(this->refP, o.p.refP);
 }
 
 //! Comparison operator
@@ -291,7 +353,7 @@ inline bool const_ptr<objClass,baseClass>
 ::operator>(const const_ptr<objClass2, baseClass2> &o)
 	const noexcept
 {
-	return std::greater<obj *>()(this->refP, o.refP);
+	return o < *this;
 }
 
 //! Comparison operator
@@ -320,7 +382,7 @@ inline bool const_ptr<objClass,baseClass>
 ::operator>(const const_ref<objClass2, baseClass2> &o)
 	const noexcept
 {
-	return operator>(const_ptr<objClass2, baseClass2>(o));
+	return o < *this;
 }
 
 //! Comparison operator

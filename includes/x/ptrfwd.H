@@ -7,6 +7,7 @@
 #define x_ptrfwd_H
 
 #include <utility>
+#include <functional>
 #include <type_traits>
 #include <x/namespace.h>
 #include <x/ptrimpl.H>
@@ -16,6 +17,20 @@ namespace LIBCXX_NAMESPACE {
 #if 0
 };
 #endif
+
+class obj;
+
+//! Helper base class for \ref const_ptr "const_ptr".
+
+template<typename objClass>
+struct ptr_comparisons : std::less<obj *>,
+	std::equal_to<obj *>,
+	std::less<objClass *>,
+	std::equal_to<objClass *> {};
+
+template<>
+struct ptr_comparisons<obj> : std::less<obj *>,
+	std::equal_to<obj *> {};
 
 //! A pointer to a reference-counted constant object. \anchor ptrAnchor
 
@@ -33,8 +48,9 @@ namespace LIBCXX_NAMESPACE {
 //! other
 //! way around.
 
-template<typename objClass,
-	 typename baseClass> class const_ptr : public ptrImpl<objClass> {
+template<typename objClass, typename baseClass>
+class const_ptr : public ptrImpl<objClass>,
+		  protected ptr_comparisons<objClass> {
 public:
 
 	using ptrImpl<objClass>::operator bool;
@@ -106,6 +122,24 @@ public:
 
 	template<typename... Args_t>
 	static auto create(Args_t &&...args) LIBCXX_INLINE;
+
+	bool operator==(const const_ptr<objClass, baseClass> &o)
+		const noexcept LIBCXX_INLINE;
+
+	bool operator!=(const const_ptr<objClass, baseClass> &o)
+		const noexcept LIBCXX_INLINE;
+
+	bool operator<(const const_ptr<objClass, baseClass> &o)
+		const noexcept LIBCXX_INLINE;
+
+	bool operator>=(const const_ptr<objClass, baseClass> &o)
+		const noexcept LIBCXX_INLINE;
+
+	bool operator>(const const_ptr<objClass, baseClass> &o)
+		const noexcept LIBCXX_INLINE;
+
+	bool operator<=(const const_ptr<objClass, baseClass> &o)
+		const noexcept LIBCXX_INLINE;
 
 	template<typename objClass2, typename baseClass2>
 	bool operator==(const const_ptr<objClass2, baseClass2> &o)
@@ -552,6 +586,9 @@ protected:
 public:
 	template<typename objClass2>
 	friend class ptrImpl;
+
+	template<typename objClass2, typename baseClass2>
+	friend class const_ptr;
 
 	//! Define this pointer's base class.
 
