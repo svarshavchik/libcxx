@@ -478,20 +478,31 @@ uid_t singletonapp::validate_peer(const httportmap &portmapper,
 	    !connection->recv_credentials(uc))
 	{
 		errno=ETIMEDOUT;
-		throw SYSEXCEPTION("singletonapp");
+		throw SYSEXCEPTION("singletonapp (recv_credentials check failed)");
 	}
 
-	if ((sameuser && uc.uid != getuid())
-	    || exename() != portmapper->pid2exe(uc.pid))
+	if (sameuser && uc.uid != getuid())
 	{
 		errno=EPERM;
-		throw SYSEXCEPTION("singletonapp");
+		throw SYSEXCEPTION("singletonapp (uid mismatch: "
+				   << uc.uid << " vs " << getuid() << ")");
+	}
+
+	auto my_exename=exename();
+	auto pid2exe=portmapper->pid2exe(uc.pid);
+
+	if (my_exename != pid2exe)
+	{
+		errno=EPERM;
+		throw SYSEXCEPTION("singletonapp (" << pid2exe
+				   << " connected to "
+				   << my_exename << ")");
 	}
 
 	if (connection->write("", 1) != 1)
 	{
 		errno=EIO;
-		throw SYSEXCEPTION("singletonapp");
+		throw SYSEXCEPTION("singletonapp (write() failed)");
 	}
 
 	char dummy;
@@ -501,7 +512,7 @@ uid_t singletonapp::validate_peer(const httportmap &portmapper,
 	    connection->read(&dummy, 1) != 1)
 	{
 		errno=ETIMEDOUT;
-		throw SYSEXCEPTION("singletonapp");
+		throw SYSEXCEPTION("singletonapp (poll() failed)");
 	}
 
 	connection->nonblock(false);
