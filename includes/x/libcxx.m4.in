@@ -6,12 +6,10 @@ libcxx_pkgdatadir="`$PKG_CONFIG --variable=pkgdatadir libcxx`"
 CFLAGS="$CFLAGS `$PKG_CONFIG --cflags libcxx`"
 CXXFLAGS="$CXXFLAGS -std=c++17 `$PKG_CONFIG --cflags libcxx`"
 LDFLAGS="$LDFLAGS `$PKG_CONFIG --libs libcxx`"
-STDTHREAD_CXXFLAGS="`$PKG_CONFIG --variable STDTHREAD_CXXFLAGS libcxx`"
 CC="`$PKG_CONFIG --variable=CC libcxx`"
 CXX="`$PKG_CONFIG --variable=CXX libcxx`"
 LIBCXX_AM="include $libcxx_pkgdatadir/*.mk"
 AC_SUBST([LIBCXX_AM])
-AC_SUBST([STDTHREAD_CXXFLAGS])
 
 LIBCXX_OPTGEN="$libcxx_pkgdatadir/optgen.xsl"
 AC_SUBST([LIBCXX_OPTGEN])

@@ -96,7 +96,7 @@ LIBS="$libcxx_save_LIBS"
 
 # Also update -std in includes/x/libcxx.m4.in
 # and in docbook/core.xml
-CXXFLAGS="$CXXFLAGS -std=c++17 -fno-omit-frame-pointer"
+CXXFLAGS="$CXXFLAGS -std=c++17 -fno-omit-frame-pointer -pthread"
 
 AC_CHECK_PROGS(XML2_CONFIG,xml2-config,none)
 if test "$XML2_CONFIG" = "none"
@@ -310,59 +310,6 @@ AC_SUBST(LIBCXX_LOCALE_T)
 AC_SUBST(LIBCXX_LOCALE_SAVE_ENV_T)
 AC_SUBST(LIBCXX_LOCALE_T_GLOBLOCK)
 AC_SUBST(HAVE_XLOCALE)
-
-AC_CACHE_CHECK([whether std::thread requires -pthread],
-               [libcxx_cv_pthread],
-[
-libcxx_cv_pthread=""
-libcxx_save_CXXFLAGS="$CXXFLAGS"
-
-   AC_TRY_LINK([
-#include <thread>
-
-void foo(int)
-{
-}
-
-], [
-    std::thread x{foo, 0};
-    ],
-    [
-       libcxx_cv_pthread="no"
-    ],
-
-    [
-        CXXFLAGS="$CXXFLAGS -lpthread"
-
-	AC_TRY_LINK([
-#include <thread>
-
-void foo(int)
-{
-}
-], [
-     std::thread x{foo, 0};
-], [
-      libcxx_cv_pthread="yes"
-      ], [
-
-      AC_MSG_ERROR("Cannot link a test program that uses std::thread")
-]
-
-
-	)
-]
-)
-CXXFLAGS="$libcxx_save_CXXFLAGS"
-])
-
-STDTHREAD_CXXFLAGS=""
-if test "$libcxx_cv_pthread" = "yes"
-then
-	STDTHREAD_CXXFLAGS="-pthread"
-fi
-
-AC_SUBST(STDTHREAD_CXXFLAGS)
 
 AC_CACHE_CHECK([whether std::time_get implements date_order],
                [libcxx_cv_time_get_date_order],

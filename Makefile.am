@@ -132,13 +132,12 @@ libcxx.pc: Makefile
 	echo "includedir=${includedir}" >>libcxx.pc.tmp
 	echo "CC=$(CC)" >>libcxx.pc.tmp
 	echo "CXX=$(CXX)" >>libcxx.pc.tmp
-	echo "STDTHREAD_CXXFLAGS=@STDTHREAD_CXXFLAGS@" >>libcxx.pc.tmp
 	echo "" >>libcxx.pc.tmp
 	echo "Name: libcxx" >>libcxx.pc.tmp
 	echo "Description: libcxx library" >>libcxx.pc.tmp
 	echo "Version: @VERSION@" >>libcxx.pc.tmp
 	echo "Requires.private: gnutls" >>libcxx.pc.tmp
-	echo "Cflags: -fno-omit-frame-pointer" >>libcxx.pc.tmp
+	echo "Cflags: -fno-omit-frame-pointer -pthread" >>libcxx.pc.tmp
 	mv -f libcxx.pc.tmp libcxx.pc
 
 CLEANFILES=libcxx.pc abi.xml header.html $(man_MANS)

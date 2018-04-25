@@ -80,7 +80,6 @@ LIBCXX_INIT</programlisting>
 	      <programlisting>
 @LIBCXX_AM@
 
-AM_CXXFLAGS=@STDTHREAD_CXXFLAGS@
 bin_PROGRAMS=application
 
 application_SOURCES=source1.C source2.C
@@ -100,11 +99,6 @@ application_LDADD=-lcxx</programlisting>
       flags (currently <quote><option>&buildoptions;</option></quote>).
       The <quote>-export-dynamic</quote> compiler flag is also recommended,
       but is not required.
-      The <literal>@STDTHREAD_CXXFLAGS@</literal> substitution variable gets
-      set to any additional flags required for compiling and linking with
-      thread classes and functions, specifically:
-      <link linkend="ethreads"><function>&ns;::run</function>()</link> and
-      <link linkend="msgdispatcherrun"><function>&ns;::start_threadmsgdispatcher</function>()</link>.
     </para>
 
     <para>

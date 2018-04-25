@@ -9,7 +9,7 @@
 <!ENTITY nopthreadcancel SYSTEM "nopthreadcancel.xml">
 <!ENTITY singletonlimits SYSTEM "singletonlimits.xml">
 
-<!ENTITY buildoptions "-std=c++17 -fno-omit-frame-pointer">
+<!ENTITY buildoptions "-std=c++17 -fno-omit-frame-pointer -pthread">
 
 <!ENTITY intro SYSTEM "intro.xml">
 <!ENTITY core SYSTEM "core.xml">
@@ -107,7 +107,6 @@
 <!ENTITY gcrypt "<application>Libgcrypt</application>">
 <!ENTITY automakeintro SYSTEM "automakeintro.inc.xml">
 <!ENTITY automakelibxinit SYSTEM "automakelibxinit.inc.xml">
-<!ENTITY stdthread_cxxflags SYSTEM "stdthread_cxxflags.inc.xml">
 
 <!ENTITY xml "<acronym>XML</acronym>">
 

@@ -206,8 +206,6 @@ auto clinstance = myClass::create();
       </informalexample>
     </blockquote>
 
-    &stdthread_cxxflags;
-
     <para>
       <ulink url="&link-function-x-start-threadmsgdispatcher;"><function>&ns;::start_threadmsgdispatcher</function></ulink>
       must be used to start an execution thread for a subclass of

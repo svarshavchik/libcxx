@@ -45,18 +45,28 @@ namespace LIBCXX_NAMESPACE {
 template<typename obj_type,
 	 typename baseClass> class singleton {
 
+	//! The instance on the main thread's local object pool, and its pointer
+
+	struct static_instance_t {
+
+		//! Pointer to the instance.
+
+		obj_type *instance=nullptr;
+
+		//! The mutex.
+
+		std::mutex instance_mutex;
+	};
+
+
+private:
 	//! The instance on the main thread's local object pool.
 
-	static obj_type *instance;
-
-	//! A mutex that protects instance
-
-	static std::mutex instance_mutex;
+	static static_instance_t static_instance;
 
 	//! A wrapper that sets/clears the instance pointer
 
-	//! This get stashed away into the main thread's local scope.
-	//!
+	//! This get stashed away into the main thread's local scope.	//!
 
 	class wrapperObj : virtual public obj {
 
@@ -67,14 +77,16 @@ template<typename obj_type,
 		//! Constructor
 		wrapperObj() : p(ref<obj_type, baseClass>::create())
 		{
-			instance=&*p; // Already protected
+			static_instance.instance=&*p; // Already protected
 		}
 
 		//! Destructor
 		~wrapperObj()
 		{
-			std::unique_lock<std::mutex> lock(instance_mutex);
-			instance=0;
+			std::unique_lock<std::mutex> lock{
+				static_instance.instance_mutex
+					};
+			static_instance.instance=0;
 		}
 	};
 
@@ -99,9 +111,11 @@ public:
 	{
 		ptr<wrapperObj> wrapped;
 
-		std::unique_lock<std::mutex> lock(instance_mutex);
+		std::unique_lock<std::mutex> lock{
+			static_instance.instance_mutex
+				};
 
-		if (!instance)
+		if (!static_instance.instance)
 		{
 			wrapped=ptr<wrapperObj>::create();
 
@@ -109,17 +123,16 @@ public:
 				::mainscope_pushstrongobjects(wrapped);
 		}
 
-		return (ref<obj_type, baseClass>(instance));
+		return ref<obj_type, baseClass>{static_instance.instance};
 	}
 };
 
-template<typename obj_type,
-	 typename baseClass>
-obj_type *singleton<obj_type, baseClass>::instance=0;
 
-template<typename obj_type,
-	 typename baseClass>
-std::mutex singleton<obj_type, baseClass>::instance_mutex;
+template<typename obj_type, typename baseClass> typename
+singleton<obj_type, baseClass>::static_instance_t singleton<obj_type,
+							    baseClass
+							    >::static_instance;
+
 
 #if 0
 {
