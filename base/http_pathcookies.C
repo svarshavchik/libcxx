@@ -23,6 +23,7 @@ pathcookiesObj::~pathcookiesObj()
 
 bool pathcookiesObj::cmp::operator()(const ref<storedcookieObj> &a,
 				     const ref<storedcookieObj> &b)
+	const noexcept
 {
 	return a->name < b->name;
 }

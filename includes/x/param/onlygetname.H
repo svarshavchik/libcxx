@@ -39,6 +39,12 @@ public:
 	static std::string
 	get_name(enum_t value, const const_locale &localeRef);
 
+	//! An invalid name was specified
+
+	static void nosuchname(const std::string &name,
+			       const const_locale &localeRef)
+		__attribute__((noreturn));
+
 	//! Synthesize get_enum()
 	static enum_t get_enum(const std::string &name,
 			       const const_locale &localeRef)
@@ -60,13 +66,8 @@ public:
 		}
 
 		nosuchname(name, localeRef);
+		return enum_t{}; // gcc 8 compiler warning
 	}
-
-	//! An invalid name was specified
-
-	static void nosuchname(const std::string &name,
-			       const const_locale &localeRef)
-		__attribute__((noreturn));
 
 };
 

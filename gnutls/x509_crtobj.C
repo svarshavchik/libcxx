@@ -208,7 +208,7 @@ void gnutls::x509::crtObj::sign(const gnutls::x509::crt &issuer,
 				const gnutls::x509::privkey &issuer_key)
 
 {
-	return sign(issuer, issuer_key, GNUTLS_DIG_SHA1);
+	return sign(issuer, issuer_key, GNUTLS_DIG_SHA256);
 }
 
 void gnutls::x509::crtObj::sign(const gnutls::x509::crt &issuer,
@@ -323,7 +323,7 @@ std::string gnutls::x509::crtObj::get_dn(const std::string &oid) const
 	{
 		o << sep;
 		sep="\n";
-		
+
 		std::vector<char> n;
 
 		n.reserve(dnList.front()->size()+1);
@@ -550,7 +550,7 @@ std::string gnutls::x509::crtObj::get_issuer_dn(const std::string &oid)
 	{
 		o << sep;
 		sep="\n";
-		
+
 		std::vector<char> n;
 
 		n.reserve(dnList.front()->size()+1);

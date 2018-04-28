@@ -111,10 +111,6 @@ public:
 
 	gnutls_mac_algorithm_t getMac() const;
 
-	//! Return the negotiated compression algorithm
-
-	gnutls_compression_method_t getCompression() const;
-
 	//! Return a generic description of this session's encryption suite
 
 	//! \return a string of the form "cipher/kx/mac(/compression)?"

@@ -117,7 +117,7 @@ static void except( void (*func)(),
 {
 	try {
 		(*func)();
-	} catch (LIBCXX_NAMESPACE::exception)
+	} catch (const LIBCXX_NAMESPACE::exception &)
 	{
 		return;
 	}
@@ -507,4 +507,3 @@ int main(int argc, char **argv)
 	}
 	return (0);
 }
-

@@ -24,7 +24,8 @@ class pathcookiesObj : public cookie, virtual public obj {
 
 		//! Comparator function
 		bool operator()(const ref<storedcookieObj> &a,
-				const ref<storedcookieObj> &b) LIBCXX_HIDDEN;
+				const ref<storedcookieObj> &b) const noexcept
+			LIBCXX_HIDDEN;
 	};
 
  public:

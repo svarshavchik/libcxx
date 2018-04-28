@@ -257,7 +257,7 @@ public:
 	}
 
 	bool operator()(const filetime &a,
-			const filetime &b) noexcept
+			const filetime &b) const noexcept
 	{
 		return a.mtime < b.mtime;
 	}

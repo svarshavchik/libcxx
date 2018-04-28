@@ -414,7 +414,7 @@ static void fdtest()
 		}
 
 		{
-			LIBCXX_NAMESPACE::fd tmp=LIBCXX_NAMESPACE::fd::base::tmpfile();
+			LIBCXX_NAMESPACE::fd tmp=LIBCXX_NAMESPACE::fd::base::tmpfile(".");
 
 			tmp->futimens();
 

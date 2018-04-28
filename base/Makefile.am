@@ -6,7 +6,6 @@
 include $(shell pwd)/../includes/x/libcxx.mk
 
 AM_CPPFLAGS=-I . -I $(srcdir)/../includes -I ../includes $(LIBXML2_CFLAGS)
-AM_CXXFLAGS=@STDTHREAD_CXXFLAGS@
 
 LDFLAGS += -export-dynamic
 

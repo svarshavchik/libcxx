@@ -142,15 +142,18 @@ std::set<std::string> basic_attr::listattr()
 
 	std::set<std::string> newset;
 
-	char *b=&buf[0], *e=&buf[l];
-
-	while (b < e)
+	if (l > 0)
 	{
-		char *p=std::find(b, e, 0);
+		char *b=&buf[0], *e=b+l;
 
-		newset.insert(std::string(b, p));
-		if ((b=p) < e)
-			++b;
+		while (b < e)
+		{
+			char *p=std::find(b, e, 0);
+
+			newset.insert(std::string(b, p));
+			if ((b=p) < e)
+				++b;
+		}
 	}
 
 	return newset;

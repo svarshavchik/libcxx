@@ -42,38 +42,6 @@ gnutls_cipher_algorithm_t gnutls::sessionBase::get_cipher_id(std::string name)
 	return a;
 }
 
-void gnutls::sessionBase
-::get_compression_list(std::list<gnutls_compression_method_t>
-		       &listRet) noexcept
-{
-	const gnutls_compression_method_t *a=gnutls_compression_list();
-
-	while (*a)
-		listRet.push_back(*a++);
-}
-
-
-std::string gnutls::sessionBase
-::get_compression_name(gnutls_compression_method_t a)
-{
-	const char *n=gnutls_compression_get_name(a);
-
-	if (!n)
-		throw EXCEPTION("Unknown compression method");
-
-	return n;
-}
-
-gnutls_compression_method_t
-gnutls::sessionBase::get_compression_id(std::string name)
-{
-	gnutls_compression_method_t n=gnutls_compression_get_id(name.c_str());
-
-	if (n == GNUTLS_COMP_UNKNOWN)
-		throw EXCEPTION("Unknown compression name: " + name);
-	return n;
-}
-
 void gnutls::sessionBase::get_kx_list(std::list<gnutls_kx_algorithm_t>
 				      &listRet) noexcept
 {

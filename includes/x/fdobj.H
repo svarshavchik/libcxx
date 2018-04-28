@@ -1273,15 +1273,19 @@ private:
 
 			size_t buffer_s=buffer.size();
 
-			const char *buffer_p=&buffer[0];
-
-			while (buffer_s)
+			if (buffer_s)
 			{
-				size_t n=filedesc < 0 ? buffer_s
-					:write(buffer_p, buffer_s);
+				const char *buffer_p=&buffer[0];
 
-				buffer_p += n;
-				buffer_s -= n;
+				while (buffer_s)
+				{
+					size_t n=(filedesc < 0)
+						? buffer_s
+						:write(buffer_p, buffer_s);
+
+					buffer_p += n;
+					buffer_s -= n;
+				}
 			}
 
 		} while(buffer.size() > 0);

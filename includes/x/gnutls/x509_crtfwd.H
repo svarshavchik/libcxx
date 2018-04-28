@@ -148,7 +148,7 @@ namespace gnutls {
 //! \endcode
 //!
 //! The third optional parameter to sign() is the signature algorithm,
-//! which defaults to \c GNUTLS_DIG_SHA1. The signature algorithm is actually
+//! which defaults to \c GNUTLS_DIG_SHA256. The signature algorithm is actually
 //! a \ref digest_algorithm "digest_algoritm" object that can be initialized by
 //! a literal \c GNUTLS_DIG or by a string like "sha1".
 //!

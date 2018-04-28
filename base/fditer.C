@@ -183,12 +183,15 @@ void fdoutputiter::flush()
 
 	o.fd=fdbaseptr();
 
-	const char *p=&o.buffer[0];
-	size_t n=o.buf_ptr;
+	if (o.buf_ptr)
+	{
+		const char *p=&o.buffer[0];
+		size_t n=o.buf_ptr;
 
-	o.buf_ptr=0;
+		o.buf_ptr=0;
 
-	fdSave->write_full(p, n);
+		fdSave->write_full(p, n);
+	}
 
 	if (o.buffer.empty())
 		o.buffer.resize(o.requested_buf_size);

@@ -1,3 +1,13 @@
+2018-04-28  Sam Varshavchik  <mrsam@courier-mta.com>
+
+	* gnutls/x509_crtobj.C (sign): Default to SHA256 when creating
+	certificate signatures.
+
+	* gnutls/session.C: Remove support for obsoleted GnuTLS compression
+	settings.
+
+	* Misc fixes for Fedora 28/gcc 8 hardened builds.
+
 2018-04-25  Sam Varshavchik  <mrsam@courier-mta.com>
 
 	* Always use -pthread, not optional.

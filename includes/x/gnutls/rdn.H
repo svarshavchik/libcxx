@@ -94,7 +94,8 @@ OutputIterator raw_get_oid_iter(//! Output iterator
 
 	for (i=0; raw_get_oid_internal(datum, i, oid, value, value_s, raw); ++i)
 	{
-		*iter++=value_type(&value[0], &value[value_s]);
+		if (value_s)
+			*iter++=value_type(&value[0], &value[0]+value_s);
 	}
 
 	return iter;

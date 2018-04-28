@@ -79,50 +79,6 @@ public:
 	static gnutls_cipher_algorithm_t get_cipher_id(//! Cipher's name
 						       std::string name);
 
-	//! Retrieve the list of all known compression methods
-
-	//! This function retrieves the list of all compression methods
-	//! implemented by GnuTLS.
-	//!
-	//! \code
-	//! std::list<gnutls_compression_method_t> compression_list;
-	//!
-	//! gnutls::session::get_compression_list(compression_list);
-	//! \endcode
-	//!
-	//! See also:
-	//! \link get_compression_name() gnutls::session::get_compression_name()\endlink,
-	//! \link get_compression_id() gnutls::session::get_compression_id()\endlink.
-
-	static void get_compression_list(//! The list of known compression methods is placed here
-					 std::list<gnutls_compression_method_t>
-					 &listRet) noexcept;
-
-	//! Return the name of a compression_method
-
-	//! \code
-	//! std::string n=gnutls::session_get_compression_name(GNUTLS_COMP_DEFLATE);
-	//! \endcode
-	//!
-	//! \return the compression method's name. An %exception gets thrown if
-	//! the compression method is not known.
-	static std::string get_compression_name(//! Compression id
-						gnutls_compression_method_t a);
-
-	//! Return the compression method id, given its name
-
-	//! \code
-	//! gnutls_compression_method_t comp=
-	//!     gnutls::session::get_compression_id("DEFLATE");
-	//! \endcode
-	//!
-	//! \return the compression method's ID. An %exception gets thrown if
-	//! the compression method is not known.
-
-	static gnutls_compression_method_t
-	get_compression_id(//! Compression name
-			   std::string name);
-
 	//! Retrieve the list of all known key exchange algorithms
 
 	//! This function retrieves the list of all key exchange algorithms

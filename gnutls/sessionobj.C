@@ -501,25 +501,13 @@ gnutls_mac_algorithm_t gnutls::sessionObj::getMac() const
 	return gnutls_mac_get(sess);
 }
 
-gnutls_compression_method_t gnutls::sessionObj::getCompression()
-	const
-{
-	LOCK_SESSION;
-
-	return gnutls_compression_get(sess);
-}
-
 std::string gnutls::sessionObj::getSuite() const
 {
 	LOCK_SESSION;
 
-	gnutls_compression_method_t comp=getCompression();
-
 	return gnutls::session::base::get_cipher_name(getCipher()) + "/"
 		+ gnutls::session::base::get_kx_name(getKx()) + "/"
-		+ gnutls::session::base::get_mac_name(getMac())
-		+ (comp == GNUTLS_COMP_UNKNOWN || comp == GNUTLS_COMP_NULL
-		   ? "": "/" + gnutls::session::base::get_compression_name(comp));
+		+ gnutls::session::base::get_mac_name(getMac());
 }
 
 bool gnutls::sessionObj::bye(int &direction,

@@ -316,7 +316,7 @@ namespace senderimpl_encode {
 						std::string s(o.str());
 
 						iter=std::copy(&chunkbuf[0],
-							       &chunkbuf[i],
+							       &chunkbuf[0]+i,
 							       std::copy
 							       (s.begin(),
 								s.end(), iter)

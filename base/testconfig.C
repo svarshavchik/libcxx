@@ -37,8 +37,9 @@ void testconfig()
 	configdir("testconfig3@libcxx.com");
 
 	unlink((dir + "/.exe").c_str());
-	symlink("/does/../not/../exist",
-		(dir + "/.exe").c_str());
+	if (symlink("/does/../not/../exist",
+		    (dir + "/.exe").c_str()))
+		;
 	configdir("testconfig@libcxx.com");
 
 	// Makes sure that the symlink is updated.
