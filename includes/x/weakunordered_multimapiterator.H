@@ -16,7 +16,6 @@ namespace LIBCXX_NAMESPACE {
 
 //! Specialization for processing of the return value from std::unordered_multimap::insert().
 
-template<>
 template<typename K, typename V, typename H, typename KE, typename A>
 class weakmapiteratorOps<std::unordered_multimap<K, V, H, KE, A> > {
 

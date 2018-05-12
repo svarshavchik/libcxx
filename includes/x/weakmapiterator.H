@@ -16,7 +16,6 @@ namespace LIBCXX_NAMESPACE {
 
 //! Specialization for processing of the return value from std::map::insert().
 
-template<>
 template<typename K, typename V, typename C, typename A>
 class weakmapiteratorOps<std::map<K, V, C, A> > {
 

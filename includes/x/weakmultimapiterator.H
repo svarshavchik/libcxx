@@ -16,7 +16,6 @@ namespace LIBCXX_NAMESPACE {
 
 //! Specialization for processing of the return value from std::multimap::insert().
 
-template<>
 template<typename K, typename V, typename C, typename A>
 class weakmapiteratorOps<std::multimap<K, V, C, A> > {
 
