@@ -53,6 +53,9 @@ public:
 	//! The \c message/rfc822 content type
 	static const char message_rfc822[];
 
+	//! The \c message/global content type
+	static const char message_global[];
+
 	//! First word, the value
 
 	std::string value;
@@ -186,8 +189,8 @@ public:
 
 	std::string mime_content_subtype() const;
 
-	//! Whether the MIME content type/subtype is message/rfc822
-	bool is_message_rfc822() const;
+	//! Whether the MIME content type/subtype is message/rfc822 or message/global
+	bool is_message() const;
 
 	//! Whether the MIME content type is multipart
 	bool is_multipart() const;

@@ -38,6 +38,9 @@ const char structured_content_header::multipart_form_data[]=
 const char structured_content_header::message_rfc822[]=
 	"message/rfc822";
 
+const char structured_content_header::message_global[]=
+	"message/global";
+
 class structured_content_header::parser {
 
 	structured_content_header &h;
@@ -518,7 +521,7 @@ std::string structured_content_header::mime_content_subtype() const
 	return s;
 }
 
-bool structured_content_header::is_message_rfc822() const
+bool structured_content_header::is_message() const
 {
 	std::string s=value;
 
@@ -526,7 +529,7 @@ bool structured_content_header::is_message_rfc822() const
 		       s.end(),
 		       s.begin(),
 		       std::ptr_fun(chrcasecmp::tolower));
-	return s == message_rfc822;
+	return s == message_rfc822 || s == message_global;
 }
 
 bool structured_content_header::is_multipart() const

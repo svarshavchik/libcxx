@@ -1,7 +1,7 @@
 /*
 ** Copyright 2012 Double Precision, Inc.
 ** See COPYING for distribution information.
-*/ 
+*/
 #ifndef x_mime_entityparser_H
 #define x_mime_entityparser_H
 
@@ -352,7 +352,7 @@ auto make_multipart_parser(const std::string &boundary,
 //! The second parameter is a \ref sectioninfo "sectioninfo" object that
 //! make_entity_parser() passed to section processor factory for
 //! the MIME entity that's calling make_parser().
-//! 
+//!
 //! The third parameter is a section processor factory lambda or a functor.
 //!
 //! The second and third parameters get passed to
@@ -374,7 +374,7 @@ outputrefiterator<int> make_parser(const structured_content_header &hdr,
 				   section_processor_type && section_processor,
 				   body_processor_type && body_processor)
 {
-	if (hdr.is_message_rfc822())
+	if (hdr.is_message())
 		return make_message_rfc822_parser
 			(std::forward<section_processor_type>
 			 (section_processor), info);

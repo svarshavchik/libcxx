@@ -414,7 +414,7 @@ void tzfileObj::load_file(fd &tzfileObj,
 
 	int v=parse_tzhead<int32_t>(tzname, i, true);
 
-	if (v == '2')
+	if (v != 0)
 	{
 		v=parse_tzhead<int64_t>(tzname, i, sizeof(time_t) == 8);
 

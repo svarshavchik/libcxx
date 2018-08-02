@@ -1,3 +1,10 @@
+2018-08-02  Sam Varshavchik  <mrsam@courier-mta.com>
+
+	* includes/x/mime/entityparser.H: recognize message/global in addition
+	to message/rfc822.
+
+	* base/tzfileobj.C: Recognize TZ file format 3.
+
 2018-04-28  Sam Varshavchik  <mrsam@courier-mta.com>
 
 	* gnutls/x509_crtobj.C (sign): Default to SHA256 when creating
