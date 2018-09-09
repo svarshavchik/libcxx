@@ -11,8 +11,10 @@ bool used_specialization=false;
 
 #include "x/join.H"
 #include "x/exception.H"
+#include "x/algorithm.H"
 #include <list>
 #include <iostream>
+#include <utility>
 
 template<typename T>
 void testjoin()
@@ -69,12 +71,72 @@ void testwjoin()
 
 }
 
+void testsortby()
+{
+	std::vector<size_t> order_by={6,3,5,4,2,0,1,7};
+	std::vector<std::string> arr={"6","3","5","4","2","0","1", "7"};
+
+	LIBCXX_NAMESPACE::sort_by(order_by,
+				  [&]
+				  (size_t a, size_t b)
+				  {
+					  std::swap(arr.at(a),
+						    arr.at(b));
+				  });
+
+	if (arr != std::vector<std::string>{"0","1","2","3","4","5","6","7"})
+		throw EXCEPTION("testsortby failed (1)");
+
+	order_by={6,3,5,4,1,0,1,7};
+
+	bool caught=false;
+
+	try {
+
+		LIBCXX_NAMESPACE::sort_by(order_by,
+					  [&]
+					  (size_t a, size_t b)
+					  {
+						  std::swap(arr.at(a),
+							    arr.at(b));
+					  });
+	} catch (...)
+	{
+		caught=true;
+	}
+
+	if (!caught)
+		throw EXCEPTION("testsortby failed (2)");
+
+	order_by={6,3,5,8,2,0,1,7};
+
+	caught=false;
+
+	try {
+
+		LIBCXX_NAMESPACE::sort_by(order_by,
+					  [&]
+					  (size_t a, size_t b)
+					  {
+						  std::swap(arr.at(a),
+							    arr.at(b));
+					  });
+	} catch (...)
+	{
+		caught=true;
+	}
+
+	if (!caught)
+		throw EXCEPTION("testsortby failed (3)");
+}
+
 int main(int argc, char **argv)
 {
 	try {
 		testjoin<std::string>();
 		testwjoin<std::wstring>();
 		testjoin<const char *>();
+		testsortby();
 	} catch (const LIBCXX_NAMESPACE::exception &e)
 	{
 		std::cout << "testjoin: "

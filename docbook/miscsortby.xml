@@ -1,0 +1,59 @@
+<!--
+
+Copyright 2018 Double Precision, Inc.
+See COPYING for distribution information.
+
+-->
+
+<chapter id="sort_by">
+  <title>Sorting by indexes</title>
+
+  <blockquote>
+    <informalexample>
+      <programlisting>
+#include &lt;&ns;/algorithm.H&gt;
+
+std::vector&lt;size_t&gt; order_by={6,3,5,4,2,0,1,7};
+std::vector&lt;std::string&gt; arr={"G","D","F","E","C","A","B","H"};
+
+&ns;::sort_by(order_by,
+              [&amp;]
+              (size_t a, size_t b)
+              {
+                  std::swap(arr.at(a),arr.at(b));
+              });
+      </programlisting>
+    </informalexample>
+  </blockquote>
+
+  <para>
+    <ulink url="&link-function-x-sort-by;"><function>&ns;::sort_by</function></ulink>
+    facilitates sorting an array by specifying the new order of the values in
+    the array.
+    <function>&ns;::sort_by</function>()'s first parameter is a
+    <classname>std::vector&lt;size_t&gt;</classname> with strictly increasing
+    values starting with 0, so a vector of size 8 will always have values 0
+    through 7, in some order.
+  </para>
+
+  <para>
+    <function>&ns;::sort_by</function>() sorts the vector in place.
+    <function>&ns;::sort_by</function>()'s second parameter is a closure
+    that takes two <classname>size_t</classname> parameters, whose values
+    are always two valid vector indexes, and the closure gets called
+    to indicate that the specified values in the vector should be swapped.
+  </para>
+
+  <para>
+    Using the closure to invoke <function>std::swap</function> on another
+    vector results in that vector getting sorted accoding to the indexes
+    specified by the first vector. The above examples results in both
+    vector getting sorted.
+  </para>
+</chapter>
+<!--
+Local Variables:
+mode: sgml
+sgml-parent-document: ("book.xml" "part" "chapter")
+End:
+-->

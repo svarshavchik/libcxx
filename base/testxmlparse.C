@@ -16,7 +16,7 @@
 #include <fstream>
 #include <iterator>
 #include <unistd.h>
-	
+
 static LIBCXX_NAMESPACE::xml::doc parse(const std::string &str)
 {
 	return std::copy(str.begin(), str.end(),
@@ -396,7 +396,7 @@ void test6()
 					"value3"});
 	if (lock->get_attribute("attr2", "http://www.example.com") != "value2")
 		throw EXCEPTION("prefix:name attribute() failed");
-	
+
 	if (lock->get_attribute("attr3", "http://www.example.com/x") != "value3")
 		throw EXCEPTION("prefix, namespace attribute() failed");
 
@@ -627,7 +627,7 @@ void test20()
 			throw EXCEPTION("test20: read lock external subset fail");
 
 	}
-	
+
 	unlink("teeny.dtd");
 }
 
@@ -1149,6 +1149,21 @@ static void test50()
 		throw EXCEPTION("test50 did not catch the expected exception");
 }
 
+void test60()
+{
+	if (LIBCXX_NAMESPACE::xml::quote_string_literal("foo", '\'')
+	    != "'foo'" ||
+	    LIBCXX_NAMESPACE::xml::quote_string_literal("ba\"r")
+	    != "\"ba\"\"r\"" ||
+	    LIBCXX_NAMESPACE::xml::quote_string_literal("b\"a\"r")
+	    != "\"b\"\"a\"\"r\"" ||
+	    LIBCXX_NAMESPACE::xml::quote_string_literal("bar\"")
+	    != "\"bar\"\"\"" ||
+	    LIBCXX_NAMESPACE::xml::quote_string_literal("\"bar")
+	    != "\"\"\"bar\"")
+		throw EXCEPTION("quote_string_literal failed");
+}
+
 int main(int argc, char **argv)
 {
 	try {
@@ -1175,6 +1190,7 @@ int main(int argc, char **argv)
 
 		test40();
 		test50();
+		test60();
 	} catch (LIBCXX_NAMESPACE::exception &e)
 	{
 		std::cerr << e << std::endl;
@@ -1182,4 +1198,3 @@ int main(int argc, char **argv)
 	}
 	return (0);
 }
-

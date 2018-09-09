@@ -63,6 +63,7 @@
 <!ENTITY misctimespec SYSTEM "misctimespec.xml">
 <!ENTITY miscfmtsize SYSTEM "miscfmtsize.xml">
 <!ENTITY miscvector SYSTEM "miscvector.xml">
+<!ENTITY miscsortby SYSTEM "miscsortby.xml">
 <!ENTITY miscsortedvector SYSTEM "miscsortedvector.xml">
 <!ENTITY misccsv SYSTEM "misccsv.xml">
 <!ENTITY miscjoiniterator SYSTEM "miscjoiniterator.xml">
@@ -170,6 +171,7 @@ See COPYING for distribution information.
 
     &number;
     &visitor;
+    &miscsortby;
     &miscconfig;
     &miscfunctional;
     &miscsentry;

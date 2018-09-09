@@ -1771,6 +1771,26 @@ impldocObj::readlockImplObj::get_xpath(const std::string &expr)
 					 expr);
 }
 
+std::string quote_string_literal(const std::string &str, char quote)
+{
+	std::string p;
+
+	size_t i=0;
+	size_t n;
+
+	char double_quote[]={quote, quote, 0};
+
+	while ((n=str.find(quote, i)) != std::string::npos)
+	{
+		p=p+str.substr(i, n-i) + double_quote;
+		i=n+1;
+	}
+
+	double_quote[1]=0;
+
+	return double_quote + p+str.substr(i) + double_quote;
+}
+
 #if 0
 {
 	{

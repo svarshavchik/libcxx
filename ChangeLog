@@ -1,3 +1,11 @@
+2018-09-09  Sam Varshavchik  <mrsam@courier-mta.com>
+
+	* base/algorithm.C: Added sort_by().
+
+2018-09-07  Sam Varshavchik  <mrsam@courier-mta.com>
+
+	* includes/x/xml/doc.H: Added quote_string_literal().
+
 2018-08-02  Sam Varshavchik  <mrsam@courier-mta.com>
 
 	* includes/x/mime/entityparser.H: recognize message/global in addition

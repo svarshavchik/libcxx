@@ -50,6 +50,7 @@ libcxx_la_SOURCES=\
 	ymd_internal.h		\
 	xml_internal.h		\
 \
+	algorithm.C		\
 	basicattr.C		\
 	callback.C		\
 	chrcasecmp.C		\

@@ -819,6 +819,15 @@ public:
 	typedef const_ptr<docObj::xpathObj> const_xpathptr;
 };
 
+//! Quote a string literal
+
+//! Return the passed in string, sandwiched in between quotes, ""s.
+//!
+//! Quote characters in the passed-in string get doubled.
+
+std::string quote_string_literal(const std::string &str,
+				 char quote='"');
+
 #if 0
 {
 	{
