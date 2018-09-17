@@ -89,7 +89,7 @@ public:
 	template<typename other_value_type>
 	static inline constexpr bool is_overflows(other_value_type value)
 	{
-		return value < std::numeric_limits<to_value_type>::min();
+		return value < std::numeric_limits<to_value_type>::lowest();
 	}
 };
 
@@ -239,7 +239,7 @@ public:
 	{
 		if (number_min_overflows<to_value_type, from_value_type>
 		    ::is_overflows(value))
-			return std::numeric_limits<to_value_type>::min();
+			return std::numeric_limits<to_value_type>::lowest();
 
 		if (number_max_overflows<to_value_type, from_value_type>
 		    ::is_overflows(value))
@@ -404,7 +404,7 @@ public:
 		return *this;
 	}
 
-	//! If the given number overflows or underflows, truncate it to max() or min().
+	//! If the given number overflows or underflows, truncate it to max() or lowest().
 
 	template<typename other_value_type>
         static constexpr value_type_t truncate(other_value_type &&vn) {

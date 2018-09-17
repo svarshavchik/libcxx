@@ -554,6 +554,10 @@ int main()
 			std::cout << "Something's wrong" << std::endl;
 			exit(1);
 		}
+
+		if (LIBCXX_NAMESPACE::number<double, void>::truncate(-8.0)
+		    != -8)
+			throw EXCEPTION("double.truncate is wrong");
 	} catch (const LIBCXX_NAMESPACE::exception &e)
 	{
 		e->caught();

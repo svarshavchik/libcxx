@@ -1,3 +1,8 @@
+2018-09-16  Sam Varshavchik  <mrsam@courier-mta.com>
+
+	* includes/x/number.H: number::truncate() should use lowest()
+	instead of min().
+
 2018-09-09  Sam Varshavchik  <mrsam@courier-mta.com>
 
 	* base/algorithm.C: Added sort_by().
