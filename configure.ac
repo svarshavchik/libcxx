@@ -3,7 +3,7 @@
 # See COPYING for distribution information.
 
 AC_PREREQ(2.61)
-AC_INIT(libcxx, 0.12, [mrsam@courier-mta.com])
+AC_INIT(libcxx, 0.13, [mrsam@courier-mta.com])
 
 AC_CONFIG_SRCDIR([includes/x/obj.H])
 AC_CONFIG_HEADER([libcxx_config.h])
@@ -712,7 +712,7 @@ AC_SUBST(CUPS_LIBS)
 
 AC_SUBST(LIBCXX_NAMESPACE,x)
 
-VERSION_INFO=12:0:0
+VERSION_INFO=13:0:0
 AC_SUBST(VERSION_INFO)
 
 test "x$prefix" = xNONE && prefix=$ac_default_prefix

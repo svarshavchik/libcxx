@@ -6,13 +6,12 @@ See COPYING for distribution information.
 -->
 
 <section id="news">
-  <title>Release 0.12 of &app;</title>
+  <title>Release 0.13 of &app;</title>
 
   <para>
-    This is a minor release that updates
-    <link linkend="functionalref"><classname>&ns;::functionref</classname>
-      and <classname>&ns;::functionptr</classname></link> templates to be
-    more similar to <classname>std::function</classname> in usage.
+    This is a minor release that adds the
+    <ulink url="&link-function-x-sort-by;">><function>&ns;::sort_by</function></ulink>
+    algorithm, minor fixes, and GnuTLS updates.
   </para>
 </section>
 
