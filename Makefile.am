@@ -121,24 +121,25 @@ rpm:
 
 pkgconfdir=@PKGCONFIGDIR@
 
-pkgconf_DATA=libcxx.pc
+pkgconf_DATA=libcxx-@ABIVER@.pc
 
-libcxx.pc: Makefile
+libcxx-@ABIVER@.pc: Makefile
 	echo "prefix=${prefix}" >libcxx.pc.tmp
 	echo "exec_prefix=${exec_prefix}" >>libcxx.pc.tmp
 	echo "datadir=${datadir}" >>libcxx.pc.tmp
-	echo "pkgdatadir=${pkgdatadir}" >>libcxx.pc.tmp
-	echo "libdir=${libdir}" >>libcxx.pc.tmp
-	echo "includedir=${includedir}" >>libcxx.pc.tmp
+	echo "pkgdatadir=${pkgdatadir}-@ABIVER@" >>libcxx.pc.tmp
+	echo "libdir=${libdir}/libcxx-@ABIVER@" >>libcxx.pc.tmp
+	echo "includedir=${includedir}/libcxx-@ABIVER@" >>libcxx.pc.tmp
 	echo "CC=$(CC)" >>libcxx.pc.tmp
 	echo "CXX=$(CXX)" >>libcxx.pc.tmp
 	echo "" >>libcxx.pc.tmp
-	echo "Name: libcxx" >>libcxx.pc.tmp
+	echo "Name: libcxx-@ABIVER@" >>libcxx.pc.tmp
 	echo "Description: libcxx library" >>libcxx.pc.tmp
 	echo "Version: @VERSION@" >>libcxx.pc.tmp
 	echo "Requires.private: gnutls" >>libcxx.pc.tmp
-	echo "Cflags: -fno-omit-frame-pointer -pthread" >>libcxx.pc.tmp
-	mv -f libcxx.pc.tmp libcxx.pc
+	echo "Cflags: -std=c++17 -fno-omit-frame-pointer -pthread -I$(includedir)/libcxx-@ABIVER@" >>libcxx.pc.tmp
+	echo "Libs: -L${libdir}/libcxx-@ABIVER@ -Wl,-rpath -Wl,${libdir}/libcxx-@ABIVER@" >>libcxx.pc.tmp
+	mv -f libcxx.pc.tmp libcxx-@ABIVER@.pc
 
 CLEANFILES=libcxx.pc abi.xml header.html $(man_MANS)
 

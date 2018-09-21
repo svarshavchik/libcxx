@@ -1107,7 +1107,7 @@ int main(int argc, char **argv)
     <blockquote>
       <informalexample>
 	<programlisting>
-include /usr/share/libcxx/libcxx.mk
+include /usr/share/libcxx-<replaceable>version</replaceable>/libcxx.mk
 
 $(call OPTIONS_GEN,cliopts.H,cliopts.xml)</programlisting>
       </informalexample>

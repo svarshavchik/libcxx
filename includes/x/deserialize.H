@@ -262,7 +262,7 @@ public:
 		o << tname(typecode);
 
 		return false;
-	}			
+	}
 };
 
 //! %Deserialize something that's not a native integer, perhaps it's a float
@@ -368,7 +368,7 @@ public:
 	template<typename iter_type>
 	void deserialize_type(//! Place %deserialized value here
 			      result_type &value,
-			 
+
 			      //! The deserialization iterator
 			      iter_type &i)
 	{
@@ -421,7 +421,7 @@ public:
 
 		o << "]";
 		return false;
-	}			
+	}
 };
 //! Deserialize something that's not a container, perhaps it's an object
 
@@ -474,7 +474,7 @@ public:
 	template<typename iter_type>
 	void deserialize_type(//! Place %deserialized value here
 			      result_type &value,
-			 
+
 			      //! The deserialization iterator
 			      iter_type &i)
 	{
@@ -545,7 +545,7 @@ public:
 			err_flag=true;
 			return false;
 		}
-		
+
 		if (!first_value.verify_type(i))
 			return false;
 
@@ -560,7 +560,7 @@ public:
 	template<typename iter_type>
 	void deserialize_type(//! Place %deserialized value here
 			      result_type &value,
-			 
+
 			      //! The deserialization iterator
 			      iter_type &i)
 	{
@@ -589,7 +589,7 @@ public:
 		o << ">";
 
 		return false;
-	}			
+	}
 };
 
 //! Deserialize an object pointer
@@ -639,7 +639,7 @@ public:
 	template<typename iter_type>
 	void deserialize_type(//! Place %deserialized value here
 			      result_type &value,
-			 
+
 			      //! The deserialization iterator
 			      iter_type &i)
 
@@ -669,7 +669,7 @@ public:
 		bool flag=reference_value.output_type(o, err_type);
 		o << ">";
 		return flag;
-	}			
+	}
 
 };
 
@@ -720,7 +720,7 @@ public:
 	template<typename iter_type>
 	void deserialize_type(//! Place %deserialized value here
 			      result_type &value,
-			 
+
 			      //! The deserialization iterator
 			      iter_type &i)
 
@@ -751,7 +751,7 @@ public:
 		bool flag=reference_value.output_type(o, err_type);
 		o << ">";
 		return flag;
-	}			
+	}
 
 };
 
@@ -771,7 +771,7 @@ class deserialize_object {
 	template<typename iter_type>
 	bool verify_typename(//! Expected type name
 			     const char *cp,
-			     
+
 			     //! The deserialization iterator
 			     iter_type &i)
 	{
@@ -830,7 +830,7 @@ public:
 	template<typename iter_type>
 	void deserialize_type(//! Place %deserialized value here
 			      result_type &value,
-			 
+
 			      //! The deserialization iterator
 			      iter_type &i)
 	{
@@ -851,7 +851,7 @@ public:
 		  << ">";
 
 		return false;
-	}			
+	}
 };
 
 //! Deserialize the name of an object
@@ -1003,7 +1003,7 @@ public:
 	//! a class that implements:
 	//!
 	//! - An overloaded deserialized() method for each class
-	//! that may be deserialized. 
+	//! that may be deserialized.
 	//!
 	//! - A classlist() template function.
 	//!
@@ -1027,7 +1027,7 @@ public:
 	//! Each class enumerated by classlist should have
 	//! a constructor that takes a reference to an \c object_iter_type
 	//! as a parameter. The instance of the deserialized class
-	//! gets constructed with the \c object_iter_type 
+	//! gets constructed with the \c object_iter_type
 	//! instance passed to it
 	//! as a parameter. The class should probably have a default
 	//! constructor as well, since the same class is presumably
@@ -1071,10 +1071,8 @@ public:
 
 			//! Deserialize
 
-			virtual void deserialize(object_iter_type
-						 &objRef,
-						 iterator &i)
-=0;
+			virtual void deserialize(object_iter_type &objRef,
+						 iterator &i)=0;
 		};
 
 		//! Deserialization implemented for a given class
@@ -1099,8 +1097,7 @@ public:
 					 object_iter_type &objRef,
 
 					 //! Iterator over the serialized bytestream
-					 iterator &i)
-
+					 iterator &i) override
 			{
 				obj_type objInstance(objRef);
 
@@ -1126,8 +1123,8 @@ public:
 
 		    //! The deserialization handler
 		    object_iter_type &objRefArg)
- : iter(iterArg),
-					   objRef(objRefArg)
+			: iter(iterArg),
+			  objRef(objRefArg)
 		{
 			objRef.classlist(*this);
 		}
@@ -1233,4 +1230,3 @@ static void object(//! Object to %deserialize
 	}
 }
 #endif
-

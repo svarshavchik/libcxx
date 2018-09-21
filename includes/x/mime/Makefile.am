@@ -3,7 +3,7 @@
 # See COPYING for distribution information.
 #
 
-headerdir=$(includedir)/x/mime
+headerdir=$(includedir)/libcxx-@ABIVER@/x/mime
 
 header_HEADERS = $(shell cd $(srcdir) && ls *.H *.h 2>/dev/null)
 

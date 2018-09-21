@@ -3,7 +3,7 @@
 # See COPYING for distribution information.
 
 AC_PREREQ(2.61)
-AC_INIT(libcxx, 0.13, [mrsam@courier-mta.com])
+AC_INIT(libcxx, 0.13.0, [mrsam@courier-mta.com])
 
 AC_CONFIG_SRCDIR([includes/x/obj.H])
 AC_CONFIG_HEADER([libcxx_config.h])
@@ -21,6 +21,30 @@ AM_GNU_GETTEXT_VERSION([0.19.6])
 AC_LANG(C++)
 
 XGETTEXT_EXTRA_OPTIONS="--keyword=_txt --keyword=_txtw --keyword=_txtn:1,2 --keyword=_txtnw:1,2 \`cd \$(top_srcdir); echo cups/*.C gnutls/*.C base/*.C yaml/*.C\`"
+
+# VERSION_INFO is:
+#
+#   libtool's -version-info
+#
+# ABIVER is, basically, the major version, the ABI version.
+#
+#   $libdir/libcxx-$ABIVER
+#
+#   $includedir/libcxx-$ABIVER
+#
+#   $datadir/libcxx-$ABIVER
+#
+#   $pkgdatadir/libcxx-$ABIVER
+#
+# Our package $VERSION is:
+#
+#   $libdir/pkgconfig/libcxx-$VERSION.pc
+#   $datadir/aclocak/libcxx-$VERSION.m4
+#
+ABIVER=0.13
+AC_SUBST(ABIVER)
+VERSION_INFO=13:0:0
+AC_SUBST(VERSION_INFO)
 
 # Checks for libraries.
 
@@ -94,7 +118,7 @@ AC_LINK_IFELSE(
 ])],[:],[AC_MSG_ERROR([The Courier Unicode Library 1.2 appears not to be installed. You may need to install a separate development subpackage, in addition to the main package])])
 LIBS="$libcxx_save_LIBS"
 
-# Also update -std in includes/x/libcxx.m4.in
+# Also update the flags placed into libcxx.pc in the Makefile.am
 # and in docbook/core.xml
 CXXFLAGS="$CXXFLAGS -std=c++17 -fno-omit-frame-pointer -pthread"
 
@@ -711,9 +735,6 @@ AC_SUBST(CUPS_LDFLAGS)
 AC_SUBST(CUPS_LIBS)
 
 AC_SUBST(LIBCXX_NAMESPACE,x)
-
-VERSION_INFO=13:0:0
-AC_SUBST(VERSION_INFO)
 
 test "x$prefix" = xNONE && prefix=$ac_default_prefix
 test "x$exec_prefix" = xNONE && exec_prefix='${prefix}'

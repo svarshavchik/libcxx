@@ -38,7 +38,8 @@ gcrypt_md.h: Makefile
 	rm -f gcrypt_md.tmp.C
 	mv -f gcrypt_md.h.tmp gcrypt_md.h
 
-lib_LTLIBRARIES=libcxxtls.la
+abilibdir=$(libdir)/libcxx-@ABIVER@
+abilib_LTLIBRARIES=libcxxtls.la
 
 libcxxtls_la_SOURCES=\
 	credentials_callbackobj.C	\

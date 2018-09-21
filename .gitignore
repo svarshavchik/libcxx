@@ -23,7 +23,7 @@ Makefile.in
 /html
 /INSTALL
 /install-sh
-/libcxx.pc
+/libcxx*.pc
 /libcxx_config.h
 /libcxx_config.h.in
 /libltdl

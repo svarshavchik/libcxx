@@ -1,15 +1,24 @@
+# serial @VERSION@
+
 AC_DEFUN([LIBCXX_INIT],[
 PKG_PROG_PKG_CONFIG
-PKG_CHECK_EXISTS([libcxx >= @VERSION@],[:],[AC_MSG_ERROR([LibCXX package @VERSION@, or higher not found])])
 
-libcxx_pkgdatadir="`$PKG_CONFIG --variable=pkgdatadir libcxx`"
-CFLAGS="$CFLAGS `$PKG_CONFIG --cflags libcxx`"
-CXXFLAGS="$CXXFLAGS -std=c++17 `$PKG_CONFIG --cflags libcxx`"
-LDFLAGS="$LDFLAGS `$PKG_CONFIG --libs libcxx`"
-CC="`$PKG_CONFIG --variable=CC libcxx`"
-CXX="`$PKG_CONFIG --variable=CXX libcxx`"
+if test "$LIBCXX_VERSION" = ""
+then
+	LIBCXX_VERSION="@ABIVER@"
+fi
+
+PKG_CHECK_EXISTS([libcxx-$LIBCXX_VERSION],[:],[AC_MSG_ERROR([LibCXX version $LIBCXX_VERSION not found])])
+
+libcxx_pkgdatadir="`$PKG_CONFIG --variable=pkgdatadir libcxx-$LIBCXX_VERSION`"
+CFLAGS="$CFLAGS `$PKG_CONFIG --cflags libcxx-$LIBCXX_VERSION`"
+CXXFLAGS="$CXXFLAGS `$PKG_CONFIG --cflags libcxx-$LIBCXX_VERSION`"
+LDFLAGS="$LDFLAGS `$PKG_CONFIG --libs libcxx-$LIBCXX_VERSION`"
+CC="`$PKG_CONFIG --variable=CC libcxx-$LIBCXX_VERSION`"
+CXX="`$PKG_CONFIG --variable=CXX libcxx-$LIBCXX_VERSION`"
 LIBCXX_AM="include $libcxx_pkgdatadir/*.mk"
 AC_SUBST([LIBCXX_AM])
+AC_SUBST([LIBCXX_VERSION])
 
 LIBCXX_OPTGEN="$libcxx_pkgdatadir/optgen.xsl"
 AC_SUBST([LIBCXX_OPTGEN])

@@ -10,7 +10,7 @@ See COPYING for distribution information.
 
   <para>
     This is a minor release that adds the
-    <ulink url="&link-function-x-sort-by;">><function>&ns;::sort_by</function></ulink>
+    <ulink url="&link-function-x-sort-by;"><function>&ns;::sort_by</function></ulink>
     algorithm, minor fixes, and GnuTLS updates.
   </para>
 </section>

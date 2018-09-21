@@ -1233,7 +1233,7 @@ template <
       <blockquote>
 	<informalexample>
 	  <programlisting>
-include /usr/share/libcxx/libcxx.mk
+include /usr/share/libcxx-<replaceable>version</replaceable>/libcxx.mk
 
 $(call THREADMSGDISPATCHER_GEN,errorlog.H,errorlog.xml)</programlisting>
 	</informalexample>

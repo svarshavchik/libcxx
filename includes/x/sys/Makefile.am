@@ -3,7 +3,7 @@
 # See COPYING for distribution information.
 #
 
-headerdir=$(includedir)/x/sys
+headerdir=$(includedir)/libcxx-@ABIVER@/x/sys
 
 header_HEADERS = $(shell cd $(srcdir) && ls *.h 2>/dev/null)
 

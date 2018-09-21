@@ -1,4 +1,4 @@
-headerdir=$(includedir)/x/http
+headerdir=$(includedir)/libcxx-@ABIVER@/x/http
 
 header_HEADERS = $(shell cd $(srcdir) && echo *.H)
 

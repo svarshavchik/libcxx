@@ -154,67 +154,55 @@ kit-1 -o managedsingleton managedsingleton.o  /usr/lib64/libcxx.so -lpthread -lr
     <itemizedlist>
       <listitem>
 	<para>
+	  Use <command>pkgconf/pkg-config</command> to extract the relevant
+	  configuration settings:
+	</para>
+
+	<itemizedlist>
+	  <listitem>
+	    <para>
+	      <option>--cflags</option> and
+	      <option>--libs</option> compiler flags for building and
+	      linking C++ source.
+	    </para>
+	  </listitem>
+	  <listitem>
+	    <para>
+	      The
+	      <option>--variable=pkgdatadir</option> option returns
+	      the directory with <filename>makefile</filename> fragments
+	      for the <link linkend="optgenmake">options parser
+		generator</link>, <link linkend="msgdispatchergen">thread-based
+		message dispatcher generator</link>, and other supporting
+	      tools.
+	    </para>
+	  </listitem>
+	  <listitem>
+	    <para>
+	      The
+	      <option>--variable=CXX</option> and
+	      <option>--variable=CC</option> options returns
+	      the compiler invocation commands.
+	    </para>
+	  </listitem>
+	</itemizedlist>
+      </listitem>
+      <listitem>
+	<para>
 	  Link with <literal>-lcxx</literal>;
 	  <literal>-lcxxtls</literal> gets the
 	  <link linkend="gnutls">GnuTLS-based classes</link>.
 	  Also, link with
 	  <literal>-lrt</literal>, and
 	  <literal>-lpcre</literal>.
-	  On most Linux distirbutions
-	  the <literal>-pthread</literal> compiler and link flag must be
-	  used when using any thread-based methods and classes,
+	  Most Linux distributions also require
+	  the <literal>-pthread</literal> compiler and link flag
+	  even if without direct usage of thread-related methods and
+	  classes
 	  like <link linkend="ethreads"><function>&ns;::run</function>()</link>,
 	  or <link linkend="msgdispatcherrun"><function>&ns;::start_threadmsgdispatcher</function></link>.
-	</para>
-      </listitem>
-
-      <listitem>
-	<para>
-	  <literal>LIBCXX_INIT</literal> sets the C compiler to the same one
-	  that was used to build &app; and the correct options
-	  (<quote><option>&buildoptions;</option></quote>).
-	</para>
-      </listitem>
-
-      <listitem>
-	<para>
-	  The <link linkend="optgenmake"><literal>OPTIONS_GEN</literal></link>
-	  macro runs an <acronym>XSLT</acronym> processor on the
-	  <filename>optgen.xsl</filename> stylesheet in
-	  <replaceable>pkgdatadir</replaceable>, which is usually
-	  <filename>/usr/share/libcxx</filename> or
-	  <filename>/usr/local/share/libcxx</filename>.
-	</para>
-      </listitem>
-
-      <listitem>
-	<para>
-	  The <link linkend="msgdispatchermake"><literal>MSGDISPATCHER_GEN</literal></link>
-	  macro runs an <acronym>XSLT</acronym> processor on the
-	  <filename>msgdispatcher.xsl</filename> stylesheet in
-	  <replaceable>pkgdatadir</replaceable>, which is usually
-	  <filename>/usr/share/libcxx</filename> or
-	  <filename>/usr/local/share/libcxx</filename>.
-	</para>
-
-	<para>
-	  The second parameter to the <literal>MSGDISPATCHER_GEN</literal>
-	  macro is the <varname>mode</varname> stylesheet parameter.
-	  Invoking <literal>MSGDISPATCHER_GEN</literal> with a list of modes
-	  runs the stylesheet once, for each mode.
-	  The macro forms the output filename, as described in
-	  <xref linkend="msgdispatcher" /> by including the mode name in the
-	  name of the outputfile that the <command>xsltproc</command>'s
-	  output goes to.
-	</para>
-
-	<para>
-	  <replaceable>name=value</replaceable>s from the third parameter
-	  to <literal>MSGDISPATCHER</literal> are stylesheet parameters.
-	  <quote>dispatch=public</quote> sets the <varname>dispatch</varname>
-	  parameter to <literal>public</literal>
-	  (<literal>--stringparam dispatch public</literal> parameters
-	  to <command>xsltproc</command>, for example).
+	  This is because the library has internal references to them
+	  that require runtime resolution.
 	</para>
       </listitem>
     </itemizedlist>

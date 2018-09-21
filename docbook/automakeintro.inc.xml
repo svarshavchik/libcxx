@@ -8,8 +8,8 @@ See COPYING for distribution information.
 <para>
   A <application><acronym>GNU</acronym> make</application> rule is
   installed by default as
-  <filename>/usr/share/libcxx/libcxx.mk</filename> or
-  <filename>/usr/local/share/libcxx/libcxx.mk</filename>,
+  <filename>/usr/share/libcxx-<replaceable>version</replaceable>/libcxx.mk</filename> or
+  <filename>/usr/local/share/libcxx-<replaceable>version</replaceable>/libcxx.mk</filename>,
   and contains
   a couple of useful <command>gmake</command> macros.
   This rule requires <application><acronym>GNU</acronym>

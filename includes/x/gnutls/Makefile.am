@@ -3,7 +3,7 @@
 # See COPYING for distribution information.
 #
 
-headerdir=$(includedir)/x/gnutls
+headerdir=$(includedir)/libcxx-@ABIVER@/x/gnutls
 
 header_HEADERS=$(shell cd $(srcdir) && echo *.H)
 

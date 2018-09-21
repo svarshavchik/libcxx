@@ -42,7 +42,8 @@ EXTRA_DIST=\
 
 TESTLINKTYPE=
 
-lib_LTLIBRARIES=libcxx.la
+abilibdir=$(libdir)/libcxx-@ABIVER@
+abilib_LTLIBRARIES=libcxx.la
 
 libcxx_la_SOURCES=\
 	addoverflow.h		\
@@ -774,7 +775,6 @@ properties_LDADD=libcxx.la
 
 maillogs_SOURCES=maillogs.C
 maillogs_LDADD=libcxx.la
-maillogs_LDFLAGS=-static
 
 noinst_DATA=$(XTEST_MO_DIR)/$(XTEST_MO_FILE)
 

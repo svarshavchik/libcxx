@@ -3,7 +3,7 @@
 # See COPYING for distribution information.
 #
 
-headerdir=$(includedir)/x/gcrypt
+headerdir=$(includedir)/libcxx-@ABIVER@/x/gcrypt
 
 header_HEADERS=$(shell cd $(srcdir) && echo *.H)
 

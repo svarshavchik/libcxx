@@ -1,10 +1,18 @@
 #
-# Copyright 2012 Double Precision, Inc.
+# Copyright 2012-2018 Double Precision, Inc.
 # See COPYING for distribution information.
 #
 
 Summary: LIBCXX
+
+%{?compat: %define do_compat 1}
+%{!?compat: %define do_compat 0}
+
+%if %do_compat
+Name: libcxxbase%{expand:%(echo @VERSION@ | tr -d '.')}
+%else
 Name: libcxxbase
+%endif
 Version: @VERSION@
 Release: 1%{?extrarelease}
 License: GPL
@@ -14,7 +22,8 @@ Source0: libcxx-%{version}.tar.bz2
 
 %define _hardened_build 1
 
-BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root
+BuildRequires: gcc-c++
+BuildRequires: libstdc++-devel
 BuildRequires: courier-unicode-devel >= 2.0
 BuildRequires: gettext
 BuildRequires: gnutls-devel
@@ -53,6 +62,7 @@ Requires: %{name}-ltdl = 0:%{version}-%{release}
 Requires: %{name}-cups = 0:%{version}-%{release}
 Requires: %{_datadir}/aclocal
 Requires: libxslt
+Requires: libstdc++-devel
 Requires: gnutls-devel
 Requires: libgcrypt-devel
 Requires: pcre-devel
@@ -62,11 +72,21 @@ Requires: libidn-devel
 Requires: cups-devel
 Requires: courier-unicode-devel
 
+%if %do_compat
+
+%else
+
 %package httpd
 Group: System Environment/Daemons
 Summary: Apache httportmap configuration
 Requires: %{name} = 0:%{version}-%{release}
 Requires: /etc/httpd/conf.d
+
+%description httpd
+This package configurates Apache to redirect http://localhost/portmap URLs
+to the httportmap daemon. This package must be installed if Apache is also
+installed on this server.
+%endif
 
 %description ltdl
 This package installs the libcxxltdl wrapper for libtool's ltdl library.
@@ -77,10 +97,6 @@ This package installs the libcxxcups wrapper for the CUPS framework.
 %description devel
 This package installs files needed to develop applications that use libcxx.
 
-%description httpd
-This package configurates Apache to redirect http://localhost/portmap URLs
-to the httportmap daemon. This package must be installed if Apache is also
-installed on this server.
 
 %prep
 %setup -q -n libcxx-%{version}
@@ -112,13 +128,38 @@ chmod 600 $RPM_BUILD_ROOT%{_localstatedir}/run/httportmap.lock
 %{__mkdir_p} $RPM_BUILD_ROOT%{_sysconfdir}/cron.monthly
 %{__ln_s} %{_sbindir}/tlsparamsgen.sh $RPM_BUILD_ROOT%{_sysconfdir}/cron.monthly/tlsparamsgen
 
-rm -f $RPM_BUILD_ROOT%{_libdir}/*.la
+rm -f $RPM_BUILD_ROOT%{_libdir}/libcxx-@ABIVER@/*.la
+rm -f $RPM_BUILD_ROOT%{_libdir}/libcxx-@ABIVER@/*.so.[0123456789]+
+
+%if %do_compat
+
+# Basically what's in %files
+
+rm -f $RPM_BUILD_ROOT%{_bindir}/*
+rm -f $RPM_BUILD_ROOT%{_sbindir}/*
+rm -rf $RPM_BUILD_ROOT%{_datadir}/httportmap
+rm -f $RPM_BUILD_ROOT%{_mandir}/*/*
+rm -f $RPM_BUILD_ROOT%{_unitdir}/*
+rm -f $RPM_BUILD_ROOT%{_sysconfdir}/tlsparams/*
+rm -rf $RPM_BUILD_ROOT%{_localstatedir}/tlsparams
+rm -f $RPM_BUILD_ROOT%{_sysconfdir}/cron.monthly/*
+rm -f $RPM_BUILD_ROOT%{_sysconfdir}/*.dat
+rm -f $RPM_BUILD_ROOT%{_sysconfdir}/*.properties
+rm -f $RPM_BUILD_ROOT%{_localstatedir}/run/httportmap.lock
+
+# Basically what's in %files httpd
+
+rm -f $RPM_BUILD_ROOT/etc/httpd/conf.d/httportmap.conf
+
+%endif
 
 %clean
 rm -rf $RPM_BUILD_ROOT
 
 %post
-/sbin/ldconfig
+%if %do_compat
+
+%else
 %{_bindir}/properties --set %{_sysconfdir}/httportmapd.properties %{_sbindir}/httportmapd >/dev/null
 for f in %{_localstatedir}/tlsparams/system.dh
 do
@@ -132,30 +173,40 @@ then
     /bin/systemctl daemon-reload >/dev/null 2>&1 || :
 fi
 /bin/systemctl try-reload-or-restart httportmap.service &> /dev/null || :
+%endif
 
 %preun
+
+%if %do_compat
+
+%else
+
 %systemd_preun httportmap.service
 if test "$1" = 0
 then
 	rm -f %{_localstatedir}/tlsparams/system.dh
 fi
+%endif
 
 %postun
-/sbin/ldconfig
 
 # Do not use systemd_postun_with_restart. This stops httportmap completely.
 # try-reload-or-restart in %post is sufficient for our purposes.
 
 %files
 %defattr(-,root,root,-)
-%{_libdir}/libcxx.so.*
-%{_libdir}/libcxxtls.so.*
-%{_libdir}/libcxxyaml.so.*
+%dir %{_libdir}/libcxx-@ABIVER@
+%{_libdir}/libcxx-@ABIVER@/libcxx.so.*
+%{_libdir}/libcxx-@ABIVER@/libcxxtls.so.*
+%{_libdir}/libcxx-@ABIVER@/libcxxyaml.so.*
+
+%if %do_compat
+
+%else
+
 %{_bindir}/*
 %{_sbindir}/*
-%{_datadir}/aclocal/*
 %{_datadir}/httportmap
-%{_datadir}/libcxx
 %{_mandir}/*/*
 %{_unitdir}/*
 %attr(0777, root, root) %verify(user group mode) %ghost %config(missingok) %{_localstatedir}/run/httportmap
@@ -173,26 +224,32 @@ fi
 %config %{_sysconfdir}/*.dat
 %config %{_sysconfdir}/*.properties
 
+%endif
+
 %files ltdl
 %defattr(-,root,root,-)
-%{_libdir}/libcxxltdl.so.*
+%{_libdir}/libcxx-@ABIVER@/libcxxltdl.so.*
 
 %files cups
 %defattr(-,root,root,-)
-%{_libdir}/libcxxcups.so.*
+%{_libdir}/libcxx-@ABIVER@/libcxxcups.so.*
 
 %files devel
 %defattr(-,root,root,-)
-%{_libdir}/*.so
-%{_libdir}/*.a
+%{_libdir}/libcxx-@ABIVER@/*.so
+%{_libdir}/libcxx-@ABIVER@/*.a
 %{_libdir}/pkgconfig/*
 %{_includedir}/*
-%{_datadir}/libcxx
+%{_datadir}/libcxx-@ABIVER@
 %{_datadir}/aclocal/*
 
+%if %do_compat
+
+%else
 %files httpd
 %defattr(-,root,root,-)
 /etc/httpd/conf.d/*
+%endif
 
 %changelog
 * Sat Feb 23 2008 Mr. Sam <sam@email-scan.com> -

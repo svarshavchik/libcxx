@@ -1,4 +1,4 @@
-headerdir=$(includedir)/x/param
+headerdir=$(includedir)/libcxx-@ABIVER@/x/param
 
 header_HEADERS = $(shell cd $(srcdir) && ls *.H *.h 2>/dev/null)
 

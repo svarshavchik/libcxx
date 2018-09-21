@@ -3,7 +3,7 @@
 # See COPYING for distribution information.
 #
 
-headerdir=$(includedir)/x/yaml
+headerdir=$(includedir)/libcxx-@ABIVER@/x/yaml
 
 header_HEADERS=$(shell cd $(srcdir) && echo *.H)
 

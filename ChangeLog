@@ -1,4 +1,9 @@
-0.13
+0.13.0
+
+2018-09-21  Sam Varshavchik  <mrsam@courier-mta.com>
+
+	* Restructure the configure script and makefiles to allow for
+	multiple versions of libcxx to be installed.
 
 2018-09-16  Sam Varshavchik  <mrsam@courier-mta.com>
 

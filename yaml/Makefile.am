@@ -16,7 +16,8 @@ gettext_in.h:
 	ln -s $(srcdir)/../base/gettext_in.h gettext_in.h
 
 
-lib_LTLIBRARIES=libcxxyaml.la
+abilibdir=$(libdir)/libcxx-@ABIVER@
+abilib_LTLIBRARIES=libcxxyaml.la
 libcxxyaml_la_LIBADD=../base/libcxx.la $(YAMLLIBS)
 libcxxyaml_la_LDFLAGS=-version-info @VERSION_INFO@ $(LINKTYPE)
 

@@ -3,7 +3,7 @@
 # See COPYING for distribution information.
 #
 
-headerdir=$(includedir)/x/xml
+headerdir=$(includedir)/libcxx-@ABIVER@/x/xml
 
 header_HEADERS = $(shell cd $(srcdir) && echo *.H)
 

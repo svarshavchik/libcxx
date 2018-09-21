@@ -62,7 +62,7 @@ See COPYING for distribution information.
     &app; should be converted into an installable package, instead of building
     and installing &app; directly. The source tarball
     includes a canned build script for Fedora. Running
-    <quote><command>rpm -ta libcxx-<replaceable>version</replaceable>.tar.bz2</command></quote>
+    <quote><command>rpmbuild -ta libcxx-<replaceable>version</replaceable>.tar.bz2</command></quote>
     creates the following packages:
   </para>
 
@@ -87,8 +87,8 @@ See COPYING for distribution information.
   </itemizedlist>
 
   <para>
-    Use the following documentation to build &app; without the
-    bundled <acronym>RPM</acronym> script.
+    Use the following documentation as a guide for preparing an
+    installable &app; package on platforms other than Fedora.
   </para>
 
   <simplesect>
@@ -418,6 +418,201 @@ See COPYING for distribution information.
       In the source tarball, <filename>httportmap/apache.conf.in</filename>
       is a sample <application>Apache</application> configuration, with a
       placeholder for <command>httportmapd</command>'s installation location.
+    </para>
+  </simplesect>
+
+  <simplesect id="multiver">
+    <title>Packaging different versions of &app;</title>
+
+    <para>
+      &app; gets packaged in a manner that makes it possible to install
+      different versions at the same time.
+      &app; is a heavily-templated C++ library. Minor maintenance
+      releases of &app; preserve the same source and binary APIs.
+      Regular releases introduce new or modified APIs, but
+      it's possible to prepare concurrently-installable packages for
+      multiple regular version releases of &app;. Only one minor maintenance
+      release of the same version can be installed at the same time, but
+      multiple regular version releases are installable.
+    </para>
+
+    <para>
+      This makes it possible to support compiling and running
+      independently-maintained software packages until they get
+      updated to the current &appshort; release, on their own schedules, and
+      have an orderly migration, of some period of time, of all software
+      packages to the new version:
+    </para>
+
+    <itemizedlist>
+      <listitem>
+	<para>
+	  The usual situation is to have the current version of &app;
+	  built normally. A normal version of &app; consists of
+	  runtime support tools (the
+	  <link linkend="properties.1"><command>properties</command></link>
+	  and
+	  <link linkend="maillogs.1"><command>maillogs</command></link>
+	  commands, and the
+	  <link linkend="httportmapd.8"><command>httportmapd</command>
+	    daemon</link>), the header files, the runtime libraries, and
+	  <link linkend="using">autotools-related files and script</link>.
+	</para>
+      </listitem>
+
+      <listitem>
+	<para>
+	  Packages with older versions of &appshort; do not have the
+	  runtime support tools but have all other components.
+	  The runtime support tools' APIs with the &appshort; libraries
+	  will generally remain forwards and backwards compatible, for
+	  at least one major release, backwards and forwards and
+	  &appshort;-built code will remain compatible with runtime tools
+	  of at least one prior and one following major release.
+	  Any exceptions will be documented.
+	</para>
+
+	<para>
+	  This documentation uses <quote>compatibility package</quote>
+	  to refer to the older versions of &appshort; that get installed
+	  concurrently with the current version.
+	</para>
+      </listitem>
+
+      <listitem>
+	<para>
+	  It's also possible to prepare a non-current version of
+	  &appshort; as the normal version, and later versions of &appshort;
+	  as compatibility packages, also.
+	</para>
+      </listitem>
+    </itemizedlist>
+
+    <para>
+      A compatibility package gets built the same way as a normal package.
+      creating an installable image in a temporary directory, then removing
+      all runtime tools and runtime configuration files from the installable
+      image. The only contents of an installable image are:
+    </para>
+
+    <variablelist>
+      <varlistentry>
+	<term><filename><replaceable>$libdir</replaceable>/libcxx-<replaceable>$version</replaceable></filename></term>
+	<listitem>
+	  <para>
+	    This directory whose name includes the &appshort; API/ABI
+	    version contains the runtime libraries.
+	    Multiple concurrently-installed version of the &app;
+	    get installed into different directories in
+	    <filename><replaceable>$libdir</replaceable></filename>.
+	  </para>
+	</listitem>
+      </varlistentry>
+      <varlistentry>
+	<term><filename><replaceable>$includedir</replaceable>/libcxx-<replaceable>$version</replaceable></filename></term>
+	<listitem>
+	  <para>
+	    This directory whose name includes the &appshort; API/ABI
+	    version contains the header files.
+	    Multiple concurrently-installed version of the &app;
+	    install their header files into different directories in
+	    <filename><replaceable>$includedir</replaceable></filename>.
+	  </para>
+	</listitem>
+      </varlistentry>
+
+      <varlistentry>
+	<term><filename><replaceable>$datadir</replaceable>/libcxx-<replaceable>$version</replaceable></filename></term>
+	<listitem>
+	  <para>
+	    This directory whose name includes the &appshort; API/ABI
+	    version contains supporting scripts, macros, and other miscellaneous
+	    supporting files.
+	    Multiple concurrently-installed version of the &app;
+	    install their miscellaneous files into different directories in
+	    <filename><replaceable>$datadir</replaceable></filename>.
+	  </para>
+	</listitem>
+      </varlistentry>
+
+      <varlistentry>
+	<term>The <command>pkgconf/pkg-config</command> and <command>aclocal</command> autoconf macros</term>
+	<listitem>
+	  <para>
+	    &appshort; installs a package configuration files and an autoconf
+	    macro files into the shared, global
+	    <filename>pkgconfig</filename> and
+	    <filename>aclocal</filename> directories. The names of these files
+	    include the &appshort; version, making it possible to install
+	    multiple versions of these files, corresponding to each installed
+	    version of &appshort;.
+	  </para>
+	</listitem>
+      </varlistentry>
+    </variablelist>
+
+    <para>
+      All other files in the temporary installation directory get removed
+      before creating the installable compatibility package.
+    </para>
+
+    <para>
+      On Fedora, a compatibility package also gets built from the source
+      tarball:
+      <quote><command>rpmbuild --define 'compat 1' -ta libcxx-<replaceable>version</replaceable>.tar.bz2</command></quote>. This has the following results:
+    </para>
+
+    <itemizedlist>
+      <listitem>
+	<para>
+	  Normal <acronym>RPM</acronym> packages are named
+	  <quote>libcxxbase(-subpackage)-<replaceable>VERSION</replaceable></quote>.
+	</para>
+      </listitem>
+      <listitem>
+	<para>
+	  Compatibility <acronym>RPM</acronym> packages are named
+	  <quote>libcxxbase<replaceable>NNN</replaceable>(-subpackage)-<replaceable>VERSION</replaceable></quote>
+	  with the <quote>NNN</quote> part being the version digits, generally
+	  same digits as in the <replaceable>VERSION</replaceable>.
+	</para>
+      </listitem>
+      <listitem>
+	<para>
+	  Since <quote>NNN</quote> is a part of the packages' names,
+	  <command>rpm</command> considers them as different packages that
+	  get independently installed on their own, and not related in any
+	  way to the current <quote>libcxxbase</quote> package set.
+	</para>
+      </listitem>
+    </itemizedlist>
+  </simplesect>
+
+  <simplesect id="retarget">
+    <title>Re-targeting to a different version of &appshort;</title>
+
+    <para>
+      Most code that uses the &app; <link linkend="using">should be using
+	an autoconf-generated <filename>configure</filename></link> script.
+      The <literal>LIBCXX_INIT</literal> checks that the same version
+      of &appshort; is installed, and fail if the &app; version is different.
+    </para>
+
+    <para>
+      <link linkend="multiver">Concurrently installing an additional
+	version of &appshort;</link> is one option; but if it's determined
+      that the software can be built correctly with the current &appshort;
+      version, it should be possible to set the <envar>LIBCXX_VERSION</envar>
+      environment variable before running the <filename>configure</filename>
+      script.
+    </para>
+
+    <para>
+      <envar>LIBCXX_VERSION</envar> is not the full version number of the
+      targeted &appshort; version. It's the API/ABI version number, the
+      &appshort; version without the minor release level, which is also
+      appended to the name of the <filename>lib</filename> subdirectory
+      where &appshort;'s runtime libraries get installed.
     </para>
   </simplesect>
 </section>

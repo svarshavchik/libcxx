@@ -7,7 +7,8 @@ include $(shell pwd)/../includes/x/libcxx.mk
 
 AM_CPPFLAGS=$(CUPS_CFLAGS) -I . -I $(srcdir) -I $(srcdir)/../includes -I ../includes
 
-lib_LTLIBRARIES=libcxxcups.la
+abilibdir=$(libdir)/libcxx-@ABIVER@
+abilib_LTLIBRARIES=libcxxcups.la
 libcxxcups_la_LIBADD=../base/libcxx.la $(CUPS_LIBS) -lcourier-unicode
 libcxxcups_la_LDFLAGS=-version-info @VERSION_INFO@ $(CUPS_LDFLAGS)
 
