@@ -15,6 +15,9 @@ namespace LIBCXX_NAMESPACE {
 };
 #endif
 
+template<typename signature, typename priority_type>
+class callback_multimap_impl;
+
 //! Traits for a \ref callback_containerObj "callback container" based on a \c std::multimap.
 
 //! Inherits from the common

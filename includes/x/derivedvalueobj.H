@@ -11,6 +11,14 @@ namespace LIBCXX_NAMESPACE {
 }
 #endif
 
+template<typename basedon_t, typename vipobj_type,
+	 typename vipobj_arg_type,
+	 typename ...vipobj_extra_type> class derivedvalueObj;
+
+template<typename begin_calc_functor_t,
+	 typename end_calc_functor_t>
+class derivedvalue_type_calc;
+
 //! A container for \ref derivedvalue "values based on which another value gets derived".
 
 template<typename basedon_t>
@@ -161,7 +169,7 @@ public:
 //!    the return value from end_calc_functor_t() is the calculated value.
 //!
 //! calcObj figures out the type that end_calc_functor_t() returns, and uses
-//! it to subclass derivedValueObj, which inherits from
+//! it to subclass derivedvalueObj, which inherits from
 //! derivedvalueListObj, the actual list of values to derive from, and the
 //! very important object that holds the derived value.
 //!
@@ -195,7 +203,7 @@ public:
 	//! End calculation functor
 	end_calc_functor_t end_calc;
 
-	//! The derivedValueObj superclass of this class.
+	//! The derivedvalueObj superclass of this class.
 	typedef derivedvalueObj<basedon_t,
 				typename derivedvalue_type_calc
 				<begin_calc_functor_t, end_calc_functor_t>

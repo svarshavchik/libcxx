@@ -55,6 +55,9 @@ public:
 template<typename obj_type, typename mutex_type, bool hascondvar>
 class mpobjimpl_lock;
 
+template<typename obj_type, typename mutex_type, bool hascondvar>
+class mpobjimpl;
+
 //! Methods of \ref mpobj "mpobj" and \ref mpcobj "mpcobj".
 
 //! Instantiate a mutex, with an optional condition variable, define the

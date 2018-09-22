@@ -65,7 +65,7 @@ public:
 //! to be join()ed.
 
 template<typename refobj_type, typename ret_type, typename ...Args>
-class run_async::runthreadparamObj : virtual public obj {
+class run_asyncthreadparamObj : virtual public obj {
 
 public:
 
@@ -89,10 +89,11 @@ public:
 	//! real deal.
 
 	template<typename ...paramTypes>
-	runthreadparamObj(const refobj_type &refobjArg, paramTypes && ...argsArgs)
-		: singleton_lock(*refobjArg),
-		  refobj(refobjArg),
-		  args(argsArgs...)
+	run_asyncthreadparamObj(const refobj_type &refobjArg,
+				paramTypes && ...argsArgs)
+		: singleton_lock{*refobjArg},
+		  refobj{refobjArg},
+		  args{argsArgs...}
 	{
 	}
 
@@ -100,18 +101,18 @@ public:
 	inline void invoke()
 	{
 		// Set the thread's name
-		run_async::name n(runthreadname
-				  ::name<typename std::remove_reference
-					 <decltype(*refobj)>::type
-					 >::get(*refobj));
+		run_async::name n
+			{
+			 runthreadname::name<typename std::remove_reference
+			 <decltype(*refobj)>::type
+			 >::get(*refobj)
+			};
 
 		run_invoke_set_promise<ret_type>::invoke(promise, refobj, args);
 	}
 
 	//! Destructor
-	~runthreadparamObj()
-	{
-	}
+	~run_asyncthreadparamObj()=default;
 };
 
 //! Define the method invoked by std::thread

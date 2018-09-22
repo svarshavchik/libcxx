@@ -661,7 +661,7 @@ testtimer_LDFLAGS=$(TESTLINKTYPE)
 
 testworkerpool_SOURCES=testworkerpool.C
 testworkerpool_LDADD=libcxx.la
-testworkerpool_LDFLAGS=$(TESTLINKTYPE)
+testworkerpool_LDFLAGS=-static
 
 testpostponedcall_SOURCES=testpostponedcall.C
 testpostponedcall_LDADD=libcxx.la
@@ -689,7 +689,7 @@ testhier_LDFLAGS=$(TESTLINKTYPE)
 
 testhttpclientauth_SOURCES=testhttpclientauth.C
 testhttpclientauth_LDADD=libcxx.la
-testhttpclientauth_LDFLAGS=$(TESTLINKTYPE)
+testhttpclientauth_LDFLAGS=-static
 
 testmimenewlineiter_SOURCES=testmimenewlineiter.C
 testmimenewlineiter_LDADD=libcxx.la

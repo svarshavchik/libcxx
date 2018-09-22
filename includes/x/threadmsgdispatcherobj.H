@@ -21,6 +21,8 @@ namespace LIBCXX_NAMESPACE {
 };
 #endif
 
+template<typename bind_type> class threadmsgObj;
+
 //! A thread object, with a message-based interface.
 
 //! \code
@@ -342,41 +344,12 @@ public:
 
 	typedef ref<msgqueue_objObj> msgqueue_obj;
 
-	//! A message to the execution thread.
+	//! Alias
 
-	//! Captures the method to invoke, and this object, and any
-	//! method parameters.
+	//! See https://bugzilla.redhat.com/show_bug.cgi?id=1632063
 
-	template<typename bind_type> class msgObj : public dispatchablebaseObj {
-
-	public:
-		//! The return value from std::bind
-
-		bind_type method_call;
-
-		//! Emplace the bounded method call.
-		template<typename method_type,
-			 typename me_type,
-			 typename ...Args>
-		msgObj(method_type method, me_type *me,
-		       Args && ...args)
-			: method_call(std::bind(method,
-						me,
-						std::forward<Args>(args)...))
-		{
-		}
-
-		//! Implement dispatch()
-
-		void dispatch() override
-		{
-			method_call();
-		}
-
-		//! Destructor
-
-		~msgObj() = default;
-	};
+	template<typename bind_type>
+	using msgObj=threadmsgObj<bind_type>;
 
 public:
 	//! Send a message to the execution thread.
@@ -442,6 +415,43 @@ public:
 
 	//! stop the executing thread.
 	void stop() override;
+};
+
+//! A message to the \ref threadmmsgdispatcherObj "execution thread".
+
+//! Captures the method to invoke, and this object, and any
+//! method parameters.
+
+template<typename bind_type>
+class threadmsgObj : public dispatchablebaseObj {
+
+public:
+	//! The return value from std::bind
+
+	bind_type method_call;
+
+	//! Emplace the bounded method call.
+	template<typename method_type,
+		 typename me_type,
+		 typename ...Args>
+	threadmsgObj(method_type method, me_type *me,
+		     Args && ...args)
+		: method_call(std::bind(method,
+					me,
+					std::forward<Args>(args)...))
+	{
+	}
+
+	//! Implement dispatch()
+
+	void dispatch() override
+	{
+		method_call();
+	}
+
+	//! Destructor
+
+	~threadmsgObj() = default;
 };
 
 #if 0

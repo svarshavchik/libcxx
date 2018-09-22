@@ -17,6 +17,34 @@ namespace LIBCXX_NAMESPACE {
 };
 #endif
 
+//! A helper object instantiated by make_timer_task
+
+template<typename Functor> class timertask_redirectObj : public timertaskObj {
+
+	//! The saved functor
+	Functor functor;
+
+public:
+	//! Constructor
+	timertask_redirectObj(const Functor &functorArg) : functor(functorArg)
+	{
+	}
+
+	//! Move constructor
+	timertask_redirectObj(Functor &&functorArg)
+		: functor(std::move(functorArg))
+	{
+	}
+	//! Destructor
+	~timertask_redirectObj()=default;
+
+	//! Run the functor
+	void run() override
+	{
+		functor();
+	}
+};
+
 //! Base class for timertaskObj.
 
 //! Refer to this class as \c INSERT_LIBX_NAMESPACE::timertask::base or
@@ -28,45 +56,15 @@ class timertaskBase : public ptrref_base {
 
 public:
 
-	//! A helper object instantiated by make_timer_task
-
-	template<typename Functor> class redirectObj : public timertaskObj {
-
-		//! The saved functor
-		Functor functor;
-
-	public:
-		//! Constructor
-		redirectObj(const Functor &functorArg) : functor(functorArg)
-		{
-		}
-		//! Move constructor
-		redirectObj(Functor &&functorArg)
-			: functor(std::move(functorArg))
-		{
-		}
-		//! Destructor
-		~redirectObj()
-		{
-		}
-
-		//! Run the functor
-		void run() override
-		{
-			functor();
-		}
-	};
-
 	//! Construct a timer task from a functor
 
 	//! This function creates a timer task on the fly, that invokes some
 	//! functor.
 
 	template<typename Functor>
-	static inline ref<redirectObj<Functor> >
-	make_timer_task(const Functor &functor)
+	static inline auto make_timer_task(const Functor &functor)
 	{
-		return ref<redirectObj<Functor> >::create(functor);
+		return ref<timertask_redirectObj<Functor>>::create(functor);
 	}
 
 	//! Construct a timer task from a functor
@@ -75,10 +73,10 @@ public:
 	//! functor.
 
 	template<typename Functor>
-	static inline ref<redirectObj<typename std::decay<Functor>::type> >
-	make_timer_task(Functor &&functor)
+	static inline auto make_timer_task(Functor &&functor)
 	{
-		return ref<redirectObj<typename std::decay<Functor>::type> >
+		return ref<timertask_redirectObj<typename
+						 std::decay<Functor>::type>>
 			::create(std::move(functor));
 	}
 };

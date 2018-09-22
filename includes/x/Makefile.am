@@ -20,6 +20,7 @@ libcxx-@VERSION@.m4: libcxx.m4
 	ln libcxx.m4 libcxx-@VERSION@.m4
 
 BUILT_SOURCES=namespace.h epoll_def.h globlocale.H signal_def.h xlocale.H
+CLEANFILES=$(aclocal_DATA)
 DISTCLEANFILES=namespace.h optgen.xsl msgdispatcher.xsl threadmsgdispatcher.xsl refcollection.xsl libcxx.mk
 EXTRA_DIST=optgen.xsl optgen.sample.xml
 

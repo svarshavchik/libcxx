@@ -71,6 +71,7 @@ Requires: file-devel
 Requires: libidn-devel
 Requires: cups-devel
 Requires: courier-unicode-devel
+Provides: %{name}-abi = @ABIVER@
 
 %if %do_compat
 
@@ -252,5 +253,8 @@ fi
 %endif
 
 %changelog
+* Sat Sep 22 2018 Sam Varshavchik <mrsam@octopus.email-scan.com>
+- New installation layout
+
 * Sat Feb 23 2008 Mr. Sam <sam@email-scan.com> -
 - Initial build.

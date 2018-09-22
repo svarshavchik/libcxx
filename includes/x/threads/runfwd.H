@@ -21,6 +21,8 @@ namespace LIBCXX_NAMESPACE {
 class runthreadbaseObj;
 class logger;
 
+template<typename ret_type> class run_asyncthreadObj;
+
 //! Helper class for construing parameters for a called to object->run().
 
 //! \internal
@@ -41,6 +43,10 @@ public:
 template<typename param_type>
 typename run_param<param_type>::type &invoke_run_param_helper();
 
+template<typename args_type> class run_method_impl;
+template<typename refobj_type, typename ret_type, typename ...Args>
+class run_asyncthreadparamObj;
+
 //! Invoke a thread object's run() method in another thread
 
 //! This is a separate namespace for all templates that
@@ -48,9 +54,14 @@ typename run_param<param_type>::type &invoke_run_param_helper();
 
 class run_async {
 
+	//! Alias
+
+	//! See https://bugzilla.redhat.com/show_bug.cgi?id=1632063
+
 	template<typename args_type> class run_method_impl;
 	template<typename refobj_type, typename ret_type, typename ...Args>
-	class runthreadparamObj;
+	using runthreadparamObj=run_asyncthreadparamObj<refobj_type, ret_type,
+							Args...>;
 
 	class localscope;
 
@@ -98,7 +109,12 @@ public:
 		~name();
 	};
 
-	template<typename ret_type> class runthreadObj;
+	//! Alias
+
+	//! See https://bugzilla.redhat.com/show_bug.cgi?id=1632063
+
+	template<typename ret_type>
+	using runthreadObj=run_asyncthreadObj<ret_type>;
 
 	//! run() forwards here, in order to access private members of this class.
 

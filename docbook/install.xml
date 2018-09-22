@@ -609,9 +609,11 @@ See COPYING for distribution information.
 
     <para>
       <envar>LIBCXX_VERSION</envar> is not the full version number of the
-      targeted &appshort; version. It's the API/ABI version number, the
-      &appshort; version without the minor release level, which is also
-      appended to the name of the <filename>lib</filename> subdirectory
+      targeted &appshort; version. It's the API/ABI version number
+      which is, generally, the
+      &appshort; version without the minor release level. One way to obtain
+      the API/ABI version number is that it gets
+      included in the name of the <filename>lib</filename> subdirectory
       where &appshort;'s runtime libraries get installed.
     </para>
   </simplesect>

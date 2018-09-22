@@ -58,7 +58,7 @@ See COPYING for distribution information.
       follow these links, and start there.
       After <link linkend="INSTALL">installing the library and the
       header files</link> add the
-      <literal>LIBCXX_INIT</literal> macro
+      <literal>LIBCXX_INIT</literal> macro to your
       <filename>configure.ac</filename> in order to set up the environment
       to develop and build applications with  &app;:
     </para>

@@ -234,10 +234,10 @@ std::thread::id runthreadbaseObj::get_id() const
 	return thr_id;
 }
 
-template class run_async::runthreadObj<void>;
+template class run_asyncthreadObj<void>;
 
 template<>
-void run_async::runthreadObj<void>::get() const
+void run_asyncthreadObj<void>::get() const
 {
 	typename meta_container_t::lock lock(meta);
 

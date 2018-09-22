@@ -16,6 +16,7 @@ namespace LIBCXX_NAMESPACE {
 class allcookiesObj;
 class cookiejarObj;
 class storedcookieObj;
+class LIBCXX_PUBLIC domaincookiesObj;
 
 //! All cookies with the same domain.
 

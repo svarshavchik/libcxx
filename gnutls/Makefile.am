@@ -137,7 +137,7 @@ testpkparams_LDFLAGS=$(LINKTYPE)
 
 testftp_SOURCES=testftp.C testftp2.C
 testftp_LDADD=../base/libcxx.la libcxxtls.la
-testftp_LDFLAGS=$(LINKTYPE)
+testftp_LDFLAGS=-static
 
 testhttpclientimpl_SOURCES=testhttpclientimpl.C testtlsimpl.h
 testhttpclientimpl_LDADD=../base/libcxx.la libcxxtls.la
@@ -156,7 +156,7 @@ testuseragent_shared_LDADD=../base/libcxx.la libcxxtls.la
 
 testserverauth_SOURCES=testserverauth.C
 testserverauth_LDADD=../base/libcxx.la libcxxtls.la
-testserverauth_LDFLAGS=$(LINKTYPE)
+testserverauth_LDFLAGS=-static
 
 testmd_SOURCES=testmd.C
 testmd_LDADD=../base/libcxx.la libcxxtls.la

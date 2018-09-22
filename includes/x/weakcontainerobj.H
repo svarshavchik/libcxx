@@ -24,6 +24,36 @@ namespace LIBCXX_NAMESPACE {
 #define LIBCXX_WEAKDEBUG_HOOK(x) do { } while(0)
 #endif
 
+//! The weak container iterator
+
+//! The \ref weakContainerObj "container" is inside another somewhat-important object.
+//!
+//! Iterators keep a read lock on the iterator lock. When a weak object
+//! gets destroyed, the destructor callback tries a write lock.
+//! If it succeeds, there are no read iterators, so the weak pointer
+//! can be removed from the container, otherwise it gets placed into
+//! the pending delete list.
+//!
+//! When a read iterator goes out of scope and releases its read lock,
+//! it also tries to acquire a write lock. If it succeeds, it was the
+//! last open read iterator, and it purges the pending delete list.
+
+template<typename container_t>
+class weak_container_iterator_t {
+
+public:
+	//! A read lock on iterator_t allows a write lock on the container
+
+	mutable container_t container;
+
+	//! Forward the constructor
+
+	template<typename ...Args>
+	weak_container_iterator_t(Args && ...args)
+		: container(std::forward<Args>(args)...) {}
+	~weak_container_iterator_t()=default;
+};
+
 //! Weak container implementation
 
 //! This template instantiates a container of weak references to objects.
@@ -48,32 +78,9 @@ protected:
 
 	typedef sipobj<C> container_t;
 
-	//! The container is inside another somewhat-important object.
+	//! See https://bugzilla.redhat.com/show_bug.cgi?id=1632063
 
-	//! Iterators keep a read lock on the iterator lock. When a weak object
-	//! gets destroyed, the destructor callback tries a write lock.
-	//! If it succeeds, there are no read iterators, so the weak pointer
-	//! can be removed from the container, otherwise it gets placed into
-	//! the pending delete list.
-	//!
-	//! When a read iterator goes out of scope and releases its read lock,
-	//! it also tries to acquire a write lock. If it succeeds, it was the
-	//! last open read iterator, and it purges the pending delete list.
-
-	class iterator_t {
-
-	public:
-		//! A read lock on iterator_t allows a write lock on the container
-
-		mutable container_t container;
-
-		//! Forward the constructor
-
-		template<typename ...Args>
-		iterator_t(Args && ...args)
-			: container(std::forward<Args>(args)...) {}
-		~iterator_t() throw() {}
-	};
+	using iterator_t=weak_container_iterator_t<container_t>;
 
 	//! Container of an iterator lock.
 

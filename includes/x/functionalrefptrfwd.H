@@ -7,6 +7,7 @@
 #define x_functionalrefptrfwd_H
 
 #include <x/ptrfwd.H>
+#include <x/functional.H>
 #include <type_traits>
 
 namespace LIBCXX_NAMESPACE {
@@ -14,7 +15,6 @@ namespace LIBCXX_NAMESPACE {
 };
 #endif
 
-template<typename signature> class functionObj;
 template<typename signature> class functionBase;
 
 template<typename type,
@@ -36,7 +36,8 @@ template<typename functionrefptr_impl_t,
 template<typename base_ref,
 	 typename return_type,
 	 typename ...Args>
-class functionrefptr_impl<base_ref, return_type(Args...)> : public base_ref {
+class functionrefptr_impl<base_ref, return_type(Args...)>
+	: public base_ref {
 
 	using base_ref::create;
 

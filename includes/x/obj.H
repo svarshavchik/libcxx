@@ -36,6 +36,7 @@ class exception;
 class weakinfo;
 
 template<class refType> class weakptr;
+template<class> class objFunctorCallbackObj;
 
 //! Superclass of reference-counted objects
 
@@ -155,9 +156,12 @@ public:
 	class destroyCallbackObj;
 
 private:
-	//! Helper class for invoking destructor callback functors/lambdas
+	//! Alias
 
-	template<typename F> class functorCallbackObj;
+	//! See https://bugzilla.redhat.com/show_bug.cgi?id=1632063
+
+	template<typename F>
+	using functorCallbackObj=objFunctorCallbackObj<F>;
 
 	//! An exception occured in the destructor callback functor
 
@@ -250,10 +254,13 @@ public:
 
 	virtual void destroyed()=0;
 };
-	//! Helper class for invoking destructor callback functors/lambdas
 
-template<typename F> class obj::functorCallbackObj
-	: public destroyCallbackObj {
+//! Helper class for invoking destructor callback functors/lambdas
+
+//! Used by \ref ptr "ondestroy()".
+
+template<typename F> class objFunctorCallbackObj
+	: public obj::destroyCallbackObj {
 
 	//! The functor
 	F functor;
@@ -261,15 +268,13 @@ template<typename F> class obj::functorCallbackObj
 public:
 	//! Constructor
 	template<typename FArg>
-	functorCallbackObj(FArg && functorArg)
+	objFunctorCallbackObj(FArg && functorArg)
 		: functor(std::forward<FArg>(functorArg))
 	{
 	}
 
 	//! Destructor
-	~functorCallbackObj()
-	{
-	}
+	~objFunctorCallbackObj()=default;
 
 	//! The destructor callback
 

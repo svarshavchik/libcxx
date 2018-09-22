@@ -52,9 +52,6 @@ namespace LIBCXX_NAMESPACE {
 #define LIBCXX_EVENTFACTORY_EVENT_DEBUGHOOK() do { } while(0)
 #endif
 
-
-
-
 //! Event factory implementation
 
 template<typename keyType, typename argType, class Compare, class Allocator>
@@ -93,13 +90,13 @@ class eventfactoryObj : virtual public obj {
 		iter_t iter;
 
 		//! The factory type where the handler gets registered.
-		typedef 
+		typedef
 		ref<eventfactoryObj<keyType, argType, Compare, Allocator>
 		    > factory_t;
 
 		//! The factory where the handler gets registered.
 		factory_t factory;
-		
+
 		//! Default constructor
 		eventregistrationImplObj(const factory_t &factoryArg,
 					 const iter_t &iterArg)

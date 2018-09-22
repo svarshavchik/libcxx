@@ -958,7 +958,7 @@ public:
 			auto save=p->entry;
 
 			p->entry=ptr<objClass, baseClass>();
-			
+
 			writelockbaseObj::lock->lock()->allnodes
 				.erase(p->allnodes_entry);
 

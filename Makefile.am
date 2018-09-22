@@ -141,7 +141,7 @@ libcxx-@ABIVER@.pc: Makefile
 	echo "Libs: -L${libdir}/libcxx-@ABIVER@ -Wl,-rpath -Wl,${libdir}/libcxx-@ABIVER@" >>libcxx.pc.tmp
 	mv -f libcxx.pc.tmp libcxx-@ABIVER@.pc
 
-CLEANFILES=libcxx.pc abi.xml header.html $(man_MANS)
+CLEANFILES=$(pkgconf_DATA) abi.xml header.html $(man_MANS)
 
 $(man_MANS): man.stamp
 	touch $@

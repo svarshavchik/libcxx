@@ -666,7 +666,7 @@ LIBEXTRAPATH="`echo $LIBEXTRAPATH | tr ' ' '\n' | sort | uniq | tr '\n' ' '`"
 AC_SUBST(LIBEXTRAPATH)
 CXXFLAGS="$CXXFLAGS -fvisibility-inlines-hidden"
 export CXXFLAGS
-LDFLAGS="$LDFLAGS -z relro"
+LDFLAGS="$LDFLAGS -z relro -z now"
 export LDFLAGS
 
 for f in /etc/pki/tls/cert.pem /etc/ssl/certs/ca-certificates.crt /usr/local/share/certs/ca-root-nss.crt

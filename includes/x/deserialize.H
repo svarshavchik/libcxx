@@ -14,6 +14,7 @@
 #include <sstream>
 #include <locale>
 #include <vector>
+#include <unordered_map>
 
 #include <x/exception.H>
 #include <x/serialization.H>
@@ -871,6 +872,10 @@ void deserialize_object_name(//! Input iterator
 		name.push_back(i.get());
 }
 
+template<typename iter_type, typename traits_type,
+	 typename object_iter_type>
+class iterator_deserialize_any;
+
 //! %Deserialize objects from an input %iterator
 
 //! The first template parameter is any STL input iterator which iterates over
@@ -990,196 +995,197 @@ private:
 
 public:
 
-	//! Deserialize one of several objects.
+	//! Alias.
 
-	//! Instantiate an object that uses a
-	//! \ref iterator "deserialization iterator" to
-	//! deserialize one of several possible objects. Use this when
-	//! the next object to be deserialized may be one of several objects.
-	//! Construct this object, then invoke operator() to deserialize
-	//! whatever object comes next.
-	//!
-	//! The template parameter, \c object_iter_type, specifies
-	//! a class that implements:
-	//!
-	//! - An overloaded deserialized() method for each class
-	//! that may be deserialized.
-	//!
-	//! - A classlist() template function.
-	//!
-	//! The classlist() function should take the following form:
-	//!
-	//! \code
-	//! template<typename ser_type> void classlist(ser_type &arg)
-	//! {
-	//!     arg.template serialize<class1>();
-	//!     arg.template serialize<class2>();
-	//!     // ...
-	//! }
-	//! \endcode
-	//!
-	//! \c class1 and \c class2 are classes that may be deserialized.
-	//! The classlist() function enumerates all classes that
-	//! can be deserialized in this manner. The class list should
-	//! be the same list of classes used by the overloaded
-	//! deserialized() method.
-	//!
-	//! Each class enumerated by classlist should have
-	//! a constructor that takes a reference to an \c object_iter_type
-	//! as a parameter. The instance of the deserialized class
-	//! gets constructed with the \c object_iter_type
-	//! instance passed to it
-	//! as a parameter. The class should probably have a default
-	//! constructor as well, since the same class is presumably
-	//! used on the serialization side, without the deserialization
-	//! class.
-	//!
-	//! classlist's call to template serialize may also specify
-	//! an optional second template parameter:
-	//!
-	//! \code
-	//! template<typename ser_type> void classlist(ser_type &arg)
-	//! {
-	//!     arg.template serialize<class1, class1inst>();
-	//!     // ...
-	//! }
-	//! \endcode
-	//!
-	//! When the object to be deserialized is \c class1,
-	//! \c class1inst would get constructed on the stack instead,
-	//! and it's deserialize() method invoked, followed by
-	//! \c object_iter_type's deserialized(). Use this to deserialize an
-	//! object into a slightly different class that has the same
-	//! serialize() implementation.
+	//! See https://bugzilla.redhat.com/show_bug.cgi?id=1632063
 
-	template<typename object_iter_type> class any {
+	template<typename object_iter_type>
+	using any=iterator_deserialize_any<iter_type, traits_type,
+					   object_iter_type>;
+};
 
-		//! Base class for the deserialization implementer
+//! Deserialize one of several objects.
 
-		class deserBaseObj : virtual public obj {
+//! Instantiate an object that uses a
+//! \ref iterator "deserialization iterator" to
+//! deserialize one of several possible objects. Use this when
+//! the next object to be deserialized may be one of several objects.
+//! Construct this object, then invoke operator() to deserialize
+//! whatever object comes next.
+//!
+//! The template parameter, \c object_iter_type, specifies
+//! a class that implements:
+//!
+//! - An overloaded deserialized() method for each class
+//! that may be deserialized.
+//!
+//! - A classlist() template function.
+//!
+//! The classlist() function should take the following form:
+//!
+//! \code
+//! template<typename ser_type> void classlist(ser_type &arg)
+//! {
+//!     arg.template serialize<class1>();
+//!     arg.template serialize<class2>();
+//!     // ...
+//! }
+//! \endcode
+//!
+//! \c class1 and \c class2 are classes that may be deserialized.
+//! The classlist() function enumerates all classes that
+//! can be deserialized in this manner. The class list should
+//! be the same list of classes used by the overloaded
+//! deserialized() method.
+//!
+//! Each class enumerated by classlist should have
+//! a constructor that takes a reference to an \c object_iter_type
+//! as a parameter. The instance of the deserialized class
+//! gets constructed with the \c object_iter_type
+//! instance passed to it
+//! as a parameter. The class should probably have a default
+//! constructor as well, since the same class is presumably
+//! used on the serialization side, without the deserialization
+//! class.
+//!
+//! classlist's call to template serialize may also specify
+//! an optional second template parameter:
+//!
+//! \code
+//! template<typename ser_type> void classlist(ser_type &arg)
+//! {
+//!     arg.template serialize<class1, class1inst>();
+//!     // ...
+//! }
+//! \endcode
+//!
+//! When the object to be deserialized is \c class1,
+//! \c class1inst would get constructed on the stack instead,
+//! and it's deserialize() method invoked, followed by
+//! \c object_iter_type's deserialized(). Use this to deserialize an
+//! object into a slightly different class that has the same
+//! serialize() implementation.
 
-		public:
-			//! Constructor
-			deserBaseObj()
-			{
-			}
+template<typename iter_type, typename traits_type, typename object_iter_type>
+class iterator_deserialize_any {
 
-			//! Destructor
-			~deserBaseObj()
-			{
-			}
+	//! Alias for the bug 1632063 workaround.
 
-			//! Deserialize
+	typedef iterator<iter_type, traits_type> iterator_t;
 
-			virtual void deserialize(object_iter_type &objRef,
-						 iterator &i)=0;
-		};
+	//! Base class for the deserialization implementer
 
-		//! Deserialization implemented for a given class
+	class deserBaseObj : virtual public obj {
 
-		template<typename obj_type> class deserObj :
-			public deserBaseObj {
-
-		public:
-			//! Constructor
-			deserObj()
-			{
-			}
-
-			//! Destructor
-			~deserObj()
-			{
-			}
-
-			//! Implement deserialization for this class
-
-			void deserialize(//! Handler for the deserialized object
-					 object_iter_type &objRef,
-
-					 //! Iterator over the serialized bytestream
-					 iterator &i) override
-			{
-				obj_type objInstance(objRef);
-
-				objInstance.serialize(i);
-				objRef.deserialized(objInstance);
-			}
-		};
-
-		//! Lookup table of class names to implementers
-
-		std::map<std::string, ptr<deserBaseObj> > objmap;
-
-		//! The deserialization iterator
-		iterator &iter;
-
-		//! The deserialization handler
-		object_iter_type &objRef;
 	public:
 		//! Constructor
-
-		any(//! The deserialization iterator
-		    iterator &iterArg,
-
-		    //! The deserialization handler
-		    object_iter_type &objRefArg)
-			: iter(iterArg),
-			  objRef(objRefArg)
-		{
-			objRef.classlist(*this);
-		}
+		deserBaseObj()=default;
 
 		//! Destructor
-		~any()
+		~deserBaseObj()=default;
+
+		//! Deserialize
+
+		virtual void deserialize(object_iter_type &objRef,
+					 iterator_t &i)=0;
+	};
+
+	//! Deserialization implemented for a given class
+
+	template<typename obj_type> class deserObj :
+		public deserBaseObj {
+
+	public:
+		//! Constructor
+		deserObj()=default;
+
+		//! Destructor
+		~deserObj()=default;
+
+		//! Implement deserialization for this class
+
+		void deserialize(//! Handler for the deserialized object
+				 object_iter_type &objRef,
+
+				 //! Iterator over the serialized bytestream
+				 iterator_t &i) override
 		{
+			obj_type objInstance(objRef);
+
+			objInstance.serialize(i);
+			objRef.deserialized(objInstance);
 		}
+	};
 
-		//! Callback, initialize the object map
+	//! Lookup table of class names to implementers
 
-		template<typename obj_type>
-		void serialize()
-		{
-			objmap[std::string(serialization::
-					   object_name<obj_type>())]=
-				ptr<deserObj<obj_type> >
-				::create();
-		}
+	std::unordered_map<std::string, ref<deserBaseObj> > objmap;
 
-		//! Callback, initialize the object map
+	//! The deserialization iterator
+	iterator_t &iter;
 
-		template<typename obj_type, typename obj_instance_type>
-		void serialize()
-		{
-			objmap[std::string(serialization::
-					   object_name<obj_type>())]=
-				ptr<deserObj<obj_instance_type> >
-				::create();
-		}
+	//! The deserialization handler
+	object_iter_type &objRef;
+public:
+	//! Constructor
 
-		//! Deserialize the next generic object
+	iterator_deserialize_any(//! The deserialization iterator
+				 iterator_t &iterArg,
 
-		void operator()() const
-		{
-			datatype t((datatype)iter.get());
+				 //! The deserialization handler
+				 object_iter_type &objRefArg)
+		: iter(iterArg),
+		  objRef(objRefArg)
+	{
+		objRef.classlist(*this);
+	}
 
-			if (t != serialization::tobject)
-				mismatch(tname(serialization::tobject),
-					 tname(t));
+	//! Destructor
+	~iterator_deserialize_any()=default;
 
-			std::string name;
+	//! Callback, initialize the object map
 
-			deserialize_object_name(iter, name);
+	template<typename obj_type>
+	void serialize()
+	{
+		objmap.emplace(std::string(serialization::
+					   object_name<obj_type>()),
+			       ref<deserObj<obj_type> >
+			       ::create());
+	}
 
-			typename std::map<std::string, ptr<deserBaseObj>
-					  >::const_iterator
-			p=objmap.find(name);
+	//! Callback, initialize the object map
+
+	template<typename obj_type, typename obj_instance_type>
+	void serialize()
+	{
+		objmap.emplace(std::string(serialization::
+					   object_name<obj_type>()),
+			       ref<deserObj<obj_instance_type> >
+			       ::create());
+	}
+
+	//! Deserialize the next generic object
+
+	void operator()() const
+	{
+		datatype t((datatype)iter.get());
+
+		if (t != serialization::tobject)
+			mismatch(tname(serialization::tobject),
+				 tname(t));
+
+		std::string name;
+
+		deserialize_object_name(iter, name);
+
+		auto p=objmap.find(name);
 
 		if (p == objmap.end())
 			serialization::unknown_class(name);
 
 		p->second->deserialize(objRef, iter);
 	}
-};
 };
 
 //! Convenience function for %deserializing a single object

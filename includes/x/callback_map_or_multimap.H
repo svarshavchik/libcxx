@@ -14,6 +14,9 @@ namespace LIBCXX_NAMESPACE {
 };
 #endif
 
+template<typename signature, typename container_t>
+class callback_map_or_multimap_impl;
+
 //! Traits for a \ref callback_containerObj "callback container" based on a map or a multimap.
 
 //! Derives from a \c std::map, or a \c std::multimap

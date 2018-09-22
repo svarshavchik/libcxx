@@ -1959,6 +1959,7 @@ INCLUDE_FILE_PATTERNS  =
 PREDEFINED             = LIBCXX_NAMESPACE=x \
                          LIBCXX_INTERNAL= \
                          LIBCXX_HIDDEN= \
+			 LIBCXX_PUBLIC= \
                          DOXYGEN=1 \
                          DOXYGEN_FIXME=1
 

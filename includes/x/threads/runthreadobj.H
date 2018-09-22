@@ -31,7 +31,7 @@ namespace LIBCXX_NAMESPACE {
 //! thread threw an exception, get() rethrows it.
 
 template<typename ret_type>
-class run_async::runthreadObj : public runthreadbaseObj {
+class run_asyncthreadObj : public runthreadbaseObj {
 
 	//! Where the thread's run() result is promised.
 	std::future<ret_type> future;
@@ -110,13 +110,13 @@ public:
 
 	//! Constructed by run().
 
-	runthreadObj(std::future<ret_type> &&futureArg)
+	run_asyncthreadObj(std::future<ret_type> &&futureArg)
 		: future(std::move(futureArg))
 	{
 	}
 
 	//! Default constructor
-	runthreadObj()
+	run_asyncthreadObj()
 	{
 		// A default constructor pretends that the thread has already
 		// terminated.
@@ -127,7 +127,7 @@ public:
 	}
 
 	//! Destructor
-	~runthreadObj() {}
+	~run_asyncthreadObj()=default;
 
 	//! Return \c true if the thread has terminated, \c false otherwise.
 
@@ -194,10 +194,10 @@ public:
 #ifndef DOXYGEN
 //! Specialization for a run() that returns a void.
 
-template<> void run_async::runthreadObj<void>::get() const;
+template<> void run_asyncthreadObj<void>::get() const;
 #endif
 
-extern template class run_async::runthreadObj<void>;
+extern template class run_asyncthreadObj<void>;
 
 #if 0
 {
