@@ -23,6 +23,7 @@
 #include <algorithm>
 #include <iterator>
 #include <cstring>
+#include <unordered_map>
 #include <courier-unicode.h>
 
 #include <sys/types.h>
@@ -86,22 +87,27 @@ log_stringstream::~log_stringstream()
 {
 }
 
+namespace {
+#if 0
+}
+#endif
+
 //! Superclass for log handlers
 
 //! \internal
 //! This is a superclass that defines an interface for a log handler.
 
-class logger::handlerObj : virtual public obj {
+class handlerObj : virtual public obj {
 
 public:
-	class LIBCXX_INTERNAL fd;
-	class LIBCXX_INTERNAL syslogger;
+	class fd;
+	class syslogger;
 
 	//! The default constructor
-	handlerObj() noexcept;
+	handlerObj() noexcept=default;
 
 	//! The default destructor
-	~handlerObj();
+	~handlerObj()=default;
 
 	//! Report a log message
 
@@ -120,12 +126,21 @@ public:
 				const std::time_put<char> &timecvt)=0;
 };
 
-logger::handlerObj::handlerObj() noexcept
-{
-}
+//! A reference to a log handler
 
-logger::handlerObj::~handlerObj()
+//! \internal
+//! Log handlers are reference-counted objects.
+typedef ref<handlerObj> handler;
+
+//! A pointer to a log handler
+
+//! \internal
+//! Log handlers are reference-counted objects.
+typedef ptr<handlerObj> handlerptr;
+
+#if 0
 {
+#endif
 }
 
 //! Log messages to a file descriptor
@@ -133,7 +148,7 @@ logger::handlerObj::~handlerObj()
 //! \internal
 //! This log handler implements logging messages to a file descriptor.
 
-class logger::handlerObj::fd : public logger::handlerObj {
+class handlerObj::fd : public handlerObj {
 
 	//! The file descriptor
 	int n;
@@ -201,12 +216,12 @@ public:
 			const std::time_put<char> &timecvt) override;
 };
 
-logger::handlerObj::fd::fd(int nArg) noexcept
+handlerObj::fd::fd(int nArg) noexcept
 	: n(nArg), keep(0), closeit(false)
 {
 }
 
-logger::handlerObj::fd::fd(const std::string &logfilenamepatternArg,
+handlerObj::fd::fd(const std::string &logfilenamepatternArg,
 			   const std::string &rotateArg,
 			   size_t keepArg) noexcept
 	: n(-1), logfilenamepattern(logfilenamepatternArg),
@@ -216,13 +231,13 @@ logger::handlerObj::fd::fd(const std::string &logfilenamepatternArg,
 {
 }
 
-logger::handlerObj::fd::~fd()
+handlerObj::fd::~fd()
 {
 	if (closeit)
 		close(n);
 }
 
-class logger::handlerObj::fd::filetime {
+class handlerObj::fd::filetime {
 
 public:
 	std::string filename;
@@ -232,7 +247,7 @@ public:
 	~filetime();
 };
 
-logger::handlerObj::fd::filetime::filetime(const char *filenameArg) noexcept
+handlerObj::fd::filetime::filetime(const char *filenameArg) noexcept
 	: filename(filenameArg), mtime(0)
 {
 	auto st=fileattr::create(filename)->try_stat();
@@ -241,11 +256,11 @@ logger::handlerObj::fd::filetime::filetime(const char *filenameArg) noexcept
 		mtime=st->st_mtime;
 }
 
-logger::handlerObj::fd::filetime::~filetime()
+handlerObj::fd::filetime::~filetime()
 {
 }
 
-class logger::handlerObj::fd::filetime_sort {
+class handlerObj::fd::filetime_sort {
 
 public:
 	filetime_sort()
@@ -263,7 +278,7 @@ public:
 	}
 };
 
-void logger::handlerObj::fd::operator()(const std::string &message,
+void handlerObj::fd::operator()(const std::string &message,
 					short loglevel,
 					struct tm &tmbuf,
 					const std::time_put<char> &timecvt)
@@ -416,7 +431,7 @@ void logger::handlerObj::fd::operator()(const std::string &message,
 //! \internal
 //! This log handler implements logging messages to syslog.
 
-class logger::handlerObj::syslogger : public logger::handlerObj {
+class handlerObj::syslogger : public handlerObj {
 
 	//! Map logging levels to syslog levels
 
@@ -456,25 +471,25 @@ public:
 			const std::time_put<char> &timecvt) override;
 };
 
-std::once_flag logger::handlerObj::syslogger::syslog_init_once;
+std::once_flag handlerObj::syslogger::syslog_init_once;
 
-int logger::handlerObj::syslogger::facility=LOG_USER;
+int handlerObj::syslogger::facility=LOG_USER;
 
-void logger::handlerObj::syslogger::syslog_init() noexcept
+void handlerObj::syslogger::syslog_init() noexcept
 {
 	openlog(NULL, LOG_NDELAY, facility);
 }
 
-logger::handlerObj::syslogger::syslogger(const std::map<short, int> &syslog_mapArg) noexcept
+handlerObj::syslogger::syslogger(const std::map<short, int> &syslog_mapArg) noexcept
 	: syslog_map(syslog_mapArg)
 {
 }
 
-logger::handlerObj::syslogger::~syslogger()
+handlerObj::syslogger::~syslogger()
 {
 }
 
-void logger::handlerObj::syslogger::operator()(const std::string &message,
+void handlerObj::syslogger::operator()(const std::string &message,
 					       short loglevel,
 					       struct tm &tmbuf,
 					       const std::time_put<char>
@@ -503,71 +518,75 @@ void logger::handlerObj::syslogger::operator()(const std::string &message,
 	syslog(sysloglevel, "%s", message.c_str());
 }
 
-
-//! Temporary state kept while reading configuration data
-
-//! \internal
-//! This objects holds some internal data when the configuration
-//! file is getting parsed.
-
-class logger::initstate {
-
-public:
-	initstate();
-
-	//! Startup time
-	struct tm tmbuf;
-};
-
-logger::initstate::initstate()
-{
+namespace {
+#if 0
 }
+#endif
 
-class logger::configmeta {
+class configmetaObj : virtual public obj {
 public:
 	//! Mapping of names of log levels to their numerical values
-	std::map<std::string, short> loglevels;
+	std::unordered_map<std::string, short> loglevels;
 
 	//! Reverse mapping
-	std::map<short, std::string> loglevelsrev;
+	std::unordered_map<short, std::string> loglevelsrev;
 
 	//! Known log formats
 
-	std::map<std::string, std::string> logformats;
+	std::unordered_map<std::string, std::string> logformats;
 
 	//! Known handlers
 
-	std::map<std::string, handler> loghandlers;
+	std::unordered_map<std::string, handler> loghandlers;
 
 	//! Default locale
 	const_locale default_locale;
 
-	configmeta() noexcept;
-	~configmeta();
+	configmetaObj() noexcept;
+	~configmetaObj();
 };
+#if 0
+{
+#endif
+}
 
-logger::configmeta::configmeta() noexcept : default_locale(locale::base::environment())
+configmetaObj::configmetaObj() noexcept
+	: default_locale{locale::base::environment()}
 {
 }
 
-logger::configmeta::~configmeta()
-{
+configmetaObj::~configmetaObj()=default;
+
+static singleton<configmetaObj> logconfig;
+
+//! The singleton that initializes the logging subsystem
+
+//! \internal
+//! This singleton initializes the static data.
+//! First, a default log configuration gets loaded. Then
+//! if the environment variable LOGCONFIG is set, and the
+//! given file exists, the configuration file is read from
+//! LOGCONFIG.
+
+namespace {
+	class logconfig_init : virtual public obj {
+
+	public:
+		logconfig_init() noexcept;
+		~logconfig_init();
+	};
+
+	singleton<logconfig_init> logger_init;
 }
-
-logger::configmeta *logger::logconfig=0;
-
-class logger::logconfig_init : virtual public obj {
-
-public:
-	logconfig_init() noexcept;
-	~logconfig_init();
-};
-
-singleton<logger::logconfig_init> logger::logger_init;
 
 static std::mutex logconfig_mutex;
 
-class logger::logconfig_lock : std::lock_guard<std::mutex> {
+namespace {
+#if 0
+}
+#endif
+
+class logconfig_lock : std::lock_guard<std::mutex> {
 
 public:
 	const char *p;
@@ -578,13 +597,15 @@ public:
 	operator const char *() const { return p; }
 };
 
-logger::logconfig_lock::logconfig_lock(const char *pArg)
+logconfig_lock::logconfig_lock(const char *pArg)
 	: std::lock_guard<std::mutex>(logconfig_mutex), p(pArg)
 {
 }
 
-logger::logconfig_lock::~logconfig_lock()
+logconfig_lock::~logconfig_lock()=default;
+#if 0
 {
+#endif
 }
 
 static bool logger_subsystem_initialized_flag=false;
@@ -598,13 +619,14 @@ bool logger::logger_subsystem_initialized() noexcept
 
 std::string logger::debuglevelpropstr::tostr(short n, const const_locale &l)
 {
+	auto LOGCONFIG=logconfig.get();
+
 	{
-		logger::logconfig_lock lock;
+		logconfig_lock lock;
 
-		std::map<short, std::string>::iterator iter=
-			logger::logconfig->loglevelsrev.find(n);
+		auto iter=LOGCONFIG->loglevelsrev.find(n);
 
-		if (iter != logger::logconfig->loglevelsrev.end())
+		if (iter != LOGCONFIG->loglevelsrev.end())
 			return unicode::tolower(iter->second, l->charset());
 	}
 
@@ -618,14 +640,16 @@ std::string logger::debuglevelpropstr::tostr(short n, const const_locale &l)
 short logger::debuglevelpropstr::fromstr(const std::string &s,
 					 const const_locale &l)
 {
-	{
-		logger::logconfig_lock lock;
+	auto LOGCONFIG=logconfig.get();
 
-		std::map<std::string, short>::iterator iter=
-			logger::logconfig->loglevels
+	{
+		logconfig_lock lock;
+
+		auto iter=
+			LOGCONFIG->loglevels
 			.find(unicode::toupper(s, l->charset()));
 
-		if (iter != logger::logconfig->loglevels.end())
+		if (iter != LOGCONFIG->loglevels.end())
 			return iter->second;
 	}
 
@@ -681,14 +705,15 @@ logger::handlername::~handlername()
 logger::handlername::handlername(const std::string &name,
 				 const const_locale &localeRef)
 {
-	{
-		logger::logconfig_lock lock;
+	auto LOGCONFIG=logconfig.get();
 
-		std::map<std::string, handler>::iterator
-			iter=logconfig->loghandlers
+	{
+		logconfig_lock lock;
+
+		auto iter=LOGCONFIG->loghandlers
 			.find(unicode::toupper(name, localeRef->charset()));
 
-		if (iter != logconfig->loghandlers.end())
+		if (iter != LOGCONFIG->loghandlers.end())
 		{
 			n=name;
 			h=iter->second;
@@ -740,14 +765,15 @@ logger::handlerfmt::~handlerfmt()
 logger::handlerfmt::handlerfmt(const std::string &name,
 			       const const_locale &localeRef)
 {
-	{
-		logger::logconfig_lock lock;
+	auto LOGCONFIG=logconfig.get();
 
-		std::map<std::string, std::string>::iterator
-			iter=logconfig->logformats
+	{
+		logconfig_lock lock;
+
+		auto iter=LOGCONFIG->logformats
 			.find(unicode::toupper(name, localeRef->charset()));
 
-		if (iter != logconfig->logformats.end())
+		if (iter != LOGCONFIG->logformats.end())
 		{
 			n=name;
 			fmt=iter->second;
@@ -894,7 +920,7 @@ short logger::scopebase::get_debuglevel_propvalue(inheritObj &inherit)
 		{
 			level=logger::debuglevelpropstr
 				::fromstr(child.value().first,
-					  logconfig->default_locale);
+					  logconfig.get()->default_locale);
 			break;
 		}
 	}
@@ -927,25 +953,18 @@ logger::~logger()
 
 #define DEFINE_LOG_LEVEL(name) LOG_NAMESPACE "::logger::level::" # name "=" GET_LOG_LEVEL(name) "\n"
 
-logger::logconfig_init::logconfig_init() noexcept
+logconfig_init::logconfig_init() noexcept
 {
-	initstate s;
-
 	ptr<property::listObj> globprops=property::listObj::global();
 
 	const_locale global_locale{locale::base::environment()};
 
 	auto chset=global_locale->charset();
 
-	if (logconfig == NULL)
-		logconfig=new logger::configmeta;
+	auto LOGCONFIG=logconfig.get();
 
 	{
-		time_t t=time(NULL);
-
-		localtime_r(&t, &s.tmbuf);
-
-		static const char default_log_props[]=
+		std::string default_log_props=
 			DEFINE_LOG_LEVEL(TRACE)
 			DEFINE_LOG_LEVEL(DEBUG)
 			DEFINE_LOG_LEVEL(INFO)
@@ -954,6 +973,7 @@ logger::logconfig_init::logconfig_init() noexcept
 			DEFINE_LOG_LEVEL(FATAL)
 			LOG_NAMESPACE "::logger::format::brief=%a %H:%M:%S @{class}: @{msg}\n"
 			LOG_NAMESPACE "::logger::format::full=%a %H:%M:%S @@@{pid} @{thread} @{class}: @{msg}\n"
+			LOG_NAMESPACE "::logger::format::interactive=@{class}: @{msg}\n"
 			LOG_NAMESPACE "::logger::format::syslog=@{class}: @{msg}\n"
 			LOG_NAMESPACE "::logger::handler::stderr=@2\n"
 			LOG_NAMESPACE "::logger::handler::syslog=@syslog DEBUG=DEBUG INFO=INFO WARNING=WARNING ERR=ERROR CRIT=FATAL\n"
@@ -961,7 +981,14 @@ logger::logconfig_init::logconfig_init() noexcept
 
 			LOG_NAMESPACE "::logger::log::level=error\n"
 			LOG_NAMESPACE "::logger::log::handler::default=stderr\n"
-			LOG_NAMESPACE "::logger::log::handler::default::format=brief\n";
+			;
+
+		if (isatty(2))
+			default_log_props +=
+				LOG_NAMESPACE "::logger::log::handler::default::format=interactive\n";
+		else
+			default_log_props +=
+				LOG_NAMESPACE "::logger::log::handler::default::format=brief\n";
 
 		globprops->load(default_log_props, false, true,
 				property::errhandler::errstream(),
@@ -1007,8 +1034,8 @@ logger::logconfig_init::logconfig_init() noexcept
 								 chset);
 				}
 
-				logconfig->loglevels[b->first]=vint;
-				logconfig->loglevelsrev[vint]=b->first;
+				LOGCONFIG->loglevels[b->first]=vint;
+				LOGCONFIG->loglevelsrev[vint]=b->first;
 			}
 		}
 
@@ -1026,14 +1053,12 @@ logger::logconfig_init::logconfig_init() noexcept
 			{
 				p=b; ++p;
 
-				std::map<std::string, short>::iterator
-					l=logconfig->loglevels
-					.find(b->second);
+				auto l=LOGCONFIG->loglevels.find(b->second);
 
-				if (l == logconfig->loglevels.end())
+				if (l == LOGCONFIG->loglevels.end())
 					continue;
 
-				logconfig->loglevels[b->first]=
+				LOGCONFIG->loglevels[b->first]=
 					l->second;
 				xlogger_level_map.erase(b);
 				parsed=true;
@@ -1043,9 +1068,7 @@ logger::logconfig_init::logconfig_init() noexcept
 				break;
 		}
 
-		for (std::map<std::string, std::string>
-			     ::iterator
-			     b=xlogger_level_map.begin(),
+		for (auto b=xlogger_level_map.begin(),
 			     e=xlogger_level_map.end(); b != e; ++b)
 		{
 			LOGGING_FAILURE("Undefined log level: "
@@ -1085,7 +1108,7 @@ logger::logconfig_init::logconfig_init() noexcept
 					continue;
 				}
 
-				logconfig->logformats[n]=val;
+				LOGCONFIG->logformats[n]=val;
 			}
 		}
 
@@ -1103,15 +1126,12 @@ logger::logconfig_init::logconfig_init() noexcept
 			{
 				p=b; ++p;
 
-				std::map<std::string, std::string>
-					::iterator
-					l=logconfig->logformats
-					.find(b->second);
+				auto l=LOGCONFIG->logformats.find(b->second);
 
-				if (l == logconfig->logformats.end())
+				if (l == LOGCONFIG->logformats.end())
 					continue;
 
-				logconfig->logformats[b->first]=l->second;
+				LOGCONFIG->logformats[b->first]=l->second;
 				xlogger_format_map.erase(b);
 				parsed=true;
 			}
@@ -1207,12 +1227,10 @@ logger::logconfig_init::logconfig_init() noexcept
 							(w.substr(++eq),
 							 chset);
 
-						std::map<std::string,
-							 short>::iterator i
-							=logconfig->loglevels
+						auto i=LOGCONFIG->loglevels
 							.find(l);
 
-						if (i == logconfig->loglevels
+						if (i == LOGCONFIG->loglevels
 						    .end())
 						{
 							LOGGING_FAILURE(tostring(n)
@@ -1252,7 +1270,7 @@ logger::logconfig_init::logconfig_init() noexcept
 					auto h=ref<handlerObj::syslogger>
 						::create(syslog_map);
 
-					logconfig->loghandlers
+					LOGCONFIG->loghandlers
 						.insert(std::make_pair(n, h));
 					continue;
 				}
@@ -1276,7 +1294,7 @@ logger::logconfig_init::logconfig_init() noexcept
 
 					auto h=ref<handlerObj::fd>::create(fd);
 
-					logconfig->loghandlers
+					LOGCONFIG->loghandlers
 						.insert(std::make_pair(n, h));
 					continue;
 				}
@@ -1323,7 +1341,7 @@ logger::logconfig_init::logconfig_init() noexcept
 							  global_locale),
 						 keep);
 
-				logconfig->loghandlers
+				LOGCONFIG->loghandlers
 					.insert(std::make_pair(n, h));
 			}
 		}
@@ -1342,14 +1360,13 @@ logger::logconfig_init::logconfig_init() noexcept
 			{
 				p=b; ++p;
 
-				std::map<std::string, handler>::iterator
-					l=logconfig->loghandlers
+				auto l=LOGCONFIG->loghandlers
 					.find(b->second);
 
-				if (l == logconfig->loghandlers.end())
+				if (l == LOGCONFIG->loghandlers.end())
 					continue;
 
-				logconfig->loghandlers
+				LOGCONFIG->loghandlers
 					.insert(std::make_pair(b->first,
 							       l->second));
 				xlogger_handler_map.erase(b);
@@ -1360,9 +1377,7 @@ logger::logconfig_init::logconfig_init() noexcept
 				break;
 		}
 
-		for (std::map<std::string, std::string>
-			     ::iterator
-			     b=xlogger_handler_map.begin(),
+		for (auto b=xlogger_handler_map.begin(),
 			     e=xlogger_handler_map.end(); b != e; ++b)
 		{
 			LOGGING_FAILURE("Undefined log handler: "
@@ -1371,9 +1386,8 @@ logger::logconfig_init::logconfig_init() noexcept
 	}
 
 	{
-		property::listObj::iterator
-			facility=globprops->find(LOG_NAMESPACE
-						 "::logger::syslog::facility");
+		auto facility=globprops->find(LOG_NAMESPACE
+					      "::logger::syslog::facility");
 
 		if (facility.propname().size() > 0)
 		{
@@ -1431,7 +1445,7 @@ logger::logconfig_init::logconfig_init() noexcept
 				LOGGING_FAILURE("Unknown syslog facility: "
 						<< tostring(v));
 			else
-				logger::handlerObj::syslogger::facility=
+				handlerObj::syslogger::facility=
 					facilitiesn[n];
 		}
 	}
@@ -1443,15 +1457,10 @@ logger::logconfig_init::logconfig_init() noexcept
 	}
 }
 
-logger::logconfig_init::~logconfig_init()
+logconfig_init::~logconfig_init()
 {
 	logconfig_lock llock;
 
-	if (logconfig)
-	{
-		delete logconfig;
-		logconfig=0;
-	}
 	logger_subsystem_initialized_flag=false;
 }
 
@@ -1605,7 +1614,7 @@ void logger::operator()(const std::string &s, short loglevel) const noexcept
 	const std::time_put<char> &timecvt=
 		std::use_facet<std::time_put<char> >(current_locale);
 
-	std::map<std::string, std::string> vars;
+	std::unordered_map<std::string, std::string> vars;
 
 	vars["class"]=name ? name:"(unknown)";
 
@@ -1622,12 +1631,14 @@ void logger::operator()(const std::string &s, short loglevel) const noexcept
 		vars["pid"]=pidid.str();
 	}
 
+	auto LOGCONFIG=logconfig.get();
+
 	vars["level"]=
 		tostring(unicode::tolower
 			 (logger::debuglevelpropstr::tostr(loglevel,
-							   logger::logconfig
+							   LOGCONFIG
 							   ->default_locale)
-			  ), logger::logconfig->default_locale);
+			  ), LOGCONFIG->default_locale);
 
 	std::string::const_iterator b=s.begin(), e=s.end();
 
@@ -1648,12 +1659,12 @@ void logger::operator()(const std::string &s, short loglevel) const noexcept
 	}
 }
 
-void logger::domsg(std::map<std::string, std::string> &vars,
+void logger::domsg(std::unordered_map<std::string, std::string> &vars,
 		   const std::time_put<char> &timecvt,
 		   struct tm &tmbuf,
 		   short loglevel) const noexcept
 {
-	std::list<std::pair<logger::handler, std::string> > msg_list;
+	std::list<std::pair<handler, std::string> > msg_list;
 
 	const_locale global=locale::base::environment();
 
@@ -1738,9 +1749,7 @@ void logger::domsg(std::map<std::string, std::string> &vars,
 
 				fmtstart=fmt;
 
-				std::map<std::string,
-					 std::string>::iterator
-					sp=vars.find(n);
+				auto sp=vars.find(n);
 
 				if (sp != vars.end())
 					o << sp->second;

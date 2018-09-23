@@ -1,5 +1,15 @@
 0.13.0
 
+2018-09-23  Sam Varshavchik  <mrsam@courier-mta.com>
+
+	* Drop the timestamp when logging to an interactive tty. General
+	cleanup of the logger class, moving internal classes into the
+	anonymous namespace and removing them from the public header files
+	altogether (also a few thread-related internal classes as well).
+
+	Leverage the singleton template for log configuration
+	initialization, instead of reinventing that wheel.
+
 2018-09-21  Sam Varshavchik  <mrsam@courier-mta.com>
 
 	* Restructure the configure script and makefiles to allow for

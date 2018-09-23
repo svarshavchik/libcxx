@@ -17,26 +17,37 @@ namespace LIBCXX_NAMESPACE {
 
 __thread run_async::localscope *run_async::localscope::localscopeptr=0;
 
+// Objects that get destroyed at application shutdown get pushed into
+// mainscope.
+//
+// mainscopemutex protects the 'destructed' flag and the 'mainscope' pointer.
 
 static std::mutex mainscopemutex;
 static bool destructed=false;
 
 run_async::localscope *run_async::localscope::mainscope=nullptr;
 
-class LIBCXX_HIDDEN run_async::localscope::mainscope_destructor {
+namespace {
+#if 0
+}
+#endif
+
+// Helper class that destroys mainscope at application termination.
+
+class mainscope_destructor {
 
  public:
-	mainscope_destructor() {}
+	mainscope_destructor()=default;
 
 	~mainscope_destructor()
 	{
-		localscope *p=({
+		auto p=({
 				std::unique_lock<std::mutex>
-					lock(mainscopemutex);
+					lock{mainscopemutex};
 				destructed=false;
 
-				localscope *tp=mainscope;
-				mainscope=nullptr;
+				auto *tp=run_async::localscope::mainscope;
+				run_async::localscope::mainscope=nullptr;
 				destructed=true;
 				tp;
 			});
@@ -47,8 +58,12 @@ class LIBCXX_HIDDEN run_async::localscope::mainscope_destructor {
 	static mainscope_destructor instance;
 };
 
-run_async::localscope::mainscope_destructor 
-run_async::localscope::mainscope_destructor::instance;
+mainscope_destructor mainscope_destructor::instance;
+
+#if 0
+{
+#endif
+}
 
 void run_async::localscope::mainscope_pushstrongobjects(const ref<obj> &p)
 {

@@ -417,7 +417,7 @@ public:
 	void stop() override;
 };
 
-//! A message to the \ref threadmmsgdispatcherObj "execution thread".
+//! A message to the \ref threadmsgdispatcherObj "execution thread".
 
 //! Captures the method to invoke, and this object, and any
 //! method parameters.

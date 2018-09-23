@@ -43,8 +43,8 @@ See COPYING for distribution information.
     </informaltable>
 
   <para>
-    &app; uses Linux-specific APIs. An earlier version of &app; could
-    also be be built on &freebsdver;, but the port is not maintained at
+    &app; uses Linux-specific APIs. It was possible to build an earlier
+    version of &app; on &freebsdver;, but the port is not maintained at
     present, see <xref linkend="freebsdport" />
     for more information.
   </para>
@@ -59,9 +59,9 @@ See COPYING for distribution information.
   </para>
 
   <para>
-    &app; should be converted into an installable package, instead of building
+    &app; should be converted into an installable package instead of building
     and installing &app; directly. The source tarball
-    includes a canned build script for Fedora. Running
+    contains a build script for Fedora. Running
     <quote><command>rpmbuild -ta libcxx-<replaceable>version</replaceable>.tar.bz2</command></quote>
     creates the following packages:
   </para>
@@ -176,7 +176,7 @@ See COPYING for distribution information.
 
     <para>
       As mentioned above, &app; should be built into a standalone, installable
-      package. Use the following documentation as a guide to create an
+      package. Use the following documentation as a guide to creating an
       installation script or a package.
     </para>
 
@@ -254,7 +254,8 @@ See COPYING for distribution information.
       which is usually
       <filename>/usr/local/var/tlsparams</filename> or
       <filename>/var/tlsparams</filename>.
-      These parameter files should be periodically regenerated.
+      The installable package should have a <command>cron</command> entry
+      that periodically regenerates the parameter files.
       The process for doing so is as follows:
     </para>
 
@@ -288,7 +289,7 @@ See COPYING for distribution information.
       package should make arrangements to execute
       <command>tlsparamsgen.sh</command> soon after
       installation, to replace the stock ephemeral parameters with
-      randomly-generate ones.
+      randomly-generated ones.
     </para>
 
     <para>
@@ -425,7 +426,7 @@ See COPYING for distribution information.
     <title>Packaging different versions of &app;</title>
 
     <para>
-      &app; gets packaged in a manner that makes it possible to install
+      &app; gets packaged in a way that makes it possible to install
       different versions at the same time.
       &app; is a heavily-templated C++ library. Minor maintenance
       releases of &app; preserve the same source and binary APIs.
@@ -433,7 +434,7 @@ See COPYING for distribution information.
       it's possible to prepare concurrently-installable packages for
       multiple regular version releases of &app;. Only one minor maintenance
       release of the same version can be installed at the same time, but
-      multiple regular version releases are installable.
+      multiple regular version releases can coexist with each other.
     </para>
 
     <para>
@@ -481,16 +482,16 @@ See COPYING for distribution information.
 
       <listitem>
 	<para>
-	  It's also possible to prepare a non-current version of
-	  &appshort; as the normal version, and later versions of &appshort;
-	  as compatibility packages, also.
+	  It's also possible to have a non-current version of
+	  &appshort; as the normal version, and newer versions of &appshort;
+	  as compatibility packages.
 	</para>
       </listitem>
     </itemizedlist>
 
     <para>
-      A compatibility package gets built the same way as a normal package.
-      creating an installable image in a temporary directory, then removing
+      A compatibility package gets built the same way as a normal package:
+      creating an installable image in a temporary directory, but then removing
       all runtime tools and runtime configuration files from the installable
       image. The only contents of an installable image are:
     </para>

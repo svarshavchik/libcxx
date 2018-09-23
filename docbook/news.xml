@@ -8,11 +8,35 @@ See COPYING for distribution information.
 <section id="news">
   <title>Release 0.13 of &app;</title>
 
-  <para>
-    This is a minor release that adds the
-    <ulink url="&link-function-x-sort-by;"><function>&ns;::sort_by</function></ulink>
-    algorithm, minor fixes, and GnuTLS updates.
-  </para>
+  <itemizedlist>
+    <listitem>
+      <para>
+	Packaging fixes. Reorganize autoconf and automake macros to make it
+	possible to have concurrent installation of different versions of &app;
+	in the future, for compatibility reasons.
+      </para>
+    </listitem>
+    <listitem>
+      <para>
+	A new
+	<ulink url="&link-function-x-sort-by;"><function>&ns;::sort_by</function></ulink>
+	algorithm.
+      </para>
+    </listitem>
+
+    <listitem>
+      <para>
+	Remove the current timestamp when logging to an interactive tty.
+	Default logging format in non-tty environment still includes the
+	current timestamp. This makes <literal>LOG_*</literal> macros
+	produce more sensible results, by default.
+      </para>
+    </listitem>
+
+    <listitem>
+      <para>Other minor fixes, and GnuTLS updates.</para>
+    </listitem>
+  </itemizedlist>
 </section>
 
 <!--

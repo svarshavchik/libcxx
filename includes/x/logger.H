@@ -21,7 +21,7 @@ This file defines a flexible logging mechanism
 #include <string>
 #include <iostream>
 #include <sstream>
-#include <map>
+#include <unordered_map>
 #include <list>
 #include <locale>
 
@@ -209,12 +209,17 @@ tid_t gettid() noexcept;
 //! this is currently undocumented, and there's little need for it. The benefit
 //! from setting up additional configuration level seems to be dubious.
 //!
-//! - Define the \em brief, \em full, and \em syslog log message formats.
+//! - Define the \em interactive, \em brief, \em full, and \em syslog log message formats.
 //!
 //! - Set the root log level to \b error.
 //!
 //! - Set up a log handler called "default", that reports log %messages to
-//! standard error, and the log format to \b brief.
+//! standard error, and the log format to either \b interactive or \b brief.
+//! A standard error going to an interactive terminal sets the log format is
+//! \b interactive, and standard error going to a non-interactive terminal
+//! results in a \b brief default log format. This has the effect of
+//! automatically prepending the current time when the standard error gets
+//! captured to the log file.
 //!
 //! The following %property configuration settings take effect only when
 //! specified in the application's property file (the filename set in the
@@ -382,6 +387,7 @@ tid_t gettid() noexcept;
 //! Here are the default logging formats:
 //!
 //! \code
+//! INSERT_LIBX_NAMESPACE::logger::format::interactive=@{class}: @{msg}
 //! INSERT_LIBX_NAMESPACE::logger::format::brief=%a %H:%M:%S @{class}: @{msg}
 //! INSERT_LIBX_NAMESPACE::logger::format::full=%a %H:%M:%S @@@{pid} @{thread} @{class}: @{msg}
 //! INSERT_LIBX_NAMESPACE::logger::format::syslog=@{class}: @{msg}
@@ -633,20 +639,6 @@ tid_t gettid() noexcept;
 
 class LIBCXX_HIDDEN logger {
 
-	class LIBCXX_INTERNAL handlerObj;
-
-	//! A reference to a log handler
-
-	//! \internal
-	//! Log handlers are reference-counted objects.
-	typedef ref<handlerObj> handler;
-
-	//! A pointer to a log handler
-
-	//! \internal
-	//! Log handlers are reference-counted objects.
-	typedef ptr<handlerObj> handlerptr;
-
 	//! Helper function for setting log levels by name.
 
 	class debuglevelpropstr {
@@ -699,31 +691,9 @@ public:
 
 	friend class debuglevelpropstr;
 private:
-	class LIBCXX_INTERNAL initstate;
-	class LIBCXX_INTERNAL configmeta;
-
-	//! Logging configuration read at startup
-
-	static configmeta *logconfig LIBCXX_INTERNAL;
-
 	//! Current context stack
 
 	static __thread context *context_stack LIBCXX_INTERNAL;
-
-	class LIBCXX_INTERNAL logconfig_lock;
-
-	class LIBCXX_INTERNAL logconfig_init;
-
-	//! The singleton that initializes the logging subsystem
-
-	//! \internal
-	//! This singleton nitializes the static data.
-	//! First, a default log configuration gets loaded. Then
-	//! if the environment variable LOGCONFIG is set, and the
-	//! given file exists, the configuration file is read from
-	//! LOGCONFIG.
-
-	static singleton<logconfig_init> logger_init LIBCXX_INTERNAL;
 
 	class LIBCXX_INTERNAL scopedestObj;
 	class LIBCXX_INTERNAL handlername;
@@ -741,8 +711,8 @@ private:
 		property::value<short, debuglevelpropstr> debuglevel;
 
 		//! Container for log handlers
-		typedef std::map<std::string,
-				 ref<scopedestObj> > handlers_t;
+		typedef std::unordered_map<std::string,
+					   ref<scopedestObj> > handlers_t;
 
 		//! Log handlers
 		handlers_t handlers;
@@ -815,7 +785,7 @@ private:
 	//! \internal
 	//!
 
-	void domsg(std::map<std::string, std::string> &vars,
+	void domsg(std::unordered_map<std::string, std::string> &vars,
 		   const std::time_put<char> &timecvt,
 		   struct tm &tmbuf,
 		   short loglevel) const noexcept LIBCXX_INTERNAL;

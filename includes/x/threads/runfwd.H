@@ -63,8 +63,6 @@ class run_async {
 	using runthreadparamObj=run_asyncthreadparamObj<refobj_type, ret_type,
 							Args...>;
 
-	class localscope;
-
 	//! Thrown an exception, things are not fully set up.
 
 	//! \internal
@@ -77,6 +75,8 @@ class run_async {
 	static const char default_name[] LIBCXX_HIDDEN;
 
 public:
+
+	class localscope;
 
 	template<typename ref_type, typename baseClass>
 	class singleton;

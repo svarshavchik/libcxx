@@ -75,7 +75,7 @@ private:
 		ref<obj_type, baseClass> p;
 
 		//! Constructor
-		wrapperObj() : p(ref<obj_type, baseClass>::create())
+		wrapperObj() : p{ref<obj_type, baseClass>::create()}
 		{
 			static_instance.instance=&*p; // Already protected
 		}
@@ -103,9 +103,6 @@ public:
 	singleton()=default;
 
 	//! Return the singleton instance
-
-	//! This may return a null ptr during application startup or shutdown.
-	//!
 
 	static ref<obj_type, baseClass> get()
 	{

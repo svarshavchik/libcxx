@@ -37,10 +37,7 @@ public:
 
 	static __thread localscope *localscopeptr;
 
-	//! The main() scope
 	static localscope *mainscope LIBCXX_HIDDEN;
-
-	class mainscope_destructor;
 
 	//! Push an object to mainscope->strongobjects.
 
