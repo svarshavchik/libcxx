@@ -3,7 +3,7 @@
 # See COPYING for distribution information.
 
 AC_PREREQ(2.61)
-AC_INIT(libcxx, 0.13.0, [mrsam@courier-mta.com])
+AC_INIT(libcxx, 0.13.1, [mrsam@courier-mta.com])
 
 AC_CONFIG_SRCDIR([includes/x/obj.H])
 AC_CONFIG_HEADER([libcxx_config.h])
@@ -43,7 +43,7 @@ XGETTEXT_EXTRA_OPTIONS="--keyword=_txt --keyword=_txtw --keyword=_txtn:1,2 --key
 #
 ABIVER=0.13
 AC_SUBST(ABIVER)
-VERSION_INFO=13:0:0
+VERSION_INFO=13:1:0
 AC_SUBST(VERSION_INFO)
 
 # Checks for libraries.

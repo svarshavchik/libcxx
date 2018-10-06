@@ -797,7 +797,7 @@ void gnutls::sessionObj
 
 void gnutls::sessionObj::set_default_priority()
 {
-	set_priority("NORMAL:-CTYPE-OPENPGP");
+	set_priority("NORMAL");
 }
 
 void gnutls::sessionObj::set_priority(const std::string &priorityStr)
