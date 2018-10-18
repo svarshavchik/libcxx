@@ -226,6 +226,8 @@ template<typename base_ref,
 template<typename ...callArgs>
 inline auto functionrefptr_impl<base_ref, return_type(Args...)>
 ::operator()(callArgs && ...args) const
+	->decltype((*std::declval<return_type (*)(Args...)>())
+		   (std::forward<callArgs>(args)...))
 {
 	return this->operator*()(std::forward<callArgs>(args)...);
 }

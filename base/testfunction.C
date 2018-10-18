@@ -13,8 +13,11 @@ class fwd_decl {
 #include "x/functionalrefptr.H"
 #include "x/mcguffinmap.H"
 #include "x/exception.H"
+#include "x/visitor.H"
 #include <iostream>
 #include <cstdlib>
+#include <variant>
+#include <utility>
 
 using namespace LIBCXX_NAMESPACE;
 
@@ -187,13 +190,60 @@ void bar()
 	foo([]{});
 }
 
+struct one{};
+struct two{};
+
+typedef std::variant<one,
+		     two,
+		     functionref<void (one &)>,
+		     functionref<void (two &)>
+		     > v_t;
+
+int check_text_param(const v_t &v)
+{
+	return std::visit
+		(visitor
+		 {
+		  [&](const functionref<void (one &)> &)
+		  {
+			  return 0;
+		  },
+		  [&](const functionref<void (two &)> &)
+		  {
+			  return 1;
+		  },
+		  [&](const one &)
+		  {
+			  return 2;
+		  },
+		  [&](const two &)
+		  {
+			  return 3;
+		  }
+		 }, v);
+}
+
+
 int main()
 {
 	try {
 		testfunction();
 		testfunctionref();
 		testmcguffinmap();
-
+		if (check_text_param(functionref<void (one &)>{
+					[](one &)
+					{
+					}}) != 0)
+			throw EXCEPTION("check_text_param(0) failed");
+		if (check_text_param(functionref<void (two &)>{
+					[](two &)
+					{
+					}}) != 1)
+			throw EXCEPTION("check_text_param(1) failed");
+		if (check_text_param(one{}) != 2)
+			throw EXCEPTION("check_text_param(2) failed");
+		if (check_text_param(two{}) != 3)
+			throw EXCEPTION("check_text_param(3) failed");
 	} catch (const exception &e)
 	{
 		std::cerr << e << std::endl;

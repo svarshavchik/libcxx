@@ -83,7 +83,9 @@ public:
 
 	//! Invoke the wrapped callable object.
 	template<typename ...callArgs>
-	auto operator()(callArgs && ...args) const;
+	auto operator()(callArgs && ...args) const
+		->decltype((*std::declval<return_type (*)(Args...)>())
+			   (std::forward<callArgs>(args)...));
 
 	//! Assignment operator.
 
