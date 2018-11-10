@@ -142,16 +142,16 @@ public:
 
 	fdbase filedesc() override;
 
+	//! Perform TLS connection termination
+
+	//! \internal
+	void terminate() override LIBCXX_HIDDEN;
+
 private:
 	//! Perform handshake
 
 	//! \internal
 	void init(sendmsg &msg) LIBCXX_INTERNAL;
-
-	//! Perform TLS connection termination
-
-	//! \internal
-	void ran() LIBCXX_HIDDEN;
 
 	//! Check if a TLS handshake is required, before sending a request
 

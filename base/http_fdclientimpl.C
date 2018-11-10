@@ -107,6 +107,10 @@ void fdclientimpl::check_body_status()
 	superclass_t::check_body_status();
 }
 
+void fdclientimpl::terminate()
+{
+}
+
 #if 0
 {
 	{

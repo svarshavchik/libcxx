@@ -1,3 +1,17 @@
+2018-11-10  Sam Varshavchik  <mrsam@courier-mta.com>
+
+	* gnutls: fixes for TLS 1.3. GnuTLS can apparently return
+	GNUTLS_E_AGAIN for its own reasons, even on blocking socket.
+	Reimplemented the C++/C interface between the library and
+	GnuTLS to take account of that.
+
+	* includes/x/fdbaseobj.H: Added pubpoll() method, implemented in
+	fdObj.
+
+	* includes/x/gnutls/sessionobj.H: implement pull timeout callback
+	from gnutls.
+
+
 2018-10-17  Sam Varshavchik  <mrsam@courier-mta.com>
 
 	* includes/x/functionalrefptrfwd.H: Improved SFINAE-friendliness

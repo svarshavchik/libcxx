@@ -116,8 +116,11 @@ public:
 
 			       //! Element count
 
-			       size_t cnt)
-=0;
+			       size_t cnt)=0;
+
+	//! Poll for available data.
+
+	virtual int pubpoll(int timeout_ms)=0;
 
 	//! Check if there's unread data waiting in the filedescriptor
 
@@ -395,6 +398,12 @@ public:
 	//!
 
 	size_t pubread_pending() const override;
+
+	//! Pass through method
+
+	//! The default adapter invokes ptr->pubpoll().
+	//!
+	int pubpoll(int timeout_ms) override;
 
 	//! Pass through method
 

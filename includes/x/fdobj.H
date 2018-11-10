@@ -1164,6 +1164,10 @@ private:
 
 		       size_t cnt) override LIBCXX_HIDDEN;
 
+	//! Implement pubpoll(), inherited from fdbaseObj
+	int pubpoll(//! Timeout
+		    int timeout_ms) override LIBCXX_HIDDEN;
+
 	//! Implement pubread_pending(), inherited from fdbaseObj
 
 	size_t pubread_pending() const override LIBCXX_HIDDEN;

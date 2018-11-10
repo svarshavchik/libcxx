@@ -247,6 +247,7 @@ void testsessioncache()
 		throw EXCEPTION("Resumed from what?");
 	auto data=sess->get_session_data();
 	sess->bye(direction);
+	sock->close();
 
 	sock=LIBCXX_NAMESPACE::netaddr::create("localhost", portnum)->connect();
 

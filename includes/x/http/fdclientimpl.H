@@ -101,6 +101,10 @@ public:
 	void install(const fd &filedescArg,
 		     const fdptr &terminatorArg) override;
 
+	//! Abnormal termination.
+
+	virtual void terminate();
+
 protected:
 	//! Subclass hook to set a timeout.
 	void begin_write_message() override;

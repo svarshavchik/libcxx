@@ -125,6 +125,12 @@ private:
 				 void *buf,
 				 size_t buf_s) noexcept LIBCXX_HIDDEN;
 
+	//! Stub for GnuTLS's session pull timeout function
+
+	static int pull_timeout_func(gnutls_transport_ptr_t ptr,
+				     unsigned int timeout_ms) noexcept
+		LIBCXX_HIDDEN;
+
 	//! Stub for GnuTLS's session push function
 
 	static ssize_t push_func(gnutls_transport_ptr_t ptr,
@@ -135,6 +141,8 @@ private:
 
 	ssize_t pull_func(void *buf,
 			  size_t buf_s) noexcept LIBCXX_HIDDEN;
+
+	int pull_timeout_func(unsigned int timeout_ms) noexcept LIBCXX_HIDDEN;
 
 	//! Stub for GnuTLS's session push function
 
@@ -295,10 +303,6 @@ public:
 		verify_peer_internal(&hostname);
 	}
 private:
-
-	//! Internal handshake implementation
-
-	bool handshake(bool force, int &direction);
 
 	//! verify_peer() common implementation
 
@@ -464,6 +468,10 @@ private:
 		       //! Element count
 
 		       size_t cnt) override LIBCXX_HIDDEN;
+
+	//! Implement pubpoll(), inherited from fdbaseObj
+
+	int pubpoll(int timeout_ms) override;
 
 	//! Implement pubread_pending(), inherited from fdbaseObj
 

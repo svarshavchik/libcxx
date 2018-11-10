@@ -317,6 +317,9 @@ class useragentObj : virtual public obj {
 
 		//! This connection is not idle anymore, remove it from useragent's cached list.
 		void notidleanymore(meta_t::writelock &lock) LIBCXX_HIDDEN;
+
+		//! Being called from terminate().
+		virtual void client_terminate()=0;
 	};
 
 	//! Multiply inherit from fdclient and idleconnObj
@@ -330,6 +333,11 @@ class useragentObj : virtual public obj {
 	public:
 		connObj() LIBCXX_HIDDEN {}
 		~connObj() LIBCXX_HIDDEN {}
+
+		void client_terminate() override LIBCXX_HIDDEN
+		{
+			this->terminate();
+		}
 	};
 
 	//! Internal authentication cache
@@ -400,6 +408,9 @@ public:
 	//! Default destructor
 	~useragentObj();
 
+	//! Terminate all connections.
+
+	void terminate();
 
 	class responseBase;
 	class responseObj;

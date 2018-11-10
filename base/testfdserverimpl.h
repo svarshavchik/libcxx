@@ -513,15 +513,7 @@ void testwritetimeout()
 
 	conn_type::createClientServerPair(sclient, sserver);
 
-	{
-		sserver->get_fd()->nonblock(true);
-
-		char dummy=0;
-
-		while (sserver->get_fd()->write(&dummy, 1) > 0)
-			;
-		sserver->get_fd()->nonblock(false);
-	}
+	fillpipe<conn_type>(sserver);
 
 	FORCE_PROP(LIBCXX_NAMESPACE_STR "::http::server::body_timeout", "2");
 	FORCE_PROP(LIBCXX_NAMESPACE_STR "::https::server::handshake_timeout","2");

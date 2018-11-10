@@ -155,6 +155,11 @@ size_t fdbaseObj::adapterObj::pubread(char *buffer,
 	return ptr->pubread(buffer, cnt);
 }
 
+int fdbaseObj::adapterObj::pubpoll(int timeout_ms)
+{
+	return ptr->pubpoll(timeout_ms);
+}
+
 size_t fdbaseObj::adapterObj::pubread_pending()
 	const
 {
@@ -1462,6 +1467,16 @@ bool fdObj::lockf(int cmd, off64_t len)
 size_t fdObj::pubread(char *buffer, size_t cnt)
 {
 	return read(buffer, cnt);
+}
+
+int fdObj::pubpoll(int timeout_ms)
+{
+	struct pollfd pfd;
+
+	pfd.fd=filedesc;
+	pfd.events=POLLIN;
+
+	return ::poll(&pfd, 1, timeout_ms);
 }
 
 size_t fdObj::pubread_pending() const

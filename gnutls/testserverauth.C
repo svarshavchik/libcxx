@@ -1010,6 +1010,7 @@ int main(int argc, char **argv)
 	LIBCXX_NAMESPACE::option::parser parser(LIBCXX_NAMESPACE::option::parser::create());
 
 	parser->setOptions(options);
+	LIBCXX_NAMESPACE::http::useragent::base::https_enable();
 
 	if (parser->parseArgv(argc, argv) ||
 	    parser->validate())
@@ -1031,24 +1032,28 @@ int main(int argc, char **argv)
 		testdomainspace();
 	} catch (const LIBCXX_NAMESPACE::exception &e) {
 		std::cout << e << std::endl;
+		exit(1);
 	}
 
 	try {
 		testserverauth_rfc2617();
 	} catch (const LIBCXX_NAMESPACE::exception &e) {
 		std::cout << "testserverauth_rfc2617: " << e << std::endl;
+		exit(1);
 	}
 
 	try {
 		testserverauth_rfc2069();
 	} catch (const LIBCXX_NAMESPACE::exception &e) {
 		std::cout << "testserverauth_rfc2069: " << e << std::endl;
+		exit(1);
 	}
 
 	try {
 		testserverauth_digest_over_basic();
 	} catch (const LIBCXX_NAMESPACE::exception &e) {
 		std::cout << "testserverauth_digest_over_basic: " << e << std::endl;
+		exit(1);
 	}
 
 	try {
@@ -1062,6 +1067,7 @@ int main(int argc, char **argv)
 	} catch (const LIBCXX_NAMESPACE::exception &e) {
 		std::cout << "testserverauth_sha1_digest_preferred(MD5 SHA1): "
 			  << e << std::endl;
+		exit(1);
 	}
 
 	try {
@@ -1069,6 +1075,7 @@ int main(int argc, char **argv)
 	} catch (const LIBCXX_NAMESPACE::exception &e) {
 		std::cout << "testserverauth_sha1_digest_preferred(SHA1 MD5): "
 			  << e << std::endl;
+		exit(1);
 	}
 
 	return 0;

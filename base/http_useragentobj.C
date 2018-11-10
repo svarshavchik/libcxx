@@ -113,10 +113,21 @@ useragentObj::epollCallbackObj::~epollCallbackObj()
 void useragentObj::epollCallbackObj::event(const fd &fdRef,
 					   event_t event)
 {
-	idleconn c(conn);
+	// The server must've closed the connection. First, take it out of
+	// the
+	idleconn c{conn};
 
-	meta_t::writelock lock(conn->uaObj->meta);
-	conn->notidleanymore(lock);
+	{
+		meta_t::writelock lock(conn->uaObj->meta);
+		conn->notidleanymore(lock);
+	}
+
+	try {
+		c->client_terminate();
+	} catch (const exception &e)
+	{
+		e->caught();
+	}
 }
 
 useragentObj::request_sans_body::request_sans_body()
@@ -149,6 +160,34 @@ useragentObj::useragentObj(clientopts_t optsArg,
 
 useragentObj::~useragentObj()
 {
+	try {
+		terminate();
+	} catch (const exception &e)
+	{
+		e->caught();
+	}
+}
+
+void useragentObj::terminate()
+{
+	meta_t::writelock lock(meta);
+
+	for (const auto &ic:(*lock->idle_connections))
+	{
+		auto c=ic.second.getptr();
+
+		if (!c)
+			continue;
+
+		idle_connectionlistObj &obj{*c};
+
+		while (!obj.idle_connection_list.empty())
+		{
+			idleconn conn{obj.idle_connection_list.front()};
+			conn->notidleanymore(lock);
+			conn->client_terminate();
+		}
+	}
 }
 
 useragentObj::responseObj::responseObj(const uriimpl &uriArg,
@@ -653,23 +692,23 @@ void useragentObj::recycle(const cache_key_t &key,
 useragentObj::idleconn useragentObj::findConn(const cache_key_t &key,
 					      const fd *terminate_fd)
 {
- again:
-	std::pair<epoll, size_t>
-		idle_cnt=({
-				meta_t::writelock lock(meta);
-
-				std::make_pair(lock->epollfd,
-					       lock->connectionlist_size);
-			});
-
 	fdptr terminate_fdptr=terminate_fd ? fdptr(*terminate_fd):fdptr();
 
-	idle_cnt.first->epoll_wait(0);
+	auto epollfd=({
+			meta_t::writelock lock{meta};
 
-	meta_t::writelock lock(meta);
+			lock->epollfd;
+		});
 
-	if (idle_cnt.second != lock->connectionlist_size)
-		goto again;
+	// Check for idle connections closed by the server.
+
+	// epollCallbackObj::event() locks the meta, that's why we make sure
+	// the lock is released...
+
+	epollfd->epoll_wait(0);
+
+	// ... and reacquired
+	meta_t::writelock lock{meta};
 
 	idle_connectionlistptr connlist;
 
@@ -683,11 +722,11 @@ useragentObj::idleconn useragentObj::findConn(const cache_key_t &key,
 		if (connlist.null())
 			continue;
 
-		idle_connectionlistObj &obj(*connlist);
+		idle_connectionlistObj &obj{*connlist};
 
 		if (!obj.idle_connection_list.empty())
 		{
-			idleconn conn(obj.idle_connection_list.front());
+			idleconn conn{obj.idle_connection_list.front()};
 			conn->notidleanymore(lock);
 
 			return conn;

@@ -883,7 +883,8 @@ int main(int argc, char **argv)
 	try {
 		testsession();
 		testsession2();
-		testrehandshake();
+		if (0) // TODO: no rehandshake in TLS 1.3
+			testrehandshake();
 		testreadabort();
 		testwriteabort();
 	} catch (LIBCXX_NAMESPACE::exception &e) {

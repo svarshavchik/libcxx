@@ -161,6 +161,18 @@ public:
 				    LIBCXX_NAMESPACE::fdptr(),
 				    noverifycert);
 		}
+
+		void handshake()
+		{
+			std::unique_lock<std::mutex> lock(mutex);
+
+			if (sess.null())
+				sess=factory->create(side, filedesc);
+
+			int dummy;
+
+			sess->handshake(dummy);
+		}
 	};
 
 

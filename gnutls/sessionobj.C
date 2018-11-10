@@ -28,6 +28,20 @@
 #define AGAIN(e) \
 	((e) == GNUTLS_E_INTERRUPTED || (e) == GNUTLS_E_AGAIN)
 
+// GnuTLS can now return GNUTLS_E_AGAIN for its own reasons, not realted
+// to non-blocking I/O. Detect this situation and try again ourselves,
+// because our caller may not be prepared to deal with this.
+
+#define AGAIN_SHOULD_BE_HANDLED_BY_GNUTLS			 \
+	(transport_errno != EAGAIN && \
+	 transport_errno != EWOULDBLOCK)
+
+// Once an errno is encounted on a socket, we remember it and fail all
+// subsequent requests.
+#define REAL_ERROR_IN_TRANSPORT				 \
+	(transport_errno && transport_errno != EAGAIN && \
+	 transport_errno != EWOULDBLOCK)
+
 namespace LIBCXX_NAMESPACE {
 
 #if 0
@@ -92,6 +106,10 @@ gnutls::sessionObj::sessionObj(unsigned modeArg,
 
 	gnutls_transport_set_pull_function(sess, (gnutls_pull_func)
 					   &gnutls::sessionObj::pull_func);
+	gnutls_transport_set_pull_timeout_function
+		(sess,
+		 (gnutls_pull_timeout_func)
+		 &gnutls::sessionObj::pull_timeout_func);
 	gnutls_transport_set_push_function(sess, (gnutls_push_func)
 					   &gnutls::sessionObj::push_func);
 }
@@ -118,6 +136,11 @@ gnutls::session gnutls::sessionBase::client(const fd &conn,
 	return s;
 }
 
+extern "C" {
+#if 0
+}
+#endif
+
 ssize_t gnutls::sessionObj::pull_func(gnutls_transport_ptr_t ptr,
 				      void *buf,
 				      size_t buf_s) noexcept
@@ -127,23 +150,35 @@ ssize_t gnutls::sessionObj::pull_func(gnutls_transport_ptr_t ptr,
 	return me->pull_func(buf, buf_s);
 }
 
+#if 0
+{
+#endif
+}
+
+LOG_FUNC_SCOPE_DECL(LIBCXX_NAMESPACE::gnutls::sessionObj, debugLog);
+
 ssize_t gnutls::sessionObj::pull_func(void *buf,
 				      size_t buf_s) noexcept
 {
+	LOG_FUNC_SCOPE(debugLog);
+
 	// If an error already occured here, reset errno, and do nothing.
 
 	{
 		LOCK_SESSION;
 
-		if (transport_errno)
+		if (REAL_ERROR_IN_TRANSPORT)
 		{
 			errno=transport_errno;
+			LOG_TRACE(this << ": pull: preserving existing error "
+				  << strerror(errno));
 			return (ssize_t)-1;
 		}
 	}
 
 	size_t n;
 
+	errno=0;
 	try {
 		n=transport->pubread( (char *)buf, buf_s);
 	} catch (const sysexception &e)
@@ -156,26 +191,97 @@ ssize_t gnutls::sessionObj::pull_func(void *buf,
 		n=0;
 	}
 
+	LOG_TRACE(this << ": pull: pubread() returned " << n
+		  << ", errno=" << (errno ? strerror(errno):"0"));
+
+	{
+		LOCK_SESSION;
+
+		transport_errno=errno;
+	}
+
 	if (n == 0)
 	{
 		if (errno == 0)
 			return 0; // End of file
 
-		// These two are used for non-blocking mode, and are not
-		// fatal.
-
-		if (errno != EAGAIN || errno != EWOULDBLOCK)
-		{
-			LOCK_SESSION;
-
-			transport_errno=errno;
-		}
 		return -1; // EOF
 	}
 
 	return n;
 }
 
+extern "C" {
+#if 0
+}
+#endif
+int gnutls::sessionObj::pull_timeout_func(gnutls_transport_ptr_t ptr,
+					  unsigned int ms) noexcept
+{
+	sessionObj *me=reinterpret_cast<sessionObj *>(ptr);
+
+	return me->pull_timeout_func(ms);
+}
+
+#if 0
+{
+#endif
+}
+
+int gnutls::sessionObj::pull_timeout_func(unsigned int ms) noexcept
+{
+	LOG_FUNC_SCOPE(debugLog);
+
+	// If an error already occured here, reset errno, and do nothing.
+
+	{
+		LOCK_SESSION;
+
+		if (REAL_ERROR_IN_TRANSPORT)
+		{
+			errno=transport_errno;
+			LOG_TRACE(this << ": pull_timeout:"
+				  " preserving existing error "
+				  << strerror(errno));
+			return -1;
+		}
+	}
+
+	int n;
+
+	try {
+		n=transport->pubpoll(ms == GNUTLS_INDEFINITE_TIMEOUT
+				     ? -1
+				     : (int)ms);
+	} catch (const sysexception &e)
+	{
+		errno=e.getErrorCode();
+		n=-1;
+	} catch (...)
+	{
+		errno=EIO;
+		n=-1;
+	}
+
+	{
+		LOCK_SESSION;
+
+		transport_errno=errno;
+
+		if (n >= 0)
+			transport_errno=0;
+	}
+
+	LOG_TRACE(this << ": pull: pubpoll() returned " << n
+		  << ", errno=" << (n ? strerror(transport_errno):"0"));
+
+	return n;
+}
+
+extern "C" {
+#if 0
+}
+#endif
 ssize_t gnutls::sessionObj::push_func(gnutls_transport_ptr_t ptr,
 				      const void *buf,
 				      size_t buf_s) noexcept
@@ -185,9 +291,16 @@ ssize_t gnutls::sessionObj::push_func(gnutls_transport_ptr_t ptr,
 	return me->push_func(buf, buf_s);
 }
 
+#if 0
+{
+#endif
+}
+
 ssize_t gnutls::sessionObj::push_func(const void *buf,
 				      size_t buf_s) noexcept
 {
+	LOG_FUNC_SCOPE(debugLog);
+
 	size_t n;
 
 	// If an error already occured here, reset errno, and do nothing.
@@ -195,13 +308,16 @@ ssize_t gnutls::sessionObj::push_func(const void *buf,
 	{
 		LOCK_SESSION;
 
-		if (transport_errno)
+		if (REAL_ERROR_IN_TRANSPORT)
 		{
 			errno=transport_errno;
+			LOG_TRACE(this << ": push: preserving existing error "
+				  << strerror(errno));
 			return (ssize_t)-1;
 		}
 	}
 
+	errno=0;
 	try {
 		n=transport->pubwrite( (const char *)buf, buf_s);
 	} catch (const sysexception &e)
@@ -214,20 +330,20 @@ ssize_t gnutls::sessionObj::push_func(const void *buf,
 		n=0;
 	}
 
-	if (n == 0)
 	{
-		if (!errno)
+		LOCK_SESSION;
+
+		if (n == 0 && !errno)
 			errno=ECONNRESET; // Something must've happened
 
-		// These two are used for non-blocking mode, and are not
-		// fatal.
+		transport_errno=errno;
+	}
 
-		if (errno != EAGAIN || errno != EWOULDBLOCK)
-		{
-			LOCK_SESSION;
+	LOG_TRACE(this << ": push: pubwrite() returned " << n
+		  << ", errno=" << (errno ? strerror(errno):"0"));
 
-			transport_errno=errno;
-		}
+	if (n == 0)
+	{
 		return (ssize_t)-1;
 	}
 
@@ -300,11 +416,6 @@ void gnutls::sessionObj::get_server_names(gnutls_session_t sess,
 	}
 }
 
-bool gnutls::sessionObj::handshake(int &direction)
-{
-	return handshake(true, direction);
-}
-
 void gnutls::sessionObj::set_session_data(const datum_t &session_dataArg)
 {
 	LOCK_SESSION;
@@ -343,21 +454,23 @@ void gnutls::sessionObj::session_cache(const sessioncache &cacheArg,
 	gnutls_db_set_store_function(sess, &sessioncacheObj::store_func);
 }
 
-bool gnutls::sessionObj::handshake(bool force,
-				   int &direction)
+bool gnutls::sessionObj::handshake(int &direction)
 {
-	LOCK_SESSION;
+	LOG_FUNC_SCOPE(debugLog);
 
-	if (force)
-		handshake_needed=true;
+	LOCK_SESSION;
 
 	if (!handshake_needed)
 		return true; // Already done.
 
+ again:
 	direction=0;
 	errno=0;
 
 	int err=gnutls_handshake(sess);
+
+	LOG_TRACE(this << ": gnutls_handshake returned "
+		  << gnutls_strerror_name(err));
 
 	if (!certificateCred.null())
 	{
@@ -372,11 +485,17 @@ bool gnutls::sessionObj::handshake(bool force,
 	{
 		// Propagate ETIMEDOUT, because gnutls complains about packet length instead
 
-		if (errno == ETIMEDOUT)
+		LOG_TRACE(this << ": errno is "
+			  << strerror(transport_errno));
+
+		if (transport_errno == ETIMEDOUT)
 			throw SYSEXCEPTION("gnutls_handshake");
 
 		if (AGAIN(err))
 		{
+			if (AGAIN_SHOULD_BE_HANDLED_BY_GNUTLS)
+				goto again; // GNUTLS_E_AGAIN from GnuTLS itself
+
 			direction=compute_direction();
 			return (false);
 		}
@@ -389,6 +508,8 @@ bool gnutls::sessionObj::handshake(bool force,
 
 		chkerr(err, "gnutls_handshake");
 	}
+	LOG_TRACE(this << ": handshake complete");
+
 	handshake_needed=false;
 	session_remove_needed=true; // Removed after a bye()
 	return true;
@@ -396,23 +517,34 @@ bool gnutls::sessionObj::handshake(bool force,
 
 bool gnutls::sessionObj::rehandshake(int &direction)
 {
+	LOG_FUNC_SCOPE(debugLog);
 	LOCK_SESSION;
 
+ again:
 	direction=0;
-	errno=0;
+
 	int err=gnutls_rehandshake(sess);
+
+	LOG_TRACE(this << ": gnutls_rehandshake returned "
+		  << gnutls_strerror_name(err));
 
 	if (err != GNUTLS_E_SUCCESS)
 	{
+		LOG_TRACE(this << ": errno is "
+			  << strerror(transport_errno));
+
 		if (AGAIN(err))
 		{
+			if (AGAIN_SHOULD_BE_HANDLED_BY_GNUTLS)
+				goto again; // GNUTLS_E_AGAIN from GnuTLS itself
+
 			direction=compute_direction();
 			return false;
 		}
 
 		// Propagate ETIMEDOUT, because gnutls complains about packet length instead
 
-		if (errno == ETIMEDOUT)
+		if (transport_errno == ETIMEDOUT)
 			throw SYSEXCEPTION("gnutls_rehandshake");
 	}
 	chkerr(err, "gnutls_rehandshake");
@@ -513,21 +645,31 @@ std::string gnutls::sessionObj::getSuite() const
 bool gnutls::sessionObj::bye(int &direction,
 			     gnutls_close_request_t how)
 {
+	LOG_FUNC_SCOPE(debugLog);
+
 	LOCK_SESSION;
 
-	if (transport_errno)
+	if (REAL_ERROR_IN_TRANSPORT)
 	{
 		errno=transport_errno;
+		LOG_TRACE(this << ": bye: preserving existing error "
+			  << strerror(errno));
 		throw SYSEXCEPTION(transport_errno);
 	}
 
+ again:
 	direction=0;
 
-	errno=0;
 	int err=gnutls_bye(sess, how);
 
+	LOG_TRACE(this << ": bye: gnutls_bye() returned "
+		  << gnutls_strerror_name(err)
+		  << ", errno="
+		  << (transport_errno ? strerror(transport_errno):"0"));
 	if (AGAIN(err))
 	{
+		if (AGAIN_SHOULD_BE_HANDLED_BY_GNUTLS)
+			goto again; // GNUTLS_E_AGAIN from GnuTLS itself
 		direction=compute_direction();
 		return false;
 	}
@@ -565,44 +707,58 @@ size_t gnutls::sessionObj::get_max_size() const noexcept
 	return gnutls_record_get_max_size(sess);
 }
 
-LOG_FUNC_SCOPE_DECL(LIBCXX_NAMESPACE::gnutls::sessionObj::recv,sendLog);
-
 size_t gnutls::sessionObj::send(const void *data, size_t cnt, int &direction)
 
 {
-	LOG_FUNC_SCOPE(sendLog);
+	LOG_FUNC_SCOPE(debugLog);
 
 	{
 		LOCK_SESSION;
 
-		if (transport_errno)
+		if (REAL_ERROR_IN_TRANSPORT)
 		{
 			// An error already occured
 
 			errno=transport_errno;
 			direction=0;
+			LOG_TRACE(this << ": send: preserving existing error "
+				  << strerror(errno));
 			return 0;
 		}
-
-		if (!handshake(false, direction))
-		{
-			errno=EAGAIN;
-			return 0;
-		}
-
-		direction=0;
-		errno=0;
 	}
+
+ again:
+
+	if (!handshake(direction))
+	{
+		LOG_TRACE(this << ": send: incomplete handshake");
+		return 0;
+	}
+	direction=0;
+	errno=0;
 
 	ssize_t n=gnutls_record_send(sess, data, cnt);
 
-	LOG_TRACE("gnutls_record_send: " << n);
-
 	if (n >= 0)
+	{
+
+		LOG_TRACE(this << ": push: gnutls_record_send() returned "
+			  << n);
 		return n;
+	}
+
+	LOG_TRACE(this << ": push: gnutls_record_send() returned "
+		  << gnutls_strerror_name(n)
+		  << ", errno="
+		  << (transport_errno ? strerror(transport_errno):"0"));
 
 	if (AGAIN(n))
 	{
+		LOCK_SESSION;
+
+		if (AGAIN_SHOULD_BE_HANDLED_BY_GNUTLS)
+			goto again; // GNUTLS_E_AGAIN from GnuTLS itself
+
 		direction=POLLOUT;
 		// Always for gnutls_record_send().
 
@@ -646,46 +802,61 @@ size_t gnutls::sessionObj::send(const void *data, size_t cnt, int &direction)
 	throw EXCEPTION("gnutls_record_send");
 }
 
-LOG_FUNC_SCOPE_DECL(LIBCXX_NAMESPACE::gnutls::sessionObj::recv,recvLog);
-
 size_t gnutls::sessionObj::recv(void *data, size_t cnt, int &direction)
 
 {
-	LOG_FUNC_SCOPE(recvLog);
+	LOG_FUNC_SCOPE(debugLog);
 
 	{
 		LOCK_SESSION;
 
-		if (transport_errno)
+		if (REAL_ERROR_IN_TRANSPORT)
 		{
 			// An error already occured
 
 			errno=transport_errno;
 			direction=0;
+			LOG_TRACE(this << ": recv: preserving existing error "
+				  << strerror(errno));
 			return 0;
 		}
 
-		if (!handshake(false, direction))
-		{
-			errno=EAGAIN;
-			return 0;
-		}
+	}
+
+ again:
+	if (!handshake(direction))
+	{
+		LOG_TRACE(this << ": recv: incomplete handshake");
+		return 0;
 	}
 
 	ssize_t n=gnutls_record_recv(sess, data, cnt);
-
-	LOG_TRACE("gnutls_record_recv: " << n);
 
 	LOCK_SESSION;
 
 	if (n >= 0)
 	{
+		LOG_TRACE(this << ": recv: gnutls_record_recv() returned "
+			  << n);
 		direction=0;
 		return n;
+	}
+	LOG_TRACE(this << ": recv: gnutls_record_recv() returned "
+		  << gnutls_strerror_name(n)
+		  << ", errno="
+		  << (transport_errno ? strerror(transport_errno):"0"));
+
+	if (n == GNUTLS_E_REHANDSHAKE)
+	{
+		handshake_needed=true;
+		goto again;
 	}
 
 	if (AGAIN(n))
 	{
+		if (AGAIN_SHOULD_BE_HANDLED_BY_GNUTLS)
+			goto again; // GNUTLS_E_AGAIN from GnuTLS itself
+
 		direction=POLLIN;
 		// Always for gnutls_record_recv()
 
@@ -815,14 +986,17 @@ bool gnutls::sessionObj::alert_send(gnutls_alert_level_t level,
 	LOCK_SESSION;
 
 	direction=0;
-	errno=0;
 
+ again:
 	int rc=gnutls_alert_send(sess, level, desc);
 
 	if (rc != GNUTLS_E_SUCCESS)
 	{
 		if (AGAIN(rc))
 		{
+			if (AGAIN_SHOULD_BE_HANDLED_BY_GNUTLS)
+				goto again; // GNUTLS_E_AGAIN from GnuTLS itself
+
 			direction=compute_direction();
 			return false;
 		}
@@ -896,11 +1070,13 @@ int gnutls::sessionObj::get_fd() const noexcept
 
 size_t gnutls::sessionObj::pubread(char *buffer, size_t cnt)
 {
-	LOG_FUNC_SCOPE(recvLog);
+	LOG_FUNC_SCOPE(debugLog);
 
 	int direction;
 
 	size_t n=recv(buffer, cnt, direction);
+
+	LOG_TRACE(this << ": pubread: recv() returned " << n);
 
 	if (n == 0)
 	{
@@ -919,6 +1095,16 @@ size_t gnutls::sessionObj::pubread(char *buffer, size_t cnt)
 	return n;
 }
 
+int gnutls::sessionObj::pubpoll(int timeout_ms)
+{
+	LOCK_SESSION;
+
+	if (read_pending())
+		return 1;
+
+	return transport->pubpoll(timeout_ms);
+}
+
 size_t gnutls::sessionObj::pubread_pending() const
 {
 	LOCK_SESSION;
@@ -929,11 +1115,13 @@ size_t gnutls::sessionObj::pubread_pending() const
 size_t gnutls::sessionObj::pubwrite(const char *buffer, size_t cnt)
 
 {
-	LOG_FUNC_SCOPE(recvLog);
+	LOG_FUNC_SCOPE(debugLog);
 
 	int direction;
 
 	size_t n=send(buffer, cnt, direction);
+
+	LOG_TRACE(this << ": pubwrite: send() returned " << n);
 
 	if (n == 0)
 	{

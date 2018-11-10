@@ -178,7 +178,7 @@ void gnutls::http::fdtlsclientimpl
 	msg.replace(msg.connection, "close");
 }
 
-void gnutls::http::fdtlsclientimpl::ran()
+void gnutls::http::fdtlsclientimpl::terminate()
 {
 	if (sess.null())
 		return;
@@ -192,6 +192,9 @@ void gnutls::http::fdtlsclientimpl::ran()
 		int dummy;
 
 		s->bye(dummy);
+	} catch (const exception &e)
+	{
+		e->caught();
 	} catch (...) {
 	}
 	cancel_readwrite_timeout();
