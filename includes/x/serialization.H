@@ -155,7 +155,7 @@ template<typename value_type> class basic_type {
 public:
 
 	//! The corresponding datatype
-	static const datatype type=
+	static constexpr datatype type=
 		basic_int_type<std::numeric_limits<typename
 						   nonconst_type<value_type>
 						   ::type>::is_integer,
@@ -172,7 +172,7 @@ public:
 
 	//! This is a \c bool
 
-	static const datatype type=tbool;
+	static constexpr datatype type=tbool;
 };
 
 //! Specialization for bools
@@ -184,7 +184,7 @@ template<> class basic_type<const bool> {
 public:
 	//! This is a \c bool
 
-	static const datatype type=tbool;
+	static constexpr datatype type=tbool;
 };
 
 //! Specialization for native integer types
@@ -197,7 +197,7 @@ class basic_int_type<true, value_type> {
 public:
 	//! Define the integer type based on its size and sign-ness
 
-	static const datatype type=
+	static constexpr datatype type=
 		basic_int_type_bysize<std::numeric_limits<value_type>
 				      ::is_signed,
 				      sizeof(value_type)>::type;
@@ -213,7 +213,7 @@ class basic_int_type_bysize<true, 1> {
 public:
 	//! A signed 8 bit datatype
 
-	static const datatype type=tint8;
+	static constexpr datatype type=tint8;
 };
 
 //! An unsigned 8 bit datatype
@@ -227,7 +227,7 @@ public:
 
 	//! An unsigned 8 bit datatype
 
-	static const datatype type=tuint8;
+	static constexpr datatype type=tuint8;
 };
 
 //! A signed 16 bit datatype
@@ -241,7 +241,7 @@ public:
 
 	//! A signed 16 bit datatype
 
-	static const datatype type=tint16;
+	static constexpr datatype type=tint16;
 };
 
 //! An unsigned 16 bit datatype
@@ -255,7 +255,7 @@ public:
 
 	//! An unsigned 16 bit datatype
 
-	static const datatype type=tuint16;
+	static constexpr datatype type=tuint16;
 };
 
 //! A signed 32 bit datatype
@@ -269,7 +269,7 @@ public:
 
 	//! A signed 32 bit datatype
 
-	static const datatype type=tint32;
+	static constexpr datatype type=tint32;
 };
 
 //! An unsigned 32 bit datatype
@@ -283,7 +283,7 @@ public:
 
 	//! An unsigned 32 bit datatype
 
-	static const datatype type=tuint32;
+	static constexpr datatype type=tuint32;
 };
 
 //! A signed 64 bit datatype
@@ -297,7 +297,7 @@ public:
 
 	//! A signed 64 bit datatype
 
-	static const datatype type=tint64;
+	static constexpr datatype type=tint64;
 };
 
 //! An unsigned 64 bit datatype
@@ -310,7 +310,7 @@ class basic_int_type_bysize<false, 8> {
 public:
 	//! An unsigned 64 bit datatype
 
-	static const datatype type=tuint64;
+	static constexpr datatype type=tuint64;
 };
 
 //! Return a printable label for the given datatype
