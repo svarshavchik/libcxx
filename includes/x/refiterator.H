@@ -44,7 +44,7 @@ template<typename T> struct has_arrow_operator
 
 	//! Determine whether the class has an operator->
 
-	static const bool value = sizeof(check<T>(0)) == sizeof(yes);
+	static constexpr bool value = sizeof(check<T>(0)) == sizeof(yes);
 };
 
 //! Invoke a class's operator-> if it has one.

@@ -26,14 +26,14 @@ class httportmapBase : public ptrref_base {
 
 public:
 	//! Flag: exclusive service registration
-	static const int pm_exclusive=1;
+	static constexpr int pm_exclusive=1;
 
 	//! Flag: make my path public
 
 	//! \internal
 	//! Internal flag used by regpid2exe().
 	//!
-	static const int pm_public=2;
+	static constexpr int pm_public=2;
 
 	//! Service registration information
 

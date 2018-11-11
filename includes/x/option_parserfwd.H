@@ -43,7 +43,7 @@ class parserBase : public ptrref_base {
 
 public:
 
-	static const int err_ok=0,	//!< Status: no errors occured
+	static constexpr int err_ok=0,	//!< Status: no errors occured
 		err_invalidoption=1,	//!< Status: invalid %option
 		err_missingoption=2,	//!< Status: missing %option
 		err_mutexoption=3,	//!< Status: mutually-exclusive %option was specified

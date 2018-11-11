@@ -315,7 +315,7 @@ public:
 		static const char eol_str[];
 
 		//! This is a CRLF-based header format
-		static const bool usecrlf=true;
+		static constexpr bool usecrlf=true;
 	};
 
 	//! A header context where header lines are terminated by \c LF
@@ -351,7 +351,7 @@ public:
 		static const char eol_str[];
 
 		//! This is not a CRLF-based header format
-		static const bool usecrlf=false;
+		static constexpr bool usecrlf=false;
 	};
 
 protected:

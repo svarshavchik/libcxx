@@ -738,7 +738,7 @@ public:
 
 	//! This is a %serializing iterator
 
-	static const bool serializing=true;
+	static constexpr bool serializing=true;
 
 	//! The underlying iterator
 

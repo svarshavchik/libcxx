@@ -63,7 +63,7 @@ public:
 
 	//! Recomment flags for expand()
 
-	static const int default_flags=
+	static constexpr int default_flags=
 		GLOB_ERR
 #ifdef GLOB_BRACE
 		| GLOB_BRACE

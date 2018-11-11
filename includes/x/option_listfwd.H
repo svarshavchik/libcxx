@@ -45,15 +45,15 @@ class listBase : public ptrref_base {
 public:
 	//! This %option takes a value
 
-	static const int hasvalue=1;
+	static constexpr int hasvalue=1;
 
 	//! Required %option
 
-	static const int required=2;
+	static constexpr int required=2;
 
 	//! Repeated non-option argument
 
-	static const int repeated=4;
+	static constexpr int repeated=4;
 };
 
 #if 0

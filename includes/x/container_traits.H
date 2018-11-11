@@ -72,7 +72,7 @@ class container_traits : public container_traits_common<container_type> {
 public:
 	//! Default implementation, this is not a constant
 
-	static const bool is_constant=false;
+	static constexpr bool is_constant=false;
 };
 
 
@@ -86,7 +86,7 @@ public:
 
 	//! This is a constant container
 
-	static const bool is_constant=true;
+	static constexpr bool is_constant=true;
 };
 
 //! Default container category is unknown
@@ -99,7 +99,7 @@ class container_traits_common {
 public:
 	//! This is an unknown container
 
-	static const container_id type=unknown_container;
+	static constexpr container_id type=unknown_container;
 };
 
 //! This is an associative container
@@ -110,7 +110,7 @@ class container_traits_associative {
 
 public:
 	//! This is an associative container
-	static const container_id type=associative_container;
+	static constexpr container_id type=associative_container;
 };
 
 //! This is a sequence container
@@ -121,7 +121,7 @@ class container_traits_sequence {
 
 public:
 	//! This is a sequence container
-	static const container_id type=sequence_container;
+	static constexpr container_id type=sequence_container;
 };
 
 //! A \c basic_string specialization
@@ -136,7 +136,7 @@ class container_traits_common<std::basic_string<char_type, traits_type,
 public:
 	//! This is a basic_string
 
-	static const container_id type=basic_string_container;
+	static constexpr container_id type=basic_string_container;
 
 	//! The insert_chk() implementation
 
@@ -360,4 +360,3 @@ public:
 #endif
 }
 #endif
-

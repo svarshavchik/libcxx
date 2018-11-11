@@ -26,10 +26,10 @@ namespace LIBCXX_NAMESPACE {
 #endif
 
 //! basic_attr::setattr() flag - create attribute only, fail if attribute exists.
-static const int setattr_create=1;
+static constexpr int setattr_create=1;
 
 //! basic_attr::setattr() flag - replace attribute only, fail if attribute does not already exist.
-static const int setattr_replace=2;
+static constexpr int setattr_replace=2;
 
 //! An interface for retrieving file status %stat() and extended attributes.
 

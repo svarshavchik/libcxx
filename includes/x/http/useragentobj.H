@@ -56,7 +56,7 @@ class useragent_iterator_check {
 public:
 	//! This is a valid iterator type
 
-	static const int check_value=0;
+	static constexpr int check_value=0;
 };
 
 //! Helper class for compile-time verification of the proper iterator type passed to useragentObj::request()
@@ -70,7 +70,7 @@ class useragent_iterator_check<std::input_iterator_tag> {
 public:
 	//! This is not a valid iterator type
 
-	static const int check_value= -1;
+	static constexpr int check_value= -1;
 };
 
 //! Helper class for compile-time verification of the proper iterator type passed to useragentObj::request()
@@ -83,7 +83,7 @@ class useragent_iterator_check<std::output_iterator_tag> {
 public:
 	//! This is not a valid iterator type
 
-	static const int check_value= -1;
+	static constexpr int check_value= -1;
 };
 
 //! An HTTP user agent implementation

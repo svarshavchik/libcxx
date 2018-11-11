@@ -31,19 +31,19 @@ class cookie;
 class response_exception;
 
 //! HTTP informational responses are in the 1xx range.
-static const int resp_informational = 1;
+static constexpr int resp_informational = 1;
 
 //! HTTP success responses are in the 2xx range.
-static const int resp_success = 2;
+static constexpr int resp_success = 2;
 
 //! HTTP redirection responses are in the 3xx range.
-static const int resp_redirected = 3;
+static constexpr int resp_redirected = 3;
 
 //! HTTP client error responses are in the 4xx range.
-static const int resp_client_error = 4;
+static constexpr int resp_client_error = 4;
 
 //! HTTP server error responses are in the 5xx range.
-static const int resp_server_error = 5;
+static constexpr int resp_server_error = 5;
 
 //! An HTTP response
 
@@ -235,10 +235,10 @@ public:
 	static const char proxy_authentication_info[];
 
 	//! The www-authenticate code
-	static const int www_authenticate_code=401;
+	static constexpr int www_authenticate_code=401;
 
 	//! The proxy-authenticate code
-	static const int proxy_authenticate_code=407;
+	static constexpr int proxy_authenticate_code=407;
 
 	//! A parameter in an authentication challenge
 

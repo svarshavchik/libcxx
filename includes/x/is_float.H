@@ -31,7 +31,7 @@ class is_float_nonconst {
 public:
 	//! The default value of \c is_float<T>::flag is \c false
 
-	static const bool flag=false;
+	static constexpr bool flag=false;
 };
 
 //! \c is_float specialization for floats
@@ -45,7 +45,7 @@ public:
 
 	//! This is a native float value
 
-	static const bool flag=true;
+	static constexpr bool flag=true;
 };
 
 //! \c is_float specialization for doubles
@@ -58,7 +58,7 @@ class is_float_nonconst<double> {
 public:
 	//! This is a native float value
 
-	static const bool flag=true;
+	static constexpr bool flag=true;
 };
 
 //! \c is_float specialization for long doubles
@@ -71,7 +71,7 @@ class is_float_nonconst<long double> {
 public:
 	//! This is a native float value
 
-	static const bool flag=true;
+	static constexpr bool flag=true;
 };
 
 #if 0

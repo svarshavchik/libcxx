@@ -86,21 +86,21 @@ public:
 	//!
 	//! If this flag is not specified, getURI() produces an absolute URI.
 
-	static const int uri_relative=1;
+	static constexpr int uri_relative=1;
 
 	//! getURI() includes the path_info.
 
 	//! Mutually-exclusive with uri_relative. Includes the extra
 	//! path_info in the URI.
 
-	static const int uri_path=2;
+	static constexpr int uri_path=2;
 
 	//! getURI() returns a URI that includes all parameters.
 
 	//! Put all parameters into the query_string part of the returned URI.
 	//! The resulting URI should only be used for a GET.
 	//!
-	static const int uri_query=4;
+	static constexpr int uri_query=4;
 
 	//! Reconstruct the CGI request's URI.
 

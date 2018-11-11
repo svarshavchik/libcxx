@@ -328,7 +328,7 @@ public:
 	{
 		if (hex_chars) // Decoding an encoded character.
 		{
-			static const char hex[]="0123456789ABCDEFabcdef";
+			static constexpr char hex[]="0123456789ABCDEFabcdef";
 
 			int nybble=std::find(hex, hex+22, c)-hex;
 

@@ -207,7 +207,7 @@ class deserialize_integer<true, value_type, native_value_type> {
 
 public:
 	//! The type code for this native integer type
-	static const datatype
+	static constexpr datatype
 	typecode=serialization::basic_type<native_value_type>::type;
 
 	//! The result type of the deserialization
@@ -909,7 +909,7 @@ public:
 	typedef traits_type traits_type_t;
 
 	//! This is a %deserializing iterator
-	static const bool serializing=false;
+	static constexpr bool serializing=false;
 
 	//! Constructor
 

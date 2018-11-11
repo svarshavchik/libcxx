@@ -190,7 +190,7 @@ template<typename T> struct custom_exception_implements_describe
 
 	//! Determine whether the class implements describe()
 
-	static const bool value = sizeof(check<T>(0)) == sizeof(yes);
+	static constexpr bool value = sizeof(check<T>(0)) == sizeof(yes);
 };
 
 //! Invoke a custom exception class's describe() method, if it has one.
@@ -257,7 +257,7 @@ template<typename T> struct custom_exception_defines_base
 
 	//! Determine whether the class implements describe()
 
-	static const bool value = sizeof(check<T>(0)) == sizeof(yes);
+	static constexpr bool value = sizeof(check<T>(0)) == sizeof(yes);
 };
 
 //! Return the custom exception class's \c base typedef, if it exists.
