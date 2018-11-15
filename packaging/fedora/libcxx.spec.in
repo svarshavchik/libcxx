@@ -74,7 +74,7 @@ Requires: file-devel
 Requires: libidn-devel
 Requires: cups-devel
 Requires: courier-unicode-devel
-Provides: %{name}-abi = @ABIVER@
+Provides: libcxxbase-abi = @ABIVER@
 
 %if %do_compat
 

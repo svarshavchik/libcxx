@@ -1,3 +1,7 @@
+2018-11-14  Sam Varshavchik  <mrsam@courier-mta.com>
+
+	* packaging/fedora/libcxx.spec.in: Fix compat package provides:
+
 2018-11-10  Sam Varshavchik  <mrsam@courier-mta.com>
 
 	* includes/x/http/cgiimpl.H: Change many static consts to constexprs
