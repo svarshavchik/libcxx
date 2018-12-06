@@ -52,6 +52,14 @@ public:
 	//! \c INSERT_LIBX_NAMESPACE::xml::doc::base::newelement.
 	//! See \ref docBase::writelock "INSERT_LIBX_NAMESPACE::doc::base::writelock"
 	//! for more information.
+	//!
+	//! \note
+	//! Because this, itself, is a parameter to another function call,
+	//! it needs to own its data, because the passed-in parameters may be
+	//! temporaries; hence everything is stored in std::strings.
+	//!
+	//! For example, the uriimpl parameter gets converted to a
+	//! std::string, invoking a delegated constructor.
 
 	class newElement {
 
