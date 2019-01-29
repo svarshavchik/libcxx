@@ -572,7 +572,7 @@ ymd::ymd(const ymd::iso8601 &iso8601Date)
 }
 
 ymd::parser::parser(const const_locale &locArg)
-	: loc(locArg), usmdy(false)
+	: loc(locArg)
 {
 	char fmtbuf[3];
 
@@ -600,27 +600,6 @@ ymd::parser::parser(const const_locale &locArg)
 		month_names[i]=unicode::toupper(month_names[i]);
 		month_names_long[i]=unicode::toupper(month_names_long[i]);
 	}
-
-#if DATE_ORDER_NOT_SUPPORTED
-
-	ymd test_date{2009,1,3};
-
-	auto s=test_date.format_date("%x", locArg);
-
-	auto c=s.c_str();
-
-	while (*c == '0')
-		++c;
-
-	if (*c == '1')
-		usmdy=true;
-
-#else
-	auto time_get=locArg->get_facet<facets::time_get_facet<char> >();
-
-	if (time_get->getFacetConstRef().date_order()==std::time_base::mdy)
-		usmdy=true;
-#endif
 }
 
 ymd::parser::~parser()
@@ -659,7 +638,7 @@ std::optional<ymd> ymd::parser::try_parse(const std::string_view &s)
 
 std::optional<ymd> ymd::parser::try_parse(const std::u32string_view &ustr)
 {
-	int md[2];
+	int md[3];
 	int md_cnt=0;
 
 	bool md_str=false;
@@ -668,8 +647,9 @@ std::optional<ymd> ymd::parser::try_parse(const std::u32string_view &ustr)
 	uint16_t year=0;
 	bool yearfound=false;
 
-	bool yearfirst=false;
+	bool yearfirst=false; // Parsing YYYY-MM-DD, ISO format.
 	bool first=true;
+	char separator_after_year=0;
 
 	size_t current_number=0;
 	int in_number=0;
@@ -709,34 +689,11 @@ std::optional<ymd> ymd::parser::try_parse(const std::u32string_view &ustr)
 				yearfirst=first;
 				year=current_number;
 			}
-			else if (md_cnt == 2 && !yearfound && in_number <= 2)
-			{
-				ymd today;
-
-#ifdef TEST_2YEAR_PARSE
-				TEST_2YEAR_PARSE();
-#endif
-				int cur_year=today.get_year();
-				int century=cur_year / 100 * 100;
-
-				int year1=century + current_number;
-				int year2=year1 - 100;
-				int year3=year1 + 100;
-
-				if ( abs(year2-cur_year) < (year1-cur_year))
-					year1=year2;
-
-				if ( abs(year3-cur_year) < (year1-cur_year))
-					year1=year3;
-
-				yearfound=true;
-				year=year1;
-			}
 			else
 			{
-				// Can't see three or more numbers
+				// Can't see four or more numbers
 
-				if (md_cnt >= 2)
+				if (md_cnt >= 4)
 					return std::nullopt;
 
 				if ((uint8_t)current_number != current_number)
@@ -752,6 +709,9 @@ std::optional<ymd> ymd::parser::try_parse(const std::u32string_view &ustr)
 
 		if (b == e)
 			break;
+
+		if (yearfirst && !separator_after_year)
+			separator_after_year=*b;
 
 		if (!unicode_isalpha(*b))
 		{
@@ -771,6 +731,98 @@ std::optional<ymd> ymd::parser::try_parse(const std::u32string_view &ustr)
 		}
 
 		md_str=true;
+	}
+
+	if (separator_after_year != '-')
+		yearfirst=false;
+
+	std::string format_date;
+
+	// Need the reverse-engineered date format in these two cases:
+	if ((!yearfound && md_cnt == 3) || md_cnt == 2)
+	{
+		auto time_get=loc->get_facet<facets::time_get_facet<char> >();
+
+#define Y "5"
+#define M "4"
+#define D "3"
+
+		switch (time_get->getFacetConstRef().date_order()) {
+		case std::time_base::mdy:
+			format_date=M D Y;
+			break;
+		case std::time_base::dmy:
+			format_date=D M Y;
+			break;
+		case std::time_base::ydm:
+			format_date=Y D M;
+			break;
+		case std::time_base::ymd:
+			format_date=Y M D;
+			break;
+		case std::time_base::no_order:
+			format_date=ymd{2005,4,3}.format_date("%x", loc);
+			break;
+		}
+	}
+#undef Y
+#undef M
+#undef D
+
+	if (!yearfound && md_cnt == 3)
+	{
+		int i=0,j=0;
+
+		for (auto c:format_date)
+		{
+			// We formatted 2005.04.03. The characters 5, 4, and
+			// 3's appearance in format_date tell us the native
+			// date format order.
+
+			switch (c) {
+			case '5':
+			case '4':
+			case '3':
+				break;
+			default:
+				continue;
+			}
+
+			if (c == '5')
+			{
+				ymd today;
+
+#ifdef TEST_2YEAR_PARSE
+				TEST_2YEAR_PARSE();
+#endif
+				int cur_year=today.get_year();
+				int century=cur_year / 100 * 100;
+
+				int year1=century + md[j];
+				int year2=year1 - 100;
+				int year3=year1 + 100;
+
+				if ( abs(year2-cur_year) < abs(year1-cur_year))
+					year1=year2;
+
+				if ( abs(year3-cur_year) < abs(year1-cur_year))
+					year1=year3;
+
+				year=year1;
+				++j;
+			}
+			else
+			{
+				// This is either the month or the date value.
+				md[i]=md[j];
+				++i;
+				++j;
+			}
+		}
+
+		// We removed the year from the md array.
+		yearfound=true;
+		md_cnt=i;
 	}
 
 	// Now, figure out what we have.
@@ -845,16 +897,27 @@ std::optional<ymd> ymd::parser::try_parse(const std::u32string_view &ustr)
 		if (md_cnt != 2)
 			return std::nullopt;
 
-		if (yearfirst || usmdy)
-		{
-			month=md[0];
-			day=md[1];
-		}
-		else
-		{
-			day=md[0];
-			month=md[1];
-		}
+		// Examine format_date to determine whether the month or
+		// the day comes first.  Presume the day comes first.
+
+		month=md[0];
+		day=md[1];
+
+		if (!yearfirst) // YYYY-MM-DD.
+			for (auto c:format_date)
+			{
+				switch (c) {
+				case '3':
+					day=md[0];
+					month=md[1];
+					// FALLTHRU
+				case '4':
+					break;
+				default:
+					continue;
+				}
+				break;
+			}
 	}
 
 	if (!yearfound)

@@ -259,6 +259,7 @@ int main(int argc, char **argv)
 
 	try {
 		auto en_us=LIBCXX_NAMESPACE::locale::create("en_US.UTF-8");
+		auto es_ES=LIBCXX_NAMESPACE::locale::create("es_ES.UTF-8");
 
 		auto old_global=LIBCXX_NAMESPACE::locale::base::global();
 
@@ -283,6 +284,17 @@ int main(int argc, char **argv)
 		    LIBCXX_NAMESPACE::ymd(1969,8,3))
 			throw EXCEPTION("2 digit year parse #2 failed");
 
+		if (LIBCXX_NAMESPACE::ymd::parser(es_ES).parse("28/01/19") !=
+		    LIBCXX_NAMESPACE::ymd(2019,1,28))
+			throw EXCEPTION("2 digit year parse #3 failed");
+
+		if (LIBCXX_NAMESPACE::ymd::parser(es_ES).parse("2019.28.01") !=
+		    LIBCXX_NAMESPACE::ymd(2019,1,28))
+			throw EXCEPTION("4 digit year parse #5 failed");
+
+		if (LIBCXX_NAMESPACE::ymd::parser(es_ES).parse("2019-01-28") !=
+		    LIBCXX_NAMESPACE::ymd(2019,1,28))
+			throw EXCEPTION("4 digit year parse #6 failed");
 
 		static const struct {
 			int m,d;
@@ -444,6 +456,14 @@ int main(int argc, char **argv)
 				 LIBCXX_NAMESPACE::tzfile::base::utc())
 			  << std::endl;
 
+		std::cout << LIBCXX_NAMESPACE::strftime::preferred(en_us)
+			  << std::endl;
+
+		std::cout << LIBCXX_NAMESPACE::strftime::preferred(de_DE)
+			  << std::endl;
+
+		std::cout << LIBCXX_NAMESPACE::strftime::preferred(es_ES)
+			  << std::endl;
 	} catch (LIBCXX_NAMESPACE::exception &e)
 	{
 		std::cout << e << std::endl;

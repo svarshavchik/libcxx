@@ -161,6 +161,49 @@ strftime &strftime::operator()(const std::string_view &str,
 	return *this;
 }
 
+std::string strftime::preferred(const const_locale &l)
+{
+	std::ostringstream o;
+
+	strftime{ymd{2005,4,3}, l}("%x", o);
+
+	std::string s=o.str();
+
+	std::string s2;
+
+	s2.reserve(s.size());
+
+	for (char c:s)
+	{
+		if (c >= '0' && c <= '9')
+		{
+			switch (c) {
+			case '5':
+				s2 += "%Y";
+				break;
+			case '4':
+				s2 += "%m";
+				break;
+			case '3':
+				s2 += "%d";
+				break;
+			}
+			continue;
+		}
+		s2 += c;
+
+	}
+
+	return s2;
+}
+
+std::u32string strftime::upreferred(const const_locale &l)
+{
+	auto s=preferred(l);
+
+	return {s.begin(), s.end()};
+}
+
 #if 0
 {
 #endif

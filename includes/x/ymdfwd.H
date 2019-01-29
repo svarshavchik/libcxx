@@ -648,10 +648,6 @@ public:
 		//! Cached weekday names
 		std::u32string month_names_long[12];
 
-		//! Flag: interpret dd/dd/dddd as m/d/y
-
-		bool usmdy;
-
 	public:
 		//! Constructor
 		parser(const const_locale &loc=locale::base::global());
@@ -659,20 +655,12 @@ public:
 		//! Destructor
 		~parser();
 
-		//! Set flag to interpret dd/dd/dddd as mm/dd/yyyy.
-
-		inline parser &mdy(bool flag) noexcept
-		{
-			usmdy=flag;
-			return *this;
-		}
-
 		//! Make some sense out of a string
 
 		//! This parser accepts a date specified in a variety of formats
 		//! including: YYYY-MM-DD, DD month YYYY, month DD YYYY and
-		//! AA/BB/YYYY (with the mdy() flag specifying whether AA and BB
-		//! is parsed as a month or a day).
+		//! AA/BB/YYYY. Which one of AA and BB is the month and which
+		//! one is the day of the month comes from the current locale.
 		//!
 		//! \return an mdy object, or throws an %exception if the
 		//! string cannot be parsed.

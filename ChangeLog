@@ -1,3 +1,14 @@
+0.15
+
+2019-01-28  Sam Varshavchik  <mrsam@courier-mta.com>
+
+	* base/ymd.C (ymd::parser::try_parse): Improved parsing of dates.
+
+	* includes/x/strftime.H (class strftime): Add preferred() and
+	upreferred().
+
+0.14
+
 2018-11-14  Sam Varshavchik  <mrsam@courier-mta.com>
 
 	* packaging/fedora/libcxx.spec.in: Fix compat package provides:

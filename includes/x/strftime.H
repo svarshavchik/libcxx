@@ -121,6 +121,19 @@ protected:
 //! The constructed object may be recycled: another date/time specification
 //! may be passed to the \c () operator, which replaces the saved date and time
 //! for subsequent format strings.
+//!
+//! \par Preferred date format.
+//!
+//!
+//! \code
+//! std::string format=INSERT_LIBX_NAMESPACE::strftime::preferred();
+//!
+//! std::u32string uformat=INSERT_LIBX_NAMESPACE::strftime::upreferred();
+//! \endcode
+//!
+//! \c strftime(3)'s "%x" format uses two-digit years in some locales.
+//! Use preferred() or upreferred() to compute the \c strftime(3) format
+//! string that's equivalent to "%x", but with four-digit years.
 
 class strftime : public strftime_base {
 
@@ -300,6 +313,18 @@ public:
 				  //! information on the time format
 				  //! template string.
 				  const std::u32string_view &str);
+
+	//! Return the preferred format with 4-digit years.
+
+	//! Some locales' %x use two digit years.
+	static std::string preferred(const const_locale
+				     &localeRef=locale::base::global());
+
+	//! Return the preferred format with 4-digit years.
+
+	//! Some locales' %x use two digit years.
+	static std::u32string upreferred(const const_locale
+					 &localeRef=locale::base::global());
 };
 
 #if 0
