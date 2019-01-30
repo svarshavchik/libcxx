@@ -18,7 +18,7 @@ See COPYING for distribution information.
       <para>
 	Added <methodname>preferred</methodname>() and
 	<methodname>upreferred</methodname>() to
-	<link linkend="strftime"><classname>&ns;::strftime</classname></ulink>
+	<link linkend="strftime"><classname>&ns;::strftime</classname></link>
 	that determines the current locale's preferred date format with
 	4-digit years.
       </para>
