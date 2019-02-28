@@ -183,6 +183,7 @@ void forkexec::spawn_detached()
 	}
 	pair.second->close();
 	before_fork(pair.first);
+	wait4(p);
 }
 
 int forkexec::system()

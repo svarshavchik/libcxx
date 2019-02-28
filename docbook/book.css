@@ -65,6 +65,10 @@ code.computeroutput div.literallayout {
     margin-left: 4em;
 }
 
+body {
+    font-family: "liberation serif", "times new roman", "serif";
+}
+
 .application {
     font-family: "liberation sans", arial, "sans serif";
     font-weight: bold;
