@@ -1,0 +1,409 @@
+<!--
+
+Copyright 2019 Double Precision, Inc.
+See COPYING for distribution information.
+
+-->
+
+<chapter id="optionalargs">
+  <title>Optional function arguments</title>
+
+  <para>
+    The
+    <ulink url="&link-x--optional-args;"><classname>&ns;::optional_args</classname></ulink>
+    template helps with implementing <quote>optional</quote> function
+    parameters; that is,
+    parameters that can be individually omitted when making a function call.
+    This is not the same as having
+    trailing parameters with default values. Any parameter can be optionally
+    omitted.
+    Overloading accomplishes the same
+    thing, except that overloading spirals out of control once the number of
+    optional parameter is more than one or two.
+    For example: if there are three parameters,
+    and each one is optional, that's eight overloaded declarations, for
+    every combination of a specified or an omitted parameter.
+  </para>
+
+  <para>
+    Here's an example of declaring a function with two optional parameters.
+    <function>adjust_pos_or_size</function>()'s
+    <classname>optional_coords</classname> parameter specifies two dimensional,
+    <varname>x</varname> and <varname>y</varname>,
+    set of coordinates; and
+    the <classname>optional_size</classname> parameter specifies a width
+    and a height.
+    <function>adjust_pos_or_size</function>() accepts either one of these
+    two parameters, or both. Or neither (effectively a no-op):
+  </para>
+
+  <blockquote>
+    <informalexample>
+      <programlisting>
+#include &lt;x/optional_args.H&gt;
+
+struct optional_coords {
+
+    int x;
+    int y;
+
+    optional_coords(int x, int y) : x{x}, y{y} {}
+};
+
+struct optional_size {
+    int w;
+    int h;
+
+    optional_size(int w, int h) : w{w}, h{h} {}
+
+};
+
+void adjust_pos_or_size(const &ns;::optional_args&lt;optional_coords, optional_size&gt; &amp;args)
+{
+
+    do_adjust_pos_or_size(LIBCXX_NAMESPACE::optional_arg&lt;optional_coords&gt;(args),
+                  LIBCXX_NAMESPACE::optional_arg&lt;optional_size&gt;(args));
+}
+
+void do_adjust_pos_or_size(const std::optional&lt;optional_coords&gt; &amp;pos,
+               const std::optional&lt;optional_size&gt; &amp;size)
+{
+    // ...
+}
+
+
+void adjust_pos_or_size_example()
+{
+    adjust_pos_or_size({});
+    adjust_pos_or_size({ optional_coords{1,2} } );
+    adjust_pos_or_size({ optional_size{3,4} });
+    adjust_pos_or_size({ optional_coords{1,2}, optional_size{3,4} });
+}
+</programlisting>
+    </informalexample>
+  </blockquote>
+
+  <section id="creatingoptionalargs">
+    <title>Declaring an <classname>&ns;::optional_args</classname></title>
+
+    <blockquote>
+      <informalexample>
+	<programlisting>
+&ns;::optional_args&lt;optional_coords, optional_size&gt;</programlisting>
+      </informalexample>
+    </blockquote>
+
+    <para>
+      The <classname>&ns;::optional_args</classname>
+      template takes a variadic list of
+      template parameters, and declares an
+      <classname>std::optional&lt;<replaceable>type</replaceable>&gt;</classname>
+      for each template parameter
+      <replaceable>type</replaceable>.
+      These optionals get initialized by parameters passed to
+      <classname>&ns;::optional_args</classname> constructor, in the
+      same order, but each individual
+      <replaceable>type</replaceable>, if not passed, gets skipped and
+      the corresponding <classname>&ns;::optional</classname> becomes a
+      <literal>std::nullopt</literal>.
+    </para>
+
+    <note>
+      <para>
+	Any
+	<classname>type</classname>s must be passed to the constructor in the
+	same order as the template parameters. All four function calls in
+	the example above are valid. If both parameters exist,
+	both <classname>optional_coords</classname>,
+	and <classname>optional_size</classname>, they must appear in
+	template parameter order.
+      </para>
+    </note>
+
+    <blockquote>
+      <informalexample>
+	<programlisting>
+void adjust_pos_or_size(const &ns;::optional_args&lt;optional_coords, optional_size&gt; &amp;args)
+
+    // ...
+
+adjust_pos_or_size({ optional_size{3,4} });</programlisting>
+      </informalexample>
+    </blockquote>
+
+    <para>
+      In this example, uniform initialization syntax constructs
+      <function>adjust_pos_or_size</function>()'s
+      <classname>&ns;::optional_args parameter</classname>.
+      Alternatively, template forwarding removes the outer uniform
+      initialization layer from the function call:
+    </para>
+
+    <blockquote>
+      <informalexample>
+	<programlisting>
+template&lt;typename ...Args&gt;
+void adjust_pos_or_size(Args &amp;&amp;...params)
+{
+    &ns;::optional_args&lt;optional_coords, optional_size&gt; args{std::forward&lt;Args&gt;(params)...);
+
+    // ...
+
+adjust_pos_or_size(optional_size{3,4}, optional_size{6,7} );</programlisting>
+      </informalexample>
+    </blockquote>
+  </section>
+
+  <section id="optionalarg">
+    <title>Retrieving optional arguments</title>
+
+    <blockquote>
+      <informalexample>
+	<programlisting>
+void adjust_pos_or_size(const &ns;::optional_args&lt;optional_coords, optional_size&gt; &amp;args)
+{
+   const std::optional&lt;optional_coords&gt; &amp;c=&ns;::optional_arg&lt;optional_coords&gt;(args);
+   const std::optional&lt;optional_coords&gt; &amp;c=&ns;::optional_arg&lt;optional_size&gt;(args);</programlisting>
+      </informalexample>
+    </blockquote>
+
+    <para>
+      The <function>&ns;::optional_arg</function> template retrieves
+      (a reference to) the
+      specified <classname>std::optional</classname> value. It's analogous
+      to <function>std::get</function> for <classname>std::tuple</classname>s.
+      The optional value indicates whether this value was passed to
+      <classname>&ns;::optional_args</classname>'s constructor.
+    </para>
+
+    <blockquote>
+      <informalexample>
+	<programlisting>
+   const auto &amp;c=&ns;::optional_arg&lt;0&gt;(args);</programlisting>
+      </informalexample>
+    </blockquote>
+
+    <para>
+      Similar to <function>std::get</function>,
+      <function>&ns;::optional_arg</function>'s type parameter works only
+      when the type is a unique <classname>&ns;::optional_args</classname>
+      template parameter.
+      Like <function>std::get</function>,
+      a constant numerical <function>&ns;::optional_arg</function>
+      template parameter specifies an
+      <classname>&ns;::optional_args</classname> type by its 0-based index,
+      and this works when the same
+      type appears two or more times.
+    </para>
+
+    <note>
+      <para>
+	Two or more consecutive instances of the same type as
+	<classname>&ns;::optional_args</classname> have the following results:
+      </para>
+
+      <itemizedlist>
+	<listitem>
+	  <para>
+	    None of the option values, for this type, get set if the
+	    corresponding values get passed to
+	    <classname>&ns;::optional_args</classname>'s constructor.
+	  </para>
+	</listitem>
+	<listitem>
+	  <para>
+	    The first value of the same type (or which can be implicitly
+	    converted to the type) initializes the first optional value
+	    of this type.
+	  </para>
+	</listitem>
+	<listitem>
+	  <para>
+	    The next, immediately following, constructor parameter value
+	    initializes the next optional value of this type, and so on.
+	  </para>
+	</listitem>
+	<listitem>
+	  <para>
+	    Effectively, the parameter values to the constructor initialize
+	    the corresponding optional values on a first come-first serve
+	    basis.
+	  </para>
+	</listitem>
+	<listitem>
+	  <para>
+	    If any parameter values are left, after initializing all
+	    optional value, the program is ill-formed.
+	  </para>
+	</listitem>
+      </itemizedlist>
+    </note>
+  </section>
+
+  <section id="optionalconstrefargs">
+    <title>Optional arguments using reference wrappers</title>
+
+    <blockquote>
+      <informalexample>
+	<programlisting>
+struct bigparam {
+
+    // ...
+    bigparam(const bigparam &amp;)=delete;
+};
+
+void some_function(const &ns;::optional_argconstrefs&lt; ..., bigparam, ...&gt; &amp;)
+{
+
+// ...
+
+some_function(..., big_param{....}, ...);</programlisting>
+      </informalexample>
+    </blockquote>
+
+    <para>
+      The <ulink url="&link-x--optional-argconstrefs;"><classname>&ns;::optional_argconstrefs</classname></ulink>
+      template is a convenient wrapper that implements
+      <classname>&ns;::optional_args</classname>'s variadic
+      <classname>std::optional</classname> values as
+      <classname>std::reference_wrapper</classname>s.
+      This avoids making copies of individual optional
+      parameters when they cannot be constructed or move-constructed
+      in place, or the copy
+      cannot be elided, for some reason.
+    </para>
+
+    <para>
+      Requirements for safely using
+      <classname>&ns;::optional_argconstrefs</classname>:
+    </para>
+
+    <itemizedlist>
+      <listitem>
+	<para>
+	  Optionally delete each parameter's copy-constructor, to ensure
+	  that no copies get made.
+	</para>
+      </listitem>
+
+      <listitem>
+	<para>
+	  Explicitly pass the corresponding parameters as temporaries in
+	  the function call.
+	  The lifetime of temporaries spans the function call
+	  itself, and the temporary gets destroyed at the conclusion of the
+	  function call.
+	</para>
+      </listitem>
+
+      <listitem>
+	<para>
+	  Alternatively, construct a parameter explicitly, and pass it
+	  as a plain reference, in the function call.
+	  Do not try to implicitly construct a parameter.
+	  This should be ill-formed, as a result of attempting to
+	  initialize <classname>std::reference_wrappers</classname> using
+	  <classname>const</classname> references of a different type.
+	</para>
+
+	<para>
+	  The most common example of this would be a
+	  <classname>std::string</classname> parameter
+	  that cannot get initialized
+	  from <literal>"foo"</literal>. It must be initialized explicitly
+	  as <literal>std::string{"foo"}</literal>
+	</para>
+      </listitem>
+    </itemizedlist>
+  </section>
+
+  <section id="optionalargor">
+    <title>Using <function>&ns;::optional_arg_or</function></title>
+
+    <blockquote>
+      <informalexample>
+	<programlisting>
+#include &lt;x/optional_args.H&gt;
+
+struct optional_coords {
+
+    int x;
+    int y;
+
+    optional_coords(int x, int y) : x{x}, y{y} {}
+};
+
+struct optional_size {
+    int w;
+    int h;
+
+    optional_size(int w, int h) : w{w}, h{h} {}
+
+};
+
+void adjust_pos_or_size(&ns;::optional_args&lt;optional_coords, optional_size&gt; &amp;args)
+{
+    std::optional&lt;optional_coords&gt; default_coords;
+    std::optional&lt;optional_size&gt; default_size;
+
+    optional_coords &amp;coords=&ns;::optional_arg_or&lt;optional_coords&gt;(
+        args, default_coords, 0, 0
+    );
+
+    optional_size &amp;coords=&ns;::optional_arg_or&lt;optional_size&gt;(
+        args, default_size, 0, 0
+    );</programlisting>
+      </informalexample>
+    </blockquote>
+
+    <para>
+      <ulink url="&link-function-x-optional-arg-or;"><function>&ns;::optional_arg</function></ulink>()
+      returns the constructed option using
+      <link linkend="optionalarg"><function>&ns;::optional_arg</function></link>().
+      The second parameter is a default constructed instance of the
+      corresponding
+      <classname>&ns;::optional</classname> <classname>type</classname>,
+      which is used to construct
+      an instance of the default value of <classname>type</classname>
+      if the corresponding option in the
+      <classname>&ns;::optional_args</classname>
+      does not exist.
+    </para>
+
+    <para>
+      <function>&ns;::optional_arg</function> returns a reference to
+      the <classname>type</classname>, either to the constructed type in
+      the <classname>&ns;::optional_args</classname>, or in the
+      <classname>&ns;::optional</classname> default value.
+      The default value gets <function>emplace</function>()d into the
+      <classname>&ns;::optional&lt;type&gt;</classname> parameter, with
+      any additional parameters getting forwarded to
+      <function>emplace</function>().
+    </para>
+
+    <para>
+      The above example returns the
+      <classname>optional_coords</classname> and
+      <classname>optional_size</classname>
+      from the <varname>args</varname>, or from the
+      corresponding <classname>std::optional</classname> value,
+      passing a pair of goose eggs to the optional values' constructors,
+      if they're used.
+    </para>
+
+    <para>
+      Passing a constant
+      <classname>&ns;::optional_args</classname> returns a reference to a
+      constant object.
+      A reference to a constant object always gets returned from
+      a <link linkend="optionalconstrefargs"><classname>&ns;::optional_argconstrefs</classname></link>,
+      even a mutable one.
+    </para>
+  </section>
+</chapter>
+<!--
+Local Variables:
+mode: sgml
+sgml-parent-document: ("book.xml" "part" "chapter")
+End:
+-->

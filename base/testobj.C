@@ -38,6 +38,7 @@
 #include "x/sentry.H"
 #include "x/mp.H"
 #include "x/visitor.H"
+#include "x/optional_args.H"
 
 #include <iostream>
 #include <algorithm>
@@ -2771,6 +2772,382 @@ void testobjinit()
 	}
 }
 
+struct testoptional_class_t {
+
+	int n;
+
+	testoptional_class_t(int n) : n{n} {}
+
+	bool operator==(const testoptional_class_t &a) const
+	{
+		return n == a.n;
+	}
+
+	bool operator!=(const testoptional_class_t &a) const
+	{
+		return n != a.n;
+	}
+};
+
+typedef LIBCXX_NAMESPACE::optional_args<std::string, int> args1_t;
+
+typedef LIBCXX_NAMESPACE::optional_args<testoptional_class_t,
+					std::string> args2_t;
+
+template<typename const_or_mutable_args1>
+void do_verify_args1(const_or_mutable_args1 &a,
+		     const std::optional<std::string> &b,
+		     const std::optional<int> &c)
+{
+	if (LIBCXX_NAMESPACE::optional_arg<std::string>(a) != b ||
+	    LIBCXX_NAMESPACE::optional_arg<0>(a) != b)
+	{
+		std::cout << "First optional string argument is wrong."
+			  << std::endl;
+		exit(1);
+	}
+
+	if (LIBCXX_NAMESPACE::optional_arg<int>(a) != c ||
+	    LIBCXX_NAMESPACE::optional_arg<1>(a) != c)
+	{
+		std::cout << "Second optional int argument is wrong."
+			  << std::endl;
+		exit(1);
+	}
+}
+
+void verify_args1(args1_t &a,
+		  const std::optional<std::string> &b,
+		  const std::optional<int> &c)
+{
+	do_verify_args1<args1_t>(a, b, c);
+}
+
+void verify_const_args1(const args1_t &a,
+			const std::optional<std::string> &b,
+			const std::optional<int> &c)
+{
+	do_verify_args1<const args1_t>(a, b, c);
+}
+
+void verify_args2(const args2_t &a,
+		  const std::optional<testoptional_class_t> &b,
+		  const std::optional<std::string> &c)
+{
+	if (LIBCXX_NAMESPACE::optional_arg<testoptional_class_t>(a) != b ||
+	    LIBCXX_NAMESPACE::optional_arg<0>(a) != b)
+	{
+		std::cout << "First optional class argument is wrong."
+			  << std::endl;
+		exit(1);
+	}
+
+	if (LIBCXX_NAMESPACE::optional_arg<std::string>(a) != c ||
+	    LIBCXX_NAMESPACE::optional_arg<1>(a) != c)
+	{
+		std::cout << "Second optional string argument is wrong."
+			  << std::endl;
+		exit(1);
+	}
+}
+
+void testoptional_args()
+{
+	args1_t test1_no_args;
+
+	verify_args1(test1_no_args, std::nullopt, std::nullopt);
+	verify_const_args1(test1_no_args, std::nullopt, std::nullopt);
+
+	args1_t test1_first_arg{"Abra"};
+	args1_t test1_second_arg{4};
+	args1_t test1_both_args{"Abra", 4};
+
+	args1_t test1_first_string_1{std::string{"Abra"}};
+
+	const std::string cadabra{"Cadabra"};
+
+	args1_t test1_first_string_2{cadabra};
+
+	verify_args1(test1_first_arg, "Abra", std::nullopt);
+	verify_args1(test1_second_arg, std::nullopt, 4);
+	verify_args1(test1_both_args, "Abra", 4);
+	verify_args1(test1_first_string_1, "Abra", std::nullopt);
+	verify_args1(test1_first_string_2, "Cadabra", std::nullopt);
+
+	args2_t test2_no_args;
+
+	verify_args2(test2_no_args, std::nullopt, std::nullopt);
+
+	args2_t test2_first_arg_1{4};
+	args2_t test2_first_arg_2{testoptional_class_t{4}};
+	args2_t test2_first_arg_3{{4}};
+
+	verify_args2(test2_first_arg_1, testoptional_class_t{4}, std::nullopt);
+	verify_args2(test2_first_arg_2, testoptional_class_t{4}, std::nullopt);
+	verify_args2(test2_first_arg_3, testoptional_class_t{4}, std::nullopt);
+
+	args2_t test2_second_arg{"Abra"};
+
+	verify_args2(test2_second_arg, std::nullopt, "Abra");
+
+	args2_t test2_both_args_1{4, "Foo"};
+	args2_t test2_both_args_2{testoptional_class_t{4}, "Foo"};
+	args2_t test2_both_args_3{{4}, "Foo"};
+
+	verify_args2(test2_both_args_1, testoptional_class_t{4}, "Foo");
+	verify_args2(test2_both_args_2, testoptional_class_t{4}, "Foo");
+	verify_args2(test2_both_args_3, testoptional_class_t{4}, "Foo");
+
+	static_assert(!LIBCXX_NAMESPACE::get_optional_arg_helper
+		      <int, int, int, std::string>
+		      ::argument_type_is_unique &&
+		      !LIBCXX_NAMESPACE::get_optional_arg_helper
+		      <int, int, std::string, int>
+		      ::argument_type_is_unique,
+		      "argument_type_is_unique calculation is wrong");
+}
+
+struct optional_coords {
+
+	int x;
+	int y;
+
+	optional_coords(int x, int y) : x{x}, y{y} {}
+
+	bool operator==(const optional_coords &a) const
+	{
+		return x == a.x && y == a.y;
+	}
+
+	bool operator!=(const optional_coords &a) const
+	{
+		return !operator==(a);
+	}
+};
+
+struct optional_size {
+	int w;
+	int h;
+
+	optional_size(int w, int h) : w{w}, h{h} {}
+
+
+	bool operator==(const optional_size &a) const
+	{
+		return w == a.w && h == a.h;
+	}
+
+	bool operator!=(const optional_size &a) const
+	{
+		return !operator==(a);
+	}
+};
+
+void do_adjust_pos_or_size(const std::optional<optional_coords> &pos,
+			   const std::optional<optional_size> &size)
+{
+}
+
+void adjust_pos_or_size(const LIBCXX_NAMESPACE::optional_args<optional_coords,
+			optional_size> &args)
+{
+
+	do_adjust_pos_or_size(LIBCXX_NAMESPACE::optional_arg<optional_coords>(args),
+			      LIBCXX_NAMESPACE::optional_arg<optional_size>(args));
+}
+
+void invoke_optional_args()
+{
+	adjust_pos_or_size({});
+	adjust_pos_or_size({ optional_coords{1,2} } );
+	adjust_pos_or_size({ optional_size{3,4} });
+	adjust_pos_or_size({ optional_coords{1,2}, optional_size{3,4} });
+}
+
+template<typename ...Args>
+void adjust_pos_or_size2(Args && ...args)
+{
+	adjust_pos_or_size({std::forward<Args>(args)...});
+}
+
+void invoke_optional_args2()
+{
+	adjust_pos_or_size2();
+	adjust_pos_or_size2(optional_coords{1,2});
+	adjust_pos_or_size2(optional_size{3,4});
+	adjust_pos_or_size2(optional_coords{1,2}, optional_size{3,4});
+}
+
+typedef LIBCXX_NAMESPACE::optional_args<optional_coords,
+					std::string,
+					std::string,
+					optional_size> args3_t;
+
+void verify_args3(const args3_t &a,
+		  const std::optional<optional_coords> &b,
+		  const std::optional<std::string> &c,
+		  const std::optional<std::string> &d,
+		  const std::optional<optional_size> &e)
+{
+	if (LIBCXX_NAMESPACE::optional_arg<optional_coords>(a) != b ||
+	    LIBCXX_NAMESPACE::optional_arg<0>(a) != b)
+	{
+		std::cout << "First optional class argument is wrong (args3)."
+			  << std::endl;
+		exit(1);
+	}
+
+	if (LIBCXX_NAMESPACE::optional_arg<1>(a) != c)
+	{
+		std::cout << "First optional class string is wrong (args3)."
+			  << std::endl;
+		exit(1);
+	}
+
+	if (LIBCXX_NAMESPACE::optional_arg<2>(a) != d)
+	{
+		std::cout << "Second optional class string is wrong (args3)."
+			  << std::endl;
+		exit(1);
+	}
+
+	if (LIBCXX_NAMESPACE::optional_arg<optional_size>(a) != e ||
+	    LIBCXX_NAMESPACE::optional_arg<3>(a) != e)
+	{
+		std::cout << "Second optional class argument is wrong (args3)."
+			  << std::endl;
+		exit(1);
+	}
+}
+
+void testoptional_args3()
+{
+	args3_t a1{ optional_coords{1,2}, "a", "b",
+		      optional_size{3, 4} };
+
+	verify_args3(a1, optional_coords{1,2}, "a", "b",
+		     optional_size{3, 4});
+
+	args3_t a2{ optional_coords{1,2},
+		      optional_size{3, 4} };
+
+	verify_args3(a2, optional_coords{1,2}, std::nullopt, std::nullopt,
+		     optional_size{3, 4});
+
+	args3_t a3{ optional_coords{1,2}, "a",
+		      optional_size{3, 4} };
+
+	verify_args3(a3, optional_coords{1,2}, "a", std::nullopt,
+		     optional_size{3, 4});
+}
+
+
+struct test_argsref {
+
+	std::vector<int> &sequence;
+
+	test_argsref(std::vector<int> &sequence)
+		: sequence{sequence}
+	{
+		sequence.push_back(1);
+	}
+
+	~test_argsref()
+	{
+		sequence.push_back(3);
+	}
+
+	test_argsref(const test_argsref &)=delete;
+};
+
+struct test_argsref2 {};
+
+typedef LIBCXX_NAMESPACE::optional_argconstrefs<test_argsref,
+						test_argsref,
+						test_argsref2,
+						std::string> args4_t;
+
+void do_test_argsref(const args4_t &args,
+		     std::vector<int> &sequence)
+{
+	auto cpy=args;
+
+	if (LIBCXX_NAMESPACE::optional_arg<test_argsref2>(args))
+		sequence.push_back(4);
+	if (LIBCXX_NAMESPACE::optional_arg<test_argsref2>(cpy))
+		sequence.push_back(4);
+
+	if (LIBCXX_NAMESPACE::optional_arg<0>(args) &&
+	    LIBCXX_NAMESPACE::optional_arg<0>(cpy))
+	{
+		sequence.push_back(2);
+	}
+	else
+	{
+		sequence.push_back(5);
+	}
+}
+
+void testoptional_argsref()
+{
+	std::vector<int> sequence;
+
+	do_test_argsref({test_argsref{sequence},
+			 std::string{"a"}}, sequence);
+
+	if (sequence != std::vector<int>{1,2,3})
+	{
+		std::cout << "testoptional_argsref failed" << std::endl;
+	}
+}
+
+void test_optional_arg_or_receiver1(optional_size &)
+{
+}
+
+void test_optional_arg_or_receiver2(const optional_size &)
+{
+}
+
+void test_optional_arg_or(LIBCXX_NAMESPACE::optional_args<optional_size> &o1,
+			  const LIBCXX_NAMESPACE::optional_args<optional_size>
+			  &o2,
+			  LIBCXX_NAMESPACE::optional_argconstrefs
+			  <optional_size> &o3,
+			  const LIBCXX_NAMESPACE::optional_argconstrefs
+			  <optional_size>
+			  &o4)
+{
+	std::optional<optional_size> value;
+
+	test_optional_arg_or_receiver1
+		(LIBCXX_NAMESPACE::optional_arg_or<optional_size>(o1, value,
+								  3, 4));
+	test_optional_arg_or_receiver2
+		(LIBCXX_NAMESPACE::optional_arg_or<optional_size>(o1, value,
+								  3, 4));
+	test_optional_arg_or_receiver2
+		(LIBCXX_NAMESPACE::optional_arg_or<optional_size>(o2, value,
+								  3, 4));
+
+	test_optional_arg_or_receiver1
+		(LIBCXX_NAMESPACE::optional_arg_or<0>(o1, value, 3, 4));
+	test_optional_arg_or_receiver2
+		(LIBCXX_NAMESPACE::optional_arg_or<0>(o1, value, 3, 4));
+	test_optional_arg_or_receiver2
+		(LIBCXX_NAMESPACE::optional_arg_or<0>(o2, value, 3, 4));
+
+	test_optional_arg_or_receiver2
+		(LIBCXX_NAMESPACE::optional_arg_or<optional_size>(o3, value,
+								  3, 4));
+	test_optional_arg_or_receiver2
+		(LIBCXX_NAMESPACE::optional_arg_or<optional_size>(o4, value,
+								  3, 4));
+	test_optional_arg_or_receiver2
+		(LIBCXX_NAMESPACE::optional_arg_or<0>(o3, value, 3, 4));
+	test_optional_arg_or_receiver2
+		(LIBCXX_NAMESPACE::optional_arg_or<0>(o4, value, 3, 4));
+}
 
 int main()
 {
@@ -2850,5 +3227,9 @@ int main()
 	testequality<not_obj, LIBCXX_NAMESPACE::obj>();
 	testmp();
 	testobjinit();
+
+	testoptional_args();
+	testoptional_args3();
+	testoptional_argsref();
 	return 0;
 }
