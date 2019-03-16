@@ -371,6 +371,24 @@ inline const optional_type
 	return *value;
 }
 
+//! Deduce the type extracted by optional_arg_or
+
+template<typename T> struct deduce_argconstref;
+
+//! Deduce the type extracted by optional_arg_or
+
+template<typename T>
+struct deduce_argconstref<std::reference_wrapper<const T>> {
+
+	typedef T type;
+};
+
+//! Deduce the type extracted by optional_arg_or
+
+template<typename T>
+using deduce_argconstref_t=
+	typename deduce_argconstref<std::remove_cv_t
+				    <std::remove_reference_t<T>>>::type;
 
 //! Return the parsed \ref optional_args "optional argument" or a default value.
 
@@ -433,19 +451,21 @@ template<typename selected,
 	 typename ...OptArgs,
 	 typename optional_type,
 	 typename ...Args>
-inline const optional_type
+inline const auto
 &optional_arg_or(const optional_argconstrefs<OptArgs...> &param,
 		 std::optional<optional_type> &value,
 		 Args && ...args)
 {
 	auto &explicit_option=optional_arg<selected>(param);
 
+	typedef deduce_argconstref_t<decltype(explicit_option.value())> ret_t;
+
 	if (explicit_option)
-		return explicit_option.value();
+		return static_cast<const ret_t &>(explicit_option.value());
 
 	value.emplace(std::forward<Args>(args)...);
 
-	return *value;
+	return static_cast<const ret_t &>(*value);
 }
 
 //! Return the parsed \ref optional_args "optional argument" or a default value.
@@ -457,19 +477,21 @@ template<size_t selected,
 	 typename ...OptArgs,
 	 typename optional_type,
 	 typename ...Args>
-inline const optional_type
+inline const auto
 &optional_arg_or(const optional_argconstrefs<OptArgs...> &param,
 		 std::optional<optional_type> &value,
 		 Args && ...args)
 {
 	auto &explicit_option=optional_arg<selected>(param);
 
+	typedef deduce_argconstref_t<decltype(explicit_option.value())> ret_t;
+
 	if (explicit_option)
-		return explicit_option.value();
+		return static_cast<const ret_t &>(explicit_option.value());
 
 	value.emplace(std::forward<Args>(args)...);
 
-	return *value;
+	return static_cast<const ret_t &>(*value);
 }
 
 #if 0

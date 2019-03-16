@@ -3149,6 +3149,43 @@ void test_optional_arg_or(LIBCXX_NAMESPACE::optional_args<optional_size> &o1,
 		(LIBCXX_NAMESPACE::optional_arg_or<0>(o4, value, 3, 4));
 }
 
+struct optional_base {
+
+	virtual operator int() const { return 0; }
+};
+
+struct optional_child : public optional_base {
+
+	int n;
+
+	optional_child(int n) : n{n} {}
+
+	operator int() const override { return n; }
+};
+
+void test_optional_arg_deduce(const LIBCXX_NAMESPACE::optional_argconstrefs
+			      <optional_base> &a)
+{
+	std::optional<optional_child> default_value1;
+	std::optional<optional_child> default_value2;
+
+	const optional_base &b=
+		LIBCXX_NAMESPACE::optional_arg_or<optional_base>
+		(a, default_value1, 1);
+
+	const optional_base &c=
+		LIBCXX_NAMESPACE::optional_arg_or<0>(a, default_value2, 2);
+
+	int bn=b;
+	int cn=c;
+
+	if (bn != 1 || cn != 2)
+	{
+		std::cout << "optional_arg deduction failed" << std::endl;
+		exit(1);
+	}
+}
+
 int main()
 {
 	alarm(60);
@@ -3231,5 +3268,6 @@ int main()
 	testoptional_args();
 	testoptional_args3();
 	testoptional_argsref();
+	test_optional_arg_deduce({});
 	return 0;
 }
