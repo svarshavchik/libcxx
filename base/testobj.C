@@ -3186,6 +3186,40 @@ void test_optional_arg_deduce(const LIBCXX_NAMESPACE::optional_argconstrefs
 	}
 }
 
+struct expl1Obj : virtual public LIBCXX_NAMESPACE::obj {};
+struct expl2Obj : virtual public LIBCXX_NAMESPACE::obj {};
+
+int only_expl1(const LIBCXX_NAMESPACE::explicit_refptr<
+	       LIBCXX_NAMESPACE::const_ref<expl1Obj>> &arg)
+{
+	const LIBCXX_NAMESPACE::const_ref<expl1Obj> &r=arg;
+
+	(void)(r);
+	return 1;
+}
+
+int only_expl2(const LIBCXX_NAMESPACE::explicit_refptr<
+	       LIBCXX_NAMESPACE::const_ref<expl2Obj>> &arg)
+{
+	const LIBCXX_NAMESPACE::const_ref<expl2Obj> &r=arg;
+
+	(void)(r);
+	return 2;
+}
+
+void testexpl()
+{
+	auto one=LIBCXX_NAMESPACE::ref<expl1Obj>::create();
+	auto two=LIBCXX_NAMESPACE::ref<expl2Obj>::create();
+
+	if (only_expl1(one) != 1 ||
+	    only_expl2(two) != 2)
+	{
+		std::cerr << "explicit_refptr failed" << std::endl;
+		exit(1);
+	}
+}
+
 int main()
 {
 	alarm(60);
@@ -3269,5 +3303,6 @@ int main()
 	testoptional_args3();
 	testoptional_argsref();
 	test_optional_arg_deduce({});
+	testexpl();
 	return 0;
 }

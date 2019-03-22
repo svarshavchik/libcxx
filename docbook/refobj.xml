@@ -323,9 +323,9 @@ button okButton=button::create(100, 100);</programlisting>
 	<programlisting>
 #include &lt;&ns;/ptr.H&gt;
 
-typedef &ns;::ptr&lt;buttonObj&gt; button;
+typedef &ns;::ptr&lt;buttonObj&gt; buttonptr;
 
-button b(button::create(200, 300));
+buttonptr b=buttonptr::create(200, 300);
 
 // ...
 
@@ -338,7 +338,7 @@ b-&gt;click();
 
 typedef &ns;::ref&lt;buttonObj&gt; button;
 
-button b(button::create(200, 300));</programlisting>
+button b=button::create(200, 300);</programlisting>
       </informalexample>
     </blockquote>
 
@@ -482,9 +482,9 @@ b-&gt;click();</programlisting>
     <blockquote>
       <informalexample>
 	<programlisting>
-typedef &ns;::ptr&lt;buttonObj&gt; button;
+typedef &ns;::ptr&lt;buttonObj&gt; buttonptr;
 
-button b;
+buttonptr b;
 
 // ...
 
@@ -878,7 +878,7 @@ public:
 
     <para>
       The second way is to
-      <ulink url="&link-typedef-x--base-type-type;">specialize
+      <ulink url="&link-x--base-type;">specialize
 	<classname>&ns;::base_type</classname> and define a
 	<varname>type</varname> class member</ulink>:
     </para>
@@ -1179,6 +1179,54 @@ public:
       isn't matched identically, but this should suffice for most common
       use cases.
     </para>
+
+    <section id="explicitrefptr">
+      <title>Limiting overload resolution</title>
+
+      <para>
+	Implicit conversion from an &reforptr; to a different &reforptr;
+	means that a function with an &reforptr; parameter
+	participates in overload resolution if the corresponding parameter
+	is any other &reforptr;. Sometimes it is desirable to turn off
+	overload resolution. This is done by using an
+	<ulink url="&link-x--explicit-refptr;"><classname>&ns;::explicit_refptr</classname></ulink>
+	parameter:
+      </para>
+
+      <blockquote>
+	<informalexample>
+	  <programlisting>
+#include &lt;x/refptr_traits.H&gt;
+
+typedef &ns;::ref&lt;class1Obj&gt; class1;
+
+typedef &ns;::ref&lt;class2Obj&gt; class2;
+
+void foo(const &ns;::explicit_refptr&lt;class1&gt; &amp;arg)
+{
+    const class1 &amp;rarg=arg;
+
+    // ...
+}
+
+void foo(const &ns;::explicit_refptr&lt;class2&gt; &amp;arg)
+{
+    const class2 &amp;rarg=arg;
+
+    // ...
+}</programlisting>
+	</informalexample>
+      </blockquote>
+
+      <para>
+	The first <function>foo</function>() participates in overload resolution
+	only if the corresponding parameter is an &reforptr; of a
+	<classname>class1Obj</classname>, and the second one only
+	for a parameter of an &reforptr; of a
+	<classname>class2Obj</classname>.
+      </para>
+    </section>
+
   </section>
 
   <section id="reffromthis">

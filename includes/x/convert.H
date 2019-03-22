@@ -14,6 +14,8 @@ namespace LIBCXX_NAMESPACE {
 };
 #endif
 
+#ifndef DOXYGEN
+
 //! Implement static or dynamic pointer conversion.
 
 //! The default implementation uses dynamic_cast.
@@ -125,6 +127,8 @@ public:
 
 template<typename obj_from, typename obj_to, bool is_const>
 class convert : public convert_impl<obj_from, obj_to, is_const> {};
+
+#endif
 
 #if 0
 {
