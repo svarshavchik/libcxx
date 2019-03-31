@@ -24,6 +24,15 @@ See COPYING for distribution information.
       </para>
     </listitem>
     <listitem>
+      <para>
+	The <link linkend="optionalargs">&ns;::optional_args</link> template
+	for implementing a variadic collection of optional function parameters,
+	in order to avoid having to declare multiple overloaded functions
+	for implementing optional parameters.
+      </para>
+    </listitem>
+
+    <listitem>
       <para>Other minor fixes.</para>
     </listitem>
   </itemizedlist>

@@ -1,3 +1,10 @@
+0.15.2
+
+2019-03-31  Sam Varshavchik  <mrsam@courier-mta.com>
+
+	* includes/x/refptr_traits.H: explicit_refptr.
+
+
 2019-03-12  Sam Varshavchik  <mrsam@courier-mta.com>
 
 	* includes/x/optional_args.H: Add optional_args and

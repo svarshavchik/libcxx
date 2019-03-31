@@ -1181,7 +1181,7 @@ public:
     </para>
 
     <section id="explicitrefptr">
-      <title>Limiting overload resolution</title>
+      <title>Restricting overload resolution</title>
 
       <para>
 	Implicit conversion from an &reforptr; to a different &reforptr;
