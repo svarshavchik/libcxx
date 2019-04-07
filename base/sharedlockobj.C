@@ -1,5 +1,5 @@
 /*
-** Copyright 2012 Double Precision, Inc.
+** Copyright 2012-2019 Double Precision, Inc.
 ** See COPYING for distribution information.
 */
 
@@ -13,68 +13,77 @@ namespace LIBCXX_NAMESPACE {
 };
 #endif
 
-sharedlockObj::sharedlockObj()
-{
-}
+sharedlockObj::sharedlockObj()=default;
 
-sharedlockObj::~sharedlockObj()
-{
-}
+sharedlockObj::~sharedlockObj()=default;
 
-sharedlockObj::sharedObj::sharedObj()
+sharedlockObj::sharedObj::sharedObj(const sharedlock &lock,
+				    mpcobj<lock_info_t>::lock &l)
+	: lock{lock}
 {
-}
-
-sharedlockObj::sharedObj::sharedObj(const sharedlock &lockArg)
-	: lock(lockArg), shared(lockArg->rw, std::defer_lock_t())
-{
+	++l->shared_lockers;
 }
 
 sharedlockObj::sharedObj::~sharedObj()
 {
+	mpcobj<lock_info_t>::lock l{lock->lock_info};
+
+	--l->shared_lockers;
+
+	l.notify_all();
 }
 
-sharedlockObj::uniqueObj::uniqueObj()
+sharedlockObj::uniqueObj::uniqueObj(const sharedlock &lock,
+				    mpcobj<lock_info_t>::lock &l)
+	: lock{lock}
 {
-}
-
-sharedlockObj::uniqueObj::uniqueObj(const sharedlock &lockArg)
-	: lock(lockArg), unique(lockArg->rw, std::defer_lock_t())
-{
+	l->exclusively_locked=true;
 }
 
 sharedlockObj::uniqueObj::~uniqueObj()
 {
+	mpcobj<lock_info_t>::lock l{lock->lock_info};
+
+	l->exclusively_locked=false;
+
+	l.notify_all();
 }
 
 sharedlock::base::shared sharedlockObj::create_shared()
 {
-	shared r=shared::create(sharedlock(this));
+	mpcobj<lock_info_t>::lock l{lock_info};
 
-	r->shared.lock();
+	l.wait([&]
+	       {
+		       return l->ok_to_lock_shared();
+	       });
 
-	return r;
+	return shared::create(ref{this}, l);
 }
 
 sharedlock::base::sharedptr sharedlockObj::try_shared()
 {
 	sharedptr ptr;
 
-	shared r=shared::create(sharedlock(this));
+	mpcobj<lock_info_t>::lock l{lock_info};
 
-	if (r->shared.try_lock())
-		ptr=r;
-
+	if (l->ok_to_lock_shared())
+	{
+		ptr=shared::create(ref{this}, l);
+	}
 	return ptr;
 }
 
 sharedlock::base::unique sharedlockObj::create_unique()
 {
-	unique w=unique::create(sharedlock(this));
+	mpcobj<lock_info_t>::lock l{lock_info};
 
-	w->unique.lock();
+	l.wait([&]
+	       {
+		       return l->ok_to_lock_exclusively();
+	       });
 
-	return w;
+	return unique::create(ref{this}, l);
 }
 
 
@@ -82,11 +91,12 @@ sharedlock::base::uniqueptr sharedlockObj::try_unique()
 {
 	uniqueptr ptr;
 
-	unique w=unique::create(sharedlock(this));
+	mpcobj<lock_info_t>::lock l{lock_info};
 
-	if (w->unique.try_lock())
-		ptr=w;
-
+	if (l->ok_to_lock_exclusively())
+	{
+		ptr=unique::create(ref{this}, l);
+	}
 	return ptr;
 }
 

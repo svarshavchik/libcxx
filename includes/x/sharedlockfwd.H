@@ -1,5 +1,5 @@
 /*
-** Copyright 2012-2017 Double Precision, Inc.
+** Copyright 2012-2019 Double Precision, Inc.
 ** See COPYING for distribution information.
 */
 
@@ -17,7 +17,7 @@ namespace LIBCXX_NAMESPACE {
 class sharedlockObj;
 class sharedlockBase;
 
-//! A reference to a reference-counted version of a \c std::shared_timed_mutex
+//! A reference to a reference-counted equivalent of a \c std::shared_timed_mutex
 
 //! Construct shared mutex objects as follows:
 //!
@@ -26,7 +26,8 @@ class sharedlockBase;
 //! \endcode
 //!
 //! The shared lock gets automatically destroyed
-//! when the last reference to the shared lock goes away.
+//! when the last reference to the shared lock goes away, in any execution
+//! thread.
 //!
 //! \link sharedlockObj::create_shared() mySharedlock-&gt;create_shared() \endlink,
 //! \link sharedlockObj::try_shared() mySharedlock-&gt;try_shared() \endlink,
@@ -46,6 +47,10 @@ class sharedlockBase;
 //! Multiple threads can lock the same shared lock for reading.
 //! Only one thread
 //! can obtain a write lock on the shared lock.
+//!
+//! A shared or a unique lock can be created in one thread, and the last
+//! reference to the shared or a unique lock can go out of scope in a different
+//! execution thread, and release the lock.
 
 typedef ref<sharedlockObj, sharedlockBase> sharedlock;
 

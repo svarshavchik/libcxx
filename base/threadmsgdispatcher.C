@@ -1,5 +1,5 @@
 /*
-** Copyright 2016-2017 Double Precision, Inc.
+** Copyright 2016-2019 Double Precision, Inc.
 ** See COPYING for distribution information.
 */
 

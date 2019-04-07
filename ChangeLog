@@ -1,3 +1,9 @@
+2019-04-06  Sam Varshavchik  <mrsam@courier-mta.com>
+
+	* includes/x/sharedlockobj.H (class sharedlockObj): Reimplement
+	sharedlock in a manner that allows locks to be unlocked in
+	different execution threads.
+
 0.15.2
 
 2019-03-31  Sam Varshavchik  <mrsam@courier-mta.com>

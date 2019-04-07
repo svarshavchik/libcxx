@@ -1,5 +1,5 @@
 /*
-** Copyright 2012 Double Precision, Inc.
+** Copyright 2012-2019 Double Precision, Inc.
 ** See COPYING for distribution information.
 */
 
@@ -209,9 +209,9 @@ public:
 
 	//! Wait on the condition variable, if this is an \ref mpcobj "mpcobj".
 	template<class Predicate>
-	void wait(Predicate pred)
+	void wait(Predicate &&pred)
 	{
-		objp.meta.cond.wait(mlock, pred);
+		objp.meta.cond.wait(mlock, std::forward<Predicate>(pred));
 	}
 
 	//! Timed waiting on the condition variable, if this is an \ref mpcobj "mpcobj".
@@ -233,18 +233,20 @@ public:
 	//! Timed waiting on the condition variable, if this is an \ref mpcobj "mpcobj".
 
 	template<typename timeout_type, class Predicate>
-	bool wait_for(const timeout_type &t, Predicate pred)
+	bool wait_for(const timeout_type &t, Predicate &&pred)
 	{
-		return objp.meta.cond.wait_for(mlock, t, pred);
+		return objp.meta.cond.wait_for(mlock, t,
+					       std::forward<Predicate>(pred));
 	}
 
 	//! Timed waiting on the condition variable, if this is an \ref mpcobj "mpcobj".
 
 	template<typename timeout_type, class Predicate>
-	auto wait_until(const timeout_type &t, Predicate pred)
+	auto wait_until(const timeout_type &t, Predicate &&pred)
 		-> decltype(pred())
 	{
-		return objp.meta.cond.wait_until(mlock, t, pred);
+		return objp.meta.cond.wait_until(mlock, t,
+						 std::forward<Predicate>(pred));
 	}
 
 };

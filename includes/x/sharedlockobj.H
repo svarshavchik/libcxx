@@ -1,5 +1,5 @@
 /*
-** Copyright 2012-2017 Double Precision, Inc.
+** Copyright 2012-2019 Double Precision, Inc.
 ** See COPYING for distribution information.
 */
 
@@ -13,7 +13,7 @@
 #include <x/sharedlockfwd.H>
 #include <x/namespace.h>
 
-#include <shared_mutex>
+#include <x/mpobj.H>
 
 namespace LIBCXX_NAMESPACE {
 #if 0
@@ -26,9 +26,26 @@ namespace LIBCXX_NAMESPACE {
 
 class sharedlockObj : virtual public obj {
 
-	//! The underlying mutex.
+	//! Counters of shared and exclusive locks in existence.
 
-	std::shared_timed_mutex rw;
+	struct lock_info_t {
+		size_t shared_lockers=0;
+		bool exclusively_locked=false;
+
+		inline bool ok_to_lock_shared() const
+		{
+			return !exclusively_locked;
+		}
+
+		inline bool ok_to_lock_exclusively() const
+		{
+			return !exclusively_locked && shared_lockers == 0;
+		}
+	};
+
+	//! Protected information.
+
+	mpcobj<lock_info_t> lock_info;
 
 public:
 
@@ -43,20 +60,11 @@ public:
 	class sharedObj : virtual public obj {
 
 		//! The locked read/write lock.
-		sharedlockptr lock;
-
-		//! The read lock;
-
-		std::shared_lock<std::shared_timed_mutex> shared;
-
-		//! Private constructor
-		sharedObj(const sharedlock &lockArg);
-
+		const sharedlock lock;
 	public:
-		friend class sharedlockObj;
-		friend class ptrref_base;
 
-		sharedObj();
+		sharedObj(const sharedlock &,
+			  mpcobj<lock_info_t>::lock &lock);
 		~sharedObj();
 	};
 
@@ -65,25 +73,13 @@ public:
 	class uniqueObj : virtual public obj {
 
 		//! The locked read/write lock.
-		sharedlockptr lock;
-
-		//! The write lock
-
-		std::unique_lock<std::shared_timed_mutex> unique;
-
-		//! Private constructor
-		uniqueObj(const sharedlock &lockArg);
+		const sharedlock lock;
 
 	public:
-		friend class sharedlockObj;
-		friend class ptrref_base;
-
-		uniqueObj();
+		uniqueObj(const sharedlock &,
+			  mpcobj<lock_info_t>::lock &lock);
 		~uniqueObj();
 	};
-
-	friend class sharedObj;
-	friend class uniqueObj;
 
 	//! A reference to a read lock
 
@@ -116,16 +112,20 @@ public:
 	//! If the lock was acquired, return an shared, otherwise a null.
 
 	template<typename timeout_type>
-	sharedptr try_shared_until(const timeout_type &abstime)
+	sharedptr try_shared_until(timeout_type &&abstime)
 	{
 		sharedptr ptr;
 
-		shared r=shared::create(sharedlock(this));
+		mpcobj<lock_info_t>::lock l{lock_info};
 
-		r->lock=sharedlock(this);
-		if (r->shared.try_lock_until(abstime))
-			ptr=r;
-
+		if (l.wait_until(std::forward<timeout_type>(abstime),
+				 [&]
+				 {
+					 return l->ok_to_lock_shared();
+				 }))
+		{
+			ptr=shared::create(ref{this}, l);
+		}
 		return ptr;
 	}
 
@@ -134,15 +134,20 @@ public:
 	//! If the lock was acquired, return an shared, otherwise a null.
 
 	template<typename timeout_type>
-	sharedptr try_shared_for(const timeout_type &reltime)
+	sharedptr try_shared_for(timeout_type &&reltime)
 	{
 		sharedptr ptr;
 
-		shared r=shared::create(sharedlock(this));
+		mpcobj<lock_info_t>::lock l{lock_info};
 
-		if (r->shared.try_lock_for(reltime))
-			ptr=r;
-
+		if (l.wait_for(std::forward<timeout_type>(reltime),
+				 [&]
+				 {
+					 return l->ok_to_lock_shared();
+				 }))
+		{
+			ptr=shared::create(ref{this}, l);
+		}
 		return ptr;
 	}
 
@@ -161,15 +166,20 @@ public:
 	//! If the lock was acquired, return an unique, otherwise a null.
 
 	template<typename timeout_type>
-	uniqueptr try_unique_until(const timeout_type &abstime)
+	uniqueptr try_unique_until(timeout_type &&abstime)
 	{
 		uniqueptr ptr;
 
-		unique w=unique::create(sharedlock(this));
+		mpcobj<lock_info_t>::lock l{lock_info};
 
-		if (w->unique.try_lock_until(abstime))
-			ptr=w;
-
+		if (l.wait_until(std::forward<timeout_type>(abstime),
+				 [&]
+				 {
+					 return l->ok_to_lock_exclusively();
+				 }))
+		{
+			ptr=unique::create(ref{this}, l);
+		}
 		return ptr;
 	}
 
@@ -178,18 +188,22 @@ public:
 	//! If the lock was acquired, return an unique, otherwise a null.
 
 	template<typename timeout_type>
-	uniqueptr try_unique_for(const timeout_type &reltime)
+	uniqueptr try_unique_for(timeout_type &&reltime)
 	{
 		uniqueptr ptr;
 
-		unique w=unique::create(sharedlock(this));
+		mpcobj<lock_info_t>::lock l{lock_info};
 
-		if (w->unique.try_lock_for(reltime))
-			ptr=w;
-
+		if (l.wait_for(std::forward<timeout_type>(reltime),
+			       [&]
+			       {
+				       return l->ok_to_lock_exclusively();
+			       }))
+		{
+			ptr=unique::create(ref{this}, l);
+		}
 		return ptr;
 	}
-
 };
 
 #if 0

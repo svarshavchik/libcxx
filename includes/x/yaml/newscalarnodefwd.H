@@ -1,5 +1,5 @@
 /*
-** Copyright 2012 Double Precision, Inc.
+** Copyright 2012-2019 Double Precision, Inc.
 ** See COPYING for distribution information.
 */ 
 #ifndef x_yaml_newscalarnodefwd_H
