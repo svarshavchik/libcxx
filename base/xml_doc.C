@@ -1771,24 +1771,46 @@ impldocObj::readlockImplObj::get_xpath(const std::string &expr)
 					 expr);
 }
 
-std::string quote_string_literal(const std::string &str, char quote)
+std::string quote_string_literal(const std::string_view &str, char quote)
 {
 	std::string p;
 
-	size_t i=0;
-	size_t n;
+	size_t n=str.size();
+
+	p.reserve(n + n/20 + 2); // Opening bid: add 5%
+
+	p.push_back(quote);
 
 	char double_quote[]={quote, quote, 0};
 
-	while ((n=str.find(quote, i)) != std::string::npos)
+	for (const auto &c:str)
 	{
-		p=p+str.substr(i, n-i) + double_quote;
-		i=n+1;
+		if (c == quote)
+		{
+			p += double_quote;
+		}
+		else if (c == '<')
+		{
+			p += "&lt;";
+		}
+		else if (c == '>')
+		{
+			p += "&gt;";
+		}
+		else if (c == '&')
+		{
+			p += "&amp;";
+		}
+		else if (c == '\0')
+		{
+			p += "&#0;"; // Script kiddy?
+		}
+		else
+			p.push_back(c);
 	}
 
-	double_quote[1]=0;
-
-	return double_quote + p+str.substr(i) + double_quote;
+	p.push_back(quote);
+	return p;
 }
 
 #if 0

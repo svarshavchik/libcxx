@@ -1160,7 +1160,9 @@ void test60()
 	    LIBCXX_NAMESPACE::xml::quote_string_literal("bar\"")
 	    != "\"bar\"\"\"" ||
 	    LIBCXX_NAMESPACE::xml::quote_string_literal("\"bar")
-	    != "\"\"\"bar\"")
+	    != "\"\"\"bar\"" ||
+	    LIBCXX_NAMESPACE::xml::quote_string_literal("&<>")
+	    != "\"&amp;&lt;&gt;\"")
 		throw EXCEPTION("quote_string_literal failed");
 }
 

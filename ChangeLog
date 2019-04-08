@@ -1,3 +1,8 @@
+2019-04-07  Sam Varshavchik  <mrsam@courier-mta.com>
+
+	* base/xml_doc.C (quote_string_literal): quote <, >, and &, and
+	change the parameter to a string_view.
+
 2019-04-06  Sam Varshavchik  <mrsam@courier-mta.com>
 
 	* includes/x/sharedlockobj.H (class sharedlockObj): Reimplement

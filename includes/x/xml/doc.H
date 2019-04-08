@@ -11,6 +11,7 @@
 #include <x/xml/parser.H>
 #include <x/ref.H>
 #include <x/refiterator.H>
+#include <string_view>
 
 namespace LIBCXX_NAMESPACE {
 	namespace xml {
@@ -824,8 +825,10 @@ public:
 //! Return the passed in string, sandwiched in between quotes, ""s.
 //!
 //! Quote characters in the passed-in string get doubled.
+//!
+//! <, >, and &, get converted to entities.
 
-std::string quote_string_literal(const std::string &str,
+std::string quote_string_literal(const std::string_view &str,
 				 char quote='"');
 
 #if 0
