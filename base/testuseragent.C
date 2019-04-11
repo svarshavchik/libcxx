@@ -554,7 +554,7 @@ static void testpool()
 
 	std::cout << "URI: ";
 
-	uri.toString(std::ostreambuf_iterator<char>(std::cout));
+	uri.to_string(std::ostreambuf_iterator<char>(std::cout));
 	std::cout << std::endl;
 
 	testpoolthread testthread=testpoolthread::create(ua, uri);
@@ -699,7 +699,7 @@ public:
 		{
 			std::stringstream reqstr;
 
-			req.toString(std::ostreambuf_iterator<char>
+			req.to_string(std::ostreambuf_iterator<char>
 				     (reqstr.rdbuf()));
 
 			std::string request;
@@ -1367,7 +1367,7 @@ void testclientauth3()
 
 		std::copy(resp->begin(),
 			  resp->end(),
-			  resp->message.toString(std::ostreambuf_iterator<char>
+			  resp->message.to_string(std::ostreambuf_iterator<char>
 						 (std::cout)));
 	}
 
@@ -1385,7 +1385,7 @@ void testclientauth3()
 
 		std::copy(resp->begin(),
 			  resp->end(),
-			  resp->message.toString(std::ostreambuf_iterator<char>
+			  resp->message.to_string(std::ostreambuf_iterator<char>
 						 (std::cout)));
 	}
 }
@@ -1529,7 +1529,7 @@ void testcookies()
 
 		std::copy(resp->begin(),
 			  resp->end(),
-			  resp->message.toString(std::ostreambuf_iterator
+			  resp->message.to_string(std::ostreambuf_iterator
 						 <char>(std::cout)));
 	}
 
@@ -1541,7 +1541,7 @@ void testcookies()
 		std::string s(resp->begin(), resp->end());
 		std::copy(s.begin(),
 			  s.end(),
-			  resp->message.toString(std::ostreambuf_iterator
+			  resp->message.to_string(std::ostreambuf_iterator
 						 <char>(std::cout)));
 
 		if (s != "name1=value1\n")
@@ -1637,7 +1637,7 @@ void testredirect()
 	alarm(0);
 	std::copy(resp->begin(),
 		  resp->end(),
-		  resp->message.toString(std::ostreambuf_iterator<char>
+		  resp->message.to_string(std::ostreambuf_iterator<char>
 					 (std::cout)));
 }
 

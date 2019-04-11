@@ -18,7 +18,7 @@ public:
 	std::string s;
 
 	template<typename OutputIterator>
-	OutputIterator toString(OutputIterator iter,
+	OutputIterator to_string(OutputIterator iter,
 				const LIBCXX_NAMESPACE::const_locale &localeRef)
 		const
 	{
@@ -27,7 +27,7 @@ public:
 
 
 	template<typename InputIterator>
-	static outputFormatClass fromString(InputIterator beg_iter,
+	static outputFormatClass from_string(InputIterator beg_iter,
 					    InputIterator end_iter,
 					    const LIBCXX_NAMESPACE::const_locale &localeArg)
 

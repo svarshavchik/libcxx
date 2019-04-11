@@ -66,7 +66,7 @@ static void testcgiimpl(std::list<std::string> &args)
 
 	std::cout << "Uri: ";
 
-	cgi.getURI(options).toString(std::ostreambuf_iterator<char>(std::cout));
+	cgi.getURI(options).to_string(std::ostreambuf_iterator<char>(std::cout));
 
 	std::cout << std::endl;
 

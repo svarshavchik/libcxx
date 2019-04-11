@@ -203,7 +203,7 @@ int main(int argc, char **argv)
 		LIBCXX_NAMESPACE::property::value<double> double_value("");
 
 		double_value.set( LIBCXX_NAMESPACE::value_string<double>
-				       ::fromString("1.2",
+				       ::from_string("1.2",
 						    LIBCXX_NAMESPACE::locale::create("C")));
 		std::cout << double_value.get() << std::endl;
 

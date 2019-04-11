@@ -559,7 +559,7 @@ public:
 	//! Write the headers to an output sequence
 
 	template<typename iter_type>
-	iter_type toString(//! Output iterator
+	iter_type to_string(//! Output iterator
 			   iter_type iter,
 
 			   //! The line terminator is overriden in http::cgiimpl
@@ -655,7 +655,7 @@ public:
 
 extern template
 std::ostreambuf_iterator<char>
-headersbase::toString<std::ostreambuf_iterator<char>
+headersbase::to_string<std::ostreambuf_iterator<char>
 		      >(std::ostreambuf_iterator<char>, const char *, bool)
 	const;
 

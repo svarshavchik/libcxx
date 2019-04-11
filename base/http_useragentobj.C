@@ -450,7 +450,7 @@ useragentObj::do_request_with_auth(const fd *terminate_fd,
 	LOG_TRACE( ({
 				std::ostringstream o;
 
-				req.toString(std::ostreambuf_iterator<char>(o));
+				req.to_string(std::ostreambuf_iterator<char>(o));
 
 				o.str();
 			}));
@@ -471,7 +471,7 @@ useragentObj::do_request_with_auth(const fd *terminate_fd,
 		LOG_TRACE( ({
 					std::ostringstream o;
 
-					resp->message.toString
+					resp->message.to_string
 						(std::ostreambuf_iterator
 						 <char>(o));
 

@@ -1,3 +1,10 @@
+0.16.0
+
+2019-04-10  Sam Varshavchik  <mrsam@courier-mta.com>
+
+	* value_string: remove camel case: fromString/toString replaced
+	with from_string/to_string.
+
 2019-04-07  Sam Varshavchik  <mrsam@courier-mta.com>
 
 	* base/xml_doc.C (quote_string_literal): quote <, >, and &, and

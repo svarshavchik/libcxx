@@ -78,7 +78,7 @@ static void testhttpsproxyerror()
 	if (!client->send(req, resp))
 		throw EXCEPTION("Was not able to send a request");
 
-	resp.toString(std::ostreambuf_iterator<char>(std::cout));
+	resp.to_string(std::ostreambuf_iterator<char>(std::cout));
 	try {
 		if (req.responseHasMessageBody(resp))
 			std::copy(client->begin(), client->end(),
@@ -208,7 +208,7 @@ static void testhttpsproxyconnect()
 		if (!client.send(req, resp))
 			throw EXCEPTION("Was not able to send a request");
 
-		resp.toString(std::ostreambuf_iterator<char>(std::cout));
+		resp.to_string(std::ostreambuf_iterator<char>(std::cout));
 
 		try {
 			if (req.responseHasMessageBody(resp))
@@ -282,7 +282,7 @@ static void dorequest(const std::string &url,
 	if (!client.send(req, resp))
 		throw EXCEPTION("Was not able to send a request");
 
-	resp.toString(std::ostreambuf_iterator<char>(std::cout));
+	resp.to_string(std::ostreambuf_iterator<char>(std::cout));
 	if (req.responseHasMessageBody(resp))
 		std::copy(client.begin(), client.end(),
 			  std::ostreambuf_iterator<char>(std::cout));

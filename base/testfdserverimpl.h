@@ -112,7 +112,7 @@ void testhttp10()
 		if (!cl.send(req, resp))
 			throw EXCEPTION("testhttp10: send refused");
 
-		resp.toString(std::ostreambuf_iterator<char>(std::cout));
+		resp.to_string(std::ostreambuf_iterator<char>(std::cout));
 
 		if (req.responseHasMessageBody(resp))
 		{
@@ -166,7 +166,7 @@ void testhttp11()
 			if (!cl.send(req, resp))
 				throw EXCEPTION("testhttp11: send refused");
 
-			resp.toString(std::ostreambuf_iterator<char>(std::cout));
+			resp.to_string(std::ostreambuf_iterator<char>(std::cout));
 
 			if (req.responseHasMessageBody(resp))
 			{

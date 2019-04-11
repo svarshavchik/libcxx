@@ -30,7 +30,7 @@ void no_custom_class_default()
 	throw EXCEPTION(_("Undefined default value for a custom class option"));
 }
 
-bool value_string<bool>::fromString(const std::string &s,
+bool value_string<bool>::from_string(const std::string &s,
 				    const const_locale &locale)
 
 {
@@ -43,7 +43,7 @@ bool value_string<bool>::fromString(const std::string &s,
 		falsies.end() ? false:true;
 }
 
-std::string value_string<bool>::toString(bool value, const const_locale &l)
+std::string value_string<bool>::to_string(bool value, const const_locale &l)
 
 {
 	return libmsg(value ? _txt("true"):_txt("false"));

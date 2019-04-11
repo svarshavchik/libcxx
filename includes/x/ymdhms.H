@@ -17,7 +17,7 @@ namespace LIBCXX_NAMESPACE {
 #endif
 
 template<typename OutputIterator>
-inline OutputIterator ymdhms::formatter::toString(OutputIterator iter,
+inline OutputIterator ymdhms::formatter::to_string(OutputIterator iter,
 						  const const_locale &localeRef)
 	const
 {

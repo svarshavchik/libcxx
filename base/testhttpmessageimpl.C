@@ -29,7 +29,7 @@ std::string dumpmsg(LIBCXX_NAMESPACE::http::requestimpl &msg)
 {
 	std::string s;
 
-	msg.toString(std::back_insert_iterator<std::string>(s));
+	msg.to_string(std::back_insert_iterator<std::string>(s));
 
 	return s;
 }
@@ -261,10 +261,10 @@ static void testacceptheader()
 
 	std::ostringstream o;
 
-	h.toString(std::ostreambuf_iterator<char>(o));
+	h.to_string(std::ostreambuf_iterator<char>(o));
 
 	if (o.str() != "text/plain; charset=us-ascii; q=1.000, text/plain; q=0.900, text/plain; version=\"12[]\"; q=0.500, text/plain; version=\"\\\\\\\\\"; q=0.003")
-		throw EXCEPTION("Unexpected accept_header.toString result: " + o.str());
+		throw EXCEPTION("Unexpected accept_header.to_string result: " + o.str());
 }
 
 static void testcontenttypeheader()
@@ -273,7 +273,7 @@ static void testcontenttypeheader()
 		("Content-Type: text/plain;  charset=\"utf-8\"");
 
 	if (s != "Content-Type: text/plain; charset=utf-8")
-		throw EXCEPTION("Unexpected content_type_header.toString result: " + s);
+		throw EXCEPTION("Unexpected content_type_header.to_string result: " + s);
 
 }
 

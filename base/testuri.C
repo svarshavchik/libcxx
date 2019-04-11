@@ -19,7 +19,7 @@ void dumpuri(const LIBCXX_NAMESPACE::uriimpl &u)
 {
 	std::cout << "scheme: " << u.getScheme() << std::endl
 		  << "authority: " << (u.getAuthority() ?
-				       u.getAuthority().toString()
+				       u.getAuthority().to_string()
 				       : std::string("(null)")) << std::endl
 		  << "path: " << u.getPath() << std::endl
 		  << "query: " << u.getQuery() << std::endl
@@ -105,7 +105,7 @@ void testadd()
 
 		(LIBCXX_NAMESPACE::uriimpl(bases.begin(), bases.end())
 		 + LIBCXX_NAMESPACE::uriimpl(refs.begin(), refs.end()))
-			.toString(std::ostreambuf_iterator<char>(o.rdbuf()));
+			.to_string(std::ostreambuf_iterator<char>(o.rdbuf()));
 
 		std::cout << o.str() << std::endl;
 	}
@@ -272,7 +272,7 @@ void testtokenizer(Functor &&functor)
 	{
 		std::stringstream s;
 
-		e.toString(std::ostreambuf_iterator<char>(s));
+		e.to_string(std::ostreambuf_iterator<char>(s));
 
 		std::string line;
 
@@ -473,7 +473,7 @@ int main(int argc, char **argv)
 			LIBCXX_NAMESPACE::uriimpl::authority_t
 				a("user:pw@host:80");
 
-			std::cout << "Authority: " << a.toString() << std::endl;
+			std::cout << "Authority: " << a.to_string() << std::endl;
 			std::cout << "userinfo: " << a.userinfo << std::endl;
 			std::cout << "hostport: " << a.hostport << std::endl;
 

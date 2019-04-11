@@ -248,7 +248,7 @@ public:
 
 		//! Convert to a string
 		template<typename OutputIterator>
-		inline OutputIterator toString(//! Output iterator
+		inline OutputIterator to_string(//! Output iterator
 					       OutputIterator iter,
 
 					       //! Locale

@@ -165,7 +165,7 @@ void encoderObj::add_headers(const headersimpl<header_type> &headers,
 {
 	std::ostringstream o;
 
-	extra_header.toString(headers.toString(std::ostreambuf_iterator<char>
+	extra_header.to_string(headers.to_string(std::ostreambuf_iterator<char>
 					       (o), true));
 
 	sections->push_back(create_plain_encoder(o.str()));

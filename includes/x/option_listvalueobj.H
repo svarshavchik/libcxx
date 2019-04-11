@@ -55,7 +55,7 @@ public:
 	{
 		try {
 			values.push_back(value_string<value_type>
-					 ::fromString(valueArg, localeArg));
+					 ::from_string(valueArg, localeArg));
 		} catch (exception &e)
 		{
 			return option::parser::base::err_invalidoption;

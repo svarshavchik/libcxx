@@ -551,15 +551,15 @@ static void testoptions9()
 
 	std::cout << "Time: ";
 
-	hms_value->value.toString(o);
+	hms_value->value.to_string(o);
 
 	std::cout << std::endl << "Date: ";
 
-	ymd_value->value.toString(o);
+	ymd_value->value.to_string(o);
 
 	std::cout << std::endl << "Interval: ";
 
-	ymd_interval_value->value.toString(o);
+	ymd_interval_value->value.to_string(o);
 
 	std::cout << std::endl << "URI path: "
 		  << uri_value->value.getPath() << std::endl;

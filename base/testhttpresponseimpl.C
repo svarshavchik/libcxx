@@ -38,7 +38,7 @@ static void testhttpresponseimpl()
 	{
 		std::cout << "Expected exception: ";
 
-		e.toString(std::ostreambuf_iterator<char>(std::cout));
+		e.to_string(std::ostreambuf_iterator<char>(std::cout));
 
 		std::cout << e.body << std::flush;
 		return;
@@ -258,7 +258,7 @@ void testgetcookies()
 
 		resp.addCookie(c);
 
-		resp.toString(std::ostreambuf_iterator<char>(o));
+		resp.to_string(std::ostreambuf_iterator<char>(o));
 
 		std::string set_cookie;
 

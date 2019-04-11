@@ -184,7 +184,7 @@ public:
 		//! Convert this %interval to a descriptive string
 
 		template<typename OutputIterator>
-		OutputIterator toString(//! Output iterator
+		OutputIterator to_string(//! Output iterator
 					OutputIterator iter,
 					//! Locale for the conversion
 					const const_locale &localeRef=locale::base::global())
@@ -199,7 +199,7 @@ public:
 		//! Create an interval from a string
 
 		template<typename InputIterator>
-		static interval fromString(//! Beginning iterator
+		static interval from_string(//! Beginning iterator
 					   InputIterator beg_iter,
 
 					   //! Ending iterator
@@ -550,13 +550,13 @@ public:
 
 		//! Convert this object to a text string
 
-		std::string toString() const;
+		std::string to_string() const;
 
 		//! String operator
 
 		inline operator std::string() const
 		{
-			return toString();
+			return to_string();
 		}
 
 		//! Serialization function
@@ -585,7 +585,7 @@ public:
 	//! string carry meaningful results.
 
 	template<typename OutputIterator>
-	OutputIterator toString(//! Output iterator
+	OutputIterator to_string(//! Output iterator
 				OutputIterator iter,
 				//! Locale for the conversion
 				const const_locale &localeRef=locale::base::global(),
@@ -598,7 +598,7 @@ public:
 	//! \overload
 	//!
 	template<typename OutputIterator>
-	OutputIterator toString(//! Output iterator
+	OutputIterator to_string(//! Output iterator
 				OutputIterator iter,
 
 				//! Locale for the conversion
@@ -702,7 +702,7 @@ public:
 	//! by the \ref parser "parser object".
 
 	template<typename InputIterator>
-	static inline ymd fromString(//! Beginning iterator
+	static inline ymd from_string(//! Beginning iterator
 				     InputIterator beg_iter,
 
 				     //! Ending iterator

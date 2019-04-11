@@ -183,7 +183,7 @@ public:
 
 	//! Alternate string conversion operator.
 	template<typename OutputIterator>
-	OutputIterator toString(//! Output iterator
+	OutputIterator to_string(//! Output iterator
 				OutputIterator iter,
 
 				//! Locale for the conversion
@@ -199,7 +199,7 @@ public:
 		return iter;
 	}
 
-	//! The base64 encoder used by toString()
+	//! The base64 encoder used by to_string()
 	typedef base64<0, base64alphabet<',', '_'> > base64_t;
 
 	//! Construct from a previously-stringized uuid

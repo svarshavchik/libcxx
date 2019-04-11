@@ -150,7 +150,7 @@ public:
 
 	//! Set the proxy flag
 
-	//! This flag affects the output of toString().
+	//! This flag affects the output of to_string().
 	//!
 	void setProxyFormat(bool flag) noexcept
 	{
@@ -246,7 +246,7 @@ public:
 	//! the URI, and the Host: header gets added.
 
 	template<typename iter_type>
-	iter_type toString(//! Output iterator
+	iter_type to_string(//! Output iterator
 			   iter_type iter) const
 	{
 		for (const char *p=methodstr(); *p; p++)
@@ -261,7 +261,7 @@ public:
 			iter=std::copy(hostport.begin(), hostport.end(), iter);
 		}
 		else
-			iter=uri.toString(iter, !proxyFormat);
+			iter=uri.to_string(iter, !proxyFormat);
 		*iter++ = ' ';
 		iter=httpver_toString(iter, httpver);
 		*iter++ = '\r';
@@ -273,7 +273,7 @@ public:
 			iter=std::copy(h.begin(), h.end(), iter);
 		}
 
-		return messageimpl::toString(iter);
+		return messageimpl::to_string(iter);
 	}
 
 private:
@@ -393,7 +393,7 @@ requestimpl::parse(std::istreambuf_iterator<char>,
 		   std::istreambuf_iterator<char>, size_t);
 
 extern template std::ostreambuf_iterator<char>
-requestimpl::toString(std::ostreambuf_iterator<char>) const;
+requestimpl::to_string(std::ostreambuf_iterator<char>) const;
 #endif
 
 #if 0

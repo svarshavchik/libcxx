@@ -324,7 +324,7 @@ public:
 	      const char *propname,
 
 	      //! The default %property value, if not specified
-	      const argType &initValue=value_string<argType>::initialValue(),
+	      const argType &initValue=value_string<argType>::initial_value(),
 
 	      //! Current locale
 	      const const_locale &l=locale::base::environment())
@@ -342,7 +342,7 @@ public:
 	      const char *propname,
 
 	      //! The default %property value, if not specified
-	      argType initValue=value_string<argType>::initialValue(),
+	      argType initValue=value_string<argType>::initial_value(),
 
 	      //! Current locale
 	      const const_locale &l=locale::base::environment())
@@ -358,7 +358,7 @@ public:
 	      const std::string &propname,
 
 	      //! The default %property value, if not specified
-	      const argType &initValue=value_string<argType>::initialValue(),
+	      const argType &initValue=value_string<argType>::initial_value(),
 
 	      //! Current locale
 	      const const_locale &l=locale::base::environment())
@@ -376,7 +376,7 @@ public:
 	      const std::string &propname,
 
 	      //! The default %property value, if not specified
-	      argType initValue=value_string<argType>::initialValue(),
+	      argType initValue=value_string<argType>::initial_value(),
 
 	      //! Current locale
 	      const const_locale &l=locale::base::environment())

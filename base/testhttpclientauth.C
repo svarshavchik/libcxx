@@ -48,7 +48,7 @@ public:
 
 	~testclientauthcacheObj() {}
 
-	std::string toString()
+	std::string to_string()
 	{
 		return dump(proxy_authorizations) + "|" +
 			dump(www_authorizations);
@@ -208,7 +208,7 @@ void testclientauthcache()
 	authsave(cache, www_auth_code, "http://public.com/cgi-bin/dump",
 		 "originrealm2", "origin2");
 
-	std::cout << "AUTH1: " << cache->toString() << std::endl;
+	std::cout << "AUTH1: " << cache->to_string() << std::endl;
 	std::cout << "SEARCH: "
 		  << authsearch(cache, "http://example.com") << std::endl;
 	std::cout << "SEARCH: "
@@ -226,7 +226,7 @@ void testclientauthcache()
 				www_auth_code,
 				"http://public.com/cgi-bin/dump",
 				"realm2") << std::endl;
-	std::cout << "AUTH2: " << cache->toString() << std::endl;
+	std::cout << "AUTH2: " << cache->to_string() << std::endl;
 
 	auto auth=LIBCXX_NAMESPACE::http::clientauth::create();
 
@@ -237,7 +237,7 @@ void testclientauthcache()
 					www_auth_code,
 					"http://public.com/cgi-bin/dump",
 					"originrealm2", auth) << std::endl;
-		std::cout << "AUTH" << i << ": " << cache->toString()
+		std::cout << "AUTH" << i << ": " << cache->to_string()
 			  << std::endl;
 	}
 }

@@ -165,7 +165,7 @@ headersbase::name_and_value(//! The parameter
 
 template
 std::ostreambuf_iterator<char>
-headersbase::toString<std::ostreambuf_iterator<char>
+headersbase::to_string<std::ostreambuf_iterator<char>
 		      >(std::ostreambuf_iterator<char>, const char *, bool)
 	const;
 

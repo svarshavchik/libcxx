@@ -106,7 +106,7 @@ headersimpl<headersbase::crlf_endl>::parse<std::istreambuf_iterator<char>
 
 template
 std::ostreambuf_iterator<char>
-headersimpl<headersbase::crlf_endl>::toString<std::ostreambuf_iterator<char>
+headersimpl<headersbase::crlf_endl>::to_string<std::ostreambuf_iterator<char>
 					      >(std::ostreambuf_iterator<char>,
 						bool)
 	const;
@@ -128,7 +128,7 @@ headersimpl<headersbase::lf_endl>::parse(std::istream &, size_t);
 
 template
 std::ostreambuf_iterator<char>
-headersimpl<headersbase::lf_endl>::toString<std::ostreambuf_iterator<char>
+headersimpl<headersbase::lf_endl>::to_string<std::ostreambuf_iterator<char>
 					    >(std::ostreambuf_iterator<char>,
 					      bool)
 	const;

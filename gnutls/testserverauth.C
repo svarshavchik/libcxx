@@ -173,7 +173,7 @@ bool dotestdigestscheme(ComputeFunctor &&compute,
 		return false;
 	}
 
-	resp.toString(std::ostreambuf_iterator<char>(std::cout));
+	resp.to_string(std::ostreambuf_iterator<char>(std::cout));
 
 	if (!resp.get_authentication_info(resp.authentication_info,
 					  authentication_info))
@@ -294,7 +294,7 @@ public:
 		LOG_DEBUG(({
 					std::ostringstream o;
 					o << "=== REQUEST ===" << std::endl;
-					req.toString(std::ostreambuf_iterator
+					req.to_string(std::ostreambuf_iterator
 						     <char>(o));
 					o << "=== END REQUEST ===";
 
@@ -509,7 +509,7 @@ void testserverauth_rfc2069_or_2617()
 		auto resp=ua->request(LIBCXX_NAMESPACE::http::GET,
 				      listener.second);
 
-		resp->message.toString(std::ostreambuf_iterator<char>
+		resp->message.to_string(std::ostreambuf_iterator<char>
 				       (std::cout));
 		if (resp->message.getStatusCode() !=
 		    LIBCXX_NAMESPACE::http::responseimpl
@@ -531,7 +531,7 @@ void testserverauth_rfc2069_or_2617()
 		auto resp=ua->request(LIBCXX_NAMESPACE::http::GET,
 				      listener.second);
 
-		resp->message.toString(std::ostreambuf_iterator<char>
+		resp->message.to_string(std::ostreambuf_iterator<char>
 				       (std::cout));
 		if (resp->message.getStatusCode() !=
 		    LIBCXX_NAMESPACE::http::responseimpl
@@ -556,7 +556,7 @@ void testserverauth_rfc2069_or_2617()
 		auto resp=ua->request(LIBCXX_NAMESPACE::http::GET,
 				      listener.second);
 
-		resp->message.toString(std::ostreambuf_iterator<char>
+		resp->message.to_string(std::ostreambuf_iterator<char>
 				       (std::cout));
 		if (resp->message.getStatusCodeClass() != 2)
 		{
@@ -583,7 +583,7 @@ void testserverauth_rfc2069_or_2617()
 		auto resp=ua->request(LIBCXX_NAMESPACE::http::GET,
 				      listener.second);
 
-		resp->message.toString(std::ostreambuf_iterator<char>
+		resp->message.to_string(std::ostreambuf_iterator<char>
 				       (std::cout));
 		if (resp->message.getStatusCodeClass() != 2)
 		{
@@ -766,7 +766,7 @@ std::string testbasicdigestauth()
 		auto resp=ua->request(LIBCXX_NAMESPACE::http::GET,
 				      listener.second);
 
-		resp->message.toString(std::ostreambuf_iterator<char>
+		resp->message.to_string(std::ostreambuf_iterator<char>
 				       (std::cout));
 		if (resp->message.getStatusCode() !=
 		    LIBCXX_NAMESPACE::http::responseimpl
@@ -782,7 +782,7 @@ std::string testbasicdigestauth()
 
 	auto resp=ua->request(LIBCXX_NAMESPACE::http::GET, listener.second);
 
-	resp->message.toString(std::ostreambuf_iterator<char>
+	resp->message.to_string(std::ostreambuf_iterator<char>
 			       (std::cout));
 	if (resp->message.getStatusCodeClass() != 2)
 	{
@@ -900,7 +900,7 @@ public:
 				 if (username != "citizenkane")
 					 return std::string();
 
-				 uri.toString(std::back_insert_iterator
+				 uri.to_string(std::back_insert_iterator
 					      <std::string>(authuri));
 				 authalgorithm=LIBCXX_NAMESPACE::gcrypt::md::base::name(algorithm);
 				 return LIBCXX_NAMESPACE::http::serverauth

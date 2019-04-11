@@ -42,10 +42,10 @@ template<typename valueType> class value_string;
 
 //! This template defined a class with two static methods.
 //!
-//! - toString(): takes two parameters, the template type value and a locale.
+//! - to_string(): takes two parameters, the template type value and a locale.
 //! The value gets converted to a string representation.
 //!
-//! - fromString(): takes two a parameters, a string value and a locale.
+//! - from_string(): takes two a parameters, a string value and a locale.
 //! The string value gets converted to the template type value.
 //!
 //! For \c std::string -s, both functions are a no-op. For natural integer
@@ -58,16 +58,16 @@ template<typename valueType> class value_string;
 //!
 //! - initValue(): initial value for options of this type
 //!
-//! - defaultValue(): the default value for options of this type
+//! - default_value(): the default value for options of this type
 //!
 //! See \ref option "option" documentation for more information.
 //!
-//! For natural integer float types, initValue() returns 0 and defaultValue()
-//! returns 1. The \c bool initValue() is false, the \c bool defaultValue()
+//! For natural integer float types, initValue() returns 0 and default_value()
+//! returns 1. The \c bool initValue() is false, the \c bool default_value()
 //! is true. The \c std::string initValue() is an empty string, the
-//! \c std::string defaultValue() is "1". For custom classes
-//! initValue() invokes the default constructor, and defaultValue() throws
-//! an %exception. If appropriate, initValue() and defaultValue() may be
+//! \c std::string default_value() is "1". For custom classes
+//! initValue() invokes the default constructor, and default_value() throws
+//! an %exception. If appropriate, initValue() and default_value() may be
 //! specialized.
 //!
 //! \par Converting custom classes to and from strings
@@ -83,7 +83,7 @@ template<typename valueType> class value_string;
 //!     std::string foo;
 //!
 //!     template<typename OutputIterator>
-//!     OutputIterator toString(OutputIterator iter,
+//!     OutputIterator to_string(OutputIterator iter,
 //!                             const const_locale &localeRef) const
 //!     {
 //!         return (std::copy(foo.begin(), foo.end(), iter));
@@ -91,7 +91,7 @@ template<typename valueType> class value_string;
 //!
 //!
 //!     template<typename InputIterator>
-//!     static customObj fromString(InputIterator beg_iter,
+//!     static customObj from_string(InputIterator beg_iter,
 //!                                 InputIterator end_iter,
 //!                                 const const_locale &localeArg)
 //!
@@ -104,26 +104,26 @@ template<typename valueType> class value_string;
 //! };
 //! \endcode
 //!
-//! The toString() method in this template invokes the class
+//! The to_string() method in this template invokes the class
 //! instance's
-//! %toString() method, and passes a
+//! %to_string() method, and passes a
 //! \c std::back_insert_iterator for the iterator, however
 //! any output iterator may be used in the future.
-//! Therefore, the class should define its %toString()
+//! Therefore, the class should define its %to_string()
 //! as a template that accepts any output iterator.
 //!
-//! - The custom class must have a static %fromString() method that takes a
+//! - The custom class must have a static %from_string() method that takes a
 //! beginning and an ending iterator, and a locale reference,
 //! then constructs and returns an object
 //! using the human-readable string representation of the custom object's value.
 //!
 //! The current implementation always passes string iterators,
 //! however eny beginning and ending input iterator may be used in the future,
-//! so the class fromString()
+//! so the class from_string()
 //! should be defined as a template.
 //!
-//! - The custom class should implement a default constructor. initialValue()
-//! constructs an object using the default constructor. defaultValue() throws
+//! - The custom class should implement a default constructor. initial_value()
+//! constructs an object using the default constructor. default_value() throws
 //! an exception.
 
 template<typename valueType> class value_string
@@ -142,7 +142,7 @@ public:
 
 	//! Convert the value to a string representation.
 
-	static std::string toString(const std::string &v,
+	static std::string to_string(const std::string &v,
 				    const const_locale &locale)
 	{
 		return v;
@@ -150,7 +150,7 @@ public:
 
 	//! Convert the value from a string represantion
 
-	static std::string fromString(const std::string &s,
+	static std::string from_string(const std::string &s,
 				      const const_locale &locale)
 	{
 		return s;
@@ -158,14 +158,14 @@ public:
 
 	//! The initial value, an empty string.
 
-	static std::string initialValue()
+	static std::string initial_value()
 	{
 		return "";
 	}
 
 	//! The default value.
 
-	static std::string defaultValue()
+	static std::string default_value()
 	{
 		return "";
 	}
@@ -173,10 +173,10 @@ public:
 
 //! A \c bool %value
 
-//! This is a specialization for a boolean value. fromString() takes a
+//! This is a specialization for a boolean value. from_string() takes a
 //! that begins with 'F', 'N', or '0' initializes the %value to a false %value,
 //! and anything else is considered true.
-//! toString() produces a \c "true" or a \c "false".
+//! to_string() produces a \c "true" or a \c "false".
 
 template<> class value_string<bool>  {
 
@@ -184,25 +184,25 @@ public:
 
 	//! Convert the value to a string representation.
 
-	static std::string toString(bool v,
+	static std::string to_string(bool v,
 				    const const_locale &locale);
 
 	//! Convert the value from a string represantion
 
-	static bool fromString(const std::string &s,
+	static bool from_string(const std::string &s,
 			       const const_locale &locale);
 
 
 	//! The initial value, an empty string.
 
-	static bool initialValue()
+	static bool initial_value()
 	{
 		return false;
 	}
 
 	//! The default value.
 
-	static bool defaultValue()
+	static bool default_value()
 	{
 		return true;
 	}
@@ -210,8 +210,8 @@ public:
 
 //! The %value is a custom class.
 
-//! The toString() and fromString() methods invoke the class's toString()
-//! and fromString() methods.
+//! The to_string() and from_string() methods invoke the class's to_string()
+//! and from_string() methods.
 
 template<typename valueType, bool is_integer, bool is_float>
 class value_stringimpl {
@@ -220,44 +220,44 @@ public:
 
 	//! Convert the value to a string representation.
 
-	static inline std::string toString(const valueType &v,
+	static inline std::string to_string(const valueType &v,
 					   const const_locale &locale)
 
 	{
 		std::string s;
 
-		v.toString(std::back_insert_iterator<std::string>(s), locale);
+		v.to_string(std::back_insert_iterator<std::string>(s), locale);
 
 		return s;
 	}
 
 	//! Convert the value from a string represantion
 
-	static valueType fromString(const std::string &s,
+	static valueType from_string(const std::string &s,
 				    const const_locale &locale)
 	{
-		return valueType::fromString(s.begin(), s.end(), locale);
+		return valueType::from_string(s.begin(), s.end(), locale);
 	}
 
 	//! The initial value, a default constructor
 
-	static valueType initialValue()
+	static valueType initial_value()
 	{
 		return valueType();
 	}
 
 	//! The default value.
 
-	static valueType defaultValue()
+	static valueType default_value()
 	{
 		no_custom_class_default();
-		return initialValue();
+		return initial_value();
 	}
 };
 
 //! A natural integer %value
 
-//! This implementation implements fromString() and toString() for a
+//! This implementation implements from_string() and to_string() for a
 //! natural integer %value.
 
 template<typename valueType>
@@ -268,7 +268,7 @@ public:
 
 	//! Convert the value to a string representation.
 
-	static std::string toString(valueType v,
+	static std::string to_string(valueType v,
 				    const const_locale &locale)
 	{
 		std::ostringstream o;
@@ -282,7 +282,7 @@ public:
 
 	//! Convert the value from a string represantion
 
-	static valueType fromString(const std::string &s,
+	static valueType from_string(const std::string &s,
 				    const const_locale &locale)
 	{
 		valueType n;
@@ -303,14 +303,14 @@ public:
 
 	//! The initial value, zero;
 
-	static valueType initialValue()
+	static valueType initial_value()
 	{
 		return 0;
 	}
 
 	//! The default value, one.
 
-	static valueType defaultValue()
+	static valueType default_value()
 	{
 		return 1;
 	}
@@ -319,7 +319,7 @@ public:
 
 //! The floating point %value.
 
-//! The toString() and fromString() methods convert the floating value to
+//! The to_string() and from_string() methods convert the floating value to
 //! a string representation.
 
 template<typename valueType>
@@ -330,7 +330,7 @@ public:
 
 	//! Convert the value to a string representation.
 
-	static std::string toString(valueType v,
+	static std::string to_string(valueType v,
 				    const const_locale &locale)
 	{
 		std::ostringstream o;
@@ -347,7 +347,7 @@ public:
 
 	//! Convert the value from a string represantion
 
-	static valueType fromString(const std::string &s,
+	static valueType from_string(const std::string &s,
 				    const const_locale &locale)
 	{
 		std::istringstream i(s);
@@ -368,14 +368,14 @@ public:
 
 	//! The initial value, zero;
 
-	static valueType initialValue()
+	static valueType initial_value()
 	{
 		return 0;
 	}
 
 	//! The default value, one.
 
-	static valueType defaultValue()
+	static valueType default_value()
 	{
 		return 1;
 	}

@@ -205,10 +205,10 @@ public:
 	std::string toIntervalString(const const_locale &localeRef=locale::base::global())
 		const;
 
-	//! The stock toString() uses toIntervalString()
+	//! The stock to_string() uses toIntervalString()
 
 	template<typename OutputIterator>
-	OutputIterator toString(//! Output iterator
+	OutputIterator to_string(//! Output iterator
 				OutputIterator iter,
 
 				//! Locale for the conversion
@@ -223,7 +223,7 @@ public:
 	//! Convert to a strftime-formatted string
 
 	template<typename OutputIterator>
-	OutputIterator toString(//! Output iterator
+	OutputIterator to_string(//! Output iterator
 				OutputIterator iter,
 
 				//! Locale for the conversion
@@ -236,7 +236,7 @@ public:
 	//! Create an interval from a string
 
 	template<typename InputIterator>
-	static hms fromString(//! Beginning iterator
+	static hms from_string(//! Beginning iterator
 			      InputIterator beg_iter,
 
 			      //! Ending iterator

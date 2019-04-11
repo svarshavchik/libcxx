@@ -396,7 +396,7 @@ int main(int argc, char **argv)
 
 		LIBCXX_NAMESPACE::hms testTime("19:23:30");
 
-		testTime.toString(std::ostreambuf_iterator<char>
+		testTime.to_string(std::ostreambuf_iterator<char>
 				  (std::cout.rdbuf()),
 				  LIBCXX_NAMESPACE::locale::base::global(),
 				  std::string("%l:%M:%S %p"));

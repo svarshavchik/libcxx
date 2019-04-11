@@ -369,7 +369,7 @@ void testmimeencoder2()
 
 		std::ostringstream o;
 
-		headers.toString(std::ostreambuf_iterator<char>(o));
+		headers.to_string(std::ostreambuf_iterator<char>(o));
 
 		std::string s=o.str();
 

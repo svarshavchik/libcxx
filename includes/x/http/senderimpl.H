@@ -118,7 +118,7 @@ namespace senderimpl_encode {
 			o << length;
 			req.replace(messageimpl::content_length, o.str());
 
-			iter=req.toString(iter);
+			iter=req.to_string(iter);
 
 			if (body_expected && do_sendbody())
 			{
@@ -235,7 +235,7 @@ namespace senderimpl_encode {
 			resp.erase(messageimpl::transfer_encoding);
 			resp.erase(messageimpl::content_length);
 
-			iter=resp.toString(iter);
+			iter=resp.to_string(iter);
 			if (body_expected && do_sendbody())
 				iter=std::copy(beg_iter, end_iter, iter);
 			return iter;
@@ -287,7 +287,7 @@ namespace senderimpl_encode {
 
 			req.erase(messageimpl::content_length); // Just in case
 
-			iter=req.toString(iter);
+			iter=req.to_string(iter);
 
 			if (!body_expected || !do_sendbody())
 				return iter;
@@ -773,7 +773,7 @@ private:
 
 		write_message_scope writing(*this);
 
-		iter=req.toString(iter);
+		iter=req.to_string(iter);
 		writing.done();
 	}
 

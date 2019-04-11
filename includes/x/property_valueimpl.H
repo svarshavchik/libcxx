@@ -35,7 +35,7 @@ class valueImplBase<argType, intsizeType, true> {
 public:
 	//! Default constructor
 
-	valueImplBase(argType initialValue) noexcept : v(initialValue) {}
+	valueImplBase(argType initial_value) noexcept : v(initial_value) {}
 
 	//! Default destructor
 	~valueImplBase() {}
@@ -66,7 +66,7 @@ class valueImplBase<bool, intsizeType, true> {
 public:
 	//! Default constructor
 
-	valueImplBase(bool initialValue) noexcept : v(initialValue) {}
+	valueImplBase(bool initial_value) noexcept : v(initial_value) {}
 
 	//! Default destructor
 	~valueImplBase() {}
@@ -101,7 +101,7 @@ class valueImplBase<argType, intsizeType, false> {
 
 public:
 	//! Default constructor
-	valueImplBase(const argType &initialValue) noexcept : v(initialValue) {}
+	valueImplBase(const argType &initial_value) noexcept : v(initial_value) {}
 
 	//! Default destructor
 	~valueImplBase() {}
@@ -170,11 +170,11 @@ template<typename argType> class valueimpl
 
 public:
 	//! Default constructor
-	valueimpl(const argType &initialValue=
-		  value_string<argType>::initialValue()) noexcept
+	valueimpl(const argType &initial_value=
+		  value_string<argType>::initial_value()) noexcept
 		: valueImplBase<argType, sizeof(argType),
 				std::numeric_limits<argType>::is_integer
-			    > (initialValue) {}
+			    > (initial_value) {}
 
 	//! Default destructor
 	~valueimpl() {}

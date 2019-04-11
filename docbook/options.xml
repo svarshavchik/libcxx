@@ -332,7 +332,7 @@ public:
         static const]]> &ns;::stringable_t stringable=&ns;::class_tostring;<![CDATA[
 
 	template<typename InputIterator>
-	static customOptClass fromString(InputIterator beg_iter,
+	static customOptClass from_string(InputIterator beg_iter,
 					 InputIterator end_iter,
 					 const ]]>&ns;<![CDATA[::const_locale &localeArg)
 	{
@@ -344,7 +344,7 @@ public:
 	}
 
 	template<typename OutputIterator>
-	OutputIterator toString(OutputIterator iter,
+	OutputIterator to_string(OutputIterator iter,
 				const ]]>&ns;<![CDATA[::const_locale &localeRef)
 		const
 	{
@@ -377,14 +377,14 @@ int main(int argc, char **argv)
       <link linkend="stringability"><classname>&ns;::value_string</classname></link>
       template.
       Briefly: the custom class
-      must define a static <methodname>fromString</methodname>
+      must define a static <methodname>from_string</methodname>
       template that takes a beginning and an ending input iterator over a
       character sequence, a <ulink url="locale">locale object</ulink>, and
       returns an instance of the custom class; and
-      a <methodname>toString</methodname> class template that takes an
+      a <methodname>to_string</methodname> class template that takes an
       output iterator for a character sequence, a locale object, and converts
       the class to a string form, the opposite of
-      <methodname>fromString</methodname>().
+      <methodname>from_string</methodname>().
     </para>
 
     <para>

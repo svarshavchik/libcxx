@@ -22,11 +22,11 @@ short n;
 
 // ...
 
-s=&ns;::value_string&lt;short&gt;::toString(n, l);
+s=&ns;::value_string&lt;short&gt;::to_string(n, l);
 
 // ...
 
-n=&ns;::value_string&lt;short&gt;::fromString(s.begin(), s.end(), l);</programlisting>
+n=&ns;::value_string&lt;short&gt;::from_string(s.begin(), s.end(), l);</programlisting>
 
     </informalexample>
   </blockquote>
@@ -39,10 +39,10 @@ n=&ns;::value_string&lt;short&gt;::fromString(s.begin(), s.end(), l);</programli
 
   <variablelist>
     <varlistentry>
-      <term>std::string <methodname>toString</methodname>(value, locale)</term>
+      <term>std::string <methodname>to_string</methodname>(value, locale)</term>
       <listitem>
 	<para>
-	  <methodname>toString</methodname>()
+	  <methodname>to_string</methodname>()
 	  takes the instance of the template class parameter and converts
 	  it to a <classname>std::string</classname> using the locale given
 	  by the second parameter.
@@ -51,10 +51,10 @@ n=&ns;::value_string&lt;short&gt;::fromString(s.begin(), s.end(), l);</programli
     </varlistentry>
 
     <varlistentry>
-      <term>value <methodname>fromString</methodname>(string, locale)</term>
+      <term>value <methodname>from_string</methodname>(string, locale)</term>
       <listitem>
 	<para>
-	  <methodname>fromString</methodname>()
+	  <methodname>from_string</methodname>()
 	  is the opposite, taking a string parameter, and converting it
 	  to the value specified by the template class parameter.
 	</para>
@@ -67,8 +67,8 @@ n=&ns;::value_string&lt;short&gt;::fromString(s.begin(), s.end(), l);</programli
     <classname>&ns;::value_string</classname> uses standard library functions
     to effect the conversion.
     The template parameter may also be a <classname>std::string</classname>,
-    which results in a <methodname>fromString</methodname>() and
-    <methodname>toString</methodname>() that are effectively no-ops.
+    which results in a <methodname>from_string</methodname>() and
+    <methodname>to_string</methodname>() that are effectively no-ops.
   </para>
 
   <section id="customstringability">
@@ -103,7 +103,7 @@ class Widget {
 public:
 
     template&lt;typename OutputIterator&gt;
-    OutputIterator toString(OutputIterator iter,
+    OutputIterator to_string(OutputIterator iter,
                             const &ns;::const_locale &amp;localeRef)
 		const
     {
@@ -114,7 +114,7 @@ public:
 
 
     template&lt;typename InputIterator&gt;
-    static Widget fromString(InputIterator beg_iter,
+    static Widget from_string(InputIterator beg_iter,
                               InputIterator end_iter,
                               const const_locale &amp;localeArg)
     {
@@ -131,31 +131,31 @@ public:
 Widget wInstance;
 &ns;::locale l;
 
-std::string s=&ns;::value_string&lt;Winder&gt;::toString(wInstance, l);
+std::string s=&ns;::value_string&lt;Winder&gt;::to_string(wInstance, l);
 
 </programlisting>
       </informalexample>
     </blockquote>
 
     <para>
-      The <methodname>toString</methodname>() template methods takes an output
+      The <methodname>to_string</methodname>() template methods takes an output
       iterator and a <link linkend="localeobj">locale object</link>
       (which they may ignore, if it's irrelevant for this class), writes the
       string representation of the object into the output iterator, and
       returns the new iterator value.
 
-      <methodname>fromString</methodname>()
+      <methodname>from_string</methodname>()
       must be a static method that takes
       a pair of iterators. The pair
       specifies the beginning and the end of a character or a character
       sequence. The third argument is a
       locale object.
-      <methodname>fromString</methodname>() converts the character
+      <methodname>from_string</methodname>() converts the character
       sequence to a new object instance, and return it.
     </para>
 
     <para>
-      <methodname>fromString</methodname>()
+      <methodname>from_string</methodname>()
       should throw an exception it can't parse the string.
       Furthermore, the beginning and ending iterator sequence should define
       the complete parsable sequence, and an exception should get thrown
@@ -187,7 +187,7 @@ std::string s=&ns;::tostring(w, l);</programlisting>
 
       <para>
 	<methodname>&ns;::tostring</methodname>() invokes
-	<methodname>&ns;::value_string&lt;class&gt;::toString</methodname>().
+	<methodname>&ns;::value_string&lt;class&gt;::to_string</methodname>().
       </para>
     </section>
   </section>

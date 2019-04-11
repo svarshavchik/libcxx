@@ -56,11 +56,11 @@ uriimpl::authority_t::~authority_t()
 {
 }
 
-std::string uriimpl::authority_t::toString() const
+std::string uriimpl::authority_t::to_string() const
 {
 	std::ostringstream o;
 
-	toString(std::ostreambuf_iterator<char>(o.rdbuf()));
+	to_string(std::ostreambuf_iterator<char>(o.rdbuf()));
 
 	return o.str();
 }
@@ -113,11 +113,11 @@ uriimpl::authority_t::emitUserinfo(std::ostreambuf_iterator<char>)
 	const;
 
 template std::ostreambuf_iterator<char>
-uriimpl::authority_t::toString(std::ostreambuf_iterator<char>)
+uriimpl::authority_t::to_string(std::ostreambuf_iterator<char>)
 	const;
 
 template std::ostreambuf_iterator<char>
-uriimpl::authority_t::toString(std::ostreambuf_iterator<char>,
+uriimpl::authority_t::to_string(std::ostreambuf_iterator<char>,
 			       const const_locale &, int)
 	const;
 
@@ -316,12 +316,12 @@ template void uriimpl::parse(std::string::const_iterator,
 			     int);
 
 template std::ostreambuf_iterator<char>
-uriimpl::toString(std::ostreambuf_iterator<char>, bool,
+uriimpl::to_string(std::ostreambuf_iterator<char>, bool,
 		  const const_locale *, int)
 	const;
 
 template std::ostreambuf_iterator<char>
-uriimpl::toString(std::ostreambuf_iterator<char>, const const_locale &, bool)
+uriimpl::to_string(std::ostreambuf_iterator<char>, const const_locale &, bool)
 	const;
 
 std::string uriimpl::toStringi18n(const const_locale &localeRef, int flags)
@@ -329,7 +329,7 @@ std::string uriimpl::toStringi18n(const const_locale &localeRef, int flags)
 {
 	std::ostringstream o;
 
-	toString(std::ostreambuf_iterator<char>(o), false, &localeRef, flags);
+	to_string(std::ostreambuf_iterator<char>(o), false, &localeRef, flags);
 
 	return o.str();
 }

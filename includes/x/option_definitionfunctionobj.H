@@ -99,7 +99,7 @@ private:
 
 		try {
 			rc=set_explicit(value_string<arg_type>
-					::fromString(valueArg,
+					::from_string(valueArg,
 						     locale::base::utf8()));
 		} catch (exception &e)
 		{

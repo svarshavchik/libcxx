@@ -239,7 +239,7 @@ requestimpl::parse(std::istreambuf_iterator<char>,
 		   std::istreambuf_iterator<char>, size_t);
 
 template std::ostreambuf_iterator<char>
-requestimpl::toString(std::ostreambuf_iterator<char>) const;
+requestimpl::to_string(std::ostreambuf_iterator<char>) const;
 
 #if 0
 {

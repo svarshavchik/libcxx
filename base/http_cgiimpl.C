@@ -215,7 +215,7 @@ void cgiimpl::send_response_header(responseimpl &resp)
 		  << resp.getReasonPhrase() << '\n';
 	
 	static_cast<const headersbase &>(resp)
-		.toString(std::ostreambuf_iterator<char>(std::cout), "\n");
+		.to_string(std::ostreambuf_iterator<char>(std::cout), "\n");
 
 	std::cout << std::flush;
 }

@@ -18,13 +18,13 @@ namespace LIBCXX_NAMESPACE {
 
 //! Convert some object into a string
 
-//! The default template implementation invokes the class's toString() method
+//! The default template implementation invokes the class's to_string() method
 //! saving the result into a std::string.
 template<typename class_type>
 inline std::string tostring(const class_type &cl,
 			    const const_locale &localeRef)
 {
-	return value_string<class_type>::toString(cl, localeRef);
+	return value_string<class_type>::to_string(cl, localeRef);
 }
 
 //! Convert some object into a string using the current global locale
@@ -82,7 +82,7 @@ public:
 					 const const_locale &localeRef=locale::base::global())
 
 	{
-		return value_string<class_type>::fromString(str, localeRef);
+		return value_string<class_type>::from_string(str, localeRef);
 	}
 };
 

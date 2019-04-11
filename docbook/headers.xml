@@ -172,7 +172,7 @@ if (p != headers.end())
     The <ulink url="&link-x--headersimpl;"><classname>&ns;::headersimpl</classname></ulink>
     template subclass provides additional methods.
     <methodname>parse</methodname>() was described previously.
-    <methodname>toString</methodname>() is the opposite of
+    <methodname>to_string</methodname>() is the opposite of
     <methodname>parse</methodname>(), it formats the headers into an output
     iterator.
     <methodname>append</methodname>() adds a line of text to the parsed headers.

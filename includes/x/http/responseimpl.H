@@ -564,7 +564,7 @@ public:
 	//! Write the HTTP/1.1 response message to an output sequence
 
 	template<typename iter_type>
-	iter_type toString(//! Output iterator
+	iter_type to_string(//! Output iterator
 			   iter_type iter) const
 	{
 		iter=httpver_toString(iter, httpver);
@@ -586,7 +586,7 @@ public:
 		*iter++ = '\r';
 		*iter++ = '\n';
 
-		return messageimpl::toString(iter);
+		return messageimpl::to_string(iter);
 	}
 
 	//! Add a WWW-Authenticate header
@@ -824,7 +824,7 @@ responseimpl::parse(std::istreambuf_iterator<char>,
 		    std::istreambuf_iterator<char>, size_t);
 
 extern template std::ostreambuf_iterator<char>
-responseimpl::toString(std::ostreambuf_iterator<char>) const;
+responseimpl::to_string(std::ostreambuf_iterator<char>) const;
 #endif
 
 #if 0

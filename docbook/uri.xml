@@ -24,7 +24,7 @@ See COPYING for distribution information.
 
 std::cout &lt;&lt; "scheme: " &lt;&lt; u.getScheme() &lt;&lt; std::endl
 	  &lt;&lt; "authority: " &lt;&lt; (u.getAuthority() ?
-			       u.getAuthority().toString()
+			       u.getAuthority().to_string()
 			       : std::string("(null)")) &lt;&lt; std::endl
 	  &lt;&lt; "path: " &lt;&lt; u.getPath() &lt;&lt; std::endl
 	  &lt;&lt; "query: " &lt;&lt; u.getQuery() &lt;&lt; std::endl
@@ -143,13 +143,13 @@ absuri += &ns;::uriimpl("../images");
 
 std::string str;
 
-absuri.toString(std::back_insert_iterator&lt;std::string&gt;(str));
+absuri.to_string(std::back_insert_iterator&lt;std::string&gt;(str));
       </programlisting>
     </informalexample>
   </blockquote>
 
   <para>
-    <methodname>toString</methodname>() formats the <acronym>URI</acronym> as
+    <methodname>to_string</methodname>() formats the <acronym>URI</acronym> as
     a string, and writes it to the given output iterator.
   </para>
 
@@ -222,12 +222,12 @@ std::cout &lt;&lt; u.getHostPort().first &lt;&lt; std::endl;</programlisting>
     <blockquote>
       <informalexample>
 	<programlisting>
-std::string uri_utf8=u.toStringi18n(&ns;::locale::base::utf8());</programlisting>
+std::string uri_utf8=u.to_stringi18n(&ns;::locale::base::utf8());</programlisting>
       </informalexample>
     </blockquote>
 
     <para>
-      <methodname>toStringi18n</methodname>() returns the
+      <methodname>to_stringi18n</methodname>() returns the
       <acronym>URI</acronym> as a string. An international domain name in the
       <acronym>URI</acronym> gets converted from its
       <acronym>ASCII</acronym>-compatible encoded

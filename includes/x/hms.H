@@ -22,7 +22,7 @@ namespace LIBCXX_NAMESPACE {
 #endif
 
 template<typename OutputIterator>
-OutputIterator hms::toString(OutputIterator iter,
+OutputIterator hms::to_string(OutputIterator iter,
 			     const const_locale &localeRef,
 			     const std::string_view &pattern) const
 {

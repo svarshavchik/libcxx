@@ -26,7 +26,7 @@ static LIBCXX_NAMESPACE::gnutls::x509::privkey testrsa()
 	std::string weak="medium";
 	LIBCXX_NAMESPACE::gnutls::sec_param
 		weak_param(LIBCXX_NAMESPACE::gnutls::sec_param
-			   ::fromString(weak.begin(), weak.end()));
+			   ::from_string(weak.begin(), weak.end()));
 
 	LIBCXX_NAMESPACE::gnutls::x509::privkey
 		pk=LIBCXX_NAMESPACE::gnutls::x509::privkey::create();

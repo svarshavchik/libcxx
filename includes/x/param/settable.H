@@ -47,7 +47,7 @@ namespace LIBCXX_NAMESPACE {
 //! This class is constructable from either an enumerated value or a string.
 //! The "value" member stores the enumerated value. This class can be
 //! casted to a string, obtaining the enumerated value's label. It also
-//! implements fromString() and toString(), the stringability API.
+//! implements from_string() and to_string(), the stringability API.
 
 template<typename enum_type,
 	 typename base_type,
@@ -91,7 +91,7 @@ public:
 	//! Convert this object to a string.
 
 	template<typename OutputIterator>
-	OutputIterator toString(//! Output iterator
+	OutputIterator to_string(//! Output iterator
 				OutputIterator iter,
 
 				//! Locale
@@ -107,7 +107,7 @@ public:
 
 	template<typename InputIterator>
 	static settable<enum_type, base_type, defaultValue>
-	fromString(//! Beginning iterator
+	from_string(//! Beginning iterator
 		   InputIterator beg_iter,
 
 		   //! Ending iterator

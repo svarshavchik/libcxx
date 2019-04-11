@@ -554,7 +554,7 @@ responseimpl::parse(std::istreambuf_iterator<char>,
 		    std::istreambuf_iterator<char>, size_t);
 
 template std::ostreambuf_iterator<char>
-responseimpl::toString(std::ostreambuf_iterator<char>) const;
+responseimpl::to_string(std::ostreambuf_iterator<char>) const;
 
 #if 0
 {

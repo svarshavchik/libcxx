@@ -191,7 +191,7 @@ class tzfileObj : virtual public obj {
 		//! Diagnostic method, only implemented in the regression test.
 
 		template<typename OutputIterator>
-		OutputIterator toString(OutputIterator iter)
+		OutputIterator to_string(OutputIterator iter)
 			const LIBCXX_HIDDEN;
 	};
 

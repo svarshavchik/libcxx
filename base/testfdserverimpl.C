@@ -100,7 +100,7 @@ static void testfdlistener()
 		throw EXCEPTION("testfdlistener: send refused");
 
 	std::cout << "HEAD:" << std::endl;
-	resp.toString(std::ostreambuf_iterator<char>(std::cout));
+	resp.to_string(std::ostreambuf_iterator<char>(std::cout));
 
 	if (req.responseHasMessageBody(resp))
 		throw EXCEPTION("Response to a HEAD has a body");
@@ -114,7 +114,7 @@ static void testfdlistener()
 		throw EXCEPTION("Response to a GET did not have a body");
 
 	std::cout << "GET:" << std::endl;
-	resp.toString(std::ostreambuf_iterator<char>(std::cout));
+	resp.to_string(std::ostreambuf_iterator<char>(std::cout));
 
 	std::copy(client.begin(), client.end(),
 		  std::ostreambuf_iterator<char>(std::cout));

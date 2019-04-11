@@ -49,7 +49,7 @@ struct parameter_t {
 	//! Convert this name=value pair to a string
 
 	template<typename iter_type>
-	iter_type toString(//! Output iterator
+	iter_type to_string(//! Output iterator
 			   iter_type iter) const
 	{
 		iter=std::copy(name.begin(), name.end(), iter);

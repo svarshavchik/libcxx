@@ -552,7 +552,7 @@ void httpserverimpl::received(const LIBCXX_NAMESPACE::http::requestimpl &req,
 	LIBCXX_NAMESPACE::http::accept_header::media_type_t
 		&content_media_type=**content_type.begin();
 
-	content_media_type.toString(std::back_insert_iterator
+	content_media_type.to_string(std::back_insert_iterator
 				    <std::string>(content_type_str));
 
 	resp["Content-Type"]=content_type_str;

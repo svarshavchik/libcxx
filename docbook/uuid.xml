@@ -18,7 +18,7 @@ See COPYING for distribution information.
 
 &ns;::uuid::charbuf newidStr;
 
-newid.toString(newidStr);</programlisting>
+newid.to_string(newidStr);</programlisting>
     </informalexample>
   </blockquote>
 
@@ -36,7 +36,7 @@ newid.toString(newidStr);</programlisting>
     <varname>val</varname>. This is an opaque array of
     <classname>uint16_t</classname> that contains a unique sequence of
     values, in binary. The
-    <methodname>toString</methodname> member function converts the unique id
+    <methodname>to_string</methodname> member function converts the unique id
     value to a zero-terminated string containing Ascii characters.
     <classname>&ns;::uuid::charbuf</classname> is an array of characters long
     enough to hold the generated string.

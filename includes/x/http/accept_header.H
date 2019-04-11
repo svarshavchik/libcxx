@@ -85,7 +85,7 @@ public:
 		//! Convert media type to a string
 
 		template<typename iter_type>
-		iter_type toString(//! Output iterator
+		iter_type to_string(//! Output iterator
 				   iter_type iter) const
 		{
 			iter=std::copy(type.begin(), type.end(), iter);
@@ -98,7 +98,7 @@ public:
 			{
 				*iter++ = ';';
 				*iter++ = ' ';
-				iter=b->toString(iter);
+				iter=b->to_string(iter);
 			}
 			return iter;
 		}
@@ -151,10 +151,10 @@ public:
 		//! Convert media type to a string
 
 		template<typename iter_type>
-		iter_type toString(//! Output iterator
+		iter_type to_string(//! Output iterator
 				   iter_type iter) const
 		{
-			iter=media_type_t::toString(iter);
+			iter=media_type_t::to_string(iter);
 
 			std::ostringstream o;
 
@@ -172,7 +172,7 @@ public:
 			{
 				*iter++ = ';';
 				*iter++ = ' ';
-				iter=b->toString(iter);
+				iter=b->to_string(iter);
 			}
 			return iter;
 		}
@@ -235,7 +235,7 @@ public:
 	//! Convert the Accept: header value to a single string
 
 	template<typename iter_type>
-	iter_type toString(//! Output iterator
+	iter_type to_string(//! Output iterator
 			   iter_type iter) const
 	{
 		const char *sep_b="", *sep_e=sep_b;
@@ -246,7 +246,7 @@ public:
 			iter=std::copy(sep_b, sep_e, iter);
 			sep_b=", ";
 			sep_e=sep_b+2;
-			iter=b->toString(iter);
+			iter=b->to_string(iter);
 		}
 		return iter;
 	}

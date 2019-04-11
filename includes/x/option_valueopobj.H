@@ -129,7 +129,7 @@ public:
 	{
 		try {
 			this->op(valueref->value, value_string<value_type>
-				 ::fromString(valueArg, locale));
+				 ::from_string(valueArg, locale));
 		} catch (exception &e)
 		{
 			return option::parser::base::err_invalidoption;

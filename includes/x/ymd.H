@@ -20,7 +20,7 @@ namespace LIBCXX_NAMESPACE {
 #endif
 
 template<typename OutputIterator>
-OutputIterator ymd::toString(OutputIterator iter,
+OutputIterator ymd::to_string(OutputIterator iter,
 			     const const_locale &localeRef,
 			     const char *pattern)
 	const
@@ -31,16 +31,16 @@ OutputIterator ymd::toString(OutputIterator iter,
 }
 
 template<typename OutputIterator>
-OutputIterator ymd::toString(OutputIterator iter,
+OutputIterator ymd::to_string(OutputIterator iter,
 			     const const_locale &localeRef,
 			     const std::string &pattern)
 	const
 {
-	return toString(iter, pattern.c_str(), localeRef);
+	return to_string(iter, pattern.c_str(), localeRef);
 }
 
 template<typename OutputIterator>
-OutputIterator ymd::interval::toString(OutputIterator iter,
+OutputIterator ymd::interval::to_string(OutputIterator iter,
 				       const const_locale &localeRef) const
 {
 	std::string str(this->internal_tostring(localeRef));

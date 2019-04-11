@@ -678,14 +678,14 @@ public:
 		    const const_locale &);
 
 	template<typename iter_type>
-	iter_type toString(iter_type iter, const const_locale &l)
+	iter_type to_string(iter_type iter, const const_locale &l)
 		const
 	{
 		return std::copy(n.begin(), n.end(), iter);
 	}
 
 	template<typename iter_type>
-	static handlername fromString(iter_type beg_iter,
+	static handlername from_string(iter_type beg_iter,
 				      iter_type end_iter,
 				      const const_locale &localeRef)
 	{
@@ -736,14 +736,14 @@ public:
 	handlerfmt(const std::string &, const const_locale &);
 
 	template<typename iter_type>
-	iter_type toString(iter_type iter, const const_locale &l)
+	iter_type to_string(iter_type iter, const const_locale &l)
 		const
 	{
 		return std::copy(n.begin(), n.end(), iter);
 	}
 
 	template<typename iter_type>
-	static handlerfmt fromString(iter_type beg_iter,
+	static handlerfmt from_string(iter_type beg_iter,
 				     iter_type end_iter,
 				     const const_locale &localeRef)
 

@@ -245,7 +245,7 @@ public:
 			return beg_iter;
 		}
 
-		//! Called by toString() to emit userinfo.
+		//! Called by to_string() to emit userinfo.
 
 		template<typename OutputIterator>
 		OutputIterator emitUserinfo(//! The output iterator
@@ -267,7 +267,7 @@ public:
 		//! given output iterator.
 
 		template<typename OutputIterator>
-		OutputIterator toString(//! The output iterator
+		OutputIterator to_string(//! The output iterator
 					OutputIterator iter)
 			const
 		{
@@ -284,7 +284,7 @@ public:
 		//! name to the current locale.
 
 		template<typename OutputIterator>
-		OutputIterator toString(//! The output iterator
+		OutputIterator to_string(//! The output iterator
 					OutputIterator iter,
 
 					//! The locale
@@ -297,7 +297,7 @@ public:
 			auto b=hostport.begin(), e=hostport.end();
 
 			if (b == e || *b == '[')
-				return toString(iter); // IP literal
+				return to_string(iter); // IP literal
 
 			auto p=std::find(b, e, ':');
 
@@ -313,7 +313,7 @@ public:
 		//! \overload
 		//! Returns a string.
 
-		std::string toString() const;
+		std::string to_string() const;
 
 		//! Comparison operator
 
@@ -661,13 +661,13 @@ public:
 	//! output iterator.
 
 	template<typename OutputIterator>
-	OutputIterator toString(//! The output iterator
+	OutputIterator to_string(//! The output iterator
 				OutputIterator iter,
 
 				//! Flag - omit scheme and authority
 				bool noSchemeAuth=false,
 
-				//! The locale version of toString() sets this.
+				//! The locale version of to_string() sets this.
 
 				//! Convert hostname portion to this locale, if not nullptr
 				const const_locale *localeArg=nullptr,
@@ -694,9 +694,9 @@ public:
 				*iter++ = '/';
 
 				iter=localeArg ?
-					authority.toString(iter, *localeArg,
+					authority.to_string(iter, *localeArg,
 							   flags)
-					: authority.toString(iter);
+					: authority.to_string(iter);
 				has_path=true;
 			}
 		}
@@ -726,7 +726,7 @@ public:
 	//! Compatibility with value_string.
 
 	template<typename OutputIterator>
-	OutputIterator toString(//! The output iterator
+	OutputIterator to_string(//! The output iterator
 				OutputIterator iter,
 
 				//! The locale
@@ -736,7 +736,7 @@ public:
 				bool noSchemeAuth=false)
 		const
 	{
-		return toString(iter, noSchemeAuth, nullptr, 0);
+		return to_string(iter, noSchemeAuth, nullptr, 0);
 	}
 
 	//! Convert this URI to a string representation, possibly using an i18n domain name
@@ -750,12 +750,12 @@ public:
 	//! \overload
 	//! Compatibility with value_string.
 
-	//! The fromString() method
+	//! The from_string() method
 
 	//! \see value_string
 
 	template<typename InputIterator>
-	static uriimpl fromString(//! The beginning iterator
+	static uriimpl from_string(//! The beginning iterator
 				  InputIterator beg_iter,
 
 				  //! The ending iterator
@@ -879,12 +879,12 @@ extern template void uriimpl::parse(std::string::const_iterator,
 				    int);
 
 extern template std::ostreambuf_iterator<char>
-uriimpl::toString(std::ostreambuf_iterator<char>, bool,
+uriimpl::to_string(std::ostreambuf_iterator<char>, bool,
 		  const const_locale *, int)
 	const;
 
 extern template std::ostreambuf_iterator<char>
-uriimpl::toString(std::ostreambuf_iterator<char>, const const_locale &, bool)
+uriimpl::to_string(std::ostreambuf_iterator<char>, const const_locale &, bool)
 	const;
 
 extern template
@@ -902,11 +902,11 @@ uriimpl::authority_t::emitUserinfo(std::ostreambuf_iterator<char>)
 	const;
 
 extern template std::ostreambuf_iterator<char>
-uriimpl::authority_t::toString(std::ostreambuf_iterator<char>)
+uriimpl::authority_t::to_string(std::ostreambuf_iterator<char>)
 	const;
 
 extern template std::ostreambuf_iterator<char>
-uriimpl::authority_t::toString(std::ostreambuf_iterator<char>,
+uriimpl::authority_t::to_string(std::ostreambuf_iterator<char>,
 			       const const_locale &, int)
 	const;
 

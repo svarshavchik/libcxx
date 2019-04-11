@@ -430,7 +430,7 @@ void structured_content_header::format(formatwords_cb &callback) const
 		word += ";";
 		callback(word);
 		word.clear();
-		parameter.second.toString(std::back_insert_iterator<std::string>
+		parameter.second.to_string(std::back_insert_iterator<std::string>
 					  (word));
 	}
 	callback(word);

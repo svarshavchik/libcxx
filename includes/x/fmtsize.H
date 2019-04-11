@@ -134,7 +134,7 @@ public:
 	//! Format the memory size via fmtstring
 
 	template<typename OutputIterator>
-	OutputIterator toString(//! Output iterator
+	OutputIterator to_string(//! Output iterator
 				OutputIterator iter,
 
 				//! Locale for the conversion
@@ -149,7 +149,7 @@ public:
 	//! Create an interval from a string
 
 	template<typename InputIterator>
-	static memsize fromString(//! Beginning iterator
+	static memsize from_string(//! Beginning iterator
 				  InputIterator beg_iter,
 
 				  //! Ending iterator

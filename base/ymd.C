@@ -538,7 +538,7 @@ ymd::iso8601::~iso8601()
 {
 }
 
-std::string ymd::iso8601::toString() const
+std::string ymd::iso8601::to_string() const
 {
 	char d[2];
 	char dw[3];

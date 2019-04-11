@@ -42,7 +42,7 @@ public:
 
 	//! Default constructor
 	valueObj(//! Option's initial value
-		 const value_t &valueArg=value_string<value_t>::initialValue())
+		 const value_t &valueArg=value_string<value_t>::initial_value())
 	noexcept : value(valueArg),
 		initial_value(valueArg)
 	{
@@ -70,7 +70,7 @@ public:
 		const const_locale &localeArg) noexcept override
 	{
 		try {
-			value=value_string<value_type>::fromString(valueArg,
+			value=value_string<value_type>::from_string(valueArg,
 								   localeArg);
 		} catch (exception &e)
 		{
@@ -85,7 +85,7 @@ public:
 	int set() noexcept override
 	{
 		try {
-			value=value_string<value_type>::defaultValue();
+			value=value_string<value_type>::default_value();
 		} catch (exception &e)
 		{
 			return option::parser::base::err_invalidoption;
