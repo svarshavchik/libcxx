@@ -14,6 +14,7 @@
 #include <sstream>
 #include <locale>
 #include <vector>
+#include <type_traits>
 #include <unordered_map>
 
 #include <x/exception.H>
@@ -157,8 +158,7 @@ template<typename value_type> class deserialize_value_nonconst;
 //! const qualifier stripped.
 
 template<typename value_type> class deserialize_value
-	: public deserialize_value_nonconst<typename nonconst_type<value_type>
-					    ::type> {
+	: public deserialize_value_nonconst<std::remove_const_t<value_type>> {
 public:
 	//! Default constructor
 	deserialize_value() noexcept
@@ -523,8 +523,8 @@ class deserialize_value< std::pair<first, second> > {
 
 public:
 	//! The deserialized object type
-	typedef std::pair<typename nonconst_type<first>::type,
-			  typename nonconst_type<second>::type> result_type;
+	typedef std::pair<std::remove_const_t<first>,
+			  std::remove_const_t<second>> result_type;
 
 	deserialize_value() noexcept : err_flag(false),
 		err_value(serialization::tpair)
@@ -611,7 +611,7 @@ class deserialize_value<ptr<obj_type, base_type> > {
 public:
 	//! The deserialized object type
 
-	typedef typename nonconst_type<ptr<obj_type, base_type> >::type result_type;
+	typedef std::remove_const_t<ptr<obj_type, base_type> > result_type;
 
 	deserialize_value() noexcept : err_flag(false),
 		err_value(serialization::treference)
@@ -692,7 +692,8 @@ class deserialize_value<ref<obj_type, base_type> > {
 public:
 	//! The deserialized object type
 
-	typedef typename nonconst_type<ref<obj_type, base_type> >::type result_type;
+	typedef typename std::remove_const_t<ref<obj_type, base_type>
+					     > result_type;
 
 	deserialize_value() noexcept : err_flag(false),
 		err_value(serialization::treference)
@@ -806,7 +807,7 @@ class deserialize_object {
 public:
 	//! The deserialized object type
 
-	typedef typename nonconst_type<object_type>::type result_type;
+	typedef std::remove_const_t<object_type> result_type;
 
 	deserialize_object() noexcept : err_flag(false),
 		err_value(serialization::tobject)

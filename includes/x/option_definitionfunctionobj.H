@@ -14,7 +14,6 @@
 #include <x/option_valuebaseobj.H>
 #include <x/option_valueobj.H>
 #include <x/value_string.H>
-#include <x/nonconst_type.H>
 #include <string>
 
 namespace LIBCXX_NAMESPACE {

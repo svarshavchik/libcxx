@@ -9,8 +9,8 @@
 #include <stdint.h>
 #include <limits>
 #include <typeinfo>
+#include <type_traits>
 #include <x/exception.H>
-#include <x/nonconst_type.H>
 #include <x/is_float.H>
 #include <x/serializationfwd.H>
 #include <x/namespace.h>
@@ -156,10 +156,9 @@ public:
 
 	//! The corresponding datatype
 	static constexpr datatype type=
-		basic_int_type<std::numeric_limits<typename
-						   nonconst_type<value_type>
-						   ::type>::is_integer,
-			       typename nonconst_type<value_type>::type>::type;
+		basic_int_type<std::numeric_limits<std::remove_const_t
+						   <value_type>>::is_integer,
+			       std::remove_const_t<value_type>>::type;
 };
 
 //! Specialization for bools

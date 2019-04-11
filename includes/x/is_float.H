@@ -7,7 +7,7 @@
 #define x_is_float_H
 
 #include <x/namespace.h>
-#include <x/nonconst_type.H>
+#include <type_traits>
 
 namespace LIBCXX_NAMESPACE {
 
@@ -20,7 +20,7 @@ template<typename class_type> class is_float_nonconst;
 //! or \c long \c double. In all other cases its \c false.
 
 template<typename class_type> class is_float
-	: public is_float_nonconst<typename nonconst_type<class_type>::type> {
+	: public is_float_nonconst<std::remove_const_t<class_type>> {
 };
 
 //! Implement is_float after any const-ness is removed

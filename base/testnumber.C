@@ -129,6 +129,17 @@ void testnumber()
 
 	if (o.str() != "4")
 		throw EXCEPTION("<< failed");
+
+	std::ostringstream o2;
+
+	o2 << LIBCXX_NAMESPACE::number<char,void>{127}
+	<< ' '
+		   << LIBCXX_NAMESPACE::number<char,void>{-128}
+	<< ' '
+		   << LIBCXX_NAMESPACE::number<unsigned char, void>{255};
+
+	if (o2.str() != "127 -128 255")
+		throw EXCEPTION("<< failed");
 }
 
 template<typename type1, typename type2>

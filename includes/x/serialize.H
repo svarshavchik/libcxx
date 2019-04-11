@@ -11,7 +11,7 @@
 #include <string>
 #include <cstring>
 #include <locale>
-
+#include <type_traits>
 #include <sstream>
 #include <iomanip>
 
@@ -184,8 +184,7 @@ template<typename value_type> class serialize_value_nonconst;
 //! to %serialize an instance of T itself.
 
 template<typename value_type> class serialize_value
-	: public serialize_value_nonconst<typename
-					  nonconst_type<value_type>::type > {
+	: public serialize_value_nonconst<std::remove_const_t<value_type>> {
 };
 
 //! After dropping the const-ness, figure out which specialization to use for serialization

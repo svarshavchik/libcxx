@@ -16,6 +16,7 @@ This file defines a typesafe number.
 #include <ostream>
 #include <utility>
 #include <type_traits>
+#include <charconv>
 #include <iostream>
 #include <limits>
 #include <typeinfo>
@@ -837,10 +838,16 @@ template<typename CharT, typename Traits,
 auto &operator<<(std::basic_ostream<CharT, Traits> &o,
 		 const number<value_type_t, tag, base_class> &n)
 {
-	return o << n.n;
+	constexpr int s=std::numeric_limits<value_type_t>::digits10+2;
+
+	char buffer[s+1];
+
+	*(std::to_chars(&buffer[0], &buffer[s], n.n).ptr)=0;
+
+	return o << buffer;
 }
 
-//! Overload >> operator for output streams.
+//! Overload >> operator for input streams.
 
 template<typename CharT, typename Traits,
 	 typename value_type_t, typename tag, typename base_class>
