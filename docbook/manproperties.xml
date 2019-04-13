@@ -27,7 +27,7 @@ See COPYING for distribution information.
   </refnamediv>
 
   <refsynopsisdiv>
-    <cmdsynopsis>
+    <cmdsynopsis id="propertiescmd">
       <command>properties</command>
 
       <group choice='opt'>
@@ -56,7 +56,7 @@ See COPYING for distribution information.
     </cmdsynopsis>
   </refsynopsisdiv>
 
-  <refsect1>
+  <refsect1 id="propertiesdescr">
     <title>Description</title>
 
     <para>

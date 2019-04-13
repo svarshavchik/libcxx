@@ -91,7 +91,7 @@ See COPYING for distribution information.
     installable &app; package on platforms other than Fedora.
   </para>
 
-  <simplesect>
+  <simplesect id="reqprereq">
     <title>Requirements and prerequisites</title>
 
     <itemizedlist>
@@ -171,7 +171,7 @@ See COPYING for distribution information.
     </itemizedlist>
   </simplesect>
 
-  <simplesect>
+  <simplesect id="configbuild">
     <title>Configuring and building</title>
 
     <para>
@@ -241,7 +241,7 @@ See COPYING for distribution information.
     </para>
   </simplesect>
 
-  <simplesect>
+  <simplesect id="regenkey">
     <title>Regenerating ephemeral <acronym>DSA</acronym> and <acronym>RSA</acronym> parameters</title>
 
     <para>
@@ -352,7 +352,7 @@ See COPYING for distribution information.
     </para>
   </simplesect>
 
-  <simplesect>
+  <simplesect id="inststart">
     <title>Installing and starting <command>httportmapd</command></title>
 
     <para>

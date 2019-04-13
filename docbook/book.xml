@@ -198,7 +198,7 @@ See COPYING for distribution information.
   <part id="xml">
     <title>&xml;-related classes and functions</title>
 
-    <partintro>
+    <partintro id="xmlintro">
       <para>
 	These classes and functions implement a C++
 	<acronym>API</acronym> for processing &xml; documents.
@@ -223,7 +223,7 @@ See COPYING for distribution information.
   <part id="yaml">
     <title>Writing and parsing <acronym>YAML</acronym> documents</title>
 
-    <partintro>
+    <partintro id="yamlintro">
       <para>
 	The following classes and templates are obtained by linking with
 	<option>-lcxxyaml</option>. These classes and templates are divided
@@ -259,7 +259,7 @@ See COPYING for distribution information.
   <part id="gnutls">
     <title>GnuTLS classes</title>
 
-    <partintro>
+    <partintro id="gnutlsintro">
       <para>
 	The following GnuTLS classes are obtained by linking with
 	<option>-lcxxtls</option>.
@@ -279,7 +279,7 @@ See COPYING for distribution information.
   <part id="gcrypt">
     <title>Libgcrypt classes</title>
 
-    <partintro>
+    <partintro id="gcryptintro">
       <para>
 	The following classes and templates integrate
 	<ulink url="http://www.gnupg.org/documentation/manuals/gcrypt/index.html">&gcrypt;</ulink>
@@ -295,7 +295,7 @@ See COPYING for distribution information.
   <part id="mime">
     <title>&MIME; classes and templates</title>
 
-    <partintro>
+    <partintro id="mimeintro">
       <para>
 	&MIME; classes and templates use the generic
 	<link linkend="headers"><classname>&ns;::headersimpl</classname></link>
@@ -316,7 +316,7 @@ See COPYING for distribution information.
 
     <title><acronym>HTTP</acronym> clients and servers</title>
 
-    <partintro>
+    <partintro id="httpintro">
       <para>
 	The following classes implement <acronym>HTTP</acronym> for client
 	and server applications, including <acronym>HTTPS</acronym>, with the
@@ -366,7 +366,7 @@ See COPYING for distribution information.
   <part id="ftp">
     <title>FTP client</title>
 
-    <partintro>
+    <partintro id="ftpclient">
       <para>
 	The <ulink url="&namespace-x--ftp;"><classname>&ns;::ftp</classname></ulink>
 	namespace implements a full-featured <acronym>FTP</acronym> and
@@ -380,7 +380,7 @@ See COPYING for distribution information.
 
   <part id="cups">
     <title>Printing using the CUPS library</title>
-    <partintro>
+    <partintro id="cupsintro">
       <para>
 	The <ulink url="&namespace-x--cups;"><classname>&ns;::cups</classname></ulink>
 	namespace defines classes and templates for submitting print jobs
@@ -400,7 +400,7 @@ See COPYING for distribution information.
   <part id="extras">
     <title>Extra <application>LibCXX</application> components</title>
 
-    <partintro>
+    <partintro id="extrasintro">
       <para>
 	Several additional components can be installed after installing the
 	main &app; library.

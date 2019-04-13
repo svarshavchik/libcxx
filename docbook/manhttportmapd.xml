@@ -27,7 +27,7 @@ See COPYING for distribution information.
   </refnamediv>
 
   <refsynopsisdiv>
-    <cmdsynopsis>
+    <cmdsynopsis id="httpportmapdcmd">
       <command>httportmapd</command>
 
       <arg choice='opt'>--http</arg>
@@ -47,7 +47,7 @@ See COPYING for distribution information.
     </cmdsynopsis>
   </refsynopsisdiv>
 
-  <refsect1>
+  <refsect1 id="httportmapdescr">
     <title>Description</title>
 
     <para>

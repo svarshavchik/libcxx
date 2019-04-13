@@ -6,34 +6,20 @@ See COPYING for distribution information.
 -->
 
 <section id="news">
-  <title>Release 0.15 of &app;</title>
+  <title>Release 0.16 of &app;</title>
 
   <itemizedlist>
     <listitem>
       <para>
-	Improved parsing of <link linkend="intervals">dates</link>.
+	Minor API updates.
       </para>
     </listitem>
     <listitem>
       <para>
-	Added <methodname>preferred</methodname>() and
-	<methodname>upreferred</methodname>() to
-	<link linkend="strftime"><classname>&ns;::strftime</classname></link>
-	that determines the current locale's preferred date format with
-	4-digit years.
+	Improve <link linkend="sharedlock">shared locks</link> to work
+	across different executions threads (a shared lock acquired in
+	one thread can be passed to, and released by another thread).
       </para>
-    </listitem>
-    <listitem>
-      <para>
-	The <link linkend="optionalargs">&ns;::optional_args</link> template
-	for implementing a variadic collection of optional function parameters,
-	in order to avoid having to declare multiple overloaded functions
-	for implementing optional parameters.
-      </para>
-    </listitem>
-
-    <listitem>
-      <para>Other minor fixes.</para>
     </listitem>
   </itemizedlist>
 </section>
