@@ -163,13 +163,13 @@ std::string s=&ns;::value_string&lt;Winder&gt;::to_string(wInstance, l);
       sequence (however, the methods can allow this, if they want to).
     </para>
 
-    <section id="tostring">
+    <section id="to_string">
       <title>Convenience functions</title>
 
       <blockquote>
 	<informalexample>
 	  <programlisting>
-#include &lt;&ns;/tostring.H&gt;
+#include &lt;&ns;/to_string.H&gt;
 
 &ns;::locale l;
 
@@ -181,12 +181,12 @@ Widget w;
 
 // ...
 
-std::string s=&ns;::tostring(w, l);</programlisting>
+std::string s=&ns;::to_string(w, l);</programlisting>
 	</informalexample>
       </blockquote>
 
       <para>
-	<methodname>&ns;::tostring</methodname>() invokes
+	<methodname>&ns;::to_string</methodname>() invokes
 	<methodname>&ns;::value_string&lt;class&gt;::to_string</methodname>().
       </para>
     </section>

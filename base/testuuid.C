@@ -8,7 +8,7 @@
 #include "x/exception.H"
 #include "x/serialize.H"
 #include "x/deserialize.H"
-#include "x/tostring.H"
+#include "x/to_string.H"
 #include <iostream>
 #include <cstdlib>
 #include <random>
@@ -61,11 +61,11 @@ static void testbase64()
 			throw EXCEPTION("encoded_size() failed with padded="
 					+ std::string(padChar ? "1":"0")
 					+ ", l="
-					+ x::tostring(l)
-					+ ", ls=" + x::tostring(ls)
-					+ ", crlf=" + x::tostring(randbool_v)
-					+ ", needed=" + x::tostring(needed)
-					+ ", actual=" + x::tostring(p)
+					+ x::to_string(l)
+					+ ", ls=" + x::to_string(ls)
+					+ ", crlf=" + x::to_string(randbool_v)
+					+ ", needed=" + x::to_string(needed)
+					+ ", actual=" + x::to_string(p)
 					+ ":\n"
 					+ std::string(ebuf, ebuf+p));
 
@@ -114,18 +114,18 @@ static void testbase642()
 
 static void testuuid()
 {
-	std::cout << LIBCXX_NAMESPACE::tostring(LIBCXX_NAMESPACE::uuid())
+	std::cout << LIBCXX_NAMESPACE::to_string(LIBCXX_NAMESPACE::uuid())
 		  << std::endl;
-	std::cout << LIBCXX_NAMESPACE::tostring(LIBCXX_NAMESPACE::uuid())
+	std::cout << LIBCXX_NAMESPACE::to_string(LIBCXX_NAMESPACE::uuid())
 		  << std::endl;
 
 	LIBCXX_NAMESPACE::uuid uuid1;
 
-	std::string s=LIBCXX_NAMESPACE::tostring(uuid1);
+	std::string s=LIBCXX_NAMESPACE::to_string(uuid1);
 
 	LIBCXX_NAMESPACE::uuid uuid2(s);
 
-	std::string t=LIBCXX_NAMESPACE::tostring(uuid2);
+	std::string t=LIBCXX_NAMESPACE::to_string(uuid2);
 
 	if (s != t)
 		throw EXCEPTION("Failed to save and restore a UUID");
@@ -137,7 +137,7 @@ static void testuuid()
 
 	LIBCXX_NAMESPACE::deserialize::object(uuid1, sbuf);
 
-	std::cout << LIBCXX_NAMESPACE::tostring(uuid1) << std::endl;
+	std::cout << LIBCXX_NAMESPACE::to_string(uuid1) << std::endl;
 
 }
 

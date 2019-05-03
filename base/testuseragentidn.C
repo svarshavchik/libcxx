@@ -65,7 +65,7 @@ void myfdserverObj::received(const LIBCXX_NAMESPACE::http::requestimpl &req,
 	if (uri.getPath() == "/")
 		uri.setPath("");
 
-	std::string uri_str=LIBCXX_NAMESPACE::tostring(uri);
+	std::string uri_str=LIBCXX_NAMESPACE::to_string(uri);
 
 	std::cout << "Sending" << std::endl;
 	send(req, "text/plain; charset=UTF-8", uri_str.begin(), uri_str.end());
@@ -119,7 +119,7 @@ static void test1req()
 
 	std::string body=std::string(resp->begin(), resp->end());
 
-	auto uri=LIBCXX_NAMESPACE::tostring(resp->uri);
+	auto uri=LIBCXX_NAMESPACE::to_string(resp->uri);
 	std::cout << "Stopping listener" << std::endl;
 	std::cout << uri << std::endl;
 	std::cout << body << std::endl;

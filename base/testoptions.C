@@ -6,7 +6,7 @@
 #include "libcxx_config.h"
 #include "x/options.H"
 #include "x/exception.H"
-#include "x/tostring.H"
+#include "x/to_string.H"
 #include "x/fmtsize.H"
 #include "x/locale.H"
 #include <iostream>

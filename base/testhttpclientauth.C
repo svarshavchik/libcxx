@@ -169,7 +169,7 @@ std::string authfailed(const clientauthcache &cache,
 					  LIBCXX_NAMESPACE::http::responseimpl
 					  ::scheme_parameters_t());
 
-	return LIBCXX_NAMESPACE::tostring(rc) + dumpauth(auth);
+	return LIBCXX_NAMESPACE::to_string(rc) + dumpauth(auth);
 }
 
 std::string authsearch(const clientauthcache &cache,
@@ -184,7 +184,7 @@ std::string authsearch(const clientauthcache &cache,
 
 	std::ostringstream o;
 
-	o << LIBCXX_NAMESPACE::tostring(uri) << dumpauth(auth);
+	o << LIBCXX_NAMESPACE::to_string(uri) << dumpauth(auth);
 
 	for (const auto &h:req)
 	{

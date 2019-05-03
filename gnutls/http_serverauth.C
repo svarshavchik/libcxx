@@ -106,7 +106,7 @@ void serverauthObj::build_challenges(std::list<responseimpl::challenge_info> &ch
 				       []
 				       (const uriimpl &u)
 				       {
-					       return tostring(u);
+					       return to_string(u);
 				       });
 
 			headersbase::quoted_string(join(strbuf, " "));
@@ -355,7 +355,7 @@ auth serverauthObj::doDigestScheme(const requestimpl &req,
 	auto a2=std::string(requestimpl::methodstr(req.getMethod()))
 		+ ":" + info.uri;
 
-	std::string nonce_str=tostring(info.nonce.time_since_epoch().count());
+	std::string nonce_str=to_string(info.nonce.time_since_epoch().count());
 	std::string nonce_count_str=nonce_count_to_hex(info.nonce_count);
 
 	clock_t::time_point now=clock_t::now();
@@ -386,13 +386,13 @@ auth serverauthObj::doDigestScheme(const requestimpl &req,
 
 			o << "algorithm="
 			  << gcrypt::md::base::name(info.algorithm)
-			  << ", nextnonce=\"" << tostring(now.time_since_epoch()
+			  << ", nextnonce=\"" << to_string(now.time_since_epoch()
 							  .count()) << "\"";
 
 			if (!info.qop_auth.empty())
 			{
 				o << ", qop=" << info.qop_auth
-				  << ", cnonce=\"" << tostring(info.cnonce)
+				  << ", cnonce=\"" << to_string(info.cnonce)
 				  << "\", nc=\"" << nonce_count_str
 				  << "\", rspauth=\""
 				  << compute_rfc2617_digest_auth

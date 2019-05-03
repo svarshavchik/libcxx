@@ -8,7 +8,7 @@
 
 #include <x/namespace.h>
 #include <x/locale.H>
-#include <x/tostring.H>
+#include <x/to_string.H>
 #include <algorithm>
 
 namespace LIBCXX_NAMESPACE {
@@ -17,7 +17,7 @@ namespace LIBCXX_NAMESPACE {
 
 	//! This namespace contains some internal template classes that are
 	//! used to implement stringizing of enumerated values, so that they
-	//! can be used with fromstring and tostring.
+	//! can be used with fromstring and to_string.
 
 	namespace param {
 #if 0

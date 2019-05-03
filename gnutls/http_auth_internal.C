@@ -10,7 +10,7 @@
 #include "x/vector.H"
 #include "x/tokens.H"
 #include "x/uuid.H"
-#include "x/tostring.H"
+#include "x/to_string.H"
 #include "x/http/serverauth.H"
 
 #include <sstream>
@@ -337,7 +337,7 @@ void clientauthimplObj::digest::req::add_header(requestimpl &req,
 
 			std::ostringstream cnonce_str;
 
-			cnonce_str << tostring(uuid());
+			cnonce_str << to_string(uuid());
 			cnonce=cnonce_str.str();
 		}
 

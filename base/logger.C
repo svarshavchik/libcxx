@@ -662,7 +662,7 @@ short logger::debuglevelpropstr::fromstr(const std::string &s,
 	if (!i.fail())
 		return n;
 
-	throw EXCEPTION("Undefined log level: " + tostring(s));
+	throw EXCEPTION("Undefined log level: " + to_string(s));
 }
 
 class logger::handlername {
@@ -721,7 +721,8 @@ logger::handlername::handlername(const std::string &name,
 		}
 	}
 
-	throw EXCEPTION("Undefined log level: " + tostring(name, localeRef));
+	throw EXCEPTION("Undefined log level: " +
+			LIBCXX_NAMESPACE::to_string(name, localeRef));
 }
 
 class logger::handlerfmt {
@@ -780,7 +781,8 @@ logger::handlerfmt::handlerfmt(const std::string &name,
 			return;
 		}
 	}
-	throw EXCEPTION("Undefined log format: " + tostring(name));
+	throw EXCEPTION("Undefined log format: " +
+			LIBCXX_NAMESPACE::to_string(name));
 
 }
 
@@ -878,7 +880,7 @@ logger::scopebase::scopebase(inheritObj &inherit)
 
 		} catch (const exception &e)
 		{
-			e->prepend(tostring(property::combinepropname
+			e->prepend(to_string(property::combinepropname
 					    (inherit.hier)));
 
 			LOGGING_FAILURE(e);
@@ -1072,7 +1074,7 @@ logconfig_init::logconfig_init() noexcept
 			     e=xlogger_level_map.end(); b != e; ++b)
 		{
 			LOGGING_FAILURE("Undefined log level: "
-					<< tostring(b->first));
+					<< to_string(b->first));
 		}
 	}
 
@@ -1146,7 +1148,7 @@ logconfig_init::logconfig_init() noexcept
 			     e=xlogger_format_map.end(); b != e; ++b)
 		{
 			LOGGING_FAILURE("Undefined log format: "
-					<< tostring(b->first));
+					<< to_string(b->first));
 		}
 	}
 
@@ -1233,9 +1235,9 @@ logconfig_init::logconfig_init() noexcept
 						if (i == LOGCONFIG->loglevels
 						    .end())
 						{
-							LOGGING_FAILURE(tostring(n)
+							LOGGING_FAILURE(to_string(n)
 									<< ": Undefined log level: "
-									<< tostring(l));
+									<< to_string(l));
 							continue;
 						}
 
@@ -1259,9 +1261,9 @@ logconfig_init::logconfig_init() noexcept
 							loglevel=LOG_DEBUG;
 						else
 						{
-							LOGGING_FAILURE(tostring(n)
+							LOGGING_FAILURE(to_string(n)
 									<< ": Undefined syslog level: "
-									<< tostring(sysn));
+									<< to_string(sysn));
 							continue;
 						}
 						syslog_map[i->second]=loglevel;
@@ -1286,9 +1288,9 @@ logconfig_init::logconfig_init() noexcept
 
 					if (ifd.fail())
 					{
-						LOGGING_FAILURE(tostring(b->first)
+						LOGGING_FAILURE(to_string(b->first)
 								<< ": Bad log handler: "
-								<< tostring(v));
+								<< to_string(v));
 						continue;
 					}
 
@@ -1316,7 +1318,7 @@ logconfig_init::logconfig_init() noexcept
 					    (rotateValue=rotateProp.value())
 					    .second)
 					{
-						LOGGING_FAILURE(tostring(b->first)
+						LOGGING_FAILURE(to_string(b->first)
 								<< ": missing rotate setting");
 					}
 					else
@@ -1328,7 +1330,7 @@ logconfig_init::logconfig_init() noexcept
 
 						if (i.fail() || keep == 0)
 						{
-							LOGGING_FAILURE(tostring(b->first) <<
+							LOGGING_FAILURE(to_string(b->first) <<
 									": invalid keep setting");
 							keep=0;
 						}
@@ -1336,8 +1338,8 @@ logconfig_init::logconfig_init() noexcept
 				}
 
 				auto h=ref<handlerObj::fd>
-					::create(tostring(v, global_locale),
-						 tostring(rotateValue.first,
+					::create(to_string(v, global_locale),
+						 to_string(rotateValue.first,
 							  global_locale),
 						 keep);
 
@@ -1381,7 +1383,7 @@ logconfig_init::logconfig_init() noexcept
 			     e=xlogger_handler_map.end(); b != e; ++b)
 		{
 			LOGGING_FAILURE("Undefined log handler: "
-					<< tostring(b->first));
+					<< to_string(b->first));
 		}
 	}
 
@@ -1443,7 +1445,7 @@ logconfig_init::logconfig_init() noexcept
 
 			if (n >= sizeof(facilities)/sizeof(facilities[0]))
 				LOGGING_FAILURE("Unknown syslog facility: "
-						<< tostring(v));
+						<< to_string(v));
 			else
 				handlerObj::syslogger::facility=
 					facilitiesn[n];
@@ -1567,8 +1569,8 @@ ptr<logger::inheritObj> logger::scopebase::getscope(const std::string &name)
 		if (p->second.first.size() == 0)
 		{
 			LOGGING_FAILURE("Missing definition of "
-					<< tostring(propbase, global)
-					<< "::" << tostring(p->first, global));
+					<< to_string(propbase, global)
+					<< "::" << to_string(p->first, global));
 			h->handlers.erase(p);
 			continue;
 		}
@@ -1576,9 +1578,9 @@ ptr<logger::inheritObj> logger::scopebase::getscope(const std::string &name)
 		if (p->second.second.size() == 0)
 		{
 			LOGGING_FAILURE("Missing definition of "
-					<< tostring(propbase, global)
+					<< to_string(propbase, global)
 					<< "::"
-					<< tostring(p->first, global)
+					<< to_string(p->first, global)
 					<< "::format");
 			h->handlers.erase(p);
 			continue;
@@ -1634,7 +1636,7 @@ void logger::operator()(const std::string &s, short loglevel) const noexcept
 	auto LOGCONFIG=logconfig.get();
 
 	vars["level"]=
-		tostring(unicode::tolower
+		to_string(unicode::tolower
 			 (logger::debuglevelpropstr::tostr(loglevel,
 							   LOGCONFIG
 							   ->default_locale)
@@ -1673,7 +1675,7 @@ void logger::domsg(std::unordered_map<std::string, std::string> &vars,
 	{
 		scopedestObj &hep=*hb->second;
 
-		std::string fmtstr=tostring(hep.fmt.get().fmt, global);
+		std::string fmtstr=to_string(hep.fmt.get().fmt, global);
 
 		const char *fmt=fmtstr.c_str();
 

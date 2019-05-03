@@ -469,7 +469,7 @@ void testmimeiter4()
 
 		if (hello_world != test.decoded_message)
 			throw EXCEPTION("testmimeiter4: test "
-					+ LIBCXX_NAMESPACE::tostring(cnt)
+					+ LIBCXX_NAMESPACE::to_string(cnt)
 					+ " failed (decode)");
 
 		std::vector<std::string> sections;

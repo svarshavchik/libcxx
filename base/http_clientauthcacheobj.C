@@ -10,7 +10,7 @@
 #include "x/strtok.H"
 #include "x/chrcasecmp.H"
 #include "x/join.H"
-#include "x/tostring.H"
+#include "x/to_string.H"
 #include "x/messages.H"
 #include "http_auth_internal.H"
 #include "gettext_in.h"
@@ -119,7 +119,7 @@ void clientauthcacheObj::search_authorizations(const requestimpl &req,
 					       const clientauth &auth)
 {
 	LOG_DEBUG("Searching proxy authorizations, uri: "
-		  << tostring(req.getURI()));
+		  << to_string(req.getURI()));
 
 	const std::string authority=decompose_authority(req.getURI());
 
@@ -136,7 +136,7 @@ void clientauthcacheObj::search_authorizations(const requestimpl &req,
 	}
 
 	LOG_DEBUG("Searching www authorizations, uri: "
-		  << tostring(req.getURI()));
+		  << to_string(req.getURI()));
 
 	auto lock=www_authorizations->create_readlock();
 
@@ -314,7 +314,7 @@ bool clientauthcacheObj
 
 	LOG_TRACE("Retrieving default protection space for realm \""
 		  << realm << "\" in "
-		  << tostring(uri));
+		  << to_string(uri));
 
 	const protection_space_t *space;
 	std::list<std::string> realm_hier;

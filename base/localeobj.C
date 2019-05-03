@@ -6,7 +6,7 @@
 #include "libcxx_config.h"
 #include "x/localeobj.H"
 #include "x/locale.H"
-#include "x/tostring.H"
+#include "x/to_string.H"
 #include "x/singleton.H"
 #include "x/exception.H"
 

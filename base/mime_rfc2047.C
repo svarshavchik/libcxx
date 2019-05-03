@@ -6,7 +6,7 @@
 #include "libcxx_config.h"
 #include "x/mime/rfc2047.H"
 #include "x/mime/headeriter.H"
-#include "x/tostring.H"
+#include "x/to_string.H"
 #include "x/iconviofilter.H"
 #include "x/qp.H"
 #include "x/base64.H"

@@ -9,6 +9,7 @@
 #include <x/xml/parserfwd.H>
 #include <x/xml/parserobj.H>
 #include <x/ref.H>
+#include <string_view>
 
 namespace LIBCXX_NAMESPACE {
 
@@ -34,15 +35,15 @@ public:
 	//! Create an XML parser
 
 	static parser create(//! A label for the document being parsed, in any error message.
-			     const std::string &uri);
+			     const std::string_view &uri);
 
 	//! Create an XML parser with non-default options
 
 	static parser create(//! A label for the document being parsed, in any error message.
-			     const std::string &uri,
+			     const std::string_view &uri,
 
 			     //! Non-default options, see libxml/parser.h
-			     const std::string &options);
+			     const std::string_view &options);
 
 	//! Object factory, used by \ref ref "INSERT_LIBX_NAMESPACE::ref::create()".
 	template<typename ref_type> class objfactory {

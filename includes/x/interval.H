@@ -10,7 +10,7 @@
 #include <x/namespace.h>
 #include <x/locale.H>
 #include <x/messages.H>
-#include <x/tostring.H>
+#include <x/to_string.H>
 
 #include <string>
 #include <vector>

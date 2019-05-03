@@ -12,7 +12,7 @@
 #include <x/property_valueeventhandlerobj.H>
 #include <x/property_valueimpl.H>
 #include <x/value_string.H>
-#include <x/tostring.H>
+#include <x/to_string.H>
 #include <x/namespace.h>
 
 namespace LIBCXX_NAMESPACE {

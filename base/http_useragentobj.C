@@ -282,7 +282,7 @@ useragentObj::response useragentObj::do_request(const fd *terminate_fd,
 		if (i >= maxredirects.get())
 			return response; // Too many redirections
 
-		LOG_DEBUG("Processing redirect " + tostring(i+1));
+		LOG_DEBUG("Processing redirect " + to_string(i+1));
 
 		// Check for redirects that we should handle
 		// See RFC 2616.
@@ -446,7 +446,7 @@ useragentObj::do_request_with_auth(const fd *terminate_fd,
 		}
 	}
 
-	LOG_DEBUG("Sending request to " + tostring(req.getURI()));
+	LOG_DEBUG("Sending request to " + to_string(req.getURI()));
 	LOG_TRACE( ({
 				std::ostringstream o;
 

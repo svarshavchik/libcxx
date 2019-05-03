@@ -7,7 +7,7 @@
 #define http_clientauthimplfwd_H
 
 #include <x/ref.H>
-#include <x/tostring.H>
+#include <x/to_string.H>
 #include <x/namespace.h>
 
 namespace LIBCXX_NAMESPACE {

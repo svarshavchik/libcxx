@@ -15,7 +15,7 @@
 #include "x/locale.H"
 #include "x/uriimpl.H"
 #include "x/tokens.H"
-#include "x/tostring.H"
+#include "x/to_string.H"
 #include "x/xml/escape.H"
 #include "gettext_in.h"
 
@@ -119,7 +119,7 @@ void responseimpl::throwResponseException(int err_code, const std::string &msg)
 
 void responseimpl::throw_redirect(const uriimpl &uri, int status_code)
 {
-	std::string uri_str=tostring(uri);
+	std::string uri_str=LIBCXX_NAMESPACE::to_string(uri);
 
 	std::string msg="Moved";
 
@@ -138,9 +138,11 @@ void responseimpl::throw_redirect(const uriimpl &uri, int status_code)
 void responseimpl::setCurrentDate()
 {
 	replace("Date",
-		tostring(ymdhms(time(NULL), tzfile::base::utc())
-			 .format("%a, %d %b %Y %H:%M:%S GMT"),
-			 locale::create("C")));
+		LIBCXX_NAMESPACE::to_string
+		(ymdhms(time(NULL),
+			tzfile::base::utc())
+		 .format("%a, %d %b %Y %H:%M:%S GMT"),
+		 locale::create("C")));
 }
 
 ymdhms responseimpl::getCurrentDate() const

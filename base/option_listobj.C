@@ -12,7 +12,7 @@
 #include "x/option_definitionpropertiesobj.H"
 #include "x/option_definitionsetpropertyobj.H"
 #include "x/option_groupdefinitionobj.H"
-#include "x/tostring.H"
+#include "x/to_string.H"
 #include "x/pidinfo.H"
 #include "gettext_in.h"
 #include <sys/ioctl.h>

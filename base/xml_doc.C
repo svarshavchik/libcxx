@@ -6,7 +6,7 @@
 #include "libcxx_config.h"
 #include "x/fditer.H"
 #include "x/fd.H"
-#include "x/tostring.H"
+#include "x/to_string.H"
 #include "x/uriimpl.H"
 #include "x/messages.H"
 #include "x/sysexception.H"
@@ -98,7 +98,7 @@ docObj::newElement::newElement(const std::string &nameArg,
 
 docObj::newElement::newElement(const std::string &nameArg,
 			       const uriimpl &uriArg)
-	: newElement(nameArg, "", tostring(uriArg))
+	: newElement(nameArg, "", to_string(uriArg))
 {
 	prefix_given=false;
 }
@@ -151,7 +151,7 @@ docObj::newAttribute::newAttribute(const std::string &attrnameArg,
 docObj::newAttribute::newAttribute(const std::string &attrnameArg,
 				   const uriimpl &attrnamespaceArg,
 				   const std::string &attrvalueArg)
-	: newAttribute(attrnameArg, tostring(attrnamespaceArg), attrvalueArg)
+	: newAttribute(attrnameArg, to_string(attrnamespaceArg), attrvalueArg)
 {
 }
 
@@ -173,13 +173,13 @@ doc docBase::create()
 	return ref<impldocObj>::create(xmlNewDoc((const xmlChar *)"1.0"));
 }
 
-doc docBase::create(const std::string &filename)
+doc docBase::create(const std::string_view &filename)
 {
 	return create(filename, "");
 }
 
-doc docBase::create(const std::string &filename,
-		    const std::string &options)
+doc docBase::create(const std::string_view &filename,
+		    const std::string_view &options)
 {
 	auto file=fd::base::open(filename, O_RDONLY);
 
@@ -227,7 +227,7 @@ newdtd docObj::writelockObj::create_external_dtd(const std::string &external_id,
 newdtd docObj::writelockObj::create_external_dtd(const std::string &external_id,
 						 const uriimpl &system_id)
 {
-	return create_external_dtd(external_id, tostring(system_id));
+	return create_external_dtd(external_id, to_string(system_id));
 }
 
 newdtd docObj::writelockObj::create_internal_dtd(const std::string &external_id,
@@ -239,7 +239,7 @@ newdtd docObj::writelockObj::create_internal_dtd(const std::string &external_id,
 newdtd docObj::writelockObj::create_internal_dtd(const std::string &external_id,
 						 const uriimpl &system_id)
 {
-	return create_internal_dtd(external_id, tostring(system_id));
+	return create_internal_dtd(external_id, to_string(system_id));
 }
 
 // Context pointer that's passed through via the libxml callback when
@@ -534,7 +534,7 @@ class LIBCXX_HIDDEN impldocObj::readlockImplObj : public writelockObj {
 		const override
 	{
 		return get_attribute(attribute_name,
-				     tostring(attribute_namespace));
+				     to_string(attribute_namespace));
 	}
 
 	std::string get_attribute(const std::string &attribute_name,
@@ -1231,7 +1231,7 @@ class LIBCXX_HIDDEN impldocObj::writelockImplObj
 	void do_create_namespace(const std::string &prefix,
 				 const uriimpl &uri) override
 	{
-		do_create_namespace(prefix, tostring(uri));
+		do_create_namespace(prefix, to_string(uri));
 	}
 
 	void do_create_namespace(const std::string &prefix,
@@ -1383,7 +1383,7 @@ class LIBCXX_HIDDEN impldocObj::writelockImplObj
 
 	void do_set_base(const uriimpl &uri) override
 	{
-		do_set_base(tostring(uri));
+		do_set_base(to_string(uri));
 	}
 
 	void do_set_base(const std::string &uri) override

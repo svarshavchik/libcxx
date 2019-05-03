@@ -5,7 +5,7 @@
 
 #include "libcxx_config.h"
 #include "x/exception.H"
-#include "x/tostring.H"
+#include "x/to_string.H"
 #include "x/strftime.H"
 #include "x/strtok.H"
 #include "x/strsplit.H"

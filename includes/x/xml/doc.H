@@ -34,14 +34,14 @@ public:
 	//! Load an XML document from a file
 
 	static doc create(//! Filename
-			  const std::string &filename);
+			  const std::string_view &filename);
 
 	//! Load an XML document from a file, with non-default options
 	static doc create(//! Filename
-			  const std::string &filename,
+			  const std::string_view &filename,
 
 			  //! Non-default options, see libxml/parser.h
-			  const std::string &options);
+			  const std::string_view &options);
 
 	//! Load an XML document from an input sequence defined by iterators.
 	template<typename iter_type>
@@ -51,10 +51,10 @@ public:
 			  iter_type end_iter,
 
 			  //! What to call this document in any error messages.
-			  const std::string &context,
+			  const std::string_view &context,
 
 			  //! Non-default options, see libxml/parser.h
-			  const std::string &options="")
+			  const std::string_view &options="")
 	{
 		return std::copy(beg_iter, end_iter,
 				 parser::create(context, options))

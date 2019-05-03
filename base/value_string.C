@@ -34,7 +34,7 @@ bool value_string<bool>::from_string(const std::string &s,
 				    const const_locale &locale)
 
 {
-	auto cs=tostring(s, locale);
+	auto cs=LIBCXX_NAMESPACE::to_string(s, locale);
 
 	std::string falsies(libmsg(_txt("0NFnf")));
 

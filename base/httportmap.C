@@ -38,7 +38,7 @@ int httportmapObj::getDefaultPort()
 	return default_portmaport_prop.get();
 }
 
-class LIBCXX_HIDDEN httportmapBase::regpid2exeObj : virtual public x::obj {
+class LIBCXX_HIDDEN httportmapBase::regpid2exeObj : virtual public obj {
 
  public:
 
@@ -169,7 +169,7 @@ httportmapObj::~httportmapObj()
 
 		clock connection_lock(conn, fdptr(), *this);
 
-		(*connection_lock.io) << "DROP\t" << x::tostring(uuid)
+		(*connection_lock.io) << "DROP\t" << to_string(uuid)
 				      << "\n" << std::flush;
 
 		std::string resp;
@@ -477,7 +477,7 @@ bool httportmapObj::reg(const std::list<reginfo> &ports, const fdptr &timeoutfd)
 	}
 
 	(*connection_lock.io)
-		<< "REG\t" << x::tostring(uuid) << "\n" << std::flush;
+		<< "REG\t" << to_string(uuid) << "\n" << std::flush;
 
 	if (!connection_lock.io->good()
 	    || !std::getline(*connection_lock.io, resp).good())
@@ -517,7 +517,7 @@ void httportmapObj::dereg(const std::string &svc,
 
 	std::string resp;
 
-	(*connection_lock.io) << "DEREG\t" << x::tostring(uuid) << '\t'
+	(*connection_lock.io) << "DEREG\t" << to_string(uuid) << '\t'
 			      << svc << '\t' << port << "\n" << std::flush;
 
 	if (!connection_lock.io->good() ||

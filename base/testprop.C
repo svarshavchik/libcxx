@@ -23,7 +23,7 @@ std::string test1_test(const std::string &n)
 	LIBCXX_NAMESPACE::property::parsepropname(n.begin(), n.end(),
 						hier);
 
-	return LIBCXX_NAMESPACE::tostring(LIBCXX_NAMESPACE::property
+	return LIBCXX_NAMESPACE::to_string(LIBCXX_NAMESPACE::property
 					::combinepropname(hier));
 }
 

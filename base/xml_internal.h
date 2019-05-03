@@ -119,7 +119,8 @@ class LIBCXX_HIDDEN implparserObj : public parserObj {
 
  public:
 
-	implparserObj(const std::string &uriArg, const std::string &options);
+	implparserObj(const std::string_view &uriArg,
+		      const std::string_view &options);
 	~implparserObj() noexcept;
 	doc done() override;
 	void operator=(char c) override;

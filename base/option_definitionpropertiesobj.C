@@ -7,7 +7,7 @@
 #include "x/option_definitionpropertiesobj.H"
 #include "x/option_parserobj.H"
 #include "x/property_properties.H"
-#include "x/tostring.H"
+#include "x/to_string.H"
 #include "x/messages.H"
 #include "gettext_in.h"
 #include <string>

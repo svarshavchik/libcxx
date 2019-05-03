@@ -9,7 +9,7 @@
 #include "x/http/fdserver.H"
 #include "x/fdlistener.H"
 #include "x/netaddr.H"
-#include "x/tostring.H"
+#include "x/to_string.H"
 #include "x/exception.H"
 #include "x/options.H"
 
@@ -40,7 +40,7 @@ std::string dotestauthorization(const char *header)
 		return "BASIC:" + info.username;
 	case LIBCXX_NAMESPACE::http::auth::digest:
 		return "DIGEST:" + info.username
-			+ "," + LIBCXX_NAMESPACE::tostring(info.nonce
+			+ "," + LIBCXX_NAMESPACE::to_string(info.nonce
 							   .time_since_epoch()
 							   .count())
 			+ "," + info.uri
@@ -48,7 +48,7 @@ std::string dotestauthorization(const char *header)
 			(info.algorithm)
 			+ "," + info.response
 			+ (info.qop_auth.size() ?
-			   "," + LIBCXX_NAMESPACE::tostring(info.nonce_count) +
+			   "," + LIBCXX_NAMESPACE::to_string(info.nonce_count) +
 			   "," + info.cnonce:"");
 	default:
 		break;
@@ -126,7 +126,7 @@ bool dotestdigestscheme(ComputeFunctor &&compute,
 		(std::chrono::seconds(5+stale*120));
 
 	info.nonce_count=1;
-	info.cnonce=LIBCXX_NAMESPACE::tostring(LIBCXX_NAMESPACE::uuid());
+	info.cnonce=LIBCXX_NAMESPACE::to_string(LIBCXX_NAMESPACE::uuid());
 	info.uri="/private";
 	info.algorithm=GCRY_MD_MD5;
 
@@ -231,7 +231,7 @@ void testrfc2069()
 				 return LIBCXX_NAMESPACE::http
 					 ::compute_rfc2069_digest
 					 (info.algorithm, a1,
-					  LIBCXX_NAMESPACE::tostring
+					  LIBCXX_NAMESPACE::to_string
 					  (info.nonce.time_since_epoch()
 					   .count()), a2);
 			 });
@@ -253,7 +253,7 @@ void testrfc2617()
 				 return LIBCXX_NAMESPACE::http
 					 ::compute_rfc2617_digest_auth
 					 (info.algorithm, a1,
-					  LIBCXX_NAMESPACE::tostring
+					  LIBCXX_NAMESPACE::to_string
 					  (info.nonce.time_since_epoch()
 					   .count()),
 					  LIBCXX_NAMESPACE::http

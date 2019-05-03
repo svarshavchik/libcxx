@@ -5,7 +5,7 @@
 
 #include "libcxx_config.h"
 #include "x/ymdhms.H"
-#include "x/tostring.H"
+#include "x/to_string.H"
 #include <x/exception.H>
 #include "gettext_in.h"
 
@@ -266,7 +266,7 @@ ymdhms::formatter::formatter(const ymdhms &objArg)
 
 ymdhms::operator std::string() const
 {
-	return tostring(formatter(*this));
+	return LIBCXX_NAMESPACE::to_string(formatter(*this));
 }
 
 static std::string pick_short_format(const ymdhms &objArg,

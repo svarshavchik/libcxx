@@ -271,7 +271,7 @@ void listObj::load_file(std::ifstream &i,
 
 				if (!words.empty())
 					parse_locale=locale
-						::create(tostring(words.front()
+						::create(to_string(words.front()
 								  ));
 			}
 		}
@@ -377,7 +377,7 @@ void listObj::update(const loaded_t &loaded,
 				l.front()->event(setarg);
 			} catch (const exception &e)
 			{
-				errh(tostring(loaded_node.first, localeArg),
+				errh(to_string(loaded_node.first, localeArg),
 				     (std::string)*e);
 			}
 			l.pop_front();
@@ -430,7 +430,7 @@ listObj::install(const ref<eventhandlerObj<propvalueset_t> > &callback,
 	} catch (const exception &e)
 	{
 		try {
-			std::cerr << tostring(canonname, l)
+			std::cerr << to_string(canonname, l)
 				  << ": " << e << std::endl;
 		} catch (const exception &e)
 		{

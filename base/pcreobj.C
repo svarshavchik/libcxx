@@ -6,7 +6,7 @@
 #include "libcxx_config.h"
 #include "x/pcre.H"
 #include "x/exception.H"
-#include "x/tostring.H"
+#include "x/to_string.H"
 
 namespace LIBCXX_NAMESPACE {
 #if 0
@@ -85,7 +85,7 @@ bool pcreObj::match(const std::string &string, int options)
 
 	if (n < 0)
 		throw EXCEPTION("pcre_exec failed ("
-				<< tostring(n)
+				<< to_string(n)
 				<< ")");
 
 	subpatterns.reserve(n);

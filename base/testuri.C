@@ -459,7 +459,7 @@ int main(int argc, char **argv)
 							<< t.b
 							<< " should be "
 							<< LIBCXX_NAMESPACE
-							::tostring(t.isparent)
+							::to_string(t.isparent)
 							<< ", but it's not");
 				}
 			}

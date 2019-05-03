@@ -123,7 +123,7 @@ public:
 		{
 			o << "<h1>Your request headers:</h1>"
 				"<p>URI: "
-			  << x::xml::escapestr(x::tostring(req.getURI()))
+			  << x::xml::escapestr(x::to_string(req.getURI()))
 			  << "</p><table><thead><tr><th>Header</th><th>Contents</th></tr></thead><tbody>";
 
 			for (auto hdr:req)

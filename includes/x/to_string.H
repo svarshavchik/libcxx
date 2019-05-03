@@ -3,8 +3,8 @@
 ** See COPYING for distribution information.
 */
 
-#ifndef x_tostring_H
-#define x_tostring_H
+#ifndef x_to_string_H
+#define x_to_string_H
 
 #include <x/namespace.h>
 #include <x/locale.H>
@@ -21,7 +21,7 @@ namespace LIBCXX_NAMESPACE {
 //! The default template implementation invokes the class's to_string() method
 //! saving the result into a std::string.
 template<typename class_type>
-inline std::string tostring(const class_type &cl,
+inline std::string to_string(const class_type &cl,
 			    const const_locale &localeRef)
 {
 	return value_string<class_type>::to_string(cl, localeRef);
@@ -30,15 +30,15 @@ inline std::string tostring(const class_type &cl,
 //! Convert some object into a string using the current global locale
 
 template<typename class_type>
-inline std::string tostring(const class_type &cl)
+inline std::string to_string(const class_type &cl)
 {
-	return tostring(cl,locale::base::global());
+	return to_string(cl,locale::base::global());
 }
 
 //! Specialization for a native character string.
 
 template<>
-inline std::string tostring(const char * const &cl,
+inline std::string to_string(const char * const &cl,
 			    const const_locale &localeRef)
 {
 	return cl;
@@ -47,7 +47,7 @@ inline std::string tostring(const char * const &cl,
 //! Specialization for a native character string.
 
 template<size_t n>
-inline std::string tostring(const char (&cl)[n],
+inline std::string to_string(const char (&cl)[n],
 			    const const_locale &localeRef)
 {
 	return cl;
@@ -56,7 +56,7 @@ inline std::string tostring(const char (&cl)[n],
 //! Specialization for a native character string.
 
 template<>
-inline std::string tostring(char * const &cl,
+inline std::string to_string(char * const &cl,
 			    const const_locale &localeRef)
 {
 	return cl;
@@ -73,7 +73,7 @@ public:
 					const const_locale &localeRef=locale::base::global())
 
 	{
-		return tostring(cl, localeRef);
+		return to_string(cl, localeRef);
 	}
 
 	//! Convert an object from a narrow character string

@@ -461,7 +461,7 @@ void testallcookies()
 	testallcookiestest("http://subdomain.example.com/",
 			   "test20=value20; domain=.subdomain.example.com; "
 			   "Expires=\""
-			   + LIBCXX_NAMESPACE::tostring
+			   + LIBCXX_NAMESPACE::to_string
 			   (yesterday.format("%a, %d %b %Y %H:%M:%S GMT"),
 			    LIBCXX_NAMESPACE::locale::create("C"))
 			   + "\"",
@@ -471,7 +471,7 @@ void testallcookies()
 	testallcookiestest("http://subdomain.example.com/",
 			   "test22=value22; domain=.subdomain.example.com; "
 			   "Expires=\""
-			   + LIBCXX_NAMESPACE::tostring
+			   + LIBCXX_NAMESPACE::to_string
 			   (tomorrow.format("%a, %d %b %Y %H:%M:%S GMT"),
 			    LIBCXX_NAMESPACE::locale::create("C"))
 			   + "\"",

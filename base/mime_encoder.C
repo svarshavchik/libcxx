@@ -7,7 +7,7 @@
 #include "x/mime/encoder.H"
 #include "x/mime/structured_content_header.H"
 #include "x/uuid.H"
-#include "x/tostring.H"
+#include "x/to_string.H"
 #include "x/fd.H"
 #include "x/singleton.H"
 #include "x/strtok.H"
@@ -213,7 +213,7 @@ void encoderObj::add_boundary(boundary_type type,
 
 std::string encoderObj::new_boundary()
 {
-	return tostring(uuid()) + ":=";
+	return to_string(uuid()) + ":=";
 }
 
 template

@@ -7,7 +7,7 @@
 #include "x/ymd.H"
 #include "x/hms.H"
 #include "x/ymdhms.H"
-#include "x/tostring.H"
+#include "x/to_string.H"
 
 #include <iostream>
 
@@ -349,7 +349,7 @@ int main(int argc, char **argv)
 		LIBCXX_NAMESPACE::ymd::interval
 			inter("years 4, 1 month, 2 w, 3 days");
 
-		std::cout << LIBCXX_NAMESPACE::tostring
+		std::cout << LIBCXX_NAMESPACE::to_string
 			(inter, LIBCXX_NAMESPACE::locale::create("en_US.UTF-8"))
 			  << std::endl;
 
@@ -405,7 +405,7 @@ int main(int argc, char **argv)
 		std::cout << testTime.format_time("%l:%M:%S %p")
 			  << std::endl;
 
-		std::cout << LIBCXX_NAMESPACE::tostring(testTime) << std::endl;
+		std::cout << LIBCXX_NAMESPACE::to_string(testTime) << std::endl;
 
 		{
 			std::string s("1 week");

@@ -123,11 +123,11 @@ parserObj::~parserObj()
 {
 }
 
-implparserObj::implparserObj(const std::string &uriArg,
-			     const std::string &options) : uri(uriArg),
-							   p(nullptr),
-							   p_options(0),
-							   buffer_size(0)
+implparserObj::implparserObj(const std::string_view &uriArg,
+			     const std::string_view &options) : uri(uriArg),
+								p(nullptr),
+								p_options(0),
+								buffer_size(0)
 {
 // XML_PARSER_ options that are pulled out of libxml/parser.h
 	struct {
@@ -253,12 +253,13 @@ void implparserObj::flush()
 	buffer_size=0;
 }
 
-parser parserBase::create(const std::string &uri)
+parser parserBase::create(const std::string_view &uri)
 {
 	return create(uri, "");
 }
 
-parser parserBase::create(const std::string &uri, const std::string &options)
+parser parserBase::create(const std::string_view &uri,
+			  const std::string_view &options)
 {
 	return ref<implparserObj>::create(uri, options);
 }

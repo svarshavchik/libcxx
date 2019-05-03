@@ -9,7 +9,7 @@
 #include <x/exception.H>
 #include <x/locale.H>
 #include <x/localeobj.H>
-#include <x/tostring.H>
+#include <x/to_string.H>
 #include <x/messagesfwd.H>
 #include <string>
 #include <map>

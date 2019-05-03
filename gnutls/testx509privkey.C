@@ -68,7 +68,7 @@ static LIBCXX_NAMESPACE::gnutls::x509::privkey testrsa()
 
 		LIBCXX_NAMESPACE::gnutls::progress_notifier notifier;
 
-		pk->generate(GNUTLS_PK_RSA, x::tostring(weak_param));
+		pk->generate(GNUTLS_PK_RSA, x::to_string(weak_param));
 		pk->fix();
 
 		LIBCXX_NAMESPACE::gnutls::datum_t

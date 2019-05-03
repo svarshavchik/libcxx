@@ -5,7 +5,7 @@
 
 #include "libcxx_config.h"
 #include "x/option_parser.H"
-#include "x/tostring.H"
+#include "x/to_string.H"
 #include "gettext_in.h"
 #include "x/messages.H"
 #include <cwchar>

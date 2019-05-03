@@ -175,7 +175,7 @@ public:
 
 		if (status)
 			throw EXCEPTION(sendmail + " exited with " +
-					LIBCXX_NAMESPACE::tostring(status));
+					LIBCXX_NAMESPACE::to_string(status));
 	}
 };
 
