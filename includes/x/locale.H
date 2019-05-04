@@ -32,6 +32,11 @@ public:
 
 	static const_locale utf8();
 
+	//! A C locale
+
+	//! \c locale::base::c() return the "C" locale.
+	static const_locale c();
+
 	//! The global system environment locale
 
 	static const_locale environment();

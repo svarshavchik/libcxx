@@ -17,7 +17,12 @@ namespace LIBCXX_NAMESPACE {
 };
 #endif
 
-class LIBCXX_HIDDEN singleton_localeObj {
+namespace{
+#if 0
+}
+#endif
+
+class singleton_localeObj {
 
 public:
 	template<const char *(*init_func)()>
@@ -42,12 +47,17 @@ public:
 		}
 	};
 
-	static const char *utf8_locale() noexcept
+	static constexpr const char *utf8_locale() noexcept
 	{
 		return "en_US.UTF-8";
 	}
 
-	static const char *sysenviron_locale() noexcept
+	static constexpr const char *c_locale() noexcept
+	{
+		return "C";
+	}
+
+	static constexpr const char *sysenviron_locale() noexcept
 	{
 		return "";
 	}
@@ -55,16 +65,21 @@ public:
 
 template<const char *(*init_func)()>
 singleton<singleton_localeObj::singletonObj<init_func>>
-singleton_localeObj::singletonObj<init_func>::instance LIBCXX_HIDDEN ;
+singleton_localeObj::singletonObj<init_func>::instance;
 
-class LIBCXX_HIDDEN global_localeObj : virtual public obj {
+class global_localeObj : virtual public obj {
 
  public:
 
 	mpobj<const_localeptr> global_locale;
 };
 
-singleton<global_localeObj> global_locale_singleton LIBCXX_HIDDEN;
+singleton<global_localeObj> global_locale_singleton;
+
+#if 0
+{
+#endif
+}
 
 const_locale localeBase::global()
 {
@@ -87,6 +102,12 @@ const_locale localeBase::utf8()
 const_locale localeBase::environment()
 {
 	return singleton_localeObj::singletonObj<singleton_localeObj::sysenviron_locale>
+		::get();
+}
+
+const_locale localeBase::c()
+{
+	return singleton_localeObj::singletonObj<singleton_localeObj::c_locale>
 		::get();
 }
 

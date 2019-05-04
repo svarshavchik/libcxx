@@ -123,10 +123,16 @@ int main(int argc, char *argv[])
 	try {
 		alarm(30);
 
+		LIBCXX_NAMESPACE::locale::base::utf8()->global();
 		if (LIBCXX_NAMESPACE::strftime(1000000000, LIBCXX_NAMESPACE::tzfile::base::utc(), LIBCXX_NAMESPACE::locale::base::utf8())("%Y")
 		    != "2001")
 			throw EXCEPTION("What's up with strftime()?");
 
+		if (LIBCXX_NAMESPACE::to_string(2000,
+						LIBCXX_NAMESPACE::locale::base
+						::c())
+		    != "2000")
+			throw EXCEPTION("What's up with the C locale?");
 
 		teststrtok();
 		teststrsplit();

@@ -128,6 +128,19 @@ auto locale=&ns;::locale::base::environment();</programlisting>
   <blockquote>
     <informalexample>
       <programlisting>
+auto locale=&ns;::locale::base::c();</programlisting>
+    </informalexample>
+  </blockquote>
+
+  <para>
+    This is a convenience function that returns the C
+    locale. This is equivalent to invoking
+    <literal>&ns;::locale::create("C")</literal>
+  </para>
+
+  <blockquote>
+    <informalexample>
+      <programlisting>
 myLocale-&gt;imbue(std::cout);</programlisting>
     </informalexample>
   </blockquote>

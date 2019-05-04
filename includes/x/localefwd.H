@@ -28,6 +28,8 @@ class localeObj;
 //!
 //! INSERT_LIBX_NAMESPACE::locale myLocale=INSERT_LIBX_NAMESPACE::locale::base::environment();     // Instantiate the system environment locale.
 //!
+//! INSERT_LIBX_NAMESPACE::locale myLocale=INSERT_LIBX_NAMESPACE::locale::base::c();               // Instantiate the C locale
+//!
 //! INSERT_LIBX_NAMESPACE::locale myLocale(INSERT_LIBX_NAMESPACE::locale::create("ru_RU.UTF-8"));  // Instantiate a specific locale
 //! \endcode
 //!
