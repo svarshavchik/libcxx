@@ -669,17 +669,14 @@ int tzfileObj::parse_tzhead(const std::string &tzname,
 
 		version=tzhdr_rawBuf.tzh_version;
 
-		std::transform(&tzhdr_rawBuf.counters[0],
-			       &tzhdr_rawBuf.counters[6],
-			       &tzhdr_rawBuf.counters[0],
-			       frombe<int32_t>());
+		frombe<int32_t> conv;
 
-		tzh_ttisgmtcnt=tzhdr_rawBuf.counters[0];
-		tzh_ttisstdcnt=tzhdr_rawBuf.counters[1];
-		tzh_leapcnt=tzhdr_rawBuf.counters[2];
-		tzh_timecnt=tzhdr_rawBuf.counters[3];
-		tzh_typecnt=tzhdr_rawBuf.counters[4];
-		tzh_charcnt=tzhdr_rawBuf.counters[5];
+		tzh_ttisgmtcnt=conv(tzhdr_rawBuf.counters[0]);
+		tzh_ttisstdcnt=conv(tzhdr_rawBuf.counters[1]);
+		tzh_leapcnt=conv(tzhdr_rawBuf.counters[2]);
+		tzh_timecnt=conv(tzhdr_rawBuf.counters[3]);
+		tzh_typecnt=conv(tzhdr_rawBuf.counters[4]);
+		tzh_charcnt=conv(tzhdr_rawBuf.counters[5]);
 	}
 
 	if (!parse)

@@ -49,7 +49,7 @@ public:
 
 	static constexpr const char *utf8_locale() noexcept
 	{
-		return "en_US.UTF-8";
+		return "C.UTF-8";
 	}
 
 	static constexpr const char *c_locale() noexcept

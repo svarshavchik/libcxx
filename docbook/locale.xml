@@ -108,8 +108,8 @@ auto locale=&ns;::locale::base::utf8();</programlisting>
 
   <para>
     This is a convenience function that returns the
-    <literal>en_US.UTF-8</literal> locale. This is equivalent to invoking
-    <literal>&ns;::locale::create("en_US.UTF-8")</literal>
+    <literal>C.UTF-8</literal> locale. This is equivalent to invoking
+    <literal>&ns;::locale::create("C.UTF-8")</literal>
   </para>
 
   <blockquote>

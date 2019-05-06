@@ -28,7 +28,7 @@ public:
 
 	//! A UTF-8 locale
 
-	//! \c locale::base::utf8() returns the en_US.UTF-8 locale.
+	//! \c locale::base::utf8() returns the C.UTF-8 locale.
 
 	static const_locale utf8();
 

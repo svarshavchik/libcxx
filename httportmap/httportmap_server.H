@@ -226,7 +226,9 @@ public:
 
 		bool operator==(const iterator &iter)
 		{
-			return services_t::const_iterator::operator==(iter);
+			services_t::const_iterator &me=*this;
+
+			return me == iter;
 		}
 
 		bool operator!=(const iterator &iter)
