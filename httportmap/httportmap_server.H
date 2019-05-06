@@ -18,6 +18,7 @@
 #include "x/uuid.H"
 #include "x/sharedlock.H"
 #include "x/threads/run.H"
+#include "x/to_string.H"
 #include "reexecfd.H"
 
 class httpserver;
@@ -151,21 +152,11 @@ public:
 		{
 			*iter++ = service;
 
-			{
-				std::ostringstream o;
+			auto c_locale=LIBCXX_NAMESPACE::locale::base::c();
 
-				o << user;
+			*iter++ = LIBCXX_NAMESPACE::to_string(user, c_locale);
 
-				*iter++ = o.str();
-			}
-
-			{
-				std::ostringstream o;
-
-				o << pid;
-
-				*iter++ = o.str();
-			}
+			*iter++ = LIBCXX_NAMESPACE::to_string(pid, c_locale);
 
 			*iter++ = exe;
 			*iter++ = port;

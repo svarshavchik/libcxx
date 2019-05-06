@@ -154,7 +154,7 @@ public:
 
 pidinfo::pidinfo(pid_t pid)
 {
-	auto l=LIBCXX_NAMESPACE::locale::create("C");
+	auto l=LIBCXX_NAMESPACE::locale::base::c();
 
 	if (pid == getpid())
 	{
@@ -162,15 +162,13 @@ pidinfo::pidinfo(pid_t pid)
 	}
 	else
 	{
-		std::ostringstream o;
+		std::string s="/proc/";
 
-		{
-			LIBCXX_NAMESPACE::imbue<std::ostringstream> i(l, o);
+		s += LIBCXX_NAMESPACE::to_string(pid, l);
 
-			o << "/proc/" << pid << "/exe";
-		}
+		s += "/exe";
 
-		exe=LIBCXX_NAMESPACE::fileattr::create(o.str(), true)
+		exe=LIBCXX_NAMESPACE::fileattr::create(s, true)
 			->readlink();
 
 		if (exe.substr(0, 1) != "/")
@@ -867,17 +865,20 @@ static void systemd_brain_damage(const std::string &me,
 	listenfd->closeonexec(false);
 	cl->closeonexec(false);
 
-	std::ostringstream lockfile_ss, listenfd_ss, cl_ss;
+	auto c_locale=LIBCXX_NAMESPACE::locale::base::c();
 
-	lockfile_ss << lockfile->get_fd();
-	listenfd_ss << listenfd->get_fd();
-	cl_ss << cl->get_fd();
+	std::string lockfile_ss=
+		LIBCXX_NAMESPACE::to_string(lockfile->get_fd(), c_locale);
+	std::string listenfd_ss=
+		LIBCXX_NAMESPACE::to_string(listenfd->get_fd(), c_locale);
+	std::string cl_ss=
+		LIBCXX_NAMESPACE::to_string(cl->get_fd(), c_locale);
 
 	const char *n=me.c_str();
 
-	execl(n, n, "systemd-reload", lockfile_ss.str().c_str(),
-	      listenfd_ss.str().c_str(),
-	      cl_ss.str().c_str(), (char *)0);
+	execl(n, n, "systemd-reload", lockfile_ss.c_str(),
+	      listenfd_ss.c_str(),
+	      cl_ss.c_str(), (char *)0);
 	throw SYSEXCEPTION("exec");
 }
 
@@ -957,8 +958,9 @@ static void systemd_send(const args &a)
 
 static int main2(int argc, char **argv)
 {
-	// Load the UTF-8 locale, before we go into chroot jail
+	// Load the UTF-8 and C locales, before we go into chroot jail
 	auto utf8=LIBCXX_NAMESPACE::locale::base::utf8();
+	auto c=LIBCXX_NAMESPACE::locale::base::c();
 
 	httportmap_server_opts opts;
 

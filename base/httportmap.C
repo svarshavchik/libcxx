@@ -13,6 +13,8 @@
 #include "x/http/useragent.H"
 #include "x/servent.H"
 #include "x/pidinfo.H"
+#include "x/to_string.H"
+#include "x/locale.H"
 #include "gettext_in.h"
 
 #include <sstream>
@@ -197,36 +199,34 @@ httportmapObj::request_csv_list(const fdptr &timeoutfd,
 
 	for (auto uid: users_list)
 	{
-		std::ostringstream o;
-
-		o << uid;
-
-		params->insert(std::make_pair("user", o.str()));
+		params->insert(std::make_pair("user",
+					      to_string(uid,
+							locale::base::c())));
 	}
 
 	for (auto pid: pid_list)
 	{
-		std::ostringstream o;
-
-		o << pid;
-
-		params->insert(std::make_pair("pid", o.str()));
+		params->insert(std::make_pair("pid",
+					      to_string(pid,
+							locale::base::c())));
 	}
 
 	http::useragent::base::response resp=
 		ua->request(timeoutfd, http::POST,
 			    ({
-				    std::ostringstream o;
-
-				    o << "http://" << (server.size()
-						       ? server:"localhost");
+				    std::string o="http://"
+					    + (server.size()
+					       ? server:"localhost");
 
 				    if (server_port !=
 					servent("http", "tcp")->s_port)
-					    o << ":" << server_port;
-
-				    o << "/portmap";
-				    o.str();
+				    {
+					    o += ":";
+					    o += to_string(server_port,
+							   locale::base::c());
+				    }
+				    o += "/portmap";
+				    o;
 			    }),
 			    "Connection", "close",
 			    "Accept", "text/csv",
@@ -284,7 +284,7 @@ bool httportmapObj::reg(const std::string &svc, const fd &fdArg,
 			int flags, const fdptr &timeoutfd)
 
 {
-	std::ostringstream o;
+	std::string o;
 
 	{
 		sockaddr name(fdArg->getsockname());
@@ -292,17 +292,17 @@ bool httportmapObj::reg(const std::string &svc, const fd &fdArg,
 		switch (name->family()) {
 		case AF_INET:
 		case AF_INET6:
-			o << name->port();
+			o = to_string(name->port(), locale::base::c());
 			break;
 		case AF_UNIX:
-			o << name->address();
+			o = name->address();
 			break;
 		default:
 			return false;
 		}
 	}
 
-	return reg(svc, o.str(), flags, timeoutfd);
+	return reg(svc, o, flags, timeoutfd);
 }
 
 bool httportmapObj::reg(const std::string &svc,
@@ -327,13 +327,8 @@ bool httportmapObj::reg(const std::string &svc,
 		switch (name->family()) {
 		case AF_INET:
 		case AF_INET6:
-			{
-				std::ostringstream o;
-
-				o << name->port();
-
-				newreg.port=o.str();
-			}
+			newreg.port=to_string(name->port(),
+					      locale::base::c());
 			break;
 		case AF_UNIX:
 			newreg.port=name->address();
@@ -355,11 +350,7 @@ bool httportmapObj::reg(const std::string &svc, int port,
 			int flags, const fdptr &timeoutfd)
 
 {
-	std::ostringstream o;
-
-	o << port;
-
-	return reg(svc, o.str(), flags, timeoutfd);
+	return reg(svc, to_string(port, locale::base::c()), flags, timeoutfd);
 }
 
 bool httportmapObj::reg(const std::string &svc, const std::string &port,
@@ -533,11 +524,7 @@ void httportmapObj::dereg(const std::string &svc,
 			  const fdptr &timeoutfd)
 
 {
-	std::ostringstream o;
-
-	o << port;
-
-	dereg(svc, o.str(), timeoutfd);
+	dereg(svc, to_string(port, locale::base::c()), timeoutfd);
 }
 
 void httportmapObj::dereg(const std::string &svc,
@@ -545,7 +532,7 @@ void httportmapObj::dereg(const std::string &svc,
 			  const fdptr &timeoutfd)
 
 {
-	std::ostringstream o;
+	std::string o;
 
 	{
 		sockaddr name(fdArg->getsockname());
@@ -553,10 +540,10 @@ void httportmapObj::dereg(const std::string &svc,
 		switch (name->family()) {
 		case AF_INET:
 		case AF_INET6:
-			o << name->port();
+			o=to_string(name->port(), locale::base::c());
 			break;
 		case AF_UNIX:
-			o << name->address();
+			o=name->address();
 			break;
 		default:
 			throw EXCEPTION(libmsg()
@@ -564,7 +551,7 @@ void httportmapObj::dereg(const std::string &svc,
 		}
 	}
 
-	dereg(svc, o.str(), timeoutfd);
+	dereg(svc, o, timeoutfd);
 }
 
 
@@ -619,11 +606,9 @@ fd httportmapObj::connect(const std::string &name,
 	list(std::back_insert_iterator<std::vector<httportmap::base::service> >
 	     (entries), name, user, timeoutfd);
 
-	std::ostringstream o;
+	std::string o=name + "." + to_string(user, locale::base::c());
 
-	o << name << "." << user;
-
-	return do_connect(entries, timeoutfd, o.str());
+	return do_connect(entries, timeoutfd, o);
 }
 
 fd httportmapObj::do_connect(std::vector<httportmap::base::service> &entries,

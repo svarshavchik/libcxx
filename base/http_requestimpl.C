@@ -10,6 +10,7 @@
 #include "x/chrcasecmp.H"
 #include "x/sysexception.H"
 #include "x/base64.H"
+#include "x/to_string.H"
 #include "gettext_in.h"
 
 #include <cctype>
@@ -174,18 +175,22 @@ bool requestimpl::responseHasMessageBody(const responseimpl &resp) const
 
 std::string requestimpl::hostheader() const
 {
-	std::ostringstream o;
-
 	std::pair<std::string, int> hostport(uri.getHostPort());
 
-	o << "Host: " << hostport.first;
+	std::string o="Host: ";
+
+	o += hostport.first;
 
 	if (hostport.second != uri.getSchemePort())
-		o << ":" << hostport.second;
+	{
+		o += ":";
+		o += LIBCXX_NAMESPACE::to_string(hostport.second,
+						 locale::base::c());
+	}
 
-	o << "\r\n";
+	o += "\r\n";
 
-	return o.str();
+	return o;
 }
 
 void requestimpl::tmpfile_error()

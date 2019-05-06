@@ -37,14 +37,10 @@ clientauthcacheObj::~clientauthcacheObj()
 
 std::string clientauthcacheObj::decompose_authority(const uriimpl &uri)
 {
-	std::ostringstream o;
-
 	auto hostport=uri.getHostPort();
 
-	o << uri.getScheme() << ":" << hostport.first
-	  << ":" << hostport.second;
-
-	std::string n=o.str();
+	std::string n=uri.getScheme() + ":" + hostport.first
+	  + ":" + to_string(hostport.second, locale::base::c());
 
 	std::transform(n.begin(), n.end(), n.begin(), chrcasecmp::tolower);
 

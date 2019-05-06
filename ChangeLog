@@ -1,3 +1,8 @@
+2019-05-05  Sam Varshavchik  <mrsam@courier-mta.com>
+
+	* base/httportmap.C: Fix HTTP and portmap clients to work in non-C
+	global locales.
+
 0.17.0
 
 2019-05-03  Sam Varshavchik  <mrsam@courier-mta.com>
