@@ -34,6 +34,36 @@ void foo(const std::variant&lt;one, two&gt; &amp;bar)
     syntax. This constructs a callable object that inherits all passed lambas,
     which then gets passed to <function>std::visit</function>.
   </para>
+
+  <section id="visited">
+    <title>Checking if a type is visited by a variant</title>
+
+    <blockquote>
+      <informalexample>
+	<programlisting>
+typedef std::variant&lt;int, bool> v;
+
+template&lt;typename T, typename U=std::enable_if_&lt;&ns;::w::visited&lt;T, v>::value>>
+struct x{};
+
+x&lt;int> a;            // This compiles
+
+x&lt;const char *>b;    // Compilation error.</programlisting>
+      </informalexample>
+    </blockquote>
+
+    <para>
+      <ulink url="&link-x--visited;"><classname>&ns;::w::visited&lt;<replaceable>T</replaceable>, <replaceable>V</replaceable>&gt;::value</classname></ulink>
+      indicates whether type <classname>T</classname> is one of the types
+      in <classname>V</classname> which must be a
+      <classname>std::variant</classname>.
+    </para>
+
+    <para>
+      <ulink url="&link-variable-x-visited-v;"><classname>&ns;::w::visited_v&lt;<replaceable>T</replaceable>, <replaceable>V</replaceable>&gt;</classname></ulink>
+      is an alias for this <varname>value</varname>.
+    </para>
+  </section>
 </chapter>
 <!--
 Local Variables:
