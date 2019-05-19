@@ -6,19 +6,23 @@ See COPYING for distribution information.
 -->
 
 <section id="news">
-  <title>Release 0.16 of &app;</title>
+  <title>Release 0.18 of &app;</title>
 
   <itemizedlist>
     <listitem>
       <para>
-	Minor API updates.
+	Fixes for GCC 9
       </para>
     </listitem>
     <listitem>
       <para>
-	Improve <link linkend="sharedlock">shared locks</link> to work
-	across different executions threads (a shared lock acquired in
-	one thread can be passed to, and released by another thread).
+	Fixes several locale-related issues
+      </para>
+    </listitem>
+    <listitem>
+      <para>
+	Added a helper <link linkend="visited"><classname>&ns;::visited</classname></link> template,
+	for use with <link linkend="visitor"><classname>&ns;::visitor</classname></link>
       </para>
     </listitem>
   </itemizedlist>

@@ -1,3 +1,9 @@
+0.18.0
+
+2019-05-19  Sam Varshavchik  <mrsam@courier-mta.com>
+
+	* Camelcase elimination, s/newThread/new_thread/.
+
 2019-05-11  Sam Varshavchik  <mrsam@courier-mta.com>
 
 	* includes/x/visitor.H: Implement visited<>.
@@ -5,6 +11,8 @@
 2019-05-06  Sam Varshavchik  <mrsam@courier-mta.com>
 
 	* gcc 9 fixes.
+
+	* locale::base::utf8() returns the "C.UTF-8" locale.
 
 2019-05-05  Sam Varshavchik  <mrsam@courier-mta.com>
 

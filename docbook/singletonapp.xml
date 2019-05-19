@@ -10,8 +10,10 @@ See COPYING for distribution information.
 
   <para>
     An application singleton design pattern has a single process running
-    an application. An attempt to start another process running the same
-    application results in the first process taking over and performing some
+    an application. Starting another application process results in some
+    action in the initial process, and the new process takes no further
+    action. Effectively, only one instance of the application
+    runs at any tiven time, and starting the application again results in some
     appropriate action, like opening a new window or a file, with the second
     process terminating and not taking any action. With an application
     singleton design pattern, a single process executes the action defined by
@@ -45,7 +47,7 @@ public:
     threadFactoryObj();
     ~threadFactoryObj();
 
-    singletonThread newThread()
+    singletonThread new_thread()
     {
         return singletonThread::create();
     }
@@ -77,16 +79,16 @@ int main()
   <para>
     The argument to <function>&ns;::singletonapp::create</function>() is your
     thread factory.
-    Your thread factory implements the <methodname>newThread</methodname>()
+    Your thread factory implements the <methodname>new_thread</methodname>()
     method. It returns a reference
     to an object with a <methodname>run</methodname>() that takes a file
     descriptor as an argument.
   </para>
 
   <para>
-    Your <methodname>newThread</methodname>() does not run a new thread, only
-    constructs a new object. Each call to <methodname>newThread</methodname>()
-    must construct a new object. <methodname>newThread</methodname>() must not
+    Your <methodname>new_thread</methodname>() does not run a new thread, only
+    constructs a new object. Each call to <methodname>new_thread</methodname>()
+    must construct a new object. <methodname>new_thread</methodname>() must not
     return the same object for each thread. Furthermore, no other references
     to the constructed object must remain in scope. After the thread object's
     <methodname>run</methodname>() returns, it's expected that no other
@@ -105,7 +107,7 @@ int main()
   <para>
     If this is the first application process,
     <methodname>&ns;::singletonapp::create</methodname>() calls
-    <methodname>newThread</methodname>(), followed by
+    <methodname>new_thread</methodname>(), followed by
     <link linkend="ethreads"><function>&ns;::run</function></link> to start
     a new thread running the thread object's <methodname>run</methodname>(),
     with a socket that's connected to the <varname>connection</varname> in the
@@ -113,7 +115,7 @@ int main()
     If there's already an existing process running this application,
     the factory object that's created in the new process is not used. The
     existing process's factory object invokes
-    <methodname>newThread</methodname>(), and the new thread that executes
+    <methodname>new_thread</methodname>(), and the new thread that executes
     the resulting object's <methodname>run</methodname>() gets a socket that's
     connected to the socket in the other process's
     <varname>connection</varname>.
@@ -208,7 +210,7 @@ int main()
       <listitem>
 	<para>
 	  If the thread object that's returned by
-	  <methodname>newThread</methodname>() inherits from
+	  <methodname>new_thread</methodname>() inherits from
 	  <link linkend="stoppable"><classname>&ns;::stoppableObj</classname></link>,
 	  its <methodname>stop</methodname>() method gets invoked.
 	</para>
@@ -451,7 +453,7 @@ uid_t uid=&ns;::singletonapp::validate_peer(connection, false);</programlisting>
 
     <note>
       <para>
-	<methodname>newThread</methodname>() gets invoked, and the
+	<methodname>new_thread</methodname>() gets invoked, and the
 	subsequent thread runs as, using the real userid of the process that
 	started the singleton process, notwithstanding the userid of the
 	other singleton process that's connected to the one that's running

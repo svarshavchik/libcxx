@@ -3,7 +3,7 @@
 # See COPYING for distribution information.
 
 AC_PREREQ(2.61)
-AC_INIT(libcxx, 0.17.0, [mrsam@courier-mta.com])
+AC_INIT(libcxx, 0.18.0, [mrsam@courier-mta.com])
 
 AC_CONFIG_SRCDIR([includes/x/obj.H])
 AC_CONFIG_HEADER([libcxx_config.h])
@@ -41,9 +41,9 @@ XGETTEXT_EXTRA_OPTIONS="--keyword=_txt --keyword=_txtw --keyword=_txtn:1,2 --key
 #   $libdir/pkgconfig/libcxx-$VERSION.pc
 #   $datadir/aclocak/libcxx-$VERSION.m4
 #
-ABIVER=0.17
+ABIVER=0.18
 AC_SUBST(ABIVER)
-VERSION_INFO=17:0:0
+VERSION_INFO=18:0:0
 AC_SUBST(VERSION_INFO)
 
 # Checks for libraries.
@@ -714,6 +714,9 @@ AC_SUBST(httportmapd)
 AM_CONDITIONAL(HAVE_REPO, test -d ${srcdir}/docbook)
 
 AC_DEFINE_UNQUOTED(LIBCXX_INTERNAL_BUILD,1,[Building LibCXX])
+
+PIC_FLAGS="`($srcdir/libtool --config; echo echo \$pic_flag) | sh`"
+AC_SUBST(PIC_FLAGS)
 
 AC_CONFIG_FILES([Doxyfile po/Makefile.in
 		 Makefile

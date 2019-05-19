@@ -56,18 +56,19 @@ template<typename valueType> class value_string;
 //! In addition to string representation conversion, this template defines
 //! two more static methods:
 //!
-//! - initValue(): initial value for options of this type
+//! - initial_value(): initial value for options of this type
 //!
 //! - default_value(): the default value for options of this type
 //!
 //! See \ref option "option" documentation for more information.
 //!
-//! For natural integer float types, initValue() returns 0 and default_value()
-//! returns 1. The \c bool initValue() is false, the \c bool default_value()
-//! is true. The \c std::string initValue() is an empty string, the
+//! For natural integer float types, initial_value() returns 0 and
+//! default_value()
+//! returns 1. The \c bool initial_value() is false, the \c bool default_value()
+//! is true. The \c std::string initial_value() is an empty string, the
 //! \c std::string default_value() is "1". For custom classes
-//! initValue() invokes the default constructor, and default_value() throws
-//! an %exception. If appropriate, initValue() and default_value() may be
+//! initial_value() invokes the default constructor, and default_value() throws
+//! an %exception. If appropriate, initial_value() and default_value() may be
 //! specialized.
 //!
 //! \par Converting custom classes to and from strings

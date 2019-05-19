@@ -29,24 +29,24 @@ namespace LIBCXX_NAMESPACE {
 //! A singleton application
 
 //! Your main() instantiates some reference-counted object that implements
-//! a newThread() method.
+//! a new_thread() method.
 //!
-//! newThread() returns a reference to a reference-counted object that
+//! new_thread() returns a reference to a reference-counted object that
 //! optionally
 //! implements the \ref stoppable "stoppable interface", and which has a
 //! a run() method that takes a single parameter which is a file descriptor.
 //!
-//! If this is the initial process, newThread() gets called, and the returned
+//! If this is the initial process, new_thread() gets called, and the returned
 //! object's run() method gets invoked.
 //!
 //! If this process is already running, the initial process's object's
-//! newThread()
+//! new_thread()
 //! gets called again, and another execution thread invokes the returned
 //! object's run() method.
 //!
-//! newThread() must return a new object for each call, and no other references
+//! new_thread() must return a new object for each call, and no other references
 //! to the object must exist, outside of the executing thread. The object
-//! returned by newThread() must go out of scope and get destroyed, when its
+//! returned by new_thread() must go out of scope and get destroyed, when its
 //! run() method returns.
 //!
 //! In all cases, create() returns an \ref instance "instance" reference,
@@ -92,7 +92,7 @@ namespace LIBCXX_NAMESPACE {
 //! all existing threads will stop promptly, at which point the entire
 //! singleton process terminates:
 //!
-//! - if the thread object that's returned by newThread() also multiply
+//! - if the thread object that's returned by new_thread() also multiply
 //! inherits from stoppableObj, each thread's stop() method gets invoked.
 //!
 //! - alternatively, signal handlers may be separately installed, and perform
@@ -127,7 +127,7 @@ private:
 	//! Singleton thread factory
 
 	//! Each application process, including the initial one, results in
-	//! newThread() getting invoked.
+	//! new_thread() getting invoked.
 
 	class factorybaseObj : virtual public obj {
 
@@ -140,12 +140,12 @@ private:
 
 		//! Construct a new thread for the singleton process.
 
-		//! The subclass must implement newThread(). newThread() itself
+		//! The subclass must implement new_thread(). new_thread() itself
 		//! must be thread-safe. The subclass must return a new
 		//! thread object, but not start it. The thread object gets
 		//! started, and its starting argument is a reference to a
 		//! \ref fd "file descriptor".
-		virtual ref<obj> newThread(const fd &fdArg,
+		virtual ref<obj> new_thread(const fd &fdArg,
 					   const ref<obj::destroyCallbackObj>
 					   &cb)=0;
 	};
@@ -153,17 +153,17 @@ private:
 	template<typename ref_type> class start_new_thread;
 	template<typename ref_type, bool> class start_new_plain_or_dispatcher_thread;
 
-	//! Invoke an application's newThread()
+	//! Invoke an application's new_thread()
 
 	template<typename ref_type> class factoryObj : public factorybaseObj {
 
-		//! An application object that implements newThread()
+		//! An application object that implements new_thread()
 
 		ref_type app;
 
 	public:
 		//! Constructor
-		factoryObj(//! An application object that implements its own newThread method
+		factoryObj(//! An application object that implements its own new_thread method
 			   const ref_type &appArg) : app(appArg)
 		{
 		}
@@ -173,16 +173,16 @@ private:
 		{
 		}
 
-		//! Call the appliaction's newThread()
+		//! Call the appliaction's new_thread()
 
-		ref<obj> newThread(//! Socket connection
+		ref<obj> new_thread(//! Socket connection
 				   const fd &fdArg,
 
 				   //! Destructor callback to attach to the new thread object
 				   const ref<obj::destroyCallbackObj> &cb)
 			override
 		{
-			auto obj=app->newThread();
+			auto obj=app->new_thread();
 			obj->ondestroy([cb]{cb->destroyed();});
 
 			start_new_thread<decltype(obj)>::start(obj, fdArg);
@@ -238,7 +238,7 @@ public:
 	//! the uid parameter, a new thread gets constructed by the singleton
 	//! process's
 	//! \ref factorybaseObj "factory", and started. Otherwise, the given
-	//! factory's newThread() method gets invoked to construct the first
+	//! factory's new_thread() method gets invoked to construct the first
 	//! singleton thread, which then gets started.
 	//!
 	//! If a singleton process is not already running, and this process's
@@ -415,7 +415,7 @@ public:
 		bool mustbesameuser=true);
 };
 
-//! newThread() must return a ref. Enforce using a specialization.
+//! new_thread() must return a ref. Enforce using a specialization.
 
 //! start_new_thread() is undefined otherwise.
 
@@ -438,7 +438,7 @@ public:
 
 	//! Because nobody else would.
 	//!
-	class newThreadObj : virtual public obj {
+	class new_threadObj : virtual public obj {
 
 	public:
 		//! The actual implementation
@@ -446,13 +446,13 @@ public:
 		ref_type impl;
 
 		//! Constructor
-		newThreadObj(const ref_type &implArg)
+		new_threadObj(const ref_type &implArg)
 			: impl(implArg)
 		{
 		}
 
 		//! Destructor
-		~newThreadObj() {
+		~new_threadObj() {
 		}
 
 		//! Invoke new singleton thread, capture exceptions
@@ -474,7 +474,7 @@ public:
 	static void start(const ref_type &obj,
 			  const fd &runArg)
 	{
-		run(ref<newThreadObj>::create(obj), runArg);
+		run(ref<new_threadObj>::create(obj), runArg);
 	}
 };
 
@@ -489,7 +489,7 @@ public:
 
 	//! Because nobody else would.
 	//!
-	class newThreadObj : virtual public obj {
+	class new_threadObj : virtual public obj {
 
 	public:
 		//! The actual implementation
@@ -497,13 +497,13 @@ public:
 		ref_type impl;
 
 		//! Constructor
-		newThreadObj(const ref_type &implArg)
+		new_threadObj(const ref_type &implArg)
 			: impl(implArg)
 		{
 		}
 
 		//! Destructor
-		~newThreadObj() {
+		~new_threadObj() {
 		}
 
 		//! Invoke new singleton thread, capture exceptions
@@ -526,7 +526,7 @@ public:
 	static void start(const ref_type &obj,
 			  const fd &runArg)
 	{
-		start_threadmsgdispatcher(ref<newThreadObj>::create(obj),
+		start_threadmsgdispatcher(ref<new_threadObj>::create(obj),
 					  runArg);
 	}
 };

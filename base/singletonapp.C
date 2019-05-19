@@ -351,7 +351,7 @@ void singletonapp::thr::launch(const ref<singletonapp::factorybaseObj> &app,
 	LOG_FUNC_SCOPE(singletonapp::logger);
 
 	try {
-		ref<obj> lthr=app->newThread(initinstance,
+		ref<obj> lthr=app->new_thread(initinstance,
 					     ref<destroycb>
 					     ::create(ref<thr>(this)));
 

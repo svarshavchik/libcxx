@@ -59,7 +59,7 @@ public:
 		}
 	};
 
-	LIBCXX_NAMESPACE::ref<thr> newThread()
+	LIBCXX_NAMESPACE::ref<thr> new_thread()
 	{
 		return LIBCXX_NAMESPACE::ref<thr>
 			::create(LIBCXX_NAMESPACE::ptr<testapp>(this));
@@ -163,7 +163,7 @@ public:
 		}
 	};
 
-	LIBCXX_NAMESPACE::ref<thr> newThread()
+	LIBCXX_NAMESPACE::ref<thr> new_thread()
 	{
 		return LIBCXX_NAMESPACE::ref<thr>::create(this);
 

@@ -60,7 +60,7 @@ public:
 //! are not derived from threadmsgdispatcherObj.
 //!
 //! The real application singleton is stored in this class, and this class
-//! is a proxy that gets returned by newThread() by the class that gets
+//! is a proxy that gets returned by new_thread() by the class that gets
 //! passed to \ref singletonapp "singletonapp::create()".
 //!
 //! It defines the `run()` method that gets forwarded to the run_common()
@@ -127,7 +127,7 @@ public:
 //! are derived from threadmsgdispatcherObj.
 //!
 //! The real application singleton is stored in this class, and this class
-//! is a proxy that gets returned by newThread() by the class that gets
+//! is a proxy that gets returned by new_thread() by the class that gets
 //! passed to \ref singletonapp "singletonapp::create()".
 //!
 //! It defines the `run()` method that gets forwarded to the run_common()
@@ -211,9 +211,9 @@ class singletonapp::managedSingletonFactoryObj : virtual public obj {
 	//! The primary application instance object
 
 	//! The strong references to the application instance object are owned
-	//! by each singleton thread. The initial invocation of newThread()
+	//! by each singleton thread. The initial invocation of new_thread()
 	//! will find nothing here. If all threads go out of scope and get
-	//! destroyed, newThread() may still get invoked (if a connection
+	//! destroyed, new_thread() may still get invoked (if a connection
 	//! from a new singleton process has just been established, concurrently
 	//! with the last reference to the application object going out of
 	//! scope, and the application object getting destroyed), so it gets
@@ -440,11 +440,11 @@ public:
 	{
 	}
 
-	//! newThread() implementation for create().
+	//! new_thread() implementation for create().
 
 	//! Constructs either the initial, or an additional thread.
 
-	ref<threadObj> newThread()
+	ref<threadObj> new_thread()
 	{
 		auto ptr=instance.getptr();
 
