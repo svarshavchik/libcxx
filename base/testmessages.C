@@ -25,9 +25,25 @@ void dumphex(std::string s)
 
 void testmessages(std::string localeName)
 {
-	LIBCXX_NAMESPACE::locale l(LIBCXX_NAMESPACE::locale::create(localeName));
+	auto l=LIBCXX_NAMESPACE::locale::create(localeName);
 
-	LIBCXX_NAMESPACE::messages cmsgs(LIBCXX_NAMESPACE::messages::create(l, "xtest", "xtest"));
+	auto cmsgs=LIBCXX_NAMESPACE::messages::create(l, "xtest", "xtest");
+	LIBCXX_NAMESPACE::messages::create(l, "xtest", "xtest");
+
+	bool caught=false;
+
+	try {
+		LIBCXX_NAMESPACE::messages::create(l, "xtest", ".");
+	} catch (const LIBCXX_NAMESPACE::exception &e)
+	{
+		caught=true;
+
+		std::cout << "Caught expected exception: " << e
+			  << std::endl;
+	}
+
+	if (!caught)
+		throw EXCEPTION("Did not catch expected exception");
 
 	dumphex(cmsgs->get("test1"));
 	dumphex(cmsgs->get("test2"));

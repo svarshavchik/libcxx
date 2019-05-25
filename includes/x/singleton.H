@@ -26,11 +26,11 @@ namespace LIBCXX_NAMESPACE {
 //!    ~mySingletonObj();
 //! };
 //!
-//! singleton<mySingletonObj> singleton_obj;
+//! typedef singleton<mySingletonObj> singleton_t;
 //!
 //! // ...
 //!
-//! ref<mySingletonObj> s=singleton_obj.get();
+//! ref<mySingletonObj> s=singleton_t::get();
 //! \endcode
 //!
 //! This template instantiates exactly one instance of a class. The class must

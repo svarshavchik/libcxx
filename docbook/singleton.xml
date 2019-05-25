@@ -27,11 +27,11 @@ class myClassObj : virtual public &ns;::obj {
 
 typedef &ns;::ref&lt;myClassObj&gt; myClass;
 
-&ns;::singleton&lt;myClassObj&gt; myClassInstance;
+typedef &ns;::singleton&lt;myClassObj&gt; singleton_t;
 
 // ...
 
-myClass c(myClassInstance.get());
+myClass c=singleton_t::get();
 
 c-&gt;method();</programlisting>
     </informalexample>

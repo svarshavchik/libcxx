@@ -1,3 +1,11 @@
+2019-05-24  Sam Varshavchik  <mrsam@courier-mta.com>
+
+	* messages: Sanity-check directory-bound message catalogs. Throw an
+	exception if attempting to instantiate message catalogs for the
+	same domain bound to different directories.
+
+	Clean up documentation of singletons.
+
 0.18.0
 
 2019-05-19  Sam Varshavchik  <mrsam@courier-mta.com>

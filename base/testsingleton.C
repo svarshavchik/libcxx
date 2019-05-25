@@ -24,13 +24,13 @@ public:
 	}
 };
 
-LIBCXX_NAMESPACE::singleton<singletonObj> singleton;
+typedef LIBCXX_NAMESPACE::singleton<singletonObj> singleton_t;
 
 int main()
 {
 	std::cout << "In main" << std::endl;
-	singleton.get();
-	singleton.get();
+	singleton_t::get();
+	singleton_t::get();
 	std::cout << "Leaving main" << std::endl;
 
 	return (0);

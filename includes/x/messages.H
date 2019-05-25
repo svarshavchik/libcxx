@@ -12,13 +12,13 @@
 #include <x/to_string.H>
 #include <x/messagesfwd.H>
 #include <string>
+#include <string_view>
 #include <map>
 #include <algorithm>
 #include <cstring>
 #include <tuple>
 #include <sstream>
 #include <x/namespace.h>
-#include <courier-unicode.h>
 
 namespace LIBCXX_NAMESPACE {
 
@@ -37,7 +37,7 @@ class messagesObj : virtual public obj {
 	const const_locale l;
 
 	//! The text domain
-	std::string domain;
+	const std::string domain;
 
 	//! Internal call to dngettext
 
@@ -86,18 +86,7 @@ public:
 		    const const_locale &lArg,
 
 		    //! The %messages' domain
-		    const std::string &domainArg);
-
-	//! Constructor, set a directory's text domain
-
-	messagesObj(//! The %messages' locale
-		    const const_locale &lArg,
-
-		    //! The %messages' domain
-		    const std::string &domainArg,
-
-		    //! The message catalog directory
-		    const std::string &directory);
+		    const std::string_view &domainArg);
 
 	//! Destructor
 
@@ -495,6 +484,55 @@ inline gettext_helper_ref<Args...>::operator std::string() const
 
 	return o.str();
 }
+
+//! Base class of messages.
+
+//! Refer to this class as messages::base
+//!
+//! create()ing a messages object with a locale and a domain parameters
+//! contructs the object normally.
+//!
+//! A custom create() with an additional directory parameter internally
+//! enforces the same directory for multiple instances for the same
+//! domain, because this is implemented in terms of gettext's
+//! bindtextdomain() global.
+
+class messagesBase {
+
+public:
+
+	static inline messages create(const const_locale &lArg,
+				      const std::string_view &domainArg)
+	{
+		return ptrref_base::objfactory<messages>::create(lArg,
+								 domainArg);
+	}
+
+	static messages create(const const_locale &lArg,
+			       const std::string_view &domainArg,
+			       const std::string_view &directory);
+
+	template<typename ptrrefType> class objfactory {
+	public:
+
+		static inline ptrrefType create(const const_locale &lArg,
+						const std::string_view
+						&domainArg)
+		{
+			return messagesBase::create(lArg, domainArg);
+		}
+
+		static inline ptrrefType create(const const_locale &lArg,
+						const std::string_view
+						&domainArg,
+						const std::string_view
+						&directory)
+		{
+			return messagesBase::create(lArg, domainArg,
+						    directory);
+		}
+	};
+};
 
 #if 0
 {

@@ -17,6 +17,7 @@ namespace LIBCXX_NAMESPACE {
 #endif
 
 class messagesObj;
+class messagesBase;
 
 //! Message catalogs
 
@@ -68,24 +69,24 @@ class messagesObj;
 //!
 //! \see gettextmsg()
 
-typedef ref<messagesObj> messages;
+typedef ref<messagesObj, messagesBase> messages;
 
 //! A constant messages reference
 
 //! \see #messages
 
-typedef const_ref<messagesObj> const_messages;
+typedef const_ref<messagesObj, messagesBase> const_messages;
 
 //! A pointer to a reference-counted locale messages object.
 
 //! \see #messages
 
-typedef ptr<messagesObj> messagesptr;
+typedef ptr<messagesObj, messagesBase> messagesptr;
 
 //! A pointer to a reference-counted locale messages object.
 
 //! \see #messages
-typedef const_ptr<messagesObj> const_messagesptr;
+typedef const_ptr<messagesObj, messagesBase> const_messagesptr;
 
 //! Retrieve internal catalog
 
