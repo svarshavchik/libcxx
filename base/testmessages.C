@@ -27,13 +27,13 @@ void testmessages(std::string localeName)
 {
 	auto l=LIBCXX_NAMESPACE::locale::create(localeName);
 
-	auto cmsgs=LIBCXX_NAMESPACE::messages::create(l, "xtest", "xtest");
-	LIBCXX_NAMESPACE::messages::create(l, "xtest", "xtest");
+	auto cmsgs=LIBCXX_NAMESPACE::messages::create("xtest", "xtest", l);
+	LIBCXX_NAMESPACE::messages::create("xtest", "xtest", l);
 
 	bool caught=false;
 
 	try {
-		LIBCXX_NAMESPACE::messages::create(l, "xtest", ".");
+		LIBCXX_NAMESPACE::messages::create("xtest", ".", l);
 	} catch (const LIBCXX_NAMESPACE::exception &e)
 	{
 		caught=true;
@@ -48,13 +48,15 @@ void testmessages(std::string localeName)
 	dumphex(cmsgs->get("test1"));
 	dumphex(cmsgs->get("test2"));
 
-	std::cout << cmsgs->format("%ignore%[%% %3%: %1%%2%]",
-				   std::dec, 10, "counters")
+	std::cout << LIBCXX_NAMESPACE::gettextmsg(cmsgs->get
+						  ("%ignore%[%% %3%: %1%%2%]"),
+						  std::dec, 10, "counters")
 		  << std::endl;
 
-	std::cout << cmsgs->formatn("%cnt%%1% rec",
-				    "%cnt%%1% recs", 1,
-				    1) << std::endl;
+	std::cout << LIBCXX_NAMESPACE::gettextmsg(cmsgs->get
+						  ("%cnt%%1% rec",
+						   "%cnt%%1% recs", 1),
+						  1) << std::endl;
 
 	std::string s=LIBCXX_NAMESPACE::gettextmsg(cmsgs->get("%cnt%%1% rec",
 							    "%cnt%%1% recs", 2),

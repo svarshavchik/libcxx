@@ -11,12 +11,15 @@
 #include <x/localeobj.H>
 #include <x/to_string.H>
 #include <x/messagesfwd.H>
+#include <x/refptr_traits.H>
+#include <x/optional_args.H>
 #include <string>
 #include <string_view>
 #include <map>
 #include <algorithm>
 #include <cstring>
 #include <tuple>
+#include <type_traits>
 #include <sstream>
 #include <x/namespace.h>
 
@@ -26,8 +29,8 @@ namespace LIBCXX_NAMESPACE {
 };
 #endif
 
-template<typename ...Args>
-class gettext_helper_ref;
+template<typename Msg, typename ...Args>
+auto gettextmsg(Msg &&msg, Args && ...args);
 
 //! Specialization for narrow character strings
 
@@ -42,26 +45,26 @@ class messagesObj : virtual public obj {
 	//! Internal call to dngettext
 
 	//! \internal
-	const char *call_dngettext(//! Singular
-				   const char *s,
+	std::string call_dngettext(//! Singular
+				   const std::string_view &s,
 
 				   //! Plural
-				   const char *p,
+				   const std::string_view &p,
 
 				   //! The numeric value
-				   unsigned long n) const;
+				   unsigned long n) const noexcept;
 
 	//! Internal call to dngettext
 
 	template<typename int_type>
-	const char *call_dngettext_wrapper(//! Singular
-					   const char *s,
+	std::string call_dngettext_wrapper(//! Singular
+					   const std::string_view &s,
 
 					   //! Plural
-					   const char *p,
+					   const std::string_view &p,
 
 					   //! The numeric value
-					   int_type n) const
+					   int_type n) const noexcept
 	{
 		if (n < 0)
 			n= -n;
@@ -75,7 +78,7 @@ class messagesObj : virtual public obj {
 public:
 	//! Return the locale
 
-	inline const_locale getLocale() const noexcept
+	inline const_locale get_locale() const noexcept
 	{
 		return l;
 	}
@@ -86,7 +89,7 @@ public:
 		    const const_locale &lArg,
 
 		    //! The %messages' domain
-		    const std::string_view &domainArg);
+		    const std::string_view &domainArg) noexcept;
 
 	//! Destructor
 
@@ -96,15 +99,7 @@ public:
 
 	std::string get(//! The message to retrieve
 
-			const char *s) const;
-
-	//! Retrieve a message from the catalog
-
-	//! \overload
-
-	std::string get(//! The message to retrieve
-
-			const std::string &s) const;
+			const std::string_view &s) const noexcept;
 
 	//! Retrieve a message from the catalog
 
@@ -114,37 +109,18 @@ public:
 	template<typename int_type>
 	std::string get(//! The singular form
 
-		     const char *s,
+			const std::string_view &s,
 
 		     //! The plural form
 
-		     const char *p,
+			const std::string_view &p,
 
-		     //! The numeric value
+			//! The numeric value
 
-		     int_type n
-		     ) const
+			int_type n
+			) const noexcept
 	{
 		return call_dngettext_wrapper(s, p, n);
-	}
-
-	//! Retrieve a message from the catalog
-
-	//! \overload
-	template<typename int_type>
-	std::string get(//! The singular form
-
-			const std::string &s,
-
-		     //! The plural form
-
-			const std::string &p,
-
-		     //! The numeric value
-
-		     int_type n) const
-	{
-		return get(s.c_str(), p.c_str(), n);
 	}
 
 	//! Retrieve a message from the catalog, as unicode.
@@ -161,62 +137,6 @@ public:
 	//! \internal
 
 	std::u32string to_unicode(const std::string &s) const;
-
-	//! Retrieve a localized message, then use gettextmsg() to format it.
-
-	template<typename formatstr_type, typename ...Args>
-	gettext_helper_ref<Args...>
-	format(//! Formatting string
-	       const formatstr_type &str,
-
-	       //! Format string parameters
-	       Args && ...args)
-	{
-		return gettext_helper_ref<Args...>
-			(get(str), std::forward<Args>(args)...);
-	}
-
-	//! Retrieve a localized message, then use gettextmsg() to format it.
-
-	template<typename formatstr_type, typename int_type,
-		 typename ...Args>
-	gettext_helper_ref<Args...>
-	formatn(//! Formatting string, singular form
-		const formatstr_type &singular,
-
-		//! Formatting string, plural form
-		const formatstr_type &plural,
-
-		//! Numerical value for the localized string
-		int_type n,
-
-		//! Format string parameters
-		Args && ...args)
-	{
-		return gettext_helper_ref<Args...>
-			(get(singular, plural, n), std::forward<Args>(args)...);
-	}
-
-	//! Retrieve a localized message, then use gettextmsg() to format it.
-
-	template<typename char_type, typename int_type,
-		 typename ...Args>
-	gettext_helper_ref<Args...>
-	formatn(//! Formatting string, singular form
-		const char_type *singular,
-
-		//! Formatting string, plural form
-		const char_type *plural,
-
-		//! Numerical value for the localized string
-		int_type n,
-
-		//! Format string parameters
-		Args && ...args)
-	{
-		return gettext_helper_ref<Args...>
-			(get(singular, plural, n), std::forward<Args>(args)...);
-	}
 };
 
 //! Advance literal text in a formatting string in gettextmsg()
@@ -224,13 +144,15 @@ public:
 //! \internal
 //!
 void gettext_fmt_advance(std::ostream &stream,
-			 const char *&str);
+			 std::string_view::const_iterator &b,
+			 std::string_view::const_iterator &e);
 
 //! Parse parameter number in a formatting string in gettextmsg()
 
 //! \internal
 //!
-size_t gettext_fmt_getn(const char *&str);
+size_t gettext_fmt_getn(std::string_view::const_iterator &b,
+			std::string_view::const_iterator &e) noexcept;
 
 //! Helper object used by gettextmsg()
 
@@ -240,20 +162,28 @@ size_t gettext_fmt_getn(const char *&str);
 //! stores the formatting parameters and formats the string into an output
 //! stream.
 
-template<typename ...Args>
-class gettext_helper : virtual public obj {
+template<typename ...Args> class gettext_helper {
 
 public:
+	//! Copy constructor is deleted
+	gettext_helper(const gettext_helper &)=delete;
+
+	//! Assignment operator is deleted.
+	gettext_helper &operator=(const gettext_helper &)=delete;
+
 	//! The formatting string
-	std::string fmt;
+
+	std::string_view fmt;
 
 	//! Formatting string arguments
 	std::tuple<Args...> args;
 
 	//! The constructor
-	gettext_helper(const std::string &fmtArg,
-		       Args && ...given_args) noexcept
-	: fmt(fmtArg), args(std::forward<Args>(given_args)...) {}
+	template<typename Arg, typename ...constructorArgs>
+	gettext_helper(Arg &&fmtArg,
+		       constructorArgs && ...given_args) noexcept
+		: fmt{std::forward<Arg>(fmtArg)},
+		  args{std::forward<constructorArgs>(given_args)...} {}
 
 	//! Destructor
 	~gettext_helper() {}
@@ -270,6 +200,9 @@ public:
 		if (i == n)
 			o << std::get<n>(args);
 	}
+
+	//! Convert to a string.
+	operator std::string() const;
 };
 
 //! Helper object for formatting parameters into an output stream
@@ -337,60 +270,26 @@ inline void gettext_format_args(//! Parameters to gettextmsg()
 				    sizeof...(Args)>::format(h, o, i);
 }
 
-//! Helper object returned by gettextmsg()
-
-//! \internal
-//! It's a subclass of a reference to \ref gettext_helper "gettext_helper",
-//! which defined a string operator, and the << operator.
-//!
-
-template<typename ...Args>
-class gettext_helper_ref : public ref<gettext_helper<Args...> > {
-
-	//! The superclass type
-	typedef ref<gettext_helper<Args...> > ref_t;
-
-public:
-
-	//! Constructor
-	gettext_helper_ref(//! Formatting string
-			   const std::string &msg,
-
-			   //! Arguments
-			   Args && ...args)
-		: ref_t(ref_t::create(msg, std::forward<Args>(args)...))
-	{
-	}
-
-	//! Destructor
-	~gettext_helper_ref() {}
-
-	using ref_t::operator*;
-	using ref_t::operator->;
-
-	//! Casting operator
-	operator std::string() const;
-};
-
 //! Overload the << operator on the return value of gettextmsg()
 
 //! \internal
 
 template<typename ...Args>
 std::ostream
-&operator<<(std::ostream &o, const gettext_helper_ref<Args...> &h)
+&operator<<(std::ostream &o, const gettext_helper<Args...> &h)
 {
-	const char *str=h->fmt.c_str();
+	auto b=h.fmt.begin();
+	auto e=h.fmt.end();
 
-	while (*str)
+	while (b != e)
 	{
-		if (*str != '%')
+		if (*b != '%')
 		{
-			gettext_fmt_advance(o, str);
+			gettext_fmt_advance(o, b, e);
 			continue;
 		}
 
-		size_t n=gettext_fmt_getn(str);
+		size_t n=gettext_fmt_getn(b, e);
 
 		if (n == 0)
 		{
@@ -398,16 +297,26 @@ std::ostream
 			continue;
 		}
 
-		gettext_format_args(*h, o, n-1);
+		gettext_format_args(h, o, n-1);
 	}
 	return o;
+}
+
+template<typename ...Args>
+inline gettext_helper<Args...>::operator std::string() const
+{
+	std::ostringstream o;
+
+	o << *this;
+
+	return o.str();
 }
 
 //! Construct a localized message, the C++ way
 
 //! \code
 //!
-//! INSERT_LIBX_NAMESPACE::messages msgcat;
+//! auto msgcat=INSERT_LIBX_NAMESPACE::messages::create("domain");
 //!
 //! // ...
 //!
@@ -415,7 +324,21 @@ std::ostream
 //!                           nrows, ncols) << std::endl;
 //! \endcode
 //!
-//! gettextmsg() formats localized messages for output streams. The first
+//! gettextmsg() formats (presumably) localized messages for output streams.
+//! gettextmsg() returns a template object with an overloaded \c <<
+//! operator that writes the formatted localized message directly to a
+//! \c std::ostream. It also implements an conversion operator to
+//! \c std::string, which is just a shortcut for constructing
+//! a \c std::ostringstream, using the same \c << operator with it, and
+//! then returning the resulting string.
+//!
+//! The internal template object has a deleted
+//! copy constructor and an assignment operator, in order to encourage it to
+//! be used only in temporary contexts where it gets processed by the
+//! overloaded \c << operator and then destroyed, or converted to a single
+//! \c std::string.
+//!
+//! \c gettextmsg()'s first
 //! parameter is a formatting string, which usually comes from a message
 //! catalog, permitting localization.
 //!
@@ -456,33 +379,15 @@ std::ostream
 //!
 //! Manipulators are handled as ordinary formatting parameters, and get
 //! referenced by the appropriate %%n% placeholder in the formatting string.
+//!
+//! \see messages
 
-template<typename ...Args>
-std::string gettextmsg(const std::string &msg,
-		       Args && ...args)
+template<typename Msg, typename ...Args>
+auto gettextmsg(Msg &&msg, Args && ...args)
 {
-	return gettext_helper_ref<Args...>
-		(msg, std::forward<Args>(args)...);
-}
-
-//! Overloaded gettextmsg() from a literal formatting string.
-
-//! \overload
-template<typename ...Args>
-std::string gettextmsg(const char *msg, Args && ...args)
-{
-	return gettext_helper_ref<Args...>
-		(msg, std::forward<Args>(args)...);
-}
-
-template<typename ...Args>
-inline gettext_helper_ref<Args...>::operator std::string() const
-{
-	std::ostringstream o;
-
-	o << *this;
-
-	return o.str();
+	return gettext_helper<std::decay_t<Args>...>{
+		std::forward<Msg>(msg), std::forward<Args>(args)...
+			};
 }
 
 //! Base class of messages.
@@ -501,35 +406,22 @@ class messagesBase {
 
 public:
 
-	static inline messages create(const const_locale &lArg,
-				      const std::string_view &domainArg)
-	{
-		return ptrref_base::objfactory<messages>::create(lArg,
-								 domainArg);
-	}
+	typedef optional_args<std::string,
+			      explicit_refptr<const_locale>> constructor_args;
 
-	static messages create(const const_locale &lArg,
-			       const std::string_view &domainArg,
-			       const std::string_view &directory);
+	static messages create(const std::string_view &domain,
+			       const constructor_args &args);
 
 	template<typename ptrrefType> class objfactory {
 	public:
 
-		static inline ptrrefType create(const const_locale &lArg,
-						const std::string_view
-						&domainArg)
+		template<typename ...Args>
+		static inline ptrrefType create(const std::string_view &domain,
+						Args && ...args)
 		{
-			return messagesBase::create(lArg, domainArg);
-		}
-
-		static inline ptrrefType create(const const_locale &lArg,
-						const std::string_view
-						&domainArg,
-						const std::string_view
-						&directory)
-		{
-			return messagesBase::create(lArg, domainArg,
-						    directory);
+			return messagesBase::create(domain,
+						    {std::forward<Args>
+						     (args)...});
 		}
 	};
 };

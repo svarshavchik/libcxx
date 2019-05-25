@@ -166,7 +166,7 @@ myLocale-&gt;imbue(std::cout);</programlisting>
 	<programlisting>
 #include &lt;&ns;/messages.H&gt;
 
-&ns;::messages msgcat(&ns;::messages::create(l, "app"));</programlisting>
+&ns;::messages msgcat=&ns;::messages::create("app");</programlisting>
       </informalexample>
     </blockquote>
 
@@ -175,8 +175,6 @@ myLocale-&gt;imbue(std::cout);</programlisting>
       is a reference to a reference-counted object that provides access to
       internationalized message catalogs created by
       the <ulink url="http://www.gnu.org/software/gettext/">gettext library</ulink>.
-      Its get() method returns strings using the encoding specified by the
-      given locale.
     </para>
 
     <para>
@@ -191,9 +189,12 @@ myLocale-&gt;imbue(std::cout);</programlisting>
       <title>gettextmsg()</title>
 
       <para>
-	The <methodname>gettextmsg</methodname>() function is a convenience
-	function for creating
-	localized messages in a stream-like fashion:
+	The
+	<ulink url="&link-function-x-gettextmsg;"><function>gettextmsg</function></ulink>() function
+	uses messages catalogs containing messages with placeholders for
+	parameters, then takes the values for those parameters and constructs
+	a complete
+	localized message in a stream-like fashion:
       </para>
 
       <blockquote>
@@ -246,6 +247,9 @@ std::cout &lt;&lt; &ns;::gettextmsg(msgcat-&gt;get("Window size: %1% rows, %2% c
       <blockquote>
 	<informalexample>
 	  <programlisting>
+std::cout &lt;&lt; msgcat-&gt;format("Window size: %1% rows, %2% columns",
+                      nrows, ncols) &lt;&lt; std::endl;
+
 std::string str=msgcat-&gt;format("Window size: %1% rows, %2% columns",
                       nrows, ncols);</programlisting>
 	</informalexample>
@@ -263,7 +267,7 @@ std::string str=msgcat-&gt;format("Window size: %1% rows, %2% columns",
 
 void onthewall(size_t nbeers)
 {
-    &ns;::messages msgcat(&ns;::messages::create(l, "app"));
+    &ns;::messages msgcat(&ns;::messages::create("app"));
 
     printf(msgcat-&gt;get("%d bottle of beer\n",
                        "%d bottles of beer\n", nbeers).c_str(),

@@ -563,27 +563,26 @@ void gnutls::sessionObj::verify_peer_internal(const std::string *hostname)
 
 	if (flags)
 	{
-		messages msgcat(messages::create(locale::base::environment(),
-						 LIBCXX_DOMAIN));
 
-		throw EXCEPTION((hostname ?
-				 *hostname:std::string("Peer certificate"))
-				+ ": " + msgcat->
-				get(flags & GNUTLS_CERT_REVOKED ?
-				    _("Revoked certificate"):
-				    flags & GNUTLS_CERT_SIGNER_NOT_FOUND ?
-				    _("Unknown certificate authority"):
-				    flags & GNUTLS_CERT_SIGNER_NOT_CA ?
-				    _("Certificate signer is not an authority"):
-				    flags & GNUTLS_CERT_INSECURE_ALGORITHM ?
-				    _("Certificate signed by a weak hash"):
-				    flags & GNUTLS_CERT_NOT_ACTIVATED ?
-				    _("Certificate not yet active"):
-				    flags & GNUTLS_CERT_EXPIRED ?
-				    _("Certificate expired"):
-				    flags & GNUTLS_CERT_INVALID ?
-				    _("Invalid certificate"):
-				    _("Certificate verification failed")));
+		throw EXCEPTION
+			((hostname ?
+			  *hostname:std::string("Peer certificate"))
+			 << ": " <<
+			 libmsg(flags & GNUTLS_CERT_REVOKED ?
+				_txt("Revoked certificate"):
+				flags & GNUTLS_CERT_SIGNER_NOT_FOUND ?
+				_txt("Unknown certificate authority"):
+				flags & GNUTLS_CERT_SIGNER_NOT_CA ?
+				_txt("Certificate signer is not an authority"):
+				flags & GNUTLS_CERT_INSECURE_ALGORITHM ?
+				_txt("Certificate signed by a weak hash"):
+				flags & GNUTLS_CERT_NOT_ACTIVATED ?
+				_txt("Certificate not yet active"):
+				flags & GNUTLS_CERT_EXPIRED ?
+				_txt("Certificate expired"):
+				flags & GNUTLS_CERT_INVALID ?
+				_txt("Invalid certificate"):
+				_txt("Certificate verification failed")));
 	}
 
 	if (certificate_type_get() == GNUTLS_CRT_X509)

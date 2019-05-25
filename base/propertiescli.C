@@ -13,12 +13,10 @@
 
 static int main2(int argc, char **argv)
 {
-	LIBCXX_NAMESPACE::locale locale(LIBCXX_NAMESPACE::locale::create(""));
-	LIBCXX_NAMESPACE::messages
-		msgs(LIBCXX_NAMESPACE::messages::create(locale, LIBCXX_DOMAIN));
+	auto locale=LIBCXX_NAMESPACE::locale::base::environment();
+	auto msgs=LIBCXX_NAMESPACE::messages::create(LIBCXX_DOMAIN, locale);
 
-	propertiescli args(LIBCXX_NAMESPACE::messages::create(locale,
-							      LIBCXX_DOMAIN));
+	propertiescli args{msgs};
 	std::list<std::string> files(args.parse(argc, argv, locale)->args);
 
 	if (args.setvalue->isSet())

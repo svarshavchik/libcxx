@@ -21,27 +21,27 @@ class messagesBase;
 
 //! Message catalogs
 
-//! This class implements access to message catalogs.
+//! This class implements access to message catalogs using
+//! the \c gettext(3) family of library calls.
 //!
 //! \code
-//! locale l;
+//! auto msgcat=INSERT_LIBX_NAMESPACE::messages::create("libx"));
 //!
-//! messages msgcat(messages::create(l, "libx"));
+//! auto l=INSERT_LIBX_NAMESPACE::locale::base::environment();
+//!
+//! auto msgcat=INSERT_LIBX_NAMESPACE::messages::create("libx", "/usr/share/libx/messages", l);
 //! \endcode
 //!
-//! create() opens a new message catalog. The first parameter is a
-//! locale, the second parameter is the message text domain.
+//! create()'s sole required parameter is the name of the text domain.
+//! Each of the following parameters is optional, but any that appear
+//! must in the following order:
 //!
-//! \code
-//! locale l;
+//! - the name of the directory with the message catalog files. See
+//! bindtextdomain(3). An exception gets thrown if the domain is already bound
+//! to a different directory
 //!
-//! messages msgcat(messages::create(l, "libx", "/usr/share/libx/msgs"));
-//! \endcode
-//!
-//! An optional third parameter to create() specifies a non-standard
-//! directory for the given message text domain's catalog file. The directory
-//! must be an absolute path, and it must be specified only once, the first
-//! time a message for the given domain is opened.
+//! - the \ref locale "locale" that specifies the messages' encoding. This
+//! defaults to \c INSERT_LIBX_NAMESPACE::locale::base::global().
 //!
 //! \c messages is a reference to a reference-counted object, which may be
 //! passed around freely.
@@ -67,7 +67,20 @@ class messagesBase;
 //! first parameter gets returned if the numerical value is 1, otherwise
 //! the second parameter gets returned.
 //!
-//! \see gettextmsg()
+//! \par Unicode
+//!
+//! \code
+//! std::u32string txt=msgcat->get_unicode("%d record", "%d records", 2);
+//! \endcode
+//!
+//! get_unicode() is a version of the overloaded get() that converts the
+//! message to a Unicode string. Note that the localized message text is
+//! still a \c char string. Also, the underlying gettext() library still
+//! transcodes the localized message to the locale's character set, before
+//! converting it to unicode. Use UTF-8 message catalogs to make this a
+//! less painful process.
+//!
+//! \see gettextmsg
 
 typedef ref<messagesObj, messagesBase> messages;
 

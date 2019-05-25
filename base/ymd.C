@@ -431,7 +431,7 @@ const char * const ymd::interval::interval_descr[]={_txtn("day", "days"),
 
 std::string ymd::interval::internal_tostring(const const_locale &l) const
 {
-	messages msgcat(messages::create(l, LIBCXX_DOMAIN));
+	auto msgcat=messages::create(LIBCXX_DOMAIN, l);
 
 	std::ostringstream o;
 
@@ -439,32 +439,34 @@ std::string ymd::interval::internal_tostring(const const_locale &l) const
 
 	if (years)
 	{
-		o << msgcat->formatn(_txtn("%1% year", "%1% years"),
-				     years, years);
+		o << gettextmsg(msgcat->get(_txtn("%1% year", "%1% years"),
+					    years),
+				years);
 		sep=", ";
 	}
 
 	if (months)
 	{
 		o << sep
-		  << msgcat->formatn(_txtn("%1% month", "%1% months"),
-				     months, months);
+		  << gettextmsg(msgcat->get(_txtn("%1% month", "%1% months"),
+					    months),
+				months);
 		sep=", ";
 	}
 
 	if (weeks)
 	{
 		o << sep
-		  << msgcat->formatn(_txtn("%1% week", "%1% weeks"),
-				     weeks, weeks);
+		  << gettextmsg(msgcat->get(_txtn("%1% week", "%1% weeks"),
+					    weeks), weeks);
 		sep=", ";
 	}
 
 	if (days || (!weeks && !months && !years))
 	{
 		o << sep
-		  << msgcat->formatn(_txtn("%1% day", "%1% days"),
-				     days, days);
+		  << gettextmsg(msgcat->get(_txtn("%1% day", "%1% days"), days),
+				days);
 		sep=", ";
 	}
 

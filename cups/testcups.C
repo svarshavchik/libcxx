@@ -328,7 +328,7 @@ int main(int argc, char *argv[])
 
 		l->global();
 
-		testcups options{messages::create(l, LIBCXX_DOMAIN)};
+		testcups options{messages::create(LIBCXX_DOMAIN, l)};
 
 		auto args=options.parse(argc, argv)->args;
 

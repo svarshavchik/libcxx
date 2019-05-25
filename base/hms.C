@@ -264,7 +264,7 @@ void hms::parsing_error()
 
 std::string hms::verboseString(const const_locale &l) const
 {
-	auto msgs=messages::create(l, LIBCXX_DOMAIN);
+	auto msgs=messages::create(LIBCXX_DOMAIN, l);
 
 	std::string hours_str, minute_str, seconds_str;
 

@@ -567,14 +567,12 @@ void httportmapObj::dereg(const std::string &svc,
 
 void httportmapObj::nosuchuser(uid_t u)
 {
-	throw EXCEPTION(libmsg()->format(_txt("httportmap: userid %1% not found"), u));
+	throw EXCEPTION(gettextmsg(_("httportmap: userid %1% not found"), u));
 }
 
 void httportmapObj::badresponse()
 {
-	throw EXCEPTION(libmsg()
-			->get(_txt("Unable to parse response from portmapper"))
-			);
+	throw EXCEPTION(_("Unable to parse response from portmapper"));
 }
 
 fd httportmapObj::connect_any(const std::string &name,
