@@ -19,6 +19,9 @@ namespace LIBCXX_NAMESPACE {
 class messagesObj;
 class messagesBase;
 
+template<typename Msg, typename ...Args>
+auto gettextmsg(Msg &&msg, Args && ...args);
+
 //! Message catalogs
 
 //! This class implements access to message catalogs using

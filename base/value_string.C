@@ -6,6 +6,7 @@
 #include "libcxx_config.h"
 #include "x/messages.H"
 #include "x/value_string.H"
+#include "x/to_string.H"
 #include "gettext_in.h"
 
 #include <algorithm>
