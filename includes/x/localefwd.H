@@ -24,7 +24,7 @@ class localeObj;
 //! \code
 //! INSERT_LIBX_NAMESPACE::locale myLocale=INSERT_LIBX_NAMESPACE::locale::base::global();          // Instantiate the default, current locale
 //!
-//! INSERT_LIBX_NAMESPACE::locale myLocale=INSERT_LIBX_NAMESPACE::locale::base::utf8();            // Instantiate the en_US.UTF-8 locale
+//! INSERT_LIBX_NAMESPACE::locale myLocale=INSERT_LIBX_NAMESPACE::locale::base::utf8();            // Instantiate the C.UTF-8 locale
 //!
 //! INSERT_LIBX_NAMESPACE::locale myLocale=INSERT_LIBX_NAMESPACE::locale::base::environment();     // Instantiate the system environment locale.
 //!

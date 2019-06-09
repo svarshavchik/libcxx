@@ -17,7 +17,6 @@ Version: @VERSION@
 Release: 1%{?extrarelease}
 License: GPL
 URL: http://www.libcxx.org
-Group: System Environment/Libraries
 Source0: libcxx-%{version}.tar.bz2
 
 %define _hardened_build 1
@@ -46,17 +45,14 @@ The C++ class library provides many classes that are useful
 for developing C++ applications on Linux.
 
 %package ltdl
-Group: System Environment/Libraries
 Summary: libcxx libtool wrapper
 Requires: %{name} = 0:%{version}-%{release}
 
 %package cups
-Group: System Environment/Libraries
 Summary: libcxx CUPS library
 Requires: %{name} = 0:%{version}-%{release}
 
 %package devel
-Group: Development/Libraries
 Summary: libcxx development libraries
 Requires: %{name} = 0:%{version}-%{release}
 Requires: %{name}-ltdl = 0:%{version}-%{release}
@@ -81,7 +77,6 @@ Provides: libcxxbase-abi = @ABIVER@
 %else
 
 %package httpd
-Group: System Environment/Daemons
 Summary: Apache httportmap configuration
 Requires: %{name} = 0:%{version}-%{release}
 Requires: /etc/httpd/conf.d

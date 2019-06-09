@@ -700,6 +700,12 @@ AC_SUBST(CUPS_CFLAGS)
 AC_SUBST(CUPS_LDFLAGS)
 AC_SUBST(CUPS_LIBS)
 
+AC_PATH_PROG(MSGFMT,msgfmt,"none")
+if test "$MSGFMT" = "none"
+then
+	AC_MSG_ERROR([Cannot find msgfmt, please install gettext])
+fi
+
 AC_SUBST(LIBCXX_NAMESPACE,x)
 
 test "x$prefix" = xNONE && prefix=$ac_default_prefix

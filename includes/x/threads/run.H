@@ -41,7 +41,7 @@ public:
 
 	//! Push an object to mainscope->strongobjects.
 
-	static void mainscope_pushstrongobjects(const ref<obj> &p);
+	static void register_singleton(const ref<obj> &p);
 
 	localscope();
 	~localscope();

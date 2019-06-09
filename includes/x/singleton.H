@@ -116,8 +116,7 @@ public:
 		{
 			wrapped=ptr<wrapperObj>::create();
 
-			run_async::localscope
-				::mainscope_pushstrongobjects(wrapped);
+			run_async::localscope::register_singleton(wrapped);
 		}
 
 		return ref<obj_type, baseClass>{static_instance.instance};

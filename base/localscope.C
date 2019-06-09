@@ -9,6 +9,7 @@
 #include "x/exception.H"
 #include "x/messages.H"
 #include "gettext_in.h"
+#include <cstdlib>
 
 namespace LIBCXX_NAMESPACE {
 #if 0
@@ -65,13 +66,20 @@ mainscope_destructor mainscope_destructor::instance;
 #endif
 }
 
-void run_async::localscope::mainscope_pushstrongobjects(const ref<obj> &p)
+void run_async::localscope::register_singleton(const ref<obj> &p)
 {
 	std::unique_lock<std::mutex> lock(mainscopemutex);
 
 	if (destructed)
-		return;
+	{
+		static const char fatal[]=
+			"Attempting to construct a singleton during "
+			"the global destruction phase.\n";
 
+		if (write(2, fatal, sizeof(fatal)-1) < 0)
+			;
+		abort();
+	}
 	if (!mainscope)
 		mainscope=new localscope;
 
