@@ -6,23 +6,20 @@ See COPYING for distribution information.
 -->
 
 <section id="news">
-  <title>Release 0.18 of &app;</title>
+  <title>Release 0.19 of &app;</title>
 
   <itemizedlist>
     <listitem>
       <para>
-	Fixes for GCC 9
+	Sanity checking for <link linkend="msgcatalogs">message catalog</link>s
+	that are bound to non-default directories. A message domain cannot be
+	bound to different directories, by different message catalog objects.
       </para>
     </listitem>
     <listitem>
       <para>
-	Fixes several locale-related issues
-      </para>
-    </listitem>
-    <listitem>
-      <para>
-	Added a helper <link linkend="visited"><classname>&ns;::visited</classname></link> template,
-	for use with <link linkend="visitor"><classname>&ns;::visitor</classname></link>
+	<link linkend="gettextmsg"><function>gettextmsg</function></link>()
+	optimizations.
       </para>
     </listitem>
   </itemizedlist>

@@ -3,7 +3,7 @@
 # See COPYING for distribution information.
 
 AC_PREREQ(2.61)
-AC_INIT(libcxx, 0.18.0, [mrsam@courier-mta.com])
+AC_INIT(libcxx, 0.19.0, [mrsam@courier-mta.com])
 
 AC_CONFIG_SRCDIR([includes/x/obj.H])
 AC_CONFIG_HEADER([libcxx_config.h])
@@ -41,9 +41,9 @@ XGETTEXT_EXTRA_OPTIONS="--keyword=_txt --keyword=_txtw --keyword=_txtn:1,2 --key
 #   $libdir/pkgconfig/libcxx-$VERSION.pc
 #   $datadir/aclocak/libcxx-$VERSION.m4
 #
-ABIVER=0.18
+ABIVER=0.19
 AC_SUBST(ABIVER)
-VERSION_INFO=18:0:0
+VERSION_INFO=19:0:0
 AC_SUBST(VERSION_INFO)
 
 # Checks for libraries.
