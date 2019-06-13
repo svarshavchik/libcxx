@@ -721,9 +721,6 @@ AM_CONDITIONAL(HAVE_REPO, test -d ${srcdir}/docbook)
 
 AC_DEFINE_UNQUOTED(LIBCXX_INTERNAL_BUILD,1,[Building LibCXX])
 
-PIC_FLAGS="`($srcdir/libtool --config; echo echo \$pic_flag) | sh`"
-AC_SUBST(PIC_FLAGS)
-
 AC_CONFIG_FILES([Doxyfile po/Makefile.in
 		 Makefile
 		 libltdl/Makefile
