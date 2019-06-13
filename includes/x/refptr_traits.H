@@ -229,7 +229,9 @@ struct explicit_refptr : T {
 			 std::is_same_v<typename refptr_traits<
 			 std::remove_cv_t<std::remove_reference_t<Arg>>
 						>::obj_t,
-					typename refptr_traits<T>::obj_t>>>
+					typename refptr_traits<T>::obj_t>,
+			 decltype((*std::declval<void (*)(const T &)>())
+				  (std::declval<const Arg &>()))>>
 	explicit_refptr(Arg &&arg)
 		: T{std::forward<Arg>(arg)}
 	{

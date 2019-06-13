@@ -17,7 +17,16 @@ namespace LIBCXX_NAMESPACE {
 };
 #endif
 
-template<> class optional_args<> {};
+template<> class optional_args<> {
+
+public:
+	template<typename ...Args>
+	optional_args(Args && ...)
+	{
+		static_assert(sizeof...(Args) == 0,
+			      "optional_args constructor parameters did not match");
+	}
+};
 
 template<typename Arg, typename ...Args>
 class optional_args<Arg, Args...> : public optional_args<Args...> {

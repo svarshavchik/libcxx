@@ -3207,13 +3207,27 @@ int only_expl2(const LIBCXX_NAMESPACE::explicit_refptr<
 	return 2;
 }
 
+int only_nonconst(const LIBCXX_NAMESPACE::explicit_refptr<
+		  LIBCXX_NAMESPACE::ref<expl2Obj>> &arg)
+{
+	return 3;
+}
+
+int only_nonconst(const LIBCXX_NAMESPACE::explicit_refptr<
+		  LIBCXX_NAMESPACE::const_ref<expl2Obj>> &arg)
+{
+	return 4;
+}
+
 void testexpl()
 {
 	auto one=LIBCXX_NAMESPACE::ref<expl1Obj>::create();
 	auto two=LIBCXX_NAMESPACE::ref<expl2Obj>::create();
 
 	if (only_expl1(one) != 1 ||
-	    only_expl2(two) != 2)
+	    only_expl2(two) != 2 ||
+	    only_nonconst( LIBCXX_NAMESPACE::const_ref<expl2Obj>::create())
+	    != 4)
 	{
 		std::cerr << "explicit_refptr failed" << std::endl;
 		exit(1);

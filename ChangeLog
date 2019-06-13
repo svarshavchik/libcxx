@@ -1,3 +1,14 @@
+2019-06-09  Sam Varshavchik  <mrsam@courier-mta.com>
+
+	* Informative static_assert() instead of a cryptic failure due to
+	bad optional_args constructor parameters.
+
+	* abort() when attempting to construct a singleton during the
+	global destruction phase.
+
+	* explicit_refptr fails overload resolution if an attempt is made
+	to pass a const ref/ptr as a non-const ref/ptr.
+
 2019-05-25  Sam Varshavchik  <mrsam@courier-mta.com>
 
 	* messages: make gettext_helper a temporary object instead of
