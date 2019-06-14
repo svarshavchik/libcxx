@@ -14,7 +14,7 @@
 #include <sys/time.h>
 #include <stdint.h>
 
-#include <string>
+#include <string_view>
 #include <thread>
 
 namespace LIBCXX_NAMESPACE {
@@ -204,11 +204,10 @@ public:
 
 	//! Construct from a previously-stringized uuid
 
-	uuid(const char *str);
+	uuid(const std::string_view &str);
 
 	//! Construct from a previously-stringized uuid
-
-	uuid(const std::string &str);
+	uuid &operator=(const std::string_view &str);
 
 	//! A helper object for serializing/deserializing the uuid object
 
@@ -277,14 +276,13 @@ public:
 
 	//! The serialization function
 
-	template<typename iter_type> void serialize(iter_type &)
-;
+	template<typename iter_type> void serialize(iter_type &);
 
 private:
 
 	//! Decode from the stringized form
 
-	void decode(const char *str) LIBCXX_INTERNAL;
+	void decode(const std::string_view &) LIBCXX_INTERNAL;
 
 	//! Thread initialization function
 

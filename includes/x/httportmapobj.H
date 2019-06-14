@@ -56,7 +56,7 @@ private:
 	int server_port;
 
 	//! This httportmap client's unique identifier
-	x::uuid uuid;
+	std::string uuid_s;
 
 public:
 	friend class lock;

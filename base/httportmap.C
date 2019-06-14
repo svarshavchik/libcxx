@@ -144,8 +144,9 @@ class LIBCXX_HIDDEN httportmapObj::clock {
 
 httportmapObj::httportmapObj(const std::string &serverArg,
 			     int server_portArg)
-	: ua(http::useragent::base::global()),
-	  server(serverArg), server_port(server_portArg)
+	: ua{http::useragent::base::global()},
+	  server{serverArg}, server_port{server_portArg},
+	  uuid_s{to_string(uuid{})}
 {
 }
 
@@ -171,7 +172,7 @@ httportmapObj::~httportmapObj()
 
 		clock connection_lock(conn, fdptr(), *this);
 
-		(*connection_lock.io) << "DROP\t" << to_string(uuid)
+		(*connection_lock.io) << "DROP\t" << uuid_s
 				      << "\n" << std::flush;
 
 		std::string resp;
@@ -468,7 +469,7 @@ bool httportmapObj::reg(const std::list<reginfo> &ports, const fdptr &timeoutfd)
 	}
 
 	(*connection_lock.io)
-		<< "REG\t" << to_string(uuid) << "\n" << std::flush;
+		<< "REG\t" << uuid_s << "\n" << std::flush;
 
 	if (!connection_lock.io->good()
 	    || !std::getline(*connection_lock.io, resp).good())
@@ -508,7 +509,7 @@ void httportmapObj::dereg(const std::string &svc,
 
 	std::string resp;
 
-	(*connection_lock.io) << "DEREG\t" << to_string(uuid) << '\t'
+	(*connection_lock.io) << "DEREG\t" << uuid_s << '\t'
 			      << svc << '\t' << port << "\n" << std::flush;
 
 	if (!connection_lock.io->good() ||

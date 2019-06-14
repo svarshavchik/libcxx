@@ -131,29 +131,30 @@ void uuid::asString(charbuf cb) const noexcept
 			   cb, 0, false)=0;
 }
 
-uuid::uuid(const char *str)
+uuid &uuid::operator=(const std::string_view &str)
+{
+	decode(str);
+	return *this;
+}
+
+uuid::uuid(const std::string_view &str)
 {
 	decode(str);
 }
 
-uuid::uuid(const std::string &str)
+void uuid::decode(const std::string_view &str)
 {
-	decode(str.c_str());
-}
-
-void uuid::decode(const char *str)
-{
-	size_t l=strlen(str);
+	size_t l=str.size();
 	size_t s=base64_t::decoded_size(l);
 
 	if (s < sizeof(val)+sizeof(val[0])*2)
 	{
 		char buf[sizeof(val)+sizeof(val[0])*2];
 
-		std::pair<char *, bool>
-			ret(base64_t::decode(str, str+l, &buf[0]));
+		auto [ptr, flag]=base64_t::decode(str.begin(), str.end(),
+						  &buf[0]);
 
-		if (ret.second && ret.first - buf == sizeof(val))
+		if (flag && ptr - buf == sizeof(val))
 		{
 			std::copy(buf, buf+sizeof(val), (char *)&val);
 			return;
