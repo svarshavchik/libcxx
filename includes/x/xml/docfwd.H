@@ -58,6 +58,12 @@ class docBase;
 //! \ref docBase::readlock "INSERT_LIBX_NAMESPACE::doc::base::readlock" or a
 //! \ref docBase::writelock "INSERT_LIBX_NAMESPACE::doc::base::writelock" to
 //! examine or modify its contents.
+//!
+//! \code
+//! auto new_document=doc->clone();
+//! \endcode
+//!
+//! This clones the entire document and returns a cloned copy of the original
 
 typedef ref<docObj, docBase> doc;
 

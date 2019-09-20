@@ -87,6 +87,7 @@ class LIBCXX_HIDDEN impldocObj : public docObj {
 	ref<readlockObj> readlock() override;
 	ref<writelockObj> writelock() override;
 
+	doc clone(bool recursive) override;
 };
 
 // Implement xml::parser

@@ -1049,6 +1049,9 @@ public:
 
 	//! Blocks if a read or a write lock exists.
 	virtual ref<writelockObj> writelock()=0;
+
+	//! Clone this document.
+	virtual doc clone(bool recursive=true)=0;
 };
 
 #if 0

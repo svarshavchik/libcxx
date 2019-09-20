@@ -1120,6 +1120,7 @@ static void test50()
 						    "test50",
 						    "xinclude");
 
+	doc=doc->clone();
 	auto lock=doc->readlock();
 
 	lock->get_root();

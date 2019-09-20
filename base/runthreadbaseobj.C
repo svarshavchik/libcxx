@@ -12,6 +12,7 @@
 #include <list>
 #include <sys/types.h>
 #include <unistd.h>
+#include <libxml/xpath.h>
 
 namespace LIBCXX_NAMESPACE {
 #if 0
@@ -58,19 +59,30 @@ std::thread *cleanup_thread LIBCXX_HIDDEN; // The actual cleanup thread
 
 //! A static instance of this class stops the cleanup thread on app shutdown.
 
-class LIBCXX_HIDDEN cleanup_thread_shutdown {
+class LIBCXX_HIDDEN cleanup_thread_shutdown;
+
+class cleanup_thread_shutdown {
 
 public:
+	cleanup_thread_shutdown()
+	{
+		xmlInitGlobals();
+	}
+
 	~cleanup_thread_shutdown()
 	{
-		if (getpid() != origpid)
-		{
-			// We must've forked. cleanup_thread's destructor
-			// will barf, as of gcc 4.6.
+		if (getpid() == origpid)
+			// Otherwise we must've forked. cleanup_thread's
+			// destructor will barf, as of gcc 4.6.
 			// Leak memory, can't be helped.
-			return;
-		}
+			do_cleanup_thread();
 
+		// Make sure all threads stop before cleaning up libxml2
+		xmlCleanupGlobals();
+	}
+
+	inline void do_cleanup_thread()
+	{
 		{
 			std::unique_lock<std::mutex> lock(cleanup_thread_mutex);
 
@@ -181,7 +193,6 @@ runthreadbaseObj::runthreadbaseObj()
 			  << std::endl;
 		abort();
 	}
-
 }
 
 runthreadbaseObj::~runthreadbaseObj()

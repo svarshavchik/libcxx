@@ -13,7 +13,7 @@
 #include "x/weakptr.H"
 #include "xml_internal.h"
 #include "gettext_in.h"
-
+#include <courier-unicode.h>
 #include <sstream>
 
 namespace LIBCXX_NAMESPACE {
@@ -68,13 +68,9 @@ impldocObj::~impldocObj()
 		xmlFreeDoc(p);
 }
 
-docObj::docObj()
-{
-}
+docObj::docObj()=default;
 
-docObj::~docObj()
-{
-}
+docObj::~docObj()=default;
 
 docObj::newElement::newElement(const std::string &nameArg)
 	: newElement(nameArg, "", "")
@@ -202,13 +198,9 @@ doc docBase::create(const std::string_view &filename,
 // readlockimplObj, implements the write functionality, and overrides clone()
 // to throw an exception, can't clone() a write lock.
 
-docObj::readlockObj::readlockObj()
-{
-}
+docObj::readlockObj::readlockObj()=default;
 
-docObj::readlockObj::~readlockObj()
-{
-}
+docObj::readlockObj::~readlockObj()=default;
 
 docObj::writelockObj::writelockObj()
 {
@@ -1537,13 +1529,28 @@ ref<docObj::writelockObj> impldocObj::writelock()
 					     lock->create_unique());
 }
 
-docObj::createnodeObj::createnodeObj()
+doc impldocObj::clone(bool recursive)
 {
+	auto l=lock->create_shared();
+
+	auto n=xmlCopyDoc(p, recursive ? 1:0);
+
+	if (!n)
+		throw_last_error("clone");
+
+	try {
+		return ref<impldocObj>::create(n);
+	} catch (...)
+	{
+		xmlFreeDoc(n);
+		throw;
+	}
 }
 
-docObj::createnodeObj::~createnodeObj()
-{
-}
+docObj::createnodeObj::createnodeObj()=default;
+
+docObj::createnodeObj::~createnodeObj()=default;
+
 
 ref<docObj::createnodeObj>
 docObj::createnodeObj::attribute(const newAttribute &attr)
