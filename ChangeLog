@@ -1,3 +1,17 @@
+2019-09-19  Sam Varshavchik  <mrsam@courier-mta.com>
+
+	* includes/x/libcxx.mk.in: Execute mkdir -p to create the output
+	directory, if it does not exist.
+
+2019-09-18  Sam Varshavchik  <mrsam@courier-mta.com>
+
+	* base/xml_doc.C: Implement clone(), and use libxml's init and cleanup
+	automatically.
+
+2019-09-17  Sam Varshavchik  <mrsam@courier-mta.com>
+
+	* libcxx.mk: mkdir -p the destination directory of destination files.
+
 0.19.0
 
 2019-06-13  Sam Varshavchik  <mrsam@courier-mta.com>

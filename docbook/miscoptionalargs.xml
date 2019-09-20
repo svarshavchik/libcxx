@@ -357,7 +357,7 @@ void adjust_pos_or_size(&ns;::optional_args&lt;optional_coords, optional_size&gt
     </blockquote>
 
     <para>
-      <ulink url="&link-function-x-optional-arg-or;"><function>&ns;::optional_arg</function></ulink>()
+      <ulink url="&link-function-x-optional-arg-or;"><function>&ns;::optional_arg_or</function></ulink>()
       returns the constructed option using
       <link linkend="optionalarg"><function>&ns;::optional_arg</function></link>().
       The second parameter is a default constructed instance of the
