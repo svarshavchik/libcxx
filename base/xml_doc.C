@@ -299,18 +299,34 @@ docObj::save_to_callback::~save_to_callback()
 {
 }
 
-class LIBCXX_HIDDEN impldocObj::readlockImplObj : public writelockObj {
+typedef mpobj<xmlNodePtr, std::recursive_mutex> locked_xml_n_t;
+
+class LIBCXX_HIDDEN removal_mcguffinObj;
+
+struct removal_mcguffinObj : virtual public obj {
+
+
+public:
+
+	mpobj<bool> removed{false};
+};
+
+typedef ref<removal_mcguffinObj> removal_mcguffin;
+typedef ptr<removal_mcguffinObj> removal_mcguffinptr;
+
+class LIBCXX_HIDDEN impldocObj::readlockImplObj : public writelockObj,
+						  public removal_mcguffinObj {
 
  public:
 
-	ref<impldocObj> impl;
-	ref<obj> lock;
+	const ref<impldocObj> impl;
+	const ref<obj> lock;
 
-	xmlNodePtr n;
+	mutable locked_xml_n_t locked_xml_n;
 
 	readlockImplObj(const ref<impldocObj> &implArg,
 			const ref<obj> &lockArg)
-		: impl(implArg), lock(lockArg), n(nullptr)
+		: impl(implArg), lock(lockArg), locked_xml_n(nullptr)
 	{
 	}
 
@@ -321,23 +337,35 @@ class LIBCXX_HIDDEN impldocObj::readlockImplObj : public writelockObj {
 	// Read functionality
 	ref<readlockObj> clone() const override
 	{
+		locked_xml_n_t::lock x_lock{locked_xml_n};
+
+		auto &xml_n=*x_lock;
+
 		auto p=ref<readlockImplObj>::create(impl, lock);
-		p->n=n;
+		p->locked_xml_n=xml_n;
 		return p;
 	}
 
 	bool get_root() override
 	{
-		n=xmlDocGetRootElement(impl->p);
+		locked_xml_n_t::lock x_lock{locked_xml_n};
 
-		return !!n;
+		auto &xml_n=*x_lock;
+
+		xml_n=xmlDocGetRootElement(impl->p);
+
+		return !!xml_n;
 	}
 
 	bool get_parent() override
 	{
-		if (n && n->parent && n->parent->type != XML_DOCUMENT_NODE)
+		locked_xml_n_t::lock x_lock{locked_xml_n};
+
+		auto &xml_n=*x_lock;
+
+		if (xml_n && xml_n->parent && xml_n->parent->type != XML_DOCUMENT_NODE)
 		{
-			n=n->parent;
+			xml_n=xml_n->parent;
 			return true;
 		}
 		return false;
@@ -345,9 +373,13 @@ class LIBCXX_HIDDEN impldocObj::readlockImplObj : public writelockObj {
 
 	bool get_first_child() override
 	{
-		if (n && xmlGetLastChild(n) && n->children)
+		locked_xml_n_t::lock x_lock{locked_xml_n};
+
+		auto &xml_n=*x_lock;
+
+		if (xml_n && xmlGetLastChild(xml_n) && xml_n->children)
 		{
-			n=n->children;
+			xml_n=xml_n->children;
 			return true;
 		}
 		return false;
@@ -355,13 +387,17 @@ class LIBCXX_HIDDEN impldocObj::readlockImplObj : public writelockObj {
 
 	bool get_last_child() override
 	{
-		if (n)
+		locked_xml_n_t::lock x_lock{locked_xml_n};
+
+		auto &xml_n=*x_lock;
+
+		if (xml_n)
 		{
 			xmlNodePtr p;
 
-			if ((p=xmlGetLastChild(n)) != nullptr)
+			if ((p=xmlGetLastChild(xml_n)) != nullptr)
 			{
-				n=p;
+				xml_n=p;
 				return true;
 			}
 		}
@@ -370,9 +406,13 @@ class LIBCXX_HIDDEN impldocObj::readlockImplObj : public writelockObj {
 
 	bool get_next_sibling() override
 	{
-		if (n && n->next)
+		locked_xml_n_t::lock x_lock{locked_xml_n};
+
+		auto &xml_n=*x_lock;
+
+		if (xml_n && xml_n->next)
 		{
-			n=n->next;
+			xml_n=xml_n->next;
 			return true;
 		}
 		return false;
@@ -380,9 +420,13 @@ class LIBCXX_HIDDEN impldocObj::readlockImplObj : public writelockObj {
 
 	bool get_previous_sibling() override
 	{
-		if (n && n->prev)
+		locked_xml_n_t::lock x_lock{locked_xml_n};
+
+		auto &xml_n=*x_lock;
+
+		if (xml_n && xml_n->prev)
 		{
-			n=n->prev;
+			xml_n=xml_n->prev;
 			return true;
 		}
 
@@ -391,13 +435,17 @@ class LIBCXX_HIDDEN impldocObj::readlockImplObj : public writelockObj {
 
 	bool get_first_element_child() override
 	{
-		if (n)
+		locked_xml_n_t::lock x_lock{locked_xml_n};
+
+		auto &xml_n=*x_lock;
+
+		if (xml_n)
 		{
 			xmlNodePtr p;
 
-			if ((p=xmlFirstElementChild(n)) != nullptr)
+			if ((p=xmlFirstElementChild(xml_n)) != nullptr)
 			{
-				n=p;
+				xml_n=p;
 				return true;
 			}
 		}
@@ -406,13 +454,17 @@ class LIBCXX_HIDDEN impldocObj::readlockImplObj : public writelockObj {
 
 	bool get_last_element_child() override
 	{
-		if (n)
+		locked_xml_n_t::lock x_lock{locked_xml_n};
+
+		auto &xml_n=*x_lock;
+
+		if (xml_n)
 		{
 			xmlNodePtr p;
 
-			if ((p=xmlLastElementChild(n)) != nullptr)
+			if ((p=xmlLastElementChild(xml_n)) != nullptr)
 			{
-				n=p;
+				xml_n=p;
 				return true;
 			}
 		}
@@ -421,13 +473,17 @@ class LIBCXX_HIDDEN impldocObj::readlockImplObj : public writelockObj {
 
 	bool get_next_element_sibling() override
 	{
-		if (n)
+		locked_xml_n_t::lock x_lock{locked_xml_n};
+
+		auto &xml_n=*x_lock;
+
+		if (xml_n)
 		{
 			xmlNodePtr p;
 
-			if ((p=xmlNextElementSibling(n)) != nullptr)
+			if ((p=xmlNextElementSibling(xml_n)) != nullptr)
 			{
-				n=p;
+				xml_n=p;
 				return true;
 			}
 		}
@@ -436,13 +492,17 @@ class LIBCXX_HIDDEN impldocObj::readlockImplObj : public writelockObj {
 
 	bool get_previous_element_sibling() override
 	{
-		if (n)
+		locked_xml_n_t::lock x_lock{locked_xml_n};
+
+		auto &xml_n=*x_lock;
+
+		if (xml_n)
 		{
 			xmlNodePtr p;
 
-			if ((p=xmlPreviousElementSibling(n)) != nullptr)
+			if ((p=xmlPreviousElementSibling(xml_n)) != nullptr)
 			{
-				n=p;
+				xml_n=p;
 				return true;
 			}
 		}
@@ -451,16 +511,24 @@ class LIBCXX_HIDDEN impldocObj::readlockImplObj : public writelockObj {
 
 	size_t get_child_element_count() const override
 	{
-		return n ? xmlChildElementCount(n):0;
+		locked_xml_n_t::lock x_lock{locked_xml_n};
+
+		auto &xml_n=*x_lock;
+
+		return xml_n ? xmlChildElementCount(xml_n):0;
 	}
 
 	std::string type() const override
 	{
+		locked_xml_n_t::lock x_lock{locked_xml_n};
+
+		auto &xml_n=*x_lock;
+
 		std::string type_str;
 
-		if (n)
+		if (xml_n)
 		{
-			size_t i=(size_t)n->type;
+			size_t i=(size_t)xml_n->type;
 
 			if (i < element_offsets_l &&
 			    (i+1 == element_offsets_l ||
@@ -481,43 +549,59 @@ class LIBCXX_HIDDEN impldocObj::readlockImplObj : public writelockObj {
 
 	std::string name() const override
 	{
+		locked_xml_n_t::lock x_lock{locked_xml_n};
+
+		auto &xml_n=*x_lock;
+
 		std::string name_str;
 
-		if (n)
-			name_str=n->name ?
-				reinterpret_cast<const char *>(n->name):"";
+		if (xml_n)
+			name_str=xml_n->name ?
+				reinterpret_cast<const char *>(xml_n->name):"";
 		return name_str;
 	}
 
 	std::string prefix() const override
 	{
+		locked_xml_n_t::lock x_lock{locked_xml_n};
+
+		auto &xml_n=*x_lock;
+
 		std::string prefix_str;
 
-		if (n && n->type == XML_ELEMENT_NODE && n->ns &&
-		    n->ns->prefix)
+		if (xml_n && xml_n->type == XML_ELEMENT_NODE && xml_n->ns &&
+		    xml_n->ns->prefix)
 			prefix_str=reinterpret_cast<const char
-						    *>(n->ns->prefix);
+						    *>(xml_n->ns->prefix);
 
 		return prefix_str;
 	}
 
 	std::string uri() const override
 	{
+		locked_xml_n_t::lock x_lock{locked_xml_n};
+
+		auto &xml_n=*x_lock;
+
 		std::string uri_str;
 
-		if (n && n->type == XML_ELEMENT_NODE && n->ns &&
-		    n->ns->href)
-			uri_str=reinterpret_cast<const char *>(n->ns->href);
+		if (xml_n && xml_n->type == XML_ELEMENT_NODE && xml_n->ns &&
+		    xml_n->ns->href)
+			uri_str=reinterpret_cast<const char *>(xml_n->ns->href);
 
 		return uri_str;
 	}
 
 	std::string path() const override
 	{
+		locked_xml_n_t::lock x_lock{locked_xml_n};
+
+		auto &xml_n=*x_lock;
+
 		std::string p;
 
-		if (n)
-			p=not_null(xmlGetNodePath(n), "getNodePath");
+		if (xml_n)
+			p=not_null(xmlGetNodePath(xml_n), "getNodePath");
 		return p;
 	}
 
@@ -533,10 +617,14 @@ class LIBCXX_HIDDEN impldocObj::readlockImplObj : public writelockObj {
 				  const std::string &attribute_namespace)
 		const override
 	{
+		locked_xml_n_t::lock x_lock{locked_xml_n};
+
+		auto &xml_n=*x_lock;
+
 		std::string s;
 
-		if (n)
-			s=null_ok(xmlGetNsProp(n,
+		if (xml_n)
+			s=null_ok(xmlGetNsProp(xml_n,
 					       reinterpret_cast<const xmlChar *>
 					       (attribute_name.c_str()),
 					       attribute_namespace.empty()
@@ -549,10 +637,14 @@ class LIBCXX_HIDDEN impldocObj::readlockImplObj : public writelockObj {
 	std::string get_attribute(const std::string &attribute_name)
 		const override
 	{
+		locked_xml_n_t::lock x_lock{locked_xml_n};
+
+		auto &xml_n=*x_lock;
+
 		std::string s;
 
-		if (n)
-			s=null_ok(xmlGetNoNsProp(n, reinterpret_cast
+		if (xml_n)
+			s=null_ok(xmlGetNoNsProp(xml_n, reinterpret_cast
 						 <const xmlChar *>
 						 (attribute_name.c_str())));
 		return s;
@@ -561,10 +653,14 @@ class LIBCXX_HIDDEN impldocObj::readlockImplObj : public writelockObj {
 	std::string get_any_attribute(const std::string &attribute_name) const
 		override
 	{
+		locked_xml_n_t::lock x_lock{locked_xml_n};
+
+		auto &xml_n=*x_lock;
+
 		std::string s;
 
-		if (n)
-			s=null_ok(xmlGetProp(n,
+		if (xml_n)
+			s=null_ok(xmlGetProp(xml_n,
 					     reinterpret_cast<const xmlChar *>
 					     (attribute_name.c_str())));
 		return s;
@@ -573,10 +669,14 @@ class LIBCXX_HIDDEN impldocObj::readlockImplObj : public writelockObj {
 	void get_all_attributes(std::set<docAttribute> &attributes) const
 		override
 	{
-		if (!n || n->type != XML_ELEMENT_NODE)
+		locked_xml_n_t::lock x_lock{locked_xml_n};
+
+		auto &xml_n=*x_lock;
+
+		if (!xml_n || xml_n->type != XML_ELEMENT_NODE)
 			return;
 
-		for (auto p=n->properties; p; p=p->next)
+		for (auto p=xml_n->properties; p; p=p->next)
 		{
 			attributes.insert(docAttribute(get_str(p->name),
 						       p->ns ?
@@ -589,55 +689,79 @@ class LIBCXX_HIDDEN impldocObj::readlockImplObj : public writelockObj {
 
 	bool is_blank() const override
 	{
+		locked_xml_n_t::lock x_lock{locked_xml_n};
+
+		auto &xml_n=*x_lock;
+
 		bool flag=true;
 
-		if (n)
-			flag=xmlIsBlankNode(n) ? true:false;
+		if (xml_n)
+			flag=xmlIsBlankNode(xml_n) ? true:false;
 		return flag;
 	}
 
 	bool is_text() const override
 	{
+		locked_xml_n_t::lock x_lock{locked_xml_n};
+
+		auto &xml_n=*x_lock;
+
 		bool flag=false;
 
-		if (n)
-			flag=xmlNodeIsText(n) ? true:false;
+		if (xml_n)
+			flag=xmlNodeIsText(xml_n) ? true:false;
 		return flag;
 	}
 
 	std::string get_text() const override
 	{
+		locked_xml_n_t::lock x_lock{locked_xml_n};
+
+		auto &xml_n=*x_lock;
+
 		std::string s;
 
-		if (n)
-			s=null_ok(xmlNodeGetContent(n));
+		if (xml_n)
+			s=null_ok(xmlNodeGetContent(xml_n));
 		return s;
 	}
 
 	std::string get_lang() const override
 	{
+		locked_xml_n_t::lock x_lock{locked_xml_n};
+
+		auto &xml_n=*x_lock;
+
 		std::string s;
 
-		if (n)
-			s=null_ok(xmlNodeGetLang(n));
+		if (xml_n)
+			s=null_ok(xmlNodeGetLang(xml_n));
 		return s;
 	}
 
 	int get_space_preserve() const override
 	{
+		locked_xml_n_t::lock x_lock{locked_xml_n};
+
+		auto &xml_n=*x_lock;
+
 		int s=-1;
 
-		if (n)
-			s=xmlNodeGetSpacePreserve(n);
+		if (xml_n)
+			s=xmlNodeGetSpacePreserve(xml_n);
 		return s;
 	}
 
 	std::string get_base() const override
 	{
+		locked_xml_n_t::lock x_lock{locked_xml_n};
+
+		auto &xml_n=*x_lock;
+
 		std::string s;
 
-		if (n)
-			s=null_ok(xmlNodeGetBase(impl->p, n));
+		if (xml_n)
+			s=null_ok(xmlNodeGetBase(impl->p, xml_n));
 		return s;
 	}
 
@@ -700,12 +824,12 @@ class LIBCXX_HIDDEN impldocObj::readlockImplObj : public writelockObj {
 		create_child();
 	}
 
-	virtual ref<obj> get_removal_mcguffin()
+	virtual removal_mcguffin get_removal_mcguffin()
 	{
 		// We never remove anything here, so for the purposes of
 		// the removal mcguffin, just return ourselves.
 
-		return ref<obj>(this);
+		return removal_mcguffin{this};
 	}
 
 	ref<createnodeObj> create_next_sibling() override
@@ -855,22 +979,22 @@ class LIBCXX_HIDDEN impldocObj::createnodeImplObj : public createnodeObj {
 
 	class guard {
 	public:
-		mutable xmlNodePtr n;
+		mutable xmlNodePtr new_xml_n;
 
-		guard(xmlNodePtr nArg, const std::string &method) : n(nArg)
+		guard(xmlNodePtr nArg, const char *method) : new_xml_n{nArg}
 		{
-			if (!n)
+			if (!new_xml_n)
 				throw EXCEPTION(gettextmsg(libmsg(_txt("Cannot create a new XML %1% element")), method));
 		}
 
 		~guard()
 		{
-			if (n)
-				xmlFreeNode(n);
+			if (new_xml_n)
+				xmlFreeNode(new_xml_n);
 		}
 	};
 
-	virtual void create(const guard &n)=0;
+	virtual void create(const guard &xml_n)=0;
 
 	virtual xmlNsPtr do_search_ns(const xmlChar *prefix)=0;
 	virtual xmlNsPtr do_search_ns_href(const xmlChar *uri)=0;
@@ -903,9 +1027,15 @@ class LIBCXX_HIDDEN impldocObj::createnodeImplObj : public createnodeObj {
 
 	public:
 		created_element(xmlNsPtr ns, const std::string &name)
-			: guard(xmlNewNode(ns,
+			: created_element{ns, name, "<" + name + ">"}
+		{
+		}
+
+		created_element(xmlNsPtr ns, const std::string &name,
+				const std::string &tag)
+			: guard{xmlNewNode(ns,
 					   reinterpret_cast<const xmlChar *>
-					   (name.c_str())), "<" + name + ">")
+					   (name.c_str())), tag.c_str()}
 		{
 		}
 		~created_element()
@@ -926,7 +1056,7 @@ class LIBCXX_HIDDEN impldocObj::createnodeImplObj : public createnodeObj {
 			// which is what we want. After it gets created, we just
 			// manually stick it into ->ns.
 
-			auto ns=xmlNewNs(new_element.n,
+			auto ns=xmlNewNs(new_element.new_xml_n,
 					 reinterpret_cast<const xmlChar *>
 					 (e.uri.size() ? e.uri.c_str():nullptr),
 					 reinterpret_cast<const xmlChar *>
@@ -936,7 +1066,7 @@ class LIBCXX_HIDDEN impldocObj::createnodeImplObj : public createnodeObj {
 			if (!ns)
 				throw EXCEPTION(libmsg(_txt("Invalid namespace")));
 
-			new_element.n->ns=ns;
+			new_element.new_xml_n->ns=ns;
 			create(new_element);
 		}
 		else
@@ -950,16 +1080,16 @@ class LIBCXX_HIDDEN impldocObj::createnodeImplObj : public createnodeObj {
 			{
 				xmlNsPtr ns=nullptr;
 
-				std::string n=e.name;
+				std::string xml_n=e.name;
 
-				size_t p=n.find(':');
+				size_t p=xml_n.find(':');
 				if (p != std::string::npos)
 				{
-					ns=search_ns(n.substr(0, p));
-					n=n.substr(p+1);
+					ns=search_ns(xml_n.substr(0, p));
+					xml_n=xml_n.substr(p+1);
 				}
 
-				create(created_element(ns, n));
+				create(created_element(ns, xml_n));
 			}
 		}
 
@@ -1026,45 +1156,58 @@ class LIBCXX_HIDDEN impldocObj::createchildObj : public createnodeImplObj {
 	{
 	}
 
-	void create(const guard &n) override
+	void create(const guard &new_xml_n) override
 	{
-		if (!lock.n)
+		locked_xml_n_t::lock x_lock{lock.locked_xml_n};
+
+		auto &xml_n=*x_lock;
+
+		if (!xml_n)
 		{
 			// Document root
 
-			if (n.n->type != XML_ELEMENT_NODE)
+			if (new_xml_n.new_xml_n->type != XML_ELEMENT_NODE)
 				throw EXCEPTION(libmsg(_txt("Internal error: setting the document root to a non-element node")));
 
 			if (xmlDocGetRootElement(lock.impl->p))
 				throw EXCEPTION(libmsg(_txt("Write lock is not positioned on an existing node")));
 
-			auto p=xmlDocSetRootElement(lock.impl->p, n.n);
-			n.n=nullptr;
+			auto p=xmlDocSetRootElement(lock.impl->p,
+						    new_xml_n.new_xml_n);
+			new_xml_n.new_xml_n=nullptr;
 			if (p)
 				xmlFreeNode(p);
 
-			lock.n=xmlDocGetRootElement(lock.impl->p);
+			xml_n=xmlDocGetRootElement(lock.impl->p);
 			// Position the lock on the root node, of course.
 			return;
 		}
 
-		auto p=xmlAddChild(lock.n, n.n);
+		auto p=xmlAddChild(xml_n, new_xml_n.new_xml_n);
 
 		if (!p)
 			throw EXCEPTION(libmsg(_txt("Internal error: xmlAddChild()")));
-		n.n=nullptr;
-		lock.n=p;
+		new_xml_n.new_xml_n=nullptr;
+		xml_n=p;
 	}
 
 	xmlNsPtr do_search_ns(const xmlChar *prefix) override
 	{
-		return lock.n ? xmlSearchNs(lock.impl->p, lock.n, prefix)
+		locked_xml_n_t::lock x_lock{lock.locked_xml_n};
+
+		auto &xml_n=*x_lock;
+
+		return xml_n ? xmlSearchNs(lock.impl->p, xml_n, prefix)
 			: nullptr;
 	}
 
 	xmlNsPtr do_search_ns_href(const xmlChar *uri) override
 	{
-		return lock.n ? xmlSearchNsByHref(lock.impl->p, lock.n, uri)
+		locked_xml_n_t::lock x_lock{lock.locked_xml_n};
+
+		auto &xml_n=*x_lock;
+
+		return xml_n ? xmlSearchNsByHref(lock.impl->p, xml_n, uri)
 			: nullptr;
 	}
 
@@ -1090,30 +1233,42 @@ class LIBCXX_HIDDEN impldocObj::createnextsiblingObj : public createnodeImplObj 
 	{
 	}
 
-	void create(const guard &n) override
+	void create(const guard &new_xml_n) override
 	{
-		if (!lock.n)
+		locked_xml_n_t::lock x_lock{lock.locked_xml_n};
+
+		auto &xml_n=*x_lock;
+
+		if (!xml_n)
 			not_on_node();
 
-		auto p=xmlAddNextSibling(lock.n, n.n);
+		auto p=xmlAddNextSibling(xml_n, new_xml_n.new_xml_n);
 
 		if (!p)
 			throw EXCEPTION(libmsg(_txt("Internal error: xmlAddNextSibling() failed")));
-		n.n=nullptr;
-		lock.n=p;
+		new_xml_n.new_xml_n=nullptr;
+		xml_n=p;
 	}
 
 	xmlNsPtr do_search_ns(const xmlChar *prefix) override
 	{
-		return lock.n && lock.n->parent
-			? xmlSearchNs(lock.impl->p, lock.n->parent, prefix)
+		locked_xml_n_t::lock x_lock{lock.locked_xml_n};
+
+		auto &xml_n=*x_lock;
+
+		return xml_n && xml_n->parent
+			? xmlSearchNs(lock.impl->p, xml_n->parent, prefix)
 			: nullptr;
 	}
 
 	xmlNsPtr do_search_ns_href(const xmlChar *uri) override
 	{
-		return lock.n && lock.n->parent
-			? xmlSearchNsByHref(lock.impl->p, lock.n->parent, uri)
+		locked_xml_n_t::lock x_lock{lock.locked_xml_n};
+
+		auto &xml_n=*x_lock;
+
+		return xml_n && xml_n->parent
+			? xmlSearchNsByHref(lock.impl->p, xml_n->parent, uri)
 			: nullptr;
 	}
 
@@ -1139,30 +1294,42 @@ class LIBCXX_HIDDEN impldocObj::createprevioussiblingObj : public createnodeImpl
 	{
 	}
 
-	void create(const guard &n) override
+	void create(const guard &new_xml_n) override
 	{
-		if (!lock.n)
+		locked_xml_n_t::lock x_lock{lock.locked_xml_n};
+
+		auto &xml_n=*x_lock;
+
+		if (!xml_n)
 			not_on_node();
 
-		auto p=xmlAddPrevSibling(lock.n, n.n);
+		auto p=xmlAddPrevSibling(xml_n, new_xml_n.new_xml_n);
 
 		if (!p)
 			throw EXCEPTION(libmsg(_txt("Internal error: xmlAddPrevSibling() failed")));
-		n.n=nullptr;
-		lock.n=p;
+		new_xml_n.new_xml_n=nullptr;
+		xml_n=p;
 	}
 
 	xmlNsPtr do_search_ns(const xmlChar *prefix) override
 	{
-		return lock.n && lock.n->parent
-			? xmlSearchNs(lock.impl->p, lock.n->parent, prefix)
+		locked_xml_n_t::lock x_lock{lock.locked_xml_n};
+
+		auto &xml_n=*x_lock;
+
+		return xml_n && xml_n->parent
+			? xmlSearchNs(lock.impl->p, xml_n->parent, prefix)
 			: nullptr;
 	}
 
 	xmlNsPtr do_search_ns_href(const xmlChar *uri) override
 	{
-		return lock.n && lock.n->parent
-			? xmlSearchNsByHref(lock.impl->p, lock.n->parent, uri)
+		locked_xml_n_t::lock x_lock{lock.locked_xml_n};
+
+		auto &xml_n=*x_lock;
+
+		return xml_n && xml_n->parent
+			? xmlSearchNsByHref(lock.impl->p, xml_n->parent, uri)
 			: nullptr;
 	}
 
@@ -1185,7 +1352,7 @@ class LIBCXX_HIDDEN impldocObj::writelockImplObj
 	// get_removal_mcguffin() returns this object, creating if it does
 	// not exist. remove() releases this reference on the object.
 
-	ptr<obj> removal_mcguffin;
+	mpobj<removal_mcguffinptr> current_removal_mcguffin;
 
 	writelockImplObj(const ref<impldocObj> &implArg,
 			 const ref<obj> &lockArg)
@@ -1236,9 +1403,13 @@ class LIBCXX_HIDDEN impldocObj::writelockImplObj
 	void do_create_namespace(const std::string &prefix,
 				 const std::string &uri) override
 	{
-		if (n)
+		locked_xml_n_t::lock lock{locked_xml_n};
+
+		auto &xml_n=*lock;
+
+		if (xml_n)
 		{
-			if (xmlNewNs(n,
+			if (xmlNewNs(xml_n,
 				     reinterpret_cast<const xmlChar *>
 				     (uri.size() ? uri.c_str():nullptr),
 				     reinterpret_cast<const xmlChar *>
@@ -1256,6 +1427,10 @@ class LIBCXX_HIDDEN impldocObj::writelockImplObj
 
 	void do_attribute(const newAttribute &attr) override
 	{
+		locked_xml_n_t::lock lock{locked_xml_n};
+
+		auto &xml_n=*lock;
+
 		if (attr.attrnamespace.empty())
 		{
 			size_t p=attr.attrname.find(':');
@@ -1270,7 +1445,7 @@ class LIBCXX_HIDDEN impldocObj::writelockImplObj
 			xmlNsPtr ns;
 			std::string prefix=attr.attrname.substr(0, p);
 
-			if (n && (ns=xmlSearchNs(impl->p, n,
+			if (xml_n && (ns=xmlSearchNs(impl->p, xml_n,
 						 reinterpret_cast<const xmlChar
 						 *>
 						 (prefix.c_str()))) != 0)
@@ -1289,7 +1464,7 @@ class LIBCXX_HIDDEN impldocObj::writelockImplObj
 		{
 			xmlNsPtr ns;
 
-			if (n && (ns=xmlSearchNsByHref(impl->p, n,
+			if (xml_n && (ns=xmlSearchNsByHref(impl->p, xml_n,
 						       reinterpret_cast<const
 						       xmlChar *>
 						       (attr.attrnamespace
@@ -1309,19 +1484,23 @@ class LIBCXX_HIDDEN impldocObj::writelockImplObj
 			      const xmlNsPtr attrnamespace,
 			      const std::string &attrvalue)
 	{
+		locked_xml_n_t::lock lock{locked_xml_n};
+
+		auto &xml_n=*lock;
+
 		auto an=reinterpret_cast<const xmlChar *>(attrname.c_str());
 		auto av=reinterpret_cast<const xmlChar *>(attrvalue.c_str());
 
-		if (n && n->type == XML_ELEMENT_NODE)
+		if (xml_n && xml_n->type == XML_ELEMENT_NODE)
 		{
 			if (!attrnamespace)
 			{
-				if (xmlNewProp(n, an, av))
+				if (xmlNewProp(xml_n, an, av))
 					return;
 			}
 			else
 			{
-				if (xmlNewNsProp(n, attrnamespace, an, av))
+				if (xmlNewNsProp(xml_n, attrnamespace, an, av))
 					return;
 			}
 		}
@@ -1332,10 +1511,20 @@ class LIBCXX_HIDDEN impldocObj::writelockImplObj
 
 	void remove() override
 	{
-		if (!n)
+		locked_xml_n_t::lock lock{locked_xml_n};
+
+		auto &xml_n=*lock;
+
+		if (!xml_n)
 			return;
 
-		auto parent=n->parent;
+		mpobj<removal_mcguffinptr>::lock
+			mcguffin_lock{current_removal_mcguffin};
+
+		if (*mcguffin_lock)
+			(*mcguffin_lock)->removed=true;
+
+		auto parent=xml_n->parent;
 		if (!parent || parent->type == XML_DOCUMENT_NODE)
 		{
 			// Root node. Free DTDs, etc...
@@ -1355,17 +1544,25 @@ class LIBCXX_HIDDEN impldocObj::writelockImplObj
 			}
 		}
 
-		xmlUnlinkNode(n);
-		xmlFreeNode(n);
-		n=parent;
-		removal_mcguffin=ptr<obj>();
+		xmlUnlinkNode(xml_n);
+		xmlFreeNode(xml_n);
+		xml_n=parent;
+
+		*mcguffin_lock=removal_mcguffinptr{};
 	}
 
-	ref<obj> get_removal_mcguffin() override
+	removal_mcguffin get_removal_mcguffin() override
 	{
-		if (removal_mcguffin.null())
-			removal_mcguffin=ref<obj>::create();
-		return removal_mcguffin;
+		locked_xml_n_t::lock lock{locked_xml_n};
+		mpobj<removal_mcguffinptr>::lock
+			mcguffin_lock{current_removal_mcguffin};
+
+		if (!*mcguffin_lock)
+			*mcguffin_lock=removal_mcguffin::create();
+
+		removal_mcguffin m=*mcguffin_lock;
+
+		return m;
 	}
 
 	void do_set_base(const char *uri) override
@@ -1380,26 +1577,38 @@ class LIBCXX_HIDDEN impldocObj::writelockImplObj
 
 	void do_set_base(const std::string &uri) override
 	{
-		if (!n || n->type != XML_ELEMENT_NODE)
+		locked_xml_n_t::lock lock{locked_xml_n};
+
+		auto &xml_n=*lock;
+
+		if (!xml_n || xml_n->type != XML_ELEMENT_NODE)
 			throw EXCEPTION(gettextmsg(libmsg(_txt("Cannot set the base URI"))));
-		xmlNodeSetBase(n,
+		xmlNodeSetBase(xml_n,
 			       reinterpret_cast<const xmlChar *>(uri.c_str()));
 	}
 
 	void do_set_lang(const std::string &lang) override
 	{
-		if (!n || n->type != XML_ELEMENT_NODE)
+		locked_xml_n_t::lock lock{locked_xml_n};
+
+		auto &xml_n=*lock;
+
+		if (!xml_n || xml_n->type != XML_ELEMENT_NODE)
 			throw EXCEPTION(gettextmsg(libmsg(_txt("Cannot set the lang attribute"))));
-		xmlNodeSetLang(n,
+		xmlNodeSetLang(xml_n,
 			       reinterpret_cast<const xmlChar *>(lang.c_str()));
 	}
 
 	void do_set_space_preserve(bool flag) override
 	{
-		if (!n || n->type != XML_ELEMENT_NODE)
+		locked_xml_n_t::lock lock{locked_xml_n};
+
+		auto &xml_n=*lock;
+
+		if (!xml_n || xml_n->type != XML_ELEMENT_NODE)
 			throw EXCEPTION(gettextmsg(libmsg(_txt("Cannot set the space preserve attribute"))));
 
-		xmlNodeSetSpacePreserve(n, flag ? 1:0);
+		xmlNodeSetSpacePreserve(xml_n, flag ? 1:0);
 	}
 
 	void do_parent() override
@@ -1533,16 +1742,16 @@ doc impldocObj::clone(bool recursive)
 {
 	auto l=lock->create_shared();
 
-	auto n=xmlCopyDoc(p, recursive ? 1:0);
+	auto xml_n=xmlCopyDoc(p, recursive ? 1:0);
 
-	if (!n)
+	if (!xml_n)
 		throw_last_error("clone");
 
 	try {
-		return ref<impldocObj>::create(n);
+		return ref<impldocObj>::create(xml_n);
 	} catch (...)
 	{
-		xmlFreeDoc(n);
+		xmlFreeDoc(xml_n);
 		throw;
 	}
 }
@@ -1664,9 +1873,13 @@ class LIBCXX_HIDDEN impldocObj::xpathcontextObj : virtual public obj {
 		: lock(std::move(lockArg)),
 		context(xmlXPathNewContext(lock->impl->p))
 		{
+			locked_xml_n_t::lock x_lock{lock->locked_xml_n};
+
+			auto &xml_n=*x_lock;
+
 			if (!context)
 				throw EXCEPTION(libmsg(_txt("xmlXpathNewContext failed")));
-			if (!(context->node=lock->n))
+			if (!(context->node=xml_n))
 				throw EXCEPTION(libmsg(_txt("Lock not positioned on a node")));
 		}
 
@@ -1689,27 +1902,57 @@ docObj::xpathObj::~xpathObj()
 class LIBCXX_HIDDEN impldocObj::xpathImplObj : public xpathObj {
 
  public:
-	ref<readlockImplObj> lock;
-	std::string expression;
+	const ref<readlockImplObj> lock;
+	const std::string expression;
+	const removal_mcguffin mcguffin;
 	xmlXPathObjectPtr objp;
 
-	weakptr<ptr<obj>> mcguffin;
+	struct mcguffin_lock : locked_xml_n_t::lock {
 
-	xpathImplObj(const ref<xpathcontextObj> &context,
-		     const std::string &expressionArg)
-		: lock(context->lock), expression(expressionArg), objp(nullptr),
-		mcguffin(lock->get_removal_mcguffin())
+	private:
+		mpobj<bool>::lock removal_lock;
+
+	public:
+		mcguffin_lock(const xpathImplObj &me)
+			: locked_xml_n_t::lock{me.lock->locked_xml_n},
+			  removal_lock{me.mcguffin->removed}
+		{
+		}
+
+		inline bool gone() const
+		{
+			return *removal_lock;
+		}
+
+		using locked_xml_n_t::lock::operator*;
+	};
+
+	static auto create_objp(xpathImplObj &me,
+				const ref<xpathcontextObj> &context)
 	{
+		mcguffin_lock lock{me};
+
 		error_handler::error trap_errors;
 
-		objp=xmlXPathEval(reinterpret_cast<const xmlChar *>
-				 (expression.c_str()), context->context);
+		auto objp=xmlXPathEval(reinterpret_cast<const xmlChar *>
+				       (me.expression.c_str()),
+				       context->context);
 
 		trap_errors.check();
 
 		if (!objp)
 			throw EXCEPTION(gettextmsg(libmsg(_txt("Cannot parse xpath expression: %1%")),
-						   expression));
+						   me.expression));
+
+		return objp;
+	}
+
+	xpathImplObj(const ref<xpathcontextObj> &context,
+		     const std::string &expressionArg)
+		: lock(context->lock), expression(expressionArg),
+		mcguffin(lock->get_removal_mcguffin()),
+		objp{create_objp(*this, context)}
+	{
 	}
 
 	~xpathImplObj()
@@ -1718,20 +1961,26 @@ class LIBCXX_HIDDEN impldocObj::xpathImplObj : public xpathObj {
 			xmlXPathFreeObject(objp);
 	}
 
-	bool gone() const
-	{
-		return mcguffin.getptr().null();
-	}
-
 	size_t count() const override
 	{
-		return !gone() && objp && objp->nodesetval
+		mcguffin_lock m_lock{*this};
+
+		return count(m_lock);
+	}
+
+	size_t count(mcguffin_lock &m_lock) const
+	{
+		return !m_lock.gone() && objp && objp->nodesetval
 			? objp->nodesetval->nodeNr:0;
 	}
 
 	void to_node() override
 	{
-		auto c=count();
+		mcguffin_lock x_lock{*this};
+
+		auto c=count(x_lock);
+
+		auto &xml_n=*x_lock;
 
 		if (c < 1)
 			throw EXCEPTION(gettextmsg(libmsg(_txt("%1% does not exist")),
@@ -1740,31 +1989,43 @@ class LIBCXX_HIDDEN impldocObj::xpathImplObj : public xpathObj {
 			throw EXCEPTION(gettextmsg(libmsg(_txt("Found %1% %2% elements")),
 						   c, expression));
 
-		lock->n=objp->nodesetval->nodeTab[0];
+		xml_n=objp->nodesetval->nodeTab[0];
 	}
 
 	void to_node(size_t n) override
 	{
-		if (n == 0 || n > count())
-			throw EXCEPTION(gettextmsg(libmsg(_txt("%1% node #%2% does not exist")),
-						   expression, n));
+		mcguffin_lock x_lock{*this};
 
-		lock->n=objp->nodesetval->nodeTab[n-1];
+		auto &xml_n=*x_lock;
+
+		if (n == 0 || n > count(x_lock))
+			throw EXCEPTION(gettextmsg(libmsg(_txt("%1% node #%2% does not exist")),
+						   expression, xml_n));
+
+		xml_n=objp->nodesetval->nodeTab[n-1];
 	}
 
 	bool as_bool() const override
 	{
-		return !gone() && objp ? !!xmlXPathCastToBoolean(objp):false;
+		mcguffin_lock x_lock{*this};
+
+		return !x_lock.gone() && objp ?
+			!!xmlXPathCastToBoolean(objp):false;
 	}
 
 	double as_number() const override
 	{
-		return !gone() && objp ? xmlXPathCastToNumber(objp):0;
+		mcguffin_lock x_lock{*this};
+
+		return !x_lock.gone() && objp ? xmlXPathCastToNumber(objp):0;
 	}
 
 	std::string as_string() const override
 	{
-		return !gone() && objp ?
+		mcguffin_lock x_lock{*this};
+
+
+		return !x_lock.gone() && objp ?
 			not_null(xmlXPathCastToString(objp),
 				 "xmlXPathCastToString"):"";
 	}
