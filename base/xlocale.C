@@ -34,9 +34,8 @@ xlocale::xlocale(const std::string &localeName)
 	: h(newlocale(LC_ALL_MASK, localeName.c_str(), NULL)), n(localeName)
 {
 	if (h == NULL)
-		localeObj::throw_locale_exception
-			(std::string("Cannot instantiate locale ")
-			 + (!n.empty() ? n : "(global)"));
+		throw EXCEPTION("Cannot instantiate locale "
+				<< (!n.empty() ? n : "(global)"));
 }
 
 xlocale::xlocale() : h(NULL)

@@ -63,6 +63,12 @@ class localeObj : virtual public obj {
 	//! A locale was deserialized.
 	void deserialized(const std::string &n);
 public:
+	//! Whether this is a UTF-8 locale
+
+	//! Cached by the constructor and deserialize()
+
+	bool utf8;
+
 	//! Instantiate a locale object.
 
 	//! Once constructed, the locale member remains hands
@@ -107,6 +113,22 @@ public:
 
 	std::string toupper(const std::string &text) const;
 
+	//! Convert text string to unicode
+
+	std::u32string tou32(const std::string &text) const;
+
+	//! Convert text string from unicode
+
+	std::string fromu32(const std::u32string &text) const;
+
+	//! Convert text string to utf8
+
+	std::string toutf8(const std::string &text) const;
+
+	//! Convert text string from utf8
+
+	std::string fromutf8(const std::string &text) const;
+
 	//! Make this locale the global locale.
 
 	//! The global locale is the default locale used by the C
@@ -141,16 +163,6 @@ public:
 	}
 
 	friend class thread_locale;
-
-	//! Helper function that reports a \c std::exception.
-
-	//! \internal
-	//! This function throws an exception using the given message.
-
-	static void throw_locale_exception(//! Error message
-					   const std::string &errmsg)
-
-		__attribute__((noreturn)) LIBCXX_INTERNAL;
 
 private:
 	//! Helper function reports a nonexistent facet.

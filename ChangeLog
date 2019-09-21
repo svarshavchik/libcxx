@@ -1,3 +1,7 @@
+2019-09-20  Sam Varshavchik  <mrsam@courier-mta.com>
+
+	* Add to/from utf8/u32 to locale objects.
+
 2019-09-19  Sam Varshavchik  <mrsam@courier-mta.com>
 
 	* xml: implement clone(). Fix libxml2 thread-safe initialization.

@@ -116,12 +116,28 @@ void testunicode()
 		throw EXCEPTION("toupper failed");
 	if (l->tolower("Здравствуйте") != "здравствуйте")
 		throw EXCEPTION("tolower failed");
+
+
+	auto ru=LIBCXX_NAMESPACE::locale::create("ru_RU.KOI8-R");
+
+	std::string koi8r="\372\304\322\301\327\323\324\327\325\312\324\305";
+
+	if (ru->tou32(koi8r) != U"Здравствуйте" ||
+	    ru->fromu32(U"Здравствуйте") != koi8r ||
+	    ru->toutf8(koi8r) != "Здравствуйте" ||
+	    ru->fromutf8("Здравствуйте") != koi8r)
+		throw EXCEPTION("iconvert test failed");
 }
 
 int main(int argc, char *argv[])
 {
 	try {
 		alarm(30);
+
+		auto c_locale=LIBCXX_NAMESPACE::locale::base::c();
+
+		if (c_locale->charset() != "US-ASCII")
+			throw EXCEPTION("C locale unknown charset");
 
 		LIBCXX_NAMESPACE::locale::base::utf8()->global();
 		if (LIBCXX_NAMESPACE::strftime(1000000000, LIBCXX_NAMESPACE::tzfile::base::utc(), LIBCXX_NAMESPACE::locale::base::utf8())("%Y")

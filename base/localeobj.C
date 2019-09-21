@@ -39,11 +39,7 @@ public:
 
 		static LIBCXX_NAMESPACE::locale get()
 		{
-			localeptr p=instance.get();
-
-			if (!p) //! Application shutdown, perhaps
-				p=ptr<singletonObj<init_func> >::create();
-			return p;
+			return instance.get();
 		}
 	};
 
@@ -130,10 +126,8 @@ std::locale localeObj::create_locale(const char *explicit_name)
 		}
 	} catch(const std::exception &e)
 	{
-		throw_locale_exception(std::string("Cannot instantiate locale "
-						   ) + (explicit_name ?
-							explicit_name:
-							"<default>"));
+		throw EXCEPTION("Cannot instantiate locale "
+				<< (explicit_name ? explicit_name:"<default>"));
 		/* NOTREACHED */
 	}
 #else
@@ -142,8 +136,25 @@ std::locale localeObj::create_locale(const char *explicit_name)
 }
 
 localeObj::localeObj(const std::string &localeName)
-	: localeObj(localeName.c_str())
+	: localeObj{localeName.c_str()}
 {
+}
+
+static bool check_utf8(const std::string &charset)
+{
+	const char *p=charset.c_str();
+
+	if ((p[0] & ~0x20) == 'U' &&
+	    (p[1] & ~0x20) == 'T' &&
+	    (p[2] & ~0x20) == 'F')
+	{
+		p += 3;
+
+		if (*p == '-') ++p;
+
+		return *p == '8';
+	}
+	return false;
 }
 
 void localeObj::deserialized(const std::string &localeName)
@@ -151,12 +162,15 @@ void localeObj::deserialized(const std::string &localeName)
 	locale=create_locale(localeName.c_str());
 	x=xlocale(localeName);
 	locale_charset=unicode_locale_chset_l(x.h);
+
+	utf8=check_utf8(locale_charset);
 }
 
 localeObj::localeObj(const char *localeName)
-	: locale(create_locale(localeName)),
-	  x(localeName),
-	  locale_charset(unicode_locale_chset_l(x.h))
+	: locale{create_locale(localeName)},
+	  x{localeName},
+	  locale_charset{unicode_locale_chset_l(x.h)},
+	  utf8{check_utf8(locale_charset)}
 {
 }
 
@@ -165,15 +179,8 @@ localeObj::~localeObj()
 }
 
 void localeObj::throw_unknown_facet()
-
 {
-	throw_locale_exception("Unknown facet");
-}
-
-void localeObj::throw_locale_exception(const std::string &what)
-
-{
-	throw EXCEPTION(what);
+	throw EXCEPTION("Unknown facet");
 }
 
 void localeObj::global() const noexcept
@@ -194,6 +201,58 @@ std::string localeObj::tolower(const std::string &text) const
 std::string localeObj::toupper(const std::string &text) const
 {
 	return unicode::toupper(text, charset());
+}
+
+std::u32string localeObj::tou32(const std::string &text) const
+{
+	auto [string, error]=unicode::iconvert::tou::convert(text, charset());
+
+	if (error)
+		throw EXCEPTION("Unicode encoding error");
+
+	return string;
+}
+
+std::string localeObj::fromu32(const std::u32string &text) const
+{
+	auto [string, error]=unicode::iconvert::fromu::convert(text, charset());
+
+	if (error)
+		throw EXCEPTION("Unicode encoding error");
+
+	return string;
+}
+
+std::string localeObj::toutf8(const std::string &text) const
+{
+	if (utf8)
+		return text; // Shortcut
+
+	bool error;
+
+	std::string s=unicode::iconvert::convert(text, charset(),
+						 unicode::utf_8, error);
+
+	if (error)
+		throw EXCEPTION("UTF-8 encoding error");
+
+	return s;
+}
+
+std::string localeObj::fromutf8(const std::string &text) const
+{
+	if (utf8)
+		return text; // Shortcut
+
+	bool error;
+
+	std::string s=unicode::iconvert::convert(text, unicode::utf_8,
+						 charset(), error);
+
+	if (error)
+		throw EXCEPTION("UTF-8 encoding error");
+
+	return s;
 }
 
 #if 0
