@@ -31,26 +31,30 @@ void throw_last_error(const char *context)
 			(p ? p->message:"error"));
 }
 
-std::string not_null(xmlChar *p, const char *context)
+std::string not_null(xmlChar *p, const char *context,
+		     const get_localeObj &l)
 {
 	if (!p)
 		throw_last_error(context);
 
 	std::string s(reinterpret_cast<const char *>(p));
 	xmlFree(p);
-	return s;
+	return l.get_global_locale()->fromutf8(s);
 }
 
-std::string null_ok(xmlChar *p)
+std::string null_ok(xmlChar *p,
+		    const get_localeObj &l)
 {
 	std::string s(p ? reinterpret_cast<const char *>(p):"");
 	xmlFree(p);
-	return s;
+	return l.get_global_locale()->fromutf8(s);
 }
 
-std::string get_str(const xmlChar *p)
+std::string get_str(const xmlChar *p,
+		    const get_localeObj &l)
 {
-	return p ? reinterpret_cast<const char *>(p):"";
+	return l.get_global_locale()->fromutf8
+		(p ? reinterpret_cast<const char *>(p):"");
 }
 
 #include "xml_element_type.h"
@@ -58,7 +62,8 @@ std::string get_str(const xmlChar *p)
 static const size_t element_offsets_l=
 	sizeof(element_offsets)/sizeof(element_offsets[0]);
 
-impldocObj::impldocObj(xmlDocPtr pArg) : p(pArg), lock(sharedlock::create())
+impldocObj::impldocObj(xmlDocPtr p, const const_locale &global_locale)
+	: p{p}, global_locale{global_locale}, lock{sharedlock::create()}
 {
 }
 
@@ -166,7 +171,8 @@ docObj::newAttribute::~newAttribute()
 
 doc docBase::create()
 {
-	return ref<impldocObj>::create(xmlNewDoc((const xmlChar *)"1.0"));
+	return ref<impldocObj>::create(xmlNewDoc((const xmlChar *)"1.0"),
+				       locale::base::global());
 }
 
 doc docBase::create(const std::string_view &filename)
@@ -315,12 +321,19 @@ typedef ref<removal_mcguffinObj> removal_mcguffin;
 typedef ptr<removal_mcguffinObj> removal_mcguffinptr;
 
 class LIBCXX_HIDDEN impldocObj::readlockImplObj : public writelockObj,
-						  public removal_mcguffinObj {
+						  public removal_mcguffinObj,
+						  public get_localeObj {
 
  public:
 
 	const ref<impldocObj> impl;
 	const ref<obj> lock;
+
+	// Return our locale object.
+	const const_locale &get_global_locale() const final override
+	{
+		return impl->global_locale;
+	}
 
 	mutable locked_xml_n_t locked_xml_n;
 
@@ -556,8 +569,7 @@ class LIBCXX_HIDDEN impldocObj::readlockImplObj : public writelockObj,
 		std::string name_str;
 
 		if (xml_n)
-			name_str=xml_n->name ?
-				reinterpret_cast<const char *>(xml_n->name):"";
+			name_str=get_str(xml_n->name, *this);
 		return name_str;
 	}
 
@@ -569,10 +581,8 @@ class LIBCXX_HIDDEN impldocObj::readlockImplObj : public writelockObj,
 
 		std::string prefix_str;
 
-		if (xml_n && xml_n->type == XML_ELEMENT_NODE && xml_n->ns &&
-		    xml_n->ns->prefix)
-			prefix_str=reinterpret_cast<const char
-						    *>(xml_n->ns->prefix);
+		if (xml_n && xml_n->type == XML_ELEMENT_NODE && xml_n->ns)
+			prefix_str=get_str(xml_n->ns->prefix, *this);
 
 		return prefix_str;
 	}
@@ -585,9 +595,8 @@ class LIBCXX_HIDDEN impldocObj::readlockImplObj : public writelockObj,
 
 		std::string uri_str;
 
-		if (xml_n && xml_n->type == XML_ELEMENT_NODE && xml_n->ns &&
-		    xml_n->ns->href)
-			uri_str=reinterpret_cast<const char *>(xml_n->ns->href);
+		if (xml_n && xml_n->type == XML_ELEMENT_NODE && xml_n->ns)
+			uri_str=get_str(xml_n->ns->href, *this);
 
 		return uri_str;
 	}
@@ -601,7 +610,8 @@ class LIBCXX_HIDDEN impldocObj::readlockImplObj : public writelockObj,
 		std::string p;
 
 		if (xml_n)
-			p=not_null(xmlGetNodePath(xml_n), "getNodePath");
+			p=not_null(xmlGetNodePath(xml_n), "getNodePath",
+			   *this);
 		return p;
 	}
 
@@ -625,12 +635,11 @@ class LIBCXX_HIDDEN impldocObj::readlockImplObj : public writelockObj,
 
 		if (xml_n)
 			s=null_ok(xmlGetNsProp(xml_n,
-					       reinterpret_cast<const xmlChar *>
-					       (attribute_name.c_str()),
-					       attribute_namespace.empty()
-					       ? nullptr :
-					       reinterpret_cast<const xmlChar *>
-					       (attribute_namespace.c_str())));
+					       to_xml_char
+					       {attribute_name, *this},
+					       to_xml_char_or_null
+					       {attribute_namespace, *this}),
+				  *this);
 		return s;
 	}
 
@@ -644,9 +653,10 @@ class LIBCXX_HIDDEN impldocObj::readlockImplObj : public writelockObj,
 		std::string s;
 
 		if (xml_n)
-			s=null_ok(xmlGetNoNsProp(xml_n, reinterpret_cast
-						 <const xmlChar *>
-						 (attribute_name.c_str())));
+			s=null_ok(xmlGetNoNsProp(xml_n,
+						 to_xml_char
+						 {attribute_name, *this}),
+				  *this);
 		return s;
 	}
 
@@ -661,8 +671,9 @@ class LIBCXX_HIDDEN impldocObj::readlockImplObj : public writelockObj,
 
 		if (xml_n)
 			s=null_ok(xmlGetProp(xml_n,
-					     reinterpret_cast<const xmlChar *>
-					     (attribute_name.c_str())));
+					     to_xml_char{attribute_name,
+								 *this}),
+				  *this);
 		return s;
 	}
 
@@ -678,9 +689,10 @@ class LIBCXX_HIDDEN impldocObj::readlockImplObj : public writelockObj,
 
 		for (auto p=xml_n->properties; p; p=p->next)
 		{
-			attributes.insert(docAttribute(get_str(p->name),
+			attributes.insert(docAttribute(get_str(p->name, *this),
 						       p->ns ?
-						       get_str(p->ns->href):""
+						       get_str(p->ns->href,
+							       *this):""
 						       ));
 		}
 	}
@@ -722,7 +734,7 @@ class LIBCXX_HIDDEN impldocObj::readlockImplObj : public writelockObj,
 		std::string s;
 
 		if (xml_n)
-			s=null_ok(xmlNodeGetContent(xml_n));
+			s=null_ok(xmlNodeGetContent(xml_n), *this);
 		return s;
 	}
 
@@ -735,7 +747,7 @@ class LIBCXX_HIDDEN impldocObj::readlockImplObj : public writelockObj,
 		std::string s;
 
 		if (xml_n)
-			s=null_ok(xmlNodeGetLang(xml_n));
+			s=null_ok(xmlNodeGetLang(xml_n), *this);
 		return s;
 	}
 
@@ -761,7 +773,7 @@ class LIBCXX_HIDDEN impldocObj::readlockImplObj : public writelockObj,
 		std::string s;
 
 		if (xml_n)
-			s=null_ok(xmlNodeGetBase(impl->p, xml_n));
+			s=null_ok(xmlNodeGetBase(impl->p, xml_n), *this);
 		return s;
 	}
 
@@ -947,12 +959,19 @@ class LIBCXX_HIDDEN impldocObj::readlockImplObj : public writelockObj,
 	}
 };
 
-class LIBCXX_HIDDEN impldocObj::createnodeImplObj : public createnodeObj {
+class LIBCXX_HIDDEN impldocObj::createnodeImplObj : public createnodeObj,
+						    public get_localeObj {
 
  public:
 	//! Superclass with the pointer to the document and current node
 
 	readlockImplObj &lock;
+
+	// Return our locale object.
+	const const_locale &get_global_locale() const final override
+	{
+		return lock.get_global_locale();
+	}
 
 	//! The constructor saves the pointer to the document and current node
 	createnodeImplObj(readlockImplObj &lockArg) : lock(lockArg)
@@ -1001,9 +1020,7 @@ class LIBCXX_HIDDEN impldocObj::createnodeImplObj : public createnodeObj {
 
 	xmlNsPtr search_ns(const std::string &prefix)
 	{
-		auto val=do_search_ns(prefix.size()
-				      ? reinterpret_cast<const xmlChar *>
-				      (prefix.c_str()):nullptr);
+		auto val=do_search_ns(to_xml_char_or_null{prefix, *this});
 
 		if (!val)
 			throw EXCEPTION(gettextmsg(libmsg(_txt("Namespace prefix %1% not found")),
@@ -1013,9 +1030,7 @@ class LIBCXX_HIDDEN impldocObj::createnodeImplObj : public createnodeObj {
 
 	xmlNsPtr search_ns_href(const std::string &uri)
 	{
-		auto val=do_search_ns_href(uri.size()
-					   ? reinterpret_cast<const xmlChar *>
-					   (uri.c_str()):nullptr);
+		auto val=do_search_ns_href(to_xml_char_or_null{uri, *this});
 
 		if (!val)
 			throw EXCEPTION(gettextmsg(libmsg(_txt("Namespace URI %1% not found")),
@@ -1026,16 +1041,17 @@ class LIBCXX_HIDDEN impldocObj::createnodeImplObj : public createnodeObj {
 	class created_element : public guard {
 
 	public:
-		created_element(xmlNsPtr ns, const std::string &name)
-			: created_element{ns, name, "<" + name + ">"}
+		created_element(xmlNsPtr ns, const std::string &name,
+				const get_localeObj &gl)
+			: created_element{ns, name, "<" + name + ">", gl}
 		{
 		}
 
 		created_element(xmlNsPtr ns, const std::string &name,
-				const std::string &tag)
-			: guard{xmlNewNode(ns,
-					   reinterpret_cast<const xmlChar *>
-					   (name.c_str())), tag.c_str()}
+				const std::string &tag,
+				const get_localeObj &gl)
+			: guard{xmlNewNode(ns, to_xml_char{name, gl}),
+					   tag.c_str()}
 		{
 		}
 		~created_element()
@@ -1049,19 +1065,15 @@ class LIBCXX_HIDDEN impldocObj::createnodeImplObj : public createnodeObj {
 		{
 			// Create a new element in a new namespace
 
-			created_element new_element=
-				created_element(nullptr, e.name);
+			created_element new_element{nullptr, e.name, *this};
 
 			// xmlNewNs makes the xmlNodePtr own the new namespace,
 			// which is what we want. After it gets created, we just
 			// manually stick it into ->ns.
 
 			auto ns=xmlNewNs(new_element.new_xml_n,
-					 reinterpret_cast<const xmlChar *>
-					 (e.uri.size() ? e.uri.c_str():nullptr),
-					 reinterpret_cast<const xmlChar *>
-					 (e.prefix.size() ? e.prefix.c_str()
-					  :nullptr));
+					 to_xml_char_or_null{e.uri, *this},
+					 to_xml_char_or_null{e.prefix, *this});
 
 			if (!ns)
 				throw EXCEPTION(libmsg(_txt("Invalid namespace")));
@@ -1073,8 +1085,8 @@ class LIBCXX_HIDDEN impldocObj::createnodeImplObj : public createnodeObj {
 		{
 			if (!e.uri.empty())
 			{
-				create(created_element(search_ns_href(e.uri),
-						       e.name));
+				create(created_element{search_ns_href(e.uri),
+						       e.name, *this});
 			}
 			else
 			{
@@ -1089,7 +1101,7 @@ class LIBCXX_HIDDEN impldocObj::createnodeImplObj : public createnodeObj {
 					xml_n=xml_n.substr(p+1);
 				}
 
-				create(created_element(ns, xml_n));
+				create(created_element{ns, xml_n, *this});
 			}
 		}
 
@@ -1098,17 +1110,17 @@ class LIBCXX_HIDDEN impldocObj::createnodeImplObj : public createnodeObj {
 
 	ref<createnodeObj> cdata(const std::string &cdata) override
 	{
+		to_xml_char cdata_xml{cdata, *this};
+
 		create(guard(xmlNewCDataBlock(lock.impl->p,
-					      reinterpret_cast<const xmlChar *>
-					      (cdata.c_str()), cdata.size()),
+					      cdata_xml, cdata_xml.size()),
 			     "cdata"));
 		return ref<createnodeObj>(this);
 	}
 
 	ref<createnodeObj> text(const std::string &text) override
 	{
-		create(guard(xmlNewText(reinterpret_cast<const xmlChar *>
-					(text.c_str())),
+		create(guard(xmlNewText(to_xml_char{text, *this}),
 			     "text"));
 		return ref<createnodeObj>(this);
 	}
@@ -1116,26 +1128,22 @@ class LIBCXX_HIDDEN impldocObj::createnodeImplObj : public createnodeObj {
 	ref<createnodeObj> entity(const std::string &text) override
 	{
 		create(guard(xmlNewCharRef(lock.impl->p,
-					   reinterpret_cast<const xmlChar *>
-					   (text.c_str())),
+					   to_xml_char{text, *this}),
 			     "entity"));
 		return ref<createnodeObj>(this);
 	}
 
 	void do_comment(const std::string &comment) override
 	{
-		create(guard(xmlNewComment(reinterpret_cast<const xmlChar *>
-					   (comment.c_str())),
+		create(guard(xmlNewComment(to_xml_char{comment, *this}),
 			     "comment"));
 	}
 
 	void do_processing_instruction(const std::string &name,
 				       const std::string &content) override
 	{
-		create(guard(xmlNewPI(reinterpret_cast<const xmlChar *>
-				      (name.c_str()),
-				      reinterpret_cast<const xmlChar *>
-				      (content.c_str())),
+		create(guard(xmlNewPI(to_xml_char{name, *this},
+				      to_xml_char{content, *this}),
 			     "processing_instruction"));
 	}
 };
@@ -1409,11 +1417,12 @@ class LIBCXX_HIDDEN impldocObj::writelockImplObj
 
 		if (xml_n)
 		{
+			get_localeObj &SUPER=static_cast<readlockImplObj &>
+				(*this);
+
 			if (xmlNewNs(xml_n,
-				     reinterpret_cast<const xmlChar *>
-				     (uri.size() ? uri.c_str():nullptr),
-				     reinterpret_cast<const xmlChar *>
-				     (prefix.size() ? prefix.c_str():nullptr)))
+				     to_xml_char_or_null{uri, SUPER},
+				     to_xml_char_or_null{prefix, SUPER}))
 				return;
 			throw EXCEPTION(gettextmsg
 					(libmsg
@@ -1430,6 +1439,7 @@ class LIBCXX_HIDDEN impldocObj::writelockImplObj
 		locked_xml_n_t::lock lock{locked_xml_n};
 
 		auto &xml_n=*lock;
+		get_localeObj &SUPER=static_cast<readlockImplObj &>(*this);
 
 		if (attr.attrnamespace.empty())
 		{
@@ -1446,9 +1456,8 @@ class LIBCXX_HIDDEN impldocObj::writelockImplObj
 			std::string prefix=attr.attrname.substr(0, p);
 
 			if (xml_n && (ns=xmlSearchNs(impl->p, xml_n,
-						 reinterpret_cast<const xmlChar
-						 *>
-						 (prefix.c_str()))) != 0)
+						     to_xml_char{prefix, SUPER}
+						     )) != 0)
 			{
 				create_attribute(attr.attrname.substr(p+1),
 						 ns, attr.attrvalue);
@@ -1465,10 +1474,10 @@ class LIBCXX_HIDDEN impldocObj::writelockImplObj
 			xmlNsPtr ns;
 
 			if (xml_n && (ns=xmlSearchNsByHref(impl->p, xml_n,
-						       reinterpret_cast<const
-						       xmlChar *>
-						       (attr.attrnamespace
-							.c_str()))) != 0)
+							   to_xml_char
+							   {attr.attrnamespace,
+								    SUPER}))
+			    != 0)
 			{
 				create_attribute(attr.attrname, ns,
 						 attr.attrvalue);
@@ -1488,8 +1497,10 @@ class LIBCXX_HIDDEN impldocObj::writelockImplObj
 
 		auto &xml_n=*lock;
 
-		auto an=reinterpret_cast<const xmlChar *>(attrname.c_str());
-		auto av=reinterpret_cast<const xmlChar *>(attrvalue.c_str());
+		get_localeObj &SUPER=static_cast<readlockImplObj &>(*this);
+
+		to_xml_char an{attrname, SUPER};
+		to_xml_char av{attrvalue, SUPER};
 
 		if (xml_n && xml_n->type == XML_ELEMENT_NODE)
 		{
@@ -1583,8 +1594,8 @@ class LIBCXX_HIDDEN impldocObj::writelockImplObj
 
 		if (!xml_n || xml_n->type != XML_ELEMENT_NODE)
 			throw EXCEPTION(gettextmsg(libmsg(_txt("Cannot set the base URI"))));
-		xmlNodeSetBase(xml_n,
-			       reinterpret_cast<const xmlChar *>(uri.c_str()));
+		get_localeObj &SUPER=static_cast<readlockImplObj &>(*this);
+		xmlNodeSetBase(xml_n, to_xml_char{uri, SUPER});
 	}
 
 	void do_set_lang(const std::string &lang) override
@@ -1595,8 +1606,8 @@ class LIBCXX_HIDDEN impldocObj::writelockImplObj
 
 		if (!xml_n || xml_n->type != XML_ELEMENT_NODE)
 			throw EXCEPTION(gettextmsg(libmsg(_txt("Cannot set the lang attribute"))));
-		xmlNodeSetLang(xml_n,
-			       reinterpret_cast<const xmlChar *>(lang.c_str()));
+		get_localeObj &SUPER=static_cast<readlockImplObj &>(*this);
+		xmlNodeSetLang(xml_n, to_xml_char{lang, SUPER});
 	}
 
 	void do_set_space_preserve(bool flag) override
@@ -1641,20 +1652,15 @@ class LIBCXX_HIDDEN impldocObj::writelockImplObj
 
 		xmlDtdPtr ptr;
 
+		get_localeObj &SUPER=static_cast<readlockImplObj &>(*this);
 		{
 			error_handler::error trap_errors;
-			const xmlChar *external_id_str=
-				reinterpret_cast<const xmlChar *>
-				(external_id.c_str()),
-				*system_id_str=
-				reinterpret_cast<const xmlChar *>
-				(system_id.c_str());
 
 			ptr=xmlNewDtd(impl->p,
 				      root->name,
-				      *external_id_str ?
-				      external_id_str:nullptr,
-				      system_id_str ? system_id_str:nullptr);
+
+				      to_xml_char_or_null{external_id, SUPER},
+				      to_xml_char_or_null{system_id, SUPER});
 
 			trap_errors.check();
 		}
@@ -1676,21 +1682,15 @@ class LIBCXX_HIDDEN impldocObj::writelockImplObj
 
 		xmlDtdPtr ptr;
 
+		get_localeObj &SUPER=static_cast<readlockImplObj &>(*this);
 		{
 			error_handler::error trap_errors;
-			const xmlChar *external_id_str=
-				reinterpret_cast<const xmlChar *>
-				(external_id.c_str()),
-				*system_id_str=
-				reinterpret_cast<const xmlChar *>
-				(system_id.c_str());
 
-			ptr=xmlCreateIntSubset(impl->p,
-					       root->name,
-					       *external_id_str ?
-					       external_id_str:nullptr,
-					       system_id_str ? system_id_str
-					       :nullptr);
+			ptr=xmlCreateIntSubset
+				(impl->p,
+				 root->name,
+				 to_xml_char_or_null{external_id, SUPER},
+				 to_xml_char_or_null{system_id, SUPER});
 
 			trap_errors.check();
 		}
@@ -1748,7 +1748,7 @@ doc impldocObj::clone(bool recursive)
 		throw_last_error("clone");
 
 	try {
-		return ref<impldocObj>::create(xml_n);
+		return ref<impldocObj>::create(xml_n, global_locale);
 	} catch (...)
 	{
 		xmlFreeDoc(xml_n);
@@ -1899,10 +1899,18 @@ docObj::xpathObj::~xpathObj()
 {
 }
 
-class LIBCXX_HIDDEN impldocObj::xpathImplObj : public xpathObj {
+class LIBCXX_HIDDEN impldocObj::xpathImplObj : public xpathObj,
+					       public get_localeObj {
 
  public:
 	const ref<readlockImplObj> lock;
+
+	// Return our locale object.
+	const const_locale &get_global_locale() const final override
+	{
+		return lock->get_global_locale();
+	}
+
 	const std::string expression;
 	const removal_mcguffin mcguffin;
 	xmlXPathObjectPtr objp;
@@ -1934,8 +1942,7 @@ class LIBCXX_HIDDEN impldocObj::xpathImplObj : public xpathObj {
 
 		error_handler::error trap_errors;
 
-		auto objp=xmlXPathEval(reinterpret_cast<const xmlChar *>
-				       (me.expression.c_str()),
+		auto objp=xmlXPathEval(to_xml_char{me.expression, me},
 				       context->context);
 
 		trap_errors.check();
@@ -2027,7 +2034,7 @@ class LIBCXX_HIDDEN impldocObj::xpathImplObj : public xpathObj {
 
 		return !x_lock.gone() && objp ?
 			not_null(xmlXPathCastToString(objp),
-				 "xmlXPathCastToString"):"";
+				 "xmlXPathCastToString", *this):"";
 	}
 };
 

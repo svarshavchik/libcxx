@@ -84,14 +84,11 @@ void newdtdimplObj::create_entity(const std::string &name,
 
 		ptr=(*subset_impl.add_entity)
 			(impl->p,
-			 reinterpret_cast<const xmlChar *>(name.c_str()),
+			 to_xml_char{name, *this},
 			 type,
-			 reinterpret_cast<const xmlChar *>
-			 (external_id.size() ? external_id.c_str():nullptr),
-			 reinterpret_cast<const xmlChar *>
-			 (system_id.size() ? system_id.c_str():nullptr),
-			 reinterpret_cast<const xmlChar *>
-			 (content.size() ? content.c_str():nullptr));
+			 to_xml_char_or_null{external_id, *this},
+			 to_xml_char_or_null{system_id, *this},
+			 to_xml_char_or_null{content, *this});
 		trap_errors.check();
 	}
 	if (!ptr)
@@ -104,7 +101,7 @@ void newdtdimplObj::include_parameter_entity(const std::string &name)
 
 	auto str= "%" + name + ";";
 
-	auto nodeptr=xmlNewText(reinterpret_cast<const xmlChar *>(str.c_str()));
+	auto nodeptr=xmlNewText(to_xml_char{str, *this});
 	if (!nodeptr)
 		throw EXCEPTION(libmsg(_txt("xmlNewText failed")));
 

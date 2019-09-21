@@ -1,12 +1,13 @@
+2019-09-21  Sam Varshavchik  <mrsam@courier-mta.com>
+
+	* xml: automatically convert all text strings from the global locale's
+	encoding to UTF-8-encoded XML.
+
 2019-09-20  Sam Varshavchik  <mrsam@courier-mta.com>
 
 	* Add to/from utf8/u32 to locale objects.
 
 2019-09-19  Sam Varshavchik  <mrsam@courier-mta.com>
-
-	* xml: implement clone(). Fix libxml2 thread-safe initialization.
-	Implement text(), cdata(), and get_u32text() overloads for
-	using Unicode instead of text strings.
 
 	* includes/x/libcxx.mk.in: Execute mkdir -p to create the output
 	directory, if it does not exist.

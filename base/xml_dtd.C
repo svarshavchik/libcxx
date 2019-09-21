@@ -71,17 +71,17 @@ bool dtdimplObj::exists()
 
 std::string dtdimplObj::name()
 {
-	return get_str(get_dtd_not_null()->name);
+	return get_str(get_dtd_not_null()->name, *this);
 }
 
 std::string dtdimplObj::external_id()
 {
-	return get_str(get_dtd_not_null()->ExternalID);
+	return get_str(get_dtd_not_null()->ExternalID, *this);
 }
 
 std::string dtdimplObj::system_id()
 {
-	return get_str(get_dtd_not_null()->SystemID);
+	return get_str(get_dtd_not_null()->SystemID, *this);
 }
 
 void dtdimplObj::notwrite()

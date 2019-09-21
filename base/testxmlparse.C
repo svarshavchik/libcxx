@@ -11,6 +11,7 @@
 #include "x/exception.H"
 #include "x/fd.H"
 #include "x/uriimpl.H"
+#include "x/locale.H"
 #include <algorithm>
 #include <iostream>
 #include <fstream>
@@ -1167,6 +1168,45 @@ void test60()
 		throw EXCEPTION("quote_string_literal failed");
 }
 
+void test70()
+{
+	auto d=LIBCXX_NAMESPACE::xml::doc::create();
+
+	auto l=d->writelock();
+	auto c=l->create_child();
+
+	c=c->element({"root"});
+
+	c->attribute({"id",
+		      "\372\304\322\301\327\323\324\327\325\312\324\305"});
+	c->text("[\372\304\322\301\327\323\324\327\325\312\324\305]");
+
+	std::ostringstream o;
+
+	l->save_to(std::ostreambuf_iterator<char>(o), false);
+
+	auto s=o.str();
+
+	if (s !=
+	    "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
+	    "<root id=\"Здравствуйте\">[Здравствуйте]</root>\n")
+		throw EXCEPTION("test70: generated:\n" << s);
+
+	d=parse(s);
+
+	l=d->writelock();
+
+	l->get_root();
+
+	if (l->get_any_attribute("id") !=
+	    "\372\304\322\301\327\323\324\327\325\312\324\305")
+		throw EXCEPTION("test70: didn't transcode attribute");
+
+	if (l->get_text() !=
+	    "[\372\304\322\301\327\323\324\327\325\312\324\305]")
+		throw EXCEPTION("test70: didn't transcode text");
+}
+
 int main(int argc, char **argv)
 {
 	try {
@@ -1194,6 +1234,9 @@ int main(int argc, char **argv)
 		test40();
 		test50();
 		test60();
+
+		LIBCXX_NAMESPACE::locale::create("ru_RU.KOI8-R")->global();
+		test70();
 	} catch (LIBCXX_NAMESPACE::exception &e)
 	{
 		std::cerr << e << std::endl;

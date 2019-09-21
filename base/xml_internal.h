@@ -9,6 +9,7 @@
 #include "x/xml/dtd.H"
 #include "x/xml/newdtd.H"
 #include "x/logger.H"
+#include "x/locale.H"
 #include "x/sharedlock.H"
 
 namespace LIBCXX_NAMESPACE {
@@ -57,9 +58,21 @@ class LIBCXX_HIDDEN error_handler {
 	~error_handler() noexcept;
 };
 
+struct LIBCXX_HIDDEN get_localeObj;
+
+// Retrieve the XML document's global locale
+
+// Used by to_xml_char(_or_null)?, not_null(), null_ok(), and get_str()
+// helper to convert between the application's character set and xmlChar.
+
+struct get_localeObj {
+
+	virtual const const_locale &get_global_locale() const=0;
+};
+
 // Implement xml::doc
 
-class LIBCXX_HIDDEN impldocObj : public docObj {
+class LIBCXX_HIDDEN impldocObj : public docObj, public get_localeObj {
 
  public:
 	class readlockImplObj;
@@ -74,15 +87,22 @@ class LIBCXX_HIDDEN impldocObj : public docObj {
 
 	class save_impl;
 
-	xmlDocPtr p; // The libXML document.
+	const xmlDocPtr p; // The libXML document.
+
+	const const_locale global_locale; // The current locale object.
 
 	sharedlock lock; // Readers/writer lock object
 
 	// Constructor
-	impldocObj(xmlDocPtr pArg);
+	impldocObj(xmlDocPtr p, const const_locale &global_locale);
 
 	// If p is not nullptr, destroy it.
 	~impldocObj() noexcept;
+
+	const const_locale &get_global_locale() const final override
+	{
+		return global_locale;
+	}
 
 	ref<readlockObj> readlock() override;
 	ref<writelockObj> writelock() override;
@@ -132,7 +152,8 @@ class LIBCXX_HIDDEN implparserObj : public parserObj {
 // readonly methods for both classes. Methods inherited from newdtdObj
 // throw an exception.
 
-class LIBCXX_HIDDEN dtdimplObj : public newdtdObj {
+class LIBCXX_HIDDEN dtdimplObj : public newdtdObj,
+				 public get_localeObj {
 
  public:
 
@@ -154,7 +175,13 @@ class LIBCXX_HIDDEN dtdimplObj : public newdtdObj {
 	static const subset_impl_t impl_external, impl_internal;
 
 	// The document
-	ref<impldocObj> impl;
+	const ref<impldocObj> impl;
+
+	// Return our locale object.
+	const const_locale &get_global_locale() const final override
+	{
+		return impl->global_locale;
+	}
 
 	// This DTD's methods apply to the external subset.
 	xmlDtdPtr get_external_dtd();
@@ -215,11 +242,59 @@ class LIBCXX_HIDDEN newdtdimplObj : public dtdimplObj {
 void throw_last_error(const char *context)
 	LIBCXX_HIDDEN __attribute__((noreturn));
 
-std::string not_null(xmlChar *str, const char *context) LIBCXX_HIDDEN;
+std::string not_null(xmlChar *str, const char *context,
+		     const get_localeObj &) LIBCXX_HIDDEN;
 
-std::string null_ok(xmlChar *str) LIBCXX_HIDDEN;
+std::string null_ok(xmlChar *str,
+		    const get_localeObj &) LIBCXX_HIDDEN;
 
-std::string get_str(const xmlChar *str) LIBCXX_HIDDEN;
+std::string get_str(const xmlChar *str,
+		    const get_localeObj &) LIBCXX_HIDDEN;
+
+
+struct LIBCXX_HIDDEN to_xml_char;
+struct LIBCXX_HIDDEN to_xml_char_or_null;
+
+// Convert a string to xmlChar
+//
+// We pass a to_xml_char(_or_null)? object to libxml functions that take an
+// xmlChar pointer. to_xml_char converts the string to utf8 and stores it, and
+// provides an xmlChar * wrapper
+
+struct to_xml_char {
+
+	const std::string s;
+
+	to_xml_char(const std::string &s, const get_localeObj &l)
+		: s{l.get_global_locale()->toutf8(s)}
+	{
+	}
+
+	operator const xmlChar *() const
+	{
+		return reinterpret_cast<const xmlChar *>(s.c_str());
+	}
+
+	size_t size() const
+	{
+		return s.size();
+	}
+};
+
+// Return a null xmlChar pointer for an empty string.
+
+struct to_xml_char_or_null : public to_xml_char {
+
+	using to_xml_char::to_xml_char;
+
+	operator const xmlChar *() const
+	{
+		if (size() == 0)
+			return nullptr;
+
+		return to_xml_char::operator const xmlChar *();
+	}
+};
 
 #if 0
 {

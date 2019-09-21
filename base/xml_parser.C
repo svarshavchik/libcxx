@@ -124,10 +124,11 @@ parserObj::~parserObj()
 }
 
 implparserObj::implparserObj(const std::string_view &uriArg,
-			     const std::string_view &options) : uri(uriArg),
-								p(nullptr),
-								p_options(0),
-								buffer_size(0)
+			     const std::string_view &options)
+	: uri(uriArg),
+	  p(nullptr),
+	  p_options(0),
+	  buffer_size(0)
 {
 // XML_PARSER_ options that are pulled out of libxml/parser.h
 	struct {
@@ -201,7 +202,7 @@ doc implparserObj::done()
 		capture.check();
 	}
 
-	auto ret=ref<impldocObj>::create(p->myDoc);
+	auto ret=ref<impldocObj>::create(p->myDoc, locale::base::global());
 
 	xmlFreeParserCtxt(p);
 	p=nullptr;
