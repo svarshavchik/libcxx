@@ -290,6 +290,9 @@ public:
 
 		virtual ref<readlockObj> clone() const=0;
 
+		//! Clone the entire document.
+		virtual doc clone_document(bool recursive=true) const=0;
+
 		//! Go to the document's root node.
 
 		//! Returns \c false if the document is empty, and has no
@@ -1049,9 +1052,6 @@ public:
 
 	//! Blocks if a read or a write lock exists.
 	virtual ref<writelockObj> writelock()=0;
-
-	//! Clone this document.
-	virtual doc clone(bool recursive=true)=0;
 };
 
 #if 0

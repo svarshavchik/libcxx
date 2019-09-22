@@ -60,10 +60,12 @@ class docBase;
 //! examine or modify its contents.
 //!
 //! \code
-//! auto new_document=doc->clone();
+//! auto new_document=lock->clone_document();
 //! \endcode
 //!
-//! This clones the entire document and returns a cloned copy of the original
+//! This clones the entire document and returns a cloned copy of the original.
+//! This is a lock method, a lock must be acquired on the document, to prevent
+//! it from getting modified while it's being copied.
 
 typedef ref<docObj, docBase> doc;
 

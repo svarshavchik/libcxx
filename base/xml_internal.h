@@ -106,8 +106,6 @@ class LIBCXX_HIDDEN impldocObj : public docObj, public get_localeObj {
 
 	ref<readlockObj> readlock() override;
 	ref<writelockObj> writelock() override;
-
-	doc clone(bool recursive) override;
 };
 
 // Implement xml::parser

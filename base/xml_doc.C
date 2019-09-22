@@ -359,6 +359,23 @@ class LIBCXX_HIDDEN impldocObj::readlockImplObj : public writelockObj,
 		return p;
 	}
 
+	doc clone_document(bool recursive) const override
+	{
+		auto xml_n=xmlCopyDoc(impl->p, recursive ? 1:0);
+
+		if (!xml_n)
+			throw_last_error("clone");
+
+		try {
+			return ref<impldocObj>::create(xml_n,
+						       impl->global_locale);
+		} catch (...)
+		{
+			xmlFreeDoc(xml_n);
+			throw;
+		}
+	}
+
 	bool get_root() override
 	{
 		locked_xml_n_t::lock x_lock{locked_xml_n};
@@ -1736,24 +1753,6 @@ ref<docObj::writelockObj> impldocObj::writelock()
 {
 	return ref<writelockImplObj>::create(ref<impldocObj>(this),
 					     lock->create_unique());
-}
-
-doc impldocObj::clone(bool recursive)
-{
-	auto l=lock->create_shared();
-
-	auto xml_n=xmlCopyDoc(p, recursive ? 1:0);
-
-	if (!xml_n)
-		throw_last_error("clone");
-
-	try {
-		return ref<impldocObj>::create(xml_n, global_locale);
-	} catch (...)
-	{
-		xmlFreeDoc(xml_n);
-		throw;
-	}
 }
 
 docObj::createnodeObj::createnodeObj()=default;
