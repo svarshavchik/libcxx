@@ -1,0 +1,76 @@
+policy_module(libcxx, 1.0)
+
+require {
+   type unconfined_service_t;
+   type unconfined_t;
+   role system_r;
+   role unconfined_r;
+
+   type user_devpts_t;
+   type var_run_t;
+   type httpd_t;
+};
+
+type libcxx_httportmapd_t;
+type libcxx_httportmapd_exec_t;
+type libcxx_httportmapd_var_run_t;
+
+domain_type(libcxx_httportmapd_t)
+domain_entry_file(libcxx_httportmapd_t, libcxx_httportmapd_exec_t)
+
+role system_r types libcxx_httportmapd_t;
+role unconfined_r types libcxx_httportmapd_t;
+
+domain_auto_trans(unconfined_service_t, libcxx_httportmapd_exec_t, libcxx_httportmapd_t)
+domain_auto_trans(unconfined_t, libcxx_httportmapd_exec_t, libcxx_httportmapd_t)
+
+type_transition libcxx_httportmapd_t var_run_t:sock_file libcxx_httportmapd_var_run_t;
+type_transition libcxx_httportmapd_t var_run_t:file libcxx_httportmapd_var_run_t;
+type_transition libcxx_httportmapd_t var_run_t:dir libcxx_httportmapd_var_run_t;
+
+
+allow httpd_t libcxx_httportmapd_exec_t:file exec_file_perms;
+allow httpd_t libcxx_httportmapd_t:unix_stream_socket connectto;
+allow httpd_t libcxx_httportmapd_var_run_t:sock_file write;
+
+allow libcxx_httportmapd_t unconfined_t:dir search_dir_perms;
+allow libcxx_httportmapd_t unconfined_t:dir list_dir_perms;
+allow libcxx_httportmapd_t unconfined_t:lnk_file read_lnk_file_perms;
+allow libcxx_httportmapd_t unconfined_t:file read_file_perms;
+
+allow libcxx_httportmapd_t unconfined_service_t:dir search_dir_perms;
+allow libcxx_httportmapd_t unconfined_service_t:dir list_dir_perms;
+allow libcxx_httportmapd_t unconfined_service_t:lnk_file read_lnk_file_perms;
+allow libcxx_httportmapd_t unconfined_service_t:file read_file_perms;
+
+allow libcxx_httportmapd_t self:capability sys_ptrace;
+
+fs_associate_tmpfs(libcxx_httportmapd_var_run_t)
+
+kernel_dgram_send(libcxx_httportmapd_t)
+
+sssd_read_public_files(libcxx_httportmapd_t)
+sssd_run_stream_connect(libcxx_httportmapd_t)
+sssd_dontaudit_stream_connect(libcxx_httportmapd_t)
+logging_create_devlog_dev(libcxx_httportmapd_t)
+
+allow libcxx_httportmapd_t var_run_t:dir manage_dir_perms;
+
+allow libcxx_httportmapd_t libcxx_httportmapd_var_run_t:dir manage_dir_perms;
+allow libcxx_httportmapd_t libcxx_httportmapd_var_run_t:file manage_file_perms;
+allow libcxx_httportmapd_t libcxx_httportmapd_var_run_t:sock_file manage_sock_file_perms;
+
+allow unconfined_t libcxx_httportmapd_var_run_t:dir manage_dir_perms;
+allow unconfined_t libcxx_httportmapd_var_run_t:file manage_file_perms;
+allow unconfined_t libcxx_httportmapd_var_run_t:sock_file manage_sock_file_perms;
+allow unconfined_service_t libcxx_httportmapd_var_run_t:sock_file manage_sock_file_perms;
+
+userdom_use_inherited_user_ptys(libcxx_httportmapd_t)
+
+allow libcxx_httportmapd_t self:capability { setgid setuid sys_chroot };
+allow libcxx_httportmapd_t self:unix_dgram_socket {connect create};
+allow libcxx_httportmapd_t self:unix_stream_socket {connectto};
+
+init_ioctl_stream_sockets(libcxx_httportmapd_t)
+
+allow libcxx_httportmapd_t libcxx_httportmapd_exec_t:file execute_no_trans;

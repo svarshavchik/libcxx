@@ -43,6 +43,17 @@ void gnutls::init::init_impl() noexcept
 {
 	__sync_fetch_and_add(&init_flag, 1);
 
+	if (!gcry_check_version(GCRYPT_VERSION))
+	{
+		std::cout << "Gcrypt version " GCRYPT_VERSION
+			  << " is required" << std::endl;
+		abort();
+	}
+
+
+	gcry_control (GCRYCTL_DISABLE_SECMEM, 0);
+	gcry_control (GCRYCTL_INITIALIZATION_FINISHED, 0);
+
 	if (!gnutls_check_version(LIBGNUTLS_VERSION))
 	{
 		std::cout << "Failed to initialize GnuTLS" << std::endl;

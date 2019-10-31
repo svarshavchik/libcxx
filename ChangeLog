@@ -1,3 +1,10 @@
+2019-10-31  Sam Varshavchik  <mrsam@courier-mta.com>
+
+	* Fedora: add selinux policy file for httportmap.
+
+	* Fix gcrypt initialization.
+
+
 2019-09-21  Sam Varshavchik  <mrsam@courier-mta.com>
 
 	* xml: automatically convert all text strings from the global locale's

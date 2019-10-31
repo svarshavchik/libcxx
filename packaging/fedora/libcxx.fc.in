@@ -1,0 +1,6 @@
+@sbindir@/httportmapd -- gen_context(system_u:object_r:libcxx_httportmapd_exec_t,s0)
+@localstatedir@/httportmap -- gen_context(system_u:object_r:libcxx_httportmapd_exec_t,s0)
+@localstatedir@/httportmap.client -- gen_context(system_u:object_r:libcxx_httportmapd_exec_t,s0)
+@localstatedir@/httportmap.lock -- gen_context(system_u:object_r:libcxx_httportmapd_exec_t,s0)
+@localstatedir@/httportmap.priv -- gen_context(system_u:object_r:libcxx_httportmapd_exec_t,s0)
+@localstatedir@/httportmap.systemd -- gen_context(system_u:object_r:libcxx_httportmapd_exec_t,s0)

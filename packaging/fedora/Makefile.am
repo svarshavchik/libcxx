@@ -4,10 +4,9 @@
 #
 
 noinst_DATA=systemd
-EXTRA_DIST=libcxx.spec systemd.in
+EXTRA_DIST=libcxx.spec libcxx.te systemd.in
 CLEANFILES=systemd
 
 systemd: systemd.in Makefile
 	sed 's~@''datadir''@~${datadir}~g' <$< >$@.tmp
 	mv $@.tmp $@
-

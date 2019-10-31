@@ -1,3 +1,4 @@
+#!/usr/bin/rpm
 #
 # Copyright 2012-2018 Double Precision, Inc.
 # See COPYING for distribution information.
@@ -39,6 +40,18 @@ BuildRequires: libxml2-devel
 BuildRequires: cups-devel
 Requires(post): /bin/systemctl
 Requires(preun): /bin/systemctl
+
+%if %do_compat
+
+%else
+Recommends: %{name}-selinux
+Recommends: %{name}-httpd
+%endif
+
+BuildRequires: checkpolicy, selinux-policy-devel
+%if "%{_selinux_policy_version}" != ""
+Requires:       selinux-policy >= %{_selinux_policy_version}
+%endif
 
 %description
 The C++ class library provides many classes that are useful
@@ -85,6 +98,20 @@ Requires: /etc/httpd/conf.d
 This package configurates Apache to redirect http://localhost/portmap URLs
 to the httportmap daemon. This package must be installed if Apache is also
 installed on this server.
+
+%package selinux
+Summary: libcxx selinux policy file
+Requires: %{name} = %{version}-%{release}
+Requires:       selinux-policy >= %{selinux_policy_version}
+Requires(post):   %{name} = %{version}-%{release},
+Requires(post):   %{_sbindir}/semodule, %{__restorecon}
+Requires(postun): %{_sbindir}/semodule
+
+%description selinux
+This package install the selinux policy file for libcxx's httportmap
+daemon
+
+
 %endif
 
 %description ltdl
@@ -96,13 +123,15 @@ This package installs the libcxxcups wrapper for the CUPS framework.
 %description devel
 This package installs files needed to develop applications that use libcxx.
 
-
 %prep
 %setup -q -n libcxx-%{version}
 %configure
 
 %build
 %{__make} %{_smp_mflags}
+
+cd packaging/fedora
+%{__make} -f /usr/share/selinux/devel/Makefile libcxx.pp
 
 %install
 rm -rf $RPM_BUILD_ROOT
@@ -111,6 +140,11 @@ mkdir -p $RPM_BUILD_ROOT/etc/httpd/conf.d
 %{__install} -m 0444 httportmap/apache.conf $RPM_BUILD_ROOT/etc/httpd/conf.d/httportmap.conf
 mkdir -p $RPM_BUILD_ROOT/etc/rc.d/init.d
 %{__install} -m 0555 packaging/fedora/sysinit $RPM_BUILD_ROOT%{_datadir}/httportmap/sysinit
+%{__install} -m 0555 packaging/fedora/libcxx.pp \
+ packaging/fedora/libcxx.fc \
+ packaging/fedora/libcxx.te \
+ $RPM_BUILD_ROOT%{_datadir}/httportmap
+
 mkdir -p $RPM_BUILD_ROOT%{_unitdir}
 %{__install} -m 0644 packaging/fedora/systemd $RPM_BUILD_ROOT%{_unitdir}/httportmap.service
 
@@ -189,6 +223,26 @@ fi
 
 %postun
 
+if test "$1" = 0
+then
+   rm -rf %{_localstatedir}/httportmap
+   rm -rf %{_localstatedir}/httportmap.client
+   rm -rf %{_localstatedir}/httportmap.lock
+   rm -rf %{_localstatedir}/httportmap.priv
+fi
+%if %do_compat
+
+%else
+
+%post selinux
+%selinux_modules_install %{_datadir}/httportmap/libcxx.pp
+%{__restorecon} %{_sbindir}/httportmapd
+
+%postun selinux
+%selinux_modules_uninstall libcxx
+
+%endif
+
 # Do not use systemd_postun_with_restart. This stops httportmap completely.
 # try-reload-or-restart in %post is sufficient for our purposes.
 
@@ -210,10 +264,10 @@ fi
 %{_unitdir}/*
 %attr(0777, root, root) %verify(user group mode) %ghost %config(missingok) %{_localstatedir}/run/httportmap
 %attr(0777, root, root) %verify(user group mode) %ghost %config(missingok) %{_localstatedir}/run/httportmap.client
-%attr(0700, root, root) %dir %{_localstatedir}/run/httportmap.priv
+%attr(0700, root, root) %ghost %dir %{_localstatedir}/run/httportmap.priv
 %attr(0777, root, root) %verify(user group mode) %ghost %config(missingok) %{_localstatedir}/run/httportmap.priv/socket
-%attr(0600, root, root) %verify(user group mode) %config(missingok) %{_localstatedir}/run/httportmap.lock
-%attr(0700, root, root) %dir %{_localstatedir}/run/httportmap.systemd
+%attr(0600, root, root) %verify(user group mode) %ghost %config(missingok) %{_localstatedir}/run/httportmap.lock
+%attr(0700, root, root) %ghost %dir %{_localstatedir}/run/httportmap.systemd
 
 %dir %{_sysconfdir}/tlsparams
 %config(noreplace) %{_sysconfdir}/tlsparams/*
@@ -248,6 +302,11 @@ fi
 %files httpd
 %defattr(-,root,root,-)
 /etc/httpd/conf.d/*
+
+%files selinux
+%{_datadir}/httportmap/libcxx.pp
+%{_datadir}/httportmap/libcxx.fc
+%{_datadir}/httportmap/libcxx.te
 %endif
 
 %changelog

@@ -2,3 +2,7 @@ Makefile
 libcxx.spec
 sysinit
 systemd
+tmp
+libcxx.pp
+libcxx.fc
+libcxx.if

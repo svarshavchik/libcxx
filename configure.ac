@@ -687,7 +687,7 @@ AC_SUBST(YAMLCPPFLAGS)
 
 AC_PATH_PROG(CUPS_CONFIG,cups-config,none)
 
-if test "CUPS_CONFIG" = "none"
+if test "$CUPS_CONFIG" = "none"
 then
 	AC_MSG_ERROR([Unable to find cups-config, the CUPS development libraries are not installed])
 fi
@@ -713,6 +713,7 @@ test "x$exec_prefix" = xNONE && exec_prefix='${prefix}'
 eval "prefix=\"$prefix\""
 eval "exec_prefix=\"$exec_prefix\""
 eval "sbindir=\"$sbindir\""
+eval "localstatedir=\"$localstatedir\""
 eval "httportmapd=\"$sbindir/httportmapd\""
 
 AC_SUBST(httportmapd)
@@ -775,6 +776,7 @@ AC_CONFIG_FILES([Doxyfile po/Makefile.in
 		 packaging/fedora/libcxx.spec
 		 packaging/fedora/sysinit
 		 packaging/fedora/Makefile
+		 packaging/fedora/libcxx.fc
 		 packaging/freebsd10/devel/libcxx/Makefile
 		 ])
 AC_OUTPUT
