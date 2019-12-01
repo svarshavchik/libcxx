@@ -2006,7 +2006,7 @@ class LIBCXX_HIDDEN impldocObj::xpathImplObj : public xpathObj,
 
 		if (n == 0 || n > count(x_lock))
 			throw EXCEPTION(gettextmsg(libmsg(_txt("%1% node #%2% does not exist")),
-						   expression, xml_n));
+						   expression, n));
 
 		xml_n=objp->nodesetval->nodeTab[n-1];
 	}
