@@ -28,10 +28,10 @@ runthreadsingleton::get_impl::get_impl(runthreadsingleton &once_object)
 {
 }
 
-mutex::base::mlock 
+mlock
 runthreadsingleton::get_impl::get_lock(runthreadsingleton &once_object)
 {
-	mutex::base::mlockptr lock=
+	mlockptr lock=
 		once_object.runthreadsingleton_mutex->trylock();
 
 	if (lock.null())
@@ -39,13 +39,9 @@ runthreadsingleton::get_impl::get_lock(runthreadsingleton &once_object)
 	return lock;
 }
 
-runthreadsingleton::get_impl::~get_impl()
-{
-}
+runthreadsingleton::get_impl::~get_impl()=default;
 
 #if 0
 {
 #endif
 }
-
-

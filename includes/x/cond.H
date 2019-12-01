@@ -10,7 +10,8 @@
 #include <time.h>
 #include <x/ptr.H>
 #include <x/condobj.H>
-
+#include <x/mutex.H>
+#include <x/mlock.H>
 #include <x/namespace.h>
 
 namespace LIBCXX_NAMESPACE {
@@ -40,7 +41,7 @@ class condObj;
 //! \ref condObj::wait() "myCond-&gt;wait(myMutex)",
 //! \ref condObj::wait_until() "myCond-&gt;wait_until(lock, timeout)"
 //! (where \c lock is a
-//! \ref mutexBase "INSERT_LIBX_NAMESPACE::mutex::base::mlock"
+//! \ref mlock "INSERT_LIBX_NAMESPACE::mlock"
 //! and timeout is a time point) waits until
 //! the condition variable is signaled by myMutex, which must be locked.
 //!
@@ -61,4 +62,3 @@ typedef ptr<condObj> condptr;
 #endif
 }
 #endif
-

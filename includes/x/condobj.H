@@ -9,7 +9,9 @@
 
 #include <time.h>
 #include <x/obj.H>
-#include <x/mutex.H>
+#include <x/mutexobj.H>
+#include <x/mlockfwd.H>
+#include <x/mlockobj.H>
 #include <x/exceptionfwd.H>
 #include <x/namespace.h>
 
@@ -27,6 +29,9 @@ class condObj : virtual public obj {
 	//! The underlying condition variable.
 	std::condition_variable cond;
 
+	//! Fatal exception.
+	void caught_exception() __attribute__((noreturn));
+
 public:
 
 	//! Create a new condition variable
@@ -37,17 +42,17 @@ public:
 
 	//! Wait on the condition variable
 	void wait(//! An existing mutex lock
-		  const mutex::base::mlock &m);
+		  const mlock &m);
 
 	//! Wait on a condition variable, with a timeout
 	template<typename timeout_type>
 	bool wait_until(//! An existing mutex lock
-			const mutex::base::mlock &m,
+			const mlock &m,
 
 			//! Timeout.
 			const timeout_type &abstime)
 	{
-		mutex m_save(m->m);
+		auto &m_save=m->m;
 
 		std::unique_lock<std::mutex> lock(m_save->objmutex);
 
@@ -63,8 +68,7 @@ public:
 			while (m_save->acquired)
 				m_save->cond.wait(lock);
 		} catch (...) {
-			m_save->acquired=true;
-			throw;
+			caught_exception();
 		}
 		m_save->acquired=true;
 		return flag;

@@ -4,29 +4,35 @@
 */
 
 #include "libcxx_config.h"
-#include "x/condobj.H"
+#include "x/cond.H"
+#include "x/mlock.H"
 #include <iostream>
+#include <stdlib.h>
 
 namespace LIBCXX_NAMESPACE {
 #if 0
 };
 #endif
 
-condObj::condObj()
-{
-}
+condObj::condObj()=default;
+
 #if 0
 condObj::condObj(const cond_attr &attr) : cond(attr)
 {
 }
 #endif
-condObj::~condObj()
+condObj::~condObj()=default;
+
+void condObj::caught_exception()
 {
+	std::cout << "Caught a fatal exception while waiting for a condition variable"
+		  << std::endl;
+	abort();
 }
 
-void condObj::wait(const mutex::base::mlock &m)
+void condObj::wait(const mlock &m)
 {
-	mutex m_save(m->m);
+	auto &m_save=m->m;
 
 	std::unique_lock<std::mutex> lock(m_save->objmutex);
 
@@ -39,8 +45,7 @@ void condObj::wait(const mutex::base::mlock &m)
 		while (m_save->acquired)
 			m_save->cond.wait(lock);
 	} catch (...) {
-		m_save->acquired=true;
-		throw;
+		caught_exception();
 	}
 
 	m_save->acquired=true;

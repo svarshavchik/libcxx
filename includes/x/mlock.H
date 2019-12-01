@@ -1,14 +1,14 @@
 /*
-** Copyright 2012-2019 Double Precision, Inc.
+** Copyright 2019 Double Precision, Inc.
 ** See COPYING for distribution information.
 */
 
-#ifndef mutex_H
-#define mutex_H
+#ifndef mlock_H
+#define mlock_H
 
 #include <x/ref.H>
-#include <x/mutexobj.H>
-#include <x/mutexfwd.H>
+#include <x/mlockobj.H>
+#include <x/mlockfwd.H>
 #include <x/namespace.h>
 
 namespace LIBCXX_NAMESPACE {

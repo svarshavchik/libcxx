@@ -8,6 +8,7 @@
 
 #include <x/namespace.h>
 #include <x/mutex.H>
+#include <x/mlock.H>
 #include <type_traits>
 
 namespace LIBCXX_NAMESPACE {
@@ -54,11 +55,11 @@ public:
 
 		//! The acquired lock
 
-		mutex::base::mlock lock;
+		mlock lock;
 
 		//! Invoked by the constructor
 
-		static mutex::base::mlock
+		static mlock
 		get_lock(runthreadsingleton &once_object) LIBCXX_HIDDEN;
 
 	public:

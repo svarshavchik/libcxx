@@ -15,7 +15,6 @@ namespace LIBCXX_NAMESPACE {
 #endif
 
 class mutexObj;
-class mutexBase;
 
 //! A reference-counted mutex
 
@@ -28,13 +27,13 @@ class mutexBase;
 //! can be passed between threads, and released by a thread other than the
 //! one that created it.
 
-typedef ref<mutexObj, mutexBase> mutex;
+typedef ref<mutexObj> mutex;
 
 //! A nullable pointer to a \ref mutex "mutex".
 
 //! \see mutex
 
-typedef ptr<mutexObj, mutexBase> mutexptr;
+typedef ptr<mutexObj> mutexptr;
 
 #if 0
 {

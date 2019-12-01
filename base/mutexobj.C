@@ -5,6 +5,7 @@
 
 #include "libcxx_config.h"
 #include "x/mutex.H"
+#include "x/cond.H"
 #include "x/exception.H"
 #include <iostream>
 
@@ -13,7 +14,7 @@ namespace LIBCXX_NAMESPACE {
 };
 #endif
 
-mutexObj::mutexObj() : acquired(false)
+mutexObj::mutexObj() : acquired{false}
 {
 }
 #if 0
@@ -27,25 +28,21 @@ mutexObj::~mutexObj()
 {
 }
 
-void mutexObj::unlock() noexcept
+mlockObj::mlockObj(const mutex &m)
+	: m{m}
 {
-	std::lock_guard<std::mutex> lock(objmutex);
-
-	acquired=false;
-	cond.notify_all();
+	m->acquired=true;
 }
 
-mutexObj::mlockObj::mlockObj()
+mlockObj::~mlockObj()
 {
+	std::lock_guard<std::mutex> lock{m->objmutex};
+
+	m->acquired=false;
+	m->cond.notify_all();
 }
 
-mutexObj::mlockObj::~mlockObj()
-{
-	if (!m.null())
-		m->unlock();
-}
-
-mutex::base::mlock mutexObj::lock()
+mlock mutexObj::lock()
 {
 	std::unique_lock<std::mutex> lock(objmutex);
 
@@ -55,17 +52,12 @@ mutex::base::mlock mutexObj::lock()
 	return acquire();
 }
 
-mutex::base::mlock mutexObj::acquire()
+mlock mutexObj::acquire()
 {
-	mlock lock=mlock::create();
-
-	acquired=true;
-	lock->m=mutexptr(this);
-
-	return lock;
+	return mlock::create(ref{this});
 }
 
-mutex::base::mlockptr mutexObj::trylock()
+mlockptr mutexObj::trylock()
 {
 	mlockptr ptr;
 

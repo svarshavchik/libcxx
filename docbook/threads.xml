@@ -223,13 +223,14 @@ mpv.update([=](auto &amp;v){v.v=nv+1;});</programlisting>
       <informalexample>
 	<programlisting>
 #include &lt;&ns;/mutex.H&gt;
+#include &lt;&ns;/mlock.H&gt;
 
-&ns;::mutex m(&ns;::mutex::create());
+&ns;::mutex m{&ns;::mutex::create()};
 
 // ...
 
 {
-  &ns;::mutex::base::mlock lock=m-&gt;lock();
+  &ns;::mlock lock=m-&gt;lock();
 
   // ...
 
@@ -243,8 +244,8 @@ mpv.update([=](auto &amp;v){v.v=nv+1;});</programlisting>
       <link linkend="refobj">reference-counted</link>
       object with similar semantics as
       <classname>std::mutex</classname>.
-      Its <function>lock</function>() method instantiates a
-      <classname>&ns;::mutex::base::mlock</classname>, which itself a
+      Its <function>lock</function>() method returns a
+      <classname>&ns;::mlock</classname>, which itself a
       reference on a reference-counted object. Only one lock object may exist
       at a time.
       The mutex gets unlocked when the last reference to the lock object
@@ -253,7 +254,7 @@ mpv.update([=](auto &amp;v){v.v=nv+1;});</programlisting>
 
     <para>
       <classname>&ns;::mutex</classname> and
-      <classname>&ns;::mutex::base::mlock</classname> are references to
+      <classname>&ns;::mlock</classname> are references to
       <link linkend="refobj">reference-counted objects</link>; as such,
       for example, a lock can get acquired by one thread, and passed around.
       Whichever thread holds the last reference to the lock unlocks the mutex
@@ -268,14 +269,14 @@ mpv.update([=](auto &amp;v){v.v=nv+1;});</programlisting>
       Following the usual convention for reference-counted objects,
       <ulink url="&link-typedef-x-mutexptr;"><classname>&ns;::mutexptr</classname></ulink>
       is a typedef for a nullable pointer reference to a mutex, and
-      <classname>&ns;::mutex::base::mlockptr</classname> is a nullable
+      <classname>&ns;::mlockptr</classname> is a nullable
       pointer reference to a lock object:
     </para>
 
     <blockquote>
       <informalexample>
 	<programlisting>
-&ns;::mutex::base::mlockptr lock=m-&gt;trylock();
+&ns;::mlockptr lock=m-&gt;trylock();
 
 if (lock.null())
    // ...
@@ -302,7 +303,7 @@ if (lock.null())
 
 &ns;::mutex m=&ns;::mutex::create();
 
-&ns;::mutex::base::mlockptr p=
+&ns;::mlockptr p=
     m-&gt;wait_until(std::chrono::monotonic_clock::now() +
         std::chrono::milliseconds(500));
 
@@ -331,9 +332,10 @@ if (lock.null())
       <informalexample>
 	<programlisting>
 #include &lt;&ns;/mutex.H&gt;
+#include &lt;&ns;/mlock.H&gt;
 #include &lt;&ns;/cond.H&gt;
 
-&ns;::mutex::base::mlock lock=m-&gt;lock();
+&ns;::mlock lock=m-&gt;lock();
 
 &ns;::cond c=&ns;::cond::create();
 

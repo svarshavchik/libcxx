@@ -150,7 +150,7 @@ class threadtestinfo : virtual public LIBCXX_NAMESPACE::obj {
 public:
 	LIBCXX_NAMESPACE::condptr condvar;
 	LIBCXX_NAMESPACE::mutexptr mutex;
-	volatile int *lockflag;
+	int *lockflag;
 	int processnum;
 
 	~threadtestinfo() {}
@@ -168,10 +168,10 @@ int threadtestproc::run(const LIBCXX_NAMESPACE::ref<threadtestinfo> &arg)
 
 	threadtestinfo &testinfo=*arg;
 
-	for (i=0; i<5; i++)
+	for (i=0; i<100; i++)
 	{
 		{
-			LIBCXX_NAMESPACE::mutex::base::mlock
+			LIBCXX_NAMESPACE::mlock
 				lock1=testinfo.mutex->lock();
 
 			while (*testinfo.lockflag != testinfo.processnum)
@@ -258,7 +258,7 @@ static void threadtest()
 
 	LIBCXX_NAMESPACE::condptr condvar(LIBCXX_NAMESPACE::condptr::create());
 	LIBCXX_NAMESPACE::mutex mutex(LIBCXX_NAMESPACE::mutex::create());
-	volatile int lockflag=0;
+	int lockflag=0;
 
 	LIBCXX_NAMESPACE::ref<threadtestinfo>
 		thread1_arg(LIBCXX_NAMESPACE::ref<threadtestinfo>::create()),
@@ -661,7 +661,7 @@ public:
 
 	void run()
 	{
-		LIBCXX_NAMESPACE::mutex::base::mlock l=m->lock();
+		LIBCXX_NAMESPACE::mlock l=m->lock();
 
 		++lockflag;
 		c->notify_all();
@@ -679,9 +679,9 @@ void testmutex()
 
 		LIBCXX_NAMESPACE::mutex m=LIBCXX_NAMESPACE::mutex::create();
 
-		LIBCXX_NAMESPACE::mutex::base::mlock l=m->lock();
+		LIBCXX_NAMESPACE::mlock l=m->lock();
 
-		LIBCXX_NAMESPACE::mutex::base::mlockptr p=
+		LIBCXX_NAMESPACE::mlockptr p=
 			m->wait_until(LIBCXX_NAMESPACE::timer::base::clock_t::now()
 				      + std::chrono::milliseconds(500));
 		if (!p.null())
@@ -704,7 +704,7 @@ void testmutex()
 	std::cout << "Starting " << threads.size() << " threads" << std::endl;
 
 	{
-		LIBCXX_NAMESPACE::mutex::base::mlock l=tm->m->lock();
+		LIBCXX_NAMESPACE::mlock l=tm->m->lock();
 
 		if (!tm->m->trylock().null())
 			throw EXCEPTION("testmutex: locked twice?");
@@ -783,7 +783,7 @@ void rthread::run(const LIBCXX_NAMESPACE::ref<sharedlocktestinfo> &rwti)
 	LIBCXX_NAMESPACE::sharedlock::base::shared shared=
 		rwti->rwl->create_shared();
 
-	LIBCXX_NAMESPACE::mutex::base::mlock lock=rwti->globmutex->lock();
+	LIBCXX_NAMESPACE::mlock lock=rwti->globmutex->lock();
 
 	++rwti->counter;
 
@@ -862,7 +862,7 @@ static void sharedlocktest()
 	auto r1_ret=LIBCXX_NAMESPACE::run(r1, rwti);
 
 	{
-		LIBCXX_NAMESPACE::mutex::base::mlock
+		LIBCXX_NAMESPACE::mlock
 			lock=rwti->globmutex->lock();
 
 		while (rwti->counter < 1)
@@ -880,7 +880,7 @@ static void sharedlocktest()
 	{
 		int acc=0;
 
-		LIBCXX_NAMESPACE::mutex::base::mlock
+		LIBCXX_NAMESPACE::mlock
 			lock=rwti->globmutex->lock();
 
 		while (acc < 2)

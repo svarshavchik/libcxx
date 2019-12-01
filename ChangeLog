@@ -1,3 +1,8 @@
+2020-11-30  Sam Varshavchik  <mrsam@courier-mta.com>
+
+	* Rename mutex::base::mlock as mlock, and clean up its internal
+	implementation.
+
 2019-10-31  Sam Varshavchik  <mrsam@courier-mta.com>
 
 	* Fedora: add selinux policy file for httportmap.
