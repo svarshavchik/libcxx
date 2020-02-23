@@ -1,5 +1,5 @@
 /*
-** Copyright 2013-2019 Double Precision, Inc.
+** Copyright 2013-2020 Double Precision, Inc.
 ** See COPYING for distribution information.
 */
 
@@ -22,6 +22,9 @@ namespace LIBCXX_NAMESPACE {
 	};
 };
 #endif
+
+#define LIBCXX_TEMPLATE_DECL
+#include "x/xml/docobj_to.H"
 
 void throw_last_error(const char *context)
 {

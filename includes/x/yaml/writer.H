@@ -1,5 +1,5 @@
 /*
-** Copyright 2012-2019 Double Precision, Inc.
+** Copyright 2012-2020 Double Precision, Inc.
 ** See COPYING for distribution information.
 */
 #ifndef x_yaml_writer_H

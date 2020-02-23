@@ -1,5 +1,5 @@
 /*
-** Copyright 2013-2019 Double Precision, Inc.
+** Copyright 2013-2020 Double Precision, Inc.
 ** See COPYING for distribution information.
 */
 
@@ -11,6 +11,10 @@
 #include <x/xml/newdtd.H>
 #include <set>
 #include <vector>
+#include <charconv>
+#include <limits>
+#include <functional>
+
 namespace LIBCXX_NAMESPACE {
 
 	class uriimpl;
@@ -647,6 +651,20 @@ public:
 		virtual ref<createnodeObj> text(//! Content of the new text node
 						const std::string &text)=0;
 
+		//! Create a new text node
+
+		//! Overload for all numeric types except chars.
+		//! TODO: Drop the decltype SFINAE when gcc implements
+		//! to_chars for floating point values.
+
+		template<typename T, typename=std::enable_if_t<
+					     (sizeof(T) +
+					      0*sizeof(decltype(std::to_chars
+								(nullptr, nullptr,
+								 std::declval<T &&>())))
+					      >1)>>
+		void text(T t);
+
 		//! Create a new entity reference.
 		virtual ref<createnodeObj> entity(const std::string &text)=0;
 
@@ -1053,6 +1071,24 @@ public:
 	//! Blocks if a read or a write lock exists.
 	virtual ref<writelockObj> writelock()=0;
 };
+
+template<typename T, typename>
+void docObj::createnodeObj::text(T t)
+{
+	char buffer[std::numeric_limits<T>::digits10+10];
+
+	auto r=std::to_chars(buffer, buffer+sizeof(buffer)-1, t);
+
+	if (r.ec != std::errc{})
+		return; // Shouldn't happen
+
+	*r.ptr=0;
+	text(buffer);
+}
+
+#define LIBCXX_TEMPLATE_DECL extern
+#include <x/xml/docobj_to.H>
+#undef LIBCXX_TEMPLATE_DECL
 
 #if 0
 {

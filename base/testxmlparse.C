@@ -1,5 +1,5 @@
 /*
-** Copyright 2013-2019 Double Precision, Inc.
+** Copyright 2013-2020 Double Precision, Inc.
 ** See COPYING for distribution information.
 */
 
@@ -1207,6 +1207,26 @@ void test70()
 		throw EXCEPTION("test70: didn't transcode text");
 }
 
+void test80()
+{
+	auto d=LIBCXX_NAMESPACE::xml::doc::create();
+
+	auto l=d->writelock();
+	auto c=l->create_child();
+
+	c=c->element({"root"});
+
+	c->text(-20);
+
+	std::ostringstream o;
+
+	l->save_to(std::ostreambuf_iterator<char>(o), false);
+
+	if (o.str() != "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
+	    "<root>-20</root>\n")
+		throw EXCEPTION("test80 failed");
+}
+
 int main(int argc, char **argv)
 {
 	try {
@@ -1237,6 +1257,8 @@ int main(int argc, char **argv)
 
 		LIBCXX_NAMESPACE::locale::create("ru_RU.KOI8-R")->global();
 		test70();
+
+		test80();
 	} catch (LIBCXX_NAMESPACE::exception &e)
 	{
 		std::cerr << e << std::endl;

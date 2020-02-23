@@ -1,3 +1,8 @@
+2020-02-23  Sam Varshavchik  <mrsam@courier-mta.com>
+
+	* includes/x/xml/docobj.H (class docObj): text() overload for
+	numeric values.
+
 2020-11-30  Sam Varshavchik  <mrsam@courier-mta.com>
 
 	* Rename mutex::base::mlock as mlock, and clean up its internal

@@ -460,6 +460,10 @@ creator-&gt;entity("XML");</programlisting>
       <methodname>text</methodname>() creates a text node, and
       <methodname>cdata</methodname>() create a <literal>CDATA</literal> text
       node.
+      A
+      <methodname>text</methodname>() overload for all numeric types supported
+      by <classname>std::to_chars</classname> creates a text node with the
+      text representation of the numeric value.
       <methodname>processing_instruction</methodname>() creates an &xml;
       processing instruction. Its first parameter is the processor name,
       the second parameter is the instruction.
