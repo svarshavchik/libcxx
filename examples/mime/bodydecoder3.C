@@ -37,7 +37,7 @@ parse_section(const x::headersbase &headers,
 		content_type(headers,
 			     x::mime::structured_content_header::content_type);
 
-	if (content_type.is_message_rfc822())
+	if (content_type.is_message())
 		return x::mime::make_message_rfc822_parser
 			(create_parser, info);
 
@@ -65,7 +65,7 @@ parse_section(const x::headersbase &headers,
 						   dump_to_stdout);
 }
 
-void dump(const x::mime::sectioninfo &info)
+void dump(const x::mime::const_sectioninfo &info)
 {
 	std::cout << "MIME section " << info->index_name()
 		  << " starts at character offset "

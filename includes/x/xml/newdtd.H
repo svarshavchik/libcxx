@@ -17,6 +17,7 @@ namespace LIBCXX_NAMESPACE {
 };
 #endif
 
+#include <x/xml/writelock_newdtd.H>
 
 #if 0
 {

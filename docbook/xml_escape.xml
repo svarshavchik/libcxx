@@ -68,3 +68,9 @@ return s;</programlisting>
     <quote><literal>&amp;#x</literal><replaceable>N</replaceable><literal>;</literal></quote>.
   </para>
 </chapter>
+<!--
+Local Variables:
+mode: sgml
+sgml-parent-document: ("book.xml" "part" "chapter")
+End:
+-->

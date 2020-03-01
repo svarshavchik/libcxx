@@ -3,7 +3,7 @@
 
 AC_PREREQ([2.69])
 AC_INIT([libcxx-examples], [0.0.0], [libcxx-users@lists.libcxx.org])
-AC_CONFIG_SRCDIR([managedsingleton.C])
+AC_CONFIG_SRCDIR([parser.C])
 AC_CONFIG_HEADERS([config.h])
 AM_INIT_AUTOMAKE([dist-bzip2 foreign -Wno-portability])
 AM_SILENT_RULES([yes])

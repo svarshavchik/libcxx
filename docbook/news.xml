@@ -11,7 +11,17 @@ See COPYING for distribution information.
   <itemizedlist>
     <listitem>
       <para>
-	Minor API cleanup: renamed <classname>mutex::base::mlock</classname>
+	Refactoring of the <link linkend="xml_parse">XML parser API</link>,
+	moving child objects of
+	<classname>&ns;::xml::doc</classname> to the parent
+	<classname>&ns;::xml</classname> namespace.
+	Add {from|to}utf{8|32} helpers to
+	<link linkend="localeobj">locale objects</link>.
+      </para>
+    </listitem>
+    <listitem>
+      <para>
+	Misc API cleanup: renamed <classname>mutex::base::mlock</classname>
 	as <classname>mlock</classname>.
       </para>
     </listitem>

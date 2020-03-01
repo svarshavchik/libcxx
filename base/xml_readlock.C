@@ -3,12 +3,8 @@
 ** See COPYING for distribution information.
 */
 
-#ifndef x_xml_dtd_H
-#define x_xml_dtd_H
-
-#include <x/xml/dtdfwd.H>
-#include <x/xml/dtdobj.H>
-#include <x/ref.H>
+#include "libcxx_config.h"
+#include "x/xml/readlock.H"
 
 namespace LIBCXX_NAMESPACE {
 	namespace xml {
@@ -17,7 +13,9 @@ namespace LIBCXX_NAMESPACE {
 };
 #endif
 
-#include <x/xml/readlock_dtd.H>
+readlockObj::readlockObj()=default;
+
+readlockObj::~readlockObj()=default;
 
 #if 0
 {
@@ -25,4 +23,3 @@ namespace LIBCXX_NAMESPACE {
 #endif
 	}
 }
-#endif

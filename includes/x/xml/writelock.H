@@ -3,12 +3,12 @@
 ** See COPYING for distribution information.
 */
 
-#ifndef x_xml_dtd_H
-#define x_xml_dtd_H
+#ifndef x_xml_writelock_H
+#define x_xml_writelock_H
 
-#include <x/xml/dtdfwd.H>
-#include <x/xml/dtdobj.H>
-#include <x/ref.H>
+#include <x/xml/writelockfwd.H>
+#include <x/xml/writelockobj.H>
+#include <x/xml/createnode.H>
 
 namespace LIBCXX_NAMESPACE {
 	namespace xml {
@@ -17,7 +17,7 @@ namespace LIBCXX_NAMESPACE {
 };
 #endif
 
-#include <x/xml/readlock_dtd.H>
+#include <x/xml/writelock_newdtd.H>
 
 #if 0
 {

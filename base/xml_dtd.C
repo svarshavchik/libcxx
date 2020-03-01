@@ -34,7 +34,7 @@ const dtdimplObj::subset_impl_t dtdimplObj::impl_internal = {
 
 dtdimplObj::dtdimplObj(const subset_impl_t &subset_implArg,
 		       const ref<impldocObj> &implArg,
-		       const doc::base::readlock lockArg)
+		       const const_readlock lockArg)
 	: subset_impl(subset_implArg),
 	  impl(implArg),
 	  lock(lockArg)

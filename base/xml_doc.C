@@ -23,9 +23,6 @@ namespace LIBCXX_NAMESPACE {
 };
 #endif
 
-#define LIBCXX_TEMPLATE_DECL
-#include "x/xml/docobj_to.H"
-
 void throw_last_error(const char *context)
 {
 	auto p=xmlGetLastError();
@@ -80,98 +77,6 @@ docObj::docObj()=default;
 
 docObj::~docObj()=default;
 
-docObj::newElement::newElement(const std::string &nameArg)
-	: newElement(nameArg, "", "")
-{
-	prefix_given=false;
-}
-
-docObj::newElement::newElement(const std::string &nameArg,
-			       const std::string &uriArg)
-	: newElement(nameArg, "", uriArg)
-{
-	prefix_given=false;
-}
-
-docObj::newElement::newElement(const std::string &nameArg,
-			       const char *uriArg)
-	: newElement(nameArg, "", uriArg)
-{
-	prefix_given=false;
-}
-
-docObj::newElement::newElement(const std::string &nameArg,
-			       const uriimpl &uriArg)
-	: newElement(nameArg, "", to_string(uriArg))
-{
-	prefix_given=false;
-}
-
-docObj::newElement::newElement(const std::string &nameArg,
-			       const std::string &prefixArg,
-			       const std::string &uriArg)
-	: name(nameArg), prefix(prefixArg), uri(uriArg), prefix_given(true)
-{
-}
-
-docObj::newElement::~newElement()
-{
-}
-
-docObj::docAttribute::docAttribute(const std::string &attrnameArg,
-				   const std::string &attrnamespaceArg)
-	: attrname(attrnameArg), attrnamespace(attrnamespaceArg)
-{
-}
-
-docObj::docAttribute::~docAttribute()
-{
-}
-
-bool docObj::docAttribute::operator<(const docAttribute &o) const
-{
-	if (attrname < o.attrname)
-		return true;
-
-	if (o.attrname < attrname)
-		return false;
-
-	return attrnamespace < o.attrnamespace;
-}
-
-docObj::newAttribute::newAttribute(const std::string &attrnameArg,
-				   const std::string &attrvalueArg)
-	: newAttribute(attrnameArg, "", attrvalueArg)
-{
-}
-
-docObj::newAttribute::newAttribute(const std::string &attrnameArg,
-				   const std::string &attrnamespaceArg,
-				   const std::string &attrvalueArg)
-	: docAttribute(attrnameArg, attrnamespaceArg), attrvalue(attrvalueArg)
-{
-}
-
-docObj::newAttribute::newAttribute(const std::string &attrnameArg,
-				   const uriimpl &attrnamespaceArg,
-				   const std::string &attrvalueArg)
-	: newAttribute(attrnameArg, to_string(attrnamespaceArg), attrvalueArg)
-{
-}
-
-docObj::newAttribute::newAttribute(const std::string &attrnameArg,
-				   const char *attrnamespaceArg,
-				   const std::string &attrvalueArg)
-	: newAttribute(attrnameArg, std::string(attrnamespaceArg),
-		       attrvalueArg)
-{
-}
-
-docObj::newAttribute::~newAttribute()
-{
-}
-
-
 doc docBase::create()
 {
 	return ref<impldocObj>::create(xmlNewDoc((const xmlChar *)"1.0"),
@@ -206,42 +111,6 @@ doc docBase::create(const std::string_view &filename,
 // holds internally. writelockimplObj inherits the read functionality from
 // readlockimplObj, implements the write functionality, and overrides clone()
 // to throw an exception, can't clone() a write lock.
-
-docObj::readlockObj::readlockObj()=default;
-
-docObj::readlockObj::~readlockObj()=default;
-
-docObj::writelockObj::writelockObj()
-{
-}
-
-docObj::writelockObj::~writelockObj()
-{
-}
-
-newdtd docObj::writelockObj::create_external_dtd(const std::string &external_id,
-						 const char *system_id)
-{
-	return create_external_dtd(external_id, std::string(system_id));
-}
-
-newdtd docObj::writelockObj::create_external_dtd(const std::string &external_id,
-						 const uriimpl &system_id)
-{
-	return create_external_dtd(external_id, to_string(system_id));
-}
-
-newdtd docObj::writelockObj::create_internal_dtd(const std::string &external_id,
-						 const char *system_id)
-{
-	return create_internal_dtd(external_id, std::string(system_id));
-}
-
-newdtd docObj::writelockObj::create_internal_dtd(const std::string &external_id,
-						 const uriimpl &system_id)
-{
-	return create_internal_dtd(external_id, to_string(system_id));
-}
 
 // Context pointer that's passed through via the libxml callback when
 // saving an XML document.
@@ -300,13 +169,9 @@ extern "C" {
 	}
 };
 
-docObj::save_to_callback::save_to_callback()
-{
-}
+save_to_callback::save_to_callback()=default;
 
-docObj::save_to_callback::~save_to_callback()
-{
-}
+save_to_callback::~save_to_callback()=default;
 
 typedef mpobj<xmlNodePtr, std::recursive_mutex> locked_xml_n_t;
 
@@ -328,7 +193,6 @@ class LIBCXX_HIDDEN impldocObj::readlockImplObj : public writelockObj,
 						  public get_localeObj {
 
  public:
-
 	const ref<impldocObj> impl;
 	const ref<obj> lock;
 
@@ -697,27 +561,28 @@ class LIBCXX_HIDDEN impldocObj::readlockImplObj : public writelockObj,
 		return s;
 	}
 
-	void get_all_attributes(std::set<docAttribute> &attributes) const
-		override
+	get_all_attributes_t get_all_attributes() const override
 	{
+		get_all_attributes_t attributes;
+
 		locked_xml_n_t::lock x_lock{locked_xml_n};
 
 		auto &xml_n=*x_lock;
 
 		if (!xml_n || xml_n->type != XML_ELEMENT_NODE)
-			return;
+			return attributes;
 
 		for (auto p=xml_n->properties; p; p=p->next)
 		{
-			attributes.insert(docAttribute(get_str(p->name, *this),
-						       p->ns ?
-						       get_str(p->ns->href,
-							       *this):""
-						       ));
+			attributes.emplace(get_str(p->name, *this),
+					   p->ns ? get_str(p->ns->href, *this)
+					   :"");
 		}
+
+		return attributes;
 	}
 
-	ref<xpathObj> get_xpath(const std::string &expr) override;
+	xpath get_xpath(const std::string &expr) override;
 
 	bool is_blank() const override
 	{
@@ -846,7 +711,7 @@ class LIBCXX_HIDDEN impldocObj::readlockImplObj : public writelockObj,
 		}
 	}
 
-	ref<createnodeObj> create_child() override
+	createnode create_child() override
 	{
 		throw EXCEPTION(libmsg(_txt("Somehow you ended up calling a virtual write method on a read object. Virtual objects are not for playing.")));
 	}
@@ -864,12 +729,12 @@ class LIBCXX_HIDDEN impldocObj::readlockImplObj : public writelockObj,
 		return removal_mcguffin{this};
 	}
 
-	ref<createnodeObj> create_next_sibling() override
+	createnode create_next_sibling() override
 	{
 		return create_child();
 	}
 
-	ref<createnodeObj> create_previous_sibling() override
+	createnode create_previous_sibling() override
 	{
 		return create_child();
 	}
@@ -892,7 +757,7 @@ class LIBCXX_HIDDEN impldocObj::readlockImplObj : public writelockObj,
 		create_child();
 	}
 
-	void do_attribute(const newAttribute &attr) override
+	void do_attribute(const new_attribute &attr) override
 	{
 		create_child();
 	}
@@ -926,20 +791,14 @@ class LIBCXX_HIDDEN impldocObj::readlockImplObj : public writelockObj,
 	{
 		return ref<dtdimplObj>::create(dtdimplObj::impl_external,
 					       impl,
-					       doc::base::
-					       readlock(const_cast<
-							readlockImplObj *>
-							(this)));
+					       const_ref{this});
 	}
 
 	dtd do_get_internal_dtd_dtd() const override
 	{
 		return ref<dtdimplObj>::create(dtdimplObj::impl_internal,
 					       impl,
-					       doc::base::
-					       readlock(const_cast<
-							readlockImplObj *>
-							(this)));
+					       const_ref{this});
 	}
 
 	newdtd do_get_external_dtd_newdtd() override
@@ -1079,7 +938,7 @@ class LIBCXX_HIDDEN impldocObj::createnodeImplObj : public createnodeObj,
 		}
 	};
 
-	ref<createnodeObj> element(const newElement &e) override
+	createnode element(const new_element &e) override
 	{
 		if (e.prefix_given)
 		{
@@ -1125,32 +984,32 @@ class LIBCXX_HIDDEN impldocObj::createnodeImplObj : public createnodeObj,
 			}
 		}
 
-		return ref<createnodeObj>(this);
+		return createnode{this};
 	}
 
-	ref<createnodeObj> cdata(const std::string &cdata) override
+	createnode cdata(const std::string &cdata) override
 	{
 		to_xml_char cdata_xml{cdata, *this};
 
 		create(guard(xmlNewCDataBlock(lock.impl->p,
 					      cdata_xml, cdata_xml.size()),
 			     "cdata"));
-		return ref<createnodeObj>(this);
+		return createnode{this};
 	}
 
-	ref<createnodeObj> text(const std::string &text) override
+	createnode text(const std::string &text) override
 	{
 		create(guard(xmlNewText(to_xml_char{text, *this}),
 			     "text"));
-		return ref<createnodeObj>(this);
+		return createnode{this};
 	}
 
-	ref<createnodeObj> entity(const std::string &text) override
+	createnode entity(const std::string &text) override
 	{
 		create(guard(xmlNewCharRef(lock.impl->p,
 					   to_xml_char{text, *this}),
 			     "entity"));
-		return ref<createnodeObj>(this);
+		return createnode{this};
 	}
 
 	void do_comment(const std::string &comment) override
@@ -1239,9 +1098,9 @@ class LIBCXX_HIDDEN impldocObj::createchildObj : public createnodeImplObj {
 			: nullptr;
 	}
 
-	ref<createnodeObj> get_create_child()
+	createnode get_create_child()
 	{
-		return ref<createnodeObj>(this);
+		return createnode{this};
 	}
 };
 
@@ -1300,9 +1159,9 @@ class LIBCXX_HIDDEN impldocObj::createnextsiblingObj : public createnodeImplObj 
 			: nullptr;
 	}
 
-	ref<createnodeObj> get_create_next_sibling()
+	createnode get_create_next_sibling()
 	{
-		return ref<createnodeObj>(this);
+		return createnode{this};
 	}
 };
 
@@ -1361,9 +1220,9 @@ class LIBCXX_HIDDEN impldocObj::createprevioussiblingObj : public createnodeImpl
 			: nullptr;
 	}
 
-	ref<createnodeObj> get_create_previous_sibling()
+	createnode get_create_previous_sibling()
 	{
-		return ref<createnodeObj>(this);
+		return createnode{this};
 	}
 };
 
@@ -1374,7 +1233,6 @@ class LIBCXX_HIDDEN impldocObj::writelockImplObj
 	  public createprevioussiblingObj {
 
  public:
-
 	// Removal mcguffin
 
 	// get_removal_mcguffin() returns this object, creating if it does
@@ -1400,17 +1258,17 @@ class LIBCXX_HIDDEN impldocObj::writelockImplObj
 		throw EXCEPTION(libmsg(_txt("Cannot clone a write lock")));
 	}
 
-	ref<createnodeObj> create_child() override
+	createnode create_child() override
 	{
 		return get_create_child();
 	}
 
-	ref<createnodeObj> create_next_sibling() override
+	createnode create_next_sibling() override
 	{
 		return get_create_next_sibling();
 	}
 
-	ref<createnodeObj> create_previous_sibling() override
+	createnode create_previous_sibling() override
 	{
 		return get_create_previous_sibling();
 	}
@@ -1454,7 +1312,7 @@ class LIBCXX_HIDDEN impldocObj::writelockImplObj
 		throw EXCEPTION(libmsg(_txt("create_namespace() called on a nonexistent node")));
 	}
 
-	void do_attribute(const newAttribute &attr) override
+	void do_attribute(const new_attribute &attr) override
 	{
 		locked_xml_n_t::lock lock{locked_xml_n};
 
@@ -1652,14 +1510,14 @@ class LIBCXX_HIDDEN impldocObj::writelockImplObj
 	{
 		return ref<newdtdimplObj>::create(dtdimplObj::impl_external,
 						  impl,
-						  doc::base::writelock(this));
+						  ref<writelockObj>(this));
 	}
 
 	newdtd do_get_internal_dtd_newdtd() override
 	{
 		return ref<newdtdimplObj>::create(dtdimplObj::impl_internal,
 						  impl,
-						  doc::base::writelock(this));
+						  ref<writelockObj>(this));
 	}
 
 	newdtd create_external_dtd(const std::string &external_id,
@@ -1689,7 +1547,7 @@ class LIBCXX_HIDDEN impldocObj::writelockImplObj
 
 		return ref<newdtdimplObj>::create(dtdimplObj::impl_external,
 						  impl,
-						  doc::base::writelock(this));
+						  ref<writelockObj>(this));
 	}
 
 	newdtd create_internal_dtd(const std::string &external_id,
@@ -1719,7 +1577,7 @@ class LIBCXX_HIDDEN impldocObj::writelockImplObj
 
 		return ref<newdtdimplObj>::create(dtdimplObj::impl_internal,
 						  impl,
-						  doc::base::writelock(this));
+						  ref<writelockObj>(this));
 	}
 
 	void remove_external_dtd() override
@@ -1746,119 +1604,16 @@ class LIBCXX_HIDDEN impldocObj::writelockImplObj
 
 };
 
-ref<docObj::readlockObj> impldocObj::readlock()
+readlock impldocObj::readlock()
 {
 	return ref<readlockImplObj>::create(ref<impldocObj>(this),
 					    lock->create_shared());
 }
 
-ref<docObj::writelockObj> impldocObj::writelock()
+ref<writelockObj> impldocObj::writelock()
 {
 	return ref<writelockImplObj>::create(ref<impldocObj>(this),
 					     lock->create_unique());
-}
-
-docObj::createnodeObj::createnodeObj()=default;
-
-docObj::createnodeObj::~createnodeObj()=default;
-
-
-ref<docObj::createnodeObj>
-docObj::createnodeObj::attribute(const newAttribute &attr)
-{
-	do_attribute(attr);
-	return ref<createnodeObj>(this);
-}
-
-ref<docObj::createnodeObj>
-docObj::createnodeObj::create_namespace(const std::string &prefix,
-					const std::string &uri)
-{
-	do_create_namespace(prefix, uri);
-	return ref<createnodeObj>(this);
-}
-
-ref<docObj::createnodeObj>
-docObj::createnodeObj::create_namespace(const std::string &prefix,
-					const uriimpl &uri)
-{
-	do_create_namespace(prefix, uri);
-	return ref<createnodeObj>(this);
-}
-
-ref<docObj::createnodeObj>
-docObj::createnodeObj::create_namespace(const std::string &prefix,
-					const char *uri)
-{
-	do_create_namespace(prefix, uri);
-
-	return ref<createnodeObj>(this);
-}
-
-ref<docObj::createnodeObj>
-docObj::createnodeObj::element(const newElement &e,
-			       const std::vector<newAttribute> &a)
-{
-	element(e);
-
-	for (const auto &aa:a)
-	{
-		do_attribute(aa);
-	}
-	return ref<createnodeObj>(this);
-}
-
-ref<docObj::createnodeObj>
-docObj::createnodeObj::comment(const std::string &comment)
-{
-	do_comment(comment);
-	return ref<createnodeObj>(this);
-}
-
-ref<docObj::createnodeObj>
-docObj::createnodeObj::processing_instruction(const std::string &name,
-					      const std::string &content)
-{
-	do_processing_instruction(name, content);
-	return ref<createnodeObj>(this);
-}
-
-ref<docObj::createnodeObj>
-docObj::createnodeObj::set_base(const std::string &uri)
-{
-	do_set_base(uri);
-	return ref<createnodeObj>(this);
-}
-
-ref<docObj::createnodeObj> docObj::createnodeObj::set_base(const char *uri)
-{
-	do_set_base(uri);
-	return ref<createnodeObj>(this);
-}
-
-ref<docObj::createnodeObj> docObj::createnodeObj::set_base(const uriimpl &uri)
-{
-	do_set_base(uri);
-	return ref<createnodeObj>(this);
-}
-
-
-ref<docObj::createnodeObj> docObj::createnodeObj::set_lang(const std::string &lang)
-{
-	do_set_lang(lang);
-	return ref<createnodeObj>(this);
-}
-
-ref<docObj::createnodeObj> docObj::createnodeObj::set_space_preserve(bool flag)
-{
-	do_set_space_preserve(flag);
-	return ref<createnodeObj>(this);
-}
-
-ref<docObj::createnodeObj> docObj::createnodeObj::parent()
-{
-	do_parent();
-	return ref<createnodeObj>(this);
 }
 
 ////////////////////////////////////////////////////////////////////////////
@@ -1891,15 +1646,6 @@ class LIBCXX_HIDDEN impldocObj::xpathcontextObj : virtual public obj {
 			xmlXPathFreeContext(context);
 	}
 };
-
-docObj::xpathObj::xpathObj()
-{
-}
-
-
-docObj::xpathObj::~xpathObj()
-{
-}
 
 class LIBCXX_HIDDEN impldocObj::xpathImplObj : public xpathObj,
 					       public get_localeObj {
@@ -2040,7 +1786,7 @@ class LIBCXX_HIDDEN impldocObj::xpathImplObj : public xpathObj,
 	}
 };
 
-ref<impldocObj::xpathObj>
+xpath
 impldocObj::readlockImplObj::get_xpath(const std::string &expr)
 {
 	return ref<xpathImplObj>::create(ref<xpathcontextObj>

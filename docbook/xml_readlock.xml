@@ -11,9 +11,11 @@ See COPYING for distribution information.
   <blockquote>
     <informalexample>
       <programlisting>
+#include &lt;&ns;/xml/readlock.H&gt;
+
 auto doc=&ns;::xml::doc::create("filename.xml");
 
-&ns;::xml::doc::base::readlock rlock=doc-&gt;readlock();
+&ns;::xml::readlock rlock=doc-&gt;readlock();
 </programlisting>
     </informalexample>
   </blockquote>
@@ -33,7 +35,7 @@ auto doc=&ns;::xml::doc::create("filename.xml");
   <blockquote>
     <informalexample>
       <programlisting>
-&ns;::xml::doc::base::readlock rlock2=rlock-&gt;clone();
+&ns;::xml::readlock rlock2=rlock-&gt;clone();
 </programlisting>
     </informalexample>
   </blockquote>
@@ -52,9 +54,9 @@ auto doc=&ns;::xml::doc::create("filename.xml");
   </para>
 
   <para>
-    <classname>&ns;::xml::doc::base::readlock</classname>
+    <classname>&ns;::xml::readlock</classname>
     is a reference to a <link linkend="refobj">reference-counted</link>
-    object. Copying <classname>&ns;::xml::doc::base::readlock</classname>
+    object. Copying <classname>&ns;::xml::readlock</classname>
     variables
     does not create new reader locks, only more references to the same
     reader lock get created. Only <methodname>clone</methodname> creates
@@ -97,11 +99,11 @@ bool flag=rlock-&gt;get_root();
 size_t n=rlock-&gt;get_child_element_count();
 
 flag=rlock-&gt;get_first_child();
-	
+
 flag=rlock-&gt;get_last_child();
-	
+
 flag=rlock-&gt;get_next_sibling();
-	
+
 flag=rlock-&gt;get_previous_sibling();
 
 flag=rlock-&gt;get_parent();
@@ -139,11 +141,11 @@ flag=rlock-&gt;get_parent();
       <informalexample>
 	<programlisting>
 flag=rlock-&gt;get_first_element_child();
-	
+
 flag=rlock-&gt;get_last_element_child();
-	
+
 flag=rlock-&gt;get_next_element_sibling();
-	
+
 flag=rlock-&gt;get_previous_element_sibling();</programlisting>
       </informalexample>
     </blockquote>
@@ -179,13 +181,13 @@ flag=rlock-&gt;get_previous_element_sibling();</programlisting>
       <informalexample>
 	<programlisting>
 std::string type=rlock-&gt;type();
-	
+
 std::string name=rlock-&gt;name();
-	
+
 std::string prefix=rlock-&gt;prefix();
-	
+
 std::string uri=rlock-&gt;uri();
-	
+
 std::string path=rlock-&gt;path();
 	</programlisting>
       </informalexample>
@@ -198,7 +200,7 @@ std::string path=rlock-&gt;path();
       &xml;
       element node,
       <quote>text_node</quote> gets returned when the current node is
-      a text node. The string corresponds directly to 
+      a text node. The string corresponds directly to
       the
       <ulink url="http://www.xmlsoft.org/html/libxml-tree.html#xmlElementType"><classname>xmlElementType</classname></ulink>
       values from <application>libxml</application>, in lowercase and without
@@ -241,8 +243,7 @@ value=rlock-&gt;get_attribute("style", ns);
 
 value=rlock-&gt;get_any_attribute("style");
 
-std::set&lt;&ns;::doc::base::attribute&gt; attributes;
-rlock-&gt;get_all_attributes(attributes);</programlisting>
+&ns;::xml::get_all_attributes_t attributes=rlock-&gt;get_all_attributes();</programlisting>
       </informalexample>
     </blockquote>
 
@@ -266,12 +267,12 @@ rlock-&gt;get_all_attributes(attributes);</programlisting>
     <para>
       <methodname>get_any_attribute()</methodname> retrieves the value of the
       specified attribute in any namespace.
-	
-      <methodname>get_all_attributes()</methodname> enumerates the current
-      element's node attributes, and places them into a set of
-      <ulink url="&link-x--xml--docObj--docAttribute;"><classname>&ns;::xml::doc::base::attribute</classname></ulink>s.
 
-      This class contains two string members:
+      <methodname>get_all_attributes()</methodname> returns a container
+      with all
+      <ulink url="&link-x--xml--attribute;"><classname>&ns;::xml::attribute</classname></ulink>s.
+      of the current
+      element's node.
     </para>
 
     <variablelist>
@@ -333,7 +334,7 @@ std::string uri=rlock-&gt;get_base();</programlisting>
       0 if it's <quote>default</quote>, and negative if
       <literal>xml:space</literal>
       is not declared for the current node.
-	
+
       <methodname>get_base</methodname>() returns the node's base
       <acronym>URI</acronym>, as
       defined in RFC 2396 section 5.1.1.
@@ -343,9 +344,9 @@ std::string uri=rlock-&gt;get_base();</programlisting>
       <informalexample>
 	<programlisting>
 rlock-&gt;save_file("filename.xml");
-	
+
 std::string s;
-	
+
 rlock-&gt;save_to(std::back_insert_iterator&lt;std::string&gt;(s));</programlisting>
       </informalexample>
     </blockquote>
@@ -382,6 +383,8 @@ rlock-&gt;save_to(std::back_insert_iterator&lt;std::string&gt;(s));</programlist
     <blockquote>
       <informalexample>
 	<programlisting>
+#include &lt;x/xml/xpath.H&gt;
+
 rlock-&gt;get_xpath("body/p[1]")-&gt;to_node();</programlisting>
       </informalexample>
     </blockquote>
@@ -390,20 +393,20 @@ rlock-&gt;get_xpath("body/p[1]")-&gt;to_node();</programlisting>
       The parameter to a reader lock's
       <methodname>get_xpath</methodname>() is an XPath expression.
       <methodname>get_xpath</methodname>() returns a
-      <ulink url="&link-x--xml--docObj--xpathObj;"><classname>&ns;::xml::doc::base::xpath</classname></ulink>
+      <ulink url="&link-typedef-x--xml-xpath;"><classname>&ns;::xml::xpath</classname></ulink>
       representing the resulting nodeset from evaluating the expression against
       the current node the reader lock is positioned to.
       <methodname>to_node</methodname>() expects the nodeset containing exactly
       one node, and it positions the reader lock, that created the
-      <classname>&ns;::xml::doc::base::xpath</classname>, to the node.
+      <classname>&ns;::xml::xpath</classname>, to the node.
     </para>
 
     <note>
       <para>
-	Each <classname>&ns;::xml::doc::base::xpath</classname> holds an
+	Each <classname>&ns;::xml::xpath</classname> holds an
 	internal reference on the underlying lock that created it, until the
 	last reference to the object referred to by the
-	<classname>&ns;::xml::doc::base::xpath</classname> goes out of, and it
+	<classname>&ns;::xml::xpath</classname> goes out of, and it
 	gets destroyed.
       </para>
     </note>

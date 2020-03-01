@@ -35,9 +35,9 @@ DOCS_SRC = $(shell find includes/x -name '*.H' -print)
 
 docs: html/index.html html/book.css html/logo.png html/robots.txt html/.htaccess html/frame.js html/icon.gif $(patsubst %,html/%,$(notdir $(wildcard $(srcdir)/docbook/*.png)))
 	chcon -R -t httpd_sys_content_t html 2>/dev/null || true
-	cd html; for d in `ls */. | sed 's@/.$$@@'`; do rm -rf ~/www/www.courier-mta.org/libcxx/$$d; done
-	cd ~/www/www.courier-mta.org/libcxx || exit 1; rm -f * 2>/dev/null; exit 0
-	rsync -a -X html/* ~/www/www.courier-mta.org/libcxx
+	cd html; for d in `ls */. | sed 's@/.$$@@'`; do rm -rf ~/www/hostrocket/libcxx.org/$$d; done
+	cd ~/www/hostrocket/libcxx.org || exit 1; rm -f * 2>/dev/null; exit 0
+	rsync -a -X html/* ~/www/hostrocket/libcxx.org
 
 html/%.png: html/index.html docbook/%.png
 	$(INSTALL) -m 0644 $(srcdir)/docbook/$(notdir $@) html
@@ -69,14 +69,14 @@ html/index.html: html/ref/index.html $(wildcard docbook/*.xml) docbook/xmllinks.
 		--stringparam generate.id.attributes 1 \
 		--param local.l10n.xml 'document("'`pwd`/docbook/l10.xml'")' \
 		$(srcdir)/docbook/docbook.xsl $(srcdir)/docbook/book.xml
-	find examples -depth \( -type d -o -name '*.[CH]' -o -name '*.xml' -o -name Makefile.am -o -name configure.ac \) -print | cpio -o --quiet | (cd html.tmp; cpio -i --quiet --make-directories)
+	git ls-files examples | cpio -o --quiet | (cd html.tmp; cpio -i --quiet --make-directories)
+	find html.tmp -name .gitignore -print | xargs rm -f
 	echo 'ForceType text/plain' >html.tmp/examples/.htaccess
 	echo 'Options +Indexes' >>html.tmp/examples/.htaccess
 	links -dump -no-numbering -no-references html.tmp/INSTALL.html >INSTALL.tmp
 	mv -f INSTALL.tmp INSTALL
 	mkdir html.tmp/ref
 	ln html/ref/* html.tmp/ref
-	ln -s ../stasher html.tmp/stasher
 	rm -rf html
 	mv html.tmp html
 
@@ -160,9 +160,6 @@ abi.xml: abi.xml.in config.status
 CLEANFILES += man.stamp
 
 ACLOCAL_AMFLAGS = -I m4
-
-www: html
-	rsync -a --delete-after html/. ~/www/www.courier-mta.org/libcxx/.
 
 upload:
 	git tag -s -a @PACKAGE@/@VERSION@/`date +%Y%m%d%H%M%S` -m 'Tag version @VERSION@'

@@ -8,6 +8,9 @@
 #include "x/xml/parser.H"
 #include "x/xml/dtd.H"
 #include "x/xml/newdtd.H"
+#include "x/xml/readlock.H"
+#include "x/xml/writelock.H"
+#include "x/xml/xpath.H"
 #include "x/logger.H"
 #include "x/locale.H"
 #include "x/sharedlock.H"
@@ -190,11 +193,11 @@ class LIBCXX_HIDDEN dtdimplObj : public newdtdObj,
 	// This DTD better exist.
 	xmlDtdPtr get_dtd_not_null();
 
-	doc::base::readlock lock;
+	const const_readlock lock;
 
 	dtdimplObj(const subset_impl_t &subset_implArg,
 		   const ref<impldocObj> &implArg,
-		   const doc::base::readlock lockArg);
+		   const const_readlock lockArg);
 	~dtdimplObj() noexcept;
 
 	bool exists() override;
@@ -220,11 +223,11 @@ class LIBCXX_HIDDEN dtdimplObj : public newdtdObj,
 class LIBCXX_HIDDEN newdtdimplObj : public dtdimplObj {
  public:
 
-	doc::base::writelock lock;
+	writelock lock;
 
 	newdtdimplObj(const subset_impl_t &subset_implArg,
 		      const ref<impldocObj> &implArg,
-		      const doc::base::writelock &lockArg);
+		      const writelock &lockArg);
 	~newdtdimplObj() noexcept;
 
 	void create_entity(const std::string &name,

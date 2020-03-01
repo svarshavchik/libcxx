@@ -417,7 +417,7 @@ std::string filetype(const fd &filedesc)
  	return magic.get()->lookup(filedesc, MAGIC_MIME_TYPE);
 }
 
-std::string filecharset(const std::string &filename)
+std::string filecharset(const std::string_view &filename)
 {
 	return filecharset(fd::base::open(filename, O_RDONLY));
 }

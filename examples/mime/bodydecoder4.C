@@ -65,7 +65,7 @@ parse_section(const x::headersbase &headers,
 		 });
 }
 
-void dump(const x::mime::sectioninfo &info)
+void dump(const x::mime::const_sectioninfo &info)
 {
 	std::cout << "MIME section " << info->index_name()
 		  << " starts at character offset "

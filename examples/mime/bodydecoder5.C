@@ -72,7 +72,7 @@ parse_section(const x::headersbase &headers,
 
 	info->content_type=content_type.value;
 
-	if (content_type.is_message_rfc822())
+	if (content_type.is_message())
 		return x::mime::make_message_rfc822_parser
 			(create_parser, info);
 

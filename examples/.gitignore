@@ -1,0 +1,15 @@
+aclocal.m4
+autom4te.cache
+config.log
+config.status
+configure
+config.h
+config.h.in
+stamp-h1
+
+/classhier
+/http_authserver
+/http_client
+/http_server
+/http_server_upload
+/mimeencoder

@@ -55,9 +55,11 @@ class docBase;
 //! are parsing errors. A fourth optional parameter specifies parsing options.
 //!
 //! Once a document is parsed or created, use a
-//! \ref docBase::readlock "INSERT_LIBX_NAMESPACE::doc::base::readlock" or a
-//! \ref docBase::writelock "INSERT_LIBX_NAMESPACE::doc::base::writelock" to
+//! \ref readlock "INSERT_LIBX_NAMESPACE::xml::readlock" or a
+//! \ref writelock "INSERT_LIBX_NAMESPACE::xml::writelock" to
 //! examine or modify its contents.
+//! Use \ref xpath "INSERT_LIBX_NAMESPACE::xml::xpath" to search use an
+//! XPath.
 //!
 //! \code
 //! auto new_document=lock->clone_document();

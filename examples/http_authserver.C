@@ -54,7 +54,7 @@ void serverObj::received(const x::http::requestimpl &req, bool hasbody)
 	std::string content=
 		"Congratulations, you've authenticated as " + username + "\n";
 
-	resp.append(x::http::content_type_header::name,
+	resp.append(x::mime::structured_content_header::content_type,
 		    "text/plain; charset=UTF-8");
 
 	send(resp, req, content.begin(), content.end());

@@ -11,6 +11,8 @@ See COPYING for distribution information.
   <blockquote>
     <informalexample>
       <programlisting>
+#include &lt;&ns;/xml/writelock&gt;
+
 auto doc=&ns;::xml::doc::create();
 
 &ns;::xml::doc::base::writelock wlock=doc-&gt;writelock();
@@ -27,7 +29,7 @@ auto doc=&ns;::xml::doc::create();
   </para>
 
   <para>
-    <classname>&ns;::xml::doc::base::writelock</classname>
+    <classname>&ns;::xml::writelock</classname>
     is a reference to a <link linkend="refobj">reference-counted</link>
     object. Copying <classname>&ns;::xml::doc::base::writelock</classname>
     variables
@@ -59,7 +61,7 @@ auto doc=&ns;::xml::doc::create();
       <listitem>
 	<para>
 	  These methods return a
-	  <ulink url="&link-x--xml--docObj--createnodeObj;"><classname>&ns;::xml::doc::base::createnode</classname></ulink>, or a
+	  <ulink url="&link-typedef-x--xml-createnode;"><classname>&ns;::xml::createnode</classname></ulink>, or a
 	  <quote>creator factory</quote>,
 	  which is a reference to a
 	  <link linkend="refobj">reference-counted</link>
@@ -195,7 +197,7 @@ wlock-&gt;create_child()-&gt;element({"p"})
 	<programlisting>
 auto doc=&ns;::xml::doc::create();
 
-&ns;::xml::doc::base::writelock wlock=doc-&gt;writelock();
+&ns;::xml::writelock wlock=doc-&gt;writelock();
 
 wlock-&gt;create_child()-&gt;element({"html"});</programlisting>
       </informalexample>
@@ -204,7 +206,7 @@ wlock-&gt;create_child()-&gt;element({"html"});</programlisting>
     <para>
       A creator's <methodname>element</methodname>() method creates a new
       &xml; element node. Its parameter is an instance of a helper class,
-      <ulink url="&link-x--xml--docObj--newElement;"><classname>&ns;::doc::base::newelement</classname></ulink>,
+      <ulink url="&link-x--xml--new-element;"><classname>&ns;::new_element</classname></ulink>,
       which has several different constructors that provide alternate ways
       of defining the new element, and it's convenient to invoke them using
       braced initializer lists, as in this example.
@@ -264,7 +266,7 @@ creator-&gt;element({"item", "http://www.example.com"});</programlisting>
 
     <para>
       The two argument form of the constructor to the
-      <ulink url="&link-x--xml--docObj--newElement;"><classname>&ns;::doc::base::newelement</classname></ulink>
+      <ulink url="&link-x--xml--new-element;"><classname>&ns;::xml::new_element</classname></ulink>
       helper class,
       the argument to <methodname>element</methodname>() creates a new element
       in an &xml; namespace whose <acronym>URI</acronym> is given by the
@@ -358,7 +360,7 @@ creator-&gt;attribute({"style", "white-space: nowrap"})
     <para>
       The parameter to <methodname>attribute</methodname>() is also an internal
       helper class,
-      <ulink url="&link-x--xml--docObj--newAttribute;"><classname>&ns;::xml::doc::base::newattribute</classname></ulink>
+      <ulink url="&link-x--xml--new-attribute;"><classname>&ns;::xml::new_attribute</classname></ulink>
       which has several different constructors, and gets typically given
       literally using a braced initializer list, for convenience.
       The first example's initializer is a single string, which

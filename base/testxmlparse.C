@@ -8,6 +8,10 @@
 #include "x/xml/doc.H"
 #include "x/xml/newdtd.H"
 #include "x/xml/dtd.H"
+#include "x/xml/readlock.H"
+#include "x/xml/writelock.H"
+#include "x/xml/attribute.H"
+#include "x/xml/xpath.H"
 #include "x/exception.H"
 #include "x/fd.H"
 #include "x/uriimpl.H"
@@ -94,9 +98,7 @@ void test2()
 	if (lock->get_child_element_count() != 2)
 		throw EXCEPTION("Root node does not have two children");
 
-	std::set<LIBCXX_NAMESPACE::xml::doc::base::attribute> attributes;
-
-	lock->get_all_attributes(attributes);
+	auto attributes=lock->get_all_attributes();
 
 	if (attributes.size() != 1)
 		throw EXCEPTION("Root node does not have one attribute");
@@ -154,9 +156,7 @@ void test2()
 	    != "value")
 		throw EXCEPTION("namespaces get_attribute(uriimpl) did not work");
 
-	attributes.clear();
-
-	lock2->get_all_attributes(attributes);
+	attributes=lock2->get_all_attributes();
 
 	if (attributes.size() != 1)
 		throw EXCEPTION("<i> node does not have one attribute");
@@ -244,7 +244,7 @@ void test3()
 		lock->create_child()->text("Text")->text("<>Node");
 
 		{
-			LIBCXX_NAMESPACE::xml::doc::base::createnode
+			LIBCXX_NAMESPACE::xml::createnode
 				cn=lock->create_next_sibling();
 			cn->cdata("Foo<bar>");
 		}
@@ -431,12 +431,13 @@ void test7()
 		throw EXCEPTION("test7: prefix/uri not right");
 
 	{
-		std::set<LIBCXX_NAMESPACE::xml::doc::base::attribute> s;
+		auto ss=lock->get_all_attributes();
 
-		lock->get_all_attributes(s);
-
-		if (s.size() != 2)
+		if (ss.size() != 2)
 			throw EXCEPTION("Not two attributes");
+
+		std::set<LIBCXX_NAMESPACE::xml::attribute>
+			s{ss.begin(), ss.end()};
 
 		auto first=*s.begin();
 		auto second=*--s.end();

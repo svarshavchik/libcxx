@@ -62,7 +62,7 @@ void newdtdObj::create_external_parameter_entity(const std::string &name,
 
 newdtdimplObj::newdtdimplObj(const subset_impl_t &subset_implArg,
 			     const ref<impldocObj> &implArg,
-			     const doc::base::writelock &lockArg)
+			     const writelock &lockArg)
 	: dtdimplObj(subset_implArg, implArg, lockArg), lock(lockArg)
 {
 }

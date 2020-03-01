@@ -213,11 +213,18 @@ libcxx_la_SOURCES=\
 	wordexp.C		\
 	workerpoolobj.C		\
 	xlocale.C		\
+	xml_attribute.C		\
+	xml_createnode.C	\
 	xml_doc.C		\
 	xml_dtd.C		\
 	xml_escape.C		\
+	xml_newattribute.C	\
 	xml_newdtd.C		\
+	xml_newelement.C	\
 	xml_parser.C		\
+	xml_readlock.C		\
+	xml_writelock.C		\
+	xml_xpath.C		\
 	ymd.C			\
 	ymd2.C			\
 	ymdhms.C		\
