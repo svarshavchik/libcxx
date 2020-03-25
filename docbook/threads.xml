@@ -43,6 +43,19 @@ See COPYING for distribution information.
       <ulink url="&link-typedef-x-mpcobj;"><classname>&ns;::mpcobj</classname></ulink>
       supplements <classname>&ns;::mpobj</classname> with a condition
       variable.
+    </para>
+
+    <para>
+      The mutex-protected objects get instantiated by constructing a lock
+      object. The lock must exist in auto scope (on the stack), in order to
+      enforce the underlying requirement that mutexes must be unlocked by
+      the same execution thread that locked them.
+      An <ulink url="&link-typedef-x-mptobj;"><classname>&ns;::mptobj</classname></ulink>
+      adds additional support for transferring the logical mutex locked to
+      a different execution thread.
+    </para>
+
+    <para>
       <ulink url="&link-x--mp;"><classname>&ns;::mp</classname></ulink>
       is an alternative design pattern for
       a mutex-protected wrapper around a reference-counted object.

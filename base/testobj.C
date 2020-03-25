@@ -37,12 +37,14 @@
 #include "x/destroy_callback.H"
 #include "x/sentry.H"
 #include "x/mp.H"
+#include "x/mpthreadlock.H"
 #include "x/visitor.H"
 #include "x/optional_args.H"
 
 #include <iostream>
 #include <algorithm>
 #include <vector>
+#include <queue>
 #include <cstring>
 #include <unistd.h>
 #include <variant>
@@ -3234,6 +3236,232 @@ void testexpl()
 	}
 }
 
+class testthreadlockobj : virtual public LIBCXX_NAMESPACE::obj {
+
+public:
+
+	struct info_t {
+
+		bool flag1=false;
+		bool flag2=false;
+	};
+
+	LIBCXX_NAMESPACE::mptobj<info_t> info1;
+	LIBCXX_NAMESPACE::mptobj<info_t> info2;
+};
+
+void testthreadlock1()
+{
+	std::cout << "testthreadlock1" << std::endl;
+
+	typedef testthreadlockobj::info_t info_t;
+
+	typedef LIBCXX_NAMESPACE::mptobj<info_t>::lock lock_t;
+
+	LIBCXX_NAMESPACE::destroy_callback::base::guard guard;
+
+	auto obj=LIBCXX_NAMESPACE::ref<testthreadlockobj>::create();
+
+	guard(obj);
+
+	{
+		lock_t lock1{obj->info1};
+
+		lock1->flag1=true;
+
+		LIBCXX_NAMESPACE::run_lambda
+			([obj, threadlock=lock1.threadlock(obj)]
+			 {
+				 {
+					 lock_t lock2{obj->info2};
+
+					 lock2->flag1=true;
+
+					 lock2.notify_all();
+
+					 std::cout << "lambda: thread waiting for lock2->flag1 to clear"
+						   << std::endl;
+					 lock2.wait([&]{return !lock2->flag1;});
+				 }
+
+				 std::cout << "lambda: thread waiting for a threadlock to clear"
+					   << std::endl;
+
+				 lock_t lock1{threadlock};
+
+				 lock1->flag2=lock1->flag1;
+				 std::cout << "lambda: flag1 is "
+					   << lock1->flag1
+					   << std::endl;
+			 });
+
+		std::cout << "main: waiting for lock2->flag1 to set"
+			  << std::endl;
+
+		lock_t lock2{obj->info2};
+		lock2.wait([&]{return lock2->flag1;});
+	}
+
+	std::cout << "main: try to lock the thread lock"
+		  << std::endl;
+	{
+		lock_t lock1{obj->info1, false};
+
+		if (lock1.locked())
+		{
+			std::cerr << "main: I should not've locked"
+				  << std::endl;
+		}
+	}
+
+	{
+		std::cout << "main: clearing lock2->flag1"
+			  << std::endl;
+
+		{
+			lock_t lock2{obj->info2};
+
+			lock2->flag1=false;
+			lock2.notify_all();
+		}
+
+		std::cout << "main: acquiring lock"
+			  << std::endl;
+		lock_t lock1{obj->info1};
+
+		if (!lock1->flag2)
+			throw EXCEPTION("Thread lock failed");
+	}
+
+	std::cout << "Done" << std::endl;
+
+	{
+		lock_t lock1{obj->info1};
+		lock_t lock2{obj->info2};
+
+		*lock1={false, false};
+		*lock2={false, false};
+	}
+
+	{
+		LIBCXX_NAMESPACE::run_lambda
+			([obj, threadlock=lock_t{obj->info1}.threadlock(obj)]
+			 {
+				 lock_t lock2{obj->info2};
+
+				 lock2->flag1=true;
+				 lock2.notify_one();
+
+				 lock2.wait([&]{ return lock2->flag2; });
+
+				 lock_t lock1{threadlock};
+
+				 lock1->flag1=true;
+			 });
+
+		{
+			lock_t lock2{obj->info2};
+
+			lock2.wait([&] { return lock2->flag1; });
+			lock2->flag2=true;
+			lock2.notify_one();
+		}
+		lock_t lock1{obj->info1};
+
+		if (!lock1->flag1)
+		{
+			throw EXCEPTION("Thread lock failed");
+		}
+	}
+	LIBCXX_NAMESPACE::mptobj<int> flag=0;
+
+	auto tl=LIBCXX_NAMESPACE::mptobj<int>::lock{flag}.threadlock(obj);
+
+	LIBCXX_NAMESPACE::mptobj<int>::lock second_lock{tl};
+
+}
+
+size_t dont_optimize_me(size_t c, int v)
+{
+	if (v == 0)
+		return 0;
+
+	return c+v+dont_optimize_me(c, v-1);
+}
+int really=1;
+
+#define DUMP(s) do { } while (0)
+
+//do { std::ostringstream o; o << s << std::endl;
+//		std::cout << o.str() << std::flush; } while(0)
+
+void testthreadlock2()
+{
+	typedef LIBCXX_NAMESPACE::mptobj<size_t> counter_t;
+
+	typedef LIBCXX_NAMESPACE::ref<LIBCXX_NAMESPACE::obj> mcguffin_t;
+
+	constexpr size_t nthread=8;
+	constexpr size_t ncycles=50;
+
+	std::cout << "testthreadlock2" << std::endl;
+	counter_t counter{0};
+
+	std::vector<LIBCXX_NAMESPACE::runthreadbase> threads;
+
+	threads.reserve(nthread);
+
+	for (size_t i=0; i<nthread; i++)
+	{
+		threads.push_back
+			(LIBCXX_NAMESPACE::run_lambda
+			 ([&]
+			  (size_t i)
+			  {
+				  for (size_t j=0; j<ncycles; j++)
+				  {
+					  auto l=({
+						  DUMP("Started " << i);
+						  counter_t::lock
+							  clock{counter};
+
+						  DUMP("Locked " << i);
+						  if ((i%2) == 0)
+						  {
+						     *clock =
+							     dont_optimize_me
+							     (*clock, really);
+						  }
+
+						  clock.threadlock
+							  (mcguffin_t::create()
+							   );
+					  });
+					  DUMP("Threadlocked " << i);
+
+					  counter_t::lock clock{l};
+					  DUMP("Relocked " << i);
+
+					  if (i%2)
+					  {
+						  *clock =
+							  dont_optimize_me
+							  (*clock, really);
+					  }
+				  }
+			  },
+			  i));
+	}
+
+	for (const auto &t:threads)
+		t->wait();
+
+	counter_t::lock clock{counter};
+
+	if (*clock != nthread*ncycles)
+		throw EXCEPTION("testthread2: counter is " << *clock);
+}
+
 int main()
 {
 	alarm(60);
@@ -3254,6 +3482,8 @@ int main()
 	bindtest();
 	alarm(30);
 	testeventfd();
+	testthreadlock1();
+	testthreadlock2();
 	alarm(0);
 	teststreambufferobj();
 	testlockunlink();

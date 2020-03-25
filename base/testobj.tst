@@ -243,6 +243,16 @@ Started two threads
 Threads terminated
 Accepted connection
 Received 1 event.
+testthreadlock1
+main: waiting for lock2->flag1 to set
+lambda: thread waiting for lock2->flag1 to clear
+main: try to lock the thread lock
+main: clearing lock2->flag1
+main: acquiring lock
+lambda: thread waiting for a threadlock to clear
+lambda: flag1 is 1
+Done
+testthreadlock2
 Testing timer: 1
 Testing periodic timer: 1 1 1 1 1
 201.0
