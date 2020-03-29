@@ -64,7 +64,7 @@ public:
 							(nullptr, nullptr,
 							 std::declval<T &&>())))
 				      >1)>>
-	void text(T t);
+	createnode text(T t);
 
 	//! Create a new entity reference.
 	virtual createnode entity(const std::string &text)=0;
@@ -202,17 +202,17 @@ private:
 };
 
 template<typename T, typename>
-void createnodeObj::text(T t)
+createnode createnodeObj::text(T t)
 {
 	char buffer[std::numeric_limits<T>::digits10+10];
 
 	auto r=std::to_chars(buffer, buffer+sizeof(buffer)-1, t);
 
 	if (r.ec != std::errc{})
-		return; // Shouldn't happen
+		return ref{this}; // Shouldn't happen
 
 	*r.ptr=0;
-	text(buffer);
+	return text(buffer);
 }
 
 #define LIBCXX_TEMPLATE_DECL extern
