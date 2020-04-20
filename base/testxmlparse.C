@@ -12,6 +12,7 @@
 #include "x/xml/writelock.H"
 #include "x/xml/attribute.H"
 #include "x/xml/xpath.H"
+#include "x/number.H"
 #include "x/exception.H"
 #include "x/fd.H"
 #include "x/uriimpl.H"
@@ -1217,7 +1218,7 @@ void test80()
 
 	c=c->element({"root"});
 
-	c->text(-20);
+	c->text(LIBCXX_NAMESPACE::number<int,void>{-20});
 
 	std::ostringstream o;
 

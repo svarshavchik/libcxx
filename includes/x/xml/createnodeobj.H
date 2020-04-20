@@ -23,6 +23,9 @@ namespace LIBCXX_NAMESPACE {
 };
 #endif
 
+template<typename T, typename=void>
+struct createnode_ret_t;
+
 //! Create a new element in the document
 
 //! A reference to this object gets returned by
@@ -54,17 +57,8 @@ public:
 
 	//! Create a new text node
 
-	//! Overload for all numeric types except chars.
-	//! TODO: Drop the decltype SFINAE when gcc implements
-	//! to_chars for floating point values.
-
-	template<typename T, typename=std::enable_if_t<
-				     (sizeof(T) +
-				      0*sizeof(decltype(std::to_chars
-							(nullptr, nullptr,
-							 std::declval<T &&>())))
-				      >1)>>
-	createnode text(T t);
+	template<typename T>
+	typename createnode_ret_t<T>::type_t text(T t);
 
 	//! Create a new entity reference.
 	virtual createnode entity(const std::string &text)=0;
@@ -201,23 +195,48 @@ private:
 	virtual void do_parent()=0;
 };
 
-template<typename T, typename>
-createnode createnodeObj::text(T t)
+template<typename T>
+typename createnode_ret_t<T>::type_t createnodeObj::text(T t)
 {
-	char buffer[std::numeric_limits<T>::digits10+10];
-
-	auto r=std::to_chars(buffer, buffer+sizeof(buffer)-1, t);
-
-	if (r.ec != std::errc{})
-		return ref{this}; // Shouldn't happen
-
-	*r.ptr=0;
-	return text(buffer);
+	return createnode_ret_t<T>::text(*this, t);
 }
+//! Specialization for \ref writelock "writelock->text()".
+
+//! Implements writelock->text(n) for all numeric types except chars.
+//! TODO: Drop the decltype SFINAE when gcc implements
+//! to_chars for floating point values.
+
+template<typename T>
+struct createnode_ret_t<T,std::enable_if_t<
+				  (sizeof(T) +
+				   0*sizeof(decltype(std::to_chars
+						     (nullptr, nullptr,
+						      std::declval<T &&>())))
+				   >1)>> {
+
+	//! Return type for SFINAE
+	typedef createnode type_t;
+
+	//! Generate a text node from a numeric value.
+	static inline createnode text(createnodeObj &me, T t)
+	{
+		char buffer[std::numeric_limits<T>::digits10+10];
+
+		auto r=std::to_chars(buffer, buffer+sizeof(buffer)-1, t);
+
+		if (r.ec != std::errc{})
+			return ref{&me}; // Shouldn't happen
+
+		*r.ptr=0;
+		return me.text(buffer);
+	}
+};
 
 #define LIBCXX_TEMPLATE_DECL extern
 #include <x/xml/createnode_to.H>
 #undef LIBCXX_TEMPLATE_DECL
+
+#include <x/xml/createnode_number_to.H>
 
 #if 0
 {

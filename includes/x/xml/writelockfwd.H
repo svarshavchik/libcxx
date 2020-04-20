@@ -111,6 +111,17 @@ class writelockObj;
 //! elements in the XML document, and insert them accordingly.
 //!
 //! \code
+//! creator->text(40);
+//!
+//! INSERT_LIBX_NAMESPACE::number<int, tag_t> v;
+//!
+//! creator->text(v);
+//! \endcode
+//!
+//! text() is overloaded for all integer numeric values (except `char`s)
+//! and \ref number "type-safe numbers".
+//!
+//! \code
 //! creator->create_namespace("prefix", "http://www.example.com");
 //! wlock->create_namespace("prefix", "http://www.example.com");
 //! \endcode

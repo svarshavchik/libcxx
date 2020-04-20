@@ -5,7 +5,7 @@
 
 /*! \file
 
-This file defines a typesafe number.
+This file defines a type-safe number.
 
 */
 
@@ -33,9 +33,9 @@ class number_default_base;
 template<typename value_type_t, typename tag,
 	 typename base_class=number_default_base> class number;
 
-//! Define only operations on same \ref number "typesafe numerical aliases".
+//! Define only operations on same \ref number "type-safe numerical aliases".
 
-//! Allows operations on \ref number "typesafe numerical aliases" to be
+//! Allows operations on \ref number "type-safe numerical aliases" to be
 //! only with the same alias, resulting in the same alias.
 //!
 //! \internal
@@ -45,7 +45,7 @@ using number_default_same_op_only=
 	typename std::enable_if<std::is_same<number_1, number_2>::value,
 				number_1>::type;
 
-//! Define the unary operator on signed typesafe numbers only
+//! Define the unary operator on signed type-safe numbers only
 
 //! \internal
 
@@ -55,18 +55,18 @@ using number_default_uneg_op=
 						    ::value_type>::is_signed,
 				number_1>::type;
 
-//! Metaprogramming: whether the given type is a \ref number "typesafe number".
+//! Metaprogramming: whether the given type is a \ref number "type-safe number".
 
 template<typename type>
 class is_number_type : public std::false_type {};
 
-//! Metaprogramming: whether the given type is a \ref number "typesafe number".
+//! Metaprogramming: whether the given type is a \ref number "type-safe number".
 
 template<typename value_type_t, typename tag, typename base_class>
 class is_number_type<number<value_type_t, tag, base_class>>
 	: public std::true_type {};
 
-//! Check for overflows/truncation of \ref number "typesafe numbers".
+//! Check for overflows/truncation of \ref number "type-safe numbers".
 
 template<typename to_value_type, typename from_value_type,
 	 bool is_typesafe_number=is_number_type<from_value_type>::value>
@@ -212,7 +212,7 @@ public:
 	}
 };
 
-//! Check for overflows/truncation of \ref number "typesafe numbers".
+//! Check for overflows/truncation of \ref number "type-safe numbers".
 
 //! Specialization for checking of an overflow during conversion from a
 //! natural integer type.
@@ -250,10 +250,10 @@ public:
 	}
 };
 
-//! Check for overflows/truncation of \ref number "typesafe numbers".
+//! Check for overflows/truncation of \ref number "type-safe numbers".
 
 //! Specialization for checking of an overflow during conversion from another
-//! typesafe number.
+//! type-safe number.
 
 template<typename to_value_type, typename from_value_type>
 class number_overflows<to_value_type, from_value_type, true> {
@@ -283,7 +283,7 @@ public:
 
 };
 
-//! Default base class for "typesafe numerical aliases".
+//! Default base class for "type-safe numerical aliases".
 
 //! Specifies \ref number_default_same_op_only "for all arithmetical operations".
 //!
@@ -326,7 +326,7 @@ void numerical_overflow(const char *ftype,
 
 void input_numerical_overflow(const char *ttype) __attribute__((noreturn));
 
-//! A typesafe numerical alias.
+//! A type-safe numerical alias.
 
 //! \code
 //! class number_tag;
@@ -860,6 +860,12 @@ auto &operator>>(std::basic_istream<CharT, Traits> &i,
 		input_numerical_overflow(typeid(value_type_t).name());
 
 	return res;
+}
+
+namespace xml {
+
+#include <x/xml/createnode_number_to.H>
+
 }
 
 #if 0

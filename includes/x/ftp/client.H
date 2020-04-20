@@ -54,7 +54,7 @@ public:
 
 		//!< Typically "file", "cdir" (current directory),
 		//!< "pdir" (parent directory) or "dir" (subdirectory).
-		
+
 		std::string unique;
 		//!< Unique ID
 

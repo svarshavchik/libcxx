@@ -11,10 +11,6 @@
 
 namespace LIBCXX_NAMESPACE {
 
-	//! FTP client namespace
-
-	//! This namespace implements an \ref client "FTP client".
-
 	namespace ftp {
 #if 0
 	}
@@ -182,7 +178,7 @@ class clientBase;
 //! typedef std::back_insert_iterator<std::string> ins_iter;
 //!
 //! ins_iter iter=conn->get(ins_iter(file), "filename");
-//! 
+//!
 //! \endcode
 //!
 //! The first of two required parameters to get() is an output iterator.
@@ -217,9 +213,9 @@ class clientBase;
 //! \code
 //! std::string file;
 //!
-//! conn->put("file", file.begin(), file.end()); 
+//! conn->put("file", file.begin(), file.end());
 //!
-//! conn->append("file", file.begin(), file.end()); 
+//! conn->append("file", file.begin(), file.end());
 //!
 //! std::string filename=conn->put_unique(file.begin(), file.end());
 //!
