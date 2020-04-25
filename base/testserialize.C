@@ -684,6 +684,81 @@ void testserialize11()
 
 }
 
+void testserialize12()
+{
+	std::tuple<int, float> t1{1,2}, t2{0,0};
+	std::tuple<> empty1, empty2;
+
+	std::vector<char> serbuf;
+
+	{
+		typedef std::back_insert_iterator<std::vector<char> >  iter;
+
+		iter i(serbuf);
+
+		LIBCXX_NAMESPACE::serialize::iterator<iter> serializer(i);
+
+		serializer(t1);
+		serializer(empty1);
+	}
+
+	std::vector<char>::iterator b{serbuf.begin()}, e{serbuf.end()};
+
+	LIBCXX_NAMESPACE::deserialize
+		::iterator<std::vector<char>::iterator>
+		deserializer(b, e);
+
+	deserializer(t2);
+	deserializer(empty2);
+
+	if (t1 != t2)
+		throw EXCEPTION("test12 failed");
+
+	b=serbuf.begin();
+	e=serbuf.end();
+
+	std::tuple<int, float, float> t3;
+
+	try {
+		deserializer(t3);
+	} catch (const LIBCXX_NAMESPACE::exception &e)
+	{
+		std::cout << "Expected exception: " << e << std::endl;
+	}
+}
+
+void testserialize13()
+{
+	int i=1;
+	float f=0;
+
+	std::tuple<std::reference_wrapper<int>, float> t1{i, 2};
+
+	std::tuple<int, std::reference_wrapper<float>> t2{0, f};
+
+	std::vector<char> serbuf;
+
+	{
+		typedef std::back_insert_iterator<std::vector<char> >  iter;
+
+		iter i(serbuf);
+
+		LIBCXX_NAMESPACE::serialize::iterator<iter> serializer(i);
+
+		serializer(t1);
+	}
+
+	std::vector<char>::iterator b{serbuf.begin()}, e{serbuf.end()};
+
+	LIBCXX_NAMESPACE::deserialize
+		::iterator<std::vector<char>::iterator>
+		deserializer(b, e);
+
+	deserializer(t2);
+}
+
+
+
 int main(int argc, char *argv[])
 {
 	try {
@@ -707,6 +782,10 @@ int main(int argc, char *argv[])
 		testserialize10();
 		std::cout << "test11" << std::endl;
 		testserialize11();
+		std::cout << "test12" << std::endl;
+		testserialize12();
+		std::cout << "test13" << std::endl;
+		testserialize13();
 	} catch (LIBCXX_NAMESPACE::exception &e)
 	{
 		std::cout << e << std::endl;

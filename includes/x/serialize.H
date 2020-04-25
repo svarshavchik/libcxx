@@ -14,6 +14,7 @@
 #include <type_traits>
 #include <sstream>
 #include <iomanip>
+#include <functional>
 
 #include <x/exception.H>
 #include <x/serialization.H>
@@ -374,7 +375,7 @@ public:
 //! \see serialize_value
 //!
 template<typename first, typename second>
-class serialize_value< std::pair<first, second> > {
+class serialize_value_nonconst< std::pair<first, second> > {
 public:
 
 	//! %Serialize the type for \c std::pair
@@ -413,6 +414,85 @@ public:
 							 toiter);
 	}
 };
+
+//! Specialization for serializing a \c std::tuple
+
+//! \see serialize_value
+//!
+template<typename ...Types>
+class serialize_value_nonconst< std::tuple<Types...> > {
+public:
+
+	//! %Serialize the type for \c std::tuple
+
+	template<typename iter_type>
+	static void serialize_type(//! Output iterator
+				   iter_type &i)
+	{
+		*i++ = (uint8_t)serialization::ttuple;
+
+		serialize_bytestream<uint32_t, iter_type, sizeof(uint32_t)>
+			::serialize(i, sizeof...(Types));
+
+		(serialize_value<Types>::serialize_type(i), ...);
+	}
+
+	//! %Serialize the contents of a \c std::tuple
+
+	template<typename iter_type, typename serialize_toiter_type>
+	static void serialize_bytes(//! Output iterator
+				    iter_type &i,
+
+				    //! Output value
+				    const std::tuple<Types...> &tuple,
+
+				    //! Serialization_object
+				    serialize_toiter_type &toiter
+
+				    )
+	{
+		std::apply([&]
+			   (const Types & ...values)
+			   {
+				   (serialize_value<Types>::serialize_bytes
+				    (i, values, toiter), ...);
+			   }, tuple);
+	}
+};
+
+//! Specialization for serializing a \c std::reference_wrapper
+
+//! \see serialize_value
+//!
+template<typename value_type>
+class serialize_value_nonconst< std::reference_wrapper<value_type> > {
+public:
+
+	//! %Serialize the type for the referneced object.
+
+	template<typename iter_type>
+	static void serialize_type(//! Output iterator
+				   iter_type &i)
+	{
+		serialize_value<value_type>::serialize_type(i);
+	}
+
+	//! %Serialize the contents of a \c std::tuple
+
+	template<typename iter_type, typename serialize_toiter_type>
+	static void serialize_bytes(//! Output iterator
+				    iter_type &i,
+
+				    //! Output value
+				    const std::reference_wrapper<value_type> &r,
+
+				    //! Serialization_object
+				    serialize_toiter_type &toiter)
+	{
+		serialize_value<value_type>::serialize_bytes(i, r, toiter);
+	}
+};
+
 
 //! %Serialize something that's not a native type, nor a container
 

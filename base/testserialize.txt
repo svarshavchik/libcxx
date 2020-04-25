@@ -169,3 +169,6 @@ test7
 test9
 test10
 test11
+test12
+Expected exception: Deserialization failure: expected TUPLE<SIGNED INT4,SEQUENCE[SIGNED BYTE],SEQUENCE[SIGNED BYTE]>, received TUPLE...
+test13

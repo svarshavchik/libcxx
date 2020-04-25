@@ -86,9 +86,16 @@ See COPYING for distribution information.
 	  <classname>std::map</classname>,
 	  <classname>std::multimap</classname>,
 	  <classname>std::set</classname>,
-	  <classname>std::multiset</classname>, and
+	  <classname>std::multiset</classname>.
+	</para>
+
+	<para>
+	  Also:
 	  a <classname>std::pair</classname>
-	  of two serializable classes.
+	  of two serializable types, a
+	  <classname>std::reference_wrapper</classname> of a serializable
+	  type; a
+	  <classname>std::tuple</classname> of serializable types.
 	</para>
       </listitem>
 

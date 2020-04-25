@@ -16,6 +16,7 @@
 #include <vector>
 #include <type_traits>
 #include <unordered_map>
+#include <functional>
 
 #include <x/exception.H>
 #include <x/serialization.H>
@@ -462,7 +463,7 @@ public:
 //! Deserialize a std::pair
 
 template<typename first, typename second>
-class deserialize_value< std::pair<first, second> > {
+class deserialize_value_nonconst< std::pair<first, second> > {
 
 	//! Succesful %deserialization of the signature
 	bool err_flag;
@@ -481,14 +482,12 @@ public:
 	typedef std::pair<std::remove_const_t<first>,
 			  std::remove_const_t<second>> result_type;
 
-	deserialize_value() noexcept : err_flag(false),
+	deserialize_value_nonconst() noexcept : err_flag(false),
 		err_value(serialization::tpair)
 	{
 	}
 
-	~deserialize_value()
-	{
-	}
+	~deserialize_value_nonconst()=default;
 
 	//! Verify the type signature
 
@@ -546,6 +545,134 @@ public:
 
 		return false;
 	}
+};
+
+//! Deserialize a tuple
+
+template<typename ...Types>
+class deserialize_value_nonconst< std::tuple<Types...> > {
+
+	//! Succesful %deserialization of the signature
+	bool err_flag;
+
+	//! %Deserialization failed, deserialized a different type
+	datatype err_value;
+
+	uint32_t c=0;
+
+	//! Deserializer for the pair's first value
+	std::tuple<deserialize_value<Types>...> values;
+
+public:
+	//! The deserialized object type
+	typedef std::tuple<std::remove_const_t<Types>...> result_type;
+
+	deserialize_value_nonconst() noexcept : err_flag(false),
+		err_value(serialization::ttuple)
+	{
+	}
+
+	~deserialize_value_nonconst()=default;
+
+	//! Verify the type signature
+
+	template<typename iter_type>
+	bool verify_type(//! The deserialization iterator
+			 iter_type &i)
+	{
+		if ( (err_value=(datatype)i.get()) != serialization::ttuple)
+		{
+			err_flag=true;
+			return false;
+		}
+
+		c=deserialize_bytestream<iter_type, uint32_t,
+					 sizeof(uint32_t)>::deserialize(i);
+
+		if (c != sizeof...(Types))
+		{
+			err_flag=true;
+			return false;
+		}
+
+		if (!std::apply([&]
+				(deserialize_value<Types> & ...type)
+				{
+					return (type.verify_type(i)
+						&& ...);
+				}, values))
+		{
+			err_flag=true;
+			return false;
+		}
+
+		return true;
+	}
+
+	//! %Deserialize the object
+
+	template<typename iter_type>
+	void deserialize_type(//! Place %deserialized value here
+			      result_type &value,
+
+			      //! The deserialization iterator
+			      iter_type &i)
+	{
+		return do_deserialize_type(value, i,
+					   std::make_index_sequence
+					   <sizeof...(Types)>{});
+	}
+
+	template<typename iter_type, size_t ...i>
+	void do_deserialize_type(result_type &value,
+				 iter_type &itr,
+				 std::index_sequence<i...>)
+	{
+		(std::get<i>(values).deserialize_type(std::get<i>(value), itr),
+		 ...);
+	}
+
+	//! Diagnostic function
+
+	bool output_type(std::ostream &o, bool err_type) noexcept
+	{
+		return do_output_type(o, err_type,
+				      std::make_index_sequence
+				      <sizeof...(Types)>{});
+	}
+
+	template<size_t ...i>
+	bool do_output_type(std::ostream &o, bool err_type,
+			    std::index_sequence<i...>)
+	{
+		if (err_type && err_flag)
+		{
+			o << tname(err_value);
+			return true;
+		}
+
+		o << "TUPLE<";
+
+		if constexpr (sizeof...(Types))
+		{
+			const char *sep="";
+
+			if (( ((o << sep), (sep=","),
+			       (std::get<i>(values).output_type(o, err_type)
+				&& err_type)) || ...))
+				return true;
+		}
+		o << ">";
+
+		return false;
+	}
+};
+
+//! Deserialize a reference_wrapper
+
+template<typename T>
+class deserialize_value_nonconst< std::reference_wrapper<T> >
+	: public deserialize_value<T> {
 };
 
 //! Deserialize an object pointer

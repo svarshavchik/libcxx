@@ -10,6 +10,8 @@
 #include <limits>
 #include <typeinfo>
 #include <type_traits>
+#include <tuple>
+#include <utility>
 #include <x/exception.H>
 #include <x/serializationfwd.H>
 #include <x/namespace.h>
@@ -133,7 +135,7 @@ enum datatype {
 
 	tsequence=32,
 	tpair,
-
+	ttuple,
 	tobject=64,
 	treference
 };

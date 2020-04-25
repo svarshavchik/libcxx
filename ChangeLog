@@ -1,5 +1,8 @@
 2020-04-25  Sam Varshavchik  <mrsam@courier-mta.com>
 
+	* includes/x/serialization.H: Handle serialization of tuples and
+	reference_wrappers, general cleanup.
+
 	* includes/x/value_string.H: Remove default implementation of
 	default_value() that throws exceptions, from value_string. Require
 	use of SFINAE where needed.

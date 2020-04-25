@@ -23,6 +23,8 @@ namespace LIBCXX_NAMESPACE {
 };
 #endif
 
+//! Return value from createnode().
+
 template<typename T, typename=void>
 struct createnode_ret_t;
 

@@ -45,6 +45,8 @@ const char *tname(datatype value) noexcept
 		return "SEQUENCE";
 	case tpair:
 		return "PAIR";
+	case ttuple:
+		return "TUPLE";
 	case tobject:
 		return "OBJECT";
 	case treference:
