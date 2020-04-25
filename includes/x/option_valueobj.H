@@ -28,6 +28,35 @@ namespace LIBCXX_NAMESPACE {
 };
 #endif
 
+//! Default implementation of set() for \ref valueObj "option values"
+
+//! For values that do not have defaults.
+
+template<typename value_type, typename=void> struct option_value_set {
+
+	static inline int default_value(value_type &)
+	{
+		return option::parser::base::err_invalidoption;
+	}
+};
+
+//! Specialization of \ref valueObj "option values"
+
+//! Use default_value() to return the option's default value.
+
+template<typename value_type>
+struct option_value_set<value_type,
+			std::void_t<decltype( value_string<value_type>
+					      ::default_value())>> {
+
+	static inline int default_value(value_type &value)
+	{
+		value=value_string<value_type>::default_value();
+
+		return 0;
+	}
+};
+
 //! An %option that's specified once
 
 //! \internal
@@ -84,13 +113,7 @@ public:
 
 	int set() noexcept override
 	{
-		try {
-			value=value_string<value_type>::default_value();
-		} catch (exception &e)
-		{
-			return option::parser::base::err_invalidoption;
-		}
-		return 0;
+		return option_value_set<value_type>::default_value(value);
 	}
 
 	//! Implement the reset operation

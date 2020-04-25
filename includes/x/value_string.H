@@ -28,11 +28,6 @@ void value_conversion_error(const std::string &value)
 	__attribute__((noreturn));
 
 
-//! No default value for custom classes
-
-void no_custom_class_default()
-	__attribute__((noreturn));
-
 template<typename valueType, bool is_integer, bool is_float>
 class value_stringimpl;
 
@@ -43,10 +38,10 @@ template<typename valueType> class value_string;
 //! This template defined a class with two static methods.
 //!
 //! - to_string(): takes two parameters, the template type value and a locale.
-//! The value gets converted to a string representation.
+//! The value gets converted to its string representation.
 //!
-//! - from_string(): takes two a parameters, a string value and a locale.
-//! The string value gets converted to the template type value.
+//! - from_string(): takes two parameters, a string value and a locale.
+//! The value's string representation gets converted to the template type value.
 //!
 //! For \c std::string -s, both functions are a no-op. For natural integer
 //! and floating point types, the functions get implemented using
@@ -245,14 +240,6 @@ public:
 	static valueType initial_value()
 	{
 		return valueType();
-	}
-
-	//! The default value.
-
-	static valueType default_value()
-	{
-		no_custom_class_default();
-		return initial_value();
 	}
 };
 

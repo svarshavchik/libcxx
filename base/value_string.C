@@ -26,11 +26,6 @@ void value_conversion_error(const std::string &value)
 	throw EXCEPTION(o.str());
 }
 
-void no_custom_class_default()
-{
-	throw EXCEPTION(_("Undefined default value for a custom class option"));
-}
-
 bool value_string<bool>::from_string(const std::string &s,
 				    const const_locale &locale)
 
