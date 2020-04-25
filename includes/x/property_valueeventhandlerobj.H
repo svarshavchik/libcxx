@@ -83,7 +83,7 @@ class propvaluesetbase {
 protected:
 
 	//! Property notification handler
-	ptr<propvaluebaseObj> handler;
+	ref<propvaluebaseObj> handler;
 
 protected:
 
@@ -96,7 +96,7 @@ protected:
 
 	//! Install the property callback
 
-	void install(const ptr<listObj> &props, //!< Property list
+	void install(const ref<listObj> &props, //!< Property list
 		     const char *namestr, //!< Property name
 		     const std::string &initvalue, //!< Initial property value
 		     const const_locale &locale //!< Locale

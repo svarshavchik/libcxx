@@ -14,3 +14,4 @@
 ./testoptgen --setflag			2>&1
 ./testoptgen --setflag=true foo bar	2>&1
 ./testoptgen --setflag=false		2>&1
+./testoptgen --output			2>&1

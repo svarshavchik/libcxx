@@ -38,6 +38,14 @@ public:
 			  std::back_insert_iterator<std::string>(c.s));
 		return c;
 	}
+
+	static outputFormatClass default_value()
+	{
+		outputFormatClass c;
+
+		c.s="default";
+		return c;
+	}
 };
 
 static int setregion(std::string region)
@@ -111,7 +119,6 @@ int main(int argc, char **argv)
 		{
 			std::cout << "Arg: " << *b << std::endl;
 		}
-
 	} catch (LIBCXX_NAMESPACE::exception &e)
 	{
 		std::cerr << e << std::endl;

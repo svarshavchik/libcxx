@@ -625,10 +625,10 @@ public:
 
 	//! Return the global property list
 
-	//! May return an empty list during application shutdown.
+	//! May return an empty list during the global destruction phase.
 	//!
 
-	static listptr global();
+	static list global();
 };
 
 #ifndef DOXYGEN

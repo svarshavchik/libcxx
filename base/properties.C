@@ -648,23 +648,19 @@ globalListObj::~globalListObj()
 
 singleton<globalListObj> glob;
 
-listptr listObj::global()
+list listObj::global()
 {
 	listptr p=glob.get();
 
-	if (p.null())
-		p=listptr::create();
+	if (p)
+		return p;
 
-	return p;
+	return listptr::create();
 }
 
-notifyObj::notifyObj()
-{
-}
+notifyObj::notifyObj()=default;
 
-notifyObj::~notifyObj()
-{
-}
+notifyObj::~notifyObj()=default;
 
 void notifyObj::event(const propvalueset_t &newvalue)
 
@@ -776,7 +772,7 @@ void propvaluebaseObj::install(const notify &notifyRef)
 }
 
 propvaluesetbase::propvaluesetbase()
-	: handler(ptr<propvaluebaseObj>::create())
+	: handler(ref<propvaluebaseObj>::create())
 {
 }
 
@@ -796,7 +792,7 @@ void propvaluesetbase::install(const char *namestr,
 	install(std::string(namestr), initvalue, localeArg);
 }
 
-void propvaluesetbase::install(const listptr &props,
+void propvaluesetbase::install(const list &props,
 			       const char *namestr,
 			       const std::string &initvalue,
 			       const const_locale &localeArg)

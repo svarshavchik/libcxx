@@ -11,7 +11,7 @@
 #include <iomanip>
 #include <limits>
 #include <iterator>
-#include <x/is_float.H>
+#include <type_traits>
 #include <x/locale.H>
 #include <x/imbue.H>
 #include <x/namespace.h>
@@ -27,11 +27,6 @@ namespace LIBCXX_NAMESPACE {
 void value_conversion_error(const std::string &value)
 	__attribute__((noreturn));
 
-
-template<typename valueType, bool is_integer, bool is_float>
-class value_stringimpl;
-
-template<typename valueType> class value_string;
 
 //! Convert a %value to or from a string representation.
 
@@ -118,15 +113,12 @@ template<typename valueType> class value_string;
 //! so the class from_string()
 //! should be defined as a template.
 //!
-//! - The custom class should implement a default constructor. initial_value()
-//! constructs an object using the default constructor. default_value() throws
-//! an exception.
+//! - The custom class should implement a default constructor, and a
+//! default_value() static class method. initial_value()
+//! constructs an object using the default constructor. default_value()
+//! calls the class's default_value() method.
 
-template<typename valueType> class value_string
-	: public value_stringimpl<valueType,
-				  std::numeric_limits<valueType>::is_integer,
-				  is_float<valueType>::flag > {
-};
+template<typename value_type, typename=void> class value_string;
 
 //! A \c std::string %value
 
@@ -139,7 +131,7 @@ public:
 	//! Convert the value to a string representation.
 
 	static std::string to_string(const std::string &v,
-				    const const_locale &locale)
+				     const const_locale &locale)
 	{
 		return v;
 	}
@@ -147,7 +139,7 @@ public:
 	//! Convert the value from a string represantion
 
 	static std::string from_string(const std::string &s,
-				      const const_locale &locale)
+				       const const_locale &locale)
 	{
 		return s;
 	}
@@ -181,43 +173,68 @@ public:
 	//! Convert the value to a string representation.
 
 	static std::string to_string(bool v,
-				    const const_locale &locale);
+				     const const_locale &locale);
 
 	//! Convert the value from a string represantion
 
 	static bool from_string(const std::string &s,
-			       const const_locale &locale);
+				const const_locale &locale);
 
 
 	//! The initial value, an empty string.
 
-	static bool initial_value()
+	static constexpr bool initial_value()
 	{
 		return false;
 	}
 
 	//! The default value.
 
-	static bool default_value()
+	static constexpr bool default_value()
 	{
 		return true;
 	}
 };
 
-//! The %value is a custom class.
+//! Default \ref value_string "value_string" implementation of default_value().
 
-//! The to_string() and from_string() methods invoke the class's to_string()
-//! and from_string() methods.
+//! The default implementation does not implement default_value() when the
+//! class doesn't have its own default_value() method.
+//!
+//! This class gets inherited by the default implementation of
+//! \ref value_string "value_string".
+template<typename T, typename=void> struct value_default_value {
 
-template<typename valueType, bool is_integer, bool is_float>
-class value_stringimpl {
+};
+
+//! Specialization for classes that have a default_value() static method.
+
+//! Defines default_value() that gets forwarded to it.
+
+template<typename T>
+struct value_default_value<T, std::void_t<decltype(T::default_value())>> {
+
+	//! The default value
+
+	static inline auto default_value()
+	{
+		return T::default_value();
+	}
+
+};
+
+// Default implementation.
+
+template<typename value_type, typename> class value_string
+	: public value_default_value<value_type> {
+
 
 public:
 
 	//! Convert the value to a string representation.
 
-	static inline std::string to_string(const valueType &v,
-					   const const_locale &locale)
+	static inline std::string to_string(const value_type &v,
+					    const const_locale &locale)
 
 	{
 		std::string s;
@@ -229,17 +246,19 @@ public:
 
 	//! Convert the value from a string represantion
 
-	static valueType from_string(const std::string &s,
-				    const const_locale &locale)
+	static auto from_string(const std::string &s,
+				const const_locale &locale)
 	{
-		return valueType::from_string(s.begin(), s.end(), locale);
+		return value_type::from_string(s.begin(), s.end(), locale);
 	}
 
 	//! The initial value, a default constructor
 
-	static valueType initial_value()
+	template<typename T=void, typename=std::void_t<T,
+						       decltype(value_type{})>>
+	static auto initial_value()
 	{
-		return valueType();
+		return value_type{};
 	}
 };
 
@@ -248,16 +267,18 @@ public:
 //! This implementation implements from_string() and to_string() for a
 //! natural integer %value.
 
-template<typename valueType>
-class value_stringimpl<valueType, true, false> {
+template<typename value_type>
+class value_string<value_type,
+		   std::enable_if_t<std::numeric_limits<value_type>::is_integer>>
+{
 public:
 
 	//! Return the value of this property, as a string
 
 	//! Convert the value to a string representation.
 
-	static std::string to_string(valueType v,
-				    const const_locale &locale)
+	static std::string to_string(value_type v,
+				     const const_locale &locale)
 	{
 		std::ostringstream o;
 
@@ -270,10 +291,10 @@ public:
 
 	//! Convert the value from a string represantion
 
-	static valueType from_string(const std::string &s,
-				    const const_locale &locale)
+	static value_type from_string(const std::string &s,
+				      const const_locale &locale)
 	{
-		valueType n;
+		value_type n;
 
 		std::istringstream i(s);
 
@@ -291,14 +312,14 @@ public:
 
 	//! The initial value, zero;
 
-	static valueType initial_value()
+	static value_type initial_value()
 	{
 		return 0;
 	}
 
 	//! The default value, one.
 
-	static valueType default_value()
+	static value_type default_value()
 	{
 		return 1;
 	}
@@ -310,20 +331,24 @@ public:
 //! The to_string() and from_string() methods convert the floating value to
 //! a string representation.
 
-template<typename valueType>
-class value_stringimpl<valueType, false, true> {
+template<typename value_type>
+class value_string<value_type,
+		   std::enable_if_t<
+			   std::numeric_limits<value_type>::is_specialized &&
+			   !std::numeric_limits<value_type>::is_integer>> {
+
 public:
 
 	//! Return the value of this property, as a string
 
 	//! Convert the value to a string representation.
 
-	static std::string to_string(valueType v,
-				    const const_locale &locale)
+	static std::string to_string(value_type v,
+				     const const_locale &locale)
 	{
 		std::ostringstream o;
 
-		o << std::setprecision(std::numeric_limits<valueType>::digits10
+		o << std::setprecision(std::numeric_limits<value_type>::digits10
 				       +2); // See serialize.H
 
 		imbue<std::ostringstream> im(locale, o);
@@ -335,12 +360,12 @@ public:
 
 	//! Convert the value from a string represantion
 
-	static valueType from_string(const std::string &s,
-				    const const_locale &locale)
+	static value_type from_string(const std::string &s,
+				      const const_locale &locale)
 	{
 		std::istringstream i(s);
 
-		valueType v;
+		value_type v;
 
 		{
 			imbue<std::istringstream> im(locale, i);
@@ -356,14 +381,14 @@ public:
 
 	//! The initial value, zero;
 
-	static valueType initial_value()
+	static value_type initial_value()
 	{
 		return 0;
 	}
 
 	//! The default value, one.
 
-	static valueType default_value()
+	static value_type default_value()
 	{
 		return 1;
 	}

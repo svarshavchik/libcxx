@@ -12,3 +12,4 @@ setflag called
 Arg: foo
 Arg: bar
 Invalid option: --setflag=false
+Output format: default

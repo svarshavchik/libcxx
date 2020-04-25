@@ -328,7 +328,7 @@ public:
 
 	      //! Current locale
 	      const const_locale &l=locale::base::environment())
- : valueimpl<argType>(initValue)
+		: valueimpl<argType>(initValue)
 	{
 		install(propname, stringType::tostr(this->get(), l), l);
 	}
@@ -336,7 +336,7 @@ public:
 	//! Initialize the %property %value
 
 	value(//! Explicit property
-	      const ptr<listObj> &props,
+	      const ref<listObj> &props,
 
 	      //! The name of the %property
 	      const char *propname,
@@ -370,7 +370,7 @@ public:
 	//! Initialize the %property %value
 
 	value(//! Explicit property
-	      const ptr<listObj> &props,
+	      const ref<listObj> &props,
 
 	      //! The name of the %property
 	      const std::string &propname,
@@ -380,7 +380,7 @@ public:
 
 	      //! Current locale
 	      const const_locale &l=locale::base::environment())
- : valueimpl<argType>(initValue)
+		: valueimpl<argType>(initValue)
 	{
 		install(props, propname,
 			stringType::tostr(this->get(), l), l);
