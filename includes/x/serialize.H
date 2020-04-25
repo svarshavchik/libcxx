@@ -43,14 +43,6 @@ namespace LIBCXX_NAMESPACE {
 
 template<typename value_type> class serialize_value;
 
-template<bool isinteger, typename value_type,
-	 typename native_value_type=
-	 typename serialization::serialize_integer_type<value_type>::int_t>
-class serialize_integer;
-
-template<bool isfloat, typename value_type>
-class serialize_float;
-
 template<bool iscontainer, typename value_type>
 class serialize_container;
 
@@ -174,7 +166,7 @@ public:
 	}
 };
 
-template<typename value_type> class serialize_value_nonconst;
+template<typename value_type, typename=void> class serialize_value_nonconst;
 
 //! %Serialize an object
 
@@ -189,22 +181,33 @@ template<typename value_type> class serialize_value
 
 //! After dropping the const-ness, figure out which specialization to use for serialization
 
-template<typename value_type> class serialize_value_nonconst
-	: public serialize_integer<std::numeric_limits<
-					   typename serialization
-					   ::serialize_integer_type<value_type>
-					   ::int_t>
-				   ::is_integer, value_type> {
+//! This default implementation inherits from serialize_container, and is
+//! specialized for integer and float types.
+
+template<typename value_type, typename> class serialize_value_nonconst
+	: public serialize_container<container_traits<value_type>::type !=
+				     unknown_container, value_type>
+{
 };
 
 //! Try serializing something that looks like a native integer type
 
 //! \see serialize_value
 //!
-template<typename value_type, typename native_value_type>
-class serialize_integer<true, value_type, native_value_type> {
+template<typename value_type>
+class serialize_value_nonconst<value_type,
+			       std::void_t<std::enable_if_t
+					   <std::numeric_limits<
+						    typename serialization
+						    ::serialize_integer_type
+						    <value_type>
+						    ::int_t>
+					    ::is_integer>>> {
 
 public:
+	typedef typename serialization::serialize_integer_type<value_type>
+	::int_t native_value_type;
+
 	//! %Serialize a native integer type
 
 	template<typename iter_type>
@@ -232,28 +235,6 @@ public:
 				     sizeof(value_type)>
 			::serialize(i, (native_value_type)value);
 	}
-};
-
-//! %Serialize something that's not an integer type
-
-//! \see serialize_value
-//!
-template<typename value_type>
-class serialize_integer<false, value_type> :
-	public serialize_float< is_float<value_type>::flag, value_type > {
-};
-
-template<typename value_type>
-class serialize_float<true, value_type>;
-
-//! %Serialize something that's not a float value
-
-//! \see serialize_value
-//!
-template<typename value_type>
-class serialize_float<false, value_type> :
-	public serialize_container< container_traits<value_type>::type !=
-				    unknown_container, value_type > {
 };
 
 //! %Serialize a container
@@ -332,8 +313,12 @@ class serialize_container<false, value_type>
 //! \see serialize_value
 //!
 template<typename value_type>
-class serialize_float<true, value_type>  {
-
+class serialize_value_nonconst<value_type,
+			       std::void_t<std::enable_if_t
+					   <std::numeric_limits<value_type>
+					    ::is_specialized &&
+					    !std::numeric_limits<value_type>
+					    ::is_integer>>> {
 public:
 
 	//! %Serialize the native float type
@@ -368,7 +353,7 @@ public:
 		// Furthermore there's usually a partial digit as a result
 		// of base 2 digits not fitting evenly into a base 10 value.
 		// Therefore, to capture all of the available precision, add
-		//! 2 to digits10.
+		// 2 to digits10.
 
 		s << std::setprecision(std::numeric_limits<value_type>::digits10+2);
 

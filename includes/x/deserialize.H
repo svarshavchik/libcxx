@@ -45,14 +45,6 @@ typedef serialization::datatype datatype;
 
 template<typename value_type> class deserialize_value;
 
-template<bool isinteger, typename value_type,
-	 typename native_value_type=
-	 typename serialization::serialize_integer_type<value_type>::int_t>
-class deserialize_integer;
-
-template<bool isfloat, typename value_type>
-class deserialize_float;
-
 template<bool iscontainer, typename container_type>
 class deserialize_container;
 
@@ -130,7 +122,7 @@ public:
 	}
 };
 
-template<typename value_type> class deserialize_value_nonconst;
+template<typename value_type, typename=void> class deserialize_value_nonconst;
 
 //! %Deserialize a value
 
@@ -161,43 +153,40 @@ template<typename value_type> class deserialize_value
 	: public deserialize_value_nonconst<std::remove_const_t<value_type>> {
 public:
 	//! Default constructor
-	deserialize_value() noexcept
-	{
-	}
+	deserialize_value() noexcept=default;
 
 	//! Default destructor
-	~deserialize_value()
-	{
-	}
+	~deserialize_value()=default;
 };
 
 //! After dropping the const-ness, figure out which specialization to use for deserialization
 
-template<typename value_type> class deserialize_value_nonconst
-	: public deserialize_integer<std::numeric_limits<
-					     typename serialization
-					     ::serialize_integer_type<
-						     value_type>
-					     ::int_t>
-				     ::is_integer, value_type>
-{
+template<typename value_type, typename> class deserialize_value_nonconst
+	: public deserialize_container< container_traits<value_type>::type !=
+					unknown_container, value_type> {
 public:
 	//! Default constructor
 
-	deserialize_value_nonconst() noexcept
-	{
-	}
+	deserialize_value_nonconst() noexcept=default;
 
 	//! Default destructor
-	~deserialize_value_nonconst()
-	{
-	}
+	~deserialize_value_nonconst()=default;
 };
 
 //! %Deserialize a native integer type
 
-template<typename value_type, typename native_value_type>
-class deserialize_integer<true, value_type, native_value_type> {
+template<typename value_type>
+class deserialize_value_nonconst<value_type,
+				 std::void_t<std::enable_if_t
+					     <std::numeric_limits<
+						      typename serialization
+						      ::serialize_integer_type
+						      <value_type>
+						      ::int_t>
+					      ::is_integer>>> {
+
+	typedef typename serialization::serialize_integer_type<value_type>
+	::int_t native_value_type;
 
 	//! Succesful %deserialization of the signature
 	bool err_flag;
@@ -214,13 +203,12 @@ public:
 
 	typedef value_type result_type;
 
-	deserialize_integer() noexcept : err_flag(false), err_value(typecode)
+	deserialize_value_nonconst() noexcept
+	: err_flag(false), err_value(typecode)
 	{
 	}
 
-	~deserialize_integer()
-	{
-	}
+	~deserialize_value_nonconst()=default;
 
 	//! Verify the type signature
 
@@ -263,42 +251,6 @@ public:
 		o << tname(typecode);
 
 		return false;
-	}
-};
-
-//! %Deserialize something that's not a native integer, perhaps it's a float
-
-template<typename value_type>
-class deserialize_integer<false, value_type> :
-	public deserialize_float< is_float<value_type>::flag, value_type> {
-
-public:
-
-	deserialize_integer() noexcept
-	{
-	}
-
-	~deserialize_integer()
-	{
-	}
-};
-
-template<typename value_type> class deserialize_float<true, value_type>;
-
-//! Deserialize something that's not a float value, perhaps it's a container.
-
-template<typename value_type>
-class deserialize_float<false, value_type> :
-	public deserialize_container< container_traits<value_type>::type !=
-				      unknown_container, value_type> {
-
-public:
-	deserialize_float() noexcept
-	{
-	}
-
-	~deserialize_float()
-	{
 	}
 };
 
@@ -442,7 +394,12 @@ public:
 //! Deserialize a native float value
 
 template<typename value_type>
-class deserialize_float<true, value_type> {
+class deserialize_value_nonconst<value_type,
+				 std::void_t<std::enable_if_t
+					     <std::numeric_limits<value_type>
+					      ::is_specialized &&
+					      !std::numeric_limits<value_type>
+					      ::is_integer>>> {
 
 	//! The actual deserialized type is a \c std::string
 
@@ -453,13 +410,11 @@ public:
 
 	typedef value_type result_type;
 
-	deserialize_float() noexcept
-	{
-	}
+	//! Constructor
+	deserialize_value_nonconst() noexcept=default;
 
-	~deserialize_float()
-	{
-	}
+	//! Destructor
+	~deserialize_value_nonconst()=default;
 
 	//! Verify the type signature
 

@@ -11,7 +11,6 @@
 #include <typeinfo>
 #include <type_traits>
 #include <x/exception.H>
-#include <x/is_float.H>
 #include <x/serializationfwd.H>
 #include <x/namespace.h>
 

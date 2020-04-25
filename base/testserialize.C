@@ -271,7 +271,7 @@ static void testserialize3()
 	LIBCXX_NAMESPACE::deserialize::iterator
 		<std::istreambuf_iterator<char> > deserialize(i, e);
 
-	LIBCXX_NAMESPACE::deserialize::deserialize_float<true, float> foo;
+	LIBCXX_NAMESPACE::deserialize::deserialize_value<float> foo;
 
 	deserialize(fr)(dr)(ldr);
 
