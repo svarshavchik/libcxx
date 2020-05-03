@@ -223,36 +223,65 @@ std::string localeObj::fromu32(const std::u32string &text) const
 	return string;
 }
 
-std::string localeObj::toutf8(const std::string &text) const
+namespace {
+#if 0
+}
+#endif
+
+struct converted_string : public unicode::iconvert {
+
+	std::string convstr;
+
+	using unicode::iconvert::operator();
+
+	int converted(const char *p, size_t n) override
+	{
+		convstr.insert(convstr.end(), p, p+n);
+		return 0;
+	}
+};
+
+#if 0
 {
-	if (utf8)
-		return text; // Shortcut
-
-	bool error;
-
-	std::string s=unicode::iconvert::convert(text, charset(),
-						 unicode::utf_8, error);
-
-	if (error)
-		throw EXCEPTION("UTF-8 encoding error");
-
-	return s;
+#endif
 }
 
-std::string localeObj::fromutf8(const std::string &text) const
+std::string localeObj::toutf8(const std::string_view &text) const
 {
 	if (utf8)
-		return text; // Shortcut
+		return {text.begin(), text.end()}; // Shortcut
 
-	bool error;
+	converted_string convert;
 
-	std::string s=unicode::iconvert::convert(text, unicode::utf_8,
-						 charset(), error);
+	bool errflag=false;
 
-	if (error)
+	convert.convstr.reserve(text.size() + text.size()/3);
+	if (!convert.begin(charset(), unicode::utf_8)
+	    || !convert(text.data(), text.size())
+	    || !convert.end(errflag)
+	    || errflag)
 		throw EXCEPTION("UTF-8 encoding error");
 
-	return s;
+	return std::move(convert.convstr);
+}
+
+std::string localeObj::fromutf8(const std::string_view &text) const
+{
+	if (utf8)
+		return {text.begin(), text.end()}; // Shortcut
+
+	converted_string convert;
+
+	bool errflag=false;
+
+	convert.convstr.reserve(text.size());
+	if (!convert.begin(unicode::utf_8, charset())
+	    || !convert(text.data(), text.size())
+	    || !convert.end(errflag)
+	    || errflag)
+		throw EXCEPTION("UTF-8 encoding error");
+
+	return std::move(convert.convstr);
 }
 
 #if 0

@@ -987,7 +987,7 @@ class LIBCXX_HIDDEN impldocObj::createnodeImplObj : public createnodeObj,
 		return createnode{this};
 	}
 
-	createnode cdata(const std::string &cdata) override
+	createnode cdata(const std::string_view &cdata) override
 	{
 		to_xml_char cdata_xml{cdata, *this};
 
@@ -997,14 +997,31 @@ class LIBCXX_HIDDEN impldocObj::createnodeImplObj : public createnodeObj,
 		return createnode{this};
 	}
 
-	createnode text(const std::string &text) override
+	createnode cdata(const std::u32string_view &cdata) override
+	{
+		to_xml_char cdata_xml{cdata};
+
+		create(guard(xmlNewCDataBlock(lock.impl->p,
+					      cdata_xml, cdata_xml.size()),
+			     "cdata"));
+		return createnode{this};
+	}
+
+	createnode text(const std::string_view &text) override
 	{
 		create(guard(xmlNewText(to_xml_char{text, *this}),
 			     "text"));
 		return createnode{this};
 	}
 
-	createnode entity(const std::string &text) override
+	createnode text(const std::u32string_view &text) override
+	{
+		create(guard(xmlNewText(to_xml_char{text}),
+			     "text"));
+		return createnode{this};
+	}
+
+	createnode entity(const std::string_view &text) override
 	{
 		create(guard(xmlNewCharRef(lock.impl->p,
 					   to_xml_char{text, *this}),

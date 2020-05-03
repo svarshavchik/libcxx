@@ -51,11 +51,19 @@ public:
 
 	//! Create a new cdata block
 	virtual createnode cdata(//! Content of the new CDATA
-				 const std::string &cdata)=0;
+				 const std::string_view &cdata)=0;
 
 	//! Create a new text node
 	virtual createnode text(//! Content of the new text node
-				const std::string &text)=0;
+				const std::string_view &text)=0;
+
+	//! Create a new cdata block
+	virtual createnode cdata(//! Content of the new CDATA
+				 const std::u32string_view &cdata)=0;
+
+	//! Create a new text node
+	virtual createnode text(//! Content of the new text node
+				const std::u32string_view &text)=0;
 
 	//! Create a new text node
 
@@ -63,7 +71,7 @@ public:
 	typename createnode_ret_t<T>::type_t text(T t);
 
 	//! Create a new entity reference.
-	virtual createnode entity(const std::string &text)=0;
+	virtual createnode entity(const std::string_view &text)=0;
 
 	//! Create a new element
 	virtual createnode element(const new_element &)=0;

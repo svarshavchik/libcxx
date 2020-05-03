@@ -1,3 +1,11 @@
+2020-05-03  Sam Varshavchik  <mrsam@courier-mta.com>
+
+	* locale: Change toutf8() and fromutf8() helpers to string_view
+	parameters.
+
+	* base/xml_doc.C: Create text() and cdata() from u32strings, and
+	change overloaded text() and cdata() to string view parameters.
+
 2020-04-25  Sam Varshavchik  <mrsam@courier-mta.com>
 
 	* includes/x/serialization.H: Handle serialization of tuples and

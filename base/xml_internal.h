@@ -15,6 +15,9 @@
 #include "x/locale.H"
 #include "x/sharedlock.H"
 
+#include <string_view>
+#include <courier-unicode.h>
+
 namespace LIBCXX_NAMESPACE {
 	namespace xml {
 #if 0
@@ -266,8 +269,35 @@ struct to_xml_char {
 
 	const std::string s;
 
-	to_xml_char(const std::string &s, const get_localeObj &l)
+	to_xml_char(const std::string_view &s, const get_localeObj &l)
 		: s{l.get_global_locale()->toutf8(s)}
+	{
+	}
+
+	struct utf8_convert : unicode::iconvert::fromu {
+
+		std::string s;
+
+		using unicode::iconvert::fromu::operator();
+
+		int converted(const char *p, size_t n) override
+		{
+			s.insert(s.end(), p, p+n);
+			return 0;
+		}
+	};
+
+	to_xml_char(const std::u32string_view &s)
+		: s{ ({
+				       utf8_convert conv;
+
+				       conv.begin(unicode::utf_8);
+
+				       conv(s.data(), s.size());
+				       conv.end();
+
+				       conv.s;
+			       })}
 	{
 	}
 

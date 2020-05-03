@@ -123,11 +123,11 @@ public:
 
 	//! Convert text string to utf8
 
-	std::string toutf8(const std::string &text) const;
+	std::string toutf8(const std::string_view &text) const;
 
 	//! Convert text string from utf8
 
-	std::string fromutf8(const std::string &text) const;
+	std::string fromutf8(const std::string_view &text) const;
 
 	//! Make this locale the global locale.
 
