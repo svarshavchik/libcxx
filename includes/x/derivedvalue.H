@@ -176,22 +176,17 @@ derivedvalueListObj<basedon_t>::calcObj
 <begin_calc_functor_t, calc_functor_t,
  end_calc_functor_t, vipobj_arg_type,
  vipobj_t...>::calcObj(B &&b, C &&c, E &&e, Args && ...args)
-	: derivedvalueObj<basedon_t,
-	typename derivedvalue_type_calc
-	<begin_calc_functor_t, end_calc_functor_t>
-	::type,
-	vipobj_arg_type,
-	vipobj_t...>( ({
-				// Initialize default value.
+	 : superclass_t( ({
+				 // Initialize default value.
 
-				auto v=b();
+				 auto v=b();
 
-				e(v);
-			}),
-		std::forward<Args>(args)...),
-	begin_calc(std::forward<B>(b)),
-	calc(std::forward<C>(c)),
-	end_calc(std::forward<E>(e))
+				 e(v);
+			 }),
+		 std::forward<Args>(args)...),
+	   begin_calc(std::forward<B>(b)),
+	   calc(std::forward<C>(c)),
+	   end_calc(std::forward<E>(e))
 {
 }
 

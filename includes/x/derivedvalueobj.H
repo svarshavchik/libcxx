@@ -192,6 +192,14 @@ class derivedvalueListObj<basedon_t>::calcObj
 				 ::type,
 				 vipobj_arg_type,
 				 vipobj_type...> {
+
+	//! Alias for the superclass.
+	typedef derivedvalueObj<basedon_t,
+				typename derivedvalue_type_calc
+				<begin_calc_functor_t, end_calc_functor_t>
+				::type,
+				vipobj_arg_type,
+				vipobj_type...> superclass_t;
 public:
 
 	//! Begin calculation functor
