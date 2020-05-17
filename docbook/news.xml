@@ -6,23 +6,25 @@ See COPYING for distribution information.
 -->
 
 <section id="news">
-  <title>Release 0.20 of &app;</title>
+  <title>Release 0.21 of &app;</title>
 
   <itemizedlist>
     <listitem>
       <para>
-	Refactoring of the <link linkend="xml_parse">XML parser API</link>,
-	moving child objects of
-	<classname>&ns;::xml::doc</classname> to the parent
-	<classname>&ns;::xml</classname> namespace.
-	Add {from|to}utf{8|32} helpers to
-	<link linkend="localeobj">locale objects</link>.
+	Improvements to the <link linkend="xml_parse">XML parser API</link>.
       </para>
     </listitem>
     <listitem>
       <para>
-	Misc API cleanup: renamed <classname>mutex::base::mlock</classname>
-	as <classname>mlock</classname>.
+	<link linkend="mptobj">Transferrable mutex locks</link>.
+      </para>
+    </listitem>
+    <listitem>
+      <para>
+	Add support to the
+	<link linkend="serialization">Serialization API</link>
+	for serializing <classname>std::tuple</classname>s and
+	<classname>std::reference_wrapper</classname>s.
       </para>
     </listitem>
   </itemizedlist>

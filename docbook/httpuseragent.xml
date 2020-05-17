@@ -47,7 +47,7 @@ See COPYING for distribution information.
 
   <variablelist>
     <varlistentry>
-      <term><ulink url="&link-variable-x--gnutls--http-noverifypeer;"><literal>&ns;::http::noverifypeer</literal></ulink></term>
+      <term><ulink url="&link-variable-clientopts-t.H-noverifypeer;"><literal>&ns;::http::noverifypeer</literal></ulink></term>
       <listitem>
 	<para>
 	  For <acronym>HTTPS</acronym> connections, do not verify that the
@@ -56,7 +56,7 @@ See COPYING for distribution information.
       </listitem>
     </varlistentry>
     <varlistentry>
-      <term><ulink url="&link-variable-x--gnutls--http-noverifycert;"><literal>&ns;::http::noverifycert</literal></ulink></term>
+      <term><ulink url="&link-variable-clientopts-t.H-noverifycert;"><literal>&ns;::http::noverifycert</literal></ulink></term>
       <listitem>
 	<para>
 	  For <acronym>HTTPS</acronym> connections, do not verify that the
@@ -1029,7 +1029,7 @@ void showuri(const &ns;::http::useragent &amp;ua, const &ns;::uriimpl &amp;uri)
     </para>
 
     <para>
-      The value in the <varname>challenges</varname> map is 
+      The value in the <varname>challenges</varname> map is
       an opaque reference-counted object that gets passed to
       <methodname>set_authorization</methodname>(). It specifies the
       challenge for which the given credentials apply.

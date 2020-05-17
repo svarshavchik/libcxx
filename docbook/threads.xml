@@ -163,6 +163,76 @@ typedef &ns;::mpcobj&lt;messages_t&gt;::lock lock_t;
       template overrides <classname>std::mutex</classname> as the
       underlying mutex type.
     </para>
+
+    <section id="mptobj">
+      <title>Transferrable mutex locks</title>
+
+      <para>
+	<link linkend="&link-typedef-x-mptobj;">&ns;::mptobj</link> implements
+	a mutex-protected object whose lock ownership is transferrable to
+	a different execution thread.
+      </para>
+
+      <blockquote>
+	<informalexample>
+	  <programlisting>
+#include &lt;&ns;/mpthreadlock.H&gt;
+
+typedef &ns;::mptobj&lt;locked_info_s&gt; locked_info_t;
+
+locked_info_t locked_info;
+
+// ...
+
+locked_info_t::lock original_lock{locked_info};
+
+// Access something.
+
+&ns;::mpthreadlock&lt;locked_info_s&gt; preserver=original_lock.threadlock();
+
+&ns;::w::run_lambda([preserver]
+                    {
+                           locked_info_t::lock new_lock{preserver};
+                           // ...
+                    });</programlisting>
+	</informalexample>
+      </blockquote>
+
+      <para>
+	Locks on mutex-protected objects must be constructed in automatic
+	scope, and released by the same execution thread; but
+	<classname>&ns;::mpthreadlock</classname> provides a means of
+	preserving a lock on the mutex-protected object after the
+	<varname>original_lock</varname>
+	goes away, preventing other locks from getting acquired.
+	Its <methodname>threadlock</methodname>() method returns a
+	preserver object, a
+	<link linkend="refobj">reference-counted object</link> that holds
+	the lock (after the real lock goes away). The preserver
+	gets passed
+	to the <varname>new_lock</varname>'s constructor, which now owns
+	a real lock on the underlying object.
+      </para>
+
+      <note>
+	<para>
+	   <varname>new_lock</varname>'s constructor blocks until the
+	   <varname>original_lock</varname> goes out of scope and gets
+	   destroyed, if it still exists at the time the constructor gets
+	   invoked.
+	</para>
+
+	<para>
+	  The preserver guarantees that the <varname>new_lock</varname>
+	  acquires the real lock as long as the <varname>original_lock</varname>
+	  no longer exists, even if other execution threads are attempting
+	  to acquire the real lock. The preserver "loses its mojo" after the
+	  lock ownership gets transferred to the <varname>new_lock</varname>
+	  and using it to construct another lock, afterwards, has no
+	  effect.
+	</para>
+      </note>
+    </section>
   </section>
 
   <section id="mp">
