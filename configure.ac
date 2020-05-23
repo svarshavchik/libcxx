@@ -119,8 +119,8 @@ AC_LINK_IFELSE(
 LIBS="$libcxx_save_LIBS"
 
 # Also update the flags placed into libcxx.pc in the Makefile.am
-# and in docbook/core.xml
-CXXFLAGS="$CXXFLAGS -std=c++17 -fno-omit-frame-pointer -pthread"
+# and buildoptions in docbook/book.xml
+CXXFLAGS="$CXXFLAGS -std=c++20 -fno-omit-frame-pointer -pthread"
 
 AC_CHECK_PROGS(XML2_CONFIG,xml2-config,none)
 if test "$XML2_CONFIG" = "none"

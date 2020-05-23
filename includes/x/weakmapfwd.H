@@ -153,7 +153,7 @@ class weakmapBase;
 //! has a chance to retrieve the corresponding iterator.
 
 template<typename K, typename T,
-	 typename C=std::less<K>,
+	 typename C=std::less<void>,
 	 typename Allocator=std::allocator<std::pair<const K, weakptr<ptr<T> > > > >
 using weakmap=ref<weakmapObj<K, ptr<T>,
 			     std::map<K, weakptr<ptr<T> >, C, Allocator>>,
@@ -163,7 +163,7 @@ using weakmap=ref<weakmapObj<K, ptr<T>,
 
 //! \see weakmap
 template<typename K, typename T,
-	 typename C=std::less<K>,
+	 typename C=std::less<void>,
 	 typename Allocator=std::allocator<std::pair<const K, weakptr<ptr<T> > > > >
 using weakmapptr=ptr<weakmapObj<K, ptr<T>,
 				std::map<K, weakptr<ptr<T> >, C, Allocator>>,

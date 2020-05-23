@@ -32,7 +32,7 @@ inline void ptrImpl<objClass>::setRef_noconscheck(objClass *newRefP) noexcept
 
 template<typename objClass>
 inline ptrImpl<objClass>::ptrImpl(objClass *pArg)
-	noexcept
+	noexcept requires is_derived_from_obj<objClass>
 	: refP(pArg)
 {
 	if (refP && ++refP->obj::refcnt == 0)
@@ -48,7 +48,7 @@ inline ptrImpl<objClass>::~ptrImpl()
 
 template<typename objClass>
 inline ptrImpl<objClass>::ptrImpl(const ptrImpl<objClass> &o )
-	noexcept : refP(o.refP)
+	noexcept requires is_derived_from_obj<objClass> : refP(o.refP)
 {
 	if (refP)
 		++refP->obj::refcnt;
@@ -60,7 +60,8 @@ template<typename objClass>
 template<typename baseClass>
 inline
 ptrImpl<objClass>::ptrImpl(const const_ref<objClass, baseClass> &o) noexcept
-	: refP(o.p.refP)
+	requires is_derived_from_obj<objClass>
+	: refP{o.p.refP}
 {
 	obj &thiso=*refP;
 	++thiso.refcnt;
@@ -72,7 +73,8 @@ template<typename objClass>
 template<typename baseClass>
 inline
 ptrImpl<objClass>::ptrImpl(const ref<objClass, baseClass> &o) noexcept
-	: refP(o.p.refP)
+	 requires is_derived_from_obj<objClass>
+	: refP{o.p.refP}
 {
 	obj &thiso=*refP;
 	++thiso.refcnt;
@@ -84,7 +86,8 @@ template<typename objClass>
 template<typename baseClass>
 inline
 ptrImpl<objClass>::ptrImpl(const_ref<objClass, baseClass> &&o) noexcept
-	: refP(o.p.refP)
+	requires is_derived_from_obj<objClass>
+	: refP{o.p.refP}
 {
 	o.p.refP=nullptr;
 }
@@ -95,7 +98,8 @@ template<typename objClass>
 template<typename baseClass>
 inline
 ptrImpl<objClass>::ptrImpl(ref<objClass, baseClass> &&o) noexcept
-	: refP(o.p.refP)
+	requires is_derived_from_obj<objClass>
+	: refP{o.p.refP}
 {
 	o.p.refP=nullptr;
 }

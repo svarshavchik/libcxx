@@ -693,7 +693,7 @@ template<typename value_type,
 constexpr bool operator==(value_type &&vn,
 			  const number<value_type_t, tag, base_class> &n)
 {
-	return n == std::forward<value_type>(vn);
+	return n.operator==(std::forward<value_type>(vn));
 }
 
 //! Comparison operator overload for \ref number "type safe numbers".
@@ -705,7 +705,7 @@ template<typename value_type,
 constexpr bool operator!=(value_type &&vn,
 			  const number<value_type_t, tag, base_class> &n)
 {
-	return n != std::forward<value_type>(vn);
+	return n.operator!=(std::forward<value_type>(vn));
 }
 
 //! Comparison operator overload for \ref number "type safe numbers".
@@ -717,7 +717,7 @@ template<typename value_type,
 constexpr bool operator<(value_type &&vn,
 			  const number<value_type_t, tag, base_class> &n)
 {
-	return n > std::forward<value_type>(vn);
+	return n.operator>(std::forward<value_type>(vn));
 }
 
 //! Comparison operator overload for \ref number "type safe numbers".
@@ -729,7 +729,7 @@ template<typename value_type,
 constexpr bool operator<=(value_type &&vn,
 			  const number<value_type_t, tag, base_class> &n)
 {
-	return n >= std::forward<value_type>(vn);
+	return n.operator>=(std::forward<value_type>(vn));
 }
 
 //! Comparison operator overload for \ref number "type safe numbers".
@@ -741,7 +741,7 @@ template<typename value_type,
 constexpr bool operator>(value_type &&vn,
 			  const number<value_type_t, tag, base_class> &n)
 {
-	return n < std::forward<value_type>(vn);
+	return n.operator<(std::forward<value_type>(vn));
 }
 
 //! Comparison operator overload for \ref number "type safe numbers".
@@ -753,7 +753,7 @@ template<typename value_type,
 constexpr bool operator>=(value_type &&vn,
 			  const number<value_type_t, tag, base_class> &n)
 {
-	return n <= std::forward<value_type>(vn);
+	return n.operator<=(std::forward<value_type>(vn));
 }
 
 //! Addition operator overload
@@ -783,7 +783,7 @@ constexpr auto
 operator-(number_t &&n,
 	  const number<value_type_t, tag, base_class> &o)
 {
-	return number<value_type_t, tag, base_class>(n)-o;
+	return number<value_type_t, tag, base_class>(n).operator-(o);
 }
 
 //! Multiplication operator overload
@@ -813,7 +813,7 @@ constexpr auto
 operator/(number_t &&n,
 	  const number<value_type_t, tag, base_class> &o)
 {
-	return number<value_type_t, tag, base_class>(n)/o;
+	return number<value_type_t, tag, base_class>(n).operator/(o);
 }
 
 //! Modulus operator overload
@@ -828,7 +828,7 @@ constexpr auto
 operator%(number_t &&n,
 	  const number<value_type_t, tag, base_class> &o)
 {
-	return number<value_type_t, tag, base_class>(n)%o;
+	return number<value_type_t, tag, base_class>(n).operator%(o);
 }
 
 //! Overload << operator for output streams.

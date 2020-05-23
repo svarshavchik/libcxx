@@ -114,61 +114,69 @@ public:
 
 	//! Search the map for a key
 
+	template<typename Key>
 	iterator find(//! The key to search for
-		      const K &key) const
+		      Key &&key) const
 	{
 		rlock lock = rlock::create(this);
 
 		return this->begin(lock, typename weak_container_t::container_t
-				   ::readlock(lock->container())->find(key));
+				   ::readlock(lock->container())
+				   ->find(std::forward<Key>(key)));
 	}
 
 	//! Count number of entries in the map
 
+	template<typename Key>
 	size_t count(//! The key to search for)
-		     const K &key) const
+		     Key &&key) const
 	{
 		rlock lock = rlock::create(this);
 
 		return typename weak_container_t::container_t
-			::readlock(lock->container())->count(key);
+			::readlock(lock->container())
+			->count(std::forward<Key>(key));
 	}
 
 	//! Retrieve the lower bound iterator for a given key
 
+	template<typename Key>
 	iterator lower_bound(//! The key to search for
-			     const K &key) const
+			     Key &&key) const
 	{
 		rlock lock = rlock::create(this);
 
 		return this->begin(lock, typename weak_container_t::container_t
 				   ::readlock(lock->container())
-				   ->lower_bound(key));
+				   ->lower_bound(std::forward<Key>(key)));
 	}
 
 	//! Retrieve the upper bound iterator for a given key
 
+	template<typename Key>
 	iterator upper_bound(//! The key to search for
-			     const K &key) const
+			     Key &&key) const
 	{
 		rlock lock = rlock::create(this);
 
 		return this->begin(lock, typename weak_container_t::container_t
 				   ::readlock(lock->container())
-				   ->upper_bound(key));
+				   ->upper_bound(std::forward<Key>(key)));
 	}
 
 	//! Retrieve the range iterator pair for a given key
 
+	template<typename Key>
 	std::pair<iterator, iterator> equal_range(//! The key to search for
-						  const K &key) const
+						  Key &&key) const
 	{
 		rlock lock = rlock::create(this);
 
 		std::pair<typename M::const_iterator,
 			  typename M::const_iterator>
 			range=typename weak_container_t::container_t
-			::readlock(lock->container())->equal_range(key);
+			::readlock(lock->container())
+			->equal_range(std::forward<Key>(key));
 
 		return std::make_pair(this->begin(lock, range.first),
 				      this->begin(lock, range.second));

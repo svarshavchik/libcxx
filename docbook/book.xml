@@ -9,7 +9,7 @@
 <!ENTITY nopthreadcancel SYSTEM "nopthreadcancel.xml">
 <!ENTITY singletonlimits SYSTEM "singletonlimits.xml">
 
-<!ENTITY buildoptions "-std=c++17 -fno-omit-frame-pointer -pthread">
+<!ENTITY buildoptions "-std=c++20 -fno-omit-frame-pointer -pthread">
 
 <!ENTITY intro SYSTEM "intro.xml">
 <!ENTITY core SYSTEM "core.xml">

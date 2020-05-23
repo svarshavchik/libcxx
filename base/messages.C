@@ -96,7 +96,6 @@ messages messagesBase::create(const std::string_view &domain,
 
 	auto &d=*directory;
 
-	// TODO: C++20
 	std::string s{domain.begin(), domain.end()};
 
 	auto bounded_domain=

@@ -6,8 +6,7 @@
 #ifndef x_ptrimpl_H
 #define x_ptrimpl_H
 
-#include <x/namespace.h>
-
+#include <x/concepts.H>
 #include <typeinfo>
 #include <utility>
 
@@ -16,13 +15,6 @@ namespace LIBCXX_NAMESPACE {
 #if 0
 };
 #endif
-
-class obj;
-template<typename, typename> class const_ref;
-template<typename, typename> class ref;
-template<typename, typename> class const_ptr;
-template<typename, typename> class ptr;
-
 
 //! Reference pointer implementation
 
@@ -39,6 +31,12 @@ protected:
 	//! any object.
 	objClass *refP;
 
+	//! Return the underlying pointer
+
+	objClass *getrefP() const noexcept LIBCXX_INLINE
+	{
+		return refP;
+	}
 public:
 	template<typename, typename> friend class const_ref;
 	template<typename, typename> friend class ref;
@@ -76,7 +74,8 @@ public:
 
 	ptrImpl(//! If pArg is not NULL, the object's reference count gets incremented.
 		//! When pArg is NULL, this is an unbound reference.
-		objClass *pArg) noexcept LIBCXX_INLINE;
+		objClass *pArg) noexcept
+		requires is_derived_from_obj<objClass> LIBCXX_INLINE;
 
 	//! Default destructor
 	~ptrImpl() LIBCXX_INLINE;
@@ -87,29 +86,36 @@ public:
 
 		//! If this reference is bound to an instance of
 		//! \c objClass, its reference count gets incremented.
-		const ptrImpl<objClass> &o ) noexcept LIBCXX_INLINE;
+		const ptrImpl<objClass> &o ) noexcept
+		requires is_derived_from_obj<objClass> LIBCXX_INLINE;
 
 	template<typename baseClass>
 	explicit
-	ptrImpl(const const_ref<objClass, baseClass> &o) noexcept;
+	ptrImpl(const const_ref<objClass, baseClass> &o) noexcept
+		requires is_derived_from_obj<objClass>;
 
 	template<typename baseClass>
 	explicit
-	ptrImpl(const ref<objClass, baseClass> &o) noexcept;
+	ptrImpl(const ref<objClass, baseClass> &o) noexcept
+		requires is_derived_from_obj<objClass>;
 
 	template<typename baseClass>
 	explicit
-	ptrImpl(const_ref<objClass, baseClass> &&o) noexcept;
+	ptrImpl(const_ref<objClass, baseClass> &&o) noexcept
+		requires is_derived_from_obj<objClass>;
 
 	template<typename baseClass>
 	inline explicit
-	ptrImpl(ref<objClass, baseClass> &&o) noexcept;
+	ptrImpl(ref<objClass, baseClass> &&o) noexcept
+		requires is_derived_from_obj<objClass>;
 
 	//! Move constructor
 
 	inline ptrImpl(//! An existing reference.
 		       ptrImpl<objClass> &&o )
-		noexcept LIBCXX_INLINE : refP{o.refP}
+		noexcept
+		requires is_derived_from_obj<objClass> LIBCXX_INLINE
+		: refP{o.refP}
 	{
 		o.refP=nullptr;
 	}
@@ -119,14 +125,16 @@ public:
 	template<typename baseClass>
 	inline ptrImpl(//! An existing reference.
 		       const_ptr<objClass, baseClass> &&o )
-		noexcept LIBCXX_INLINE;
+		noexcept
+		requires is_derived_from_obj<objClass>;
 
 	//! Move constructor
 
 	template<typename baseClass>
 	inline ptrImpl(//! An existing reference.
 		       ptr<objClass, baseClass> &&o )
-		noexcept LIBCXX_INLINE;
+		noexcept
+		requires is_derived_from_obj<objClass>;
 
 	//! The default assignment operator
 
@@ -188,7 +196,7 @@ template<typename objClass>
 template<typename baseClass>
 inline ptrImpl<objClass>::ptrImpl(//! An existing reference.
 	       const_ptr<objClass, baseClass> &&o )
-	noexcept : refP{nullptr}
+	noexcept requires is_derived_from_obj<objClass> : refP{nullptr}
 {
 	std::swap(refP, o.refP);
 }
@@ -198,7 +206,7 @@ template<typename objClass>
 template<typename baseClass>
 inline ptrImpl<objClass>::ptrImpl(//! An existing reference.
 				  ptr<objClass, baseClass> &&o )
-		noexcept : refP{nullptr}
+	noexcept requires is_derived_from_obj<objClass> : refP{nullptr}
 {
 	std::swap(refP, o.refP);
 }

@@ -746,7 +746,7 @@ public:
 	LIBCXX_NAMESPACE::mutex globmutex;
 	LIBCXX_NAMESPACE::cond globcond;
 
-	volatile int counter;
+	std::atomic<int> counter;
 
 	sharedlocktestinfo() noexcept;
 	~sharedlocktestinfo();
@@ -2124,7 +2124,12 @@ void dotestweakmap1()
 					      ::create());
 
 	(*twl)["1"]=testobj2;
+	{
+		auto [b, e] = twl->equal_range(std::string_view{"1"});
 
+		if (b == e || b->first != "1")
+			throw EXCEPTION("dotestweakmap1 failed with string_view lookup");
+	}
 	testobj2=LIBCXX_NAMESPACE::ptr<testweakcontainerObj>();
 
 	std::cout << "map: empty: " << twl->empty() << ", size: " << twl->size()
@@ -2535,6 +2540,7 @@ void testequality()
 #define COMPAREOP(a,op,b)						\
 	do {								\
 		COMPARE(a op b);					\
+		(void)(a <=> b);					\
 		COMPARE((a < b ? 1:0)+(a >= b ? 1:0) == 1);		\
 		COMPARE((a > b ? 1:0)+(a <= b ? 1:0) == 1);		\
 	} while (0)

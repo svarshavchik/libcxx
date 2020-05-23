@@ -41,7 +41,7 @@ template<typename K, typename T,
 //! return true.
 
 template<typename K, typename T,
-	 typename C=std::less<K>,
+	 typename C=std::less<void>,
 	 typename Allocator=std::allocator<std::pair<const K, weakptr<ptr<T> > > > >
 using weakmultimap=ref<weakmapObj<K, ptr<T>,
 				  std::multimap<K, weakptr<ptr<T> >,
@@ -54,7 +54,7 @@ using weakmultimap=ref<weakmapObj<K, ptr<T>,
 //!
 
 template<typename K, typename T,
-	 typename C=std::less<K>,
+	 typename C=std::less<void>,
 	 typename Allocator=std::allocator<std::pair<const K, weakptr<ptr<T> > > > >
 using weakmultimapptr=ptr<weakmapObj<K, ptr<T>,
 				     std::multimap<K, weakptr<ptr<T> >,

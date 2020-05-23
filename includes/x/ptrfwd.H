@@ -8,8 +8,7 @@
 
 #include <utility>
 #include <functional>
-#include <type_traits>
-#include <x/namespace.h>
+#include <x/concepts.H>
 #include <x/ptrimpl.H>
 
 namespace LIBCXX_NAMESPACE {
@@ -17,20 +16,6 @@ namespace LIBCXX_NAMESPACE {
 #if 0
 };
 #endif
-
-class obj;
-
-//! Helper base class for \ref const_ptr "const_ptr".
-
-template<typename objClass>
-struct ptr_comparisons : std::less<obj *>,
-	std::equal_to<obj *>,
-	std::less<objClass *>,
-	std::equal_to<objClass *> {};
-
-template<>
-struct ptr_comparisons<obj> : std::less<obj *>,
-	std::equal_to<obj *> {};
 
 //! A pointer to a reference-counted constant object. \anchor ptrAnchor
 
@@ -50,7 +35,7 @@ struct ptr_comparisons<obj> : std::less<obj *>,
 
 template<typename objClass, typename baseClass>
 class const_ptr : public ptrImpl<objClass>,
-		  protected ptr_comparisons<objClass> {
+		  public std::compare_three_way {
 public:
 
 	using ptrImpl<objClass>::operator bool;
@@ -123,71 +108,40 @@ public:
 	template<typename... Args_t>
 	static auto create(Args_t &&...args) LIBCXX_INLINE;
 
-	bool operator==(const const_ptr<objClass, baseClass> &o)
-		const noexcept LIBCXX_INLINE;
+	template<typename T>
+	auto operator<=>(const T &o)
+		const noexcept requires is_derived_from_ref_or_ptr<T>
+		LIBCXX_INLINE;
 
-	bool operator!=(const const_ptr<objClass, baseClass> &o)
-		const noexcept LIBCXX_INLINE;
+	template<typename T>
+	bool operator==(const T &o)
+		const noexcept requires is_derived_from_ref_or_ptr<T>
+		LIBCXX_INLINE;
 
-	bool operator<(const const_ptr<objClass, baseClass> &o)
-		const noexcept LIBCXX_INLINE;
+	template<typename T>
+	bool operator!=(const T &o)
+		const noexcept requires is_derived_from_ref_or_ptr<T>
+		LIBCXX_INLINE;
 
-	bool operator>=(const const_ptr<objClass, baseClass> &o)
-		const noexcept LIBCXX_INLINE;
+	template<typename T>
+	bool operator<(const T &o)
+		const noexcept requires is_derived_from_ref_or_ptr<T>
+		LIBCXX_INLINE;
 
-	bool operator>(const const_ptr<objClass, baseClass> &o)
-		const noexcept LIBCXX_INLINE;
+	template<typename T>
+	bool operator<=(const T &o)
+		const noexcept requires is_derived_from_ref_or_ptr<T>
+		LIBCXX_INLINE;
 
-	bool operator<=(const const_ptr<objClass, baseClass> &o)
-		const noexcept LIBCXX_INLINE;
+	template<typename T>
+	bool operator>(const T &o)
+		const noexcept requires is_derived_from_ref_or_ptr<T>
+		LIBCXX_INLINE;
 
-	template<typename objClass2, typename baseClass2>
-	bool operator==(const const_ptr<objClass2, baseClass2> &o)
-		const noexcept LIBCXX_INLINE;
-
-	template<typename objClass2, typename baseClass2>
-	bool operator!=(const const_ptr<objClass2, baseClass2> &o)
-		const noexcept LIBCXX_INLINE;
-
-	template<typename objClass2, typename baseClass2>
-	bool operator==(const const_ref<objClass2, baseClass2> &o)
-		const noexcept LIBCXX_INLINE;
-
-	template<typename objClass2, typename baseClass2>
-	bool operator!=(const const_ref<objClass2, baseClass2> &o)
-		const noexcept LIBCXX_INLINE;
-
-	template<typename objClass2, typename baseClass2>
-	bool operator<(const const_ptr<objClass2, baseClass2> &o)
-		const noexcept LIBCXX_INLINE;
-
-	template<typename objClass2, typename baseClass2>
-	bool operator>=(const const_ptr<objClass2, baseClass2> &o)
-		const noexcept LIBCXX_INLINE;
-
-	template<typename objClass2, typename baseClass2>
-	bool operator<(const const_ref<objClass2, baseClass2> &o)
-		const noexcept LIBCXX_INLINE;
-
-	template<typename objClass2, typename baseClass2>
-	bool operator>=(const const_ref<objClass2, baseClass2> &o)
-		const noexcept LIBCXX_INLINE;
-
-	template<typename objClass2, typename baseClass2>
-	bool operator>(const const_ptr<objClass2, baseClass2> &o)
-		const noexcept LIBCXX_INLINE;
-
-	template<typename objClass2, typename baseClass2>
-	bool operator<=(const const_ptr<objClass2, baseClass2> &o)
-		const noexcept LIBCXX_INLINE;
-
-	template<typename objClass2, typename baseClass2>
-	bool operator>(const const_ref<objClass2, baseClass2> &o)
-		const noexcept LIBCXX_INLINE;
-
-	template<typename objClass2, typename baseClass2>
-	bool operator<=(const const_ref<objClass2, baseClass2> &o)
-		const noexcept LIBCXX_INLINE;
+	template<typename T>
+	bool operator>=(const T &o)
+		const noexcept requires is_derived_from_ref_or_ptr<T>
+		LIBCXX_INLINE;
 };
 
 //! A pointer to a reference-counted object.
@@ -527,8 +481,13 @@ public:
 	&operator=(ptr<objClass, baseClass> &&o)
 		noexcept LIBCXX_INLINE;
 
+	using const_ptr<objClass, baseClass>::operator<=>;
 	using const_ptr<objClass, baseClass>::operator==;
 	using const_ptr<objClass, baseClass>::operator!=;
+	using const_ptr<objClass, baseClass>::operator<;
+	using const_ptr<objClass, baseClass>::operator<=;
+	using const_ptr<objClass, baseClass>::operator>;
+	using const_ptr<objClass, baseClass>::operator>=;
 
 	template<typename objClass2, typename baseClass2> friend class ptr;
 
@@ -582,6 +541,15 @@ protected:
 	//! The underlying pointer object.
 
 	ptr<objClass, baseClass> p;
+
+private:
+
+	//! Return the underlying pointer
+
+	objClass *getrefP() const noexcept LIBCXX_INLINE
+	{
+		return p.refP;
+	}
 
 public:
 	template<typename objClass2>
@@ -655,53 +623,40 @@ public:
 	operator const const_ptr<objClass2, baseClass2>() const
 		LIBCXX_INLINE;
 
-	template<typename objClass2, typename baseClass2>
-	bool operator==(const const_ptr<objClass2, baseClass2> &o)
-		const noexcept LIBCXX_INLINE;
+	template<typename T>
+	auto operator<=>(const T &o)
+		const noexcept requires is_derived_from_ref_or_ptr<T>
+		LIBCXX_INLINE;
 
-	template<typename objClass2, typename baseClass2>
-	bool operator!=(const const_ptr<objClass2, baseClass2> &o)
-		const noexcept LIBCXX_INLINE;
+	template<typename T>
+	bool operator==(const T &o)
+		const noexcept requires is_derived_from_ref_or_ptr<T>
+		LIBCXX_INLINE;
 
-	template<typename objClass2, typename baseClass2>
-	bool operator==(const const_ref<objClass2, baseClass2> &o)
-		const noexcept LIBCXX_INLINE;
+	template<typename T>
+	bool operator!=(const T &o)
+		const noexcept requires is_derived_from_ref_or_ptr<T>
+		LIBCXX_INLINE;
 
-	template<typename objClass2, typename baseClass2>
-	bool operator!=(const const_ref<objClass2, baseClass2> &o)
-		const noexcept LIBCXX_INLINE;
+	template<typename T>
+	bool operator<(const T &o)
+		const noexcept requires is_derived_from_ref_or_ptr<T>
+		LIBCXX_INLINE;
 
-	template<typename objClass2, typename baseClass2>
-	bool operator<(const const_ptr<objClass2, baseClass2> &o)
-		const noexcept LIBCXX_INLINE;
+	template<typename T>
+	bool operator<=(const T &o)
+		const noexcept requires is_derived_from_ref_or_ptr<T>
+		LIBCXX_INLINE;
 
-	template<typename objClass2, typename baseClass2>
-	bool operator>=(const const_ptr<objClass2, baseClass2> &o)
-		const noexcept LIBCXX_INLINE;
+	template<typename T>
+	bool operator>(const T &o)
+		const noexcept requires is_derived_from_ref_or_ptr<T>
+		LIBCXX_INLINE;
 
-	template<typename objClass2, typename baseClass2>
-	bool operator<(const const_ref<objClass2, baseClass2> &o)
-		const noexcept LIBCXX_INLINE;
-
-	template<typename objClass2, typename baseClass2>
-	bool operator>=(const const_ref<objClass2, baseClass2> &o)
-		const noexcept LIBCXX_INLINE;
-
-	template<typename objClass2, typename baseClass2>
-	bool operator>(const const_ptr<objClass2, baseClass2> &o)
-		const noexcept LIBCXX_INLINE;
-
-	template<typename objClass2, typename baseClass2>
-	bool operator<=(const const_ptr<objClass2, baseClass2> &o)
-		const noexcept LIBCXX_INLINE;
-
-	template<typename objClass2, typename baseClass2>
-	bool operator>(const const_ref<objClass2, baseClass2> &o)
-		const noexcept LIBCXX_INLINE;
-
-	template<typename objClass2, typename baseClass2>
-	bool operator<=(const const_ref<objClass2, baseClass2> &o)
-		const noexcept LIBCXX_INLINE;
+	template<typename T>
+	bool operator>=(const T &o)
+		const noexcept requires is_derived_from_ref_or_ptr<T>
+		LIBCXX_INLINE;
 
 	template<typename... Args_t>
 	static inline auto create(Args_t &&...args) LIBCXX_INLINE;
@@ -785,8 +740,13 @@ public:
 	&operator=(ref<objClass, baseClass> &&o)
 		noexcept LIBCXX_INLINE;
 
+	using const_ref<objClass, baseClass>::operator<=>;
 	using const_ref<objClass, baseClass>::operator==;
 	using const_ref<objClass, baseClass>::operator!=;
+	using const_ref<objClass, baseClass>::operator<;
+	using const_ref<objClass, baseClass>::operator<=;
+	using const_ref<objClass, baseClass>::operator>;
+	using const_ref<objClass, baseClass>::operator>=;
 
 	template<typename objClass2, typename baseClass2> friend class ref;
 
@@ -959,7 +919,9 @@ template<typename ptrrefType, typename args >
 struct ptrref_base::create_and_init<ptrrefType, args, false> {
 
 	template<typename ...Args>
-	static inline ptrrefType create(Args && ...argsValue) LIBCXX_INLINE;
+	static inline ptrrefType create(Args && ...argsValue)
+		requires is_derived_from_obj<typename ptrrefType::obj_type>
+		LIBCXX_INLINE;
 };
 
 //! create() and object with a constructor().
@@ -967,7 +929,9 @@ template<typename ptrrefType, typename args >
 struct ptrref_base::create_and_init<ptrrefType, args, true> {
 
 	template<typename ...Args>
-	static inline ptrrefType create(Args && ...argsValue) LIBCXX_INLINE;
+	static inline ptrrefType create(Args && ...argsValue)
+		requires is_derived_from_obj<typename ptrrefType::obj_type>
+		LIBCXX_INLINE;
 };
 
 #define x_ptrfwd_H_included

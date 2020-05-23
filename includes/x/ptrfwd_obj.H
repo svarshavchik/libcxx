@@ -26,6 +26,7 @@ template<typename ptrrefType, typename args >
 template<typename ...Args>
 inline ptrrefType ptrref_base::create_and_init<ptrrefType, args, false>
 ::create(Args && ...argsValue)
+	requires is_derived_from_obj<typename ptrrefType::obj_type>
 {
 	// Sadly, cannot use uniform initialization syntax here because
 	// it warns about narrowing conversion when passing, say a literal
@@ -36,7 +37,7 @@ inline ptrrefType ptrref_base::create_and_init<ptrrefType, args, false>
 
 	++p->obj::refcnt; // Set refcnt's constructor
 
-	return ptrrefType(p);
+	return ptrrefType{p};
 }
 
 //! SFINAE-resolved create() for a class with a suitable constructor().
@@ -45,6 +46,7 @@ template<typename ptrrefType, typename args >
 template<typename ...Args>
 inline ptrrefType ptrref_base::create_and_init<ptrrefType, args, true>
 ::create(Args && ...argsValue)
+	requires is_derived_from_obj<typename ptrrefType::obj_type>
 {
 	// Sadly, cannot use uniform initialization syntax here because
 	// it warns about narrowing conversion when passing, say a literal
@@ -54,11 +56,11 @@ inline ptrrefType ptrref_base::create_and_init<ptrrefType, args, true>
 
 	++p->obj::refcnt; // Set refcnt's constructor
 
-	auto r=ref(p);
+	auto r=ref{p};
 
 	r->constructor(std::forward<Args>(argsValue)...);
 
-	return ptrrefType(r);
+	return ptrrefType{r};
 }
 
 #endif

@@ -206,10 +206,12 @@ public:
 
 	//! Return the underlying connection socket.
 
-	const_fdptr getconnection() const
+	const const_fdptr &getconnection() const
 	{
 		return orig_filedesc;
 	}
+
+	const_fdptr get_connection() &&=delete;
 
 	//! Borrow the connection from somebody else
 

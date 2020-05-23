@@ -30,14 +30,6 @@ public:
 	typedef weakmapObj<K, ptr<T>, std::map<K, weakptr<ptr<T> >, C,
 					       Allocator>> obj_type;
 
-	//! The type representing a reference to the container
-
-	typedef typename Allocator::reference       reference;
-
-	//! The type representing a constant reference to the container
-
-	typedef typename Allocator::const_reference const_reference;
-
 	//! The type representing the size of the container
 
 	typedef typename obj_type::size_type size_type;

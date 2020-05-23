@@ -82,7 +82,7 @@ class mcguffinmapBase;
 //! \ref mcguffinmultimap "INSERT_LIBX_NAMESPACE::weakmcguffinmultimap".
 
 template<typename K, typename ref_type,
-	 typename C=std::less<K>,
+	 typename C=std::less<void>,
 	 typename Allocator=std::allocator
 	 <std::pair<const K, typename mcguffincontainerObj<ref_type>
 		    ::container_element_t > > >
@@ -97,7 +97,7 @@ using mcguffinmap
 //! A nullable pointer reference to a \ref mcguffinmap "weak mcguffin map container".
 
 template<typename K, typename ref_type,
-	 typename C=std::less<K>,
+	 typename C=std::less<void>,
 	 typename Allocator=std::allocator
 	 <std::pair<const K, typename mcguffincontainerObj<ref_type>
 		    ::container_element_t > > >
@@ -110,7 +110,7 @@ using mcguffinmapptr
 //! A reference to a constant \ref mcguffinmap "weak mcguffin map container".
 
 template<typename K, typename ref_type,
-	 typename C=std::less<K>,
+	 typename C=std::less<void>,
 	 typename Allocator=std::allocator
 	 <std::pair<const K, typename mcguffincontainerObj<ref_type>
 		    ::container_element_t > > >
@@ -125,7 +125,7 @@ using const_mcguffinmap=
 //! A nullable pointer reference to a constant \ref mcguffinmap "weak mcguffin map container".
 
 template<typename K, typename ref_type,
-	 typename C=std::less<K>,
+	 typename C=std::less<void>,
 	 typename Allocator=std::allocator
 	 <std::pair<const K, typename mcguffincontainerObj<ref_type>
 		    ::container_element_t > > >

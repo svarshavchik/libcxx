@@ -168,235 +168,91 @@ inline auto const_ptr<objClass,baseClass>::create(Args_t &&...args)
 
 //! Comparison operator
 
-//! C++11 allows pointer comparisons.
+//! std::compare_three_way support total ordering of pointers.
 
 template<typename objClass, typename baseClass>
-inline bool const_ptr<objClass, baseClass>::operator==(const const_ptr<objClass, baseClass> &o)
-	const noexcept
+template<typename T>
+inline auto const_ptr<objClass,baseClass>::
+operator<=>(const T &o)
+	const noexcept requires is_derived_from_ref_or_ptr<T>
 {
-	return std::equal_to<objClass *>::operator()(this->refP, o.refP);
+	typedef common_obj_t<obj_type, typename T::obj_type> *ptr_t;
+
+	return std::compare_three_way::operator()
+		(static_cast<ptr_t>(this->refP),
+		 static_cast<ptr_t>(o.getrefP()));
 }
 
-//! Comparison operator
-
-//! C++11 allows pointer comparisons.
 template<typename objClass, typename baseClass>
-inline bool const_ptr<objClass, baseClass>::operator!=(const const_ptr<objClass, baseClass> &o)
-	const noexcept
-{
-	return !operator==(o);
-}
-
-//! Comparison operator
-
-//! C++11 allows pointer comparisons.
-template<typename objClass, typename baseClass>
-inline bool const_ptr<objClass, baseClass>::operator<(const const_ptr<objClass, baseClass> &o)
-	const noexcept
-{
-	return std::less<objClass *>::operator()(this->refP, o.refP);
-}
-
-//! Comparison operator
-
-//! C++11 allows pointer comparisons.
-template<typename objClass, typename baseClass>
-inline bool const_ptr<objClass, baseClass>::operator>=(const const_ptr<objClass, baseClass> &o)
-	const noexcept
-{
-	return !operator<(o);
-}
-
-//! Comparison operator
-
-//! C++11 allows pointer comparisons.
-template<typename objClass, typename baseClass>
-inline bool const_ptr<objClass, baseClass>::operator>(const const_ptr<objClass, baseClass> &o)
-	const noexcept
-{
-	return o < *this;
-}
-
-//! Comparison operator
-
-//! C++11 allows pointer comparisons.
-template<typename objClass, typename baseClass>
-inline bool const_ptr<objClass, baseClass>::operator<=(const const_ptr<objClass, baseClass> &o)
-	const noexcept
-{
-	return !operator>(o);
-}
-
-
-//! Comparison operator
-
-//! C++11 allows pointer comparisons.
-
-template<typename objClass, typename baseClass>
-template<typename objClass2, typename baseClass2>
+template<typename T>
 inline bool const_ptr<objClass,baseClass>::
-operator==(const const_ptr<objClass2, baseClass2> &o)
-	const noexcept
+operator==(const T &o)
+	const noexcept requires is_derived_from_ref_or_ptr<T>
 {
-	return std::equal_to<obj *>::operator()(this->refP, o.refP);
+	return operator<=>(o) == std::strong_ordering::equal;
 }
 
 //! Comparison operator
 
-//! C++11 allows pointer comparisons.
+//! std::compare_three_way support total ordering of pointers.
 
 template<typename objClass, typename baseClass>
-template<typename objClass2, typename baseClass2>
+template<typename T>
 inline bool const_ptr<objClass,baseClass>::
-operator!=(const const_ptr<objClass2, baseClass2> &o)
-	const noexcept
-{
-	return !operator==(o);
-}
-
-
-//! Comparison operator
-
-//! C++11 allows pointer comparisons.
-//!
-//! \note
-//! A pair of null pointers do not compare as equal.
-template<typename objClass, typename baseClass>
-template<typename objClass2, typename baseClass2>
-inline bool const_ptr<objClass,baseClass>
-::operator==(const const_ref<objClass2, baseClass2> &o)
-	const noexcept
-{
-	return std::equal_to<obj *>::operator()(this->refP, o.p.refP);
-}
-
-//! Comparison operator
-
-//! C++11 allows pointer comparisons.
-//!
-//! \note
-//! A pair of null pointers do not compare as equal.
-
-template<typename objClass, typename baseClass>
-template<typename objClass2, typename baseClass2>
-inline bool const_ptr<objClass,baseClass>
-::operator!=(const const_ref<objClass2, baseClass2> &o)
-	const noexcept
+operator!=(const T &o)
+	const noexcept requires is_derived_from_ref_or_ptr<T>
 {
 	return !operator==(o);
 }
 
 //! Comparison operator
 
-//! C++11 allows pointer comparisons.
+//! std::compare_three_way support total ordering of pointers.
 
 template<typename objClass, typename baseClass>
-template<typename objClass2, typename baseClass2>
+template<typename T>
 inline bool const_ptr<objClass,baseClass>
-::operator<(const const_ptr<objClass2, baseClass2> &o)
-	const noexcept
+::operator<(const T &o)
+	const noexcept requires is_derived_from_ref_or_ptr<T>
 {
-	return std::less<obj *>::operator()(this->refP, o.refP);
+	return operator<=>(o) == std::strong_ordering::less;
 }
 
 //! Comparison operator
 
-//! C++11 allows pointer comparisons.
+//! std::compare_three_way support total ordering of pointers.
 
 template<typename objClass, typename baseClass>
-template<typename objClass2, typename baseClass2>
+template<typename T>
 inline bool const_ptr<objClass,baseClass>
-::operator>=(const const_ptr<objClass2, baseClass2> &o)
-	const noexcept
-{
-	return !operator<(o);
-}
-
-//! Comparison operator
-
-//! C++11 allows pointer comparisons.
-//!
-//! \note
-//! A pair of null pointers do not compare as equal.
-template<typename objClass, typename baseClass>
-template<typename objClass2, typename baseClass2>
-inline bool const_ptr<objClass,baseClass>
-::operator<(const const_ref<objClass2, baseClass2> &o)
-	const noexcept
-{
-	return std::less<obj *>::operator()(this->refP, o.p.refP);
-}
-
-//! Comparison operator
-
-//! C++11 allows pointer comparisons.
-//!
-//! \note
-//! A pair of null pointers do not compare as equal.
-
-template<typename objClass, typename baseClass>
-template<typename objClass2, typename baseClass2>
-inline bool const_ptr<objClass,baseClass>
-::operator>=(const const_ref<objClass2, baseClass2> &o)
-	const noexcept
+::operator>=(const T &o)
+	const noexcept requires is_derived_from_ref_or_ptr<T>
 {
 	return !operator<(o);
 }
 
 //! Comparison operator
 
-//! C++11 allows pointer comparisons.
+//! std::compare_three_way support total ordering of pointers.
 
 template<typename objClass, typename baseClass>
-template<typename objClass2, typename baseClass2>
+template<typename T>
 inline bool const_ptr<objClass,baseClass>
-::operator>(const const_ptr<objClass2, baseClass2> &o)
-	const noexcept
+::operator>(const T &o)
+	const noexcept requires is_derived_from_ref_or_ptr<T>
 {
-	return o < *this;
+	return operator<=>(o) == std::strong_ordering::greater;
 }
 
 //! Comparison operator
 
-//! C++11 allows pointer comparisons.
+//! std::compare_three_way support total ordering of pointers.
 
 template<typename objClass, typename baseClass>
-template<typename objClass2, typename baseClass2>
+template<typename T>
 inline bool const_ptr<objClass,baseClass>
-::operator<=(const const_ptr<objClass2, baseClass2> &o)
-	const noexcept
-{
-	return !operator>(o);
-}
-
-
-//! Comparison operator
-
-//! C++11 allows pointer comparisons.
-//!
-//! \note
-//! A pair of null pointers do not compare as equal.
-template<typename objClass, typename baseClass>
-template<typename objClass2, typename baseClass2>
-inline bool const_ptr<objClass,baseClass>
-::operator>(const const_ref<objClass2, baseClass2> &o)
-	const noexcept
-{
-	return o < *this;
-}
-
-//! Comparison operator
-
-//! C++11 allows pointer comparisons.
-//!
-//! \note
-//! A pair of null pointers do not compare as equal.
-
-template<typename objClass, typename baseClass>
-template<typename objClass2, typename baseClass2>
-inline bool const_ptr<objClass,baseClass>
-::operator<=(const const_ref<objClass2, baseClass2> &o)
-	const noexcept
+::operator<=(const T &o)
+	const noexcept requires is_derived_from_ref_or_ptr<T>
 {
 	return !operator>(o);
 }
