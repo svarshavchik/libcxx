@@ -14,7 +14,7 @@
 #include <x/yaml/node.H>
 #include <x/ref.H>
 #include <x/ptr.H>
-
+#include <iterator>
 #include <cstddef>
 
 namespace LIBCXX_NAMESPACE {
@@ -67,9 +67,7 @@ void mappingnodeObj::for_each(functor_type &&functor)
 //! because it fails to meet some of the requirements for a random access
 //! iterator.
 
-class mappingnodeObj::iterator
-	: public std::iterator<std::input_iterator_tag,
-			       std::pair<node, node>> {
+class mappingnodeObj::iterator {
 
 	//! The underlying mapping
 
@@ -79,6 +77,20 @@ class mappingnodeObj::iterator
 	size_t i;
 
 public:
+	//! Iterator trait
+	typedef std::input_iterator_tag iterator_category;
+
+	//! Iterator trait
+	typedef std::pair<node,node> value_type;
+
+	//! Iterator trait
+	typedef std::ptrdiff_t difference_type;
+
+	//! Iterator trait
+	typedef value_type *pointer;
+
+	//! Iterator trait
+	typedef value_type &reference;
 
 	//! Uninitialized iterator constructor
 	iterator();

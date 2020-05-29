@@ -16,9 +16,15 @@
 
 class dummyOutputIterObj : virtual public LIBCXX_NAMESPACE::obj {
 public:
+	typedef std::output_iterator_tag iterator_category;
 
-	typedef std::iterator<std::output_iterator_tag, void, void, void,
-			      void> iterator_traits;
+	typedef void value_type;
+
+	typedef void difference_type;
+
+	typedef void pointer;
+
+	typedef void reference;
 
 	std::string buffer;
 
@@ -67,14 +73,20 @@ void testoutputrefiterator()
 class dummyInputIterObj : virtual public LIBCXX_NAMESPACE::obj {
 public:
 
-	typedef std::iterator<std::input_iterator_tag, void, void, void,
-			      void> iterator_traits;
+	typedef std::input_iterator_tag iterator_category;
+
+	typedef void value_type;
+
+	typedef void difference_type;
+
+	typedef void pointer;
+
+	typedef void reference;
 
 	const char *str;
 
-public:
 	dummyInputIterObj(const char *strArg) : str(strArg) {}
-	~dummyInputIterObj() {}
+	~dummyInputIterObj()=default;
 
 	LIBCXX_NAMESPACE::ref<dummyInputIterObj> before_postoper()
 	{

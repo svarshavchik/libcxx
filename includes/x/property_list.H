@@ -124,10 +124,7 @@ class listObj : virtual public obj {
 	//! equal to an ending iterator when the underlying sequence contains
 	//! a newline, #, or = character.
 
-	template<typename iter_type>
-	class parsepropname_iter : std::iterator<std::input_iterator_tag,
-						 char,
-						 void, void, void> {
+	template<typename iter_type> class parsepropname_iter {
 
 		//! Current iterator value
 		iter_type cur_iter;
@@ -172,6 +169,20 @@ class listObj : virtual public obj {
 		};
 
 	public:
+		//! Iterator trait
+		typedef std::input_iterator_tag iterator_category;
+
+		//! Iterator trait
+		typedef char value_type;
+
+		//! Iterator trait
+		typedef std::ptrdiff_t difference_type;
+
+		//! Iterator trait
+		typedef value_type *pointer;
+
+		//! Iterator trait
+		typedef value_type &reference;
 		//! Constructor
 		parsepropname_iter(//! Iterator
 				   iter_type cur_iterArg,

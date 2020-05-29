@@ -731,12 +731,26 @@ class serialize_value<const_ref<obj_type, base_type> >
 //! into the preallocated buffer. Although the object gets serialized twice,
 //! some benefit may be gained from preallocating a single output buffer.
 
-class sizeof_iter : public std::iterator< std::output_iterator_tag, void *> {
+class sizeof_iter {
 
 	//! Count of bytes reached.
 
 	size_t cnt;
 public:
+	//! Iterator trait
+	typedef std::output_iterator_tag iterator_category;
+
+	//! Iterator trait
+	typedef void value_type;
+
+	//! Iterator trait
+	typedef void difference_type;
+
+	//! Iterator trait
+	typedef void pointer;
+
+	//! Iterator trait
+	typedef void reference;
 
 	//! Constructor
 	sizeof_iter() noexcept : cnt(0)
@@ -745,9 +759,7 @@ public:
 
 	//! Destructor
 
-	~sizeof_iter()
-	{
-	}
+	~sizeof_iter()=default;
 
 	//! Dummy * operator does nothing
 

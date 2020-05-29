@@ -21,13 +21,8 @@
 
 #include <iterator>
 
-namespace LIBCXX_NAMESPACE {
-
-	namespace http {
-		namespace form {
+namespace LIBCXX_NAMESPACE::http::form {
 #if 0
-		};
-	};
 };
 #endif
 
@@ -340,7 +335,7 @@ public:
 		while (b != e)
 		{
 			std::pair<std::string, std::string> param;
-		
+
 			while (b != e && *b != '=' && *b != '&')
 				b=decode_octet(b, e, param.first);
 			if (b != e && *b == '=')
@@ -591,8 +586,7 @@ parametersObj::decode_params(std::string::iterator b, std::string::iterator e);
 
 //! Current iterator over the encoded parameter values
 
-class parametersObj::encode_iter :
-	public std::iterator<std::forward_iterator_tag, char> {
+class parametersObj::encode_iter {
 
 	//! Current parameter being iterated over
 	mutable map_t::const_iterator begin_iter;
@@ -631,6 +625,22 @@ class parametersObj::encode_iter :
 	void advance();
 
 public:
+
+	//! Iterator trait
+	typedef std::forward_iterator_tag iterator_category;
+
+	//! Iterator trait
+	typedef char value_type;
+
+	//! Iterator trait
+	typedef std::ptrdiff_t difference_type;
+
+	//! Iterator trait
+	typedef char *pointer;
+
+	//! Iterator trait
+	typedef char &reference;
+
 	friend class parametersObj;
 
 	//! Destructor
@@ -672,12 +682,7 @@ public:
 
 //! Derive an iterator that throws an %exception upon iterating over more than N characters
 
-template<typename iter_type> class limited_iter
-	: public std::iterator<std::input_iterator_tag,
-			       typename iter_type::value_type,
-			       void,
-			       typename iter_type::value_type *,
-			       typename iter_type::value_type &> {
+template<typename iter_type> class limited_iter {
 
 	//! The underlying iterator
 
@@ -705,6 +710,21 @@ template<typename iter_type> class limited_iter
 	};
 
 public:
+	//! Iterator trait
+	typedef std::input_iterator_tag iterator_category;
+
+	//! Iterator trait
+	typedef typename iter_type::value_type value_type;
+
+	//! Iterator trait
+	typedef std::ptrdiff_t difference_type;
+
+	//! Iterator trait
+	typedef value_type *pointer;
+
+	//! Iterator trait
+	typedef value_type &reference;
+
 	//! Constructor, presumably the ending iterator
 
 	limited_iter() : left(0) {}
@@ -785,11 +805,7 @@ public:
 
 #if 0
 {
-	{
-		{
 #endif
-		}
-	}
 }
 
 #ifndef DOXYGEN

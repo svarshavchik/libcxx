@@ -4,6 +4,7 @@
 #include <x/http/cookiemrulist.H>
 #include <x/hier.H>
 #include <x/logger.H>
+#include <iterator>
 
 namespace LIBCXX_NAMESPACE {
 
@@ -114,7 +115,7 @@ public:
 
 	//! An iterator over the contents of a cookiejar
 
-	class iterator : public std::iterator<std::input_iterator_tag, cookie> {
+	class iterator {
 
 		//! Internal implementation
 
@@ -125,6 +126,21 @@ public:
 		void nextnonempty() LIBCXX_HIDDEN;
 
 	public:
+		//! Iterator trait
+		typedef std::input_iterator_tag iterator_category;
+
+		//! Iterator trait
+		typedef cookie value_type;
+
+		//! Iterator trait
+		typedef std::ptrdiff_t difference_type;
+
+		//! Iterator trait
+		typedef value_type *pointer;
+
+		//! Iterator trait
+		typedef value_type &reference;
+
 		friend class cookiejarObj;
 
 		//! Internal constructor

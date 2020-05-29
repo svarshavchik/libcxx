@@ -196,7 +196,7 @@ public:
 	get_facet() const
 	{
 		try {
-			globlocale switch_locale(const_ptr<localeObj>(this));
+			globlocale switchlocale{*this};
 
 			const typename ref_type::obj_type::facet_type
 				&f=std::use_facet<typename ref_type::obj_type::facet_type>(locale);

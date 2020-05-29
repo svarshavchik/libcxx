@@ -28,7 +28,7 @@ class globlocale {
 
 public:
 	//! no-op constructor
-	globlocale(const const_locale &localeArg) noexcept {}
+	globlocale(const localeObj &localeArg) noexcept {}
 
 	//! no-op destructor
 	~globlocale() noexcept {}
@@ -49,7 +49,7 @@ public:
 class globlocale : public thread_locale {
 
 public:
-	globlocale(const const_locale &localeArg);
+	globlocale(const localeObj &localeArg);
 	~globlocale() noexcept;
 };
 
@@ -61,4 +61,3 @@ public:
 #endif
 }
 #endif
-

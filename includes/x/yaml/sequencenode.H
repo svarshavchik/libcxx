@@ -69,8 +69,7 @@ void sequencenodeObj::for_each(functor_type &&functor)
 //!
 //! Refer to this type as \c INSERT_LIBX_NAMESPACE::yaml::sequence::base::iterator
 
-class sequencenodeObj::iterator
-	: public std::iterator<std::input_iterator_tag, node> {
+class sequencenodeObj::iterator {
 
 	//! The underlying sequence
 
@@ -80,6 +79,20 @@ class sequencenodeObj::iterator
 	size_t i;
 
 public:
+	//! Iterator trait
+	typedef std::input_iterator_tag iterator_category;
+
+	//! Iterator trait
+	typedef node value_type;
+
+	//! Iterator trait
+	typedef std::ptrdiff_t difference_type;
+
+	//! Iterator trait
+	typedef value_type *pointer;
+
+	//! Iterator trait
+	typedef value_type &reference;
 
 	//! Uninitialized iterator constructor
 	iterator();

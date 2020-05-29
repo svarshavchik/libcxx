@@ -71,9 +71,20 @@ class section_transcoderObj : virtual public obj {
 
 public:
 
-	//! Iterator traits.
-	typedef std::iterator<std::output_iterator_tag, void,
-			      void, void, void> iterator_traits;
+	//! Iterator trait
+	typedef std::output_iterator_tag iterator_category;
+
+	//! Iterator trait
+	typedef void value_type;
+
+	//! Iterator trait
+	typedef void difference_type;
+
+	//! Iterator trait
+	typedef void pointer;
+
+	//! Iterator trait
+	typedef void reference;
 
 	//! The output iterator instance
 	output_iter_type iter;

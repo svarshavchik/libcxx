@@ -18,9 +18,24 @@ namespace LIBCXX_NAMESPACE {
 
 //! A dummy output iterator that discards all output
 
-class discardoutput : public std::iterator<std::output_iterator_tag, char> {
+class discardoutput {
 
 public:
+	//! Iterator trait
+	typedef std::output_iterator_tag iterator_category;
+
+	//! Iterator trait
+	typedef void value_type;
+
+	//! Iterator trait
+	typedef void difference_type;
+
+	//! Iterator trait
+	typedef void pointer;
+
+	//! Iterator trait
+	typedef void reference;
+
 	//! Dummy constructor
 	discardoutput() noexcept {}
 

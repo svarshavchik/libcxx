@@ -153,9 +153,7 @@ fdoutputiter::fdoutputiter(const fdbase &fdArg,
 {
 }
 
-fdoutputiter::~fdoutputiter()
-{
-}
+fdoutputiter::~fdoutputiter()=default;
 
 void fdoutputiter::update()
 {

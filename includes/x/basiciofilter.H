@@ -120,9 +120,7 @@ public:
 	}
 
 	//! Destructor
-	~iofilteradapterObj()
-	{
-	}
+	~iofilteradapterObj()=default;
 
 	//! Reset iofilter input and output pointers.
 

@@ -140,8 +140,7 @@ public:
 //! Refer to this class as \c INSERT_LIBX_NAMESPACE::dir::base::iterator or
 //! \c INSERT_LIBX_NAMESPACE::dirptr::base::iterator.
 
-class dirObj::iterator : public std::iterator<std::input_iterator_tag, entry>
-{
+class dirObj::iterator {
 	//! The original directory object.
 
 	//! This is needed only to get the correct semantics for
@@ -155,6 +154,21 @@ class dirObj::iterator : public std::iterator<std::input_iterator_tag, entry>
 
 public:
 	friend class dirObj;
+
+	//! Iterator trait
+	typedef std::input_iterator_tag iterator_category;
+
+	//! Iterator trait
+	typedef entry value_type;
+
+	//! Iterator trait
+	typedef std::ptrdiff_t difference_type;
+
+	//! Iterator trait
+	typedef value_type *pointer;
+
+	//! Iterator trait
+	typedef value_type &reference;
 
 	//! Default constructor.
 

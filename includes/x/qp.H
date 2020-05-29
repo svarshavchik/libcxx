@@ -54,8 +54,7 @@ public:
 //! constructor, as its last optional argument.
 
 template<typename output_iter_type, typename traits=default_qp_traits>
-class qp_encoder : public std::iterator<std::output_iterator_tag, char,
-					void, void, void> {
+class qp_encoder {
 
 	//! The current iterator
 
@@ -79,6 +78,20 @@ class qp_encoder : public std::iterator<std::output_iterator_tag, char,
 	//! The encoder traits instance
 	traits Traits;
 public:
+	//! Iterator trait
+	typedef std::output_iterator_tag iterator_category;
+
+	//! Iterator trait
+	typedef void value_type;
+
+	//! Iterator trait
+	typedef void difference_type;
+
+	//! Iterator trait
+	typedef void pointer;
+
+	//! Iterator trait
+	typedef void reference;
 
 	//! Constructor
 	qp_encoder(//! The underlying iterator
@@ -283,9 +296,7 @@ private:
 //! qp_decoder does not do any internal buffer, so eof() has no effect, other
 //! than returning the new value of the underlying output iterator.
 
-template<typename output_iter_type>
-class qp_decoder : public std::iterator<std::output_iterator_tag, void, void,
-					void, void> {
+template<typename output_iter_type> class qp_decoder {
 
 	//! The current iterator
 
@@ -299,11 +310,25 @@ class qp_decoder : public std::iterator<std::output_iterator_tag, void, void,
 	unsigned char value;
 
 public:
+	//! Iterator trait
+	typedef std::output_iterator_tag iterator_category;
+
+	//! Iterator trait
+	typedef void value_type;
+
+	//! Iterator trait
+	typedef void difference_type;
+
+	//! Iterator trait
+	typedef void pointer;
+
+	//! Iterator trait
+	typedef void reference;
 
 	//! Constructor
 	qp_decoder(//! The underlying iterator
 		   const output_iter_type &iterArg)
-		: iter(iterArg), hex_chars(0)
+		: iter(iterArg), hex_chars(0), value(0)
 	{
 	}
 

@@ -70,10 +70,10 @@ public:
 	}
 
 	//! Default constructor
-	obasiciofilteriterbase() {}
+	obasiciofilteriterbase()=default;
 
 	//! Destructor
-	~obasiciofilteriterbase() {}
+	~obasiciofilteriterbase()=default;
 
 private:
 
@@ -160,10 +160,7 @@ protected:
 
 template<typename out_iter_type, typename input_type, typename output_type>
 class obasiciofilteriter : public obasiciofilteriterbase<input_type,
-							 output_type>,
-			   public std::iterator<std::output_iterator_tag,
-						input_type,
-						void, void, void > {
+							 output_type> {
 
 	//! Base class
 	typedef obasiciofilteriterbase<input_type, output_type> base_t;
@@ -176,6 +173,21 @@ class obasiciofilteriter : public obasiciofilteriterbase<input_type,
 				   output_type> iter_t;
 
 public:
+
+	//! Iterator trait
+	typedef std::output_iterator_tag iterator_category;
+
+	//! Iterator trait
+	typedef void value_type;
+
+	//! Iterator trait
+	typedef void difference_type;
+
+	//! Iterator trait
+	typedef void pointer;
+
+	//! Iterator trait
+	typedef void reference;
 
 	//! Constructor
 	obasiciofilteriter(//! The IO filter to use
@@ -261,9 +273,7 @@ public:
 //! iterator value.
 
 template<typename in_iter, typename input_type, typename output_type>
-class ibasiciofilteriter : public std::iterator<std::input_iterator_tag,
-						output_type,
-						void, void, void > {
+class ibasiciofilteriter {
 
 	//! Current input iterator
 	in_iter cur_iter;
@@ -290,6 +300,21 @@ private:
 	ptr<adapterobj_t> buffer;
 
 public:
+	//! Iterator trait
+	typedef std::input_iterator_tag iterator_category;
+
+	//! Iterator trait
+	typedef output_type value_type;
+
+	//! Iterator trait
+	typedef void difference_type;
+
+	//! Iterator trait
+	typedef void pointer;
+
+	//! Iterator trait
+	typedef void reference;
+
 	//! Constructor
 	ibasiciofilteriter(//! The IO filter to use
 			   const ref<adapterobj_t> &bufferArg,

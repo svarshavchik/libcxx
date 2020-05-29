@@ -24,22 +24,29 @@ namespace LIBCXX_NAMESPACE {
 //! This is a helper class with a specialization that degrades random access
 //! iterator traits to bidirectional iterator traits.
 
-template<typename iterator_category, typename iterator_type>
+template<typename iterator_category_t, typename iterator_type>
 class join_iterator_type {
 
 public:
-	//! The degraded iterator trait class.
 
-	typedef std::iterator<iterator_category,
-			      typename std::iterator_traits<
-				      iterator_type>::value_type,
-			      typename std::iterator_traits<
-				      iterator_type>::difference_type,
-			      typename std::iterator_traits<
-				      iterator_type>::pointer,
-			      typename std::iterator_traits<
-				      iterator_type>::reference
-			      > iterator_t;
+	//! Iterator trait
+	typedef iterator_category_t iterator_category;
+
+	//! Iterator trait
+	typedef typename std::iterator_traits<
+		iterator_type>::value_type value_type;
+
+	//! Iterator trait
+	typedef typename std::iterator_traits<
+		iterator_type>::difference_type difference_type;
+
+	//! Iterator trait
+	typedef typename std::iterator_traits<
+		iterator_type>::pointer pointer;
+
+	//! Iterator trait
+	typedef typename std::iterator_traits<
+		iterator_type>::reference reference;
 };
 
 //! Degrade a random access iterator to a bidirectional iterator.
@@ -121,9 +128,9 @@ public:
 
 	//! The underlying iterator's traits.
 
-	typedef typename join_iterator_type<underlying_iter_category_t,
-					    underlying_iter_t
-					    >::iterator_t traits_t;
+	typedef join_iterator_type<underlying_iter_category_t,
+				   underlying_iter_t
+				   > iterator_type_t;
 };
 
 //! A default factory for an ending iterator value
@@ -155,7 +162,7 @@ template<typename container_iterator_type,
 	 typename ending_iterator_factory=default_ending_iterator_factory<
 		 typename join_container_container_iterator_type<
 			 container_iterator_type>::underlying_iter_t> >
-class joiniterator : public join_iterator_traits<container_iterator_type>::traits_t {
+class joiniterator {
 
 	//! Beginning container iterator value
 	container_iterator_type iterator_beg;
@@ -180,11 +187,25 @@ class joiniterator : public join_iterator_traits<container_iterator_type>::trait
 	iterator cur_cur;
 
 public:
+	//! The join_iterator_type, with our iterator traits.
+	typedef typename
+	join_iterator_traits<container_iterator_type
+			     >::iterator_type_t iterator_type_t;
 
-	//! Declare the traits of this iterator, for \ref refiterator "refiterator".
+	//! Iterator trait
+	typedef typename iterator_type_t::iterator_category iterator_category;
 
-	typedef typename join_iterator_traits<container_iterator_type
-					      >::traits_t iterator_traits;
+	//! Iterator trait
+	typedef typename iterator_type_t::value_type value_type;
+
+	//! Iterator trait
+	typedef typename iterator_type_t::difference_type difference_type;
+
+	//! Iterator trait
+	typedef typename iterator_type_t::pointer rpointer;
+
+	//! Iterator trait
+	typedef typename iterator_type_t::reference reference;
 
 	//! Default constructor, universal ending iterator value
 
@@ -221,7 +242,7 @@ public:
 
 	//! Return the value of the ending iterator for this sequence.
 
-	joiniterator<container_iterator_type, ending_iterator_factory> end() 
+	joiniterator<container_iterator_type, ending_iterator_factory> end()
 		const
 	{
 		return joiniterator<container_iterator_type,
@@ -359,4 +380,3 @@ private:
 #endif
 }
 #endif
-

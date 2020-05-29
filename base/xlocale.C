@@ -78,8 +78,8 @@ xlocale::thread_locale::~thread_locale()
 #if HAVE_XLOCALE
 #else
 
-globlocale::globlocale(const const_locale &localeArg)
-	: thread_locale(*localeArg)
+globlocale::globlocale(const localeObj &localeArg)
+	: thread_locale(localeArg)
 {
 }
 

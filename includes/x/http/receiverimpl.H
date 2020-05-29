@@ -157,13 +157,27 @@ public:
 	//! This input iterator gets returned by begin() and end() to iterate
 	//! over the body of the message.
 
-	class iterator : public std::iterator<std::input_iterator_tag, char> {
+	class iterator {
 
 		//! The receiver object this iterator is tied to
 
 		mutable receiverimplbase<input_iter> *receiver;
 
 	public:
+		//! Iterator trait
+		typedef std::input_iterator_tag iterator_category;
+
+		//! Iterator trait
+		typedef char value_type;
+
+		//! Iterator trait
+		typedef std::ptrdiff_t difference_type;
+
+		//! Iterator trait
+		typedef value_type *pointer;
+
+		//! Iterator trait
+		typedef value_type &reference;
 		//! end() constructor
 
 		iterator() : receiver(NULL)

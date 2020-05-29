@@ -43,7 +43,8 @@ template<typename obj_type> class imbue : public globlocale {
 public:
 	//! Constructor
 	imbue(const const_locale &l, obj_type &objArg)
-		: globlocale(l), obj(objArg), prev_locale(obj.imbue(l->locale))
+		: globlocale(*l), obj(objArg),
+		  prev_locale(obj.imbue(l->locale))
 	{
 	}
 
@@ -59,4 +60,3 @@ public:
 #endif
 }
 #endif
-

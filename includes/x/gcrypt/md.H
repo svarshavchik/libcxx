@@ -85,11 +85,24 @@ public:
 
 //! Refer to this class as \ref md "INSERT_LIBX_NAMESPACE::gcrypt::md::base::iterator".
 
-class mdBase::iterator : public md,
-			 public std::iterator<std::output_iterator_tag,
-					      void, void, void, void> {
+class mdBase::iterator : public md {
 
 public:
+	//! Iterator trait
+	typedef std::output_iterator_tag iterator_category;
+
+	//! Iterator trait
+	typedef void value_type;
+
+	//! Iterator trait
+	typedef void difference_type;
+
+	//! Iterator trait
+	typedef void pointer;
+
+	//! Iterator trait
+	typedef void reference;
+
 	//! Constructor passes through
 	template<typename ...Args>
 	iterator(Args && ...args)

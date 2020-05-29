@@ -1,7 +1,7 @@
 /*
 ** Copyright 2012-2020 Double Precision, Inc.
 ** See COPYING for distribution information.
-*/ 
+*/
 #ifndef x_mime_newlineiter_H
 #define x_mime_newlineiter_H
 
@@ -43,10 +43,20 @@ class newline_iterObj : virtual public obj {
 
 public:
 
-	//! My iterator traits
+	//! Iterator trait
+	typedef std::output_iterator_tag iterator_category;
 
-	typedef std::iterator<std::output_iterator_tag, void,
-			      void, void, void> iterator_traits;
+	//! Iterator trait
+	typedef void value_type;
+
+	//! Iterator trait
+	typedef void difference_type;
+
+	//! Iterator trait
+	typedef void pointer;
+
+	//! Iterator trait
+	typedef void reference;
 
 	//! Underlying output iterator over ints.
 	output_iter_type iter;

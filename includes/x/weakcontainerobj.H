@@ -313,8 +313,7 @@ public:
 
 	//! An iterator over the weak container
 
-	class iterator : std::iterator<std::input_iterator_tag,
-				       typename C::iterator> {
+	class iterator {
 
 		//! The read lock on the container
 
@@ -328,6 +327,21 @@ public:
 		typename C::const_iterator iter;
 
 	public:
+
+		//! Iterator trait
+		typedef std::input_iterator_tag iterator_category;
+
+		//! Iterator trait
+		typedef C::iterator::value_type value_type;
+
+		//! Iterator trait
+		typedef std::ptrdiff_t difference_type;
+
+		//! Iterator trait
+		typedef value_type *pointer;
+
+		//! Iterator trait
+		typedef value_type &reference;
 
 		friend class weakContainerObj<T, C>;
 

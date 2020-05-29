@@ -53,8 +53,7 @@ public:
 	//! input %iterator that returns the contents of the directory
 	//! hierarchy.
 
-	class iterator : public std::iterator<std::input_iterator_tag,
-					      dir::base::entry> {
+	class iterator {
 
 		//! A reference to an open directory
 
@@ -72,6 +71,21 @@ public:
 		iterator(const ptr<dirwalktreeObj> &rArg);
 
 	public:
+		//! Iterator trait
+		typedef std::input_iterator_tag iterator_category;
+
+		//! Iterator trait
+		typedef dir::base::entry value_type;
+
+		//! Iterator trait
+		typedef std::ptrdiff_t difference_type;
+
+		//! Iterator trait
+		typedef value_type *pointer;
+
+		//! Iterator trait
+		typedef value_type &reference;
+
 		//! Construct an end() %iterator
 
 		iterator() noexcept;

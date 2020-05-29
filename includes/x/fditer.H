@@ -39,7 +39,7 @@ class fdbufferObj : virtual public obj {
 
 	//! Allocated buffer.
 	std::vector<char> buffer;
-	
+
 	size_t buf_size,	//!< Buffer size value
 		buf_ptr,	//!< Buffer pointer value
 		requested_buf_size; //!< Requested buffer size
@@ -68,13 +68,29 @@ public:
 //! object.
 //!
 
-class fdinputiter : public std::iterator<std::input_iterator_tag,
-					 char> {
+class fdinputiter {
 
 	//! Buffer
 	ref<fdbufferObj> buf;
 
 public:
+
+	//! Iterator trait
+	typedef std::input_iterator_tag iterator_category;
+
+	//! Iterator trait
+	typedef char value_type;
+
+	//! Iterator trait
+	typedef std::ptrdiff_t difference_type;
+
+	//! Iterator trait
+	typedef value_type *pointer;
+
+	//! Iterator trait
+	typedef value_type &reference;
+
+
 	//! Ending iterator constructor
 	fdinputiter();
 
@@ -84,7 +100,7 @@ public:
 
 	fdinputiter(const fdbase &fdArg,
 		    size_t buffer_size=fdbaseObj::get_buffer_size());
-		
+
 	//! Destructor
 	~fdinputiter();
 
@@ -147,13 +163,26 @@ protected:
 //! \ref fdBase::outputiter "fd::outputiter" as a reference to this
 //! object.
 
-class fdoutputiter : public std::iterator<std::output_iterator_tag,
-					  void, void, void, void> {
+class fdoutputiter {
 
 	//! Buffer
-	ptr<fdbufferObj> buf;
+	ref<fdbufferObj> buf;
 
 public:
+	//! Iterator trait
+	typedef std::output_iterator_tag iterator_category;
+
+	//! Iterator trait
+	typedef void value_type;
+
+	//! Iterator trait
+	typedef void difference_type;
+
+	//! Iterator trait
+	typedef void pointer;
+
+	//! Iterator trait
+	typedef void reference;
 
 	//! Default constructor
 	fdoutputiter();

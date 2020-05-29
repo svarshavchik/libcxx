@@ -266,8 +266,15 @@ class LIBCXX_HIDDEN parametersObj::rfc2388Obj : virtual public obj {
 
 	public:
 
-		typedef std::iterator<std::output_iterator_tag, void,
-				      void, void, void> iterator_traits;
+		typedef std::output_iterator_tag iterator_category;
+
+		typedef void value_type;
+
+		typedef void difference_type;
+
+		typedef void pointer;
+
+		typedef void reference;
 
 		ref<filereceiverObj> recv;
 

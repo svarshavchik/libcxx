@@ -1116,9 +1116,7 @@ public:
 	//!
 	//! Use \ref hierBase "INSERT_LIBX_NAMESPACE::<...>::base::iterator" to refer to this type.
 
-	class iterator : public std::iterator<std::input_iterator_tag,
-					      std::list<hier_type>,
-					      void, void, void> {
+	class iterator {
 
 		//! The lock on the underlying container
 		container_readlockptr lock;
@@ -1132,8 +1130,23 @@ public:
 
 	public:
 
+		//! Iterator trait
+		typedef std::input_iterator_tag iterator_category;
+
+		//! Iterator trait
+		typedef std::list<hier_type> value_type;
+
+		//! Iterator trait
+		typedef std::ptrdiff_t difference_type;
+
+		//! Iterator trait
+		typedef value_type *pointer;
+
+		//! Iterator trait
+		typedef value_type &reference;
+
 		//! Ending iterator constructor
-		iterator() {}
+		iterator()=default;
 
 		//! Beginning iterator constructor
 		iterator(const container_readlock &lockArg)

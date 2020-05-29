@@ -97,10 +97,20 @@ template<typename output_iter_type>
 class header_iterObj : public header_iterbase, virtual public obj {
 
 public:
-	//! My iterator traits
+	//! Iterator trait
+	typedef std::output_iterator_tag iterator_category;
 
-	typedef std::iterator<std::output_iterator_tag, void,
-			      void, void, void> iterator_traits;
+	//! Iterator trait
+	typedef void value_type;
+
+	//! Iterator trait
+	typedef void difference_type;
+
+	//! Iterator trait
+	typedef void pointer;
+
+	//! Iterator trait
+	typedef void reference;
 
 	//! Underlying output iterator over ints.
 

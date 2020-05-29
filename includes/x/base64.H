@@ -185,8 +185,22 @@ public:
 	//! the base64-encoded character stream to it.
 
 	template<typename out_iter_type>
-	class encoder : public std::iterator<std::output_iterator_tag,
-				     void, void, void, void> {
+	class encoder {
+
+		//! Iterator trait
+		typedef std::output_iterator_tag iterator_category;
+
+		//! Iterator trait
+		typedef void value_type;
+
+		//! Iterator trait
+		typedef void difference_type;
+
+		//! Iterator trait
+		typedef void pointer;
+
+		//! Iterator trait
+		typedef void reference;
 
 		//! Output iterator base64-encoded content gets written to
 		out_iter_type out;
@@ -378,9 +392,22 @@ public:
 	//! takes an instance of it, and constructs an instance that writes
 	//! the base64-decoded character stream to it.
 
-	template<typename out_iter_type>
-	class decoder : public std::iterator<std::output_iterator_tag,
-					     void, void, void, void> {
+	template<typename out_iter_type> class decoder {
+
+		//! Iterator trait
+		typedef std::output_iterator_tag iterator_category;
+
+		//! Iterator trait
+		typedef void value_type;
+
+		//! Iterator trait
+		typedef void difference_type;
+
+		//! Iterator trait
+		typedef void pointer;
+
+		//! Iterator trait
+		typedef void reference;
 
 		//! Output iterator base64-decoded content gets written to
 		out_iter_type out;

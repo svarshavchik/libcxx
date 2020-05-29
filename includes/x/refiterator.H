@@ -96,8 +96,7 @@ struct invoke_arrow_operator<true> {
 //! is also redefined in the same way.
 
 template<typename ref_type>
-class refobjiterator : public ref_type,
-		       public ref_type::obj_type::iterator_traits {
+class refobjiterator : public ref_type {
 
 	//! The object type
 
@@ -105,13 +104,33 @@ class refobjiterator : public ref_type,
 
 public:
 
+	//! Iterator trait
+	typedef typename
+	ref_type::obj_type::iterator_category iterator_category;
+
+	//! Iterator trait
+	typedef typename
+	ref_type::obj_type::value_type value_type;
+
+	//! Iterator trait
+	typedef typename
+	ref_type::obj_type::difference_type difference_type;
+
+	//! Iterator trait
+	typedef typename
+	ref_type::obj_type::pointer pointer;
+
+	//! Iterator trait
+	typedef typename
+	ref_type::obj_type::reference reference;
+
 	//! Constructor. Forward arguments to the underlying ref/ptr
 	template<typename ...Args>
 	refobjiterator(Args && ...args)
 		: ref_type(std::forward<Args>(args)...) {}
 
 	//! Destructor
-	~refobjiterator() {}
+	~refobjiterator()=default;
 
 	//! Make sure that create() returns the correct type.
 
@@ -237,32 +256,42 @@ refobjiterator<ref_type> make_refiterator(ref_type &&ref)
 //! When implementing an output iterator, subclass this, and implement
 //! just the operator=().
 
-template<typename value_type>
+template<typename value_type_t>
 class outputrefiteratorObj : virtual public obj {
 
 public:
-	//! My iterator traits
+	//! Iterator trait
+	typedef std::output_iterator_tag iterator_category;
 
-	typedef std::iterator<std::output_iterator_tag, void,
-			      void, void, void> iterator_traits;
+	//! Iterator trait
+	typedef void value_type;
+
+	//! Iterator trait
+	typedef void difference_type;
+
+	//! Iterator trait
+	typedef void pointer;
+
+	//! Iterator trait
+	typedef void reference;
 
 	//! Constructor
-	outputrefiteratorObj() {}
+	outputrefiteratorObj()=default;
 
 	//! Destructor
-	~outputrefiteratorObj() {}
+	~outputrefiteratorObj()=default;
 
 	//! Iterator operator
 
-	outputrefiteratorObj<value_type> &operator*() { return *this; }
+	outputrefiteratorObj<value_type_t> &operator*() { return *this; }
 
 	//! Iterator operator
 
-	outputrefiteratorObj<value_type> &operator++() { return *this; }
+	outputrefiteratorObj<value_type_t> &operator++() { return *this; }
 
 	//! Iterator operator
 
-	outputrefiteratorObj<value_type> *before_postoper()
+	outputrefiteratorObj<value_type_t> *before_postoper()
 	{
 		return this;
 	}
@@ -271,7 +300,7 @@ public:
 
 	//! Must be implemented in the subclass. The default superclass
 	//! implementation discards output.
-	virtual void operator=(value_type c) {}
+	virtual void operator=(value_type_t c) {}
 };
 
 template<typename Arg> class outputref_tuple_unpack;
@@ -376,13 +405,13 @@ make_outputrefiterator(Args && ...args)
 //! fill() is constant, buffer and eof are mutable. This is done in order to
 //! implement the postfix ++ operator, as well as the comparison operator.
 
-template<typename value_type>
+template<typename value_type_t>
 class inputrefiteratorObj : virtual public obj {
 
 protected:
 
 	//! Next input chunk
-	mutable std::vector<value_type> buffer;
+	mutable std::vector<value_type_t> buffer;
 
 private:
 	//! eof flag.
@@ -401,17 +430,26 @@ private:
 	}
 
 public:
+	//! Iterator trait
+	typedef std::input_iterator_tag iterator_category;
 
-	//! My iterator traits
+	//! Iterator trait
+	typedef value_type_t value_type;
 
-	typedef std::iterator<std::input_iterator_tag,
-			      value_type> iterator_traits;
+	//! Iterator trait
+	typedef std::ptrdiff_t difference_type;
+
+	//! Iterator trait
+	typedef value_type *pointer;
+
+	//! Iterator trait
+	typedef value_type &reference;
 
 	//! Constructor
 	inputrefiteratorObj() : eof(false), buffer_pos(0) {}
 
 	//! Destructor
-	~inputrefiteratorObj() {}
+	~inputrefiteratorObj()=default;
 
 	//! Return the current value of the iterator.
 
