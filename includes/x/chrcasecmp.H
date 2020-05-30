@@ -13,16 +13,13 @@
 
 #include <x/namespace.h>
 
-namespace LIBCXX_NAMESPACE {
+//! US-ASCII case-insensitive comparison
 
-	//! US-ASCII case-insensitive comparison
+//! This namespace contains functions and algorithms for
+//! case-insensitive comparison in the US-ASCII character set.
 
-	//! This namespace contains functions and algorithms for
-	//! case-insensitive comparison in the US-ASCII character set.
-
-	namespace chrcasecmp {
+namespace LIBCXX_NAMESPACE::chrcasecmp {
 #if 0
-	};
 };
 #endif
 
@@ -139,8 +136,6 @@ typedef cmp_str< std::less_equal<int> > str_less_equal;
 
 #if 0
 {
-	{
 #endif
-	}
 }
 #endif

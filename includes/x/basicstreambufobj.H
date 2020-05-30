@@ -33,10 +33,10 @@ class basic_streambufObj : virtual public std::streambuf,
 public:
 	//! The constructor
 
-	basic_streambufObj() noexcept {}
+	basic_streambufObj() noexcept=default;
 
 	//! Default destructor
-	~basic_streambufObj() {}
+	~basic_streambufObj()=default;
 };
 
 //! A reference to a \c std::streambuf

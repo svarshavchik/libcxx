@@ -33,10 +33,10 @@ public:
 	// extern template class won't work with =default (!)
 
 	//! Default constructor
-	callback_list_impl() {}
+	callback_list_impl()=default;
 
 	//! Default destructor
-	~callback_list_impl() {}
+	~callback_list_impl()=default;
 
 	//! Import a typedef, for convenience.
 	typedef typename std::list<functionref<signature>>::iterator iterator;

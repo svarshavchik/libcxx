@@ -25,7 +25,7 @@ static property::value<unsigned>
 configupdate_interval(LIBCXX_NAMESPACE_STR
 		      "::configdir::update_interval", 60);
 
-std::string configdir(const std::string &appid)
+std::string configdir(const std::string_view &appid)
 {
 	// Auto create ~/.libcxx/$appid
 
@@ -33,7 +33,11 @@ std::string configdir(const std::string &appid)
 
 	mkdir(basedir.c_str(), 0700);
 
-	auto dir=basedir + "/" + appid;
+	auto dir=basedir + "/";
+
+	dir.reserve(dir.size()+appid.size());
+
+	dir.insert(dir.end(), appid.begin(), appid.end());
 
 	mkdir(dir.c_str(), 0700);
 

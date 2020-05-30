@@ -76,9 +76,7 @@ public:
 
 	//! The default destructor
 
-	~basic_streamObj()
-	{
-	}
+	~basic_streamObj()=default;
 
 	//! Return this stream's buffer.
 

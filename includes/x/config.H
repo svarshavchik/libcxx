@@ -8,6 +8,7 @@
 
 #include <x/namespace.h>
 #include <string>
+#include <string_view>
 
 namespace LIBCXX_NAMESPACE {
 #if 0
@@ -59,7 +60,7 @@ namespace LIBCXX_NAMESPACE {
 //! and configuration directories with broken symbolic links that are older
 //! than 60 days get removed.
 
-std::string configdir(const std::string &appid);
+std::string configdir(const std::string_view &appid);
 
 #if 0
 {

@@ -55,15 +55,11 @@ public:
 
 	//! Default constructor
 
-	basic_stringstreamObj() noexcept
-	{
-	}
+	basic_stringstreamObj() noexcept=default;
 
 	//! Default destructor
 
-	~basic_stringstreamObj()
-	{
-	}
+	~basic_stringstreamObj()=default;
 };
 //! A reference-counted \c std::istringstream
 
