@@ -31,10 +31,13 @@ This file defines the \c refptr_traits template, that describes a
 //! Base class that refptr_traits inherits from.
 
 template<typename objClass,
-	 typename baseClass>
-class refptr_traits_base {
+	 typename baseClass,
+	 typename ref_or_ptr>
+class std_refptr_traits {
 
 public:
+	//! The parent ref or ptr class of what was specified for refptr_traits
+	typedef ref_or_ptr type_t;
 
 	//! The reference-counted object type.
 	typedef objClass obj_t;
@@ -56,38 +59,14 @@ public:
 	typedef const_ptr<objClass, baseClass> const_ptr_t;
 };
 
+template<typename T, typename TT> class refptr_traits_impl;
+
 //! The traits of a reference or a pointer object.
 
-template<typename T> class refptr_traits;
+//! \see std_refptr_traits
 
-//! Define traits for a \ref ref "INSERT_LIBX_NAMESPACE::ref".
-
-//! \see refptr_traits_base
-template<typename objClass, typename baseClass>
-class refptr_traits<ref<objClass, baseClass>>
-	: public refptr_traits_base<objClass, baseClass> {};
-
-//! Define traits for a \ref ptr "INSERT_LIBX_NAMESPACE::ref".
-
-//! \see refptr_traits_base
-template<typename objClass, typename baseClass>
-class refptr_traits<ptr<objClass, baseClass>>
-	: public refptr_traits_base<objClass, baseClass> {};
-
-//! Define traits for a \ref const_ref "INSERT_LIBX_NAMESPACE::ref".
-
-//! \see refptr_traits_base
-template<typename objClass, typename baseClass>
-class refptr_traits<const_ref<objClass, baseClass>>
-	: public refptr_traits_base<objClass, baseClass> {};
-
-//! Define traits for a \ref const_ptr "INSERT_LIBX_NAMESPACE::ref".
-
-//! \see refptr_traits_base
-template<typename objClass, typename baseClass>
-class refptr_traits<const_ptr<objClass, baseClass>>
-	: public refptr_traits_base<objClass, baseClass> {};
-
+template<typename T>
+using refptr_traits=typename T::traits_t;
 
 template<typename T> class ref_cast_lookup;
 template<typename T> class ptr_cast_lookup;
@@ -246,6 +225,7 @@ struct explicit_refptr : T {
 	using T::operator>;
 	using T::operator<=;
 	using T::operator>=;
+	using T::operator<=>;
 
 	//! Inherited ! operator.
 	inline bool operator!() const noexcept

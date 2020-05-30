@@ -7,8 +7,7 @@
 #define x_functionalrefptrfwd_H
 
 #include <x/ptrfwd.H>
-#include <x/functional.H>
-#include <type_traits>
+#include <x/refptr_traits.H>
 
 namespace LIBCXX_NAMESPACE {
 #if 0
@@ -16,93 +15,10 @@ namespace LIBCXX_NAMESPACE {
 #endif
 
 template<typename signature> class functionBase;
+template<typename signature> class functionObj;
 
 template<typename type,
 	 typename signature> class functionrefptr_impl;
-
-//! SFINAE for \ref functionref "reference-counted function object"'s constructor overload resolution.
-
-//! \internal
-
-template<typename functionrefptr_impl_t,
-	 typename constructor_parameter_t,
-	 typename tuple_args_t,
-	 typename=void> struct functionrefptr_impl_constructible;
-
-//! Implementation of a \ref functionref "reference-counted function object".
-
-//! Inherits of a \ref ref "ref" or a \ref ptr "ptr" and implements the \c () operator.
-
-template<typename base_ref,
-	 typename return_type,
-	 typename ...Args>
-class functionrefptr_impl<base_ref, return_type(Args...)>
-	: public base_ref {
-
-	using base_ref::create;
-
-	typedef functionrefptr_impl<base_ref, return_type(Args...)> class_t;
-
-public:
-
-	//! Default constructor.
-
-	//! Only implemented for \ref functionptr "functionptr"s.
-
-	functionrefptr_impl();
-
-	//! Pretty much the default constructor.
-
-	//! Only implemented for \ref functionptr "functionptr"s.
-	functionrefptr_impl(std::nullptr_t);
-
-	//! Constructor
-
-	//! Determines whether this instance should be copy-constructed
-	//! from another, existing, function object; or create a new one
-	//! that uses the callable object that gets passed as a parameter.
-
-	template<typename ref_or_ptr,
-		 typename=typename functionrefptr_impl_constructible
-		 <class_t, std::decay_t<ref_or_ptr>, std::tuple<Args...>>
-		 ::type_t>
-	functionrefptr_impl(ref_or_ptr &&v);
-
-	using base_ref::operator *;
-
-	//! Implement boolean operator.
-
-	//! Only implemented for \ref functionptr "functionptr"s.
-
-	explicit operator bool() const noexcept;
-
-	//! Implement boolean operator.
-
-	//! Only implemented for \ref functionptr "functionptr"s.
-	bool operator!() const noexcept;
-
-	//! Invoke the wrapped callable object.
-	template<typename ...callArgs>
-	auto operator()(callArgs && ...args) const
-		->decltype((*std::declval<return_type (*)(Args...)>())
-			   (std::forward<callArgs>(args)...));
-
-	//! Assignment operator.
-
-	//! Figures out if this is assigning from a different reference-counted
-	//! function object, or from another callable object.
-
-	template<typename ref_or_ptr,
-		 typename=typename functionrefptr_impl_constructible
-		 <class_t, std::decay_t<ref_or_ptr>, std::tuple<Args...>>
-		 ::type_t>
-	auto &operator=(ref_or_ptr &&arg);
-
-	//! Assign a null value, effectively clearing the \ref functionptr "functionptr".
-
-	//! Only implemented for \ref functionptr "functionptr"s.
-	auto &operator=(std::nullptr_t v);
-};
 
 //! A reference-counted \ref function "function object".
 
@@ -160,6 +76,56 @@ template<typename signature>
 using functionptr=functionrefptr_impl<ptr<functionObj<signature>,
 					  functionBase<signature>>,
 				      signature>;
+
+
+template<typename signature, typename ref_or_ptr>
+class func_refptr_traits;
+
+//! Helper SFINAE for is_function_ref_or_ptr
+
+//! Determines whether T is a compatible functionref.
+
+template<typename T, typename signature, typename=void>
+struct is_function_ref_or_ptr_t : std::false_type {};
+
+//! Helper SFINAE for is_function_ref_or_ptr
+
+//! Determines whether T is a compatible functionref.
+
+template<typename T, typename signature>
+struct is_function_ref_or_ptr_t<
+	T, signature,
+	std::void_t<typename refptr_traits<std::decay_t<T>>::ref_t>>
+	: std::is_same<typename refptr_traits<std::decay_t<T>>::ref_t,
+		       functionref<signature>> {};
+
+//! Determine the argument to \ref functionrefptr_impl "functionrefptr_impl".
+
+//! The constructor or the assignment operator's parameter is another
+//! \c functionrefptr_impl "functionrefptr_impl".
+//!
+//! \internal
+
+template<typename r, typename signature>
+concept is_function_ref_or_ptr=is_function_ref_or_ptr_t<r, signature>::value;
+
+//! Determine the argument to \ref functionrefptr_impl "functionrefptr_impl".
+
+//! The constructor or the assignment operator's parameter is not another
+//! \c functionrefptr_impl "functionrefptr_impl", but is a compatible
+//! callable object, so we will create a new object.
+//!
+//! A functionref is also a callable object, so we first check that it's
+//! not is_function-ref_or_ptr, then check for callability.
+//!
+//! \internal
+
+template<typename T,
+	 typename R,
+	 typename ...Args>
+concept is_function_ref_or_ptr_callable=
+	!is_function_ref_or_ptr_t<T, R(Args...)>::value &&
+	std::is_invocable_r_v<R, T, Args...>;
 
 #if 0
 {

@@ -9,6 +9,7 @@
 #include <utility>
 #include <functional>
 #include <x/concepts.H>
+#include <x/refptr_traitsfwd.H>
 #include <x/ptrimpl.H>
 
 namespace LIBCXX_NAMESPACE {
@@ -47,6 +48,10 @@ public:
 	//! Define this pointer's object class.
 
 	typedef objClass obj_type;
+
+	//! Our traits
+	typedef std_refptr_traits<objClass, baseClass,
+				  const_ptr<objClass, baseClass>> traits_t;
 
 	const_ptr() noexcept LIBCXX_INLINE;
 
@@ -430,6 +435,10 @@ public:
 	using const_ptr<objClass, baseClass>::operator bool;
 	using const_ptr<objClass, baseClass>::operator !;
 
+	//! Our traits
+	typedef std_refptr_traits<objClass, baseClass,
+				  ptr<objClass, baseClass>> traits_t;
+
 	ptr() noexcept LIBCXX_INLINE;
 
 	explicit ptr(objClass *pArg) noexcept
@@ -565,6 +574,10 @@ public:
 	//! Define this pointer's object class.
 
 	typedef objClass obj_type;
+
+	//! Our traits
+	typedef std_refptr_traits<objClass, baseClass,
+				  const_ref<objClass, baseClass>> traits_t;
 
 	explicit
 	const_ref(const objClass *pArg)
@@ -708,6 +721,10 @@ class ref : public const_ref<objClass, baseClass> {
 public:
 	template<typename objClass2>
 	friend class ptrImpl;
+
+	//! Our traits
+	typedef std_refptr_traits<objClass, baseClass,
+				  ref<objClass, baseClass>> traits_t;
 
 	inline explicit ref(objClass *pArg) noexcept
 		LIBCXX_INLINE;

@@ -54,7 +54,7 @@ public:
 	forkexec(//! An exception gets thrown if this vector is empty.
 		 const std::vector<std::string> &argvArg);
 
-	//! Constructor: specify thea rgument vector as variadic parameters.
+	//! Constructor: specify the argument vector as variadic parameters.
 	template<typename ...Args>
 	forkexec(const std::string &arg, Args && ...args)
 	{

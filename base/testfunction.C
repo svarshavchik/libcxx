@@ -6,9 +6,7 @@
 #include "libcxx_config.h"
 #include "x/functionalrefptrfwd.H"
 
-class fwd_decl {
-	LIBCXX_NAMESPACE::functionref<void ()> foo;
-};
+void fwd_decl(const LIBCXX_NAMESPACE::functionref<void ()> &foo);
 
 #include "x/functionalrefptr.H"
 #include "x/mcguffinmap.H"

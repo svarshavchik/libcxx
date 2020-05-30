@@ -8,38 +8,14 @@
 
 #include <x/functional.H>
 #include <x/functionalrefptrfwd.H>
+#include <x/functionalrefptrobj.H>
 #include <x/ref.H>
 #include <x/ptr.H>
-#include <x/refptr_traits.H>
-#include <x/obj.H>
 
 namespace LIBCXX_NAMESPACE {
 #if 0
 };
 #endif
-
-//! Multiply inherit from \ref function "function" and \ref obj "obj".
-
-//! This implements a reference-counted \ref functionref "function object".
-
-//! \internal
-
-template<typename signature> class functionObj
-	: public function<signature>, virtual public obj {
-
-public:
-
-	//! Default constructor
-	functionObj()=default;
-
-	//! Default destructor
-	~functionObj()=default;
-
-	//! The implementing function wrapper.
-	typedef function<signature> function_t;
-
-	using function_t::operator();
-};
 
 //! Base class of type-erased \ref function "reference-counted functors".
 
@@ -71,90 +47,27 @@ public:
 	};
 };
 
-//! Determine the argument to \ref functionrefptr_impl "functionrefptr_impl".
+//! Override refptr_traits for functioref and functionptr.
 
-//! The constructor or the assignment operator's parameter is either another
-//! \c functionrefptr_impl "functionrefptr_impl"; or a callable object,
-//! otherwise.
-//!
-//! Assume some other callable object, by default.
-//!
-//! \internal
+template<typename signature, typename ref_or_ptr>
+class func_refptr_traits {
 
-template<typename r>
-class is_functionrefptr_t : public std::false_type {};
+public:
 
-//! Determine the argument to \ref functionrefptr_impl "functionrefptr_impl".
+	//! My object
+	typedef functionObj<signature> obj_t;
 
-//! Specialization that identifies the assignment operator's parameter as
-//! another \c functionrefptr_impl "functionrefptr_impl".
-//!
-//! \internal
+	//! My base class
+	typedef functionBase<signature> base_t;
 
-template<typename r, typename signature>
-class is_functionrefptr_t<functionrefptr_impl<r, signature>>
-	: public std::true_type {};
+	//! Our refs
+	typedef functionref<signature> ref_t;
 
-//! Decay the template parameter to \ref is_functionrefptr_t "is_functionrefptr_t".
+	//! Our ptrs
+	typedef functionptr<signature> ptr_t;
 
-template<typename r>
-using is_functionrefptr=is_functionrefptr_t<std::decay_t<r>>;
-
-template<typename base_ref,
-	 typename ref_or_ptr,
-	 typename=void> struct functionrefptr_conv;
-
-//! The argument to \ref functionrefptr_impl "functionrefptr_impl" is another instance.
-
-//! The argument passes through unchanged, resulting in an assignment operator
-//! or copy construction.
-
-template<typename base_ref,
-	 typename ref_or_ptr>
-struct functionrefptr_conv<base_ref, ref_or_ptr,
-			   std::enable_if_t<is_functionrefptr<ref_or_ptr>
-					    ::value>> {
-
-	//! Pass through the parameter.
-
-	template<typename f>
-	inline static auto &&conv(f &&v)
-	{
-		return v;
-	}
-};
-
-//! The argument to \ref functionrefptr_impl "functionrefptr_impl" is a callable object.
-
-template<typename base_ref,
-	 typename ref_or_ptr>
-struct functionrefptr_conv<base_ref, ref_or_ptr,
-			   std::enable_if_t<std::negation_v
-					    <is_functionrefptr<ref_or_ptr>>>> {
-
-	//! Construct a reference-counted object to wrap the parameter.
-
-	template<typename f>
-	inline static auto conv(f &&v)
-	{
-		return base_ref::create(std::forward<f>(v));
-	}
-};
-
-//! SFINAE for \ref functionref "reference-counted function object"'s constructor overload resolution.
-
-//! \internal
-template<typename functionrefptr_impl_t,
-	 typename constructor_parameter_t,
-	 typename ...Args>
-struct functionrefptr_impl_constructible<
-	functionrefptr_impl_t,
-	constructor_parameter_t,
-	std::tuple<Args...>,
-	std::void_t<decltype(std::declval<constructor_parameter_t &&>()
-			     (std::declval<Args &&>()...))>> {
-
-	typedef void type_t;
+	//! This type
+	typedef ref_or_ptr type_t;
 };
 
 //! Only implemented for \ref functionptr "functionptr"s.
@@ -178,19 +91,30 @@ inline functionrefptr_impl<base_ref, return_type(Args...)>
 
 //! Constructor
 
-//! Determines whether this instance should be copy-constructed
-//! from another, existing, function object; or create a new one
-//! that uses the callable object that gets passed as a parameter.
+//! The constructor parameter is a callable object, we construct a new
+//! reference-counted object.
 
 template<typename base_ref,
 	 typename return_type,
 	 typename ...Args>
-template<typename ref_or_ptr,
-	 typename>
+template<is_function_ref_or_ptr_callable<return_type, Args...> F>
 inline functionrefptr_impl<base_ref, return_type(Args...)>
-::functionrefptr_impl(ref_or_ptr &&v)
-	: base_ref{functionrefptr_conv<base_ref, ref_or_ptr>
-		::conv(std::forward<ref_or_ptr>(v))}
+::functionrefptr_impl(F &&f)
+	: base_ref{base_ref::create(std::forward<F>(f))}
+{
+}
+
+//! Constructor
+
+//! The constructor parameter is an existing reference-counted object.
+
+template<typename base_ref,
+	 typename return_type,
+	 typename ...Args>
+template<is_function_ref_or_ptr<return_type(Args...)> ref_or_ptr>
+inline functionrefptr_impl<base_ref, return_type(Args...)>
+::functionrefptr_impl(ref_or_ptr &&r)
+	: base_ref{std::forward<ref_or_ptr>(r)}
 {
 }
 
@@ -234,19 +158,31 @@ inline auto functionrefptr_impl<base_ref, return_type(Args...)>
 
 //! Assignment operator.
 
-//! Figures out if this is assigning from a different reference-counted
-//! function object, or from another callable object.
+//! Assigning a new callable object, we construct a new
+//! reference-counted object.
 
 template<typename base_ref,
 	 typename return_type,
 	 typename ...Args>
-template<typename ref_or_ptr,
-	 typename>
-inline auto &functionrefptr_impl<base_ref, return_type(Args...)>
-::operator=(ref_or_ptr &&arg)
+template<is_function_ref_or_ptr_callable<return_type, Args...> F>
+auto &functionrefptr_impl<base_ref, return_type(Args...)>::operator=(F &&f)
 {
-	base_ref::operator=(functionrefptr_conv<base_ref, ref_or_ptr>
-			    ::conv(std::forward<ref_or_ptr>(arg)));
+	base_ref::operator=(base_ref::create(std::forward<F>(f)));
+	return *this;
+}
+
+//! Assignment operator.
+
+//! Assigning from an existing reference-counted object.
+
+template<typename base_ref,
+	 typename return_type,
+	 typename ...Args>
+template<is_function_ref_or_ptr<return_type(Args...)> ref_or_ptr>
+auto &functionrefptr_impl<base_ref, return_type(Args...)>
+::operator=(ref_or_ptr &&r)
+{
+	base_ref::operator=(std::forward<ref_or_ptr>(r));
 	return *this;
 }
 
@@ -262,27 +198,6 @@ inline auto &functionrefptr_impl<base_ref, return_type(Args...)>
 	base_ref::operator=(v);
 	return *this;
 }
-
-
-//! Implement ref and ptr traits for \ref functionref "function objects".
-
-template<typename refptr_type, typename signature>
-class refptr_traits<functionrefptr_impl<refptr_type, signature>>
-	: private refptr_traits<refptr_type> {
-
-	typedef refptr_traits<refptr_type> superclass_t;
-
-public:
-	using superclass_t::obj_t;
-
-	using superclass_t::base_t;
-
-	typedef functionrefptr_impl<typename superclass_t::ref_t,
-				    signature> ref_t;
-
-	typedef functionrefptr_impl<typename superclass_t::ptr_t,
-				    signature> ptr_t;
-};
 
 #ifndef DOXYGEN
 extern template class functionObj<void()>;
