@@ -638,8 +638,7 @@ public:
 			   char *buffer,
 
 			   //! Element count
-			   size_t cnt)
-
+			   size_t cnt) const
 	{
 	again:
 		ssize_t n=::read(filedesc, buffer, cnt);
@@ -1210,13 +1209,7 @@ private:
 
 	void pubclose() override LIBCXX_HIDDEN;
 
-	template<bool serialize_flag>
-	class do_serialize;
-
 public:
-	template<bool serialize_flag>
-	friend class do_serialize;
-
 	//! Serialization function
 
 	//! In the contents of a file descriptor, serializing involves
@@ -1234,17 +1227,24 @@ public:
 	//! (essentially an empty file). A deserialization of a closed file
 	//! descriptor ends up discarding the serialized data.
 
-	template<typename iter_type>
-	void serialize(iter_type &i)
+	template<typename ptr_type, typename iter_type>
+	static inline void serialize(ptr_type ptr, iter_type &i)
 	{
-		do_serialize<iter_type::serializing>::serialize(*this, i);
+		if constexpr (i.serializing)
+	        {
+			ptr->impl_serialize(i);
+		}
+		else
+		{
+			ptr->impl_deserialize(i);
+		}
 	}
 
 private:
 	//! Implement file descriptor contents' serialization
 
 	template<typename iter_type>
-	void impl_serialize(iter_type &i)
+	void impl_serialize(iter_type &i) const
 	{
 		std::vector<char> buffer;
 		size_t n;
@@ -1296,40 +1296,6 @@ private:
 	}
 
 	class recvmsg_helper;
-};
-
-//! Helper class for file descriptor serialization
-
-template<>
-class fdObj::do_serialize<true> {
-
-public:
-
-	//! Implement file descriptor contents' serialization
-
-	template<typename iter_type>
-	static void serialize(fdObj &fd,
-			      iter_type &i)
-	{
-		fd.impl_serialize(i);
-	}
-};
-
-//! Helper class for file descriptor deserialization
-
-template<>
-class fdObj::do_serialize<false> {
-
-public:
-
-	//! Implement file descriptor contents' deserialization
-
-	template<typename iter_type>
-	static void serialize(fdObj &fd,
-			      iter_type &i)
-	{
-		fd.impl_deserialize(i);
-	}
 };
 
 #if 0

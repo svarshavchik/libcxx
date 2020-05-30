@@ -1,3 +1,11 @@
+2020-05-30  Sam Varshavchik  <mrsam@courier-mta.com>
+
+	* C++20 update.
+
+	* Change serialization API passing a pointer as the first
+	parameter to object serialize(), in order to eliminate an internal
+	const_cast. serialize() can now be a static class template.
+
 0.21
 
 2020-05-03  Sam Varshavchik  <mrsam@courier-mta.com>

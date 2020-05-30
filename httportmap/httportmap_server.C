@@ -658,14 +658,14 @@ public:
 	{
 	}
 
-	template<typename iter_type>
-	void serialize(iter_type &iter)
+	template<typename ptr_type, typename iter_type>
+	static void serialize(ptr_type ptr, iter_type &iter)
 	{
-		iter(sockname);
-		iter(files);
-		iter(port);
-		iter(daemon);
-		iter(stop);
+		iter(ptr->sockname);
+		iter(ptr->files);
+		iter(ptr->port);
+		iter(ptr->daemon);
+		iter(ptr->stop);
 	}
 
 	std::string systemd_dir() const

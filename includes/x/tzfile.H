@@ -475,16 +475,15 @@ public:
 	//! Only the timezone name gets serialized. When deserializing, the
 	//! timezone name is loaded.
 
-	template<typename iter_type>
-	void serialize(iter_type &i)
+	template<typename ptr_type, typename iter_type>
+	static void serialize(ptr_type ptr, iter_type &i)
 	{
-		i(name, 255);
+		i(ptr->name, 255);
 
-		if (!i.serializing)
+		if constexpr (!i.serializing)
 		{
-			std::string namecpy(name);
-
-			load_file(namecpy);
+			std::string namecpy=ptr->name;
+			ptr->load_file(namecpy);
 		}
 	}
 };

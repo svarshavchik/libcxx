@@ -143,12 +143,12 @@ public:
 	//! locale's name. Deserializing a locale object recreates a locale
 	//! object using the serialized locale name.
 
-	template<typename iter_type>
-	void serialize(iter_type &i)
+	template<typename ptr_type, typename iter_type>
+	static void serialize(ptr_type ptr, iter_type &i)
 	{
-		if (i.serializing)
+		if constexpr (i.serializing)
 		{
-			std::string n=name();
+			std::string n=ptr->name();
 
 			i(n);
 		}
@@ -158,7 +158,7 @@ public:
 
 			i(n);
 
-			deserialized(n);
+			ptr->deserialized(n);
 		}
 	}
 

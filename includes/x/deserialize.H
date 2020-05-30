@@ -1130,7 +1130,7 @@ class iterator_deserialize_any {
 		{
 			obj_type objInstance(objRef);
 
-			objInstance.serialize(i);
+			objInstance.serialize(&objInstance, i);
 			objRef.deserialized(objInstance);
 		}
 	};

@@ -24,8 +24,8 @@ See COPYING for distribution information.
       serialization is not really suitable for long term object
       persistance, since a platform change or a compiler change may
       result in incompatibility with previously-serialized objects.
-      This object serialization is generally
-      intended for interprocess communication
+      The intent of this serialization implementation is
+      interprocess communication
       between version-compatible client and server processes.
     </para>
 
@@ -86,7 +86,11 @@ See COPYING for distribution information.
 	  <classname>std::map</classname>,
 	  <classname>std::multimap</classname>,
 	  <classname>std::set</classname>,
-	  <classname>std::multiset</classname>.
+	  <classname>std::multiset</classname>,
+	  <classname>std::unordered_map</classname>,
+	  <classname>std::unordered_multimap</classname>,
+	  <classname>std::unordered_set</classname>,
+	  <classname>std::unordered_multiset</classname>,
 	</para>
 
 	<para>
@@ -242,9 +246,8 @@ enum errmsg_t {
 
 };
 
-namespace &ns; {
-    namespace serialization {
-        template&lt;&gt; class serialize_integer_type&lt;errmsg_t&gt;
+namespace &ns;:: serialization {
+        template&lt;&gt; class serialize_integer_type&lt;errmsg_t&gt; {
         public:
 
             typedef char int_t;
@@ -817,12 +820,12 @@ public:
 
 // ...
 
-    template&lt;typename iter_type&gt;
-    void serialize(iter_type &amp;i)
+    template&lt;typename ptr_type, typename iter_type&gt;
+    static void serialize(ptr_type ptr, iter_type &amp;i)
     {
-        i(h);
-        i(m);
-	i(s);
+        i(ptr-&gt;h);
+        i(ptr-&gt;m);
+	i(ptr-&gt;s);
     }
 };</programlisting>
       </informalexample>
@@ -840,42 +843,46 @@ public:
     </para>
 
     <para>
-      The <methodname>serialize</methodname>() template method receives a
-      reference to one of two possible iterators.
-      When serializing, <methodname>serialize</methodname>() receives
-      an instance of a
-      <link linkend="serializetoiter">serializing
-	<classname>iterator</classname></link>.
-      When deserializing, <methodname>serialize</methodname>() receives an
-      instance of a
-      <link linkend="deserialization">deserializing
-	<classname>iterator</classname></link>.
-      The unified <methodname>serialize</methodname>() template method iterates
+      The <methodname>serialize</methodname>() template method receives
+      two parameters:
+    </para>
+
+    <orderedlist>
+      <listitem>
+	<para>
+	  A mutable or a constant pointer to the object getting deserialized
+	  or serialized. A mutable pointer gets passed in when deserialization
+	  the object. A <literal>const</literal> pointer gets passed on when
+	  serializing the object.
+	</para>
+
+	<para>
+	  The above <methodname>serialize</methodname>()'s
+	  <replaceable>ptr_type</replaceable> is always either
+	  <classname>hms *</classname> or <classname>const hms *</classname>.
+	</para>
+      </listitem>
+
+      <listitem>
+	<para>
+	  When serializing, <methodname>serialize</methodname>() receives
+	  an instance of a
+	  <link linkend="serializetoiter">serializing
+	    <classname>iterator</classname></link>.
+	  When deserializing, <methodname>serialize</methodname>() receives an
+	  instance of a
+	  <link linkend="deserialization">deserializing
+	    <classname>iterator</classname></link>.
+	</para>
+      </listitem>
+    </orderedlist>
+    <para>
+      The <methodname>serialize</methodname>() template method typically
+      iterates
       over the same class members, in the same order, using the iterator,
       automatically implementing identical serializing and deserializing
       logic.
     </para>
-
-    <note>
-      <para>
-	Although the serializing process does not modify the object,
-	a single non-const <methodname>serialize</methodname>() template
-	function gets invoked to serialize the object. However serializing
-	a constant object works. This is because the template which
-	implements serializing temporarily drops the const-ness of the
-	object, during serializing, enabling the usage of the
-	<methodname>serialize</methodname>() template function.
-      </para>
-
-      <para>
-	This is, unfortunately, a necessary evil.
-	The benefits of defining a single physical block of code for
-	serializing and deserializing outweighs the idealistic purity of
-	implementing two template methods, one constant method that handles
-	serializing, and a second non-constant method that handles
-	deserializing.
-      </para>
-    </note>
 
     <para>
       Still,
@@ -888,16 +895,15 @@ public:
     <blockquote>
       <informalexample>
 	<programlisting>
-template&lt;typename iter_type&gt;
-void serialize(iter_type &amp;i)
+template&lt;typename ptr_type, typename iter_type&gt;
+static void serialize(ptr_type, iter_type &amp;i)
 {
     i(name, 255);
 
-    if (!i.serializing)
+    if constexpr (!i.serializing)
     {
-        std::string namecpy(name);
-
-        load_file(namecpy);
+        std::string namecpy=ptr-&gt;name;
+        ptr-&gt;load_file(namecpy);
     }
 }</programlisting>
       </informalexample>

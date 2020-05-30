@@ -216,8 +216,8 @@ public:
 
 				    )
 	{
-		serialization::serialize_object_bytes<value_type>
-			::serialize(const_cast<value_type &>(value), toiter);
+		serialization::serialize_object_bytes<const value_type>
+			::serialize(value, toiter);
 	}
 };
 

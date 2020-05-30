@@ -174,14 +174,15 @@ public:
 			return iter;
 		}
 
-		template<typename iter_type> void serialize(iter_type &iter)
+		template<typename ptr_type, typename iter_type>
+		static void serialize(ptr_type ptr, iter_type &iter)
 		{
-			iter(service);
-			iter(user);
-			iter(pid);
-			iter(exe);
-			iter(port);
-			iter(exclusive);
+			iter(ptr->service);
+			iter(ptr->user);
+			iter(ptr->pid);
+			iter(ptr->exe);
+			iter(ptr->port);
+			iter(ptr->exclusive);
 		}
 	};
 

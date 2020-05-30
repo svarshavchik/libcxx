@@ -353,12 +353,12 @@ private:
 public:
 	//! Serialization function
 
-	template<typename iter_type>
-	void serialize(iter_type &i)
+	template<typename ptr_type, typename iter_type>
+	static inline void serialize(ptr_type ptr, iter_type &i)
 	{
-		i(h);
-		i(m);
-		i(s);
+		i(ptr->h);
+		i(ptr->m);
+		i(ptr->s);
 	}
 };
 

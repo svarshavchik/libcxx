@@ -351,22 +351,36 @@ public:
 
 	bool operator>=(const ymdhms &o) const;
 
+	//! Helper used by serialize()
+
+	template<typename T>
+	inline T &ymd_hms()
+	{
+		return static_cast<T &>(*this);
+	}
+
+	//! Helper used by serialize()
+
+	template<typename T>
+	inline const T &ymd_hms() const
+	{
+		return static_cast<const T &>(*this);
+	}
+
 	//! Serialization function
 
-	template<typename iter_type>
-	void serialize(iter_type &i)
+	template<typename ptr_type, typename iter_type>
+	static void serialize(ptr_type *ptr, iter_type &i)
 	{
-		i(static_cast<ymd &>(*this));
-		i(static_cast<hms &>(*this));
+		i(ptr->template ymd_hms<ymd>());
+		i(ptr->template ymd_hms<hms>());
 
-		std::string name;
-
-		name=tz->getName();
+		std::string name=ptr->tz->getName();
 
 		i(name);
 
-		if (!i.serializing)
-			*this=ymdhms(*this, *this, tzfile::create(name));
+		if constexpr (!i.serializing)
+			*ptr=ymdhms(*ptr, *ptr, tzfile::create(name));
 	}
 };
 

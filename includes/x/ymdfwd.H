@@ -727,12 +727,12 @@ public:
 
 	//! Serialization function
 
-	template<typename iter_type>
-	inline void serialize(iter_type &i)
+	template<typename ptr_type, typename iter_type>
+	static inline void serialize(ptr_type ptr, iter_type &i)
 	{
-		i(year);
-		i(month);
-		i(day);
+		i(ptr->year);
+		i(ptr->month);
+		i(ptr->day);
 	}
 };
 

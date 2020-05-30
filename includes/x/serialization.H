@@ -354,7 +354,7 @@ public:
 //! Helper macro for implementing serialization of enumerated classes
 
 #define LIBCXX_SERIALIZE_ENUMERATION(enum_t,native_int_t)			\
-	namespace ::LIBCXX_NAMESPACE::serialization {			\
+	namespace LIBCXX_NAMESPACE::serialization {			\
 		template<> class serialize_integer_type<enum_t> {	\
 		public:							\
 		typedef native_int_t int_t;				\
@@ -415,7 +415,9 @@ public:
 //! gets invoked to serialize or deserialize an object by repeatedly invoking
 //! iter(member).
 //!
-//! The default implementation calls \c value's serialize() template.
+//! The default implementation calls \c value's serialize() static template,
+//! passing it either a mutable or a constant pointer to the object.
+//!
 //! serialize_object_bytes may be specialized to define a serialize() template
 //! that's not a member of the given class.
 
@@ -431,7 +433,7 @@ public:
 			      //! Iterator for %serialization or deserialization
 			      iter_type &iter)
 	{
-		value.serialize(iter);
+		value.serialize(&value, iter);
 	}
 };
 

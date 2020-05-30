@@ -25,9 +25,10 @@ public:
 
 	// ... and serialized
 
-	template<typename iter_type> void serialize(iter_type &iter)
+	template<typename ptr_type, typename iter_type>
+	static void serialize(ptr_type ptr, iter_type &iter)
 	{
-		iter(argv);
+		iter(ptr->argv);
 	}
 
 	void dump() const
@@ -59,9 +60,10 @@ public:
 
 	ret_argsObj(const std::string &messageArg) : message(messageArg) {}
 
-	template<typename iter_type> void serialize(iter_type &iter)
+	template<typename ptr_type, typename iter_type>
+	static void serialize(ptr_type ptr, iter_type &iter)
 	{
-		iter(message);
+		iter(ptr->message);
 	}
 };
 

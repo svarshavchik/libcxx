@@ -214,6 +214,7 @@ public:
 	//! This helper object is made-up to look like a container, good enough
 	//! to be handled by container-oriented serialization templates.
 
+	template<typename ptr_type>
 	class serialize_helper {
 
 	public:
@@ -228,19 +229,17 @@ public:
 
 		//! Deserialization pointer
 
-		uint16_t *uptr;
+		ptr_type uptr;
 
 		//! Constructor
 
-		serialize_helper(uint16_t *ptrArg) noexcept : uptr(ptrArg)
+		serialize_helper(ptr_type ptrArg) noexcept : uptr{ptrArg}
 		{
 		}
 
 		//! Destructor
 
-		~serialize_helper()
-		{
-		}
+		~serialize_helper()=default;
 
 		//! A no-op clear() method of this pseudo-container
 
@@ -257,18 +256,22 @@ public:
 
 		//! The iterator for this pseudo-container
 
-		typedef const uint16_t *const_iterator;
+		typedef ptr_type const_iterator;
+
+		//! The iterator for this pseudo-container
+
+		typedef ptr_type iterator;
 
 		//! This pseudo-container's beginning iterator
 
-		const_iterator begin() const noexcept
+		auto begin() const noexcept
 		{
 			return uptr;
 		}
 
 		//! This pseudo-container's ending iterator
 
-		const_iterator end() const noexcept
+		auto end() const noexcept
 		{
 			return begin() + size();
 		}
@@ -276,7 +279,8 @@ public:
 
 	//! The serialization function
 
-	template<typename iter_type> void serialize(iter_type &);
+	template<typename ptr_type, typename iter_type>
+	static void serialize(ptr_type, iter_type &);
 
 private:
 
@@ -292,15 +296,15 @@ private:
 
 //! Implementation of traits for the uuid::serialize_helper pseudo-container
 
-template<>
-class container_traits_common<uuid::serialize_helper>
+template<typename T>
+class container_traits_common<uuid::serialize_helper<T>>
 	: public container_traits_sequence {
 
 public:
 
 	//! The reserve() implementation
 
-	static void reserve(uuid::serialize_helper &obj, size_t n)
+	static void reserve(uuid::serialize_helper<T> &obj, size_t n)
 
 	{
 		if (n != uuid::uuid_size)
@@ -309,7 +313,7 @@ public:
 
 	//! The insert_chk() implementation
 
-	static bool insert_chk(uuid::serialize_helper &c,
+	static bool insert_chk(uuid::serialize_helper<T> &c,
 			       const uint16_t &value) noexcept
 	{
 		*c.uptr++=value;
@@ -317,10 +321,11 @@ public:
 	}
 };
 
-template<typename iter_type> void uuid::serialize(iter_type &iter)
-
+template<typename ptr_type,
+	 typename iter_type> void uuid::serialize(ptr_type ptr,
+						  iter_type &iter)
 {
-	serialize_helper helper(val);
+	serialize_helper helper{ptr->val};
 
 	iter(helper);
 }

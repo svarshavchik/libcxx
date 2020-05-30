@@ -175,27 +175,25 @@ public:
 	int intvalue;
 	std::string stringvalue;
 
-	template<typename iter_type>
-	void serialize(iter_type &ser)
+	template<typename ptr_type, typename iter_type>
+	static void serialize(ptr_type ptr, iter_type &ser)
 	{
-		ser(intvalue);
-		ser(stringvalue);
+		ser(ptr->intvalue);
+		ser(ptr->stringvalue);
 	}
 };
 
-namespace LIBCXX_NAMESPACE {
-	namespace serialization {
+namespace LIBCXX_NAMESPACE::serialization {
 
-		template<>
-		class object_name<objectone> {
+	template<>
+	class object_name<objectone> {
 
-		public:
-			operator const char *() const noexcept
-			{
-				return "obj1";
-			}
-		};
-	}
+	public:
+		operator const char *() const noexcept
+		{
+			return "obj1";
+		}
+	};
 }
 
 void testserialize2()
@@ -314,10 +312,10 @@ public:
 	int intnum1;
 	int intnum2;
 
-	template<typename iter_type>
-	void serialize(iter_type &i)
+	template<typename ptr_type, typename iter_type>
+	static void serialize(ptr_type ptr, iter_type &i)
 	{
-		i(intnum1)(intnum2);
+		i(ptr->intnum1)(ptr->intnum2);
 	}
 };
 
@@ -336,10 +334,10 @@ public:
 	{
 	}
 
-	template<typename iter_type>
-	void serialize(iter_type &i)
+	template<typename ptr_type, typename iter_type>
+	static void serialize(ptr_type ptr, iter_type &i)
 	{
-		i(a)(b);
+		i(ptr->a)(ptr->b);
 	}
 };
 
@@ -430,10 +428,10 @@ class testserialize7_s {
 public:
 	std::string stringnum;
 
-	template<typename iter_type>
-	void serialize(iter_type &i)
+	template<typename ptr_type, typename iter_type>
+	static void serialize(ptr_type ptr, iter_type &i)
 	{
-		i(stringnum, 16);
+		i(ptr->stringnum, 16);
 	}
 };
 
@@ -485,10 +483,10 @@ public:
 	{
 	}
 
-	template<typename iter_type>
-	void serialize(iter_type &iter)
+	template<typename ptr_type, typename iter_type>
+	static void serialize(ptr_type ptr, iter_type &iter)
 	{
-		iter(n);
+		iter(ptr->n);
 	}
 };
 
@@ -506,10 +504,10 @@ public:
 	{
 	}
 
-	template<typename iter_type>
-	void serialize(iter_type &iter)
+	template<typename ptr_type, typename iter_type>
+	static void serialize(ptr_type ptr, iter_type &iter)
 	{
-		iter(s);
+		iter(ptr->s);
 	}
 };
 
