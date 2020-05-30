@@ -6,16 +6,15 @@
 #ifndef x_serializationfwd_H
 #define x_serializationfwd_H
 
-#include <x/namespace.h>
+#include <x/container_traits.H>
+#include <type_traits>
 
-namespace LIBCXX_NAMESPACE {
-
-
-	namespace serialization {
+namespace LIBCXX_NAMESPACE::serialization {
 #if 0
-	};
 };
 #endif
+
+template<typename int_type> class serialize_integer_type;
 
 //! Default serialization traits
 
@@ -36,10 +35,26 @@ public:
 	}
 };
 
+//! A datatype that can be serialized as an integer
+
+//! An integer type, with serialize_integer_type mapping known enums to
+//! integer values.
+template<typename T>
+concept serializable_integer=std::is_integral_v<
+	typename serialize_integer_type<T>::int_t>;
+
+//! A serializable floating point datatype.
+
+template<typename T>
+concept serializable_float=std::is_floating_point<T>::value;
+
+//! A serializable container.
+
+template<typename T>
+concept serializable_container=container_traits<T>::type != unknown_container;
+
 #if 0
 {
-	{
 #endif
-	}
 }
 #endif

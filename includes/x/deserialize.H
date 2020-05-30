@@ -20,36 +20,54 @@
 
 #include <x/exception.H>
 #include <x/serialization.H>
-#include <x/container_traits.H>
 #include <x/namespace.h>
 
-namespace LIBCXX_NAMESPACE {
+//! Object deserializing
 
-	//! Object deserializing
+//! This namespace defines the
+//! \ref deserialize::iterator "iterator" member class, a template for
+//! an %iterator that %deserializes objects from any STL input
+//! %iterator, and a pair of object() convenience functions.
+//!
+//! Other classes in this namespace are internal classes.
 
-	//! This namespace defines the
-	//! \ref deserialize::iterator "iterator" member class, a template for
-	//! an %iterator that %deserializes objects from any STL input
-	//! %iterator, and a pair of object() convenience functions.
-	//!
-	//! Other classes in this namespace are internal classes.
-
-	namespace deserialize {
-
+namespace LIBCXX_NAMESPACE::deserialize {
 #if 0
-	};
 };
 #endif
 
-//! Convenience typedef
-typedef serialization::datatype datatype;
+using namespace serialization;
 
-template<typename value_type> class deserialize_value;
+template<typename value_type> class deserialize_value_nonconst;
 
-template<bool iscontainer, typename container_type>
-class deserialize_container;
+//! %Deserialize a value
 
-template<typename object_type> class deserialize_object;
+//! Instantiate \c deserialize<T> to create an instance of an object that
+//! handles deserialization of T.
+//!
+//! First, call the \c verify_type(iter) method. It returns \c true if the
+//! deserialized signature matches the expected signature for T.
+//!
+//! Second, call the \c deserialize_type(value, iter) method to place the
+//! %deserialized value into \c value.
+//!
+//! If \c verify_iter() returned \c false, invoke \c output_type(o,flag) to
+//! write either the expected type, when \c flag is false, or the partially
+//! deserialized type, when \c flag is true, the mismatched type, onto the
+//! \c ostream o.
+//!
+//! Each specialized instance of deserialize_value also defines a class type,
+//! \c result_type, which is basically the deserialized type without any
+//! const qualifier. \c std::map and \c std::multimap contain \c std::pair
+//! values whose \c first member is a const value.
+//!
+//! In order for the first's parser to be able to actually deserialize something
+//! and place the deserialized value into the object, it needs to have its
+//! const qualifier stripped.
+
+template<typename value_type>
+using deserialize_value=
+	deserialize_value_nonconst<std::remove_cv_t<value_type>>;
 
 //! %Deserialized sequence cannot be converted to a floating point value
 
@@ -123,71 +141,12 @@ public:
 	}
 };
 
-template<typename value_type, typename=void> class deserialize_value_nonconst;
+//! Deserialize something that's not a container, perhaps it's an object
 
-//! %Deserialize a value
+template<typename object_type>
+class deserialize_value_nonconst {
 
-//! Instantiate \c deserialize<T> to create an instance of an object that
-//! handles deserialization of T.
-//!
-//! First, call the \c verify_type(iter) method. It returns \c true if the
-//! deserialized signature matches the expected signature for T.
-//!
-//! Second, call the \c deserialize_type(value, iter) method to place the
-//! %deserialized value into \c value.
-//!
-//! If \c verify_iter() returned \c false, invoke \c output_type(o,flag) to
-//! write either the expected type, when \c flag is false, or the partially
-//! deserialized type, when \c flag is true, the mismatched type, onto the
-//! \c ostream o.
-//!
-//! Each specialized instance of deserialize_value also defines a class type,
-//! \c result_type, which is basically the deserialized type without any
-//! const qualifier. \c std::map and \c std::multimap contain \c std::pair
-//! values whose \c first member is a const value.
-//!
-//! In order for the first's parser to be able to actually deserialize something
-//! and place the deserialized value into the object, it needs to have its
-//! const qualifier stripped.
-
-template<typename value_type> class deserialize_value
-	: public deserialize_value_nonconst<std::remove_const_t<value_type>> {
 public:
-	//! Default constructor
-	deserialize_value() noexcept=default;
-
-	//! Default destructor
-	~deserialize_value()=default;
-};
-
-//! After dropping the const-ness, figure out which specialization to use for deserialization
-
-template<typename value_type, typename> class deserialize_value_nonconst
-	: public deserialize_container< container_traits<value_type>::type !=
-					unknown_container, value_type> {
-public:
-	//! Default constructor
-
-	deserialize_value_nonconst() noexcept=default;
-
-	//! Default destructor
-	~deserialize_value_nonconst()=default;
-};
-
-//! %Deserialize a native integer type
-
-template<typename value_type>
-class deserialize_value_nonconst<value_type,
-				 std::void_t<std::enable_if_t
-					     <std::numeric_limits<
-						      typename serialization
-						      ::serialize_integer_type
-						      <value_type>
-						      ::int_t>
-					      ::is_integer>>> {
-
-	typedef typename serialization::serialize_integer_type<value_type>
-	::int_t native_value_type;
 
 	//! Succesful %deserialization of the signature
 	bool err_flag;
@@ -195,126 +154,61 @@ class deserialize_value_nonconst<value_type,
 	//! %Deserialization failed, deserialized a different type
 	datatype err_value;
 
-public:
-	//! The type code for this native integer type
-	static constexpr datatype
-	typecode=serialization::basic_type<native_value_type>::type;
-
-	//! The result type of the deserialization
-
-	typedef value_type result_type;
-
-	deserialize_value_nonconst() noexcept
-	: err_flag(false), err_value(typecode)
-	{
-	}
-
-	~deserialize_value_nonconst()=default;
-
-	//! Verify the type signature
+	//! Validate the expected object signature, the object's name
 
 	template<typename iter_type>
-	bool verify_type(//! The deserialization iterator
-			 iter_type &i)
+	bool verify_typename(//! Expected type name
+			     const char *cp,
+
+			     //! The deserialization iterator
+			     iter_type &i)
 	{
-		if ( (err_value=(datatype)i.get()) == typecode )
-			return true;
-
-		err_flag=true;
-		return false;
-	}
-
-	//! %Deserialize the object
-
-	template<typename iter_type>
-	void deserialize_type(//! Place %deserialized value here
-			      value_type &v,
-
-			      //! The deserialization iterator
-			      iter_type &i)
-	{
-		v=(value_type)
-			deserialize_bytestream<iter_type, native_value_type,
-					       sizeof(v)>
-			::deserialize(i);
-	}
-
-	//! Diagnostic function
-
-	bool output_type(std::ostream &o, bool err_type) noexcept
-	{
-		if (err_type && err_flag)
-		{
-			o << tname(err_value);
-			return true;
-		}
-
-		o << tname(typecode);
-
-		return false;
-	}
-};
-
-//! Deserialize something that's a container
-
-template<typename container_type>
-class deserialize_container<true, container_type> {
-
-	//! What's in the container
-	typedef typename container_type::value_type value_type;
-
-	//! Measure of the container's size
-	typedef typename container_type::size_type size_type;
-
-	//! A %deserializer for the iterator's value
-	deserialize_value<value_type> container_value;
-
-	//! Succesful %deserialization of the signature
-	bool err_flag;
-
-	//! %Deserialization failed, deserialized a different type
-	datatype err_value;
-
-	//! Maximum allowed sequence size
-
-	uint32_t maxseqsizevalue;
-
-public:
-
-	//! The deserialized object type
-
-	typedef container_type result_type;
-
-	deserialize_container() noexcept : err_flag(false),
-		err_value(serialization::tsequence),
-		maxseqsizevalue(std::numeric_limits<uint32_t>::max())
-	{
-	}
-
-	~deserialize_container()
-	{
-	}
-
-	//! Set maximum container size
-
-	void max(uint32_t maxValue) noexcept
-	{
-		maxseqsizevalue=maxValue;
-	}
-
-	//! Verify the type signature
-
-	template<typename iter_type>
-	bool verify_type(//! The deserialization iterator
-			 iter_type &i)
-	{
-		if ( (err_value=(datatype)i.get()) != serialization::tsequence )
+		if ( (err_value=(datatype)i.get()) != serialization::tobject )
 		{
 			err_flag=true;
 			return false;
 		}
 
-		return container_value.verify_type(i);
+		uint16_t len(deserialize_bytestream<iter_type, uint16_t,
+			     sizeof(uint16_t)>::deserialize(i));
+
+		if (len != strlen(cp))
+		{
+			err_flag=true;
+			return false;
+		}
+
+		while (*cp)
+		{
+			if (*cp++ != (char)i.get())
+			{
+				err_flag=true;
+				return false;
+			}
+		}
+
+		return true;
+	}
+
+public:
+	//! The deserialized object type
+
+	typedef object_type result_type;
+
+	deserialize_value_nonconst() noexcept : err_flag(false),
+		err_value(serialization::tobject)
+	{
+	}
+
+	~deserialize_value_nonconst()=default;
+
+	//! Verify the type signature
+
+	template<typename iter_type>
+	bool verify_type(//! The deserialization iterator
+			 iter_type &i)
+	{
+		return verify_typename(serialization::object_name<object_type>(), i);
 	}
 
 	//! %Deserialize the object
@@ -326,36 +220,7 @@ public:
 			      //! The deserialization iterator
 			      iter_type &i)
 	{
-		value.clear();
-
-		uint32_t seqsize(deserialize_bytestream<iter_type, uint32_t,
-				 sizeof(uint32_t)>
-				 ::deserialize(i));
-
-		size_type seqsizet(seqsize);
-
-		if (seqsizet != seqsize || seqsize > maxseqsizevalue)
-			serialization::container_toolong();
-
-		container_traits<container_type>::reserve(value, seqsizet);
-
-		while (seqsizet)
-		{
-			typename deserialize_value<value_type>::result_type
-				result_type;
-
-			container_value.deserialize_type(result_type, i);
-
-			if (!container_traits<container_type>
-			    ::insert_chk(value, result_type))
-			{
-				std::ostringstream o;
-
-				output_type(o, false);
-				deserialization_failure(o.str());
-			}
-			--seqsizet;
-		}
+		serialization::serialize_object_bytes<result_type>::serialize(value, i);
 	}
 
 	//! Diagnostic function
@@ -368,95 +233,10 @@ public:
 			return true;
 		}
 
-		o << "SEQUENCE[";
+		o << "OBJECT<" << serialization::object_name<object_type>()
+		  << ">";
 
-		if (container_value.output_type(o, err_type) && err_type)
-			return true;
-
-		o << "]";
 		return false;
-	}
-};
-//! Deserialize something that's not a container, perhaps it's an object
-
-template<typename value_type>
-class deserialize_container<false, value_type>
-	: public deserialize_object<value_type> {
-public:
-	deserialize_container() noexcept
-	{
-	}
-
-	~deserialize_container()
-	{
-	}
-};
-
-//! Deserialize a native float value
-
-template<typename value_type>
-class deserialize_value_nonconst<value_type,
-				 std::void_t<std::enable_if_t
-					     <std::numeric_limits<value_type>
-					      ::is_specialized &&
-					      !std::numeric_limits<value_type>
-					      ::is_integer>>> {
-
-	//! The actual deserialized type is a \c std::string
-
-	deserialize_container<true, std::string> impl;
-
-public:
-	//! The deserialized object type
-
-	typedef value_type result_type;
-
-	//! Constructor
-	deserialize_value_nonconst() noexcept=default;
-
-	//! Destructor
-	~deserialize_value_nonconst()=default;
-
-	//! Verify the type signature
-
-	template<typename iter_type>
-	bool verify_type(//! The deserialization iterator
-			 iter_type &i)
-	{
-		return impl.verify_type(i);
-	}
-
-	//! %Deserialize the object
-
-	template<typename iter_type>
-	void deserialize_type(//! Place %deserialized value here
-			      result_type &value,
-
-			      //! The deserialization iterator
-			      iter_type &i)
-	{
-		std::string strvalue;
-
-		impl.deserialize_type(strvalue, i);
-
-		std::istringstream iss(strvalue);
-
-		std::ios_base::iostate state(std::ios_base::goodbit);
-
-		std::use_facet<std::num_get<char> >(std::locale("C"))
-			.get(std::istreambuf_iterator<char>(iss.rdbuf()),
-			     std::istreambuf_iterator<char>(),
-			     iss, state, value);
-
-		if (state & std::ios_base::failbit)
-			floatmismatch(strvalue);
-	}
-
-	//! Diagnostic function
-
-	bool output_type(std::ostream &o, bool err_type) noexcept
-	{
-		return impl.output_type(o, err_type);
 	}
 };
 
@@ -675,10 +455,268 @@ class deserialize_value_nonconst< std::reference_wrapper<T> >
 	: public deserialize_value<T> {
 };
 
+//! %Deserialize a native integer type
+
+template<serializable_integer value_type>
+class deserialize_value_nonconst<value_type> {
+
+	typedef typename serialization::serialize_integer_type<value_type>
+	::int_t native_value_type;
+
+	//! Succesful %deserialization of the signature
+	bool err_flag;
+
+	//! %Deserialization failed, deserialized a different type
+	datatype err_value;
+
+public:
+	//! The type code for this native integer type
+	static constexpr datatype
+	typecode=serialization::basic_type<native_value_type>::type;
+
+	//! The result type of the deserialization
+
+	typedef value_type result_type;
+
+	deserialize_value_nonconst() noexcept
+	: err_flag(false), err_value(typecode)
+	{
+	}
+
+	~deserialize_value_nonconst()=default;
+
+	//! Verify the type signature
+
+	template<typename iter_type>
+	bool verify_type(//! The deserialization iterator
+			 iter_type &i)
+	{
+		if ( (err_value=(datatype)i.get()) == typecode )
+			return true;
+
+		err_flag=true;
+		return false;
+	}
+
+	//! %Deserialize the object
+
+	template<typename iter_type>
+	void deserialize_type(//! Place %deserialized value here
+			      value_type &v,
+
+			      //! The deserialization iterator
+			      iter_type &i)
+	{
+		v=(value_type)
+			deserialize_bytestream<iter_type, native_value_type,
+					       sizeof(v)>
+			::deserialize(i);
+	}
+
+	//! Diagnostic function
+
+	bool output_type(std::ostream &o, bool err_type) noexcept
+	{
+		if (err_type && err_flag)
+		{
+			o << tname(err_value);
+			return true;
+		}
+
+		o << tname(typecode);
+
+		return false;
+	}
+};
+
+//! Deserialize something that's a container
+
+template<serializable_container container_type>
+class deserialize_value_nonconst<container_type> {
+
+	//! What's in the container
+	typedef typename container_type::value_type value_type;
+
+	//! Measure of the container's size
+	typedef typename container_type::size_type size_type;
+
+	//! A %deserializer for the iterator's value
+	deserialize_value<value_type> container_value;
+
+	//! Succesful %deserialization of the signature
+	bool err_flag;
+
+	//! %Deserialization failed, deserialized a different type
+	datatype err_value;
+
+	//! Maximum allowed sequence size
+
+	uint32_t maxseqsizevalue;
+
+public:
+
+	//! The deserialized object type
+
+	typedef container_type result_type;
+
+	deserialize_value_nonconst() noexcept : err_flag(false),
+		err_value(serialization::tsequence),
+		maxseqsizevalue(std::numeric_limits<uint32_t>::max())
+	{
+	}
+
+	~deserialize_value_nonconst()=default;
+
+	//! Set maximum container size
+
+	void max(uint32_t maxValue) noexcept
+	{
+		maxseqsizevalue=maxValue;
+	}
+
+	//! Verify the type signature
+
+	template<typename iter_type>
+	bool verify_type(//! The deserialization iterator
+			 iter_type &i)
+	{
+		if ( (err_value=(datatype)i.get()) != serialization::tsequence )
+		{
+			err_flag=true;
+			return false;
+		}
+
+		return container_value.verify_type(i);
+	}
+
+	//! %Deserialize the object
+
+	template<typename iter_type>
+	void deserialize_type(//! Place %deserialized value here
+			      result_type &value,
+
+			      //! The deserialization iterator
+			      iter_type &i)
+	{
+		value.clear();
+
+		uint32_t seqsize(deserialize_bytestream<iter_type, uint32_t,
+				 sizeof(uint32_t)>
+				 ::deserialize(i));
+
+		size_type seqsizet(seqsize);
+
+		if (seqsizet != seqsize || seqsize > maxseqsizevalue)
+			serialization::container_toolong();
+
+		container_traits<container_type>::reserve(value, seqsizet);
+
+		while (seqsizet)
+		{
+			typename deserialize_value<value_type>::result_type
+				result_type;
+
+			container_value.deserialize_type(result_type, i);
+
+			if (!container_traits<container_type>
+			    ::insert_chk(value, result_type))
+			{
+				std::ostringstream o;
+
+				output_type(o, false);
+				deserialization_failure(o.str());
+			}
+			--seqsizet;
+		}
+	}
+
+	//! Diagnostic function
+
+	bool output_type(std::ostream &o, bool err_type) noexcept
+	{
+		if (err_type && err_flag)
+		{
+			o << tname(err_value);
+			return true;
+		}
+
+		o << "SEQUENCE[";
+
+		if (container_value.output_type(o, err_type) && err_type)
+			return true;
+
+		o << "]";
+		return false;
+	}
+};
+
+//! Deserialize a native float value
+
+template<serializable_float value_type>
+class deserialize_value_nonconst<value_type> {
+
+	//! The actual deserialized type is a \c std::string
+
+	deserialize_value<std::string> impl;
+
+public:
+	//! The deserialized object type
+
+	typedef value_type result_type;
+
+	//! Constructor
+	deserialize_value_nonconst() noexcept=default;
+
+	//! Destructor
+	~deserialize_value_nonconst()=default;
+
+	//! Verify the type signature
+
+	template<typename iter_type>
+	bool verify_type(//! The deserialization iterator
+			 iter_type &i)
+	{
+		return impl.verify_type(i);
+	}
+
+	//! %Deserialize the object
+
+	template<typename iter_type>
+	void deserialize_type(//! Place %deserialized value here
+			      result_type &value,
+
+			      //! The deserialization iterator
+			      iter_type &i)
+	{
+		std::string strvalue;
+
+		impl.deserialize_type(strvalue, i);
+
+		std::istringstream iss(strvalue);
+
+		std::ios_base::iostate state(std::ios_base::goodbit);
+
+		std::use_facet<std::num_get<char> >(std::locale("C"))
+			.get(std::istreambuf_iterator<char>(iss.rdbuf()),
+			     std::istreambuf_iterator<char>(),
+			     iss, state, value);
+
+		if (state & std::ios_base::failbit)
+			floatmismatch(strvalue);
+	}
+
+	//! Diagnostic function
+
+	bool output_type(std::ostream &o, bool err_type) noexcept
+	{
+		return impl.output_type(o, err_type);
+	}
+};
+
 //! Deserialize an object pointer
 
 template<typename obj_type, typename base_type>
-class deserialize_value<ptr<obj_type, base_type> > {
+class deserialize_value_nonconst<ptr<obj_type, base_type> > {
 
 	//! Succesful %deserialization of the signature
 	bool err_flag;
@@ -695,14 +733,12 @@ public:
 
 	typedef std::remove_const_t<ptr<obj_type, base_type> > result_type;
 
-	deserialize_value() noexcept : err_flag(false),
+	deserialize_value_nonconst() noexcept : err_flag(false),
 		err_value(serialization::treference)
 	{
 	}
 
-	~deserialize_value()
-	{
-	}
+	~deserialize_value_nonconst()=default;
 
 	//! Verify the type signature
 
@@ -759,7 +795,7 @@ public:
 //! Deserialize an object reference, similar to a pointer, except for a call to classcreate().
 
 template<typename obj_type, typename base_type>
-class deserialize_value<ref<obj_type, base_type> > {
+class deserialize_value_nonconst<ref<obj_type, base_type> > {
 
 	//! Succesful %deserialization of the signature
 	bool err_flag;
@@ -777,14 +813,12 @@ public:
 	typedef typename std::remove_const_t<ref<obj_type, base_type>
 					     > result_type;
 
-	deserialize_value() noexcept : err_flag(false),
+	deserialize_value_nonconst() noexcept : err_flag(false),
 		err_value(serialization::treference)
 	{
 	}
 
-	~deserialize_value()
-	{
-	}
+	~deserialize_value_nonconst()=default;
 
 	//! Verify the type signature
 
@@ -837,105 +871,6 @@ public:
 		return flag;
 	}
 
-};
-
-//! Deserialize an object
-
-template<typename object_type>
-class deserialize_object {
-
-	//! Succesful %deserialization of the signature
-	bool err_flag;
-
-	//! %Deserialization failed, deserialized a different type
-	datatype err_value;
-
-	//! Validate the expected object signature, the object's name
-
-	template<typename iter_type>
-	bool verify_typename(//! Expected type name
-			     const char *cp,
-
-			     //! The deserialization iterator
-			     iter_type &i)
-	{
-		if ( (err_value=(datatype)i.get()) != serialization::tobject )
-		{
-			err_flag=true;
-			return false;
-		}
-
-		uint16_t len(deserialize_bytestream<iter_type, uint16_t,
-			     sizeof(uint16_t)>::deserialize(i));
-
-		if (len != strlen(cp))
-		{
-			err_flag=true;
-			return false;
-		}
-
-		while (*cp)
-		{
-			if (*cp++ != (char)i.get())
-			{
-				err_flag=true;
-				return false;
-			}
-		}
-
-		return true;
-	}
-
-public:
-	//! The deserialized object type
-
-	typedef std::remove_const_t<object_type> result_type;
-
-	deserialize_object() noexcept : err_flag(false),
-		err_value(serialization::tobject)
-	{
-	}
-
-	~deserialize_object()
-	{
-	}
-
-	//! Verify the type signature
-
-	template<typename iter_type>
-	bool verify_type(//! The deserialization iterator
-			 iter_type &i)
-	{
-		return verify_typename(serialization::object_name<object_type>(), i);
-	}
-
-	//! %Deserialize the object
-
-	template<typename iter_type>
-	void deserialize_type(//! Place %deserialized value here
-			      result_type &value,
-
-			      //! The deserialization iterator
-			      iter_type &i)
-	{
-		serialization::serialize_object_bytes<result_type>::serialize(value, i);
-	}
-
-	//! Diagnostic function
-
-	bool output_type(std::ostream &o, bool err_type) noexcept
-	{
-		if (err_type && err_flag)
-		{
-			o << tname(err_value);
-			return true;
-		}
-
-		o << "OBJECT<" << serialization::object_name<object_type>()
-		  << ">";
-
-		return false;
-	}
 };
 
 //! Deserialize the name of an object
@@ -1314,8 +1249,6 @@ static void object(//! Object to %deserialize
 
 #if 0
 {
-	{
 #endif
-	}
 }
 #endif

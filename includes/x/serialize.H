@@ -21,41 +21,31 @@
 #include <x/container_traits.H>
 #include <x/namespace.h>
 
-namespace LIBCXX_NAMESPACE {
+//! Object serializing
 
-	//! Object serializing
+//! This namespace defines the \ref serialize::iterator "iterator"
+//! template,
+//! an %iterator that %serializes objects into any STL output
+//! %iterator that iterators over chars.
+//! an %iterator specialization that consumes the serialized bytestream
+//! and counts how many bytes were produced; and
+//! a pair of object() convenience functions,
+//!
+//! Other classes in this namespace are internal classes.
 
-	//! This namespace defines the \ref serialize::iterator "iterator"
-	//! template,
-	//! an %iterator that %serializes objects into any STL output
-	//! %iterator that iterators over chars.
-	//! an %iterator specialization that consumes the serialized bytestream
-	//! and counts how many bytes were produced; and
-	//! a pair of object() convenience functions,
-	//!
-	//! Other classes in this namespace are internal classes.
-
-	namespace serialize {
-
+namespace LIBCXX_NAMESPACE::serialize {
 #if 0
-	};
 };
 #endif
 
-template<typename value_type> class serialize_value;
-
-template<bool iscontainer, typename value_type>
-class serialize_container;
-
-template<typename value_type>
-class serialize_object;
+using namespace serialization;
 
 //! Helper for serializing a sequence defined by beginning/ending random access iterators
 
-//! This objects takes a beginning and an ending iterators, and turns them into
+//! This object takes a beginning and an ending iterator, and turns them into
 //! something that pretends to be a container well enough to be serializable
 //! so that
-//! \c serialize_container<true,T> does the right thing.
+//! \c serialize_value<T> does the right thing.
 
 template<typename iter_type_t, typename value_type_t>
 class serialize_be_helper {
@@ -167,7 +157,70 @@ public:
 	}
 };
 
-template<typename value_type, typename=void> class serialize_value_nonconst;
+//! %Serialize an object
+
+template<typename value_type>
+class serialize_value_nonconst {
+
+	//! %Serialize the name of a class
+
+	//! The 16 bit class name length is serialized, followed by the
+	//! bytes of the class name.
+
+	template <typename iter_type>
+	static void serialize_typename(//! Class name
+				       const char *cp,
+
+				       //! Output iterator
+				       iter_type &i)
+	{
+		size_t l=strlen(cp);
+		uint16_t l16=l;
+
+		if (l == 0)
+			serialization::classname_empty();
+		if (l16 != l)
+			serialization::classname_toolong(cp);
+
+		*i++ = (uint8_t)serialization::tobject;
+		serialize_bytestream<uint16_t, iter_type,
+			sizeof(uint16_t)>::serialize(i, l16);
+		while (*cp)
+		{
+			*i++ = (uint8_t)*cp++;
+		}
+	}
+
+public:
+
+	//! %Serialize the type of an object
+
+	template <typename iter_type>
+	static void serialize_type(//! Output iterator
+				   iter_type &i)
+	{
+		serialize_typename(serialization::object_name<value_type>(), i);
+	}
+
+	//! %Serialize the value of an object
+
+	template <typename iter_type, typename serialize_toiter_type>
+	static void serialize_bytes(//! Output iterator
+				    iter_type &iter,
+
+				    //! The object to serialize
+				    const value_type &value,
+
+				    //! Serialization_object
+				    serialize_toiter_type &toiter
+
+				    )
+	{
+		serialization::serialize_object_bytes<value_type>
+			::serialize(const_cast<value_type &>(value), toiter);
+	}
+};
+
 
 //! %Serialize an object
 
@@ -176,35 +229,15 @@ template<typename value_type, typename=void> class serialize_value_nonconst;
 //! serialize_value<T>::serialize_bytes(iter, value, serialize_iter)
 //! to %serialize an instance of T itself.
 
-template<typename value_type> class serialize_value
-	: public serialize_value_nonconst<std::remove_const_t<value_type>> {
-};
-
-//! After dropping the const-ness, figure out which specialization to use for serialization
-
-//! This default implementation inherits from serialize_container, and is
-//! specialized for integer and float types.
-
-template<typename value_type, typename> class serialize_value_nonconst
-	: public serialize_container<container_traits<value_type>::type !=
-				     unknown_container, value_type>
-{
-};
+template<typename value_type>
+using serialize_value=serialize_value_nonconst<std::remove_cv_t<value_type>>;
 
 //! Try serializing something that looks like a native integer type
 
 //! \see serialize_value
 //!
-template<typename value_type>
-class serialize_value_nonconst<value_type,
-			       std::void_t<std::enable_if_t
-					   <std::numeric_limits<
-						    typename serialization
-						    ::serialize_integer_type
-						    <value_type>
-						    ::int_t>
-					    ::is_integer>>> {
-
+template<serializable_integer value_type>
+class serialize_value_nonconst<value_type> {
 public:
 	typedef typename serialization::serialize_integer_type<value_type>
 	::int_t native_value_type;
@@ -228,9 +261,7 @@ public:
 				    const value_type &value,
 
 				    //! Serialization_object
-				    serialize_toiter_type &toiter
-
-				    )
+				    serialize_toiter_type &toiter)
 	{
 		serialize_bytestream<native_value_type, iter_type,
 				     sizeof(value_type)>
@@ -242,8 +273,8 @@ public:
 
 //! \see serialize_value
 //!
-template<typename container_type>
-class serialize_container<true, container_type> {
+template<serializable_container container_type>
+class serialize_value_nonconst<container_type> {
 
 	//! The container's value
 	typedef typename container_type::value_type value_type;
@@ -263,12 +294,14 @@ public:
 
 	//! %Serialize the contents of the container
 
-	template<typename iter_type, typename serialize_toiter_type>
+	template<typename iter_type,
+		 typename container_value_type,
+		 typename serialize_toiter_type>
 	static void serialize_bytes(//! Output iterator
 				    iter_type &i,
 
 				    //! The container
-				    const container_type &value,
+				    container_value_type &&value,
 
 				    //! Serialization_object
 				    serialize_toiter_type &toiter
@@ -276,7 +309,7 @@ public:
 				    )
 
 	{
-		typename container_type::size_type s(value.size());
+		auto s=value.size();
 
 		uint32_t seqsize(s);
 
@@ -286,26 +319,14 @@ public:
 		serialize_bytestream<uint32_t, iter_type, sizeof(uint32_t)>
 			::serialize(i, seqsize);
 
-		typename container_type::const_iterator
-			b(value.begin()),
-			e(value.end());
+		auto b=value.begin(), e=value.end();
 
 		while (b != e)
 		{
-			serialize_value<value_type>::serialize_bytes(i, *b++,
-								     toiter);
+			serialize_value<std::remove_cvref_t<decltype(*b)>
+					>::serialize_bytes(i, *b++, toiter);
 		}
 	}
-};
-
-//! %Serialize something that's not a container
-
-//! \see serialize_value
-//!
-template<typename value_type>
-class serialize_container<false, value_type>
-	: public serialize_object<value_type> {
-
 };
 
 //! %Serialize a native float value
@@ -313,13 +334,8 @@ class serialize_container<false, value_type>
 //! floats are serialized as strings, and are type-compatible with std::string.
 //! \see serialize_value
 //!
-template<typename value_type>
-class serialize_value_nonconst<value_type,
-			       std::void_t<std::enable_if_t
-					   <std::numeric_limits<value_type>
-					    ::is_specialized &&
-					    !std::numeric_limits<value_type>
-					    ::is_integer>>> {
+template<serializable_float value_type>
+class serialize_value_nonconst<value_type> {
 public:
 
 	//! %Serialize the native float type
@@ -330,7 +346,7 @@ public:
 	static void serialize_type(//! Output iterator
 				   iter_type &i)
 	{
-		serialize_container<true, std::string>::serialize_type(i);
+		serialize_value<std::string>::serialize_type(i);
 	}
 
 	//! %Serialize the float's value
@@ -364,7 +380,7 @@ public:
 
 		// Use std::string for the heavy lifting
 
-		serialize_container<true, std::string>
+		serialize_value<std::string>
 			::serialize_bytes(i, s.str(), toiter);
 	}
 
@@ -493,81 +509,12 @@ public:
 	}
 };
 
-
-//! %Serialize something that's not a native type, nor a container
-
-//! It must be a class object.
-//!
-//! \see serialize_value
-//!
-template<typename value_type>
-class serialize_object {
-
-	//! %Serialize the name of a class
-
-	//! The 16 bit class name length is serialized, followed by the
-	//! bytes of the class name.
-
-	template <typename iter_type>
-	static void serialize_typename(//! Class name
-				       const char *cp,
-
-				       //! Output iterator
-				       iter_type &i)
-	{
-		size_t l=strlen(cp);
-		uint16_t l16=l;
-
-		if (l == 0)
-			serialization::classname_empty();
-		if (l16 != l)
-			serialization::classname_toolong(cp);
-
-		*i++ = (uint8_t)serialization::tobject;
-		serialize_bytestream<uint16_t, iter_type,
-			sizeof(uint16_t)>::serialize(i, l16);
-		while (*cp)
-		{
-			*i++ = (uint8_t)*cp++;
-		}
-	}
-
-public:
-
-	//! %Serialize the type of an object
-
-	template <typename iter_type>
-	static void serialize_type(//! Output iterator
-				   iter_type &i)
-	{
-		serialize_typename(serialization::object_name<value_type>(), i);
-	}
-
-	//! %Serialize the value of an object
-
-	template <typename iter_type, typename serialize_toiter_type>
-	static void serialize_bytes(//! Output iterator
-				    iter_type &iter,
-
-				    //! The object to serialize
-				    const value_type &value,
-
-				    //! Serialization_object
-				    serialize_toiter_type &toiter
-
-				    )
-	{
-		serialization::serialize_object_bytes<value_type>
-			::serialize(const_cast<value_type &>(value), toiter);
-	}
-};
-
 //! Specialization for serializing a native string type
 
 //! \see serialize_value
 //!
 template<>
-class serialize_value<const char *> {
+class serialize_value_nonconst<const char *> {
 
 public:
 	//! %Serialize the type of a literal string
@@ -579,9 +526,7 @@ public:
 	static void serialize_type(//! Output iterator
 				   iter_type &iter)
 	{
-		serialize_container<true,
-			serialize_be_helper<const char *, char> >
-			::serialize_type(iter);
+		serialize_value<std::string>::serialize_type(iter);
 	}
 
 	//! %Serialize the value of a literal string
@@ -604,8 +549,7 @@ public:
 		serialize_be_helper<const char *, char>
 			helper(str, str+strlen(str));
 
-		serialize_container<true,
-			serialize_be_helper<const char *, char> >
+		serialize_value<std::string>
 			::serialize_bytes(iter, helper, toiter);
 	}
 };
@@ -616,7 +560,8 @@ public:
 //! \see serialize_value
 //!
 template<size_t n>
-class serialize_value<const char[n]> : public serialize_value<const char *> {
+class serialize_value_nonconst<const char[n]>
+	: public serialize_value_nonconst<const char *> {
 };
 
 //! Specialization for serializing a native string type
@@ -624,7 +569,8 @@ class serialize_value<const char[n]> : public serialize_value<const char *> {
 //! \see serialize_value
 //!
 template<size_t n>
-class serialize_value<char[n]> : public serialize_value<const char *> {
+class serialize_value_nonconst<char[n]>
+	: public serialize_value_nonconst<const char *> {
 };
 
 //! %Serialize a pointer to an object
@@ -632,7 +578,7 @@ class serialize_value<char[n]> : public serialize_value<const char *> {
 //! \see serialize_value
 //!
 template<typename obj_type, typename base_type>
-class serialize_value<ptr<obj_type, base_type> > {
+class serialize_value_nonconst<ptr<obj_type, base_type> > {
 
 public:
 
@@ -676,7 +622,7 @@ public:
 //! %Serialize a reference to an object, similar to ptr, but we know we always have the object.
 
 template<typename obj_type, typename base_type>
-class serialize_value<ref<obj_type, base_type> > {
+class serialize_value_nonconst<ref<obj_type, base_type> > {
 
 public:
 
@@ -713,12 +659,12 @@ public:
 };
 
 template<typename obj_type, typename base_type>
-class serialize_value<const_ptr<obj_type, base_type> >
-	: public serialize_value<ptr<obj_type, base_type> > {};
+class serialize_value_nonconst<const_ptr<obj_type, base_type> >
+	: public serialize_value_nonconst<ptr<obj_type, base_type> > {};
 
 template<typename obj_type, typename base_type>
-class serialize_value<const_ref<obj_type, base_type> >
-	: public serialize_value<ref<obj_type, base_type> > {};
+class serialize_value_nonconst<const_ref<obj_type, base_type> >
+	: public serialize_value_nonconst<ref<obj_type, base_type> > {};
 
 //! A minimal output iterator that counts the serialized bytes
 
@@ -887,15 +833,19 @@ public:
 				   const seq_iter_type &e)
 
 	{
-		typedef serialize_be_helper<seq_iter_type,
-					    typename seq_iter_type::value_type> helper_t;
+		typedef typename
+			std::iterator_traits<seq_iter_type>::value_type
+			value_type;
 
-		typedef serialize_container<true, helper_t>
-			serialize_value_t;
+		typedef serialize_be_helper<seq_iter_type, value_type
+					    > helper_t;
+
+		typedef serialize_value<std::vector<value_type>
+					> serialize_value_t;
 
 		serialize_value_t::serialize_type(iter);
 
-		helper_t helper(b, e);
+		helper_t helper{b, e};
 
 		serialize_value_t::serialize_bytes(iter, helper, *this);
 
@@ -988,8 +938,6 @@ static size_t object(const object_type &obj)
 
 #if 0
 {
-	{
 #endif
-	}
 }
 #endif

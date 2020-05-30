@@ -12,6 +12,8 @@
 #include <vector>
 #include <map>
 #include <set>
+#include <unordered_set>
+#include <unordered_map>
 #include <x/namespace.h>
 
 namespace LIBCXX_NAMESPACE {
@@ -350,6 +352,130 @@ public:
 	static void reserve(std::multiset<key_type, compare_type,
 			    allocator_type> &c,
 			    typename std::multiset<key_type, compare_type,
+			    allocator_type>::size_type s) noexcept
+	{
+	}
+};
+
+//! A \c std::unordered_map specialization
+
+//! \see container_traits
+//!
+template <class key_type, class value_type, class compare_type,
+          class allocator_type>
+class container_traits_common<std::unordered_map<key_type, value_type,
+						 compare_type,
+						 allocator_type> >
+	: public container_traits_associative {
+public:
+	//! The insert_chk() implementation
+
+	static bool insert_chk(std::unordered_map<key_type, value_type,
+			       compare_type,
+			       allocator_type> &c,
+			       const std::pair<key_type, value_type>
+			       &value) noexcept
+	{
+		return c.insert(value).second;
+	}
+
+	//! The reserve() implementation
+
+	static void reserve(std::unordered_map<key_type, value_type,
+			    compare_type,
+			    allocator_type> &c,
+			    typename std::unordered_map<key_type, value_type,
+			    compare_type, allocator_type>::size_type s) noexcept
+	{
+	}
+};
+
+//! A \c std::unordered_multimap specialization
+
+//! \see container_traits
+//!
+template <class key_type, class value_type, class compare_type,
+          class allocator_type>
+class container_traits_common<std::unordered_multimap<key_type, value_type,
+						      compare_type,
+						      allocator_type> >
+	: public container_traits_associative {
+public:
+	//! The insert_chk() implementation
+
+	static bool insert_chk(std::unordered_multimap<key_type, value_type,
+			       compare_type,
+			       allocator_type> &c,
+			       const std::pair<key_type, value_type>
+			       &value) noexcept
+	{
+		c.insert(value);
+		return true;
+	}
+	//! The reserve() implementation
+
+	static void reserve(std::unordered_multimap<key_type, value_type, compare_type,
+			    allocator_type> &c,
+			    typename std::unordered_multimap<key_type,
+			    value_type,
+			    compare_type, allocator_type>::size_type s)
+		noexcept
+	{
+	}
+};
+
+//! A \c std::unordered_set specialization
+
+//! \see container_traits
+//!
+template <class key_type, class compare_type, class allocator_type>
+class container_traits_common<std::unordered_set<key_type, compare_type,
+				       allocator_type> >
+	: public container_traits_associative {
+public:
+	//! The insert_chk() implementation
+
+	static bool insert_chk(std::unordered_set<key_type, compare_type,
+			       allocator_type> &c,
+			       const key_type &value) noexcept
+	{
+		return c.insert(value).second;
+	}
+	//! The reserve() implementation
+
+	static void reserve(std::unordered_set<key_type, compare_type,
+			    allocator_type> &c,
+			    typename std::unordered_set<key_type, compare_type,
+			    allocator_type>::size_type s) noexcept
+	{
+	}
+};
+
+//! A \c std::unordered_multiset specialization
+
+//! \see container_traits
+//!
+template <class key_type, class compare_type, class allocator_type>
+class container_traits_common<std::unordered_multiset<key_type, compare_type,
+					    allocator_type> >
+	: public container_traits_associative {
+public:
+	//! The insert_chk() implementation
+
+	static bool insert_chk(std::unordered_multiset<key_type, compare_type,
+			       allocator_type> &c,
+			       const key_type &value) noexcept
+	{
+		c.insert(value);
+		return true;
+	}
+
+	//! The reserve() implementation
+
+	static void reserve(std::unordered_multiset<key_type, compare_type,
+			    allocator_type> &c,
+			    typename std::unordered_multiset<key_type,
+			    compare_type,
 			    allocator_type>::size_type s) noexcept
 	{
 	}
