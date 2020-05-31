@@ -7,6 +7,7 @@
 #define x_eventdestroynotify_H
 
 #include <x/eventdestroynotifyobj.H>
+#include <x/weakptr.H>
 #include <x/namespace.h>
 
 namespace LIBCXX_NAMESPACE {
@@ -23,7 +24,7 @@ class eventdestroynotifyBase;
 //! INSERT_LIBX_NAMESPACE::eventfd eventfd=INSERT_LIBX_NAMESPACE::eventfd::create();
 //!
 //! INSERT_LIBX_NAMESPACE::ref<INSERT_LIBX_NAMESPACE::obj> mcguffin=INSERT_LIBX_NAMESPACE::ref<INSERT_LIBX_NAMESPACE::obj>::create();
-//! 
+//!
 //! INSERT_LIBX_NAMESPACE::eventdestroynotify notify=
 //!     INSERT_LIBX_NAMESPACE::eventdestroynotify::create(eventfd, mcguffin);
 //! \endcode

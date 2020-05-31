@@ -5,6 +5,7 @@
 
 #include "libcxx_config.h"
 #include "x/destroy_callback_wait4.H"
+#include "x/ondestroy.H"
 
 namespace LIBCXX_NAMESPACE {
 #if 0

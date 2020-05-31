@@ -6,6 +6,7 @@
 #include "libcxx_config.h"
 #include "x/ondestroy.H"
 #include "x/exception.H"
+#include "weakinfo.H"
 #include <cstdlib>
 #include <iostream>
 
@@ -14,7 +15,7 @@ namespace LIBCXX_NAMESPACE {
 };
 #endif
 
-ondestroy ondestroyBase::do_create(const ref<obj::destroyCallbackObj> &cb,
+ondestroy ondestroyBase::do_create(const ondestroy_cb_t &cb,
 				   const ref<obj> &objArg,
 				   bool autodestroy)
 {
@@ -22,12 +23,12 @@ ondestroy ondestroyBase::do_create(const ref<obj::destroyCallbackObj> &cb,
 							 autodestroy);
 }
 
-ondestroyObj::ondestroyObj(const ref<destroyCallbackObj> &cbArg,
+ondestroyObj::ondestroyObj(const ondestroy_cb_t &cbArg,
 			   const ref<obj> &objArg,
 			   bool autodestroyArg)
-	: cb(cbArg), wi(objArg->weak()),
-	  wi_cb_iter(objArg->do_add_ondestroy(cbArg)),
-	  autodestroy(autodestroyArg)
+	: cb{cbArg}, wi{objArg->get_weak()},
+	  wi_cb_iter{objArg->do_add_ondestroy(cbArg)},
+	  autodestroy{autodestroyArg}
 {
 }
 
@@ -48,16 +49,16 @@ void ondestroyObj::cancel()
 {
 	std::lock_guard<std::mutex> lock(mutex);
 
-	if (wi.null())
+	if (!wi)
 		return;
 
-	weakinfo &wiref= *wi;
+	auto &wiref= *wi;
 
 	{
-		std::lock_guard<std::mutex> wilock(wiref.mutex);
+		weakinfoObj::weakinfo_data_t::lock wilock{wiref.weakinfo_data};
 
-		if (wiref.objp)
-			wiref.callback_list.erase(wi_cb_iter);
+		if (wilock->objp) // If not, the list was emptied out.
+			wilock->callback_list.erase(wi_cb_iter);
 	}
 
 	{
@@ -68,8 +69,8 @@ void ondestroyObj::cancel()
 			templock(wiref.destroy_mutex);
 	}
 
-	wi=ptr<weakinfo>();
-	cb=ptr<obj::destroyCallbackObj>();
+	wi=weakinfoptr{};
+	cb=nullptr;
 
 }
 #if 0

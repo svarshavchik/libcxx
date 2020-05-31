@@ -9,6 +9,7 @@
 #include <x/ref.H>
 #include <x/mcguffinlistfwd.H>
 #include <x/mcguffinlistobj.H>
+#include <x/weakptr.H>
 #include <x/namespace.h>
 
 namespace LIBCXX_NAMESPACE {

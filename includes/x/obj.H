@@ -7,7 +7,10 @@
 #define x_obj_H
 
 #include <x/namespace.h>
-#include <x/ptrfwd.H>
+#include <x/concepts.H>
+#include <x/weakinfofwd.H>
+#include <x/weakinfobasefwd.H>
+#include <x/functionalrefptrfwd.H>
 
 #include <list>
 #include <string>
@@ -27,13 +30,33 @@ namespace LIBCXX_NAMESPACE {
 };
 #endif
 
+//! Enable object debugging.
+
+//! A weakly-defined flag.
+//!
+//! In your code
+//!
+//! \code
+//! namespace INSERT_LIBX_NAMESPACE {
+//!
+//!     int obj_debug=1;
+//! \endcode
+//!
+//! Makes dump_all() available, to dump all objects and where they were
+//! created.
+
 extern int obj_debug;
 
-class obj;
-class weakinfo;
-class ondestroyObj;
+class LIBCXX_PUBLIC ondestroyObj;
 class exception;
-class weakinfo;
+
+//! Callable ondestroy() callbacks.
+
+typedef functionref<void ()> ondestroy_cb_t;
+
+//! Nullable pointer reference to an ondestroy() callback.
+
+typedef functionptr<void ()> ondestroy_cb_tptr;
 
 template<class refType> class weakptr;
 template<class> class objFunctorCallbackObj;
@@ -89,15 +112,15 @@ class obj {
 
 	//! The weak reference information associated with this object.
 
-	//! weakinforef gets initialized upon demand, when the first weak
+	//! obj_weakinfo gets initialized upon demand, when the first weak
 	//! reference to this object gets created.
 
-	ptr<weakinfo> weakinforef;
+	weakinfoptr obj_weakinfo;
 
 protected:
 	//! A miscellaneous object mutex
 
-	//! This miscellanous mutex is used to protect access to weakinforef,
+	//! This miscellanous mutex is used to protect access to obj_weakinfo,
 	//! and can be used by subclasses for very short term locking needs.
 
 	mutable std::mutex objmutex;
@@ -151,10 +174,6 @@ public:
 			!= nullptr;
 	}
 
-	//! Destructor callbacks
-
-	class destroyCallbackObj;
-
 private:
 	//! Alias
 
@@ -172,7 +191,7 @@ public:
 	template<typename baseClass> friend class ptrBase;
 
 	friend class exception;
-	friend class weakinfo;
+	friend class weakinfoObj;
 	friend class ondestroyObj;
 	template<typename refType> friend class weakptr;
 
@@ -199,7 +218,7 @@ public:
 	//! Helper method for constructing ondestroy() callbacks.
 
 	template<typename functor_type> static
-	ref<destroyCallbackObj> create_ondestroy(functor_type &&functor);
+	ondestroy_cb_t create_ondestroy(functor_type &&functor);
 
 	//! Install a destructor callback
 
@@ -209,10 +228,10 @@ public:
 	//! destroyed.
 	//!
 	//! \return internal iterator of the inserted callback reference, in
-	//! weakinforef's \c callback_list.
+	//! obj_weakinfo's \c callback_list.
 
 	template<typename functor_type>
-	std::list< ref<destroyCallbackObj> >::iterator
+	std::list< ondestroy_cb_t >::iterator
 	ondestroy(functor_type &&functor)
 	{
 		return do_add_ondestroy(create_ondestroy(std::forward
@@ -223,9 +242,9 @@ private:
 
 	//! Install a destructor callback
 
-	std::list< ref<destroyCallbackObj> >::iterator
+	std::list< ondestroy_cb_t >::iterator
 	do_add_ondestroy(//! Callback
-			  const ref<destroyCallbackObj> &callback);
+			 const ondestroy_cb_t &callback) LIBCXX_PUBLIC;
 
 	//! Construct a weak reference.
 
@@ -233,55 +252,15 @@ private:
 	//! class.
 	//! \return a weak reference to this object.
 
-	ref<weakinfo> weak();
-};
+	weakinfo get_weak() LIBCXX_HIDDEN;
 
-//! Destructor callbacks
+	//! Construct a weak reference.
 
-class obj::destroyCallbackObj : virtual public obj {
+	//! Interface used by weakptr, calls weak() and returns the same
+	//! thing. weakptr does not need to pull in everything that's in
+	//! weakinfo.
 
-public:
-	friend class obj;
-
-	//! Default constructor
-
-	destroyCallbackObj() noexcept;
-
-	//! Default destructor
-	~destroyCallbackObj();
-
-	//! The callback
-
-	virtual void destroyed()=0;
-};
-
-//! Helper class for invoking destructor callback functors/lambdas
-
-//! Used by \ref ptr "ondestroy()".
-
-template<typename F> class objFunctorCallbackObj
-	: public obj::destroyCallbackObj {
-
-	//! The functor
-	F functor;
-
-public:
-	//! Constructor
-	template<typename FArg>
-	objFunctorCallbackObj(FArg && functorArg)
-		: functor(std::forward<FArg>(functorArg))
-	{
-	}
-
-	//! Destructor
-	~objFunctorCallbackObj()=default;
-
-	//! The destructor callback
-
-	void destroyed() override
-	{
-		functor();
-	}
+	weakinfobase get_weakbase();
 };
 
 #if 0
@@ -305,6 +284,7 @@ void ref_in_constructor(obj *p) __attribute__((noreturn));
 #include <x/ptrimpl_obj.H>
 #include <x/ptrfwd_obj.H>
 #include <x/ref_obj.H>
+#include <x/ref_obj_ondestroy.H>
 
 #if 0
 {

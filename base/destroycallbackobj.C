@@ -11,14 +11,6 @@ namespace LIBCXX_NAMESPACE {
 };
 #endif
 
-obj::destroyCallbackObj::destroyCallbackObj() noexcept
-{
-}
-
-obj::destroyCallbackObj::~destroyCallbackObj()
-{
-}
-
 //////////////////////////////////////////////////////////////////////////////
 //
 // Proxy destructor callback used by on_any_destroyed().

@@ -8,14 +8,16 @@
 #include "x/exception.H"
 #include "x/namespace.h"
 #include "x/mutex.H"
-#include "x/weakinfo.H"
+#include "weakinfo.H"
 #include "x/ref.H"
 #include "x/logger.H"
 #include "x/exception.H"
 #include "x/messages.H"
+#include "x/functionalrefptr.H"
 
 #include <cstdlib>
 #include <iostream>
+#include <unordered_map>
 #include <cxxabi.h>
 #include "gettext_in.h"
 
@@ -50,9 +52,9 @@ static std::mutex &get_obj_map_mutex()
 	return obj_map_mutex;
 }
 
-static std::map<obj *, std::string> &get_obj_list()
+static std::unordered_map<obj *, std::string> &get_obj_list()
 {
-	static std::map<obj *, std::string> obj_list;
+	static std::unordered_map<obj *, std::string> obj_list;
 
 	return obj_list;
 }
@@ -136,24 +138,24 @@ std::string obj::objname() const
 void obj::destroy() noexcept
 {
 	/*
-	** weakinforef gets initialized when the first weak reference gets
-	** created for this object. Therefore, if weakinforef is null, and
+	** obj_weakinfo gets initialized when the first weak reference gets
+	** created for this object. Therefore, if obj_weakinfo is null, and
 	** we're here, then this is the last remaining reference to the object
 	** and it is not possible for any other thread to have any other
 	** reference, strong or weak, to it.
 	*/
 
-	ptr<weakinfo> weakinfop;
+	weakinfoptr weakinfop;
 
 	{
 		std::lock_guard<std::mutex> weaklock(objmutex);
 
-		weakinfop=weakinforef;
+		weakinfop=obj_weakinfo;
 
 		SELFTEST_HOOK();
 	}
 
-	std::list<ref<destroyCallbackObj> > cb_list_cpy;
+	std::list<ondestroy_cb_t> cb_list_cpy;
 
 	if (!weakinfop)
 	{
@@ -171,13 +173,14 @@ void obj::destroy() noexcept
 	}
 
 	try {
-		weakinfo &wi= *weakinfop;
+		auto &wi= *weakinfop;
 
 		std::lock_guard<std::recursive_mutex>
 			destroy_mutex_lock(wi.destroy_mutex);
 
 		{
-			std::lock_guard<std::mutex> weaklock(wi.mutex);
+			weakinfoObj::weakinfo_data_t::lock
+				weaklock{wi.weakinfo_data};
 
 			if ( refcnt.load() > 0)
 			{
@@ -185,16 +188,14 @@ void obj::destroy() noexcept
 				// after setRef() decrement refcnt to 0.
 				// That thread is now waiting on the condition
 				// variable.
-
-				wi.cond.notify_one();
+				weaklock->destroy_aborted=true;
+				weaklock.notify_one();
 				return;
 			}
 
-			wi.objp=0;
-			cb_list_cpy.insert(cb_list_cpy.end(),
-					   wi.callback_list.begin(),
-					   wi.callback_list.end());
-			wi.callback_list.clear();
+			weaklock->objp=0;
+			cb_list_cpy=std::move(weaklock->callback_list);
+			weaklock->callback_list.clear();
 
 		}
 
@@ -213,7 +214,7 @@ void obj::destroy() noexcept
 		while (!cb_list_cpy.empty())
 		{
 			try {
-				cb_list_cpy.front()->destroyed();
+				cb_list_cpy.front()();
 			} catch (const exception &e)
 			{
 				report_exception(e);
@@ -232,27 +233,31 @@ void obj::destroy() noexcept
 
 }
 
-ref<weakinfo> obj::weak()
+weakinfo obj::get_weak()
 {
 	std::lock_guard<std::mutex> weaklock(objmutex);
 
-	if (!weakinforef)
-		weakinforef=ref<weakinfo>::create(this);
+	if (!obj_weakinfo)
+		obj_weakinfo=weakinfo::create(this);
 
-	return weakinforef;
+	return obj_weakinfo;
 }
 
-std::list< ref<obj::destroyCallbackObj> >::iterator
-obj::do_add_ondestroy(const ref<destroyCallbackObj> &callback)
+weakinfobase obj::get_weakbase()
 {
-	auto weakinfop=weak();
+	return get_weak();
+}
 
-	std::lock_guard<std::mutex>
-		weakinfolock(weakinfop->mutex);
+std::list<ondestroy_cb_t>::iterator
+obj::do_add_ondestroy(const ondestroy_cb_t &callback)
+{
+	auto weakinfop=get_weak();
 
-	weakinfop->callback_list.push_back(callback);
+	weakinfoObj::weakinfo_data_t::lock lock{weakinfop->weakinfo_data};
 
-	return --weakinfop->callback_list.end();
+	lock->callback_list.push_back(callback);
+
+	return --lock->callback_list.end();
 }
 
 LOG_FUNC_SCOPE_DECL(LIBCXX_NAMESPACE::destroyCallbackObj::destroyed,

@@ -1455,13 +1455,13 @@ static void testtimerfd() noexcept
 	}
 }
 
-class testdestroy : public LIBCXX_NAMESPACE::obj::destroyCallbackObj {
+class testdestroy : virtual public LIBCXX_NAMESPACE::obj {
 
 public:
 	testdestroy() noexcept;
 	~testdestroy();
 
-	void destroyed() override;
+	void destroyed();
 };
 
 testdestroy::testdestroy() noexcept
@@ -1681,7 +1681,7 @@ public:
 
 typedef LIBCXX_NAMESPACE::ref<df6logObj> df6log;
 
-class df6obj1Obj : virtual public LIBCXX_NAMESPACE::obj::destroyCallbackObj {
+class df6obj1Obj : virtual public LIBCXX_NAMESPACE::obj {
 
 public:
 	df6log l;
@@ -1697,7 +1697,7 @@ public:
 		l->log += id;
 	}
 
-	void destroyed() override
+	void destroyed()
 	{
 		l->log += "[" + id + "]";
 	}

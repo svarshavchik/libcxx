@@ -9,6 +9,7 @@
 #include <x/weakmultimapfwd.H>
 #include <x/weakmapobj.H>
 #include <x/weakmultimapiterator.H>
+#include <x/weakptr.H>
 
 namespace LIBCXX_NAMESPACE {
 #if 0

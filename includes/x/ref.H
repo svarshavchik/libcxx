@@ -481,6 +481,7 @@ inline auto ref<objClass, baseClass>::create(Args_t &&...args)
 #define x_ref_H_included
 
 #include <x/ref_obj.H>
+#include <x/ref_obj_ondestroy.H>
 
 #if 0
 {

@@ -7,9 +7,10 @@
 #define x_lockpool_H
 
 #include <x/namespace.h>
-#include <x/ref.H>
 #include <x/lockpoolobj.H>
-
+#include <x/weaklist.H>
+#include <x/weakptr.H>
+#include <x/ref.H>
 #include <set>
 
 namespace LIBCXX_NAMESPACE {

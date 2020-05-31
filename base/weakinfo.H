@@ -3,21 +3,19 @@
 ** See COPYING for distribution information.
 */
 
-#ifndef x_weakptrfwd_H
-#define x_weakptrfwd_H
+#ifndef x_weakinfo_H
+#define x_weakinfo_H
 
-#include <x/namespace.h>
+#include "x/weakinfofwd.H"
+#include "weakinfoobj.H"
+#include "x/ref.H"
+#include "x/namespace.h"
 
 namespace LIBCXX_NAMESPACE {
 
 #if 0
 };
 #endif
-
-class weakinfobaseObj;
-
-template<typename ptrType> class LIBCXX_PUBLIC weakptr;
-
 
 #if 0
 {

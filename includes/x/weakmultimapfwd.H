@@ -8,7 +8,7 @@
 
 #include <x/ref.H>
 #include <x/ptr.H>
-#include <x/weakptr.H>
+#include <x/weakptrfwd.H>
 
 #include <map>
 

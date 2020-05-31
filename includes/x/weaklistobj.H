@@ -7,6 +7,8 @@
 #define x_weaklistobj_H
 
 #include <x/weakcontainerobj.H>
+#include <x/weaklistfwd.H>
+#include <x/weakptrobj.H>
 #include <list>
 
 namespace LIBCXX_NAMESPACE {

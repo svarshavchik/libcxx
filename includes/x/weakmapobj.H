@@ -8,6 +8,7 @@
 
 #include <x/weakcontainerobj.H>
 #include <x/refptr_traits.H>
+#include <x/weakptrobj.H>
 #include <x/ptr.H>
 
 namespace LIBCXX_NAMESPACE {

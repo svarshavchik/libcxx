@@ -7,7 +7,7 @@
 #define x_weakcontainerobj_H
 
 #include <x/obj.H>
-#include <x/weakptr.H>
+#include <x/weakptrobj.H>
 #include <x/ondestroy.H>
 #include <x/exception.H>
 #include <x/sipobj.H>

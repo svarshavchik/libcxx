@@ -5,6 +5,7 @@
 
 #include "libcxx_config.h"
 #include "x/eventdestroynotify.H"
+#include "x/weakptr.H"
 
 namespace LIBCXX_NAMESPACE {
 #if 0

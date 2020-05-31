@@ -8,6 +8,7 @@
 
 #include <x/namespace.h>
 #include <x/weakptrfwd.H>
+#include <x/weakinfobasefwd.H>
 #include <x/exceptionfwd.H>
 #include <x/ptrfwd.H>
 
@@ -72,7 +73,7 @@ namespace LIBCXX_NAMESPACE {
 //! pointer.
 
 template<typename objClass, typename baseType>
-class weakptr<ptr<objClass, baseType>> : private ptr<weakinfo> {
+class weakptr<ptr<objClass, baseType>> : private weakinfobaseptr {
 
 public:
 	//! The strong pointer type

@@ -100,21 +100,5 @@ inline ref<objClass, baseClass>::ref(const ref<objClass2, baseClass2> &o)
 {
 }
 
-template<typename functor_type>
-ref<obj::destroyCallbackObj> obj::create_ondestroy(functor_type &&functor)
-{
-	// If the passed functor is itself a reference, it is
-	// a near certainty that this is wrong.
-
-	typedef typename std::enable_if<
-		! std::is_lvalue_reference<functor_type>::value &&
-		! std::is_rvalue_reference<functor_type>::value,
-		functor_type>::type functor_cannot_be_a_reference
-		__attribute__((unused));
-
-	return ref<functorCallbackObj< functor_type > >
-		::create(std::forward<functor_type>(functor));
-}
-
 #endif
 #endif

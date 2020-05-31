@@ -27,8 +27,8 @@ namespace LIBCXX_NAMESPACE {
 //! \endcode
 //!
 //! destroy_callback_wait4 is a \ref ref "reference" to
-//! a subclass of destroyCallbackObj. Its
-//! constructor takes a reference to some mcguffin. When
+//! a reference-counted object. Its
+//! create() takes a reference to some mcguffin. When
 //! destroy_callback_wait4's destroyed() gets invoked, the thread stops and
 //! waits until the mcguffin goes out of scope and gets destroyed, by some
 //! other thread.

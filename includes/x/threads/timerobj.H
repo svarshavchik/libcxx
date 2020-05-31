@@ -11,7 +11,7 @@
 #include <x/threads/timertaskfwd.H>
 #include <x/threads/run.H>
 #include <x/hms.H>
-#include <x/weakptr.H>
+#include <x/weakptrobj.H>
 #include <x/property_value.H>
 #include <x/mpobj.H>
 #include <map>

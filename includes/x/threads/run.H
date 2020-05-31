@@ -13,6 +13,7 @@
 #include <x/threads/runthread_invoke.H>
 #include <x/threads/runthreadname.H>
 #include <x/threads/runthreadsingleton.H>
+#include <x/ondestroy.H>
 #include <tuple>
 #include <mutex>
 

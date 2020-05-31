@@ -819,8 +819,6 @@ public:
 	inline auto weaken() const LIBCXX_INLINE;
 };
 
-class obj;
-
 //! Create a reference or a nullable pointer reference to a new object.
 
 //! This is the default second parameter to

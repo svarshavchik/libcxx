@@ -7,7 +7,7 @@
 #define x_eventdestroynotifyobj_H
 
 #include <x/eventfd.H>
-#include <x/weakptr.H>
+#include <x/weakptrobj.H>
 
 #include <x/namespace.h>
 

@@ -8,7 +8,6 @@
 
 #include <x/fd.H>
 #include <x/fdlistenerimplobj.H>
-#include <x/weakptr.H>
 #include <x/tuple_param_pack.H>
 #include <x/namespace.h>
 

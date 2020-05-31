@@ -9,6 +9,7 @@
 #include <x/weakunordered_mapfwd.H>
 #include <x/weakmapobj.H>
 #include <x/weakunordered_mapiterator.H>
+#include <x/weakptr.H>
 
 namespace LIBCXX_NAMESPACE {
 #if 0

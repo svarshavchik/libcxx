@@ -209,6 +209,8 @@ libcxx_la_SOURCES=\
 	value_string.C		\
 	vectorobj.C		\
 	weakinfo.C		\
+	weakinfo.H		\
+	weakinfoobj.H		\
 	weakref.C		\
 	wordexp.C		\
 	workerpoolobj.C		\

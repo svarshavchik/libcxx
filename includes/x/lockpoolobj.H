@@ -8,9 +8,8 @@
 
 #include <x/namespace.h>
 #include <x/obj.H>
-#include <x/weakinfo.H>
-#include <x/weakptr.H>
-#include <x/weaklist.H>
+#include <x/weakptrobj.H>
+#include <x/weaklistobj.H>
 #include <x/exceptionfwd.H>
 #include <x/eventfd.H>
 
@@ -350,4 +349,3 @@ lockpoolObj<lockid_t, compare_t, lockop_t, starve>::lockentryObj
 #endif
 }
 #endif
-

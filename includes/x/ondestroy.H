@@ -10,6 +10,7 @@
 #include <x/ondestroyfwd.H>
 #include <x/ondestroyobj.H>
 #include <x/mpobj.H>
+#include <x/functionalrefptr.H>
 #include <x/namespace.h>
 
 #include <list>
@@ -96,7 +97,7 @@ public:
 
 	//! Real create() implementation takes a generic destroy callback
 
-	static ondestroy do_create(const ref<obj::destroyCallbackObj> &cb,
+	static ondestroy do_create(const ondestroy_cb_t &cb,
 				   const ref<obj> &objArg,
 				   bool autodestroy);
 
@@ -120,6 +121,9 @@ public:
 		}
 	};
 };
+
+#define x_ondestroy_H_included
+#include <x/ref_obj_ondestroy.H>
 
 #if 0
 {

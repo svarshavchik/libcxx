@@ -8,7 +8,7 @@
 
 #include <x/mcguffincontainerfwd.H>
 #include <x/ptrfwd.H>
-#include <x/weakptr.H>
+#include <x/weakptrobj.H>
 #include <x/mpobj.H>
 #include <x/refptr_traits.H>
 #include <type_traits>

@@ -10,7 +10,8 @@
 #include <x/exception.H>
 #include <x/weakptrfwd.H>
 #include <x/weakptrobj.H>
-#include <x/weakinfo.H>
+#include <x/weakinfobase.H>
+#include <x/ondestroy.H>
 #include <x/obj.H>
 #include <x/namespace.h>
 
@@ -27,23 +28,24 @@ inline weakptr<ptr<objClass, baseType>>::weakptr()
 
 template<typename objClass, typename baseType>
 inline weakptr<ptr<objClass, baseType>>::weakptr(const ptrType &refArg)
+	: weakinfobaseptr{refArg
+		? weakinfobaseptr{refArg->obj::get_weakbase()}
+		: weakinfobaseptr{}}
 {
-	if (refArg)
-		ptr<weakinfo>::operator=(refArg->obj::weak());
 }
 
 template<typename objClass, typename baseType>
 inline weakptr<ptr<objClass, baseType>>::weakptr(const ref<objClass, baseType>
 						 &refArg)
+	: weakinfobaseptr{refArg->obj::get_weakbase()}
 {
-	ptr<weakinfo>::operator=(refArg->obj::weak());
 }
 
 template<typename objClass, typename baseType>
 template<typename objClass2, typename baseType2>
 inline weakptr<ptr<objClass, baseType>>
 ::weakptr(const ptr<objClass2, baseType2> &ptrArg)
-	: weakptr(ptrType(ptrArg))
+	: weakptr{ptrType{ptrArg}}
 {
 }
 
@@ -51,7 +53,7 @@ template<typename objClass, typename baseType>
 template<typename objClass2, typename baseType2>
 inline weakptr<ptr<objClass, baseType>>
 ::weakptr(const ref<objClass2, baseType2> &refArg)
-	: weakptr(ref<objClass, baseType>(refArg))
+	: weakptr{ref<objClass, baseType>{refArg}}
 {
 }
 
@@ -63,7 +65,7 @@ inline weakptr<ptr<objClass, baseType>> &weakptr<ptr<objClass, baseType>>
 	::operator=(const ptrType &r)
 
 {
-	(*this)=weakptr<ptrType>(r);
+	(*this)=weakptr<ptrType>{r};
 
 	return *this;
 }
@@ -75,7 +77,7 @@ inline weakptr<ptr<objClass, baseType>> &weakptr<ptr<objClass, baseType>>
 	::operator=(const ptr<objClass2, baseType2> &r)
 
 {
-	(*this)=weakptr<ptrType>(ptrType(r));
+	(*this)=weakptr<ptrType>{ptrType{r}};
 
 	return *this;
 }
@@ -85,7 +87,7 @@ inline weakptr<ptr<objClass, baseType>> &weakptr<ptr<objClass, baseType>>
 	::operator=(const ref<objClass, baseType> &r)
 
 {
-	return *this = ptrType(r);
+	return *this = ptrType{r};
 }
 
 //! Assignment operator
@@ -95,14 +97,14 @@ inline weakptr<ptr<objClass, baseType>> &weakptr<ptr<objClass, baseType>>
 	::operator=(const ref<objClass2, baseType2> &r)
 
 {
-	return *this = ptrType(r);
+	return *this = ptrType{r};
 }
 
 template<typename objClass, typename baseType>
 inline ptr<objClass, baseType> weakptr<ptr<objClass, baseType>>::getptr() const
 {
 	if (!refP)
-		return ptrType();
+		return ptrType{};
 
 	return refP->getstrongref();
 }

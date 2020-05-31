@@ -15,6 +15,7 @@
 #include <x/sighandler.H>
 #include <x/threadmsgdispatcher.H>
 #include <x/logger.H>
+#include <x/ondestroy.H>
 
 #include <type_traits>
 #include <unistd.h>
@@ -121,8 +122,6 @@ public:
 
 	class thr;
 
-	class destroycb;
-
 private:
 	//! Singleton thread factory
 
@@ -146,8 +145,7 @@ private:
 		//! started, and its starting argument is a reference to a
 		//! \ref fd "file descriptor".
 		virtual ref<obj> new_thread(const fd &fdArg,
-					   const ref<obj::destroyCallbackObj>
-					   &cb)=0;
+					    const ondestroy_cb_t &cb)=0;
 	};
 
 	template<typename ref_type> class start_new_thread;
@@ -179,11 +177,11 @@ private:
 				   const fd &fdArg,
 
 				   //! Destructor callback to attach to the new thread object
-				   const ref<obj::destroyCallbackObj> &cb)
+				   const ondestroy_cb_t &cb)
 			override
 		{
 			auto obj=app->new_thread();
-			obj->ondestroy([cb]{cb->destroyed();});
+			obj->ondestroy(cb);
 
 			start_new_thread<decltype(obj)>::start(obj, fdArg);
 

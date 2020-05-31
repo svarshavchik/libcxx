@@ -8,6 +8,7 @@
 
 #include <x/mcguffinmapfwd.H>
 #include <x/mcguffinmapobj.H>
+#include <x/weakptr.H>
 #include <x/weakmap.H>
 #include <x/weakmapiterator.H>
 

@@ -4,6 +4,7 @@
 */
 
 #include "libcxx_config.h"
+#include "weakinfo.H"
 #include "x/weakptr.H"
 #include "x/obj.H"
 #include "x/mutex.H"
@@ -20,22 +21,25 @@ namespace LIBCXX_NAMESPACE {
 };
 #endif
 
-weakinfo::~weakinfo()
+weakinfoObj::~weakinfoObj()
 {
-	if (!callback_list.empty())
+	weakinfo_data_t::lock lock{weakinfo_data};
+
+	if (!lock->callback_list.empty())
 	{
 		std::cerr << "Internal error: weak reference callback list not empty in weakinfo destructor" << std::endl;
 		abort();
 	}
 }
 
-ptr<obj> weakinfo::getstrongref() const
+ptr<obj> weakinfoObj::getstrongref()
 {
-	std::unique_lock<std::mutex> mutex_lock(mutex);
+	weakinfo_data_t::lock mutex_lock{weakinfo_data};
 
-	if (!objp)
+	if (!mutex_lock->objp)
 		return ptr<obj>();
-	if (++objp->refcnt == 1)
+
+	if (++mutex_lock->objp->refcnt == 1)
 	{
 		SELFTEST_HOOK();
 
@@ -47,18 +51,38 @@ ptr<obj> weakinfo::getstrongref() const
 		// object, reads the obj::refcnt of 1, and signals this
 		// thread, via the condition variable, to proceed.
 
+		// NOTE: we increment refcnt and clear destroy_aborted to
+		// false while holding the mutex lock, so when
+		// obj::destroy() detects it, it must be when wait()
+		// unless the mutex and atomatically waits for the condition
+		// variable, so destroy_method is guaranteed to get cleared
+		// before obj::destroy() sets it to true.
+		//
+		// In case of multiple threads attempting to recover the
+		// strong reference at the same time, only one execution
+		// thread will increment refcnt from 0 to 1, and enter here.
+
+		mutex_lock->destroy_aborted=false;
 		try {
-			cond.wait(mutex_lock);
+			mutex_lock.wait
+				([&]
+				 {
+					 return mutex_lock->destroy_aborted;
+				 });
 		} catch (const exception &e)
 		{
-			--objp->refcnt;
+			--mutex_lock->objp->refcnt;
 			throw;
 		}
 	}
 
-	ptr<obj> dummy(objp);
+	// Create a formal ptr, which will acquire its own reference count.
+	// after which we can decrement the one we incremented temporarily,
+	// above.
 
-	--objp->refcnt;
+	ptr<obj> dummy{mutex_lock->objp};
+
+	--mutex_lock->objp->refcnt;
 
 	return dummy;
 }

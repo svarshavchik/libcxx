@@ -7,7 +7,6 @@
 #define x_eventqueuedestroynotifyobj_H
 
 #include <x/eventqueue.H>
-#include <x/weakptr.H>
 #include <x/ref.H>
 #include <x/namespace.h>
 

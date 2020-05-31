@@ -8,6 +8,7 @@
 
 #include <x/weaklistfwd.H>
 #include <x/weaklistobj.H>
+#include <x/weakptr.H>
 
 namespace LIBCXX_NAMESPACE {
 #if 0

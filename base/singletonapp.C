@@ -329,22 +329,6 @@ void singletonapp::thr::run(ptr<obj> &threadmsgdispatcher_mcguffin,
 	}
 }
 
-class LIBCXX_HIDDEN
-singletonapp::destroycb : public obj::destroyCallbackObj {
-
-public:
-
-	ref<thr> tptr;
-
-	destroycb(const ref<thr> &ptrArg) : tptr(ptrArg) {}
-	~destroycb() {}
-
-	void destroyed() override
-	{
-		tptr->terminated();
-	}
-};
-
 void singletonapp::thr::launch(const ref<singletonapp::factorybaseObj> &app,
 			       const fd &initinstance)
 {
@@ -352,8 +336,11 @@ void singletonapp::thr::launch(const ref<singletonapp::factorybaseObj> &app,
 
 	try {
 		ref<obj> lthr=app->new_thread(initinstance,
-					     ref<destroycb>
-					     ::create(ref<thr>(this)));
+					      [me=ref{this}]
+					      {
+						      me->terminated();
+					      });
+
 
 		(*threadsptr)->push_back(lthr);
 

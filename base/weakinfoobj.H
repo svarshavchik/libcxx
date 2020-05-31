@@ -3,13 +3,16 @@
 ** See COPYING for distribution information.
 */
 
-#ifndef x_weakinfo_H
-#define x_weakinfo_H
+#ifndef x_weakinfoobj_H
+#define x_weakinfoobj_H
 
-#include <x/namespace.h>
-#include <x/ptrfwd.H>
-#include <x/weakptrfwd.H>
-#include <x/obj.H>
+#include "x/namespace.h"
+#include "x/ptrfwd.H"
+#include "x/weakptrfwd.H"
+#include "x/weakinfofwd.H"
+#include "x/weakinfobaseobj.H"
+#include "x/mpobj.H"
+#include "x/obj.H"
 #include <list>
 
 #include <mutex>
@@ -20,7 +23,42 @@ namespace LIBCXX_NAMESPACE {
 };
 #endif
 
-template<class refType> class weakptr;
+struct LIBCXX_HIDDEN weakinfo_private;
+
+struct weakinfo_private {
+
+	//! The underlying object.
+
+	//! \internal The source for all the trouble. A strong reference
+	//! gets constructed by taking a reference to this object. When the
+	//! object gets destroyed, objp gets set to \c NULL.
+	obj *objp;
+
+	//! The destruction of objp has been aborted
+
+	//! Beacuse another thread managed to get a strong reference.
+	//! The other thread does not finish recovering the strong reference
+	//! until this is set to true and the condition variable gets
+	//! signaled.
+	//!
+	//! The thread that started destroying the object sets this flag
+	//! and signals the condition variable before aborting.
+	//!
+	//! Since the other thread waits until the first thread finishes,
+	//! this prevents the object from being destroyed again, because
+	//! the other thread already incremented the reference count, and
+	//! it won't proceed until the destruction finishes.
+	bool destroy_aborted=false;
+
+	//! A list of all callbacks to invoke upon destruction of object
+
+	//! When objp gets set to \c NULL (see above) this list gets empied
+	//! out.
+	std::list< ondestroy_cb_t > callback_list;
+
+	//! Constructor
+	inline weakinfo_private(obj *objp) : objp{objp} {}
+};
 
 //! Weak pointer information.
 
@@ -31,14 +69,13 @@ template<class refType> class weakptr;
 //! becomes \c NULL.
 //! A mutex protects the contents of these objects.
 
-class weakinfo : public obj {
+class weakinfoObj : public weakinfobaseObj {
 
-	//! A %mutex that protects this weakinfo object.
+	//! A mutex-protected object with our data.
 
-	//! \internal Access to this object's contents is protected by locking
-	//! this %mutex.
+	typedef mpcobj<weakinfo_private> weakinfo_data_t;
 
-	mutable std::mutex mutex;
+	weakinfo_data_t weakinfo_data;
 
 	//! A %mutex that's held when ondestroy callback hooks get invoked
 
@@ -57,7 +94,7 @@ class weakinfo : public obj {
 	//! \ref ondestroyObj::cancel() "INSERT_LIBX_NAMESPACE::ondestroyObj::cancel"().
 	//! This enables a destructor callback to result in
 	//! an \ref ondestroy "INSERT_LIBX_NAMESPACE::ondestroy" instance,
-	//! referring to the object being destroy, itself going out of
+	//! referring to the object being destroyed, itself, going out of
 	//! scope. ondestroyObj() takes a lock on the same mutex in order to
 	//! fulfill the contract of waiting for any pending destructor callbacks
 	//! to return. But, if the lock is being held for the purpose of the
@@ -65,49 +102,29 @@ class weakinfo : public obj {
 	//! from deadlocking.
 	std::recursive_mutex destroy_mutex;
 
-	//! A condition variable that resolves certain race conditions.
 
-	//! \internal This condition variable gets used to handle a race
-	//! condition that occurs when the last strong reference to an object
-	//! gets destroyed at the same time as another thread is attempting
-	//! to obtain a strong reference, from a weak one.
+public:
+	//! Constructor.
 
-	mutable std::condition_variable cond;
+	weakinfoObj(//! The underlying object.
 
-	//! The underlying object.
+		    //! This is the object whose weak references are tracked
+		    //! by this weakinfo instance.
+		    obj *objp) : weakinfo_data{objp} {}
 
-	//! \internal The source for all the trouble. A strong reference
-	//! gets constructed by taking a reference to this object. When the
-	//! object gets destroyed, objp gets set to \c NULL.
-	mutable obj *volatile objp;
+	//! Destructor.
+
+	~weakinfoObj();
 
 	//! Recover a strong reference to this object.
 
 	//! \internal
 	//! \return A regular, strong, reference to this object. The reference
 	//! is unbound if the underlying object is already destroyed.
-	ptr<obj> getstrongref() const;
-
-	//! A list of all callbacks to invoke upon destruction of object
-
-	std::list< ref<obj::destroyCallbackObj> > callback_list;
-
-public:
-	//! Constructor.
-
-	weakinfo(//! The underlying object.
-
-		 //! This is the object whose weak references are tracked
-		 //! by this weakinfo instance.
-		 obj *objpArg) : objp(objpArg) {}
-
-	//! Destructor.
-
-	~weakinfo();
+	ptr<obj> getstrongref() override;
 
 	friend class obj;
 	friend class ondestroyObj;
-	template<class weakType> friend class weakptr;
 };
 
 #if 0

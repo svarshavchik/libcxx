@@ -8,9 +8,10 @@
 
 #include <x/obj.H>
 #include <x/ptr.H>
-#include <x/weakinfo.H>
-#include <x/namespace.h>
-
+#include <x/weakinfofwd.H>
+#include <x/weakptrfwd.H>
+#include <x/functionalrefptrfwd.H>
+#include <x/functionalrefptrobj.H>
 #include <mutex>
 
 namespace LIBCXX_NAMESPACE {
@@ -33,18 +34,18 @@ class ondestroyObj : virtual public obj {
 
 	//! The destructor callback
 
-	ptr<obj::destroyCallbackObj> cb;
+	ondestroy_cb_tptr cb;
 
 	//! The object to which the destructor callback is attached
-	ptr<weakinfo> wi;
+	weakinfoptr wi;
 
 	//! The callback's iterator in the object's callback list.
 
-	std::list< ref<obj::destroyCallbackObj> >::iterator wi_cb_iter;
+	const std::list< ondestroy_cb_t >::iterator wi_cb_iter;
 
 	//! Automatically invoke cancel() when this object goes out of scope.
 
-	bool autodestroy;
+	const bool autodestroy;
 
 	//! Mutex to protect concurrent access to this object.
 	std::mutex mutex;
@@ -53,7 +54,7 @@ public:
 	//! Construct a destructor reference
 
 	ondestroyObj(//! The destructor callback object
-		     const ref<obj::destroyCallbackObj> &cbArg,
+		     const ondestroy_cb_t &cbArg,
 
 		     //! The object to which the destructor callback should be added
 		     const ref<obj> &objArg,

@@ -14,7 +14,6 @@
 #include <x/epollfwd.H>
 #include <x/exceptionfwd.H>
 #include <x/namespace.h>
-#include <x/weakptr.H>
 #include <x/sockaddrfwd.H>
 #include <x/threads/timertaskfwd.H>
 #include <string>

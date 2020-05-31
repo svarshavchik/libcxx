@@ -8,10 +8,13 @@
 
 #include <x/fd.H>
 #include <x/threads/run.H>
-#include <x/weakptr.H>
+#include <x/weakptrfwd.H>
+#include <x/weakptrobj.H>
 #include <x/sigset.H>
 #include <x/logger.H>
 #include <x/namespace.h>
+
+#include <list>
 
 namespace LIBCXX_NAMESPACE {
 

@@ -3,9 +3,12 @@
 ** See COPYING for distribution information.
 */
 
-#ifndef x_weakptrfwd_H
-#define x_weakptrfwd_H
+#ifndef x_weakinfobase_H
+#define x_weakinfobase_H
 
+#include <x/weakinfobasefwd.H>
+#include <x/weakinfobaseobj.H>
+#include <x/ref.H>
 #include <x/namespace.h>
 
 namespace LIBCXX_NAMESPACE {
@@ -13,11 +16,6 @@ namespace LIBCXX_NAMESPACE {
 #if 0
 };
 #endif
-
-class weakinfobaseObj;
-
-template<typename ptrType> class LIBCXX_PUBLIC weakptr;
-
 
 #if 0
 {

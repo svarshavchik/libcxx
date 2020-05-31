@@ -6,6 +6,7 @@
 #include "libcxx_config.h"
 #include "x/destroy_callback_wait4.H"
 #include "x/threads/run.H"
+#include "x/ondestroy.H"
 #include "x/exception.H"
 #include <unistd.h>
 #include <iostream>

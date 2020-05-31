@@ -9,6 +9,7 @@
 #include <x/weakmapfwd.H>
 #include <x/weakmapobj.H>
 #include <x/weakmapiterator.H>
+#include <x/weakptr.H>
 
 namespace LIBCXX_NAMESPACE {
 #if 0

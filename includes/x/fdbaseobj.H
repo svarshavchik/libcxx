@@ -45,10 +45,10 @@ public:
 	class adapterObj;
 
 	//! Default constructor
-	fdbaseObj() noexcept {}
+	fdbaseObj() noexcept=default;
 
 	//! Default destructor
-	~fdbaseObj() {}
+	~fdbaseObj()=default;
 
 	//! Return the underlying file descriptor
 

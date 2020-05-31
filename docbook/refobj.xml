@@ -2116,6 +2116,7 @@ $(call REFCOLLECTION_GEN,refcollection.H,$(srcdir)/refcollection.xml)
 	<programlisting>
 #include &lt;&ns;/ref.H&gt;
 #include &lt;&ns;/obj.H&gt;
+#include &lt;&ns;/ondestroy.H&gt;
 
 class mcguffinObj : virtual public &ns;::obj {
 

@@ -15,7 +15,7 @@ namespace LIBCXX_NAMESPACE {
 };
 #endif
 
-class obj;
+class LIBCXX_PUBLIC obj;
 template<typename, typename> class const_ref;
 template<typename, typename> class ref;
 template<typename, typename> class const_ptr;
