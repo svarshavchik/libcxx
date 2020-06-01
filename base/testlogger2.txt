@@ -1,0 +1,3 @@
+testlogger::warnlevel::@log::handler::unknown1::format=notime2
+
+testlogger::warnlevel::@log::handler::unknown2=stderr

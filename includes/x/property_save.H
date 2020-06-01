@@ -11,10 +11,8 @@
 #include <type_traits>
 #include <iterator>
 
-namespace LIBCXX_NAMESPACE {
-	namespace property {
+namespace LIBCXX_NAMESPACE::property {
 #if 0
-	};
 };
 #endif
 
@@ -89,8 +87,6 @@ iter_type save_properties(//! Properties
 
 #if 0
 {
-	{
 #endif
-	}
 }
 #endif

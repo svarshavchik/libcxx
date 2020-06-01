@@ -22,6 +22,7 @@ EXTRA_DIST=\
 	testlockpool.tst \
 	testlogger.tst \
 	testlogger.txt \
+	testlogger2.txt \
 	testlogrotate.txt \
 	testmessages.po \
 	testmessages.txt \
@@ -844,7 +845,8 @@ check-am: $(noinst_PROGRAMS) $(noinst_DATA)
 	./testweak3 2>test.weak3.tmp >&2
 	diff $(srcdir)/testweak3.tst test.weak3.tmp
 	rm test.weak3.tmp
-	rm -rf testlogdir; PROPERTIES=$(srcdir)/testlogger.txt ./testlogger 2>testlogger.tst.tmp >&2
+	PROPERTIES=$(srcdir)/testlogger2.txt ./testlogger 0 2>&1 | sort >testlogger.tst.tmp
+	rm -rf testlogdir; PROPERTIES=$(srcdir)/testlogger.txt ./testlogger 2>>testlogger.tst.tmp >&2
 	diff $(srcdir)/testlogger.tst testlogger.tst.tmp
 	rm testlogger.tst.tmp
 	rm -rf testlogdir

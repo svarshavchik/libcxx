@@ -20,9 +20,11 @@
 #include <fstream>
 #include <iostream>
 #include <list>
+#include <unordered_map>
 #include <algorithm>
 #include <iterator>
 #include <cstring>
+#include <charconv>
 #include <unordered_map>
 #include <courier-unicode.h>
 
@@ -426,6 +428,8 @@ void handlerObj::fd::operator()(const std::string &message,
 	}
 }
 
+typedef std::unordered_map<short, int> syslog_map_t;
+
 //! Log messages to syslog
 
 //! \internal
@@ -435,7 +439,7 @@ class handlerObj::syslogger : public handlerObj {
 
 	//! Map logging levels to syslog levels
 
-	std::map<short, int> syslog_map;
+	syslog_map_t syslog_map;
 
 	static std::once_flag syslog_init_once;
 
@@ -451,7 +455,7 @@ public:
 	//! The constructor
 
 	syslogger(//! The syslog level mapping
-		  const std::map<short, int> &syslog_mapArg) noexcept;
+		  const syslog_map_t &syslog_mapArg) noexcept;
 
 	~syslogger();
 
@@ -480,8 +484,8 @@ void handlerObj::syslogger::syslog_init() noexcept
 	openlog(NULL, LOG_NDELAY, facility);
 }
 
-handlerObj::syslogger::syslogger(const std::map<short, int> &syslog_mapArg) noexcept
-	: syslog_map(syslog_mapArg)
+handlerObj::syslogger::syslogger(const syslog_map_t &syslog_mapArg) noexcept
+	: syslog_map{syslog_mapArg}
 {
 }
 
@@ -499,7 +503,7 @@ void handlerObj::syslogger::operator()(const std::string &message,
 
 	int sysloglevel=LOG_NOTICE;
 
-	std::map<short, int>::iterator b=syslog_map.begin(),
+	auto b=syslog_map.begin(),
 		e=syslog_map.end(), p=e;
 
 	while (b != e)
@@ -830,9 +834,9 @@ public:
 
 	// Value: pair<handler name,format name>
 
-	typedef std::map<std::string,
-			 std::pair<std::string,
-				   std::string> > handlers_t;
+	typedef std::unordered_map<std::string,
+				   std::pair<std::string,
+					     std::string> > handlers_t;
 
 	handlers_t handlers;
 
@@ -920,8 +924,10 @@ short logger::scopebase::get_debuglevel_propvalue(inheritObj &inherit)
 
 		if (name.size() > 0)
 		{
+			auto v=child.value();
+
 			level=logger::debuglevelpropstr
-				::fromstr(child.value().first,
+				::fromstr(v ? *v:std::string{},
 					  logconfig.get()->default_locale);
 			break;
 		}
@@ -1000,7 +1006,7 @@ logconfig_init::logconfig_init() noexcept
 	{
 		// Retrieve logger::level::NAME=LEVEL pairs
 
-		std::map<std::string, std::string>
+		std::unordered_map<std::string, std::string>
 			xlogger_level_map;
 
 		{
@@ -1019,7 +1025,11 @@ logconfig_init::logconfig_init() noexcept
 					unicode::toupper(b->first,
 							 chset);
 
-				std::string v=b->second.value().first;
+				std::string v;
+
+				auto propv=b->second.value();
+
+				if (propv) v=*propv;
 
 				std::basic_istringstream<std::string
 							 ::value_type>
@@ -1047,10 +1057,8 @@ logconfig_init::logconfig_init() noexcept
 		{
 			bool parsed=false;
 
-			for (std::map<std::string, std::string>
-				     ::iterator
-				     b=xlogger_level_map.begin(),
-				     e=xlogger_level_map.end(), p;
+			for (auto b=xlogger_level_map.begin(),
+				     e=xlogger_level_map.end(), p=b;
 			     b != e; b=p)
 			{
 				p=b; ++p;
@@ -1081,7 +1089,7 @@ logconfig_init::logconfig_init() noexcept
 	{
 		// Retrieve logger::format::NAME=string pairs
 
-		std::map<std::string, std::string>
+		std::unordered_map<std::string, std::string>
 			xlogger_format_map;
 
 		{
@@ -1100,7 +1108,12 @@ logconfig_init::logconfig_init() noexcept
 					unicode::toupper(b->first,
 							 chset);
 
-				std::string val=b->second.value().first;
+				std::string val;
+
+				auto propval=b->second.value();
+
+				if (propval)
+					val=*propval;
 
 				if (*val.c_str() == '$')
 				{
@@ -1120,10 +1133,8 @@ logconfig_init::logconfig_init() noexcept
 		{
 			bool parsed=false;
 
-			for (std::map<std::string, std::string>
-				     ::iterator
-				     b=xlogger_format_map.begin(),
-				     e=xlogger_format_map.end(), p;
+			for (auto b=xlogger_format_map.begin(),
+				     e=xlogger_format_map.end(), p=b;
 			     b != e; b=p)
 			{
 				p=b; ++p;
@@ -1142,20 +1153,17 @@ logconfig_init::logconfig_init() noexcept
 				break;
 		}
 
-		for (std::map<std::string, std::string>
-			     ::iterator
-			     b=xlogger_format_map.begin(),
-			     e=xlogger_format_map.end(); b != e; ++b)
+		for (const auto &[key, value] : xlogger_format_map)
 		{
 			LOGGING_FAILURE("Undefined log format: "
-					<< to_string(b->first));
+					<< to_string(key));
 		}
 	}
 
 	{
 		// Retrieve logger::handler::NAME=string pairs
 
-		std::map<std::string, std::string>
+		std::unordered_map<std::string, std::string>
 			xlogger_handler_map;
 
 		{
@@ -1164,16 +1172,17 @@ logconfig_init::logconfig_init() noexcept
 			globprops->find(LOG_NAMESPACE "::logger::handler")
 				.children(children);
 
-			for (property::listObj::iterator::children_t
-				     ::iterator
-				     b=children.begin(),
-				     e=children.end(); b != e;
-			     ++b)
+			for ( auto &[key, childnode] : children)
 			{
-				std::string n=unicode::toupper(b->first,
+				std::string n=unicode::toupper(key,
 							       chset);
 
-				std::string v=b->second.value().first;
+				std::string v;
+
+				auto propval=childnode.value();
+
+				if (propval)
+					v=*propval;
 
 				if (*v.c_str() == '$')
 				{
@@ -1187,7 +1196,7 @@ logconfig_init::logconfig_init() noexcept
 				{
 					v=v.substr(7);
 
-					std::map<short, int> syslog_map;
+					syslog_map_t syslog_map;
 
 					std::string::iterator
 						b=v.begin(), e=v.end();
@@ -1288,7 +1297,7 @@ logconfig_init::logconfig_init() noexcept
 
 					if (ifd.fail())
 					{
-						LOGGING_FAILURE(to_string(b->first)
+						LOGGING_FAILURE(to_string(key)
 								<< ": Bad log handler: "
 								<< to_string(v));
 						continue;
@@ -1302,35 +1311,40 @@ logconfig_init::logconfig_init() noexcept
 				}
 
 				size_t keep=0;
-				std::pair<std::string, bool>
+
+				std::optional<std::string>
 					keepValue, rotateValue;
 
 				property::listObj::iterator keepProp
-					=b->second.child("keep");
+					=childnode.child("keep");
 
 				if (keepProp.propname().size() != 0 &&
-				    !(keepValue=keepProp.value()).second)
+				    (keepValue=keepProp.value()))
 				{
 					property::listObj::iterator rotateProp
-						=b->second.child("rotate");
+						=childnode.child("rotate");
 
 					if (rotateProp.propname().size() == 0 ||
-					    (rotateValue=rotateProp.value())
-					    .second)
+					    !(rotateValue=rotateProp.value()))
 					{
-						LOGGING_FAILURE(to_string(b->first)
+						LOGGING_FAILURE(to_string(key)
 								<< ": missing rotate setting");
 					}
 					else
 					{
-						std::istringstream
-							i(keepValue.first);
+						auto keepValue_cstr=
+							keepValue->c_str();
 
-						i >> keep;
+						auto res=std::from_chars
+							(keepValue_cstr,
+							 keepValue_cstr
+							 +keepValue->size(),
+							 keep);
 
-						if (i.fail() || keep == 0)
+						if (res.ec != std::errc{} ||
+						    keep == 0)
 						{
-							LOGGING_FAILURE(to_string(b->first) <<
+							LOGGING_FAILURE(to_string(key) <<
 									": invalid keep setting");
 							keep=0;
 						}
@@ -1339,8 +1353,10 @@ logconfig_init::logconfig_init() noexcept
 
 				auto h=ref<handlerObj::fd>
 					::create(to_string(v, global_locale),
-						 to_string(rotateValue.first,
-							  global_locale),
+						 to_string(rotateValue ?
+							   *rotateValue
+							   : std::string{},
+							   global_locale),
 						 keep);
 
 				LOGCONFIG->loghandlers
@@ -1354,10 +1370,8 @@ logconfig_init::logconfig_init() noexcept
 		{
 			bool parsed=false;
 
-			for (std::map<std::string, std::string>
-				     ::iterator
-				     b=xlogger_handler_map.begin(),
-				     e=xlogger_handler_map.end(), p;
+			for (auto b=xlogger_handler_map.begin(),
+				     e=xlogger_handler_map.end(), p=b;
 			     b != e; b=p)
 			{
 				p=b; ++p;
@@ -1379,11 +1393,10 @@ logconfig_init::logconfig_init() noexcept
 				break;
 		}
 
-		for (auto b=xlogger_handler_map.begin(),
-			     e=xlogger_handler_map.end(); b != e; ++b)
+		for (auto &n:xlogger_handler_map)
 		{
 			LOGGING_FAILURE("Undefined log handler: "
-					<< to_string(b->first));
+					<< to_string(n.first));
 		}
 	}
 
@@ -1393,8 +1406,11 @@ logconfig_init::logconfig_init() noexcept
 
 		if (facility.propname().size() > 0)
 		{
+			auto propval=facility.value();
+
 			std::string v=
-				unicode::toupper(facility.value().first,
+				unicode::toupper(propval ? *propval
+						 : std::string{},
 						 chset);
 
 
@@ -1501,11 +1517,10 @@ ptr<logger::inheritObj> logger::scopebase::getscope(const std::string &name)
 			h->scope.push_back(atlog);
 	}
 
-	for (std::list<property::listObj::iterator>::iterator
-		     b=h->scope.begin(), e=h->scope.end(); b != e; ++b)
+	for (auto &i:h->scope)
 	{
 		{
-			std::string inherit=(*b).child("inherit",
+			std::string inherit=i.child("inherit",
 						       global)
 				.propname();
 
@@ -1523,7 +1538,7 @@ ptr<logger::inheritObj> logger::scopebase::getscope(const std::string &name)
 
 		{
 			property::listObj::iterator
-				handlers=(*b).child("handler", global);
+				handlers=i.child("handler", global);
 
 			if (handlers.propname().size() == 0)
 				continue;
@@ -1531,26 +1546,23 @@ ptr<logger::inheritObj> logger::scopebase::getscope(const std::string &name)
 			handlers.children(children);
 		}
 
-		for (property::listObj::iterator::children_t::iterator
-			     b=children.begin(), e=children.end();
-		     b != e; ++b)
+		for (auto &[name, child]:children)
 		{
-			std::pair<std::string, bool>
-				v=b->second.value();
+			auto v=child.value();
 
-			if (!v.second)
-				h->handlers[b->first].first=v.first;
+			if (v)
+				h->handlers[name].first=*v;
 
 			property::listObj::iterator format=
-				b->second.child("format", global);
+				child.child("format", global);
 
 			if (format.propname().size() == 0)
 				continue;
 
 			v=format.value();
 
-			if (!v.second)
-				h->handlers[b->first].second=v.first;
+			if (v)
+				h->handlers[name].second=*v;
 		}
 
 	}

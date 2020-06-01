@@ -15,8 +15,6 @@
 #include <x/to_string.H>
 #include <x/namespace.h>
 
-namespace LIBCXX_NAMESPACE {
-
 //! \anchor explicit_property_namespace Application properties
 
 //! Properties are arbitrary "name=value" pairs that are loaded from a %property
@@ -281,9 +279,8 @@ namespace LIBCXX_NAMESPACE {
 //! \ref listObj::load "load()" methods to initialize
 //! %properties in the private pool.
 
-	namespace property {
+namespace LIBCXX_NAMESPACE::property {
 #if 0
-	};
 };
 #endif
 
@@ -441,9 +438,6 @@ private:
 
 #if 0
 {
-
-	{
 #endif
-	}
 }
 #endif

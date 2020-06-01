@@ -102,6 +102,9 @@ static void testlogger()
 int main(int argc, char **argv)
 {
 	try {
+		if (argc > 1 && std::string{argv[1]} == "0")
+			return 0;
+
 		testlogger();
 	} catch (LIBCXX_NAMESPACE::exception &e)
 	{

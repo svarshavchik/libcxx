@@ -9,14 +9,13 @@
 #include <x/namespace.h>
 #include <x/property_properties.H>
 #include <x/weaklist.H>
-#include <x/weakmap.H>
-#include <x/weakmultimap.H>
+#include <x/weakunordered_map.H>
+#include <x/weakunordered_multimap.H>
 #include <x/eventhandlerobj.H>
+#include <optional>
 
-namespace LIBCXX_NAMESPACE {
-	namespace property {
+namespace LIBCXX_NAMESPACE::property {
 #if 0
-	};
 };
 #endif
 
@@ -76,9 +75,9 @@ public:
 
 	//! A container of all children of this node, in the hierarchical tree
 
-	//! It should be a weakmap, except for the occasion where a destroyed
-	//! map entry isn't purged yet.
-	typedef weakmultimap<std::string, nodehierObj> children_t;
+	//! It should be a map, except for the occasion where a destroyed
+	//! map entry isn't purged yet, hence a multimap.
+	typedef weakunordered_multimap<std::string, nodehierObj> children_t;
 
 	//! All children of this node, in the hierarchical tree
 	children_t children;
@@ -99,7 +98,7 @@ class listObj : virtual public obj {
 	ref<nodehierObj> rootnode;
 
 	//! A container for a map of all nodes in the hierarchical property tree
-	typedef weakmap<std::string, nodehierObj> prophier_t;
+	typedef weakunordered_map<std::string, nodehierObj> prophier_t;
 
 	//! A map of all nodes in the hierarchical property tree
 	prophier_t prophier;
@@ -113,7 +112,7 @@ class listObj : virtual public obj {
 					 );
 
 	//! A container for all loaded properties
-	typedef std::map<std::string,ref<nodeObj> > loaded_t;
+	typedef std::unordered_map<std::string,ref<nodeObj> > loaded_t;
 
 	//! All loaded properties
 	loaded_t loaded;
@@ -352,8 +351,7 @@ public:
 	friend class lockObj;
 
 	//! Enumerate existing properties
-	void enumerate(std::map<std::string, std::string> &properties)
-;
+	properties_t enumerate();
 
 	class iterator;
 
@@ -400,14 +398,12 @@ public:
 
 		//! Return this node's value
 
-		//! first - the value
-		//! second - a bool, \c true if the property is not set (and
-		//! first is an empty string).
+		//! The property may be unset, hence nullopt.
 
-		std::pair<std::string, bool> value() const;
+		std::optional<std::string> value() const;
 
 		//! The container of this property's children properties
-		typedef std::map<std::string, iterator> children_t;
+		typedef std::unordered_map<std::string, iterator> children_t;
 
 		//! Return this property's children properties
 		void children(children_t &childrenArg) const;
@@ -463,8 +459,7 @@ private:
 			       const const_locale &l);
 
 	//! Enumerate existing properties
-	void enumerate(std::map<std::string, std::string> &properties,
-		       const iterator &iter);
+	void enumerate(properties_t &properties, const iterator &iter);
 
 	//! Parse a sequence that defines properties while this object is locked
 
@@ -650,8 +645,6 @@ public:
 
 #if 0
 {
-	{
 #endif
-	}
 }
 #endif

@@ -15,10 +15,8 @@
 #include <map>
 #include <list>
 
-namespace LIBCXX_NAMESPACE {
-	namespace property {
+namespace LIBCXX_NAMESPACE::property {
 #if 0
-	};
 };
 #endif
 
@@ -191,9 +189,15 @@ std::string combinepropname(const std::list<std::string> &prophier);
 
 bool islibraryprop(const std::string &value);
 
+//! The container for all properties, populated by enumerate_properties.
+
+//! Intentional using std::map, so that the resulting map is in sorted order.
+
+typedef std::map<std::string, std::string> properties_t;
+
 //! Enumerate existing properties
 
-void enumerate_properties(std::map<std::string, std::string> &properties);
+properties_t enumerate_properties();
 
 //! Load global properties from a file
 
@@ -325,8 +329,6 @@ iter_type save_properties(//! Properties
 
 #if 0
 {
-	{
 #endif
-	}
 }
 #endif

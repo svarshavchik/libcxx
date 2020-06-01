@@ -42,17 +42,13 @@ int definitionPropertiesObj::set(parserObj &parserArg,
 {
 	bool all=valueArg == libmsg(_txt("all"));
 
-	std::map<std::string, std::string> properties;
+	auto properties=property::enumerate_properties();
 
-	property::enumerate_properties(properties);
-
-	std::map<std::string, std::string>::iterator b, e;
-
-	for (b=properties.begin(), e=properties.end(); b != e; ++b)
+	for (auto &p:properties)
 	{
-		if (!all && b->first.find('@') != b->first.npos)
+		if (!all && p.first.find('@') != p.first.npos)
 			continue;
-		outputStream << b->first << "=" << b->second << std::endl;
+		outputStream << p.first << "=" << p.second << std::endl;
 	}
 	return option::parser::base::err_builtin;
 }

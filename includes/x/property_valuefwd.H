@@ -9,11 +9,8 @@
 #include <x/to_string.H>
 #include <x/namespace.h>
 
-namespace LIBCXX_NAMESPACE {
-
-	namespace property {
+namespace LIBCXX_NAMESPACE::property {
 #if 0
-	};
 };
 #endif
 
@@ -22,9 +19,6 @@ template<typename argType,
 
 #if 0
 {
-
-	{
 #endif
-	}
 }
 #endif

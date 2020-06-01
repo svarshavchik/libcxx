@@ -12,10 +12,6 @@ testlogger::@log::handler::default::format=notime2
 
 testlogger::warnlevel::@log::level=mywarning
 
-testlogger::warnlevel::@log::handler::unknown1::format=notime2
-
-testlogger::warnlevel::@log::handler::unknown2=stderr
-
 testlogger::secondlogfile::@log::handler::log2=log2
 testlogger::secondlogfile::@log::handler::log2::format=notime2
 

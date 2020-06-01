@@ -29,10 +29,8 @@
 #include <algorithm>
 #include "gettext_in.h"
 
-namespace LIBCXX_NAMESPACE {
-	namespace property {
+namespace LIBCXX_NAMESPACE::property {
 #if 0
-	};
 };
 #endif
 
@@ -47,21 +45,13 @@ void errhandler::operator()(const std::string &location,
 	operator()(o.str(), errtxt);
 }
 
-errhandler::errhandler() noexcept
-{
-}
+errhandler::errhandler() noexcept=default;
 
-errhandler::~errhandler()
-{
-}
+errhandler::~errhandler()=default;
 
-errhandler::errthrow::errthrow() noexcept
-{
-}
+errhandler::errthrow::errthrow() noexcept=default;
 
-errhandler::errthrow::~errthrow()
-{
-}
+errhandler::errthrow::~errthrow()=default;
 
 void errhandler::errthrow::operator()(const std::string &location,
 				       const std::string &errtxt)
@@ -491,16 +481,16 @@ std::string listObj::iterator::propname() const
 	return iter->nodename;
 }
 
-std::pair<std::string, bool> listObj::iterator::value() const
+std::optional<std::string> listObj::iterator::value() const
 {
 	ptr<nodeObj> node=iter->p->value.getptr();
 
-	if (node.null())
-		return std::make_pair(std::string(), true);
+	if (!node)
+		return std::nullopt;
 
 	std::lock_guard<std::mutex> lock(node->objmutex);
 
-	return std::make_pair(node->val, false);
+	return node->val;
 }
 
 void listObj::iterator::children(children_t &childrenArg) const
@@ -514,18 +504,16 @@ void listObj::iterator::children(children_t &childrenArg) const
 
 	for (auto child: *iter->p->children)
 	{
-		ptr<nodehierObj> getptr(child.second.getptr());
+		ptr<nodehierObj> getptr=child.second.getptr();
 
-		if (getptr.null())
+		if (!getptr)
 			continue;
 
-		childrenArg.insert(std::make_pair(child.first,
-						  iterator(ref<iteratorObj>
-							   ::create(iter->l,
-								    n+child
-								    .first,
-								    getptr))
-						  ));
+		childrenArg.insert_or_assign
+			(child.first,
+			 iterator{
+				ref<iteratorObj>::create(iter->l, n+child.first,
+							 getptr)});
 	}
 }
 
@@ -555,28 +543,30 @@ listObj::iterator listObj::iterator::get(const std::string &childname)
 						 ptr<nodehierObj>()));
 }
 
-void listObj::enumerate(std::map<std::string, std::string> &properties)
-
+properties_t listObj::enumerate()
 {
-	enumerate(properties, root());
+	properties_t prop;
+
+	enumerate(prop, root());
+
+	return prop;
 }
 
-void listObj::enumerate(std::map<std::string, std::string> &properties,
+void listObj::enumerate(properties_t &properties,
 			const iterator &iter)
 
 {
-	std::pair<std::string, bool> value(iter.value());
+	auto value=iter.value();
 
-	if (!value.second)
-		properties.insert(std::make_pair(iter.propname(), value.first));
+	if (value)
+		properties.insert_or_assign(iter.propname(), *value);
 
 	iterator::children_t children;
 
 	iter.children(children);
 
-	for (iterator::children_t::iterator
-		     b=children.begin(), e=children.end(); b != e; ++b)
-		enumerate(properties, b->second);
+	for (auto &child:children)
+		enumerate(properties, child.second);
 }
 
 class globalListObj : public listObj {
@@ -854,10 +844,9 @@ void load_properties(std::istream &default_properties,
 				update, create, errh, localeRef);
 }
 
-void enumerate_properties(std::map<std::string, std::string> &properties)
-
+properties_t enumerate_properties()
 {
-	listObj::global()->enumerate(properties);
+	return listObj::global()->enumerate();
 }
 
 void load_property(const std::string &propnamestr,
@@ -889,7 +878,5 @@ void load_file(const std::string &filename,
 
 #if 0
 {
-	{
 #endif
-	}
 }
