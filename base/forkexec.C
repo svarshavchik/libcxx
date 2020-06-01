@@ -35,8 +35,7 @@ forkexec &forkexec::set_fd(int filedesc, const fd &fdArg)
 	if (filedesc < 0)
 		throw EXCEPTION(_("Invalid file descriptor"));
 
-	filedescs.erase(filedesc);
-	filedescs.insert(std::make_pair(filedesc, fdArg));
+	filedescs.insert_or_assign(filedesc, fdArg);
 	return *this;
 }
 

@@ -115,9 +115,7 @@ class mcguffincontainerObj<ref_type,
 	}
 
 	//! Destructor
-	~mcguffincontainerObj()
-	{
-	}
+	~mcguffincontainerObj()=default;
 
 	//! Create a wrapper object for the container.
 

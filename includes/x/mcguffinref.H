@@ -114,15 +114,10 @@ public:
 	}
 
 	//! Constructor
-	mcguffinrefObj()
-
-	{
-	}
+	mcguffinrefObj()=default;
 
 	//! Destructor
-	~mcguffinrefObj()
-	{
-	}
+	~mcguffinrefObj()=default;
 
 	//! Install the reference
 

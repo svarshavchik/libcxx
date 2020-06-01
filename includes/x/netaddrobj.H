@@ -170,7 +170,12 @@ public:
 	//! otherwise address resolution will fail.
 	netaddr node(//! The network hostname
 
-		     const std::string &n) noexcept { nodeval=n; return netaddr(this); }
+		     const std::string &n) noexcept
+	{
+		nodeval=n;
+		return netaddr{this};
+	}
+
 	//! Get the network hostname
 
 	std::string node() noexcept { return nodeval; }
@@ -183,7 +188,7 @@ public:
 			const std::string &s) noexcept
 	{
 		serviceval=s;
-		return netaddr(this);
+		return netaddr{this};
 	}
 
 	//! Set the network port
@@ -211,7 +216,7 @@ public:
 		      //! - \c AI_PASSIVE
 		      //! - \c AI_ADDRCONFIG
 		      //! ... and others.
-		      int v) noexcept { flagsval=v; return netaddr(this); }
+		      int v) noexcept { flagsval=v; return netaddr{this}; }
 
 	//! Get address resolution flags
 
@@ -226,7 +231,7 @@ public:
 		       //! Possible values are \c AF_UNIX, \c AF_INET, or
 		       //! \c AF_INET6. Other values are also allowed, but
 		       //! are not directly supported by other functions.
-		       int v) noexcept { domain_hint=v; return netaddr(this); }
+		       int v) noexcept { domain_hint=v; return netaddr{this}; }
 
 	//! Get the default address family domain
 
@@ -237,7 +242,7 @@ public:
 	//! \see type_hint
 	//!
 	netaddr type(//! The new socket type, either \c SOCK_STREAM or \c SOCK_DGRAM.
-		     int v) noexcept { type_hint=v; return netaddr(this); }
+		     int v) noexcept { type_hint=v; return netaddr{this}; }
 
 	//! Get the default socket type
 
@@ -250,7 +255,7 @@ public:
 			 int v) noexcept
 	{
 		protocol_hint=v;
-		return netaddr(this);
+		return netaddr{this};
 	}
 
 	//! Get the default socket protocol

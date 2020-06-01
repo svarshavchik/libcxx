@@ -86,7 +86,7 @@ public:
 	}
 
 	//! Destructor
-	~mmapObj() {}
+	~mmapObj()=default;
 
 	//! Return the mmaped object.
 	typeObj *object()

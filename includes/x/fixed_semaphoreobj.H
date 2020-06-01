@@ -37,7 +37,7 @@ class fixed_semaphoreObj : virtual public obj {
 		//! Constructor
 		callbackBaseObj();
 
-	
+
 	    	//! Destructor
 		~callbackBaseObj();
 
@@ -68,15 +68,13 @@ class fixed_semaphoreObj : virtual public obj {
 		template<typename Acquired, typename Released>
 		callbackObj(Acquired && acquired,
 			    Released && released)
-			: acquired_functor(std::forward<Acquired>(acquired)),
-			  release_functor(std::forward<Released>(released))
+			: acquired_functor{std::forward<Acquired>(acquired)},
+			  release_functor{std::forward<Released>(released)}
 		{
 		}
 
 		//! Destructor
-		~callbackObj()
-		{
-		}
+		~callbackObj()=default;
 
 		//! Invoke the acquired functor
 		bool acquired() override

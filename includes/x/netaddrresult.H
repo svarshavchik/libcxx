@@ -40,7 +40,7 @@ inline netaddr::base::result
 netaddrResultObj::operator+(const netaddrResultObj &o)
 
 {
-	netaddr::base::result r(netaddr::base::result::create());
+	netaddr::base::result r=netaddr::base::result::create();
 
 	(*r) += (*this);
 	(*r) += o;

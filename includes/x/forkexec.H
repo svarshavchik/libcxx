@@ -11,7 +11,7 @@
 #include <unistd.h>
 #include <string>
 #include <vector>
-#include <map>
+#include <unordered_map>
 
 #include <x/fd.H>
 #include <x/exception.H>
@@ -45,7 +45,7 @@ class forkexec {
 	std::string exe;
 
 	//! Holding area for file descriptors to get redirected.
-	std::map<int, fd> filedescs;
+	std::unordered_map<int, fd> filedescs;
 
 public:
 

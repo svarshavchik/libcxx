@@ -20,8 +20,8 @@ namespace std {
 			    tag, base_class>> {
 
 		typedef typename
-		std::enable_if<std::is_integral<value_type_t>::value
-			       >::type only_for_integers;
+		std::enable_if_t<std::is_integral_v<value_type_t>
+				 > only_for_integers;
 
 		inline size_t operator()(const
 					 LIBCXX_NAMESPACE::number<value_type_t,

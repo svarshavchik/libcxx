@@ -35,7 +35,7 @@ std::pair<iter_type, bool> getlinelf(//! Beginning input iterator
 
 				     //! This is typically a \c std::string.
 				     //!
-	    
+
 				     container_type &cont)
 
 {
@@ -58,7 +58,7 @@ std::pair<iter_type, bool> getlinelf(//! Beginning input iterator
 
 		cont.push_back(c);
 	}
-	return std::make_pair(beg_iter, ok);
+	return {beg_iter, ok};
 }
 
 //! Read a LF-terminated line from an input stream
@@ -78,7 +78,7 @@ getlinelf(//! Input stream
 
             //! This is typically a \c std::string.
             //!
-            
+
             container_type &cont)
 {
 	typedef std::istreambuf_iterator<char_type, traits_type> iter_type;
@@ -109,7 +109,7 @@ std::pair<iter_type, bool> getlinecrlf(//! Beginning input iterator
 
 				       //! This is typically a \c std::string.
 				       //!
-	    
+
 				       container_type &cont)
 
 {
@@ -139,7 +139,7 @@ std::pair<iter_type, bool> getlinecrlf(//! Beginning input iterator
 
 		cont.push_back(c);
 	}
-	return std::make_pair(beg_iter, ok);
+	return {beg_iter, ok};
 }
 
 //! Read a CRLF-terminated line from an input stream
@@ -160,7 +160,7 @@ getlinecrlf(//! Input stream
 
             //! This is typically a \c std::string.
             //!
-            
+
             container_type &cont)
 {
 	typedef std::istreambuf_iterator<char_type, traits_type> iter_type;

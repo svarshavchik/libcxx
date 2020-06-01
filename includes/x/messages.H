@@ -69,7 +69,7 @@ public:
 		  args{std::forward<constructorArgs>(given_args)...} {}
 
 	//! Destructor
-	~gettext_helper() {}
+	~gettext_helper()=default;
 
 	//! Format the nth parameter
 

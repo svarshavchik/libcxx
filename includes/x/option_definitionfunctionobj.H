@@ -61,9 +61,7 @@ public:
 	}
 
 	//! Default destructor
-	~definitionfuncbaseObj()
-	{
-	}
+	~definitionfuncbaseObj()=default;
 
 private:
 	//! Implement the set() method.

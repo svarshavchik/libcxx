@@ -46,9 +46,7 @@ public:
 	}
 
 	//! Default destructor
-	~mcguffinlistObj()
-	{
-	}
+	~mcguffinlistObj()=default;
 
 	//! ptr<> type in this weak list.
 
