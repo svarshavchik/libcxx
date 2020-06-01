@@ -7,10 +7,8 @@
 #include "x/option_mutexobj.H"
 #include "x/option_valuebaseobj.H"
 
-namespace LIBCXX_NAMESPACE {
-	namespace option {
+namespace LIBCXX_NAMESPACE::option {
 #if 0
-	};
 };
 #endif
 
@@ -22,7 +20,7 @@ mutexObj::~mutexObj()
 {
 }
 
-mutexObj &mutexObj::add(const ptr<valuebaseObj> &valueRef) noexcept
+mutexObj &mutexObj::add(const ref<valuebaseObj> &valueRef) noexcept
 {
 	valueRef->value_mutex= this;
 	return *this;
@@ -30,7 +28,5 @@ mutexObj &mutexObj::add(const ptr<valuebaseObj> &valueRef) noexcept
 
 #if 0
 {
-	{
 #endif
-	}
 }

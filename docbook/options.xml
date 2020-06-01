@@ -156,7 +156,7 @@ int main(int argc, char **argv)
 
     std::list<std::string> args(opts.parse(argc, argv)->args);
 
-    if (opts.verbose->isSet())
+    if (opts.verbose->is_set())
     {
         std::cout << "-v was provided, and it's " << opts.verbose->value
                   << std::endl;
@@ -211,7 +211,7 @@ int main(int argc, char **argv)
 
     <para>
       Option class members are references to objects with an
-      <methodname>isSet</methodname>() element that indicates whether the
+      <methodname>is_set</methodname>() element that indicates whether the
       given option was specified. An option's value may be retrieved from
       the <varname>value</varname> member. The presence of
       <tag class='element'>hasvalue</tag> indicates that the option takes a
@@ -362,7 +362,7 @@ int main(int argc, char **argv)
 
     std::list<std::string> args(opts.parse(argc, argv)->args);
 
-    if (opts.custom->isSet())
+    if (opts.custom->is_set())
     {
         /* opts.custom->value is a customOptClass */
 

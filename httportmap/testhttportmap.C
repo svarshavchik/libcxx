@@ -99,7 +99,7 @@ int main(int argc, char **argv)
 
 				r.name=svcname_value->value;
 				r.port= *b;
-				r.flags=svcexcl_value->isSet() ?
+				r.flags=svcexcl_value->is_set() ?
 					LIBCXX_NAMESPACE::httportmap::base
 					::pm_exclusive:0;
 
@@ -131,7 +131,7 @@ int main(int argc, char **argv)
 
 				r.name=svcname_value->value;
 				r.port= *b;
-				r.flags=svcexcl_value->isSet();
+				r.flags=svcexcl_value->is_set();
 				svcs.push_back(r);
 			}
 

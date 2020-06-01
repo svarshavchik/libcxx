@@ -19,10 +19,8 @@
 #include <cwchar>
 #include <iomanip>
 
-namespace LIBCXX_NAMESPACE {
-	namespace option {
+namespace LIBCXX_NAMESPACE::option {
 #if 0
-	};
 };
 #endif
 
@@ -350,7 +348,5 @@ size_t listObj::getTtyWidth()
 
 #if 0
 {
-	{
 #endif
-	}
 }

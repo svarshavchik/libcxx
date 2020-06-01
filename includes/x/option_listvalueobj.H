@@ -16,10 +16,8 @@
 #include <list>
 #include <stdint.h>
 
-namespace LIBCXX_NAMESPACE {
-	namespace option {
+namespace LIBCXX_NAMESPACE::option {
 #if 0
-};
 };
 #endif
 
@@ -197,8 +195,6 @@ typedef ptr<listvalueObj<uriimpl> > uri_listptr;
 
 #if 0
 {
-	{
 #endif
-	}
 }
 #endif

@@ -1016,7 +1016,7 @@ int main(int argc, char **argv)
 	    parser->validate())
 		exit(1);
 
-	if (testserver->isSet())
+	if (testserver->is_set())
 		try {
 			runtestserver();
 			return 0;

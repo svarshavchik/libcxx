@@ -11,10 +11,8 @@
 #include <cwctype>
 #include <cwchar>
 
-namespace LIBCXX_NAMESPACE {
-	namespace option {
+namespace LIBCXX_NAMESPACE::option {
 #if 0
-	};
 };
 #endif
 definitionHelpObj::definitionHelpObj(std::ostream &helpStreamArg) noexcept
@@ -26,14 +24,14 @@ definitionHelpObj::~definitionHelpObj()
 {
 }
 
-int definitionHelpObj::set(parserObj &parserArg) const noexcept
+int definitionHelpObj::set(parserObj &parserArg) noexcept
 {
 	parserArg.help(helpStream);
 	return option::parser::base::err_builtin;
 }
 
 int definitionHelpObj::set(parserObj &parserArg,
-			   const std::string &valueArg) const noexcept
+			   const std::string &valueArg) noexcept
 {
 	size_t w=0;
 
@@ -43,7 +41,7 @@ int definitionHelpObj::set(parserObj &parserArg,
 	return option::parser::base::err_builtin;
 }
 
-bool definitionHelpObj::isSet() const noexcept
+bool definitionHelpObj::is_set() const noexcept
 {
 	return false;
 }
@@ -67,7 +65,5 @@ void definitionHelpObj::help(std::ostream &o,
 
 #if 0
 {
-	{
 #endif
-	}
 }

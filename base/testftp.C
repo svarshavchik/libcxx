@@ -1069,7 +1069,7 @@ int main(int argc, char **argv)
 			exit(1);
 		}
 
-		if (test->isSet())
+		if (test->is_set())
 		{
 			internaltest("127.0.0.1");
 			internaltest("localhost");

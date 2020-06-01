@@ -14,10 +14,8 @@
 #include "x/option_definitionbaseobj.H"
 #include "x/option_definitionfunctionobj.H"
 
-namespace LIBCXX_NAMESPACE {
-	namespace option {
+namespace LIBCXX_NAMESPACE::option {
 #if 0
-	};
 };
 #endif
 
@@ -211,7 +209,6 @@ void definitionbaseObj::help(std::ostream &o,
 
 template<>
 int definitionfuncbaseObj<int (*)(bool), bool>::set(parserObj &obj)
-	const
 {
 	int rc=set_explicit(true);
 
@@ -223,7 +220,6 @@ int definitionfuncbaseObj<int (*)(bool), bool>::set(parserObj &obj)
 
 template<>
 int definitionfuncbaseObj<int (*)(const bool &), bool>::set(parserObj &obj)
-	const
 {
 	int rc=set_explicit(true);
 
@@ -269,7 +265,5 @@ int definitionfuncvoidObj::set_explicit(const bool &arg)
 
 #if 0
 {
-	{
 #endif
-	}
 }

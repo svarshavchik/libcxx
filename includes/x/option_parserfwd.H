@@ -10,13 +10,8 @@
 #include <x/locale.H>
 #include <x/ptr.H>
 
-namespace LIBCXX_NAMESPACE {
-
-	//! Parse command line options
-
-	namespace option {
+namespace LIBCXX_NAMESPACE::option {
 #if 0
-	}
 }
 #endif
 
@@ -53,8 +48,6 @@ public:
 
 #if 0
 {
-	{
 #endif
-	}
 }
 #endif

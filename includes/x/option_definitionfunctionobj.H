@@ -16,10 +16,8 @@
 #include <x/value_string.H>
 #include <string>
 
-namespace LIBCXX_NAMESPACE {
-	namespace option {
+namespace LIBCXX_NAMESPACE::option {
 #if 0
-};
 };
 #endif
 
@@ -69,7 +67,7 @@ private:
 	//! Invokes the function.
 	//!
 	int set(//! The parser object that's setting this option
-		 parserObj &parserArg) const override
+		 parserObj &parserArg) override
 	{
 		if (flags & option::list::base::hasvalue)
 			return false;
@@ -91,7 +89,7 @@ private:
 		 parserObj &parserArg,
 
 		 //! The value for this option
-		 const std::string &valueArg) const override
+		 const std::string &valueArg) override
 	{
 		int rc=option::parser::base::err_invalidoption;
 
@@ -110,13 +108,13 @@ private:
 
 	//! Check if this option was specified
 
-	bool isSet() const noexcept override
+	bool is_set() const noexcept override
 	{
 		return was_set;
 	}
 
 	//! Flag - this %option was set
-	mutable bool was_set;
+	bool was_set;
 
 	//! Implement the reset function
 
@@ -139,14 +137,12 @@ protected:
 //! Specialization for a function that takes a bool arg.
 
 template<>
-int definitionfuncbaseObj<int (*)(bool), bool>::set(parserObj &obj)
-	const;
+int definitionfuncbaseObj<int (*)(bool), bool>::set(parserObj &obj);
 
 //! Specialization for a function that takes a bool arg.
 
 template<>
-int definitionfuncbaseObj<int (*)(const bool &), bool>::set(parserObj &obj)
-	const;
+int definitionfuncbaseObj<int (*)(const bool &), bool>::set(parserObj &obj);
 
 //! Define an %option that invokes a function, when specified
 
@@ -190,9 +186,7 @@ public:
 	}
 
 	//! Default destructor
-	~definitionfuncvalueObj()
-	{
-	}
+	~definitionfuncvalueObj()=default;
 
 private:
 	//! Set the default value
@@ -252,9 +246,7 @@ public:
 	}
 
 	//! Default destructor
-	~definitionfunccrvalueObj()
-	{
-	}
+	~definitionfunccrvalueObj()=default;
 
 private:
 	//! Set the default value
@@ -312,8 +304,6 @@ private:
 
 #if 0
 {
-	{
 #endif
-	}
 }
 #endif

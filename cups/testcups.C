@@ -346,7 +346,7 @@ int main(int argc, char *argv[])
 		{
 			std::optional<std::string> printer;
 
-			if (options.printer->isSet())
+			if (options.printer->is_set())
 				printer=options.printer->value;
 
 			print(printer, args);

@@ -19,7 +19,7 @@ static int main2(int argc, char **argv)
 	propertiescli args{msgs};
 	std::list<std::string> files(args.parse(argc, argv, locale)->args);
 
-	if (args.setvalue->isSet())
+	if (args.setvalue->is_set())
 	{
 		if (args.setvalue->value.substr(0, 1) != "/")
 			args.setvalue->value = x::fd::base::cwd() + "/"
@@ -39,7 +39,7 @@ static int main2(int argc, char **argv)
 				attr(LIBCXX_NAMESPACE::fileattr::create(*b)
 				     );
 
-			if (args.clearvalue->isSet())
+			if (args.clearvalue->is_set())
 			{
 				attr->removeattr("user.properties");
 				std::cout << LIBCXX_NAMESPACE::gettextmsg
@@ -50,7 +50,7 @@ static int main2(int argc, char **argv)
 				continue;
 			}
 
-			if (args.setvalue->isSet())
+			if (args.setvalue->is_set())
 			{
 				attr->setattr("user.properties",
 					      args.setvalue->value);

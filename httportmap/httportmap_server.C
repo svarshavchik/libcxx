@@ -645,9 +645,9 @@ public:
 
 	args(const httportmap_server_opts &o) : sockname(o.socket->value),
 						files(o.files->value),
-						port(o.http->isSet() ?
+						port(o.http->is_set() ?
 						     o.port->value: -1),
-						daemon(o.daemon->isSet()),
+						daemon(o.daemon->is_set()),
 						stop(false)
 	{
 	}

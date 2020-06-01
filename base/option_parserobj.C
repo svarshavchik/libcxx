@@ -13,10 +13,8 @@
 #include <sstream>
 #include <fstream>
 
-namespace LIBCXX_NAMESPACE {
-	namespace option {
+namespace LIBCXX_NAMESPACE::option {
 #if 0
-	}
 }
 #endif
 
@@ -466,7 +464,7 @@ int parserObj::validate() noexcept
 		for (b=options.begin(), e=options.end(); b != e; b++)
 		{
 			if ((*b)->flags & list::base::required &&
-			    !(*b)->isSet())
+			    !(*b)->is_set())
 			{
 				std::ostringstream o;
 
@@ -542,7 +540,5 @@ void parserObj::usage(std::ostream &o, size_t w) noexcept
 
 #if 0
 {
-	{
 #endif
-	}
 }

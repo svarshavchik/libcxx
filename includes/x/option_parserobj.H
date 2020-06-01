@@ -14,13 +14,8 @@
 #include <list>
 #include <cwchar>
 
-namespace LIBCXX_NAMESPACE {
-
-	//! Parse command line options
-
-	namespace option {
+namespace LIBCXX_NAMESPACE::option {
 #if 0
-};
 };
 #endif
 
@@ -169,8 +164,6 @@ private:
 
 #if 0
 {
-	{
 #endif
-	}
 }
 #endif

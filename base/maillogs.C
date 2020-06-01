@@ -289,10 +289,10 @@ static void searchlogs_pattern(outputbase &output,
 			       logstate &state,
 			       maillogs &args)
 {
-	if (args.pattern->isSet())
+	if (args.pattern->is_set())
 		do_searchlogs_pattern(output, files, state, args,
 				      args.pattern->value, 0);
-	else if (args.utf8pattern->isSet())
+	else if (args.utf8pattern->is_set())
 		do_searchlogs_pattern(output, files, state, args,
 		 		      args.utf8pattern->value, PCRE_UTF8);
 	else searchlogs(output, files, state, args);
@@ -314,7 +314,7 @@ int main2(int argc, char **argv)
 
 	files.pop_front();
 
-	if (args.tostdout->isSet())
+	if (args.tostdout->is_set())
 	{
 		outputtostdout out;
 		searchlogs_pattern(out, files, state, args);

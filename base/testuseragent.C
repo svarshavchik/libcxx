@@ -1675,7 +1675,7 @@ int main(int argc, char **argv)
 			exit(1);
 		}
 
-		if (uri->isSet())
+		if (uri->is_set())
 		{
 			showuri(uri->value);
 			return 0;

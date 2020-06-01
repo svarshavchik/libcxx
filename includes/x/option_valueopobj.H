@@ -14,10 +14,8 @@
 #include <sstream>
 #include <list>
 
-namespace LIBCXX_NAMESPACE {
-	namespace option {
+namespace LIBCXX_NAMESPACE::option {
 #if 0
-};
 };
 #endif
 
@@ -117,7 +115,7 @@ public:
 		: valueref(valueArg), opvalue(opvalueArg) {}
 
 	//! Default destructor
-	~opvalueObj() {}
+	~opvalueObj()=default;
 
 	//! Set the option's value
 
@@ -214,8 +212,6 @@ class xor_op {
 
 #if 0
 {
-	{
 #endif
-	}
 }
 #endif

@@ -15,10 +15,8 @@
 #include <cwctype>
 #include <cwchar>
 
-namespace LIBCXX_NAMESPACE {
-	namespace option {
+namespace LIBCXX_NAMESPACE::option {
 #if 0
-	};
 };
 #endif
 definitionPropertiesObj::definitionPropertiesObj(std::ostream &outputStreamArg)
@@ -34,13 +32,13 @@ definitionPropertiesObj::~definitionPropertiesObj()
 {
 }
 
-int definitionPropertiesObj::set(parserObj &parserArg) const noexcept
+int definitionPropertiesObj::set(parserObj &parserArg) noexcept
 {
 	return set(parserArg, "");
 }
 
 int definitionPropertiesObj::set(parserObj &parserArg,
-				 const std::string &valueArg) const noexcept
+				 const std::string &valueArg) noexcept
 {
 	bool all=valueArg == libmsg(_txt("all"));
 
@@ -59,7 +57,7 @@ int definitionPropertiesObj::set(parserObj &parserArg,
 	return option::parser::base::err_builtin;
 }
 
-bool definitionPropertiesObj::isSet() const noexcept
+bool definitionPropertiesObj::is_set() const noexcept
 {
 	return false;
 }
@@ -70,7 +68,5 @@ void definitionPropertiesObj::reset() noexcept
 
 #if 0
 {
-	{
 #endif
-	}
 }

@@ -10,10 +10,8 @@
 #include <x/ptr.H>
 #include <x/obj.H>
 
-namespace LIBCXX_NAMESPACE {
-	namespace option {
+namespace LIBCXX_NAMESPACE::option {
 #if 0
-};
 };
 #endif
 
@@ -34,8 +32,6 @@ typedef ptr<mutexObj> mutexptr;
 
 #if 0
 {
-	{
 #endif
-	}
 }
 #endif

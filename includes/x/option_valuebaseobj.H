@@ -12,10 +12,8 @@
 #include <x/locale.H>
 #include <x/option_mutexfwd.H>
 
-namespace LIBCXX_NAMESPACE {
-	namespace option {
+namespace LIBCXX_NAMESPACE::option {
 #if 0
-};
 };
 #endif
 
@@ -59,7 +57,7 @@ public:
 
 	//! Check if this value was set
 
-	bool isSet() const noexcept
+	bool is_set() const noexcept
 	{
 		return specified;
 	}
@@ -109,8 +107,6 @@ public:
 
 #if 0
 {
-	{
 #endif
-	}
 }
 #endif

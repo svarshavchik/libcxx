@@ -15,10 +15,8 @@
 #include <cwctype>
 #include <cwchar>
 
-namespace LIBCXX_NAMESPACE {
-	namespace option {
+namespace LIBCXX_NAMESPACE::option {
 #if 0
-	};
 };
 #endif
 definitionObj::definitionObj(ptr<valuebaseObj> valueArg,
@@ -37,20 +35,20 @@ definitionObj::~definitionObj()
 {
 }
 
-int definitionObj::set(parserObj &parserArg) const
+int definitionObj::set(parserObj &parserArg)
 {
 	return value->pubset();
 }
 
 int definitionObj::set(parserObj &parserArg,
-		       const std::string &valueArg) const
+		       const std::string &valueArg)
 {
 	return value->pubset(valueArg, locale::base::utf8());
 }
 
-bool definitionObj::isSet() const
+bool definitionObj::is_set() const
 {
-	return value->isSet();
+	return value->is_set();
 }
 
 bool definitionObj::multiple() const
@@ -65,7 +63,5 @@ void definitionObj::reset()
 
 #if 0
 {
-	{
 #endif
-	}
 }

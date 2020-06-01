@@ -17,13 +17,8 @@
 #include <iostream>
 #include <courier-unicode.h>
 
-namespace LIBCXX_NAMESPACE {
-
-	//! Parse command line options
-
-	namespace option {
+namespace LIBCXX_NAMESPACE::option {
 #if 0
-};
 };
 #endif
 
@@ -337,8 +332,6 @@ public:
 
 #if 0
 {
-	{
 #endif
-	}
 }
 #endif

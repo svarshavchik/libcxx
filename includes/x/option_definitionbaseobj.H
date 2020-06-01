@@ -16,10 +16,8 @@
 #include <iostream>
 #include <courier-unicode.h>
 
-namespace LIBCXX_NAMESPACE {
-	namespace option {
+namespace LIBCXX_NAMESPACE::option {
 #if 0
-};
 };
 #endif
 
@@ -69,7 +67,7 @@ public:
 	//! \see option
 
 	virtual int set(//! The parser object that's setting this option
-			parserObj &parserArg) const=0;
+			parserObj &parserArg)=0;
 
 	//! Set the %option to a given value
 
@@ -81,7 +79,7 @@ public:
 			parserObj &parserArg,
 
 			//! The value for this option
-			const std::string &valueArg) const=0;
+			const std::string &valueArg)=0;
 
 	//! Reset the option to the initial default
 
@@ -91,7 +89,7 @@ public:
 
 	//! \c true if the option was previously set, \c false oterhwise
 
-	virtual bool isSet() const=0;
+	virtual bool is_set() const=0;
 
 	//! Format the option's usage summary
 
@@ -121,8 +119,6 @@ public:
 
 #if 0
 {
-	{
 #endif
-	}
 }
 #endif

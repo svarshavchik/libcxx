@@ -289,7 +289,7 @@ int main(int argc, char **argv)
 
 		LIBCXX_NAMESPACE::http::useragent::base::https_enable();
 
-		if (uri->isSet())
+		if (uri->is_set())
 		{
 			showuri(uri->value);
 			return 0;

@@ -14,8 +14,6 @@
 #include <x/option_listvalueobj.H>
 #include <list>
 
-namespace LIBCXX_NAMESPACE {
-
 //! Parse command line options
 
 //! This namespace defines objects for parsing command line options received
@@ -65,7 +63,7 @@ namespace LIBCXX_NAMESPACE {
 //! to retrieve the option's given value.
 //!
 //! \code
-//! if (retries_value->isSet())
+//! if (retries_value->is_set())
 //! {
 //!     int retries=retries_value->value;
 //!
@@ -345,7 +343,7 @@ namespace LIBCXX_NAMESPACE {
 //! value specified as either "-ovalue", "-o=value", or "-o value".
 //!
 //! \code
-//! if (option_value->isSet())
+//! if (option_value->is_set())
 //! {
 //!     int retries=option_value->value;
 //!
@@ -353,7 +351,7 @@ namespace LIBCXX_NAMESPACE {
 //! }
 //! \endcode
 //!
-//! A specified option's isSet() returns true. If its value was not provided,
+//! A specified option's is_set() returns true. If its value was not provided,
 //! the option's \c value is set to the default value for that option.
 //! Generally, the default value for numeric option is 1, for a
 //! \c INSERT_LIBX_NAMESPACE::option::bool_value is \c true, and string options
@@ -597,16 +595,13 @@ namespace LIBCXX_NAMESPACE {
 //! the file's contents. The contents of the file are processed as if they
 //! were processed by \c parseString() (and they are).
 
-	namespace option {
+namespace LIBCXX_NAMESPACE::option {
 #if 0
-};
 };
 #endif
 
 #if 0
 {
-	{
 #endif
-	}
 }
 #endif

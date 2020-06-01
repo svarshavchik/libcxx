@@ -20,11 +20,8 @@
 #include <list>
 #include <stdint.h>
 
-namespace LIBCXX_NAMESPACE {
-
-	namespace option {
+namespace LIBCXX_NAMESPACE::option {
 #if 0
-};
 };
 #endif
 
@@ -72,15 +69,13 @@ public:
 	//! Default constructor
 	valueObj(//! Option's initial value
 		 const value_t &valueArg=value_string<value_t>::initial_value())
-	noexcept : value(valueArg),
-		initial_value(valueArg)
+		noexcept : value(valueArg),
+			   initial_value(valueArg)
 	{
 	}
 
 	//! Default destructor
-	~valueObj()
-	{
-	}
+	~valueObj()=default;
 
 	//! The option's values
 
@@ -247,8 +242,6 @@ typedef ptr<valueObj<memsize> > memsize_valueptr;
 
 #if 0
 {
-	{
 #endif
-	}
 }
 #endif

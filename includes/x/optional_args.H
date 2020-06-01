@@ -43,9 +43,7 @@ public:
 	std::optional<Arg> value;
 
 	//! Default constructor
-	optional_args()
-	{
-	}
+	optional_args()=default;
 
 	//! Copy-construct this parameter.
 

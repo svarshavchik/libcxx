@@ -11,10 +11,8 @@
 #include <x/obj.H>
 #include <x/option_mutexfwd.H>
 
-namespace LIBCXX_NAMESPACE {
-	namespace option {
+namespace LIBCXX_NAMESPACE::option {
 #if 0
-};
 };
 #endif
 
@@ -39,13 +37,11 @@ public:
 
 	//! Add a value to this mutually-exclusive %option group
 
-	mutexObj &add(const ptr<valuebaseObj> &valueRef) noexcept;
+	mutexObj &add(const ref<valuebaseObj> &valueRef) noexcept;
 };
 
 #if 0
 {
-	{
 #endif
-	}
 }
 #endif

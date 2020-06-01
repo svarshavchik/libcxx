@@ -10,10 +10,8 @@
 #include <x/ptr.H>
 #include <x/obj.H>
 
-namespace LIBCXX_NAMESPACE {
-	namespace option {
+namespace LIBCXX_NAMESPACE:: option {
 #if 0
-	}
 }
 #endif
 
@@ -58,8 +56,6 @@ public:
 
 #if 0
 {
-	{
 #endif
-	}
 }
 #endif

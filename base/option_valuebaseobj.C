@@ -13,10 +13,8 @@
 #include <sstream>
 #include <x/exception.H>
 
-namespace LIBCXX_NAMESPACE {
-	namespace option {
+namespace LIBCXX_NAMESPACE::option {
 #if 0
-	};
 };
 #endif
 
@@ -74,7 +72,5 @@ void valuebaseObj::pubreset() noexcept
 
 #if 0
 {
-	{
 #endif
-	}
 }

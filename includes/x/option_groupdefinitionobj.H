@@ -14,10 +14,8 @@
 
 #include <string>
 
-namespace LIBCXX_NAMESPACE {
-	namespace option {
+namespace LIBCXX_NAMESPACE::option {
 #if 0
-};
 };
 #endif
 
@@ -65,7 +63,7 @@ public:
 	//! Override the set() method.
 
 	int set(//! The parser object that's setting this option
-		 parserObj &parserArg) const override LIBCXX_HIDDEN;
+		 parserObj &parserArg) override LIBCXX_HIDDEN;
 
 	//! Override the set() method.
 
@@ -73,11 +71,7 @@ public:
 		 parserObj &parserArg,
 
 		 //! The value for this option
-		 std::string valueArg,
-
-		 //! Value's locale
-		 const const_locale &localeArg) const
-		LIBCXX_HIDDEN;
+		 const std::string &valueArg) override LIBCXX_HIDDEN;
 
 	void reset() override LIBCXX_HIDDEN;
 
@@ -112,8 +106,6 @@ private:
 
 #if 0
 {
-	{
 #endif
-	}
 }
 #endif

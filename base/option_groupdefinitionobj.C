@@ -14,10 +14,8 @@
 #include <cwctype>
 #include <cwchar>
 
-namespace LIBCXX_NAMESPACE {
-	namespace option {
+namespace LIBCXX_NAMESPACE::option {
 #if 0
-	};
 };
 #endif
 groupdefinitionObj::groupdefinitionObj(ptr<valuebaseObj> valueArg,
@@ -36,7 +34,7 @@ groupdefinitionObj::~groupdefinitionObj()
 {
 }
 
-int groupdefinitionObj::set(parserObj &parserArg) const
+int groupdefinitionObj::set(parserObj &parserArg)
 {
 	int rc=value->pubset();
 
@@ -47,9 +45,7 @@ int groupdefinitionObj::set(parserObj &parserArg) const
 }
 
 int groupdefinitionObj::set(parserObj &parserArg,
-			    std::string valueArg,
-			    const const_locale &localeArg)
-	const
+			    const std::string &valueArg)
 {
 	return option::parser::base::err_invalidoption; // Values not allowed
 }
@@ -90,7 +86,5 @@ void groupdefinitionObj::help(std::ostream &o,
 
 #if 0
 {
-	{
 #endif
-	}
 }

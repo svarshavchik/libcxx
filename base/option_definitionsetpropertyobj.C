@@ -15,10 +15,8 @@
 #include <cwctype>
 #include <cwchar>
 
-namespace LIBCXX_NAMESPACE {
-	namespace option {
+namespace LIBCXX_NAMESPACE::option {
 #if 0
-	};
 };
 #endif
 definitionSetPropertyObj::definitionSetPropertyObj()
@@ -34,7 +32,7 @@ definitionSetPropertyObj::~definitionSetPropertyObj()
 {
 }
 
-int definitionSetPropertyObj::set(parserObj &parserArg) const noexcept
+int definitionSetPropertyObj::set(parserObj &parserArg) noexcept
 {
 	return option::parser::base::err_invalidoption;
 }
@@ -43,7 +41,7 @@ LOG_FUNC_SCOPE_DECL(LIBCXX_NAMESPACE::property::definitionSetPropertyObj,
 		    setLogger);
 
 int definitionSetPropertyObj::set(parserObj &parserArg,
-				  const std::string &valueArg) const noexcept
+				  const std::string &valueArg) noexcept
 {
 	LOG_FUNC_SCOPE(setLogger);
 
@@ -61,7 +59,7 @@ int definitionSetPropertyObj::set(parserObj &parserArg,
 	return option::parser::base::err_ok;
 }
 
-bool definitionSetPropertyObj::isSet() const noexcept
+bool definitionSetPropertyObj::is_set() const noexcept
 {
 	return false;
 }
@@ -72,7 +70,5 @@ void definitionSetPropertyObj::reset() noexcept
 
 #if 0
 {
-	{
 #endif
-	}
 }

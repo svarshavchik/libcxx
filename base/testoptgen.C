@@ -85,25 +85,25 @@ int main(int argc, char **argv)
 
 		std::list<std::string> args(opts.parse(argc, argv)->args);
 
-		if (opts.verbose->isSet())
+		if (opts.verbose->is_set())
 			std::cout << "Verbose: " << opts.verbose->value
 				  << std::endl;
 
-		if (opts.debug->isSet())
+		if (opts.debug->is_set())
 			std::cout << "Debug: " << opts.debug->value
 				  << std::endl;
 
-		if (opts.funcs->isSet())
+		if (opts.funcs->is_set())
 			std::cout << "    funcs: " << opts.funcs->value << std::endl;
 
-		if (opts.io->isSet())
+		if (opts.io->is_set())
 			std::cout << "    io: " << opts.io->value << std::endl;
 
-		if (opts.outputformat->isSet())
+		if (opts.outputformat->is_set())
 			std::cout << "Output format: " << opts.outputformat->value.s
 				  << std::endl;
 
-		if (opts.columns->isSet())
+		if (opts.columns->is_set())
 			std::cout << "Column mask: " << opts.columns->value
 				  << std::endl;
 
