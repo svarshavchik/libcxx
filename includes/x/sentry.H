@@ -22,10 +22,10 @@ class sentry {
 public:
 
 	//! Constructor
-	inline sentry() {}
+	inline sentry()=default;
 
 	//! Destructor
-	inline ~sentry() {}
+	inline ~sentry()=default;
 
 	//! Begin guarding
 	virtual void guard()=0;

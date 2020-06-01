@@ -204,9 +204,7 @@ public:
 		}
 
 		//! Destructor
-		~ownerImpl()
-		{
-		}
+		~ownerImpl()=default;
 
 		void process(const ref<obj> &mcguffin) override
 		{

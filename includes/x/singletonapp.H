@@ -83,7 +83,7 @@ namespace LIBCXX_NAMESPACE {
 //! <tt>SIGHUP</tt>,
 //! <tt>SIGTERM</tt>,
 //! <tt>SIGQUIT</tt>, and installs a
-//! \ref sighandler "signal handler".
+//! \ref install_sighandler "signal handler".
 //!
 //! When any of those signals are received, the singleton process stops
 //! accepting any more connections
@@ -98,7 +98,7 @@ namespace LIBCXX_NAMESPACE {
 //!
 //! - alternatively, signal handlers may be separately installed, and perform
 //! the necessary duties that result in the termination of all threads.
-//! installsighandler() is a convenience function that installs the given
+//! install_all_sighandlers() is a convenience function that installs the given
 //! handler for all signals that result in the singleton process stopping
 //! accepting any new connections.
 //!
@@ -289,13 +289,13 @@ public:
 	//! for these signals, using this convenience function, so that it
 	//! can take the necessary action to direct any singleton threads to
 	//! terminate.
-	static void installsighandler(//! Signal handler
-				      const sighandler &handler,
+	//!
+	//! Returns a mcguffin for the installed signal handler. The signal
+	//! handler remains installed as long as the mcguffin exists, like
+	//! with \ref install_sighandler "install_sighandler".
 
-				      //! Registration mcguffins returned by
-				      //! \ref sighandlerBase::install "INSERT_LIBX_NAMESPACE::sighandler::base::install()".
-
-				      std::list<ptr<obj> > &mcguffins)
+	static ref<obj> install_all_sighandlers(//! Signal handler
+						const sighandler_t &handler);
 ;
 
 	//! Validate singleton connection

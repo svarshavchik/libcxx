@@ -24,23 +24,23 @@ const char *signame(size_t n) noexcept
 	return (n < nsigs && (o=sigoff[n]) >= 0) ? sigtab + o:"";
 }
 
-int sigset::name2sig(const std::string &n) noexcept
+int sigset::name2sig(const std::string_view &n) noexcept
 {
 	for (size_t i=0; i<nsigs; ++i)
 		if (n == signame(i))
 			return i;
 
 	return -1;
-       
+
 }
 
-int sigset::name2sig_orthrow(const std::string &n)
+int sigset::name2sig_orthrow(const std::string_view &n)
 
 {
 	int v=name2sig(n);
 
 	if (v < 0)
-		throw EXCEPTION(n + ": no such signal");
+		throw EXCEPTION(n << ": no such signal");
 	return v;
 }
 
@@ -101,7 +101,7 @@ sigset &sigset::operator+=(int signum)
 	return *this;
 }
 
-sigset &sigset::operator+=(const std::string &n)
+sigset &sigset::operator+=(const std::string_view &n)
 {
 	return operator+=(name2sig_orthrow(n));
 }
@@ -114,7 +114,7 @@ sigset &sigset::operator-=(int signum)
 	return *this;
 }
 
-sigset &sigset::operator-=(const std::string &n)
+sigset &sigset::operator-=(const std::string_view &n)
 {
 	return operator-=(name2sig_orthrow(n));
 }
@@ -144,7 +144,7 @@ sigset::block_all::~block_all()
 {
 	orig.setmask();
 }
-		
+
 #if 0
 {
 #endif

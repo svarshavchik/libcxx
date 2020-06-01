@@ -10,6 +10,7 @@
 #include <x/exception.H>
 #include <x/threads/run.H>
 #include <type_traits>
+#include <string_view>
 #include <signal.h>
 
 namespace LIBCXX_NAMESPACE {
@@ -59,7 +60,7 @@ public:
 	//! \return The number of the signal specified by name ("SIGHUP"
 	//! returns SIGHUP), or a negative value for an unknown signal.
 
-	static int name2sig(const std::string &signame) noexcept;
+	static int name2sig(const std::string_view &signame) noexcept;
 
 	//! Convert signal name to number
 
@@ -67,7 +68,7 @@ public:
 	//! returns SIGHUP). An %exception gets thrown if the signal name is
 	//! not recognized.
 
-	static int name2sig_orthrow(const std::string &signame);
+	static int name2sig_orthrow(const std::string_view &signame);
 
 	//! Convert signal number to name
 
@@ -83,7 +84,7 @@ public:
 
 	//! \overload
 
-	sigset &operator+=(const std::string &signame);
+	sigset &operator+=(const std::string_view &signame);
 
 	//! Remove a signal from the set (sigdelset)
 
@@ -93,7 +94,7 @@ public:
 
 	//! \overload
 
-	sigset &operator-=(const std::string &signame);
+	sigset &operator-=(const std::string_view &signame);
 
 	//! Convenience function
 
@@ -109,7 +110,7 @@ public:
 
 	//! \overload
 
-	sigset operator+(const std::string &n) const
+	sigset operator+(const std::string_view &n) const
 	{
 		return operator+(name2sig_orthrow(n));
 	}
@@ -128,7 +129,7 @@ public:
 
 	//! \overload
 
-	sigset operator-(const std::string &n) const
+	sigset operator-(const std::string_view &n) const
 	{
 		return operator-(name2sig_orthrow(n));
 	}

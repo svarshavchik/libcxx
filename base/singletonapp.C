@@ -52,7 +52,7 @@ public:
 
 	class mysighandler;
 
-	std::list<ptr<obj> > sighandlermcguffins;
+	ptr<obj> sighandlermcguffin;
 
 	static property::value<std::string> signallistprop;
 
@@ -67,10 +67,9 @@ public:
 	static void notrunning(uid_t uid)
 		__attribute__((noreturn));
 
-	static void installsighandler(const sighandler &handler,
-				      std::list<ptr<obj> > &mcguffins,
-				      sigset &signals)
- LIBCXX_INTERNAL;
+	static ref<obj> install_all_sighandlers(const sighandler_t &handler,
+						sigset &signals)
+		LIBCXX_INTERNAL;
 
 };
 
@@ -114,7 +113,7 @@ private:
 
 #pragma GCC visibility pop
 
-class LIBCXX_HIDDEN singletonapp::impl::mysighandler : public sighandlerObj {
+class LIBCXX_HIDDEN singletonapp::impl::mysighandler : virtual public obj {
 
  public:
 	ref<thr> runthr;
@@ -128,7 +127,7 @@ class LIBCXX_HIDDEN singletonapp::impl::mysighandler : public sighandlerObj {
 	{
 	}
 
-	void signal(int signum) override
+	void signal(int signum)
 	{
 		LOG_FUNC_SCOPE(singletonapp::logger);
 
@@ -167,15 +166,21 @@ singletonapp::impl::impl(const ref<singletonapp::factorybaseObj> &app,
 
 	ref<mysighandler> implmysighandler=ref<mysighandler>::create(implthr);
 
-	std::list<ptr<obj> > mcguffins;
+	auto mcguffin=
+		({
+			sigset ss;
 
-	{
-		sigset ss;
+			auto mcguffin=install_all_sighandlers
+				([implmysighandler]
+				 (int signum)
+				 {
+					 implmysighandler->signal(signum);
+				 }, ss);
 
-		installsighandler(implmysighandler, mcguffins, ss);
+			ss.block();
 
-		ss.block();
-	}
+			mcguffin;
+		});
 
 	while (1)
 	{
@@ -227,7 +232,7 @@ singletonapp::impl::impl(const ref<singletonapp::factorybaseObj> &app,
 	thrinstance=start_threadmsgdispatcher(implthr, fd(connection),
 					      fdptr(fakeconn.first), app);
 
-	sighandlermcguffins=mcguffins;
+	sighandlermcguffin=mcguffin;
 	connection=fakeconn.second;
 }
 
@@ -408,20 +413,37 @@ singletonapp::create_internal(const ref<factorybaseObj> &factory,
 	return instance::create(factory, uid, mode);
 }
 
-void singletonapp::installsighandler(const sighandler &handler,
-				     std::list<ptr<obj> > &mcguffins)
-
+ref<obj> singletonapp::install_all_sighandlers(const sighandler_t &handler)
 {
 	sigset dummy;
 
-	impl::installsighandler(handler, mcguffins, dummy);
+	return impl::install_all_sighandlers(handler, dummy);
 }
 
-void singletonapp::impl::installsighandler(const sighandler &handler,
-					   std::list<ptr<obj> > &mcguffins,
-					   sigset &signals)
+namespace {
+#if 0
+};
+#endif
+
+// A mcguffin for the multiple mcguffins created from install_sighandler
+
+class sighandler_mcguffinObj : virtual public obj {
+
+public:
+	std::list<ref<obj>> mcguffins;
+};
+#if 0
+{
+#endif
+}
+
+ref<obj>
+singletonapp::impl::install_all_sighandlers(const sighandler_t &handler,
+					    sigset &signals)
 
 {
+	auto mcguffin=ref<sighandler_mcguffinObj>::create();
+
 	std::list<std::string> signalnames;
 
 	strtok_str(signallistprop.get(), " \t\r\n,;", signalnames);
@@ -434,8 +456,11 @@ void singletonapp::impl::installsighandler(const sighandler &handler,
 
 		signals += signum;
 
-		mcguffins.push_back(sighandler::base::install(signum, handler));
+		mcguffin->mcguffins.push_back(install_sighandler(signum,
+								 handler));
 	}
+
+	return mcguffin;
 }
 
 uid_t singletonapp::validate_peer(const fd &connection, bool sameuser)

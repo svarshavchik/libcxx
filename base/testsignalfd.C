@@ -30,18 +30,18 @@ static void testsignalfd()
 		throw EXCEPTION("Nonblocking signal file descriptor failed");
 }
 
-class h : public LIBCXX_NAMESPACE::sighandlerObj {
+class hObj : virtual public LIBCXX_NAMESPACE::obj {
 
 public:
 	bool flag;
 	std::mutex mutex;
 	std::condition_variable cond;
 
-	h() : flag(false) {}
+	hObj() : flag(false) {}
 
-	~h() {}
+	~hObj()=default;
 
-	void signal(int signum) override
+	void signal(int signum)
 	{
 		std::lock_guard<std::mutex> lock(mutex);
 
@@ -60,13 +60,21 @@ public:
 
 void testsigexcept()
 {
-	LIBCXX_NAMESPACE::ptr<h> h1=
-		LIBCXX_NAMESPACE::ptr<h>::create();
-	LIBCXX_NAMESPACE::ptr<h> h2=
-		LIBCXX_NAMESPACE::ptr<h>::create();
+	auto h1=LIBCXX_NAMESPACE::ref<hObj>::create();
+	auto h2=LIBCXX_NAMESPACE::ref<hObj>::create();
 
-	LIBCXX_NAMESPACE::ptr<LIBCXX_NAMESPACE::obj> m1=LIBCXX_NAMESPACE::sighandler::base::install(SIGHUP, h1);
-	LIBCXX_NAMESPACE::ptr<LIBCXX_NAMESPACE::obj> m2=LIBCXX_NAMESPACE::sighandler::base::install(SIGHUP, h2);
+	auto m1=LIBCXX_NAMESPACE::install_sighandler(SIGHUP,
+						     [h1]
+						     (int signum)
+						     {
+							     h1->signal(signum);
+						     });
+	auto m2=LIBCXX_NAMESPACE::install_sighandler(SIGHUP,
+						     [h2]
+						     (int signum)
+						     {
+							     h2->signal(signum);
+						     });
 
 	kill(getpid(), SIGHUP);
 

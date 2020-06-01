@@ -23,7 +23,7 @@ signals += SIGHUP;</programlisting>
     <ulink url="&link-x--sigset;"><classname>&ns;::sigset</classname></ulink>
     is a wrapper for <classname>sigset_t</classname>, and implements the
     functionality
-    of the 
+    of the
     <citerefentry>
       <refentrytitle>sigsetops</refentrytitle>
       <manvolnum>2</manvolnum>
@@ -187,21 +187,20 @@ if (gs.ssi_signo == SIGHUP)
 	<programlisting>
 #include &lt;&ns;/sighandler.H&gt;
 
-class myhandlerObj : public &ns;::sighandlerObj {
-
-public:
 
 // ...
 
-	void signal(int signum);
+&ns;::sigset signals;
 
-};
+signals += SIGHUP;
 
-&ns;::ref&lt;myhandlerObj&gt; handler=&ns;::ref&lt;myhandlerObj&gt;::create();
-
-// ...
-
-&ns;::ref&lt;&ns;::obj&gt; mcguffin=&ns;::sighandler::install(SIGHUP, handler);</programlisting>
+signals.block();
+&ns;::ref&lt;&ns;::obj&gt; handler=&ns;::install_sighandler(
+    SIGHUP,
+    []
+    (int signum)
+    {
+    });</programlisting>
       </informalexample>
     </blockquote>
 
@@ -213,27 +212,27 @@ public:
     </para>
 
     <para>
-      A signal handler class derives from
-      <ulink url="&link-x--sighandlerObj;"><classname>&ns;::sighandlerObj</classname></ulink>,
-      and gets installed by <methodname>&ns;::sighandler::install</methodname>().
-      The same signal handler object may be installed for different signals.
+      A signal handler is a callable object with one parameter, the signal
+      number,
+      and gets installed by
+      <ulink url="&link-function-x-install-sighandler;"><methodname>&ns;::install_sighandler</methodname>()</ulink>.
+      The same signal handler object may be installed for different signals,
+      and receives the signal number as a parameter, indicating the received
+      signal.
       More than one handler may be installed for the same signal.
-      Upon receipt of a signal, each registered handler gets invoked by a
-      separate thread. There's a single thread that implements signal
+      Each installed handler gets invoked by the received signal.
+      There's a single thread that implements signal
       processing, so the signal handler should not implement time-consuming
       tasks.
     </para>
 
     <para>
-      <methodname>&ns;::sighandler::install</methodname>() returns a
+      <methodname>&ns;::install_sighandler</methodname>() returns a
       <link linkend="ondestroy">mcguffin</link>. The signal handler remains
       installed until the mcguffin goes out of scope and gets destroyed, at
       which time it gets uninstalled, and will no longer handle signals.
-      If there are no other references to the signal handler object, it gets
-      destroyed. If the mcguffin goes out of scope, there are no other
-      references to the handler, but the signal thread is currently executing
-      the handler due to a receipt of a signal, the signal handler object gets
-      destroyed when it returns.
+      if the signal thread is currently executing the handler, the signal
+      handler gets uninstalled when it returns.
     </para>
 
     <para>

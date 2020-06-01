@@ -226,34 +226,24 @@ int main()
 	<blockquote>
 	  <informalexample>
 	    <programlisting>
-class myhandlerObj : public &ns;::sighandlerObj {
-
-public:
-
-// ...
-
-	void signal(int signum);
-
-};
-
-std::list&lt; &ns;:ref&lt;obj&gt; &gt; mcguffins;
-
-// ...
-
-&ns;::ptr&lt;myhandlerObj&gt; stophandler;
-
-// ...
-
-&ns;::singletonapp::installsighandler(stophandler, mcguffins);</programlisting>
+&ns;::ref&lt;::obj&gt; mcguffin=&ns;::singletonapp::install_all_sighandlers(
+    []
+    (int signum)
+    {
+    });</programlisting>
 	    </informalexample>
 	</blockquote>
 	<para>
-	  <methodname>installsighandler</methodname>() is a convenience function
-	  that installs the given
+	  <methodname>install_all_sighandlers</methodname>()
+	  installs the given
 	  handler for all signals that result in the singleton process stopping
 	  accepting any new connections.
 	  It's expected that the signal handler will make necessary arrangements
-	  for all existing thread's swift termination.
+	  for all existing threads' swift termination.
+	  <methodname>install_all_sighandlers</methodname>() uses
+	  <link linkend="sighandler"><function>install_sighandler</function>()</link>
+	  to install the given handler for all blocked signals (returning
+	  a single mcguffin for all of them).
 	</para>
       </listitem>
     </itemizedlist>

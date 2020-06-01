@@ -816,7 +816,7 @@ private:
 //! must be a valid, unique, identifier within its translation unit.
 
 #define LOG_FUNC_SCOPE_DECL(name,decl)					\
-	static const LIBCXX_NAMESPACE::logger decl(LOG_CLASS_INIT2(name))
+	static const ::LIBCXX_NAMESPACE::logger decl(LOG_CLASS_INIT2(name))
 
 //! Activate a logger object within a functional scope
 
