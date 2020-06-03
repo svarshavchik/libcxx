@@ -10,11 +10,9 @@
 #include <x/ptrfwd.H>
 #include <unordered_set>
 
-namespace LIBCXX_NAMESPACE {
-	namespace xml {
+namespace LIBCXX_NAMESPACE::xml {
 #if 0
-	};
-};
+}
 #endif
 
 class readlockObj;
@@ -263,8 +261,6 @@ typedef const_ptr<readlockObj> const_readlockptr;
 
 #if 0
 {
-	{
 #endif
-	}
 }
 #endif

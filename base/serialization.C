@@ -13,11 +13,9 @@
 
 #include "gettext_in.h"
 
-namespace LIBCXX_NAMESPACE {
-	namespace serialization {
+namespace LIBCXX_NAMESPACE::serialization {
 #if 0
-	};
-};
+}
 #endif
 
 const char *tname(datatype value) noexcept
@@ -100,7 +98,7 @@ void classname_empty()
 #endif
 }
 
-namespace deserialize {
+namespace LIBCXX_NAMESPACE::deserialize {
 #if 0
 }
 #endif
@@ -140,7 +138,5 @@ void deserialization_nullobj(const std::string &type)
 
 #if 0
 {
-	{
 #endif
-	}
 }

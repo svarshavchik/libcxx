@@ -12,10 +12,8 @@
 #include <x/param/settable.H>
 #include <gnutls/gnutls.h>
 
-namespace LIBCXX_NAMESPACE {
-	namespace gnutls {
+namespace LIBCXX_NAMESPACE::gnutls {
 #if 0
-	}
 }
 #endif
 
@@ -74,15 +72,11 @@ typedef LIBCXX_NAMESPACE::param::settable<
 
 #if 0
 {
-	{
 #endif
-	}
 }
 
-namespace LIBCXX_NAMESPACE {
-	namespace param {
+namespace LIBCXX_NAMESPACE::param {
 #if 0
-	}
 }
 #endif
 
@@ -101,9 +95,7 @@ getnameenum<gnutls_digest_algorithm_t>::get_enum(const std::string &name,
 						 const const_locale &localeRef);
 #if 0
 {
-	{
 #endif
-	}
 }
 
 extern template class LIBCXX_NAMESPACE::param
@@ -118,14 +110,12 @@ extern template class LIBCXX_NAMESPACE::param
 		   LIBCXX_NAMESPACE::gnutls::digest_algorithm_base>,
 	   GNUTLS_DIG_UNKNOWN>;
 
-namespace LIBCXX_NAMESPACE {
-	namespace param {
+namespace LIBCXX_NAMESPACE::param {
 #define LIBCXX_TEMPLATE_DECL extern
 #define LIBCXX_SETTABLE_CLASS LIBCXX_NAMESPACE::gnutls::digest_algorithm
 #include <x/param/settable_t.H>
 #undef LIBCXX_SETTABLE_CLASS
 #undef LIBCXX_TEMPLATE_DECL
-	}
 }
 
 #endif

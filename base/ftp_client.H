@@ -11,11 +11,9 @@
 #include "x/gnutls/credentials.H"
 #include "x/gnutls/datumwrapper.H"
 
-namespace LIBCXX_NAMESPACE {
-	namespace ftp {
+namespace LIBCXX_NAMESPACE::ftp {
 #if 0
-	};
-};
+}
 #endif
 
 // Conveniently construct a lock on the implementation object
@@ -92,9 +90,7 @@ class LIBCXX_HIDDEN clientObj::tls_socket : public fdbase {
 
 #if 0
 {
-	{
 #endif
-	}
 }
 
 #endif

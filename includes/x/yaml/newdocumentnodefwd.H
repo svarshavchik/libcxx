@@ -8,11 +8,8 @@
 #include <x/namespace.h>
 #include <x/ptrfwd.H>
 
-namespace LIBCXX_NAMESPACE {
-
-	namespace yaml {
+namespace LIBCXX_NAMESPACE::yaml {
 #if 0
-	}
 }
 #endif
 
@@ -46,9 +43,7 @@ newdocumentnode make_newdocumentnode(functor_type &&functor);
 
 #if 0
 {
-	{
 #endif
-	}
 }
 
 #endif

@@ -15,10 +15,8 @@
 #include <variant>
 #include <string>
 
-namespace LIBCXX_NAMESPACE {
-	namespace cups {
+namespace LIBCXX_NAMESPACE::cups {
 #if 0
-	}
 }
 #endif
 
@@ -150,8 +148,6 @@ typedef std::variant< std::monostate,
 		      std::vector<const_collection>> option_values_t;
 #if 0
 {
-	{
 #endif
-	}
 }
 #endif

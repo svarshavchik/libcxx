@@ -20,11 +20,9 @@
 #include <iostream>
 #include <cstring>
 #include <cstdint>
-namespace LIBCXX_NAMESPACE {
-	namespace cups {
+namespace LIBCXX_NAMESPACE::cups {
 #if 0
-	}
-};
+}
 #endif
 
 static property::value<int> connect_timeout(LIBCXX_NAMESPACE_STR
@@ -588,7 +586,5 @@ resolution::operator std::string() const
 
 #if 0
 {
-	{
 #endif
-	};
-};
+}

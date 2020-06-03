@@ -26,11 +26,9 @@
 #include <type_traits>
 #include <courier-unicode.h>
 
-namespace LIBCXX_NAMESPACE {
-	namespace http {
+namespace LIBCXX_NAMESPACE::http {
 #if 0
-	};
-};
+}
 #endif
 
 const char responseimpl::msg_400[]="Bad Request";
@@ -560,7 +558,5 @@ responseimpl::to_string(std::ostreambuf_iterator<char>) const;
 
 #if 0
 {
-	{
 #endif
-	}
 }

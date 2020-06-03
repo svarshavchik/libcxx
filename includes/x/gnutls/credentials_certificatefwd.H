@@ -10,21 +10,14 @@
 #include <x/ptr.H>
 
 
-namespace LIBCXX_NAMESPACE {
+//! TLS/SSL session %certificates and %credentials
 
-	namespace gnutls {
+//! This namespace defines objects that store TLS/SSL
+//! session %credentials.
 
-		//! TLS/SSL session %certificates and %credentials
-
-		//! This namespace defines objects that store TLS/SSL
-		//! session %credentials.
-
-		namespace credentials {
-
+namespace LIBCXX_NAMESPACE::gnutls::credentials {
 #if 0
-		};
-	};
-};
+}
 #endif
 
 class certificateObj;
@@ -220,10 +213,6 @@ typedef ptr<callbackObj> callbackptr;
 
 #if 0
 {
-	{
-		{
 #endif
-		}
-	}
 }
 #endif

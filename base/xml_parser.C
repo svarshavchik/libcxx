@@ -18,11 +18,9 @@
 
 LOG_CLASS_INIT(LIBCXX_NAMESPACE::xml::implparserObj);
 
-namespace LIBCXX_NAMESPACE {
-	namespace xml {
+namespace LIBCXX_NAMESPACE::xml {
 #if 0
-	};
-};
+}
 #endif
 
 error_handler::error::error() noexcept
@@ -267,7 +265,5 @@ parser parserBase::create(const std::string_view &uri,
 
 #if 0
 {
-	{
 #endif
-	}
 }

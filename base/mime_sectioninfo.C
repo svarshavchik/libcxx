@@ -8,11 +8,9 @@
 #include "x/weakptr.H"
 #include <sstream>
 
-namespace LIBCXX_NAMESPACE {
-	namespace mime {
+namespace LIBCXX_NAMESPACE::mime {
 #if 0
-	};
-};
+}
 #endif
 
 sectioninfoObj::sectioninfoObj()
@@ -64,7 +62,5 @@ void sectioninfoObj::index_name(std::ostream &o) const
 
 #if 0
 {
-	{
 #endif
-	}
 }

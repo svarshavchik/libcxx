@@ -6,19 +6,18 @@
 #ifndef x_headersbase_H
 #define x_headersbase_H
 
-#include <string>
-#include <map>
+#include <x/headersbasefwd.H>
 #include <x/chrcasecmp.H>
 #include <x/getlinecrlf.H>
 #include <x/exception.H>
+#include <x/http/cgiimplfwd.H>
 #include <x/namespace.h>
+#include <string>
+#include <map>
 
 namespace LIBCXX_NAMESPACE {
-	namespace http {
-		class cgiimpl;
-	};
 #if 0
-};
+}
 #endif
 
 //! Headers
@@ -55,13 +54,13 @@ public:
 	public:
 		//! Constructor
 		header(const std::string &value) noexcept
-		: std::string(value)
+			: std::string(value)
 		{
 		}
 
 		//! Move constructor
 		header(std::string &&value) noexcept
-		: std::string(std::move(value))
+			: std::string(std::move(value))
 		{
 		}
 

@@ -11,13 +11,10 @@
 #include <x/gnutls/datumwrapper.H>
 #include <x/gnutls/pubkeyobj.H>
 
-namespace LIBCXX_NAMESPACE {
-
-	namespace gnutls {
-		class rsapubkeyobj;
+namespace LIBCXX_NAMESPACE::gnutls {
+	class rsapubkeyobj;
 #if 0
-	};
-};
+}
 #endif
 
 //! An internal representation of an RSA public key
@@ -47,9 +44,7 @@ public:
 
 #if 0
 {
-	{
 #endif
-	}
 }
 
 #endif

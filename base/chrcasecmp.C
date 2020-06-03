@@ -6,11 +6,9 @@
 #include "libcxx_config.h"
 #include "x/chrcasecmp.H"
 
-namespace LIBCXX_NAMESPACE {
-	namespace chrcasecmp {
+namespace LIBCXX_NAMESPACE::chrcasecmp {
 #if 0
-	};
-};
+}
 #endif
 
 std::size_t hash::operator()(const std::string_view &s) const noexcept
@@ -50,7 +48,5 @@ int compare(const std::string_view &a, const std::string_view &b) noexcept
 
 #if 0
 {
-	{
 #endif
-	}
 }

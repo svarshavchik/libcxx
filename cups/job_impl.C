@@ -14,11 +14,9 @@
 #include "x/cups/destination.H"
 #include <cstring>
 
-namespace LIBCXX_NAMESPACE {
-	namespace cups {
+namespace LIBCXX_NAMESPACE::cups {
 #if 0
-	}
-};
+}
 #endif
 
 job_implObj::job_implObj(const ref<destination_implObj> &destination)
@@ -403,7 +401,5 @@ int job_implObj::submit(const std::string_view &title)
 
 #if 0
 {
-	{
 #endif
-	};
-};
+}

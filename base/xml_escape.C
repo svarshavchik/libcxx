@@ -6,11 +6,9 @@
 #include "libcxx_config.h"
 #include "x/xml/escape.H"
 
-namespace LIBCXX_NAMESPACE {
-	namespace xml {
+namespace LIBCXX_NAMESPACE::xml {
 #if 0
-	};
-};
+}
 #endif
 
 std::string escapestr(const std::string &str,
@@ -93,7 +91,5 @@ escapestr(std::vector<uint32_t>::const_iterator,
 
 #if 0
 {
-	{
 #endif
-	}
 }

@@ -17,11 +17,9 @@
 
 LOG_CLASS_INIT(LIBCXX_NAMESPACE::http::cookiejarObj);
 
-namespace LIBCXX_NAMESPACE {
-	namespace http {
+namespace LIBCXX_NAMESPACE::http {
 #if 0
-	};
-};
+}
 #endif
 
 static property::value<size_t>
@@ -504,7 +502,5 @@ cookiejarObj::iterator cookiejarObj::end() const
 
 #if 0
 {
-	{
 #endif
-	}
 }

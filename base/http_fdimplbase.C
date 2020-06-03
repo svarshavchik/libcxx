@@ -10,11 +10,9 @@
 #include "x/ref.H"
 #include "x/sysexception.H"
 
-namespace LIBCXX_NAMESPACE {
-	namespace http {
+namespace LIBCXX_NAMESPACE::http {
 #if 0
-	};
-};
+}
 #endif
 
 fdimplbase::input_iter_t::input_iter_t(const fdbase &fdArg)
@@ -133,7 +131,5 @@ void fdimplbase::cancel_readwrite_timeout()
 
 #if 0
 {
-	{
 #endif
-	}
 }

@@ -6,16 +6,13 @@
 #ifndef x_xml_new_element_H
 #define x_xml_new_element_H
 
+#include <x/uriimplfwd.H>
 #include <x/namespace.h>
 #include <string>
 
-namespace LIBCXX_NAMESPACE {
-	class uriimpl;
-
-	namespace xml {
+namespace LIBCXX_NAMESPACE::xml {
 #if 0
-	};
-};
+}
 #endif
 
 //! Helper class for creating a new element
@@ -95,9 +92,7 @@ public:
 
 #if 0
 {
-	{
 #endif
-	}
 }
 
 #endif

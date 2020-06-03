@@ -20,11 +20,9 @@
 
 LOG_CLASS_INIT(LIBCXX_NAMESPACE::http::useragentObj);
 
-namespace LIBCXX_NAMESPACE {
-	namespace http {
+namespace LIBCXX_NAMESPACE::http {
 #if 0
-	};
-};
+}
 #endif
 
 singleton<http::useragentObj> global_useragent LIBCXX_HIDDEN;
@@ -969,7 +967,5 @@ void useragentObj::create_upload_headers(headersimpl<headersbase::crlf_endl>
 
 #if 0
 {
-	{
 #endif
-	}
 }

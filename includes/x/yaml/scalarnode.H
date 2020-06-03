@@ -11,11 +11,8 @@
 #include <x/ref.H>
 #include <x/ptr.H>
 
-namespace LIBCXX_NAMESPACE {
-
-	namespace yaml {
+namespace LIBCXX_NAMESPACE::yaml {
 #if 0
-	}
 }
 #endif
 
@@ -48,8 +45,6 @@ typedef const_ptr<scalarnodeObj> const_scalarnodeptr;
 
 #if 0
 {
-	{
 #endif
-	}
 }
 #endif

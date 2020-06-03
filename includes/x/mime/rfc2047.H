@@ -12,11 +12,8 @@
 #include <utility>
 #include <courier-unicode.h>
 
-namespace LIBCXX_NAMESPACE {
-
-	namespace mime {
+namespace LIBCXX_NAMESPACE::mime {
 #if 0
-	}
 }
 #endif
 
@@ -252,8 +249,6 @@ std::string from_rfc2047_as_utf8(//! RFC2047-encoded string
 
 #if 0
 {
-	{
 #endif
-	}
 }
 #endif

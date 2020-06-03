@@ -11,13 +11,8 @@
 #include <x/mime/headeriter.H>
 #include <x/mime/structured_content_header.H>
 
-namespace LIBCXX_NAMESPACE {
-
-	//! Classes and templates for parsing MIME-formatted messages.
-
-	namespace mime {
+namespace LIBCXX_NAMESPACE::mime {
 #if 0
-	}
 }
 #endif
 
@@ -390,8 +385,6 @@ outputrefiterator<int> make_parser(const structured_content_header &hdr,
 
 #if 0
 {
-	{
 #endif
-	}
 }
 #endif

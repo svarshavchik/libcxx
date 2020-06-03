@@ -7,11 +7,9 @@
 #include "x/http/fdclientimpl.H"
 #include "x/ref.H"
 
-namespace LIBCXX_NAMESPACE {
-	namespace http {
+namespace LIBCXX_NAMESPACE::http {
 #if 0
-	};
-};
+}
 #endif
 
 property::value<hms>
@@ -113,7 +111,5 @@ void fdclientimpl::terminate()
 
 #if 0
 {
-	{
 #endif
-	}
 }

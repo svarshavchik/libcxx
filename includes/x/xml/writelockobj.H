@@ -6,6 +6,7 @@
 #ifndef x_xml_writelockobj_H
 #define x_xml_writelockobj_H
 
+#include <x/uriimplfwd.H>
 #include <x/obj.H>
 #include <x/xml/dtdfwd.H>
 #include <x/xml/newdtdfwd.H>
@@ -13,13 +14,9 @@
 #include <x/xml/docobj.H>
 #include <x/xml/readlockobj.H>
 
-namespace LIBCXX_NAMESPACE {
-
-	class uriimpl;
-	namespace xml {
+namespace LIBCXX_NAMESPACE::xml {
 #if 0
-	};
-};
+}
 #endif
 
 //! A \ref ref "reference" to this object gets returned by writelock()
@@ -276,8 +273,6 @@ private:
 };
 #if 0
 {
-	{
 #endif
-	}
 }
 #endif

@@ -4,19 +4,15 @@
 #include <x/http/cookiemrulist.H>
 #include <x/hier.H>
 #include <x/logger.H>
+#include <x/uriimplfwd.H>
 #include <iterator>
 
-namespace LIBCXX_NAMESPACE {
-
-	class uriimpl;
-
-	namespace http {
-		class cookie;
+namespace LIBCXX_NAMESPACE::http {
 #if 0
-	};
-};
+}
 #endif
 
+class cookie;
 class domaincookiesObj;
 class responseimpl;
 class storedcookieObj;
@@ -188,8 +184,6 @@ public:
 
 #if 0
 {
-	{
 #endif
-	}
 }
 #endif

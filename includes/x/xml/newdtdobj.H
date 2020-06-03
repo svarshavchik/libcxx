@@ -8,12 +8,9 @@
 
 #include <x/xml/dtdobj.H>
 
-namespace LIBCXX_NAMESPACE {
-
-	namespace xml {
+namespace LIBCXX_NAMESPACE::xml {
 #if 0
-	};
-};
+}
 #endif
 
 //! A modifiable external or an internal document type.
@@ -69,8 +66,6 @@ private:
 
 #if 0
 {
-	{
 #endif
-	}
 }
 #endif

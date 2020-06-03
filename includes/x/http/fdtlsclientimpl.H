@@ -8,28 +8,24 @@
 
 #include <x/namespace.h>
 #include <x/gnutls/session.H>
+#include <x/hmsfwd.H>
 #include <x/http/fdclientimpl.H>
 
-namespace LIBCXX_NAMESPACE {
+//! SSL/TLS HTTP clients and servers
 
-	class hms;
+//! This namespace implements HTTP clients and servers based
+//! on a file descriptor with a SSL/TLS session.
 
-	namespace gnutls {
-
-		//! SSL/TLS HTTP clients and servers
-
-		//! This namespace implements HTTP clients and servers based
-		//! on a file descriptor with a SSL/TLS session.
-
-		namespace http {
+namespace LIBCXX_NAMESPACE::gnutls::http {
 
 #include <x/http/clientopts_t.H>
 
-			class fdtlsclientimpl;
-		};
-	};
+	class fdtlsclientimpl;
+}
+
+namespace LIBCXX_NAMESPACE {
 #if 0
-};
+}
 #endif
 
 //! An HTTP client on an SSL-encrypted file descriptor

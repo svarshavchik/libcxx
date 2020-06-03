@@ -16,11 +16,9 @@
 
 #include "gettext_in.h"
 
-namespace LIBCXX_NAMESPACE {
-	namespace yaml {
+namespace LIBCXX_NAMESPACE::yaml {
 #if 0
-	};
-};
+}
 #endif
 
 #include "yaml_internal.H"
@@ -101,7 +99,5 @@ node documentObj::construct(const docnode &d,
 
 #if 0
 {
-	{
 #endif
-	}
 }

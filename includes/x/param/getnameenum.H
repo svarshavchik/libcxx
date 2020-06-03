@@ -12,10 +12,8 @@
 #include <x/locale.H>
 #include <x/namespace.h>
 
-namespace LIBCXX_NAMESPACE {
-	namespace param {
+namespace LIBCXX_NAMESPACE::param {
 #if 0
-	}
 }
 #endif
 
@@ -45,9 +43,7 @@ public:
 
 #if 0
 {
-	{
 #endif
-	}
 }
 
 #endif

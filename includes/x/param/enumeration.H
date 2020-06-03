@@ -8,10 +8,8 @@
 
 #include <x/namespace.h>
 
-namespace LIBCXX_NAMESPACE {
-	namespace param {
+namespace LIBCXX_NAMESPACE::param {
 #if 0
-	}
 }
 #endif
 
@@ -34,9 +32,7 @@ protected:
 
 #if 0
 {
-	{
 #endif
-	}
 }
 
 #endif

@@ -7,7 +7,7 @@
 #define x_ymdhmsbase_H
 
 #include <x/ymdfwd.H>
-#include <x/hmsfwd.H>
+#include <x/hms.H>
 
 #include <stdint.h>
 
@@ -72,9 +72,7 @@ public:
 	}
 
 	//! Default destructor
-	~ymdhmsBase()
-	{
-	}
+	~ymdhmsBase()=default;
 
 	//! Retrieve the timezone abbreviation
 

@@ -9,17 +9,13 @@
 #include <x/http/fdimplbase.H>
 #include <x/http/serverimpl.H>
 #include <x/property_value.H>
+#include <x/hmsfwd.H>
 #include <iterator>
 #include <x/namespace.h>
 
-namespace LIBCXX_NAMESPACE {
-
-	class hms;
-
-	namespace http {
+namespace LIBCXX_NAMESPACE::http {
 #if 0
-	};
-};
+}
 #endif
 
 //! An HTTP server on a file descriptor
@@ -235,8 +231,6 @@ private:
 
 #if 0
 {
-	{
 #endif
-	}
 }
 #endif

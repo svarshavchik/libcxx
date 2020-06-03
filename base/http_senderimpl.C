@@ -8,11 +8,9 @@
 #include "x/property_properties.H"
 #include "gettext_in.h"
 
-namespace LIBCXX_NAMESPACE {
-	namespace http {
+namespace LIBCXX_NAMESPACE::http {
 #if 0
-	};
-};
+}
 #endif
 
 property::value<size_t>
@@ -48,7 +46,5 @@ bool senderimpl_encode::wait_continue::operator()()
 
 #if 0
 {
-	{
 #endif
-	}
 }

@@ -11,17 +11,14 @@
 #include <x/to_string.H>
 #include <algorithm>
 
-namespace LIBCXX_NAMESPACE {
+//! Helper templates for stringizing enumerated parameters.
 
-	//! Helper templates for stringizing enumerated parameters.
+//! This namespace contains some internal template classes that are
+//! used to implement stringizing of enumerated values, so that they
+//! can be used with fromstring and to_string.
 
-	//! This namespace contains some internal template classes that are
-	//! used to implement stringizing of enumerated values, so that they
-	//! can be used with fromstring and to_string.
-
-	namespace param {
+namespace LIBCXX_NAMESPACE::param {
 #if 0
-	}
 }
 #endif
 
@@ -123,9 +120,7 @@ public:
 
 #if 0
 {
-	{
 #endif
-	}
 }
 
 #endif

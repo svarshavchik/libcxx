@@ -11,19 +11,14 @@
 #include <x/yaml/newaliasnodefwd.H>
 #include <x/yaml/newaliasnodeobj.H>
 
-namespace LIBCXX_NAMESPACE {
-
-	namespace yaml {
+namespace LIBCXX_NAMESPACE::yaml {
 #if 0
-	}
 }
 #endif
 
 #if 0
 {
-	{
 #endif
-	}
 }
 
 #endif

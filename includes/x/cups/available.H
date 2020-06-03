@@ -12,18 +12,16 @@
 #include <x/ref.H>
 #include <vector>
 
-namespace LIBCXX_NAMESPACE {
-	//! Printing
+//! Printing
 
-	//! This namespace contains wrappers for CUPS library functions.
-	//!
-	//! This namespace requires an additional link with \c -lcxxcups
-	//!
-	//! \see available
+//! This namespace contains wrappers for CUPS library functions.
+//!
+//! This namespace requires an additional link with \c -lcxxcups
+//!
+//! \see available
 
-	namespace cups {
+namespace LIBCXX_NAMESPACE::cups {
 #if 0
-	};
 };
 #endif
 
@@ -36,8 +34,6 @@ std::vector<available> available_destinations();
 
 #if 0
 {
-	{
 #endif
-	}
 }
 #endif

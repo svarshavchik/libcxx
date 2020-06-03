@@ -8,13 +8,8 @@
 #include <x/namespace.h>
 #include <x/ptrfwd.H>
 
-namespace LIBCXX_NAMESPACE {
-
-	//! Classes and templates for parsing MIME-formatted messages.
-
-	namespace mime {
+namespace LIBCXX_NAMESPACE::mime {
 #if 0
-	}
 }
 #endif
 
@@ -43,8 +38,6 @@ typedef const_ptr<sectioninfoObj> const_sectioninfoptr;
 
 #if 0
 {
-	{
 #endif
-	}
 }
 #endif

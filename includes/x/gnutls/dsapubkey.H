@@ -10,36 +10,33 @@
 #include <x/gnutls/dsapubkeyobj.H>
 #include <x/ptr.H>
 
-namespace LIBCXX_NAMESPACE {
+namespace LIBCXX_NAMESPACE::gnutls {
 
-	namespace gnutls {
+	//! A DSA public key
 
-		//! A DSA public key
+	//! This object holds a DSA public key, in raw form.
+	//! This is a reference to a reference-counted object.
+	//! After this reference is returned from a method, it can
+	//! be freely passed around.
+	typedef ref<dsapubkeyobj> dsapubkey;
 
-		//! This object holds a DSA public key, in raw form.
-		//! This is a reference to a reference-counted object.
-		//! After this reference is returned from a method, it can
-		//! be freely passed around.
-		typedef ref<dsapubkeyobj> dsapubkey;
+	//! A reference to a constant DSA public key
 
-		//! A reference to a constant DSA public key
+	//! \see #dsapubkey
+	//!
+	typedef const_ref<dsapubkeyobj> const_dsapubkey;
 
-		//! \see #dsapubkey
-		//!
-		typedef const_ref<dsapubkeyobj> const_dsapubkey;
+	//! A nullable pointer reference to a DSA public key
 
-		//! A nullable pointer reference to a DSA public key
+	//! \see #dsapubkey
+	//!
 
-		//! \see #dsapubkey
-		//!
+	typedef ptr<dsapubkeyobj> dsapubkeyptr;
 
-		typedef ptr<dsapubkeyobj> dsapubkeyptr;
+	//! A nullable pointer reference to a constant DSA public key
 
-		//! A nullable pointer reference to a constant DSA public key
-
-		//! \see #dsapubkey
-		//!
-		typedef const_ptr<dsapubkeyobj> const_dsapubkeyptr;
-	}
+	//! \see #dsapubkey
+	//!
+	typedef const_ptr<dsapubkeyobj> const_dsapubkeyptr;
 }
 #endif

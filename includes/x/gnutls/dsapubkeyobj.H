@@ -11,13 +11,10 @@
 #include <x/gnutls/datumwrapper.H>
 #include <x/gnutls/pubkeyobj.H>
 
-namespace LIBCXX_NAMESPACE {
-
-	namespace gnutls {
-		class dsapubkeyobj;
+namespace LIBCXX_NAMESPACE::gnutls {
+	class dsapubkeyobj;
 #if 0
-	};
-};
+}
 #endif
 
 //! An internal representation of a DSA public key
@@ -49,8 +46,6 @@ public:
 
 #if 0
 {
-	{
 #endif
-	}
 }
 #endif

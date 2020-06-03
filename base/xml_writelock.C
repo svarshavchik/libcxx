@@ -9,11 +9,9 @@
 #include "x/to_string.H"
 #include "x/uriimpl.H"
 
-namespace LIBCXX_NAMESPACE {
-	namespace xml {
+namespace LIBCXX_NAMESPACE::xml {
 #if 0
-	};
-};
+}
 #endif
 
 writelockObj::writelockObj()=default;
@@ -46,7 +44,5 @@ newdtd writelockObj::create_internal_dtd(const std::string &external_id,
 
 #if 0
 {
-	{
 #endif
-	}
 }

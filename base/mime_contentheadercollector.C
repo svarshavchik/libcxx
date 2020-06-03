@@ -9,11 +9,9 @@
 
 #include <sstream>
 
-namespace LIBCXX_NAMESPACE {
-	namespace mime {
+namespace LIBCXX_NAMESPACE::mime {
 #if 0
-	};
-};
+}
 #endif
 
 contentheader_collectorObj::contentheader_collectorObj(bool mime_10_required)
@@ -57,7 +55,5 @@ void contentheader_collectorObj::header()
 
 #if 0
 {
-	{
 #endif
-	}
 }

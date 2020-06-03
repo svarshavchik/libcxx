@@ -6,6 +6,7 @@
 #ifndef x_xml_readlockobj_H
 #define x_xml_readlockobj_H
 
+#include <x/uriimplfwd.H>
 #include <x/obj.H>
 #include <x/xml/dtdfwd.H>
 #include <x/xml/newdtdfwd.H>
@@ -16,13 +17,9 @@
 #include <x/xml/save_to_callback.H>
 #include <x/xml/attribute.H>
 
-namespace LIBCXX_NAMESPACE {
-
-	class uriimpl;
-	namespace xml {
+namespace LIBCXX_NAMESPACE::xml {
 #if 0
-	};
-};
+}
 #endif
 
 //! Read lock implementation object.
@@ -358,8 +355,6 @@ private:
 
 #if 0
 {
-	{
 #endif
-	}
 }
 #endif

@@ -12,6 +12,7 @@
 #include <iterator>
 #include <functional>
 #include <map>
+#include <x/uriimplfwd.H>
 #include <x/http/formfwd.H>
 #include <x/exception.H>
 #include <x/locale.H>

@@ -13,11 +13,8 @@
 
 #include <type_traits>
 
-namespace LIBCXX_NAMESPACE {
-
-	namespace yaml {
+namespace LIBCXX_NAMESPACE::yaml {
 #if 0
-	}
 }
 #endif
 
@@ -68,9 +65,7 @@ newnode make_newnode(functor_type &&functor)
 
 #if 0
 {
-	{
 #endif
-	}
 }
 
 #endif

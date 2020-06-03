@@ -7,11 +7,9 @@
 #include "xml_internal.h"
 #include "gettext_in.h"
 
-namespace LIBCXX_NAMESPACE {
-	namespace xml {
+namespace LIBCXX_NAMESPACE::xml {
 #if 0
-	};
-};
+}
 #endif
 
 dtdObj::dtdObj()
@@ -105,7 +103,5 @@ void dtdimplObj::include_parameter_entity(const std::string &name)
 
 #if 0
 {
-	{
 #endif
-	}
 }

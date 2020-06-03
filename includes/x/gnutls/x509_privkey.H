@@ -7,21 +7,13 @@
 #define x_tls_x509_privkey_H
 
 #include <x/namespace.h>
-#include <x/ptr.H>
+#include <x/ref.H>
 #include <x/gnutls/x509_privkeyobj.H>
 #include <x/gnutls/x509_privkeyfwd.H>
 
-namespace LIBCXX_NAMESPACE {
-
-	namespace gnutls {
-
-		//! X.509 certificates
-
-		namespace x509 {
+namespace LIBCXX_NAMESPACE::gnutls::x509 {
 #if 0
-		};
-	};
-};
+}
 #endif
 
 //! Refer to this class is \c gnutls::x509::privkey::base or  \c gnutls::x509::privkeyptr::base
@@ -78,11 +70,7 @@ public:
 
 #if 0
 {
-	{
-		{
 #endif
-		}
-	}
 }
 
 #endif

@@ -7,36 +7,15 @@
 #define x_tls_x509_crtfwd_H
 
 #include <x/namespace.h>
-#include <x/ptr.H>
+#include <x/ptrfwd.H>
 
-namespace LIBCXX_NAMESPACE {
-
-	namespace gnutls {
-
-		namespace x509 {
+namespace LIBCXX_NAMESPACE::gnutls::x509{
 #if 0
-		};
-	};
-};
+}
 #endif
 
 class crtObj;
 class crtBase;
-
-#if 0
-{
-	{
-#endif
-	}
-}
-
-namespace gnutls {
-
-	namespace x509 {
-#if 0
-		};
-	};
-#endif
 
 //! An X509 certificate
 
@@ -252,10 +231,6 @@ typedef const_ptr<crtObj, crtBase> const_crtptr;
 
 #if 0
 {
-	{
-		{
 #endif
-		}
-	}
 }
 #endif

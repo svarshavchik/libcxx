@@ -9,18 +9,14 @@
 #include <x/http/fdimplbase.H>
 #include <x/http/clientimpl.H>
 #include <x/property_value.H>
-#include <x/hms.H>
+#include <x/hmsfwd.H>
+#include <x/timerfdfwd.H>
 #include <iterator>
 #include <x/namespace.h>
 
-namespace LIBCXX_NAMESPACE {
-
-	class timerfdObj;
-
-	namespace http {
+namespace LIBCXX_NAMESPACE::http {
 #if 0
-	};
-};
+}
 #endif
 
 //! An HTTP client on a file descriptor
@@ -129,8 +125,6 @@ private:
 
 #if 0
 {
-	{
 #endif
-	}
 }
 #endif

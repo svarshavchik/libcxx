@@ -6,11 +6,9 @@
 #include "libcxx_config.h"
 #include "http_pathcookies.H"
 
-namespace LIBCXX_NAMESPACE {
-	namespace http {
+namespace LIBCXX_NAMESPACE::http {
 #if 0
-	};
-};
+}
 #endif
 
 pathcookiesObj::pathcookiesObj()
@@ -30,7 +28,5 @@ bool pathcookiesObj::cmp::operator()(const ref<storedcookieObj> &a,
 
 #if 0
 {
-	{
 #endif
-	}
 }

@@ -16,12 +16,9 @@
 
 #include <gnutls/gnutls.h>
 
-namespace LIBCXX_NAMESPACE {
-
-	namespace gnutls {
+namespace LIBCXX_NAMESPACE::gnutls {
 #if 0
-	};
-};
+}
 #endif
 
 //! A temporary key exchange parameter
@@ -152,9 +149,7 @@ public:
 
 #if 0
 {
-	{
 #endif
-	}
 }
 
 #endif

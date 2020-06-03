@@ -14,11 +14,9 @@
 #include "destination_impl.H"
 #include <cups/cups.h>
 
-namespace LIBCXX_NAMESPACE {
-	namespace cups {
+namespace LIBCXX_NAMESPACE::cups {
 #if 0
-	};
-};
+}
 #endif
 
 class LIBCXX_HIDDEN job_implObj : public jobObj {
@@ -64,9 +62,7 @@ class LIBCXX_HIDDEN job_implObj : public jobObj {
 
 #if 0
 {
-	{
 #endif
-	};
-};
+}
 
 #endif

@@ -6,11 +6,9 @@
 #include "libcxx_config.h"
 #include "x/mime/encoderbase.H"
 
-namespace LIBCXX_NAMESPACE {
-	namespace mime {
+namespace LIBCXX_NAMESPACE::mime {
 #if 0
-	};
-};
+}
 #endif
 
 encoderbaseObj::encoderbaseObj()
@@ -28,7 +26,5 @@ inputrefiterator<char> encoderbaseObj::end() const
 
 #if 0
 {
-	{
 #endif
-	}
 }

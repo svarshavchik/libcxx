@@ -10,11 +10,9 @@
 
 #include <iomanip>
 
-namespace LIBCXX_NAMESPACE {
-	namespace http {
+namespace LIBCXX_NAMESPACE::http {
 #if 0
-	};
-};
+}
 #endif
 
 property::value<hms>
@@ -156,7 +154,5 @@ void fdserverimpl::end_write_message()
 
 #if 0
 {
-	{
 #endif
-	}
 }

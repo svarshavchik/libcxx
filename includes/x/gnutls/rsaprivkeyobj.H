@@ -11,21 +11,15 @@
 #include <x/gnutls/privkeyobj.H>
 #include <x/gnutls/x509_privkeyfwd.H>
 
-namespace LIBCXX_NAMESPACE {
-
-	namespace gnutls {
-		class rsaprivkeyobj;
-	}
+namespace LIBCXX_NAMESPACE::gnutls {
+	class rsaprivkeyobj;
 }
 
 #include <x/gnutls/x509_privkeyobj.H>
 
-namespace LIBCXX_NAMESPACE {
-
-	namespace gnutls {
+namespace LIBCXX_NAMESPACE::gnutls {
 #if 0
-	};
-};
+}
 #endif
 
 //! An internal representation of an RSA private key
@@ -55,9 +49,7 @@ public:
 
 #if 0
 {
-	{
 #endif
-	}
 }
 
 #endif

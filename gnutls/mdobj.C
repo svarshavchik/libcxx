@@ -13,11 +13,9 @@
 #include "gettext_in.h"
 #include <algorithm>
 
-namespace LIBCXX_NAMESPACE {
-	namespace gcrypt {
+namespace LIBCXX_NAMESPACE::gcrypt {
 #if 0
-	};
-};
+}
 #endif
 
 #include "gcrypt_md.h"
@@ -170,8 +168,6 @@ std::string mdObj::hexdigest(gcry_md_algos algorithm)
 
 #if 0
 {
-	{
 #endif
-	};
-};
+}
 

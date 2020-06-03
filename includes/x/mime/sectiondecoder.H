@@ -15,13 +15,8 @@
 #include <x/refiterator.H>
 #include <vector>
 
-namespace LIBCXX_NAMESPACE {
-
-	//! Classes and templates for parsing MIME-formatted messages.
-
-	namespace mime {
+namespace LIBCXX_NAMESPACE::mime {
 #if 0
-	}
 }
 #endif
 
@@ -387,8 +382,6 @@ public:
 
 #if 0
 {
-	{
 #endif
-	}
 }
 #endif

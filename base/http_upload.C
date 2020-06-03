@@ -6,11 +6,9 @@
 #include "libcxx_config.h"
 #include "x/http/upload.H"
 
-namespace LIBCXX_NAMESPACE {
-	namespace http {
+namespace LIBCXX_NAMESPACE::http {
 #if 0
-	};
-};
+}
 #endif
 
 uploadObj::uploadObj()
@@ -41,7 +39,5 @@ void uploadObj::add_file_upload(useragentObj &ua,
 
 #if 0
 {
-	{
 #endif
-	}
 }

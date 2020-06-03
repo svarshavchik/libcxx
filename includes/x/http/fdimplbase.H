@@ -12,17 +12,12 @@
 #include <x/fdreadlimit.H>
 #include <x/fdtimeout.H>
 #include <x/namespace.h>
-
+#include <x/timerfdfwd.H>
 #include <iterator>
 
-namespace LIBCXX_NAMESPACE {
-
-	class timerfdObj;
-
-	namespace http {
+namespace LIBCXX_NAMESPACE::http {
 #if 0
-	};
-};
+}
 #endif
 
 #include <x/http/clientopts_t.H>
@@ -232,8 +227,6 @@ private:
 
 #if 0
 {
-	{
 #endif
-	}
 }
 #endif

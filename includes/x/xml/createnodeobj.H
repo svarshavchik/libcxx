@@ -7,6 +7,7 @@
 #define x_xml_createnodeobj_H
 
 #include <x/obj.H>
+#include <x/uriimplfwd.H>
 #include <x/xml/createnodefwd.H>
 #include <x/xml/new_element.H>
 #include <x/xml/new_attribute.H>
@@ -14,13 +15,9 @@
 #include <string>
 #include <charconv>
 
-namespace LIBCXX_NAMESPACE {
-
-	class uriimpl;
-	namespace xml {
+namespace LIBCXX_NAMESPACE::xml {
 #if 0
-	};
-};
+}
 #endif
 
 //! Return value from createnode().
@@ -261,8 +258,6 @@ struct createnode_ret_t<T,std::enable_if_t
 
 #if 0
 {
-	{
 #endif
-	}
 }
 #endif

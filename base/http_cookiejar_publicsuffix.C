@@ -17,11 +17,9 @@
 #include <algorithm>
 #include "sysconfdir.h"
 
-namespace LIBCXX_NAMESPACE {
-	namespace http {
+namespace LIBCXX_NAMESPACE::http {
 #if 0
-	};
-};
+}
 #endif
 
 static property::value<std::string>
@@ -228,7 +226,5 @@ std::string cookiejarBase::public_suffix(const std::string &domain)
 
 #if 0
 {
-	{
 #endif
-	}
 }

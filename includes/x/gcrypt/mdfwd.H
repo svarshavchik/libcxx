@@ -9,10 +9,8 @@
 #include <x/namespace.h>
 #include <x/ptrfwd.H>
 
-namespace LIBCXX_NAMESPACE {
-	namespace gcrypt {
+namespace LIBCXX_NAMESPACE::gcrypt {
 #if 0
-	}
 }
 #endif
 
@@ -89,8 +87,6 @@ typedef const_ptr<mdObj, mdBase> const_mdptr;
 
 #if 0
 {
-	{
 #endif
-	}
 }
 #endif

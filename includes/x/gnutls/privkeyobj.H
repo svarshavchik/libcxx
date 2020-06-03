@@ -11,11 +11,9 @@
 #include <x/gnutls/pubkeyobj.H>
 #include <x/gnutls/x509_privkeyfwd.H>
 
-namespace LIBCXX_NAMESPACE {
-	namespace gnutls {
+namespace LIBCXX_NAMESPACE::gnutls {
 #if 0
-	};
-};
+}
 #endif
 
 //! An internal representation of a private key
@@ -40,8 +38,6 @@ public:
 
 #if 0
 {
-	{
 #endif
-	}
 }
 #endif

@@ -12,11 +12,8 @@
 #include <x/ref.H>
 #include <x/ptr.H>
 
-namespace LIBCXX_NAMESPACE {
-
-	namespace yaml {
+namespace LIBCXX_NAMESPACE::yaml {
 #if 0
-	}
 }
 #endif
 
@@ -29,8 +26,6 @@ class docnodeBase : public ptrref_base {
 
 #if 0
 {
-	{
 #endif
-	}
 }
 #endif

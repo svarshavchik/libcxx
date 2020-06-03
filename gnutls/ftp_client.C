@@ -9,10 +9,8 @@
 #include "x/gnutls/session.H"
 #include "x/gnutls/credentials.H"
 
-namespace LIBCXX_NAMESPACE {
-	namespace ftp {
+namespace LIBCXX_NAMESPACE::ftp {
 #if 0
-	}
 }
 #endif
 
@@ -132,7 +130,5 @@ void clientObj::auth_tls(const fdbase &connArg,
 
 #if 0
 {
-	{
 #endif
-	}
 }

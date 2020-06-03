@@ -16,12 +16,9 @@
 
 #include <set>
 
-namespace LIBCXX_NAMESPACE {
-
-	namespace http {
+namespace LIBCXX_NAMESPACE::http {
 #if 0
-	}
-};
+}
 #endif
 
 //! Compute rfc2617 digest when qop=auth is set.
@@ -182,8 +179,6 @@ std::string nonce_count_to_hex(uint32_t nonce_count) LIBCXX_INTERNAL;
 
 #if 0
 {
-	{
 #endif
-	}
 }
 #endif

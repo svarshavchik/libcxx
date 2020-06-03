@@ -9,12 +9,9 @@
 #include <x/http/fdclientobj.H>
 #include <x/namespace.h>
 
-namespace LIBCXX_NAMESPACE {
-
-	namespace http {
+namespace LIBCXX_NAMESPACE::http {
 #if 0
-	};
-};
+}
 #endif
 
 class fdclientObj;
@@ -53,8 +50,6 @@ typedef ptr<fdclientObj> fdclientptr;
 
 #if 0
 {
-	{
 #endif
-	}
 }
 #endif

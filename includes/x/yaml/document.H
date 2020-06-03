@@ -11,10 +11,8 @@
 #include <x/ptr.H>
 #include <yaml.h>
 
-namespace LIBCXX_NAMESPACE {
-	namespace yaml {
+namespace LIBCXX_NAMESPACE::yaml {
 #if 0
-	}
 }
 #endif
 
@@ -34,8 +32,6 @@ typedef ptr<documentObj> documentptr;
 
 #if 0
 {
-	{
 #endif
-	}
 }
 #endif

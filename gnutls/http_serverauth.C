@@ -16,11 +16,9 @@
 
 #include "http_auth_internal.H"
 
-namespace LIBCXX_NAMESPACE {
-	namespace http {
+namespace LIBCXX_NAMESPACE::http {
 #if 0
-	};
-};
+}
 #endif
 
 std::string serverauthBase::compute_a1(gcry_md_algos algorithm,
@@ -416,7 +414,5 @@ auth serverauthObj::doDigestScheme(const requestimpl &req,
 
 #if 0
 {
-	{
 #endif
-	};
-};
+}

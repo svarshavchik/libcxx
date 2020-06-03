@@ -18,13 +18,8 @@
 
 #include <type_traits>
 
-namespace LIBCXX_NAMESPACE {
-
-	//! Classes and templates for parsing MIME-formatted messages.
-
-	namespace mime {
+namespace LIBCXX_NAMESPACE::mime {
 #if 0
-	}
 }
 #endif
 
@@ -87,8 +82,6 @@ typedef ptriterator<contentheader_collectorObj> contentheader_collectorptr;
 
 #if 0
 {
-	{
 #endif
-	}
 }
 #endif

@@ -16,17 +16,14 @@
 #include <set>
 #include <vector>
 
-namespace LIBCXX_NAMESPACE {
+//! Load and save documents in YAML format.
 
-	//! Load and save documents in YAML format.
+//! This namespace implements a \ref parser "parser" for loading
+//! YAML-formatted documents, and a \ref writer "writer class" that
+//! generates YAML-formatted documents.
 
-	//! This namespace implements a \ref parser "parser" for loading
-	//! YAML-formatted documents, and a \ref writer "writer class" that
-	//! generates YAML-formatted documents.
-
-	namespace yaml {
+namespace LIBCXX_NAMESPACE::yaml {
 #if 0
-	}
 }
 #endif
 
@@ -119,8 +116,6 @@ private:
 
 #if 0
 {
-	{
 #endif
-	}
 }
 #endif

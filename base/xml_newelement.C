@@ -9,11 +9,9 @@
 #include "x/to_string.H"
 #include "x/uriimpl.H"
 
-namespace LIBCXX_NAMESPACE {
-	namespace xml {
+namespace LIBCXX_NAMESPACE::xml {
 #if 0
-	};
-};
+}
 #endif
 
 new_element::new_element(const std::string &nameArg)
@@ -54,7 +52,5 @@ new_element::~new_element()=default;
 
 #if 0
 {
-	{
 #endif
-	}
 }

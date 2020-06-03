@@ -14,11 +14,9 @@
 #include <sstream>
 #include <cstring>
 
-namespace LIBCXX_NAMESPACE {
-	namespace http {
+namespace LIBCXX_NAMESPACE::http {
 #if 0
-	};
-};
+}
 #endif
 
 response_exception::response_exception(int statuscodeArg,
@@ -54,7 +52,5 @@ void response_exception::setCannedBodyStr(const std::string &extra)
 
 #if 0
 {
-	{
 #endif
-	}
 }

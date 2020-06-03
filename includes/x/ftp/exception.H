@@ -9,11 +9,8 @@
 #include <x/namespace.h>
 #include <x/ftp/exceptionimpl.H>
 
-namespace LIBCXX_NAMESPACE {
-
-	namespace ftp {
+namespace LIBCXX_NAMESPACE::ftp {
 #if 0
-	}
 }
 #endif
 
@@ -34,8 +31,6 @@ typedef custom_exception<ftp_custom_exception> exception;
 
 #if 0
 {
-	{
 #endif
-	}
 }
 #endif

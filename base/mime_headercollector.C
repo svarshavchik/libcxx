@@ -8,11 +8,9 @@
 #include "x/mime/headercollector.H"
 #include "x/chrcasecmp.H"
 
-namespace LIBCXX_NAMESPACE {
-	namespace mime {
+namespace LIBCXX_NAMESPACE::mime {
 #if 0
-	};
-};
+}
 #endif
 
 #define SWITCH state=&header_collectorObj::
@@ -105,7 +103,5 @@ void header_collectorObj::wait_folded_end(int c)
 
 #if 0
 {
-	{
 #endif
-	}
 }

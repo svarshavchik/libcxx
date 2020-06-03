@@ -13,11 +13,10 @@
 namespace LIBCXX_NAMESPACE {
 
 	class headersbase;
+}
 
-	namespace mime {
-
+namespace LIBCXX_NAMESPACE::mime {
 #if 0
-	};
 };
 #endif
 
@@ -216,8 +215,6 @@ private:
 
 #if 0
 {
-	{
 #endif
-	}
 }
 #endif

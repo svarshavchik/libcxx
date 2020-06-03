@@ -297,9 +297,7 @@ protected:
 	}
 public:
 	//! Default destructor
-	~weakContainerObj()
-	{
-	}
+	~weakContainerObj()=default;
 
 	//! Return the container's STL allocator
 

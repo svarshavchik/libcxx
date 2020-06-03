@@ -9,13 +9,9 @@
 #include <x/obj.H>
 #include <x/xml/xpathfwd.H>
 
-namespace LIBCXX_NAMESPACE {
-
-	class uriimpl;
-	namespace xml {
+namespace LIBCXX_NAMESPACE::xml {
 #if 0
-	};
-};
+}
 #endif
 
 //! The result of get_xpath().
@@ -56,8 +52,6 @@ public:
 
 #if 0
 {
-	{
 #endif
-	}
 }
 #endif

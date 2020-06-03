@@ -10,19 +10,14 @@
 #include <x/mime/sectioninfoobj.H>
 #include <x/weakptr.H>
 
-namespace LIBCXX_NAMESPACE {
-
-	namespace mime {
+namespace LIBCXX_NAMESPACE::mime {
 #if 0
-	}
 }
 #endif
 
 
 #if 0
 {
-	{
 #endif
-	}
 }
 #endif

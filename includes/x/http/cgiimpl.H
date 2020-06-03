@@ -10,6 +10,7 @@
 #include <x/http/clientimpl.H>
 #include <x/http/responseimpl.H>
 #include <x/http/form.H>
+#include <x/http/cgiimplfwd.H>
 #include <x/fditer.H>
 #include <x/basicstreamobj.H>
 #include <x/sockaddrfwd.H>
@@ -17,12 +18,9 @@
 
 #include <map>
 
-namespace LIBCXX_NAMESPACE {
-
-	namespace http {
+namespace LIBCXX_NAMESPACE::http {
 #if 0
-	};
-};
+}
 #endif
 
 //! Common Gateway Interface environment when invoked from a web server
@@ -173,8 +171,6 @@ public:
 
 #if 0
 {
-	{
 #endif
-	}
 }
 #endif

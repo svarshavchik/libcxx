@@ -12,21 +12,16 @@
 #include <string>
 #include <iomanip>
 #include <algorithm>
+#include <x/headersbasefwd.H>
 #include <x/exception.H>
 #include <x/chrcasecmp.H>
 #include <x/http/messageimpl.H>
 #include <x/mime/parameter.H>
 #include <x/namespace.h>
 
-namespace LIBCXX_NAMESPACE {
-
-	class headersbase;
-
-	namespace http {
-
+namespace LIBCXX_NAMESPACE::http {
 #if 0
-	};
-};
+}
 #endif
 
 
@@ -412,8 +407,6 @@ private:
 
 #if 0
 {
-	{
 #endif
-	}
 }
 #endif

@@ -10,12 +10,9 @@
 #include <x/ptr.H>
 #include <x/gnutls/dhparamsobj.H>
 
-namespace LIBCXX_NAMESPACE {
-
-	namespace gnutls {
+namespace LIBCXX_NAMESPACE::gnutls {
 #if 0
-	};
-};
+}
 #endif
 
 //! Temporary DH parameters for TLS/SSL sessions
@@ -77,8 +74,6 @@ typedef ptr<dhparamsObj> dhparamsptr;
 
 #if 0
 {
-	{
 #endif
-	}
 }
 #endif

@@ -6,11 +6,9 @@
 #include "libcxx_config.h"
 #include "available_dests.H"
 
-namespace LIBCXX_NAMESPACE {
-	namespace cups {
+namespace LIBCXX_NAMESPACE::cups {
 #if 0
-	}
-};
+}
 #endif
 
 available_destsObj::available_destsObj()
@@ -28,7 +26,5 @@ available_destsObj::~available_destsObj()
 
 #if 0
 {
-	{
 #endif
-	};
-};
+}

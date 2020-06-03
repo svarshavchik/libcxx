@@ -7,11 +7,9 @@
 
 #include "x/xml/attribute.H"
 
-namespace LIBCXX_NAMESPACE {
-	namespace xml {
+namespace LIBCXX_NAMESPACE::xml {
 #if 0
-	};
-};
+}
 #endif
 
 attribute::attribute(const std::string &attrnameArg,
@@ -24,9 +22,7 @@ attribute::~attribute()=default;
 
 #if 0
 {
-	{
 #endif
-	}
 }
 
 namespace std {

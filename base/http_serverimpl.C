@@ -7,11 +7,9 @@
 #include "x/http/serverimpl.H"
 #include "x/http/form.H"
 
-namespace LIBCXX_NAMESPACE {
-	namespace http {
+namespace LIBCXX_NAMESPACE::http {
 #if 0
-	};
-};
+}
 #endif
 
 #define LIBCXX_TEMPLATE_DECL
@@ -21,7 +19,5 @@ namespace LIBCXX_NAMESPACE {
 #undef LIBCXX_TEMPLATE_DECL
 #if 0
 {
-	{
 #endif
-	}
 }

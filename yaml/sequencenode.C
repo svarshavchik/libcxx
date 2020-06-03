@@ -10,11 +10,9 @@
 
 #include "gettext_in.h"
 
-namespace LIBCXX_NAMESPACE {
-	namespace yaml {
+namespace LIBCXX_NAMESPACE::yaml {
 #if 0
-	}
-};
+}
 #endif
 
 sequencenodeObj::sequencenodeObj(const docnode &nArg,
@@ -79,7 +77,5 @@ sequencenodeObj::iterator::~iterator()
 
 #if 0
 {
-	{
 #endif
-	};
-};
+}

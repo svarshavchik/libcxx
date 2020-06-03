@@ -11,11 +11,9 @@
 
 #include "gettext_in.h"
 
-namespace LIBCXX_NAMESPACE {
-	namespace http {
+namespace LIBCXX_NAMESPACE::http {
 #if 0
-	};
-};
+}
 #endif
 
 void throw_error_state()
@@ -79,7 +77,5 @@ template class receiverimpl<responseimpl, fdinputiter>;
 
 #if 0
 {
-	{
 #endif
-	}
 }

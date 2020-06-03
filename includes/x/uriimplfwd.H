@@ -3,8 +3,8 @@
 ** See COPYING for distribution information.
 */
 
-#ifndef x_ymdfwd_H
-#define x_ymdfwd_H
+#ifndef x_uriimplfwd_H
+#define x_uriimplfwd_H
 
 #include <x/namespace.h>
 
@@ -13,7 +13,7 @@ namespace LIBCXX_NAMESPACE {
 };
 #endif
 
-class ymd;
+class uriimpl;
 
 #if 0
 {

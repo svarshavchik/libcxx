@@ -12,38 +12,35 @@
 #include <x/gnutls/init.H>
 #include <gnutls/gnutls.h>
 
-namespace LIBCXX_NAMESPACE {
+namespace LIBCXX_NAMESPACE::gnutls {
 
-	namespace gnutls {
+	//! The \c C++ -ified representation of a gnutls_datum_t
 
-		//! The \c C++ -ified representation of a gnutls_datum_t
+	//! datum_t is a reference to a vector of \c unsigned \c chars.
+	//! The vector is reference-counted, and this reference
+	//! can be freely passed around. The vector gets destroyed
+	//! automatically, when the last reference goes out of scope.
+	typedef vector<unsigned char> datum_t;
 
-		//! datum_t is a reference to a vector of \c unsigned \c chars.
-		//! The vector is reference-counted, and this reference
-		//! can be freely passed around. The vector gets destroyed
-		//! automatically, when the last reference goes out of scope.
-		typedef vector<unsigned char> datum_t;
+	//! A constant reference
 
-		//! A constant reference
+	//! \see datum_t
+	//!
+	typedef const_vector<unsigned char> const_datum_t;
 
-		//! \see datum_t
-		//!
-		typedef const_vector<unsigned char> const_datum_t;
+	//! A nullable pointer to a datum
 
-		//! A nullable pointer to a datum
+	typedef vectorptr<unsigned char> datumptr_t;
 
-		typedef vectorptr<unsigned char> datumptr_t;
+	//! A nullable pointer to a constant datum
 
-		//! A nullable pointer to a constant datum
+	//! \see datum_t
+	//!
+	typedef const_vectorptr<unsigned char> const_datumptr_t;
 
-		//! \see datum_t
-		//!
-		typedef const_vectorptr<unsigned char> const_datumptr_t;
-
-		class datumwrapper;
+	class datumwrapper;
 #if 0
-	};
-};
+}
 #endif
 
 //! A wrapper for \c gnutls_datum_t
@@ -103,9 +100,6 @@ public:
 };
 
 #if 0
-{
-	{
 #endif
-	}
 }
 #endif

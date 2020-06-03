@@ -21,17 +21,16 @@
 #include <string>
 #include <mutex>
 
-namespace LIBCXX_NAMESPACE {
+namespace LIBCXX_NAMESPACE::gnutls {
+	class sessionObj;
+}
 
+namespace LIBCXX_NAMESPACE {
 	class fdstreambufObj;
 
 	template<class streamType> class basic_streamObj;
-
-	namespace gnutls {
-		class sessionObj;
-	}
 #if 0
-};
+}
 #endif
 
 //! A wrapper for a \c gnutls_session_t

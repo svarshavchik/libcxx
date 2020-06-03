@@ -5,12 +5,9 @@
 #include "x/http/cookiemrulist.H"
 #include "x/hier.H"
 
-namespace LIBCXX_NAMESPACE {
-
-	namespace http {
+namespace LIBCXX_NAMESPACE::http {
 #if 0
-	};
-};
+}
 #endif
 
 class allcookiesObj;
@@ -85,8 +82,6 @@ class domaincookiesObj : virtual public obj {
 
 #if 0
 {
-	{
 #endif
-	}
 }
 #endif

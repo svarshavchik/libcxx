@@ -8,5 +8,6 @@
 
 #include <x/gnutls/x509_crtfwd.H>
 #include <x/gnutls/x509_crtobj.H>
+#include <x/ref.H>
 
 #endif

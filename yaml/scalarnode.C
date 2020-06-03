@@ -8,11 +8,9 @@
 #include "x/yaml/docnode.H"
 #include "x/yaml/document.H"
 
-namespace LIBCXX_NAMESPACE {
-	namespace yaml {
+namespace LIBCXX_NAMESPACE::yaml {
 #if 0
-	}
-};
+}
 #endif
 
 scalarnodeObj::scalarnodeObj(const docnode &nArg,
@@ -37,7 +35,5 @@ scalarnodeObj::~scalarnodeObj()
 
 #if 0
 {
-	{
 #endif
-	};
-};
+}

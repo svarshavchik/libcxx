@@ -10,37 +10,33 @@
 #include <x/gnutls/dsaprivkeyobj.H>
 #include <x/ptr.H>
 
-namespace LIBCXX_NAMESPACE {
+namespace LIBCXX_NAMESPACE::gnutls {
 
-	namespace gnutls {
+	//! A DSA private key
 
-		//! A DSA private key
+	//! This object holds an DSA private key, in raw form.
+	//! This is a reference to a reference-counted object.
+	//! After this reference is returned from a method, it can
+	//! be freely passed around.
+	typedef ref<dsaprivkeyobj> dsaprivkey;
 
-		//! This object holds an DSA private key, in raw form.
-		//! This is a reference to a reference-counted object.
-		//! After this reference is returned from a method, it can
-		//! be freely passed around.
-		typedef ref<dsaprivkeyobj> dsaprivkey;
+	//! A reference to a constant DSA private key
 
-		//! A reference to a constant DSA private key
-
-		//! \see #dsaprivkey
-		//!
-		typedef const_ref<dsaprivkeyobj> const_dsaprivkey;
+	//! \see #dsaprivkey
+	//!
+	typedef const_ref<dsaprivkeyobj> const_dsaprivkey;
 
 
-		//! A nullable pointer reference to a DSA private key
-		//! \see #dsaprivkey
-		//!
+	//! A nullable pointer reference to a DSA private key
+	//! \see #dsaprivkey
+	//!
 
-		typedef ptr<dsaprivkeyobj> dsaprivkeyptr;
+	typedef ptr<dsaprivkeyobj> dsaprivkeyptr;
 
-		//! A nullable pointer reference to a constant DSA private key
+	//! A nullable pointer reference to a constant DSA private key
 
-		//! \see #dsaprivkey
-		//!
-		typedef const_ptr<dsaprivkeyobj> const_dsaprivkeyptr;
-
-	}
+	//! \see #dsaprivkey
+	//!
+	typedef const_ptr<dsaprivkeyobj> const_dsaprivkeyptr;
 }
 #endif

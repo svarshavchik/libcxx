@@ -14,18 +14,15 @@
 
 #include <gnutls/gnutls.h>
 
-namespace LIBCXX_NAMESPACE {
+namespace LIBCXX_NAMESPACE::gnutls {
+	namespace credentials {
+		class certificateObj;
+	}
 
-	namespace gnutls {
-		namespace credentials {
-			class certificateObj;
-		}
-
-		class dhparamsObj;
-		class pkparamsObj;
+	class dhparamsObj;
+	class pkparamsObj;
 #if 0
-	};
-};
+}
 #endif
 
 //! An internal representation of DH parameters
@@ -129,8 +126,6 @@ public:
 
 #if 0
 {
-	{
 #endif
-	}
 }
 #endif

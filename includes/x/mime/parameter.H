@@ -13,12 +13,8 @@
 #include <x/tokens.H>
 #include <x/namespace.h>
 
-namespace LIBCXX_NAMESPACE {
-
-	namespace mime {
-
+namespace LIBCXX_NAMESPACE::mime {
 #if 0
-	};
 };
 #endif
 
@@ -72,15 +68,13 @@ struct parameter_t {
 
 			*iter++ = '"';
 		}
-		
+
 		return iter;
 	}
 };
 
 #if 0
 {
-	{
 #endif
-	}
 }
 #endif

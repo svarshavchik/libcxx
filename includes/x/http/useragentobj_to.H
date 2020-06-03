@@ -5,11 +5,8 @@
 
 #ifndef DOXYGEN
 
-namespace LIBCXX_NAMESPACE {
-	namespace http {
-
+namespace LIBCXX_NAMESPACE::http {
 #if 0
-	}
 }
 #endif
 
@@ -25,9 +22,7 @@ class useragentObj::request_with_body<LIBCXX_TEMPLATE_ITER>;
 
 #if 0
 {
-	{
 #endif
-	}
 }
 #endif
 

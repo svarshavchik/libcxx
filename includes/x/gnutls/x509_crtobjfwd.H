@@ -9,26 +9,24 @@
 #include <x/namespace.h>
 #include <x/gnutls/datumwrapper.H>
 #include <x/gnutls/x509_crtfwd.H>
-#include <x/ptr.H>
+#include <x/ptrfwd.H>
 
 #include <list>
 
+namespace LIBCXX_NAMESPACE::gnutls::x509 {
+	class crtObj;
+
+	class crtBase;
+}
+
+namespace LIBCXX_NAMESPACE::gnutls::credentials {
+	class certificateObj;
+}
+
 namespace LIBCXX_NAMESPACE {
-
-	namespace gnutls {
-		namespace x509 {
-			class crtObj;
-
-			class crtBase;
-		};
-		namespace credentials {
-			class certificateObj;
-		}
-	}
 #if 0
-};
+}
 #endif
-
 
 //! Base class for \ref crt "INSERT_LIBX_NAMESPACE::gnutls::x509::crt".
 

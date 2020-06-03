@@ -13,11 +13,9 @@
 #include <x/refiterator.H>
 #include <string_view>
 
-namespace LIBCXX_NAMESPACE {
-	namespace xml {
+namespace LIBCXX_NAMESPACE::xml {
 #if 0
-	};
-};
+}
 #endif
 
 //! Base class for \ref doc "XML documents".
@@ -89,8 +87,6 @@ std::string quote_string_literal(const std::string_view &str,
 
 #if 0
 {
-	{
 #endif
-	}
 }
 #endif

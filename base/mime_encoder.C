@@ -16,11 +16,9 @@
 #include <magic.h>
 #include <fstream>
 
-namespace LIBCXX_NAMESPACE {
-	namespace mime {
+namespace LIBCXX_NAMESPACE::mime {
 #if 0
-	};
-};
+}
 #endif
 
 encoderObj::section::~section()
@@ -429,7 +427,5 @@ std::string filecharset(const fd &filedesc)
 
 #if 0
 {
-	{
 #endif
-	}
 }

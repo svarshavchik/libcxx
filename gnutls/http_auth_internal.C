@@ -17,11 +17,9 @@
 
 LOG_CLASS_INIT(LIBCXX_NAMESPACE::http::clientauthimplObj::digest);
 
-namespace LIBCXX_NAMESPACE {
-	namespace http {
+namespace LIBCXX_NAMESPACE::http {
 #if 0
-	};
-};
+}
 #endif
 
 void clientauthimplObj::digest
@@ -551,8 +549,6 @@ std::string nonce_count_to_hex(uint32_t nonce_count)
 
 #if 0
 {
-	{
 #endif
-	};
-};
+}
 

@@ -20,7 +20,7 @@ namespace LIBCXX_NAMESPACE {
 //! A wrapper for an eventfd() file descriptor.
 
 //! This is a subclass of fdObj that instantiates an event file
-//! descriptor -- a Linux kernel-specific feature introduced in kernel 2.6.22.
+//! descriptor.
 
 class eventfdObj : public fdObj {
 

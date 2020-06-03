@@ -12,13 +12,8 @@
 #include <iterator>
 #include <type_traits>
 
-namespace LIBCXX_NAMESPACE {
-
-	//! Classes and templates for parsing MIME-formatted messages.
-
-	namespace mime {
+namespace LIBCXX_NAMESPACE::mime {
 #if 0
-	}
 }
 #endif
 
@@ -462,8 +457,6 @@ make_multipart_processor(const std::string &boundary,
 
 #if 0
 {
-	{
 #endif
-	}
 }
 #endif

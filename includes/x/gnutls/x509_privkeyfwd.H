@@ -7,19 +7,13 @@
 #define x_tls_x509_privkeyfwd_H
 
 #include <x/namespace.h>
-#include <x/ptr.H>
+#include <x/ptrfwd.H>
 
-namespace LIBCXX_NAMESPACE {
+//! X.509 certificates
 
-	namespace gnutls {
-
-		//! X.509 certificates
-
-		namespace x509 {
+namespace LIBCXX_NAMESPACE::gnutls::x509 {
 #if 0
-		};
-	};
-};
+}
 #endif
 
 class privkeyObj;
@@ -65,7 +59,7 @@ class privkeyBase;
 //! generation, as the GnuTLS library waits for sufficient amount of high
 //! quality entropy to become available.
 //!
-//! \see property 
+//! \see property
 //!
 //! \par Progress notification
 //!
@@ -221,14 +215,9 @@ typedef ptr<privkeyObj, privkeyBase> privkeyptr;
 //!
 typedef const_ptr<privkeyObj, privkeyBase> const_privkeyptr;
 
-
 #if 0
 {
-	{
-		{
 #endif
-		}
-	}
 }
 
 #endif

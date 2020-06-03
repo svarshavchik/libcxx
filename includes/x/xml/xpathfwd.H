@@ -8,11 +8,9 @@
 
 #include <x/ptrfwd.H>
 
-namespace LIBCXX_NAMESPACE {
-	namespace xml {
+namespace LIBCXX_NAMESPACE::xml {
 #if 0
-	};
-};
+}
 #endif
 
 class xpathObj;
@@ -99,8 +97,6 @@ typedef const_ptr<xpathObj> const_xpathptr;
 
 #if 0
 {
-	{
 #endif
-	}
 }
 #endif

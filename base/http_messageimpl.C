@@ -13,11 +13,9 @@
 #include <functional>
 #include <streambuf>
 
-namespace LIBCXX_NAMESPACE {
-	namespace http {
+namespace LIBCXX_NAMESPACE::http {
 #if 0
-	};
-};
+}
 #endif
 
 
@@ -97,7 +95,5 @@ messageimpl::getCommaValues(const char *headername,
 
 #if 0
 {
-	{
 #endif
-	}
 }

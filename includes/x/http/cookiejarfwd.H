@@ -9,12 +9,9 @@
 #include <x/ptrfwd.H>
 #include <x/namespace.h>
 
-namespace LIBCXX_NAMESPACE {
-
-	namespace http {
+namespace LIBCXX_NAMESPACE::http {
 #if 0
-	};
-};
+}
 #endif
 
 class cookiejarObj;
@@ -43,8 +40,6 @@ typedef const_ref<cookiejarObj, cookiejarBase> const_cookiejar;
 typedef const_ptr<cookiejarObj, cookiejarBase> const_cookiejarptr;
 #if 0
 {
-	{
 #endif
-	}
 }
 #endif

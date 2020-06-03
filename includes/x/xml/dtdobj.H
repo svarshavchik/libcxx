@@ -9,12 +9,9 @@
 #include <x/obj.H>
 #include <string>
 
-namespace LIBCXX_NAMESPACE {
-
-	namespace xml {
+namespace LIBCXX_NAMESPACE::xml {
 #if 0
-	};
-};
+}
 #endif
 
 //! An external or an internal document type declaration.
@@ -43,8 +40,6 @@ public:
 
 #if 0
 {
-	{
 #endif
-	}
 }
 #endif

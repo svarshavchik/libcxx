@@ -20,8 +20,7 @@ namespace LIBCXX_NAMESPACE {
 
 //! A wrapper for a timerfd_create() file descriptor.
 
-//! This is a subclass of timerfdObj that instantiates an event file
-//! descriptor -- a Linux kernel-specific feature introduced in kernel 2.6.25.
+//! This is a subclass of fdObj that instantiates an timer file descriptor.
 
 class timerfdObj : public fdObj {
 

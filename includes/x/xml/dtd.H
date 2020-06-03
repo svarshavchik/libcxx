@@ -10,19 +10,15 @@
 #include <x/xml/dtdobj.H>
 #include <x/ref.H>
 
-namespace LIBCXX_NAMESPACE {
-	namespace xml {
+namespace LIBCXX_NAMESPACE::xml {
 #if 0
-	};
-};
+}
 #endif
 
 #include <x/xml/readlock_dtd.H>
 
 #if 0
 {
-	{
 #endif
-	}
 }
 #endif

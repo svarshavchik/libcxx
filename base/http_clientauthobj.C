@@ -10,11 +10,9 @@
 
 LOG_CLASS_INIT(LIBCXX_NAMESPACE::http::clientauthObj);
 
-namespace LIBCXX_NAMESPACE {
-	namespace http {
+namespace LIBCXX_NAMESPACE::http {
 #if 0
-	};
-};
+}
 #endif
 
 clientauthObj::clientauthObj()
@@ -52,7 +50,5 @@ void clientauthObj::add_headers(requestimpl &req)
 
 #if 0
 {
-	{
 #endif
-	}
 }

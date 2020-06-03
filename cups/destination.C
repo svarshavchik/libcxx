@@ -8,11 +8,9 @@
 #include "x/cups/destination.H"
 #include <cups/cups.h>
 
-namespace LIBCXX_NAMESPACE {
-	namespace cups {
+namespace LIBCXX_NAMESPACE::cups {
 #if 0
-	}
-};
+}
 #endif
 
 destinationObj::destinationObj()
@@ -23,7 +21,5 @@ destinationObj::~destinationObj()=default;
 
 #if 0
 {
-	{
 #endif
-	};
-};
+}

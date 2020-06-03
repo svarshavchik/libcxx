@@ -12,11 +12,9 @@
 #include "x/cups/available.H"
 #include "available_dests.H"
 
-namespace LIBCXX_NAMESPACE {
-	namespace cups {
+namespace LIBCXX_NAMESPACE::cups {
 #if 0
-	};
-};
+}
 #endif
 
 class LIBCXX_HIDDEN available_implObj : public availableObj {
@@ -71,9 +69,7 @@ class LIBCXX_HIDDEN available_implObj : public availableObj {
 
 #if 0
 {
-	{
 #endif
-	};
-};
+}
 
 #endif

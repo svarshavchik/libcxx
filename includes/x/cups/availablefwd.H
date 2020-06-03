@@ -9,10 +9,8 @@
 #include <x/namespace.h>
 #include <x/ptrfwd.H>
 
-namespace LIBCXX_NAMESPACE {
-	namespace cups {
+namespace LIBCXX_NAMESPACE::cups {
 #if 0
-	}
 }
 #endif
 
@@ -82,8 +80,6 @@ typedef const_ptr<availableObj> const_availableptr;
 
 #if 0
 {
-	{
 #endif
-	}
 }
 #endif

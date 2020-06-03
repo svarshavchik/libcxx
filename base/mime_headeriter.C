@@ -6,11 +6,9 @@
 #include "libcxx_config.h"
 #include "x/mime/headeriter.H"
 
-namespace LIBCXX_NAMESPACE {
-	namespace mime {
+namespace LIBCXX_NAMESPACE::mime {
 #if 0
-	};
-};
+}
 #endif
 
 #define SWITCH state=&header_iterbase::
@@ -204,7 +202,5 @@ void header_iterbase::in_contents(int c)
 
 #if 0
 {
-	{
 #endif
-	}
 }

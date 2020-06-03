@@ -8,11 +8,9 @@
 #include "http_storedcookie.H"
 #include "x/strtok.H"
 
-namespace LIBCXX_NAMESPACE {
-	namespace http {
+namespace LIBCXX_NAMESPACE::http {
 #if 0
-	};
-};
+}
 #endif
 
 
@@ -114,7 +112,5 @@ void domaincookiesObj::drop(cookiemrulist_t::lock &all_lock,
 
 #if 0
 {
-	{
 #endif
-	}
 }

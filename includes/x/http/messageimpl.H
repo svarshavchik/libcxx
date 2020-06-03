@@ -21,22 +21,19 @@
 #include <x/chrcasecmp.H>
 #include <x/namespace.h>
 
-namespace LIBCXX_NAMESPACE {
+//! Classes for handling HTTP messages
 
-	//! Classes for handling HTTP messages
+//! These classes provided building blocks for implementing applications
+//! that send and receive HTTP messages. These classes are not meant
+//! to be used for implementing a generic, fast, HTTP server. Rather,
+//! they are more appropriate for implementing application servers.
+//!
+//! \ref useragent "http::useragent" is a useful, high level HTTP
+//! client.
 
-	//! These classes provided building blocks for implementing applications
-	//! that send and receive HTTP messages. These classes are not meant
-	//! to be used for implementing a generic, fast, HTTP server. Rather,
-	//! they are more appropriate for implementing application servers.
-	//!
-	//! \ref useragent "http::useragent" is a useful, high level HTTP
-	//! client.
-
-	namespace http {
+namespace LIBCXX_NAMESPACE::http {
 #if 0
-	};
-};
+}
 #endif
 
 
@@ -217,8 +214,6 @@ messageimpl::getCommaValues(const char *headername,
 
 #if 0
 {
-	{
 #endif
-	}
 }
 #endif

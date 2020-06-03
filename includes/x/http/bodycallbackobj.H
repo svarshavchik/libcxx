@@ -11,12 +11,9 @@
 
 #include <x/namespace.h>
 
-namespace LIBCXX_NAMESPACE {
-
-	namespace http {
+namespace LIBCXX_NAMESPACE::http {
 #if 0
-	};
-};
+}
 #endif
 
 //! Callback object for processing the content of a response to a request
@@ -44,7 +41,7 @@ public:
 
 	virtual void body(//! Beginning iterator
 			  iterator beg_iter,
-				  
+
 			  //! Ending iterator
 			  iterator end_iter)
 ;
@@ -52,8 +49,6 @@ public:
 
 #if 0
 {
-	{
 #endif
-	}
 }
 #endif

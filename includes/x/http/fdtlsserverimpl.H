@@ -7,23 +7,18 @@
 #define x_tls_fdtlsserverimpl_H
 
 #include <x/namespace.h>
+#include <x/hmsfwd.H>
 #include <x/gnutls/session.H>
 #include <x/http/fdserverimpl.H>
 
+namespace LIBCXX_NAMESPACE::gnutls::http {
+	class fdtlsserverimpl;
+}
+
 namespace LIBCXX_NAMESPACE {
-
-	class hms;
-
-	namespace gnutls {
-
-		namespace http {
-			class fdtlsserverimpl;
-		};
-	};
 #if 0
-};
+}
 #endif
-
 //! An HTTP-over-SSL server on a file descriptor
 
 //! This is a version of \ref fdserverimpl "fdserverimpl" that's used with

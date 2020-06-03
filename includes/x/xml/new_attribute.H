@@ -7,14 +7,11 @@
 #define x_xml_new_attribute_H
 
 #include <x/xml/attribute.H>
+#include <x/uriimplfwd.H>
 
-namespace LIBCXX_NAMESPACE {
-	class uriimpl;
-
-	namespace xml {
+namespace LIBCXX_NAMESPACE::xml {
 #if 0
-	};
-};
+}
 #endif
 
 //! A new attribute of an XML document
@@ -93,9 +90,7 @@ public:
 
 #if 0
 {
-	{
 #endif
-	}
 }
 
 namespace std {

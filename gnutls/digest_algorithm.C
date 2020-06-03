@@ -11,10 +11,8 @@
 
 #include "gnutls_defs.h"
 
-namespace LIBCXX_NAMESPACE {
-	namespace gnutls {
+namespace LIBCXX_NAMESPACE::gnutls {
 #if 0
-	}
 }
 #endif
 
@@ -30,15 +28,11 @@ bool digest_algorithm_base::donotenumerate(gnutls_mac_algorithm_t ignore)
 
 #if 0
 {
-	{
 #endif
-	}
 }
 
-namespace LIBCXX_NAMESPACE {
-	namespace param {
+namespace LIBCXX_NAMESPACE::param {
 #if 0
-	}
 }
 #endif
 
@@ -77,9 +71,7 @@ template class settable<gnutls_digest_algorithm_t,
 
 #if 0
 {
-	{
 #endif
-	}
 }
 
 #define LIBCXX_TEMPLATE_DECL

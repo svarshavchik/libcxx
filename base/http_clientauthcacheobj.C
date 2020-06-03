@@ -18,11 +18,9 @@
 
 LOG_CLASS_INIT(LIBCXX_NAMESPACE::http::clientauthcacheObj);
 
-namespace LIBCXX_NAMESPACE {
-	namespace http {
+namespace LIBCXX_NAMESPACE::http {
 #if 0
-	};
-};
+}
 #endif
 
 clientauthcacheObj::clientauthcacheObj()
@@ -392,7 +390,5 @@ void clientauthcacheObj
 
 #if 0
 {
-	{
 #endif
-	}
 }

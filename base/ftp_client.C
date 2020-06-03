@@ -24,11 +24,9 @@
 #include <chrono>
 #include <cstring>
 
-namespace LIBCXX_NAMESPACE {
-	namespace ftp {
+namespace LIBCXX_NAMESPACE::ftp {
 #if 0
-	};
-};
+}
 #endif
 
 property::value<hms>
@@ -1494,7 +1492,5 @@ void clientObj::append_file(const std::string &localfile,
 
 #if 0
 {
-	{
 #endif
-	}
 }

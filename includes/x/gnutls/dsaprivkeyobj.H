@@ -10,22 +10,15 @@
 #include <x/gnutls/dsapubkeyobj.H>
 #include <x/gnutls/x509_privkey.H>
 
-namespace LIBCXX_NAMESPACE {
-
-	namespace gnutls {
-		class dsaprivkeyobj;
-	}
+namespace LIBCXX_NAMESPACE::gnutls {
+	class dsaprivkeyobj;
 }
 
 #include <x/gnutls/x509_privkeyobj.H>
 
-namespace LIBCXX_NAMESPACE {
-
-	namespace gnutls {
-
+namespace LIBCXX_NAMESPACE::gnutls {
 #if 0
-	};
-};
+}
 #endif
 
 //! An internal representation of a DSA private key
@@ -52,8 +45,6 @@ public:
 
 #if 0
 {
-	{
 #endif
-	}
 }
 #endif

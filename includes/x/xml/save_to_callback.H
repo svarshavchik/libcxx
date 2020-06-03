@@ -8,11 +8,9 @@
 
 #include <x/namespace.h>
 
-namespace LIBCXX_NAMESPACE {
-	namespace xml {
+namespace LIBCXX_NAMESPACE::xml {
 #if 0
-	};
-};
+}
 #endif
 
 //! Base class for an internal callback from libxml
@@ -32,8 +30,6 @@ public:
 
 #if 0
 {
-	{
 #endif
-	}
 }
 #endif

@@ -13,12 +13,9 @@
 #include <x/ptr.H>
 #include <x/namespace.h>
 
-namespace LIBCXX_NAMESPACE {
-
-	namespace http {
+namespace LIBCXX_NAMESPACE::http {
 #if 0
-	};
-};
+}
 #endif
 
 //! Refer to this class as \c http::useragent::base or \c http::useragentptr::base
@@ -90,8 +87,6 @@ public:
 
 #if 0
 {
-	{
 #endif
-	}
 }
 #endif

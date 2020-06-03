@@ -13,11 +13,8 @@
 
 #include <type_traits>
 
-namespace LIBCXX_NAMESPACE {
-
-	namespace yaml {
+namespace LIBCXX_NAMESPACE::yaml {
 #if 0
-	}
 }
 #endif
 
@@ -122,9 +119,7 @@ public:
 
 #if 0
 {
-	{
 #endif
-	}
 }
 
 #endif

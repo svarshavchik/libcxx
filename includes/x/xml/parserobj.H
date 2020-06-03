@@ -10,11 +10,9 @@
 #include <x/xml/docfwd.H>
 #include <x/refiterator.H>
 
-namespace LIBCXX_NAMESPACE {
-	namespace xml {
+namespace LIBCXX_NAMESPACE::xml {
 #if 0
-	};
-};
+}
 #endif
 
 //! An output iterator that parses an XML document
@@ -34,9 +32,6 @@ public:
 
 #if 0
 {
-	{
 #endif
-	}
 }
 #endif
-

@@ -16,11 +16,9 @@
 
 LOG_CLASS_INIT(LIBCXX_NAMESPACE::yaml::writerObj);
 
-namespace LIBCXX_NAMESPACE {
-	namespace yaml {
+namespace LIBCXX_NAMESPACE::yaml {
 #if 0
-	};
-};
+}
 #endif
 
 extern "C" {
@@ -276,7 +274,5 @@ writer::options::options()
 
 #if 0
 {
-	{
 #endif
-	}
 }

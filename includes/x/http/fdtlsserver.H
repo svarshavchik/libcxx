@@ -9,13 +9,9 @@
 #include <x/http/fdtlsserverobj.H>
 #include <x/namespace.h>
 
-namespace LIBCXX_NAMESPACE {
-	namespace gnutls {
-		namespace http {
+namespace LIBCXX_NAMESPACE::gnutls::http {
 #if 0
-		};
-	};
-};
+}
 #endif
 
 //! Implement a file descriptor-based HTTPS server together with \ref fdlistener "INSERT_LIBX_NAMESPACE::fdlistener".
@@ -72,10 +68,6 @@ typedef ptr<fdtlsserverObj> fdtlsserverptr;
 
 #if 0
 {
-	{
-		{
 #endif
-		}
-	}
 }
 #endif

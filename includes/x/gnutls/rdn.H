@@ -15,18 +15,11 @@
 #include <list>
 #include <iterator>
 
-namespace LIBCXX_NAMESPACE {
+//! Utility functions for parsing raw DER-encoded RDN sequences
 
-	namespace gnutls {
-
-		//! Utility functions for parsing raw DER-encoded RDN sequences
-
-		namespace rdn {
-
+namespace LIBCXX_NAMESPACE::gnutls::rdn {
 #if 0
-		};
-	};
-};
+}
 #endif
 
 //! Internal implementation function
@@ -235,11 +228,7 @@ void raw_get_oid(const gnutls_datum_t &datum,
 
 #if 0
 {
-	{
-		{
 #endif
-		}
-	}
 }
 
 #endif

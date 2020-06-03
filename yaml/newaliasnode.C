@@ -9,11 +9,9 @@
 #include "x/ref.H"
 #include "x/ptr.H"
 
-namespace LIBCXX_NAMESPACE {
-	namespace yaml {
+namespace LIBCXX_NAMESPACE::yaml {
 #if 0
-	}
-};
+}
 #endif
 
 newaliasnodeObj::newaliasnodeObj(const std::string &anchorArg)
@@ -32,7 +30,5 @@ void newaliasnodeObj::write(writerObj &obj) const
 
 #if 0
 {
-	{
 #endif
-	};
-};
+}

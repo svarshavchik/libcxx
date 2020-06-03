@@ -12,10 +12,8 @@
 
 #include "x/param/getenumerationarr_int.H"
 
-namespace LIBCXX_NAMESPACE {
-	namespace param {
+namespace LIBCXX_NAMESPACE::param {
 #if 0
-	}
 }
 #endif
 
@@ -61,9 +59,7 @@ bool getenumerationarr<onlygetname<gnutls_sec_param_t> >
 
 #if 0
 {
-	{
 #endif
-	}
 }
 
 #define LIBCXX_TEMPLATE_DECL

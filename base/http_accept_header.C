@@ -8,11 +8,9 @@
 #include "x/http/requestimpl.H"
 #include "gettext_in.h"
 
-namespace LIBCXX_NAMESPACE {
-	namespace http {
+namespace LIBCXX_NAMESPACE::http {
 #if 0
-	};
-};
+}
 #endif
 
 const char accept_header::name[]="Accept";
@@ -275,7 +273,5 @@ void accept_header::media_type_t::init(const std::string &value)
 
 #if 0
 {
-	{
 #endif
-	}
 }

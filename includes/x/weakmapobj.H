@@ -70,9 +70,7 @@ public:
 		{
 		}
 
-		~assignmentHelper()
-		{
-		}
+		~assignmentHelper()=default;
 
 		//! The assignment operator
 

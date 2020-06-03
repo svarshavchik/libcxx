@@ -16,11 +16,8 @@
 #include <x/logger.H>
 #include <yaml.h>
 
-namespace LIBCXX_NAMESPACE {
-
-	namespace yaml {
+namespace LIBCXX_NAMESPACE::yaml {
 #if 0
-	}
 }
 #endif
 
@@ -94,8 +91,6 @@ private:
 
 #if 0
 {
-	{
 #endif
-	}
 }
 #endif

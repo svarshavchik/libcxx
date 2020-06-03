@@ -8,20 +8,17 @@
 
 #include <x/namespace.h>
 
-namespace LIBCXX_NAMESPACE {
+namespace LIBCXX_NAMESPACE::gnutls {
+	class rsaprivkeyobj;
+	class dsaprivkeyobj;
 
-	namespace gnutls {
-		class rsaprivkeyobj;
-		class dsaprivkeyobj;
+	namespace x509 {
+		class crtObj;
+		class privkeyObj;
+	}
 
-		namespace x509 {
-			class crtObj;
-			class privkeyObj;
-		};
-
-		namespace credentials {
-			class certificateObj;
-		}
+	namespace credentials {
+		class certificateObj;
 	}
 }
 
@@ -40,7 +37,7 @@ namespace LIBCXX_NAMESPACE {
 namespace LIBCXX_NAMESPACE {
 
 #if 0
-};
+}
 #endif
 
 //! A wrapper for a \c gnutls_x509_privkey_t

@@ -12,11 +12,9 @@
 #include "x/mpobj.H"
 #include <cups/cups.h>
 
-namespace LIBCXX_NAMESPACE {
-	namespace cups {
+namespace LIBCXX_NAMESPACE::cups {
 #if 0
-	};
-};
+}
 #endif
 
 class LIBCXX_HIDDEN available_destsObj : virtual public obj {
@@ -42,9 +40,7 @@ typedef ref<available_destsObj> available_dests;
 
 #if 0
 {
-	{
 #endif
-	};
-};
+}
 
 #endif

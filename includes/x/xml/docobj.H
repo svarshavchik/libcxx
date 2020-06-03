@@ -19,13 +19,9 @@
 #include <limits>
 #include <functional>
 
-namespace LIBCXX_NAMESPACE {
-
-	class uriimpl;
-	namespace xml {
+namespace LIBCXX_NAMESPACE::xml {
 #if 0
-	};
-};
+}
 #endif
 
 //! A parsed XML document.
@@ -53,8 +49,6 @@ public:
 
 #if 0
 {
-	{
 #endif
-	}
 }
 #endif

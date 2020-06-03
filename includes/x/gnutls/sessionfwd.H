@@ -10,13 +10,9 @@
 #include <x/ptrfwd.H>
 #include <x/exception.H>
 
-namespace LIBCXX_NAMESPACE {
-
-	namespace gnutls {
-
+namespace LIBCXX_NAMESPACE::gnutls {
 #if 0
-	};
-};
+}
 #endif
 
 class sessionBase;
@@ -148,8 +144,6 @@ typedef ptr<sessionObj, sessionBase> sessionptr;
 
 #if 0
 {
-	{
 #endif
-	}
 }
 #endif

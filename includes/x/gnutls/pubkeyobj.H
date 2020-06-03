@@ -11,13 +11,10 @@
 
 #include <gnutls/gnutls.h>
 
-namespace LIBCXX_NAMESPACE {
-
-	namespace gnutls {
-		class pubkeyobj;
+namespace LIBCXX_NAMESPACE::gnutls {
+	class pubkeyobj;
 #if 0
-	};
-};
+}
 #endif
 
 //! An internal representation of a public key
@@ -51,9 +48,7 @@ public:
 
 #if 0
 {
-	{
 #endif
-	}
 }
 
 #endif

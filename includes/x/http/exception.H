@@ -10,12 +10,9 @@
 #include <x/http/responseimpl.H>
 #include <x/namespace.h>
 
-namespace LIBCXX_NAMESPACE {
-
-	namespace http {
+namespace LIBCXX_NAMESPACE::http {
 #if 0
-	};
-};
+}
 #endif
 
 //! A thrown %exception that can formatted as an HTTP message.
@@ -76,8 +73,6 @@ void responseimpl::throw_unauthorized(Args && ...args)
 
 #if 0
 {
-	{
 #endif
-	}
 }
 #endif

@@ -10,6 +10,7 @@
 #include <x/chrcasecmp.H>
 #include <x/http/clientauthimplfwd.H>
 #include <x/ymdhmsfwd.H>
+#include <x/uriimplfwd.H>
 #include <exception>
 #include <algorithm>
 #include <sstream>
@@ -17,14 +18,9 @@
 #include <map>
 #include <x/namespace.h>
 
-namespace LIBCXX_NAMESPACE {
-
-	class uriimpl;
-
-	namespace http {
+namespace LIBCXX_NAMESPACE::http {
 #if 0
-	};
-};
+}
 #endif
 
 class cookie;
@@ -829,9 +825,7 @@ responseimpl::to_string(std::ostreambuf_iterator<char>) const;
 
 #if 0
 {
-	{
 #endif
-	}
 }
 
 #include <x/http/messageimpl.H>

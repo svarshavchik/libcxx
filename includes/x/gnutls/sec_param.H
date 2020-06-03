@@ -14,10 +14,8 @@
 #include <x/param/getenumerationarr.H>
 #include <gnutls/gnutls.h>
 
-namespace LIBCXX_NAMESPACE {
-	namespace param {
+namespace LIBCXX_NAMESPACE::param {
 #if 0
-	}
 }
 #endif
 
@@ -53,9 +51,7 @@ bool getenumerationarr<onlygetname<gnutls_sec_param_t> >
 
 #if 0
 {
-	{
 #endif
-	}
 }
 
 extern template class LIBCXX_NAMESPACE::param::enumeration<gnutls_sec_param_t>;
@@ -72,10 +68,8 @@ extern template class LIBCXX_NAMESPACE::param
 		   >,
 	   GNUTLS_SEC_PARAM_UNKNOWN>;
 
-namespace LIBCXX_NAMESPACE {
-	namespace gnutls {
+namespace LIBCXX_NAMESPACE::gnutls {
 #if 0
-	}
 }
 #endif
 
@@ -119,13 +113,10 @@ typedef LIBCXX_NAMESPACE::param::settable<
 
 #if 0
 {
-	{
 #endif
-	}
 }
 
-namespace LIBCXX_NAMESPACE {
-	namespace param {
+namespace LIBCXX_NAMESPACE::param {
 
 #define LIBCXX_TEMPLATE_DECL extern
 #define LIBCXX_SETTABLE_CLASS LIBCXX_NAMESPACE::gnutls::sec_param
@@ -133,7 +124,6 @@ namespace LIBCXX_NAMESPACE {
 #undef LIBCXX_SETTABLE_CLASS
 #undef LIBCXX_TEMPLATE_DECL
 
-	}
 }
 
 #endif

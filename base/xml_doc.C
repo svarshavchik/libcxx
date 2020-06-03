@@ -16,11 +16,9 @@
 #include <courier-unicode.h>
 #include <sstream>
 
-namespace LIBCXX_NAMESPACE {
-	namespace xml {
+namespace LIBCXX_NAMESPACE::xml {
 #if 0
-	};
-};
+}
 #endif
 
 void throw_last_error(const char *context)
@@ -1855,7 +1853,5 @@ std::string quote_string_literal(const std::string_view &str, char quote)
 
 #if 0
 {
-	{
 #endif
-	}
 }

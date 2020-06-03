@@ -6,11 +6,9 @@
 #include "libcxx_config.h"
 #include "x/yaml/newdocumentnode.H"
 
-namespace LIBCXX_NAMESPACE {
-	namespace yaml {
+namespace LIBCXX_NAMESPACE::yaml {
 #if 0
-	}
-};
+}
 #endif
 
 newdocumentnodeObj::newdocumentnodeObj()
@@ -25,7 +23,5 @@ newdocumentnodeObj::~newdocumentnodeObj()
 
 #if 0
 {
-	{
 #endif
-	};
-};
+}

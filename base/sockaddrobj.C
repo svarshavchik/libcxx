@@ -33,8 +33,13 @@ sockaddrObj::sockaddrObj(int af,
 		{
 			struct sockaddr_un *pathptr=0;
 
-			resize(sizeof(*pathptr)-sizeof(pathptr->sun_path)
-			       +1+p.size());
+			size_t s=sizeof(*pathptr)-sizeof(pathptr->sun_path)
+				+1+p.size();
+
+			if (s < sizeof(*pathptr))
+				s=sizeof(*pathptr);
+
+			resize(s);
 
 			pathptr=(struct sockaddr_un *)&*begin();
 

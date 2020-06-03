@@ -10,11 +10,9 @@
 
 #include <sstream>
 
-namespace LIBCXX_NAMESPACE {
-	namespace mime {
+namespace LIBCXX_NAMESPACE::mime {
 #if 0
-	};
-};
+}
 #endif
 
 bool section_decoderBase::is_quoted_printable(const std::string &te)
@@ -29,7 +27,5 @@ bool section_decoderBase::is_base64(const std::string &te)
 
 #if 0
 {
-	{
 #endif
-	}
 }

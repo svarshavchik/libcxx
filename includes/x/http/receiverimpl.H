@@ -17,12 +17,9 @@
 
 #include <stdint.h>
 
-namespace LIBCXX_NAMESPACE {
-
-	namespace http {
+namespace LIBCXX_NAMESPACE::http {
 #if 0
-	};
-};
+}
 #endif
 
 //! Throw an exception: message stream is in a bad state
@@ -840,8 +837,6 @@ extern template class receiverimpl<responseimpl, fdinputiter>;
 
 #if 0
 {
-	{
 #endif
-	}
 }
 #endif

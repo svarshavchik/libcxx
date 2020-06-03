@@ -9,12 +9,9 @@
 #include <x/namespace.h>
 #include <x/ptr.H>
 
-namespace LIBCXX_NAMESPACE {
-
-	namespace gnutls {
+namespace LIBCXX_NAMESPACE::gnutls {
 #if 0
-	};
-};
+}
 #endif
 
 class pkparamsObj;
@@ -91,8 +88,6 @@ typedef ptr<pkparamsObj, pkparamsBase> pkparamsptr;
 
 #if 0
 {
-	{
 #endif
-	}
 }
 #endif

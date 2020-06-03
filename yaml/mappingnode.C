@@ -12,11 +12,9 @@
 
 #include "gettext_in.h"
 
-namespace LIBCXX_NAMESPACE {
-	namespace yaml {
+namespace LIBCXX_NAMESPACE::yaml {
 #if 0
-	}
-};
+}
 #endif
 
 mappingnodeObj::mappingnodeObj(const docnode &nArg,
@@ -82,7 +80,5 @@ mappingnodeObj::iterator::~iterator()
 
 #if 0
 {
-	{
 #endif
-	};
-};
+}

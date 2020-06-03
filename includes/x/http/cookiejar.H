@@ -17,12 +17,9 @@
 
 #include <iterator>
 
-namespace LIBCXX_NAMESPACE {
-
-	namespace http {
+namespace LIBCXX_NAMESPACE::http {
 #if 0
-	};
-};
+}
 #endif
 
 //! Refer to this class as \c http::cookiejar::base or \c http::cookiejarptr::base
@@ -51,8 +48,6 @@ public:
 
 #if 0
 {
-	{
 #endif
-	}
 }
 #endif

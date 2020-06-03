@@ -15,36 +15,27 @@
 #include <x/gnutls/x509_crt.H>
 
 #include <gnutls/gnutls.h>
+#include <x/gnutls/sessionfwd.H>
 
 #include <list>
 #include <vector>
 #include <string>
 
-namespace LIBCXX_NAMESPACE {
-
-	namespace gnutls {
-
-		class sessionObj;
-
-		namespace credentials {
-			class callbackObj;
-			class certificateObj;
-		}
-	}
-#if 0
-};
-#endif
+namespace LIBCXX_NAMESPACE::gnutls::credentials {
+	class callbackObj;
+	class certificateObj;
+}
 
 //! A base class for the %credentials callback object
 
 //! \see gnutls::credentials::callback
 //!
 
-class gnutls::credentials::callbackObj : virtual public obj {
+class LIBCXX_NAMESPACE::gnutls::credentials::callbackObj : virtual public obj {
 
 public:
-	friend class gnutls::credentials::certificateObj;
-	friend class gnutls::sessionObj;
+	friend class LIBCXX_NAMESPACE::gnutls::credentials::certificateObj;
+	friend class LIBCXX_NAMESPACE::gnutls::sessionObj;
 
 	//! Default constructor
 	callbackObj() noexcept;
@@ -126,7 +117,7 @@ private:
 	//! \internal
 	//!
 	static gnutls_x509_crt_t *init_certs(std::list<x509::crt> &)
- LIBCXX_INTERNAL;
+		LIBCXX_INTERNAL;
 
 	//! Captured exception, to be rethrown
 
@@ -136,9 +127,4 @@ private:
 
 	bool captured_exception;
 };
-
-#if 0
-{
-#endif
-}
 #endif

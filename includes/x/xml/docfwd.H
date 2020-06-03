@@ -8,11 +8,9 @@
 
 #include <x/ptrfwd.H>
 
-namespace LIBCXX_NAMESPACE {
-	namespace xml {
+namespace LIBCXX_NAMESPACE::xml {
 #if 0
-	};
-};
+}
 #endif
 
 class docObj;
@@ -82,8 +80,6 @@ typedef const_ptr<docObj, docBase> const_docptr;
 
 #if 0
 {
-	{
 #endif
-	}
 }
 #endif

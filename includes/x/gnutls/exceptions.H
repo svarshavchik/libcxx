@@ -11,52 +11,48 @@
 
 #include <gnutls/gnutls.h>
 
-namespace LIBCXX_NAMESPACE {
+namespace LIBCXX_NAMESPACE::gnutls {
 
-	namespace gnutls {
+	//! This exception gets thrown when a gnutls call fails
 
-		//! This exception gets thrown when a gnutls call fails
+	class errexception : public exception {
 
-		class errexception : public exception {
+	public:
+		const int errcode; //!< gnutls error code
 
-		public:
-			const int errcode; //!< gnutls error code
+		using exception::operator*;
+		using exception::operator->;
 
-			using exception::operator*;
-			using exception::operator->;
+		//! Constructor
+		errexception(int errcodeArg,
+			     const char *funcnameArg)
+			LIBCXX_HIDDEN;
 
-			//! Constructor
-			errexception(int errcodeArg,
-				     const char *funcnameArg)
- LIBCXX_HIDDEN;
+		//! Destructor
+		~errexception();
+	};
 
-			//! Destructor
-			~errexception();
-		};
+	//! This exception gets thrown by sessionObj::recv() when it receives a TLS alert record
 
-		//! This exception gets thrown by sessionObj::recv() when it receives a TLS alert record
+	class alertexception : public exception {
 
-		class alertexception : public exception {
+	public:
+		//! This is a fatal alert
+		const bool fatal;
 
-		public:
-			//! This is a fatal alert
-			const bool fatal;
+		//! Alert code
+		const gnutls_alert_description_t alertcode;
 
-			//! Alert code
-			const gnutls_alert_description_t alertcode;
+		using exception::operator*;
+		using exception::operator->;
 
-			using exception::operator*;
-			using exception::operator->;
+		//! Constructor
+		alertexception(bool fatalArg,
+			       gnutls_alert_description_t alertcodeArg)
+			;
 
-			//! Constructor
-			alertexception(bool fatalArg,
-				       gnutls_alert_description_t alertcodeArg)
-;
-
-			//! Destructor
-			~alertexception();
-		};
-
-	}
+		//! Destructor
+		~alertexception();
+	};
 }
 #endif

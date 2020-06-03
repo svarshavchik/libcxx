@@ -11,17 +11,15 @@
 #include <x/ref.H>
 #include <string_view>
 
-namespace LIBCXX_NAMESPACE {
 
-	//! Load and save documents in XML format
+//! Load and save documents in XML format
 
-	//! This namespace is based on libxml2. These classes implement
-	//! parsing and creating of XML documents using libxml2.
+//! This namespace is based on libxml2. These classes implement
+//! parsing and creating of XML documents using libxml2.
 
-	namespace xml {
+namespace LIBCXX_NAMESPACE::xml {
 #if 0
-	};
-};
+}
 #endif
 
 //! Base class for a \ref parser "XML document parser".
@@ -62,8 +60,6 @@ public:
 
 #if 0
 {
-	{
 #endif
-	}
 }
 #endif

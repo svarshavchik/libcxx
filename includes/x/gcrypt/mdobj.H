@@ -15,10 +15,8 @@
 
 #include <vector>
 
-namespace LIBCXX_NAMESPACE {
-	namespace gcrypt {
+namespace LIBCXX_NAMESPACE::gcrypt {
 #if 0
-	}
 }
 #endif
 
@@ -129,8 +127,6 @@ public:
 
 #if 0
 {
-	{
 #endif
-	}
 }
 #endif

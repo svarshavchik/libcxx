@@ -23,11 +23,9 @@
 #include <iterator>
 #include <fstream>
 
-namespace LIBCXX_NAMESPACE {
-	namespace http {
+namespace LIBCXX_NAMESPACE::http {
 #if 0
-	}
-};
+}
 #endif
 
 #pragma GCC visibility push(hidden)
@@ -246,7 +244,5 @@ void cookiejarObj::load(const std::string &filename)
 
 #if 0
 {
-	{
 #endif
-	};
-};
+}

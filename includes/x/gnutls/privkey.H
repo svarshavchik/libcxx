@@ -10,38 +10,35 @@
 #include <x/gnutls/privkeyobj.H>
 #include <x/ptr.H>
 
-namespace LIBCXX_NAMESPACE {
+namespace LIBCXX_NAMESPACE::gnutls {
 
-	namespace gnutls {
+	//! A private key
 
-		//! A private key
+	//! This is a generic reference to a private key.
+	//! \code
+	//! privkey pk;
+	//!
+	//! switch (pk->get_pk_algorithm()) {
+	//! case GNUTLS_PK_RSA:
+	//!     rsakeyfunc(gnutls::rsaprivkey(pk),
+	//!                gnutls::rsapubkey(pk));
+	//!     break;
+	//! case GNUTLS_PK_DSA:
+	//!     dsakeyfunc(gnutls::dsaprivkey(pk),
+	//!                gnutls::dsapubkey(pk));
+	//!     break;
+	//! }
+	//! \endcode
+	//!
+	//! \see #rsaprivkey, #dsaprivkey
 
-		//! This is a generic reference to a private key.
-		//! \code
-		//! privkey pk;
-		//!
-		//! switch (pk->get_pk_algorithm()) {
-		//! case GNUTLS_PK_RSA:
-		//!     rsakeyfunc(gnutls::rsaprivkey(pk),
-		//!                gnutls::rsapubkey(pk));
-		//!     break;
-		//! case GNUTLS_PK_DSA:
-		//!     dsakeyfunc(gnutls::dsaprivkey(pk),
-		//!                gnutls::dsapubkey(pk));
-		//!     break;
-		//! }
-		//! \endcode
-		//!
-		//! \see #rsaprivkey, #dsaprivkey
+	typedef ptr<privkeyobj> privkey;
 
-		typedef ptr<privkeyobj> privkey;
+	//! A reference to a constant private key
 
-		//! A reference to a constant private key
+	//! \see #pubkey
+	//!
 
-		//! \see #pubkey
-		//!
-
-		typedef const_ptr<privkeyobj> const_privkey;
-	}
+	typedef const_ptr<privkeyobj> const_privkey;
 }
 #endif

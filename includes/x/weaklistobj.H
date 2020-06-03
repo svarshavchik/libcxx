@@ -42,9 +42,7 @@ public:
 	}
 
 	//! Default destructor
-	~weaklistObj()
-	{
-	}
+	~weaklistObj()=default;
 
 	//! Implement push_front()
 

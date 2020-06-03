@@ -8,11 +8,9 @@
 
 #include <x/ptrfwd.H>
 
-namespace LIBCXX_NAMESPACE {
-	namespace xml {
+namespace LIBCXX_NAMESPACE::xml {
 #if 0
-	};
-};
+}
 #endif
 
 class dtdObj;
@@ -35,8 +33,6 @@ typedef const_ptr<dtdObj> const_dtdptr;
 
 #if 0
 {
-	{
 #endif
-	}
 }
 #endif

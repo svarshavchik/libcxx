@@ -15,11 +15,9 @@
 #include <string_view>
 #include <string>
 
-namespace LIBCXX_NAMESPACE {
-	namespace cups {
+namespace LIBCXX_NAMESPACE::cups {
 #if 0
-	};
-};
+}
 #endif
 
 //! Parse a string into an IPP range type.
@@ -36,8 +34,6 @@ std::string range_to_string(const std::vector<std::tuple<int, int>> &);
 
 #if 0
 {
-	{
 #endif
-	}
 }
 #endif

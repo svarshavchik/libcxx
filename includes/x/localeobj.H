@@ -19,7 +19,7 @@
 
 namespace LIBCXX_NAMESPACE {
 #if 0
-};
+}
 #endif
 
 class thread_locale;

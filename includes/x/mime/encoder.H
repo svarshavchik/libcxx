@@ -16,13 +16,10 @@
 
 #include <string_view>
 
-namespace LIBCXX_NAMESPACE {
+//! Classes and templates for parsing MIME-formatted messages.
 
-	//! Classes and templates for parsing MIME-formatted messages.
-
-	namespace mime {
+namespace LIBCXX_NAMESPACE::mime {
 #if 0
-	}
 }
 #endif
 
@@ -602,8 +599,6 @@ std::string filecharset(const fd &filedesc);
 
 #if 0
 {
-	{
 #endif
-	}
 }
 #endif

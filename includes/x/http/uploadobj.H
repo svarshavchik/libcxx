@@ -15,12 +15,9 @@
 #include <list>
 #include <tuple>
 
-namespace LIBCXX_NAMESPACE {
-
-	namespace http {
+namespace LIBCXX_NAMESPACE::http {
 #if 0
-	};
-};
+}
 #endif
 
 //! A collection of files to upload in a request.
@@ -172,8 +169,6 @@ void useragentObj::request_form_uploads(std::list<mime::encoder> &list,
 
 #if 0
 {
-	{
 #endif
-	}
 }
 #endif

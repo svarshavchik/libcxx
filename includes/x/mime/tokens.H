@@ -7,11 +7,8 @@
 
 #include <x/namespace.h>
 
-namespace LIBCXX_NAMESPACE {
-
-	namespace mime {
+namespace LIBCXX_NAMESPACE::mime {
 #if 0
-	}
 }
 #endif
 
@@ -60,8 +57,6 @@ static constexpr int separator_line_start=0x010B;
 
 #if 0
 {
-	{
 #endif
-	}
 }
 #endif

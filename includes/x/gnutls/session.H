@@ -19,13 +19,9 @@
 #include <list>
 #include <string>
 
-namespace LIBCXX_NAMESPACE {
-
-	namespace gnutls {
-
+namespace LIBCXX_NAMESPACE::gnutls {
 #if 0
-	};
-};
+}
 #endif
 
 //! Base class for a session reference
@@ -306,8 +302,6 @@ public:
 
 #if 0
 {
-	{
 #endif
-	}
 }
 #endif

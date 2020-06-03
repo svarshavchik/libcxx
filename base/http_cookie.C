@@ -16,11 +16,9 @@
 #include <algorithm>
 #include <type_traits>
 
-namespace LIBCXX_NAMESPACE {
-	namespace http {
+namespace LIBCXX_NAMESPACE::http {
 #if 0
-	};
-};
+}
 #endif
 
 cookie::cookie() : expiration((time_t)-1), secure(false), httponly(false)
@@ -218,7 +216,5 @@ cookie &cookie::setHttpOnly(bool flag)
 
 #if 0
 {
-	{
 #endif
-	}
 }

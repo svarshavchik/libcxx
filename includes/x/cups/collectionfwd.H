@@ -11,10 +11,8 @@
 #include <unordered_map>
 #include <string>
 
-namespace LIBCXX_NAMESPACE {
-	namespace cups {
+namespace LIBCXX_NAMESPACE::cups {
 #if 0
-	}
 }
 #endif
 
@@ -43,8 +41,6 @@ typedef const_ptr<collectionObj> const_collectionptr;
 
 #if 0
 {
-	{
 #endif
-	}
 }
 #endif

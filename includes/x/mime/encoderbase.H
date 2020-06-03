@@ -13,13 +13,8 @@
 #include <x/fdbaseobj.H>
 #include <x/namespace.h>
 
-namespace LIBCXX_NAMESPACE {
-
-	//! Classes and templates for parsing MIME-formatted messages.
-
-	namespace mime {
+namespace LIBCXX_NAMESPACE::mime {
 #if 0
-	}
 }
 #endif
 
@@ -382,8 +377,6 @@ create_encoder(container_type && container,
 
 #if 0
 {
-	{
 #endif
-	}
 }
 #endif

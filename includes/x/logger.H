@@ -27,7 +27,7 @@ This file defines a flexible logging mechanism
 
 namespace LIBCXX_NAMESPACE {
 #if 0
-};
+}
 #endif
 
 #include <x/sys/tidtsys.h>

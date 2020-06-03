@@ -17,11 +17,9 @@
 
 #include <sstream>
 
-namespace LIBCXX_NAMESPACE {
-	namespace mime {
+namespace LIBCXX_NAMESPACE::mime {
 #if 0
-	};
-};
+}
 #endif
 
 #define UTF8 "UTF-8"
@@ -546,7 +544,5 @@ std::string from_rfc2047_as_utf8(const std::string &string,
 
 #if 0
 {
-	{
 #endif
-	}
 }

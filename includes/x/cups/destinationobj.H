@@ -12,10 +12,8 @@
 #include <string_view>
 #include <unordered_set>
 
-namespace LIBCXX_NAMESPACE {
-	namespace cups {
+namespace LIBCXX_NAMESPACE::cups {
 #if 0
-	}
 }
 #endif
 
@@ -66,8 +64,6 @@ public:
 
 #if 0
 {
-	{
 #endif
-	}
 }
 #endif

@@ -13,33 +13,30 @@
 
 #include <thread>
 
-namespace LIBCXX_NAMESPACE {
+//! Security and encryption
 
-	//! Security and encryption
+//! Set <code>INSERT_LIBX_NAMESPACE::gnutls::random</code> property
+//! to "high" to enable high quality random number generation.
+//! The default "low" values uses the quick random number generator.
+//! Without an entropy gathering daemon running, the high quality
+//! random number generator results in excessive initialization delays,
+//! that may last minutes, while sufficient entropy is gathered.
+//!
+//! Set <code>INSERT_LIBX_NAMESPACE::gnutls::loglevel</code> to increase
+//! GnuTLS diagnostic output on standard error
+//! (the gnutls_global_set_log_level() function).
+//!
+//! GnuTLS methods generally throw
+//! \ref errexception "gnutls::errexception" objects when GnuTLS
+//! library calls fail.
+//!
+//! Set <code>INSERT_LIBX_NAMESPACE::gnutls::logerrors</code> to
+//! \c true to also report GnutTLS errors with the
+//! \ref logger "logging facility".
 
-	//! Set <code>INSERT_LIBX_NAMESPACE::gnutls::random</code> property
-	//! to "high" to enable high quality random number generation.
-	//! The default "low" values uses the quick random number generator.
-	//! Without an entropy gathering daemon running, the high quality
-	//! random number generator results in excessive initialization delays,
-	//! that may last minutes, while sufficient entropy is gathered.
-	//!
-	//! Set <code>INSERT_LIBX_NAMESPACE::gnutls::loglevel</code> to increase
-	//! GnuTLS diagnostic output on standard error
-	//! (the gnutls_global_set_log_level() function).
-	//!
-	//! GnuTLS methods generally throw
-	//! \ref errexception "gnutls::errexception" objects when GnuTLS
-	//! library calls fail.
-	//!
-	//! Set <code>INSERT_LIBX_NAMESPACE::gnutls::logerrors</code> to
-	//! \c true to also report GnutTLS errors with the
-	//! \ref logger "logging facility".
-
-	namespace gnutls {
+namespace LIBCXX_NAMESPACE::gnutls {
 #if 0
-	};
-};
+}
 #endif
 
 class progress_notifier;
@@ -203,8 +200,6 @@ inline void chkerr(//! Return code from a GnuTLS function
 
 #if 0
 {
-	{
 #endif
-	}
 }
 #endif

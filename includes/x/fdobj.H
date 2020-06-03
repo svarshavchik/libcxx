@@ -28,12 +28,11 @@
 #include <stdint.h>
 #include <unistd.h>
 
+namespace LIBCXX_NAMESPACE::gnutls {
+	class sessionObj;
+}
+
 namespace LIBCXX_NAMESPACE {
-
-	namespace gnutls {
-		class sessionObj;
-	}
-
 #if 0
 };
 #endif

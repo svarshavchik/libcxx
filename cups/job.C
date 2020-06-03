@@ -10,11 +10,9 @@
 #include <cups/cups.h>
 #include <sys/stat.h>
 
-namespace LIBCXX_NAMESPACE {
-	namespace cups {
+namespace LIBCXX_NAMESPACE::cups {
 #if 0
-	}
-};
+}
 #endif
 
 jobObj::jobObj()=default;
@@ -75,7 +73,5 @@ void jobObj::add_document_file(const std::string &name,
 
 #if 0
 {
-	{
 #endif
-	};
-};
+}

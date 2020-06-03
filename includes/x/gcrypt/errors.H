@@ -9,16 +9,13 @@
 #include <x/namespace.h>
 #include <gcrypt.h>
 
-namespace LIBCXX_NAMESPACE {
+//! Algorithms
 
-	//! Algorithms
+//! This namespace exports useful interfaces from the underlying
+//! libgcrypt library. Link with -lcxxtls to access these methods.
 
-	//! This namespace exports useful interfaces from the underlying
-	//! libgcrypt library. Link with -lcxxtls to access these methods.
-
-	namespace gcrypt {
+namespace LIBCXX_NAMESPACE::gcrypt {
 #if 0
-	}
 }
 #endif
 
@@ -40,8 +37,6 @@ inline void chkerr(gcry_error_t code)
 
 #if 0
 {
-	{
 #endif
-	}
 }
 #endif

@@ -9,11 +9,8 @@
 #include <x/namespace.h>
 #include <x/ptrfwd.H>
 
-namespace LIBCXX_NAMESPACE {
-
-	namespace yaml {
+namespace LIBCXX_NAMESPACE::yaml {
 #if 0
-	}
 }
 #endif
 
@@ -116,8 +113,6 @@ typedef const_ptr<mappingnodeObj, mappingnodeBase> const_mappingnodeptr;
 
 #if 0
 {
-	{
 #endif
-	}
 }
 #endif

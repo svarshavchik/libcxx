@@ -6,11 +6,9 @@
 #include "libcxx_config.h"
 #include "x/http/fdclientobj.H"
 
-namespace LIBCXX_NAMESPACE {
-	namespace http {
+namespace LIBCXX_NAMESPACE::http {
 #if 0
-	};
-};
+}
 #endif
 
 fdclientObj::fdclientObj()
@@ -23,7 +21,5 @@ fdclientObj::~fdclientObj()
 
 #if 0
 {
-	{
 #endif
-	}
 }

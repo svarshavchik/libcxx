@@ -8,11 +8,9 @@
 
 #include <iostream>
 
-namespace LIBCXX_NAMESPACE {
-	namespace http {
+namespace LIBCXX_NAMESPACE::http {
 #if 0
-	};
-};
+}
 #endif
 
 storedcookieObj::storedcookieObj(const cookie &cookieArg)
@@ -26,7 +24,5 @@ storedcookieObj::~storedcookieObj()
 
 #if 0
 {
-	{
 #endif
-	}
 }

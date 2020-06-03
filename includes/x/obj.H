@@ -27,7 +27,7 @@
 namespace LIBCXX_NAMESPACE {
 
 #if 0
-};
+}
 #endif
 
 //! Enable object debugging.
@@ -272,7 +272,7 @@ private:
 namespace LIBCXX_NAMESPACE {
 
 #if 0
-};
+}
 #endif
 
 //! ref(this) or ptr(this) cannot be used in a constructor or destructor

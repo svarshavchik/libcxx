@@ -12,15 +12,11 @@
 #include <x/ftp/clientfwd.H>
 #include <x/ftp/clientobj.H>
 
-namespace LIBCXX_NAMESPACE {
+//! FTP client namespace
 
-	//! FTP client namespace
-
-	//! This namespace implements an \ref client "FTP client".
-
-	namespace ftp {
+//! This namespace implements an \ref client "FTP client".
+namespace LIBCXX_NAMESPACE::ftp {
 #if 0
-	}
 }
 #endif
 
@@ -205,8 +201,6 @@ void clientObj::get_file(const std::string &filename,
 
 #if 0
 {
-	{
 #endif
-	}
 }
 #endif

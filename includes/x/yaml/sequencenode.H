@@ -18,11 +18,8 @@
 #include <iterator>
 #include <cstddef>
 
-namespace LIBCXX_NAMESPACE {
-
-	namespace yaml {
+namespace LIBCXX_NAMESPACE::yaml {
 #if 0
-	}
 }
 #endif
 
@@ -242,8 +239,6 @@ inline sequencenodeObj::iterator operator+(std::ptrdiff_t n,
 
 #if 0
 {
-	{
 #endif
-	}
 }
 #endif

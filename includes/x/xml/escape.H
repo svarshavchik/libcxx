@@ -18,11 +18,9 @@
 
 #include <stdint.h>
 
-namespace LIBCXX_NAMESPACE {
-	namespace xml {
+namespace LIBCXX_NAMESPACE::xml {
 #if 0
-	};
-};
+}
 #endif
 
 //! Replace <, >, and & characters in a string with &lt;, &gt;, and &amp;.
@@ -201,9 +199,7 @@ escapestr(std::vector<uint32_t>::const_iterator,
 
 #if 0
 {
-	{
 #endif
-	}
 }
 
 #endif

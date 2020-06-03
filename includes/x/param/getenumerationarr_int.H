@@ -8,10 +8,8 @@
 
 #include <x/namespace.h>
 
-namespace LIBCXX_NAMESPACE {
-	namespace param {
+namespace LIBCXX_NAMESPACE::param {
 #if 0
-	}
 }
 #endif
 
@@ -35,9 +33,7 @@ void getenumerationarr<base_type>
 
 #if 0
 {
-	{
 #endif
-	}
 }
 
 #endif

@@ -1,20 +1,15 @@
 /*
 ** Copyright 2012-2020 Double Precision, Inc.
 ** See COPYING for distribution information.
-*/ 
+*/
 #ifndef x_mime_bodystartiter_H
 #define x_mime_bodystartiter_H
 
 #include <x/namespace.h>
 #include <x/mime/newlineiter.H>
 
-namespace LIBCXX_NAMESPACE {
-
-	//! Classes and templates for parsing MIME-formatted messages.
-
-	namespace mime {
+namespace LIBCXX_NAMESPACE::mime {
 #if 0
-	}
 }
 #endif
 
@@ -135,8 +130,6 @@ using bodystart_iterptr=ptriterator<bodystart_iterObj<output_iter> >;
 
 #if 0
 {
-	{
 #endif
-	}
 }
 #endif

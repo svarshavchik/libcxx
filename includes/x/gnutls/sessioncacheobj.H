@@ -13,18 +13,15 @@
 #include <x/gnutls/init.H>
 #include <x/logger.H>
 
-namespace LIBCXX_NAMESPACE {
-
-	namespace gnutls {
-		class sessioncacheObj;
-	}
+namespace LIBCXX_NAMESPACE::gnutls {
+	class sessioncacheObj;
 #if 0
 };
 #endif
 
 //! An object that implement TLS/SSL session caching
 
-class gnutls::sessioncacheObj : virtual public obj {
+class sessioncacheObj : virtual public obj {
 
 	//! Logger
 

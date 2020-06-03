@@ -9,11 +9,9 @@
 #include "x/to_string.H"
 #include "x/uriimpl.H"
 
-namespace LIBCXX_NAMESPACE {
-	namespace xml {
+namespace LIBCXX_NAMESPACE::xml {
 #if 0
-	};
-};
+}
 #endif
 
 
@@ -50,7 +48,5 @@ new_attribute::~new_attribute()=default;
 
 #if 0
 {
-	{
 #endif
-	}
 }

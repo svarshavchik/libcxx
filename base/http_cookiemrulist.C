@@ -7,11 +7,9 @@
 #include "x/http/cookiejar.H"
 #include "http_storedcookie.H"
 
-namespace LIBCXX_NAMESPACE {
-	namespace http {
+namespace LIBCXX_NAMESPACE::http {
 #if 0
-	};
-};
+}
 #endif
 
 cookiemrulist::ps_mrulist::ps_mrulist() : count(0)
@@ -67,7 +65,5 @@ cookiemrulist::refresh(cookiemrulist::cookie_mru_iter_t iter)
 
 #if 0
 {
-	{
 #endif
-	}
 }

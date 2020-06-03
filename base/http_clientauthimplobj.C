@@ -9,11 +9,9 @@
 #include "http_auth_internal.H"
 #include "x/base64.H"
 
-namespace LIBCXX_NAMESPACE {
-	namespace http {
+namespace LIBCXX_NAMESPACE::http {
 #if 0
-	};
-};
+}
 #endif
 
 clientauthimplObj::clientauthimplObj(auth schemeArg,
@@ -141,8 +139,5 @@ auth auth_fromstring(const std::string &s)
 
 #if 0
 {
-	{
 #endif
-	}
-
 }

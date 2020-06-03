@@ -16,11 +16,8 @@
 
 #include <vector>
 
-namespace LIBCXX_NAMESPACE {
-
-	namespace yaml {
+namespace LIBCXX_NAMESPACE::yaml {
 #if 0
-	}
 }
 #endif
 
@@ -250,8 +247,6 @@ output_iterator_type writer::write_one_document(const options &options,
 
 #if 0
 {
-	{
 #endif
-	}
 }
 #endif

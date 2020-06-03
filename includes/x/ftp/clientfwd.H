@@ -9,11 +9,8 @@
 #include <x/namespace.h>
 #include <x/ptrfwd.H>
 
-namespace LIBCXX_NAMESPACE {
-
-	namespace ftp {
+namespace LIBCXX_NAMESPACE::ftp {
 #if 0
-	}
 }
 #endif
 
@@ -307,8 +304,6 @@ typedef const_ptr<clientObj, clientBase> const_clientptr;
 
 #if 0
 {
-	{
 #endif
-	}
 }
 #endif

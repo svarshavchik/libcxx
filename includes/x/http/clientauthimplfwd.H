@@ -10,12 +10,9 @@
 #include <x/to_string.H>
 #include <x/namespace.h>
 
-namespace LIBCXX_NAMESPACE {
-
-	namespace http {
+namespace LIBCXX_NAMESPACE::http {
 #if 0
-	}
-};
+}
 #endif
 
 //! Known authorization schemes, in order from least to most preferred
@@ -47,8 +44,6 @@ typedef ptr<clientauthimplObj, clientauthimplBase> clientauthimplptr;
 
 #if 0
 {
-	{
 #endif
-	}
 }
 #endif

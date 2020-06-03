@@ -8,17 +8,12 @@
 
 #include <string>
 #include <time.h>
-
+#include <x/uriimplfwd.H>
 #include <x/namespace.h>
 
-namespace LIBCXX_NAMESPACE {
-
-	class uriimpl;
-
-	namespace http {
+namespace LIBCXX_NAMESPACE::http {
 #if 0
-	};
-};
+}
 #endif
 
 class httpresponseimpl;
@@ -155,8 +150,6 @@ public:
 
 #if 0
 {
-	{
 #endif
-	}
 }
 #endif

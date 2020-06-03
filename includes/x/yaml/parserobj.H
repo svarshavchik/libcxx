@@ -13,11 +13,8 @@
 #include <iostream>
 #include <list>
 
-namespace LIBCXX_NAMESPACE {
-
-	namespace yaml {
+namespace LIBCXX_NAMESPACE::yaml {
 #if 0
-	}
 }
 #endif
 
@@ -145,8 +142,6 @@ extern template parserObj::parserObj(std::istreambuf_iterator<char>,
 
 #if 0
 {
-	{
 #endif
-	}
 }
 #endif

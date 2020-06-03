@@ -23,11 +23,9 @@
 extern "C" char **environ;
 #endif
 
-namespace LIBCXX_NAMESPACE {
-	namespace http {
+namespace LIBCXX_NAMESPACE::http {
 #if 0
-	};
-};
+}
 #endif
 
 #define LIBCXX_TEMPLATE_DECL
@@ -222,7 +220,5 @@ void cgiimpl::send_response_header(responseimpl &resp)
 
 #if 0
 {
-	{
 #endif
-	}
 }

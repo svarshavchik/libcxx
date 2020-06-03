@@ -15,40 +15,31 @@
 #include <x/gnutls/x509_privkey.H>
 #include <x/gnutls/x509_crt.H>
 #include <x/gnutls/dhparams.H>
-
+#include <x/gnutls/sessionfwd.H>
 #include <gnutls/gnutls.h>
 
 #include <list>
 
-namespace LIBCXX_NAMESPACE {
+namespace LIBCXX_NAMESPACE::gnutls::credentials {
 
-	namespace gnutls {
+	extern "C" {
+		//! Callback function -- retrieve temporary parameters
 
-		class sessionObj;
-
-		namespace credentials {
-
-			extern "C" {
-				//! Callback function -- retrieve temporary parameters
-
-				//! \internal
-				//!
-				int get_params_cb(gnutls_session_t session,
-						  gnutls_params_type_t type,
-						  gnutls_params_st *st);
-			};
-
-			class certificateObj;
-			class callbackObj;
-		}
+		//! \internal
+		//!
+		int get_params_cb(gnutls_session_t session,
+				  gnutls_params_type_t type,
+				  gnutls_params_st *st) LIBCXX_HIDDEN;
 	}
-#if 0
-};
-#endif
+
+	class certificateObj;
+	class callbackObj;
+}
 
 //! A wrapper for a \c gnutls_certificate_credentials_t
 
-class gnutls::credentials::certificateObj : virtual public obj {
+class LIBCXX_NAMESPACE::gnutls::credentials::certificateObj
+	: virtual public obj {
 
 	//! Private keys that are installed into the certificate object
 
@@ -239,8 +230,4 @@ private:
 ;
 };
 
-#if 0
-{
-#endif
-}
 #endif

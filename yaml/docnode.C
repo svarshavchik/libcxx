@@ -6,11 +6,9 @@
 #include "libcxx_config.h"
 #include "x/yaml/docnode.H"
 
-namespace LIBCXX_NAMESPACE {
-	namespace yaml {
+namespace LIBCXX_NAMESPACE::yaml {
 #if 0
-	}
-};
+}
 #endif
 
 #include "yaml_internal.H"
@@ -68,7 +66,5 @@ docnodeObj::~docnodeObj()
 
 #if 0
 {
-	{
 #endif
-	};
-};
+}

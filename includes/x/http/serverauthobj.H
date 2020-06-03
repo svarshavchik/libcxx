@@ -17,12 +17,9 @@
 
 #include <list>
 #include <chrono>
-namespace LIBCXX_NAMESPACE {
-
-	namespace http {
+namespace LIBCXX_NAMESPACE::http {
 #if 0
-	};
-};
+}
 #endif
 
 //! Implement HTTP authentication-related functionality on the server
@@ -405,9 +402,7 @@ public:
 
 #if 0
 {
-	{
 #endif
-	}
 }
 
 #endif

@@ -8,11 +8,9 @@
 
 LOG_CLASS_INIT(LIBCXX_NAMESPACE::http::fdserverObj);
 
-namespace LIBCXX_NAMESPACE {
-	namespace http {
+namespace LIBCXX_NAMESPACE::http {
 #if 0
-	};
-};
+}
 #endif
 
 
@@ -40,7 +38,5 @@ void fdserverObj::run_failed(const fd &socket,
 
 #if 0
 {
-	{
 #endif
-	}
 }

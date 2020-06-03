@@ -13,11 +13,9 @@
 #include <utility>
 #include <algorithm>
 
-namespace LIBCXX_NAMESPACE {
-	namespace cups {
+namespace LIBCXX_NAMESPACE::cups {
 #if 0
-	}
-};
+}
 #endif
 
 availableObj::availableObj()
@@ -60,7 +58,5 @@ std::vector<available> available_destinations()
 
 #if 0
 {
-	{
 #endif
-	};
-};
+}

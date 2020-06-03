@@ -9,11 +9,9 @@
 #include "x/ref.H"
 #include "x/ptr.H"
 
-namespace LIBCXX_NAMESPACE {
-	namespace yaml {
+namespace LIBCXX_NAMESPACE::yaml {
 #if 0
-	}
-};
+}
 #endif
 
 nodeObj::nodeObj(yaml_node_type_t nodetypeArg,
@@ -28,7 +26,5 @@ nodeObj::~nodeObj()
 
 #if 0
 {
-	{
 #endif
-	};
-};
+}

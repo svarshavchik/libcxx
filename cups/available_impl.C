@@ -12,11 +12,9 @@
 #include <sstream>
 #include <cstdint>
 
-namespace LIBCXX_NAMESPACE {
-	namespace cups {
+namespace LIBCXX_NAMESPACE::cups {
 #if 0
-	}
-};
+}
 #endif
 
 available_implObj::dest_t::lock::lock(const available_implObj &me)
@@ -108,7 +106,5 @@ destination available_implObj::info()
 
 #if 0
 {
-	{
 #endif
-	};
-};
+}

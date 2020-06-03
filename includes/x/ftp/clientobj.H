@@ -27,12 +27,9 @@
 #include <algorithm>
 #include <iterator>
 
-namespace LIBCXX_NAMESPACE {
-
-	namespace ftp {
+namespace LIBCXX_NAMESPACE::ftp {
 #if 0
-	};
-};
+}
 #endif
 
 //! FTP client connection implementer
@@ -1064,8 +1061,6 @@ public:
 
 #if 0
 {
-	{
 #endif
-	}
 }
 #endif

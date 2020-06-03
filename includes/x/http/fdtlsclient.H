@@ -9,14 +9,9 @@
 #include <x/http/fdtlsclientobj.H>
 #include <x/namespace.h>
 
-namespace LIBCXX_NAMESPACE {
-
-	namespace gnutls {
-		namespace http {
+namespace LIBCXX_NAMESPACE::gnutls::http {
 #if 0
-		};
-	};
-};
+}
 #endif
 
 class fdtlsclientObj;
@@ -57,10 +52,6 @@ typedef ptr<fdtlsclientObj> fdtlsclientptr;
 
 #if 0
 {
-	{
-		{
 #endif
-		}
-	}
 }
 #endif

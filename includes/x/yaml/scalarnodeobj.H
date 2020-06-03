@@ -8,11 +8,8 @@
 #include <x/namespace.h>
 #include <x/yaml/nodeobj.H>
 
-namespace LIBCXX_NAMESPACE {
-
-	namespace yaml {
+namespace LIBCXX_NAMESPACE::yaml {
 #if 0
-	}
 }
 #endif
 
@@ -39,9 +36,7 @@ public:
 
 #if 0
 {
-	{
 #endif
-	}
 }
 
 #endif

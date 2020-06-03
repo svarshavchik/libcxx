@@ -11,13 +11,9 @@
 #include <x/gnutls/sessioncacheobj.H>
 #include <x/ref.H>
 
-namespace LIBCXX_NAMESPACE {
-
-	namespace gnutls {
-
+namespace LIBCXX_NAMESPACE::gnutls {
 #if 0
-	};
-};
+}
 #endif
 
 //! Base class for a session cache reference pointer.
@@ -54,8 +50,6 @@ public:
 
 #if 0
 {
-	{
 #endif
-	}
 }
 #endif

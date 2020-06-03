@@ -8,12 +8,9 @@
 
 #include <x/namespace.h>
 
-namespace LIBCXX_NAMESPACE {
-
-	namespace http {
+namespace LIBCXX_NAMESPACE::http {
 #if 0
-	};
-};
+}
 #endif
 
 //! A dummy output iterator that discards all output
@@ -56,8 +53,6 @@ public:
 
 #if 0
 {
-	{
 #endif
-	}
 }
 #endif

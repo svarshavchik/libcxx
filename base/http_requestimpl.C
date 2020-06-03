@@ -17,11 +17,9 @@
 #include <iterator>
 #include <algorithm>
 
-namespace LIBCXX_NAMESPACE {
-	namespace http {
+namespace LIBCXX_NAMESPACE::http {
 #if 0
-	};
-};
+}
 #endif
 
 const requestimpl::method_list_t requestimpl::method_list[]={
@@ -248,7 +246,5 @@ requestimpl::to_string(std::ostreambuf_iterator<char>) const;
 
 #if 0
 {
-	{
 #endif
-	}
 }

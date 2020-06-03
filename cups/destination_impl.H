@@ -13,11 +13,9 @@
 #include "available_dests.H"
 #include <cups/cups.h>
 
-namespace LIBCXX_NAMESPACE {
-	namespace cups {
+namespace LIBCXX_NAMESPACE::cups {
 #if 0
-	};
-};
+}
 #endif
 
 class LIBCXX_HIDDEN destination_implObj : public destinationObj {
@@ -136,9 +134,7 @@ class LIBCXX_HIDDEN destination_implObj : public destinationObj {
 
 #if 0
 {
-	{
 #endif
-	};
-};
+}
 
 #endif

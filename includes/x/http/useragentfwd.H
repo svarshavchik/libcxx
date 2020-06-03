@@ -11,12 +11,9 @@
 #include <x/property_value.H>
 #include <x/namespace.h>
 
-namespace LIBCXX_NAMESPACE {
-
-	namespace http {
+namespace LIBCXX_NAMESPACE::http {
 #if 0
-	};
-};
+}
 #endif
 
 class useragentObj;
@@ -55,7 +52,7 @@ class useragentBase;
 //! }
 //! if (resp->getStatusCode(0 != 200)
 //!     throw EXCEPTION("Request failed");
-//! 
+//!
 //! \endcode
 //!
 //! This example sends an \c HTTP \c GET request. request() returns a
@@ -121,8 +118,6 @@ typedef const_ref<useragentObj, useragentBase> const_useragent;
 typedef const_ptr<useragentObj, useragentBase> const_useragentptr;
 #if 0
 {
-	{
 #endif
-	}
 }
 #endif

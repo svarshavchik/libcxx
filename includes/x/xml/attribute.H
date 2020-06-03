@@ -10,11 +10,9 @@
 #include <string>
 #include <functional>
 
-namespace LIBCXX_NAMESPACE {
-	namespace xml {
+namespace LIBCXX_NAMESPACE::xml {
 #if 0
-	};
-};
+}
 #endif
 
 //! An attribute of an XML element node.
@@ -60,9 +58,7 @@ public:
 
 #if 0
 {
-	{
 #endif
-	}
 }
 
 namespace std {

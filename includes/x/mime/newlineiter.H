@@ -13,13 +13,8 @@
 #include <x/obj.H>
 #include <iterator>
 
-namespace LIBCXX_NAMESPACE {
-
-	//! Classes and templates for parsing MIME-formatted messages.
-
-	namespace mime {
+namespace LIBCXX_NAMESPACE::mime {
 #if 0
-	}
 }
 #endif
 
@@ -190,8 +185,6 @@ using newline_iterptr=ptriterator<newline_iterObj<output_iter> >;
 
 #if 0
 {
-	{
 #endif
-	}
 }
 #endif

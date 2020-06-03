@@ -16,11 +16,9 @@
 #include <map>
 #include "gettext_in.h"
 
-namespace LIBCXX_NAMESPACE {
-	namespace mime {
+namespace LIBCXX_NAMESPACE::mime {
 #if 0
-	};
-};
+}
 #endif
 
 const char structured_content_header::content_type[]="Content-Type";
@@ -657,7 +655,5 @@ std::string structured_content_header::decode_utf8(const std::string &name,
 
 #if 0
 {
-	{
 #endif
-	}
 }

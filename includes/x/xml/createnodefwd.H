@@ -8,11 +8,9 @@
 
 #include <x/ptrfwd.H>
 
-namespace LIBCXX_NAMESPACE {
-	namespace xml {
+namespace LIBCXX_NAMESPACE::xml {
 #if 0
-	};
-};
+}
 #endif
 
 class createnodeObj;
@@ -40,8 +38,6 @@ typedef const_ptr<createnodeObj> const_createnodeptr;
 
 #if 0
 {
-	{
 #endif
-	}
 }
 #endif

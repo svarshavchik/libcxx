@@ -9,11 +9,9 @@
 #include <x/ptrfwd.H>
 #include <x/refiterator.H>
 
-namespace LIBCXX_NAMESPACE {
-	namespace xml {
+namespace LIBCXX_NAMESPACE::xml {
 #if 0
-	};
-};
+}
 #endif
 
 class parserObj;
@@ -50,8 +48,6 @@ typedef ptriterator<parserObj, parserBase> parserptr;
 
 #if 0
 {
-	{
 #endif
-	}
 }
 #endif

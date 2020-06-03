@@ -9,11 +9,9 @@
 #include "x/ref.H"
 #include "x/ptr.H"
 
-namespace LIBCXX_NAMESPACE {
-	namespace yaml {
+namespace LIBCXX_NAMESPACE::yaml {
 #if 0
-	}
-};
+}
 #endif
 
 newscalarnodeObj::newscalarnodeObj(const std::string &valueArg,
@@ -47,7 +45,5 @@ void newscalarnodeObj::write(writerObj &obj) const
 
 #if 0
 {
-	{
 #endif
-	};
-};
+}

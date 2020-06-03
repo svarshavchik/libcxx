@@ -12,23 +12,17 @@
 #include <map>
 #include <string>
 
-namespace LIBCXX_NAMESPACE {
+//! Encode and decode HTML forms for HTTP
 
-	namespace http {
+//! This namespace defines \ref parameters "parameters",
+//! a map that
+//! holds parameters submitted from a web form.
+//!
+//! The parameter names and values are specified in UTF-8.
 
-		//! Encode and decode HTML forms for HTTP
-
-		//! This namespace defines \ref parameters "parameters",
-		//! a map that
-		//! holds parameters submitted from a web form.
-		//!
-		//! The parameter names and values are specified in UTF-8.
-
-		namespace form {
+namespace LIBCXX_NAMESPACE::http::form {
 #if 0
-		};
-	};
-};
+}
 #endif
 
 //! The type of a map that holds form parameters.
@@ -60,10 +54,6 @@ typedef const_ptr<parametersObj, parametersBase> const_parametersptr;
 
 #if 0
 {
-	{
-		{
 #endif
-		}
-	}
 }
 #endif
