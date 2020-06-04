@@ -13,6 +13,16 @@ namespace LIBCXX_NAMESPACE {
 };
 #endif
 
+std::size_t hash::operator()(const std::string_view &s) const noexcept
+{
+	std::size_t hash = 5381;
+
+	for (unsigned char c:s)
+		hash = hash * 33 + tolower(c);
+
+        return hash;
+}
+
 int compare(const std::string_view &a, const std::string_view &b) noexcept
 {
 	auto ab{a.begin()}, ae{a.end()},

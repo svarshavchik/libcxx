@@ -196,6 +196,11 @@ static void testchrcasecmp()
 					testcases[i].b + "\") is not " +
 					(testcases[i].result ? "true":"false"));
 	}
+
+	LIBCXX_NAMESPACE::chrcasecmp::hash h;
+
+	if (h("foo") != h("FOO"))
+		throw EXCEPTION("chrcasecmp::hash does not work");
 }
 
 template<typename eol_type>

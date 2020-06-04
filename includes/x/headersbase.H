@@ -66,9 +66,7 @@ public:
 		}
 
 		//! Destructor
-		~header()
-		{
-		}
+		~header()=default;
 
 		//! Return the header's name
 		std::string name() const noexcept;
@@ -149,6 +147,9 @@ public:
 	};
 
 	//! A multimap type for looking up headers
+
+	//! Since C++11, multimap guarantees preserving order of insertion
+	//! of equivalent keys and this relies on that.
 
 	typedef std::multimap<std::string, header_map_val_t,
 			      chrcasecmp::str_less> map_t;

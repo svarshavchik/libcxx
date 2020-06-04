@@ -133,6 +133,11 @@ typedef cmp_str< std::greater<int> > str_greater;
 
 typedef cmp_str< std::less_equal<int> > str_less_equal;
 
+//! A case-insensitive hash
+
+struct hash {
+	std::size_t operator()(const std::string_view &) const noexcept;
+};
 
 #if 0
 {
