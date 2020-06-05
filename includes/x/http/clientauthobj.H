@@ -29,10 +29,10 @@ class clientauthObj : virtual public obj {
 	LOG_CLASS_SCOPE;
 public:
 	//! The internal map of proxy authorizations, by realm.
-	std::map<std::string, clientauthimpl > proxy_authorizations;
+	authorization_map_t proxy_authorizations;
 
 	//! The internal map of www authorizations, by realm.
-	std::map<std::string, clientauthimpl > www_authorizations;
+	authorization_map_t www_authorizations;
 
 	//! Constructor
 	clientauthObj();

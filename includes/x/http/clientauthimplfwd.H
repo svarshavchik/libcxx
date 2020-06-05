@@ -9,6 +9,8 @@
 #include <x/ref.H>
 #include <x/to_string.H>
 #include <x/namespace.h>
+#include <unordered_map>
+#include <string>
 
 namespace LIBCXX_NAMESPACE::http {
 #if 0
@@ -41,6 +43,11 @@ typedef ref<clientauthimplObj, clientauthimplBase> clientauthimpl;
 //! \internal
 
 typedef ptr<clientauthimplObj, clientauthimplBase> clientauthimplptr;
+
+
+//! Container for an internal authorization map.
+
+typedef std::unordered_map<std::string, clientauthimpl> authorization_map_t;
 
 #if 0
 {

@@ -5,7 +5,7 @@
 #include <x/ptrfwd.H>
 
 #include <list>
-#include <map>
+#include <unordered_map>
 
 namespace LIBCXX_NAMESPACE::http {
 #if 0
@@ -43,7 +43,7 @@ struct cookiemrulist {
 	};
 
 	//! Container for the MRU list, keyed by public suffix
-	typedef std::map<std::string, ps_mrulist> mru_t;
+	typedef std::unordered_map<std::string, ps_mrulist> mru_t;
 
 	//! The MRU list
 

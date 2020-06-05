@@ -9,11 +9,12 @@
 #include <x/uriimpl.H>
 #include <x/http/responseimpl.H>
 #include <x/http/clientauthfwd.H>
+#include <x/http/clientauthimplfwd.H>
 #include <x/http/clientauthimplobj.H>
 #include <x/gcrypt/md.H>
 #include <x/logger.H>
 #include <string>
-#include <map>
+#include <unordered_map>
 #include <x/namespace.h>
 
 namespace LIBCXX_NAMESPACE::http {
@@ -212,15 +213,13 @@ public:
 				   const responseimpl::scheme_parameters_t
 				   &params);
 
-
 	//! Search for a failed authorization in a protection space
 
 	//! \internal
 	//!
 	bool fail_authorization(const uriimpl &uri,
 				const responseimpl &resp,
-				std::map<std::string, clientauthimpl>
-				&authorization_map,
+				authorization_map_t &authorization_map,
 				auth scheme,
 				const std::string &realm,
 				const responseimpl::scheme_parameters_t
@@ -240,8 +239,7 @@ private:
 				       &lock,
 
 				       //! Authorizations get added to this map
-				       std::map<std::string, clientauthimpl>
-				       &auth_map,
+				       authorization_map_t &auth_map,
 
 				       //! The initial prefix, uri & authority
 				       std::list<std::string> &path)

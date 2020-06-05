@@ -638,8 +638,8 @@ bool useragentObj::process_challenges(const clientauth &authorizations,
 void useragentObj::process_authentication_info(const response &resp,
 					       const requestimpl &req,
 					       const char *header,
-					       std::map<std::string,
-					       clientauthimpl> &authorizations)
+					       authorization_map_t
+					       &authorizations)
 {
 	// Before doing anything, process the Authentication-Info header,
 	// if one is present

@@ -127,7 +127,7 @@ static std::string dumpauth(const LIBCXX_NAMESPACE::http::clientauth &auth)
 {
 	std::ostringstream o;
 
-	const std::map<std::string, clientauthimpl >
+	const LIBCXX_NAMESPACE::http::authorization_map_t
 		*const auths[] ={ &auth->proxy_authorizations,
 				  &auth->www_authorizations };
 
@@ -287,4 +287,3 @@ int main(int argc, char **argv)
 	}
 	return (0);
 }
-

@@ -146,7 +146,7 @@ void clientauthcacheObj::search_authorizations(const requestimpl &req,
 void clientauthcacheObj
 ::search_authorization_path(const requestimpl &req,
 			    const protection_space_t::base::readlock &lock,
-			    std::map<std::string, clientauthimpl> &auth_map,
+			    authorization_map_t &auth_map,
 			    std::list<std::string> &path)
 {
 	decompose_path(req.getURI(), path);
@@ -170,8 +170,7 @@ void clientauthcacheObj
 	}
 	else
 	{
-		auth_map.insert(std::make_pair(new_entry->realm,
-					       new_entry));
+		auth_map.emplace(new_entry->realm, new_entry);
 
 		LOG_TRACE("Added authorization for "
 			  << join(lock->name(), "/")
@@ -231,7 +230,7 @@ bool clientauthcacheObj
 bool clientauthcacheObj
 ::fail_authorization(const uriimpl &uri,
 		     const responseimpl &resp,
-		     std::map<std::string, clientauthimpl> &authorization_map,
+		     authorization_map_t &authorization_map,
 		     auth scheme,
 		     const std::string &realm,
 		     const responseimpl::scheme_parameters_t &params)

@@ -1057,8 +1057,7 @@ private:
 	void process_authentication_info(const response &resp,
 					 const requestimpl &req,
 					 const char *header,
-					 std::map<std::string,
-					 clientauthimpl> &authorizations)
+					 authorization_map_t &authorizations)
 		LIBCXX_INTERNAL;
 
 	//! Find a connection for the given destination
