@@ -48,7 +48,7 @@ class uriimpl {
 	}
 
 public:
-	//! This object is returned by getAuthority()
+	//! This object is returned by get_authority()
 
 	class authority_t {
 
@@ -249,7 +249,7 @@ public:
 		//! Called by to_string() to emit userinfo.
 
 		template<typename OutputIterator>
-		OutputIterator emitUserinfo(//! The output iterator
+		OutputIterator emit_userinfo(//! The output iterator
 					    OutputIterator iter) const
 		{
 			if (has_userinfo)
@@ -272,7 +272,7 @@ public:
 					OutputIterator iter)
 			const
 		{
-			iter=emitUserinfo(iter);
+			iter=emit_userinfo(iter);
 
 			return std::copy(hostport.begin(), hostport.end(),
 					 iter);
@@ -302,7 +302,7 @@ public:
 
 			auto p=std::find(b, e, ':');
 
-			iter=emitUserinfo(iter);
+			iter=emit_userinfo(iter);
 			auto s=idn::from_ascii(std::string(b, p), flags);
 			iter=std::copy(s.begin(), s.end(), iter);
 
@@ -327,12 +327,16 @@ public:
 
 		//! Comparison operator
 
-		//! \return \c true - if this authority should be
-		//! lexicographically less than the other one, \c false
-		//! otherwise.
-		bool operator<(const authority_t &o) const noexcept
+		inline int operator<=>(const authority_t &o) const noexcept
 		{
-			return compare(o) < 0;
+			return compare(o);
+		}
+
+		//! Comparison operator
+
+		inline int operator==(const authority_t &o) const noexcept
+		{
+			return compare(o) == 0;
 		}
 	};
 
@@ -541,7 +545,7 @@ public:
 
 	//! Return the URI's scheme part.
 
-	const std::string &getScheme() const noexcept
+	const std::string &get_scheme() const noexcept
 	{
 		return scheme;
 	}
@@ -551,7 +555,7 @@ public:
 	//! This method returns a reference to a class that specifies the
 	//! authority component of the URI, if it was provided.
 
-	const authority_t &getAuthority() const noexcept
+	const authority_t &get_authority() const noexcept
 	{
 		return authority;
 	}
@@ -561,49 +565,49 @@ public:
 	//! If the authority does not specify a port, retrieve the port
 	//! associated with the given scheme.
 
-	std::pair<std::string, int> getHostPort(const std::string &protocol
-						="tcp")
+	std::pair<std::string, int> get_host_port(const std::string &protocol
+						  ="tcp")
 		const;
 
 	//! Get the scheme's default port
 
-	int getSchemePort(const std::string &protocol="tcp")
+	int get_scheme_port(const std::string &protocol="tcp")
 		const;
 
 	//! Remove an explicit :port in the authority if it's the scheme's default port
 
-	void fixSchemePort(const std::string &protocol="tcp");
+	void fix_scheme_port(const std::string &protocol="tcp");
 
 	//! Return the URI's path part
 
-	const std::string &getPath() const noexcept
+	const std::string &get_path() const noexcept
 	{
 		return path;
 	}
 
 	//! Return the URI's query part
 
-	const std::string &getQuery() const noexcept
+	const std::string &get_query() const noexcept
 	{
 		return query;
 	}
 
 	//! Return the URI's query part as form parameters
-	http::form::parameters getForm() const;
+	http::form::parameters get_form() const;
 
 	//! Return the URI's fragment part
 
-	const std::string &getFragment() const noexcept
+	const std::string &get_fragment() const noexcept
 	{
 		return fragment;
 	}
 
 	//! Set the URI's scheme part.
 
-	void setScheme(const std::string &value);
+	void set_scheme(const std::string &value);
 
 	//! Set the URI's authority part
-	void setAuthority(const authority_t &authorityArg)
+	void set_authority(const authority_t &authorityArg)
 	{
 		authority=authorityArg;
 	}
@@ -613,24 +617,24 @@ public:
 	//! The authority gets parsed into an optional userinfo, and
 	//! a "host[:port]" component.
 
-	void setAuthority(const std::string &value);
+	void set_authority(const std::string &value);
 
 	//! Set the URI's path part
 
-	void setPath(const std::string &value);
+	void set_path(const std::string &value);
 
 	//! Set the URI's query part
 
-	void setQuery(const std::string &value);
+	void set_query(const std::string &value);
 
 	//! Set the URI's query part using form parameters
 
-	void setQuery(//! Form parameters
+	void set_query(//! Form parameters
 		      const http::form::const_parameters &value);
 
 	//! Set the URI's fragment part
 
-	void setFragment(const std::string &value);
+	void set_fragment(const std::string &value);
 
 	//! Modify this URI with a relative URI
 
@@ -745,7 +749,7 @@ public:
 	//! \overload
 	//! If the domain portion of this URI is an ASCII-encoded domain
 	//! name, convert it to the encoding used by the given locale
-	std::string toStringi18n(const const_locale &localeRef, int flags=0)
+	std::string to_string_i18n(const const_locale &localeRef, int flags=0)
 		const;
 
 	//! \overload
@@ -783,64 +787,16 @@ public:
 
 	//! Comparison operator
 
-	//! \return \c true - if both URIs are the same.
+	inline int operator<=>(const uriimpl &o) const noexcept
+	{
+		return compare(o);
+	}
 
-	bool operator==(const uriimpl &o) const noexcept
+	//! Comparison operator
+
+	inline int operator==(const uriimpl &o) const noexcept
 	{
 		return compare(o) == 0;
-	}
-
-	//! Comparison operator
-
-	//! \return \c true - if both URIs are not the same.
-
-	bool operator!=(const uriimpl &o) const noexcept
-	{
-		return compare(o) != 0;
-	}
-
-	//! Comparison operator
-
-	//! \return \c true - if this URI is
-	//! lexicographically less than the other one, \c false
-	//! otherwise.
-
-	bool operator<(const uriimpl &o) const noexcept
-	{
-		return compare(o) < 0;
-	}
-
-	//! Comparison operator
-
-	//! \return \c true - if this URI should be
-	//! lexicographically less than or equal to the other one, \c false
-	//! otherwise.
-
-	bool operator<=(const uriimpl &o) const noexcept
-	{
-		return compare(o) <= 0;
-	}
-
-	//! Comparison operator
-
-	//! \return \c true - if this URI is
-	//! lexicographically greater than the other one, \c false
-	//! otherwise.
-
-	bool operator>(const uriimpl &o) const noexcept
-	{
-		return compare(o) > 0;
-	}
-
-	//! Comparison operator
-
-	//! \return \c true - if this URI should be
-	//! lexicographically greater than or equal to the other one, \c false
-	//! otherwise.
-
-	bool operator>=(const uriimpl &o) const noexcept
-	{
-		return compare(o) >= 0;
 	}
 
 	//! Return \c true if this URI encloses another URI.
@@ -897,10 +853,6 @@ std::string::const_iterator
 uriimpl::authority_t::parse(std::string::const_iterator,
 			    std::string::const_iterator,
 			    int);
-
-extern template std::ostreambuf_iterator<char>
-uriimpl::authority_t::emitUserinfo(std::ostreambuf_iterator<char>)
-	const;
 
 extern template std::ostreambuf_iterator<char>
 uriimpl::authority_t::to_string(std::ostreambuf_iterator<char>)

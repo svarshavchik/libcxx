@@ -450,7 +450,7 @@ void httpserverimpl::received(const LIBCXX_NAMESPACE::http::requestimpl &req,
 
 	if (!isinternal)
 	{
-		if (req.getURI().getPath().substr(0, 8) != "/portmap")
+		if (req.get_URI().get_path().substr(0, 8) != "/portmap")
 		{
 			// Accept only /portmap URLs from external sources
 
@@ -472,7 +472,7 @@ void httpserverimpl::received(const LIBCXX_NAMESPACE::http::requestimpl &req,
 		external=true;
 
 	{
-		std::string path=req.getURI().getPath();
+		std::string path=req.get_URI().get_path();
 		size_t lastslash=path.rfind('/');
 
 		if (lastslash != std::string::npos)
@@ -483,7 +483,7 @@ void httpserverimpl::received(const LIBCXX_NAMESPACE::http::requestimpl &req,
 	{
 		LIBCXX_NAMESPACE::http::responseimpl resp(200, "Ok");
 
-		resp.setVersion(LIBCXX_NAMESPACE::http::httpver_t::http10);
+		resp.set_version(LIBCXX_NAMESPACE::http::httpver_t::http10);
 
 		// Cheap way to get input iterators for an HTTP/1.0 response.
 
@@ -500,7 +500,7 @@ void httpserverimpl::received(const LIBCXX_NAMESPACE::http::requestimpl &req,
 
 	const char *ct;
 
-	if (req.getMethod() == LIBCXX_NAMESPACE::http::GET &&
+	if (req.get_method() == LIBCXX_NAMESPACE::http::GET &&
 	    (((ct="text/xml"), lastcomponent) == "/portmap.xsl" ||
 	     ((ct="text/css"), lastcomponent) == "/portmap.css"))
 	{
@@ -527,7 +527,7 @@ void httpserverimpl::received(const LIBCXX_NAMESPACE::http::requestimpl &req,
 	if (form.second)
 		bodyflag=false;
 
-	if (!form.second && req.getMethod() != LIBCXX_NAMESPACE::http::GET)
+	if (!form.second && req.get_method() != LIBCXX_NAMESPACE::http::GET)
 	{
 		LIBCXX_NAMESPACE::http::fdserverimpl
 			::received_unknown_request(req, bodyflag);
@@ -556,7 +556,7 @@ void httpserverimpl::received(const LIBCXX_NAMESPACE::http::requestimpl &req,
 				    <std::string>(content_type_str));
 
 	resp["Content-Type"]=content_type_str;
-	resp.setNoCache();
+	resp.set_no_cache();
 
 	typedef std::list<std::string> buf_t;
 

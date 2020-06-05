@@ -72,7 +72,7 @@ void serverauthObj::add_uri(std::set<uriimpl> &local_uris,
 			    std::set<uriimpl> &abs_uris,
 			    const uriimpl &nextUri)
 {
-	(nextUri.getAuthority() ? abs_uris:local_uris).insert(nextUri);
+	(nextUri.get_authority() ? abs_uris:local_uris).insert(nextUri);
 }
 
 void serverauthObj::compute_uris(std::set<uriimpl> &local_uris,
@@ -350,7 +350,7 @@ auth serverauthObj::doDigestScheme(const requestimpl &req,
 				   const std::string &a1,
 				   const authorization_request &info)
 {
-	auto a2=std::string(requestimpl::methodstr(req.getMethod()))
+	auto a2=std::string(requestimpl::methodstr(req.get_method()))
 		+ ":" + info.uri;
 
 	std::string nonce_str=to_string(info.nonce.time_since_epoch().count());

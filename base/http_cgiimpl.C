@@ -152,14 +152,14 @@ cgiimpl::~cgiimpl()
 {
 }
 
-bool cgiimpl::hasData()
+bool cgiimpl::has_data()
 {
 	return method == POST || method == PUT;
 }
 
 cgiimpl::iterator cgiimpl::begin()
 {
-	if (!hasData())
+	if (!has_data())
 		return end();
 
 	return fdinputiter(fd::base::dup(0));
@@ -170,7 +170,7 @@ cgiimpl::iterator cgiimpl::end()
 	return fdinputiter();
 }
 
-uriimpl cgiimpl::getURI(int options) const
+uriimpl cgiimpl::get_URI(int options) const
 {
 	uriimpl uri;
 
@@ -187,18 +187,18 @@ uriimpl cgiimpl::getURI(int options) const
 	}
 	else
 	{
-		uri.setScheme(scheme);
-		uri.setAuthority(uriimpl::authority_t(host));
+		uri.set_scheme(scheme);
+		uri.set_authority(uriimpl::authority_t(host));
 		new_path=script_name;
 
 		if (options & uri_path)
 			new_path += path_info;
 	}
 
-	uri.setPath(new_path);
+	uri.set_path(new_path);
 
 	if (options & uri_query)
-		uri.setQuery(parameters);
+		uri.set_query(parameters);
 
 	return uri;
 }
@@ -209,9 +209,9 @@ void cgiimpl::send_response_header(responseimpl &resp)
 	resp.erase(LIBCXX_NAMESPACE::http::messageimpl::content_length);
 	resp.erase(LIBCXX_NAMESPACE::http::messageimpl::transfer_encoding);
 
-	std::cout << "Status: " << resp.getStatusCode() << ' '
-		  << resp.getReasonPhrase() << '\n';
-	
+	std::cout << "Status: " << resp.get_status_code() << ' '
+		  << resp.get_reason_phrase() << '\n';
+
 	static_cast<const headersbase &>(resp)
 		.to_string(std::ostreambuf_iterator<char>(std::cout), "\n");
 

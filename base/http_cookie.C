@@ -40,7 +40,7 @@ std::string cookie::getValidatedPath(const uriimpl &request_uri) const
 {
 	if (path.empty())
 	{
-		std::string path_str=request_uri.getPath();
+		std::string path_str=request_uri.get_path();
 
 		auto b=path_str.begin(), e=path_str.end();
 
@@ -73,9 +73,9 @@ std::string cookie::getValidatedDomain(const uriimpl &request_uri) const
 	std::string domain_str;
 
 	if (domain.empty() &&
-	    request_uri.getAuthority())
+	    request_uri.get_authority())
 		// Should always be the case
-		domain_str=request_uri.getHostPort().first;
+		domain_str=request_uri.get_host_port().first;
 	else
 	{
 		std::list<std::string> domain_labels;
@@ -97,7 +97,7 @@ std::string cookie::getValidatedDomain(const uriimpl &request_uri) const
 	if (!domain_given)
 		return domain_str; // Default one
 
-	if (!request_uri.getAuthority())
+	if (!request_uri.get_authority())
 		// Should not happen.
 	{
 		return "";
@@ -108,7 +108,7 @@ std::string cookie::getValidatedDomain(const uriimpl &request_uri) const
 	// domain_str=.example.com
 	// request_host=www.example.com
 
-	std::string request_host="." + request_uri.getHostPort().first;
+	std::string request_host="." + request_uri.get_host_port().first;
 
 	std::transform(request_host.begin(),
 		       request_host.end(),
@@ -160,7 +160,7 @@ time_t cookie::expires_from_str(const std::string &value_str)
 	// If we can't make the
 	// conversion, assume overflow
 	// and take the epoch end.
-	
+
 	time_t expires_given=
 		((std::make_unsigned<time_t>::type)-1) >> 1;
 
@@ -184,7 +184,7 @@ cookie &cookie::setDomain(const std::string &domain)
 	return *this;
 }
 
-cookie &cookie::setPath(const std::string &path)
+cookie &cookie::set_path(const std::string &path)
 {
 	this->path=path;
 	return *this;

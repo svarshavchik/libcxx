@@ -152,9 +152,9 @@ private:
 			responseimpl::throw_internal_server_error();
 
 		response_sent=true;
-		connection_closed=resp.getVersion() == httpver_t::http10 ||
+		connection_closed=resp.get_version() == httpver_t::http10 ||
 			resp.connection_closed() ||
-			req.getVersion() == httpver_t::http10 ||
+			req.get_version() == httpver_t::http10 ||
 			req.connection_closed();
 
 		if (connection_closed && !resp.connection_closed())
@@ -238,7 +238,7 @@ protected:
 	{
 		responseimpl resp=exception;
 
-		if (req.responseHasMessageBody(resp))
+		if (req.response_has_message_body(resp))
 		{
 			std::string contents=exception.body;
 
@@ -411,12 +411,12 @@ public:
 			response_sent=false;
 			connection_closed=true;
 
-			this->setPeerHttpVersion(req.getVersion());
+			this->set_peer_http_version(req.get_version());
 
 			try {
 				bool got_100_continue=false;
 
-				if (req.getVersion() == httpver_t::http11)
+				if (req.get_version() == httpver_t::http11)
 				{
 					messageimpl::keywordseti_t expectations;
 
@@ -447,7 +447,7 @@ public:
 				{
 					responseimpl resp;
 
-					resp.setStatusCode(100);
+					resp.set_status_code(100);
 					sender_t::send(resp, req);
 				}
 
@@ -517,7 +517,8 @@ protected:
 
 	{
 		if (response_sent
-		    || e.getStatusCode() == 408) // Propagate timeout exceptions
+		    || e.get_status_code() == 408)
+			// Propagate timeout exceptions
 			throw e;
 
 		response_exception cpy(e);

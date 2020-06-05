@@ -50,7 +50,7 @@ static void testcgiimpl(std::list<std::string> &args)
 		i >> options;
 	}
 
-	LIBCXX_NAMESPACE::uriimpl uri=cgi.getURI();
+	LIBCXX_NAMESPACE::uriimpl uri=cgi.get_URI();
 
 	std::cout << "Method: " << LIBCXX_NAMESPACE::http::requestimpl
 		::methodstr(cgi.method) << std::endl;
@@ -66,11 +66,11 @@ static void testcgiimpl(std::list<std::string> &args)
 
 	std::cout << "Uri: ";
 
-	cgi.getURI(options).to_string(std::ostreambuf_iterator<char>(std::cout));
+	cgi.get_URI(options).to_string(std::ostreambuf_iterator<char>(std::cout));
 
 	std::cout << std::endl;
 
-	if (cgi.hasData())
+	if (cgi.has_data())
 	{
 		std::cout << (std::string)LIBCXX_NAMESPACE::mime
 			::structured_content_header(cgi.headers,
@@ -121,4 +121,3 @@ int main(int argc, char **argv)
 	}
 	return (0);
 }
-

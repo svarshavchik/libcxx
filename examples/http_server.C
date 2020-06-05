@@ -123,7 +123,7 @@ public:
 		{
 			o << "<h1>Your request headers:</h1>"
 				"<p>URI: "
-			  << x::xml::escapestr(x::to_string(req.getURI()))
+			  << x::xml::escapestr(x::to_string(req.get_URI()))
 			  << "</p><table><thead><tr><th>Header</th><th>Contents</th></tr></thead><tbody>";
 
 			for (auto hdr:req)
@@ -153,7 +153,7 @@ public:
 
 		o << "</body></html>";
 
-		this->send(req, 
+		this->send(req,
 			   "text/html; charset=utf-8",
 			   std::istreambuf_iterator<char>(o.rdbuf()),
 			   std::istreambuf_iterator<char>());

@@ -1,3 +1,9 @@
+0.22
+
+2020-06-05  Sam Varshavchik  <mrsam@courier-mta.com>
+
+	* http: rename methods, removing camelcase.
+
 2020-06-01  Sam Varshavchik  <mrsam@courier-mta.com>
 
 	* Minor redesign of options, properties, and sighandler.

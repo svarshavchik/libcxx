@@ -237,7 +237,7 @@ void received(const &ns;::http::requestimpl &amp;req, bool hasbody)
     </para>
 
     <para>
-      Most applications will want to check <quote>req.getMethod()</quote> to
+      Most applications will want to check <quote>req.get_method()</quote> to
       obtain the type of the request (<literal>&ns;::http::GET</literal>,
       <literal>&ns;::http::POST</literal>,
       <literal>&ns;::http::HEAD</literal>, and others), first, before
@@ -247,7 +247,7 @@ void received(const &ns;::http::requestimpl &amp;req, bool hasbody)
       were received from the client. For convenience, the
       <quote>Host</quote> header, if present, is removed and incorporated
       into the
-      <acronym>URI</acronym> returned by <methodname>getURI</methodname>().
+      <acronym>URI</acronym> returned by <methodname>get_URI</methodname>().
     </para>
 
     <para>
@@ -518,7 +518,7 @@ void received(const &ns;::http::requestimpl &amp;req, bool hasbody)
 
     resp.addCookie(&ns;::http::cookie("loggedin", "yes")
                    .setDomain(".example.com")
-                   .setPath("/")
+                   .set_path("/")
                    .setExpiresIn(24 * 60 * 60));
 
     send(resp, req, buffer);
@@ -547,7 +547,7 @@ void received(const &ns;::http::requestimpl &amp;req, bool hasbody)
 
     <para>
       <ulink url="&link-x--http--requestimpl;"><classname>&ns;::http::requestimpl</classname></ulink>'s
-      <methodname>getCookies</methodname>() method retrieves any cookies
+      <methodname>get_cookies</methodname>() method retrieves any cookies
       sent in the client's request:
     </para>
 
@@ -556,15 +556,13 @@ void received(const &ns;::http::requestimpl &amp;req, bool hasbody)
 	<programlisting>
 void received(const &ns;::http::requestimpl &amp;req, bool hasbody)
 {
-    std::map&lt;std::string, std::string&gt; cookies;
-
-    req.getCookies(cookies);
+    &ns;::http::cookies_t cookies=req.get_cookies();
 // ...</programlisting>
       </informalexample>
     </blockquote>
 
     <para>
-      <methodname>getCookies</methodname>() loads the given map with the
+      <methodname>get_cookies</methodname>() loads the given map with the
       contents of any cookies in the request.
     </para>
   </section>

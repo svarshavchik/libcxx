@@ -158,7 +158,7 @@ public:
 		}
 
 		//! Return the application's executable filename
-		const std::string &getPath() const noexcept
+		const std::string &get_path() const noexcept
 		{
 			return path;
 		}

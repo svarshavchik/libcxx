@@ -17,13 +17,13 @@
 
 void dumpuri(const LIBCXX_NAMESPACE::uriimpl &u)
 {
-	std::cout << "scheme: " << u.getScheme() << std::endl
-		  << "authority: " << (u.getAuthority() ?
-				       u.getAuthority().to_string()
+	std::cout << "scheme: " << u.get_scheme() << std::endl
+		  << "authority: " << (u.get_authority() ?
+				       u.get_authority().to_string()
 				       : std::string("(null)")) << std::endl
-		  << "path: " << u.getPath() << std::endl
-		  << "query: " << u.getQuery() << std::endl
-		  << "fragment: " << u.getFragment() << std::endl
+		  << "path: " << u.get_path() << std::endl
+		  << "query: " << u.get_query() << std::endl
+		  << "fragment: " << u.get_fragment() << std::endl
 		  << "----" << std::endl;
 }
 
@@ -37,7 +37,7 @@ void testuri(const std::string &str)
 void testhostport(const std::string &str)
 {
 	std::pair<std::string, int> hostport=LIBCXX_NAMESPACE::uriimpl(str)
-		.getHostPort();
+		.get_host_port();
 
 	std::cout << "host: " << hostport.first << ", port " << hostport.second
 		  << std::endl;

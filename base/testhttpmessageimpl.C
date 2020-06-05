@@ -246,7 +246,7 @@ static void testacceptheader()
 	res_iter_vector_t res;
 
 	hdr.find(candidates.begin(),
-		 candidates.end(), 
+		 candidates.end(),
 		 std::back_insert_iterator<res_iter_vector_t>(res));
 
 	if (res.size() != 1)
@@ -295,7 +295,7 @@ static void testsendcontentlength()
 		LIBCXX_NAMESPACE::http::senderimpl<std::ostreambuf_iterator<char> >
 		(std::ostreambuf_iterator<char>(o));
 
-	formatter.setPeerHttp11();
+	formatter.set_peer_http11();
 
 	{
 		LIBCXX_NAMESPACE::http::senderimpl_encode::wait_continue dummy;
@@ -374,7 +374,7 @@ static void testsendchunked(size_t chunksize)
 		LIBCXX_NAMESPACE::http::senderimpl<std::ostreambuf_iterator<char> >
 		(std::ostreambuf_iterator<char>(o));
 
-	formatter.setPeerHttp11();
+	formatter.set_peer_http11();
 
 	{
 		LIBCXX_NAMESPACE::http::senderimpl_encode::wait_continue dummy;
@@ -438,7 +438,7 @@ void testbindings()
 	LIBCXX_NAMESPACE::http::responseimpl resp;
 	respreceiver.message(resp, req);
 }
-	
+
 
 static void testbadmessage(const std::string &message)
 
@@ -504,4 +504,3 @@ int main(int argc, char **argv)
 	}
 	return (0);
 }
-

@@ -101,8 +101,8 @@ static void testfdlistener()
 	LIBCXX_NAMESPACE::http::responseimpl resp;
 	LIBCXX_NAMESPACE::http::requestimpl req;
 
-	req.setURI("http://example.com");
-	req.setMethod(LIBCXX_NAMESPACE::http::HEAD);
+	req.set_URI("http://example.com");
+	req.set_method(LIBCXX_NAMESPACE::http::HEAD);
 
 	if (!client.send(req, resp))
 		throw EXCEPTION("testfdlistener: send refused");
@@ -110,15 +110,15 @@ static void testfdlistener()
 	std::cout << "HEAD:" << std::endl;
 	resp.to_string(std::ostreambuf_iterator<char>(std::cout));
 
-	if (req.responseHasMessageBody(resp))
+	if (req.response_has_message_body(resp))
 		throw EXCEPTION("Response to a HEAD has a body");
 
-	req.setMethod(LIBCXX_NAMESPACE::http::GET);
+	req.set_method(LIBCXX_NAMESPACE::http::GET);
 
 	if (!client.send(req, resp))
 		throw EXCEPTION("testfdlistener: send refused");
 
-	if (!req.responseHasMessageBody(resp))
+	if (!req.response_has_message_body(resp))
 		throw EXCEPTION("Response to a GET did not have a body");
 
 	std::cout << "GET:" << std::endl;

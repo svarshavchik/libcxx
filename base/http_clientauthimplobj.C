@@ -34,11 +34,11 @@ clientauthimplObj::basic::basic(const uriimpl &uriArg,
 
 	uriimpl::authority_t new_authority;
 
-	new_authority.hostport=uri.getAuthority().hostport;
-	uri.setAuthority(new_authority);
-	uri.setPath("");
-	uri.setQuery("");
-	uri.setFragment("");
+	new_authority.hostport=uri.get_authority().hostport;
+	uri.set_authority(new_authority);
+	uri.set_path("");
+	uri.set_query("");
+	uri.set_fragment("");
 }
 
 clientauthimplObj::basic::~basic()

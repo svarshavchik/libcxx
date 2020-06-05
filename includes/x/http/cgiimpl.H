@@ -33,7 +33,7 @@ namespace LIBCXX_NAMESPACE::http {
 //! If the application was invoked to process a form, the parameters map
 //! contains the form's parameters.
 //!
-//! hasData() indicates whether a this application was invoked to process
+//! has_data() indicates whether a this application was invoked to process
 //! an arbitrary object. It returns \c true if the request method is
 //! a POST or a PUT. Instantiate a
 //! \ref mime::structured_content_header "INSERT_LIBX_NAMESPACE::mime::structured_content_header"
@@ -77,23 +77,23 @@ public:
 
 	form::parameters parameters;
 
-	//! getURI() will produce a relative URL.
+	//! get_URI() will produce a relative URL.
 
-	//! The URI returned by getURI will have just the last component of the
+	//! The URI returned by get_URI will have just the last component of the
 	//! combined script_name+path_info path.
 	//!
-	//! If this flag is not specified, getURI() produces an absolute URI.
+	//! If this flag is not specified, get_URI() produces an absolute URI.
 
 	static constexpr int uri_relative=1;
 
-	//! getURI() includes the path_info.
+	//! get_URI() includes the path_info.
 
 	//! Mutually-exclusive with uri_relative. Includes the extra
 	//! path_info in the URI.
 
 	static constexpr int uri_path=2;
 
-	//! getURI() returns a URI that includes all parameters.
+	//! get_URI() returns a URI that includes all parameters.
 
 	//! Put all parameters into the query_string part of the returned URI.
 	//! The resulting URI should only be used for a GET.
@@ -105,11 +105,11 @@ public:
 	//! This URI can be used to refer to this same application, in
 	//! dynamically-generated content.
 
-	uriimpl getURI(//! Options that specify which parts of the URI should
-		       //! be constructed. Default: produce an absolute URI,
-		       //! without any extra path_info, and without any
-		       //! parameters
-		       int options=0) const;
+	uriimpl get_URI(//! Options that specify which parts of the URI should
+			//! be constructed. Default: produce an absolute URI,
+			//! without any extra path_info, and without any
+			//! parameters
+			int options=0) const;
 
 private:
 
@@ -140,11 +140,11 @@ public:
 
 	//! \return \c true if data_begin() and data_end() may be invoked
 	//! to obtain the object's iterator
-	bool hasData();
+	bool has_data();
 
 	//! Obtain the beginning iterator for the object that was submitted to this application.
 
-	//! Only valid if hasData() returns \c true. Otherwise, the returned
+	//! Only valid if has_data() returns \c true. Otherwise, the returned
 	//! iterator will be data_end().
 
 	iterator begin();

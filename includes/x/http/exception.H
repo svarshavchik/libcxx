@@ -42,11 +42,11 @@ public:
 
 	//! Create a canned body string
 
-	void setCannedBodyStr();
+	void set_canned_body_str();
 
 	//! Create a canned body string, with a little bit more stuff.
 
-	void setCannedBodyStr(const std::string &extra);
+	void set_canned_body_str(const std::string &extra);
 };
 
 #ifndef DOXYGEN_FIXME

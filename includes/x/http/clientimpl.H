@@ -42,7 +42,7 @@ namespace LIBCXX_NAMESPACE::http {
 //! of the HTTP request message.
 //!
 //! When send() returns,
-//! the request object's responseHasMessageBody() will indicate whether the
+//! the request object's response_has_message_body() indicates whether the
 //! response has a message body. If so, use begin() and end() to
 //! to extract the response message's body.
 //!
@@ -68,7 +68,7 @@ namespace LIBCXX_NAMESPACE::http {
 //! This does mean that non-random access iterators on the first request will
 //! result in using an expensive intermediate temporary file.
 //! After constructing the object, and before invoking send() for the first
-//! time, setPeerHttp11() may be invoked if the server is known to support
+//! time, set_peer_http11() may be invoked if the server is known to support
 //! HTTP 1.1. If so, the first message's body will be sent using chunked
 //! encoding, if the body's beginning and ending iterators are not random
 //! access iterators.
@@ -94,7 +94,7 @@ protected:
 	typedef senderimpl<output_iter> sender_t;
 
 public:
-	using sender_t::setPeerHttp11;
+	using sender_t::set_peer_http11;
 
 	//! Import the iterator from the superclass
 	typedef typename receiver_t::iterator iterator;
@@ -238,8 +238,8 @@ private:
 
 		const char *host_header="Host";
 
-		const uriimpl &uri=req.getURI();
-		const uriimpl::authority_t &auth=uri.getAuthority();
+		const uriimpl &uri=req.get_URI();
+		const uriimpl::authority_t &auth=uri.get_authority();
 
 		messageimpl::keywordseti_t expectations;
 
@@ -249,7 +249,7 @@ private:
 		    req.find(messageimpl::expect_100_continue) != req.end()
 
 		    // An absolute URL is always required
-		    || uri.getScheme().size() == 0
+		    || uri.get_scheme().size() == 0
 		    || auth.hostport.size() == 0
 		    || req.find(host_header) != req.end())
 			responseimpl::throw_bad_request();
@@ -292,7 +292,7 @@ public:
 
 		validate_request(req);
 
-		if (req.shouldHaveMessageBody())
+		if (req.should_have_message_body())
 			senderimpl_encode::expected_message_body();
 
 		pipelined=false;
@@ -380,7 +380,7 @@ private:
 		bool operator()() override
 		{
 			receiver.message(resp, req);
-			if (resp.getStatusCode() != 100)
+			if (resp.get_status_code() != 100)
 				return false;
 			continued_flag=true;
 			return true;
@@ -406,7 +406,7 @@ public:
 
 		validate_request(req);
 
-		if (!req.shouldHaveMessageBody())
+		if (!req.should_have_message_body())
 			senderimpl_encode::unexpected_message_body();
 
 		pipelined=false;
@@ -475,10 +475,10 @@ protected:
 	{
 		receiver_t::message(resp, req);
 
-		this->setPeerHttpVersion(resp.getVersion());
+		this->set_peer_http_version(resp.get_version());
 
-		pipelined=req.getVersion() == httpver_t::http10 ||
-			resp.getVersion() == httpver_t::http10 ||
+		pipelined=req.get_version() == httpver_t::http10 ||
+			resp.get_version() == httpver_t::http10 ||
 			req.connection_closed() || resp.connection_closed()
 			? false:true;
 	}

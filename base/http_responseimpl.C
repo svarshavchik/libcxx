@@ -68,9 +68,9 @@ std::string responseimpl::auth_param::quote_value(const std::string &value) cons
 
 responseimpl::responseimpl() noexcept : httpver(httpver_t::http11)
 {
-	setStatusCode(200);
-	setReasonPhrase("Ok");
-	setCurrentDate();
+	set_status_code(200);
+	set_reason_phrase("Ok");
+	set_current_date();
 }
 
 responseimpl::responseimpl(int statuscodeArg,
@@ -78,9 +78,9 @@ responseimpl::responseimpl(int statuscodeArg,
 			   httpver_t httpverArg)
 	: httpver(httpverArg)
 {
-	setStatusCode(statuscodeArg);
-	setReasonPhrase(reasonphraseArg);
-	setCurrentDate();
+	set_status_code(statuscodeArg);
+	set_reason_phrase(reasonphraseArg);
+	set_current_date();
 }
 
 void responseimpl::bad_message()
@@ -93,9 +93,9 @@ responseimpl::responseimpl(int statuscodeArg,
 			   httpver_t httpverArg)
 	: httpver(httpverArg)
 {
-	setStatusCode(statuscodeArg);
-	setReasonPhrase(reasonphraseArg);
-	setCurrentDate();
+	set_status_code(statuscodeArg);
+	set_reason_phrase(reasonphraseArg);
+	set_current_date();
 }
 
 responseimpl::~responseimpl()
@@ -127,13 +127,13 @@ void responseimpl::throw_redirect(const uriimpl &uri, int status_code)
 
 	uri_str=xml::escapestr(uri_str, true);
 
-	resp.setCannedBodyStr( "<p>Moved to <a href=\""
-			       + uri_str
-			       + "\">" + uri_str + "</a></p>");
+	resp.set_canned_body_str( "<p>Moved to <a href=\""
+				  + uri_str
+				  + "\">" + uri_str + "</a></p>");
 	throw resp;
 }
 
-void responseimpl::setCurrentDate()
+void responseimpl::set_current_date()
 {
 	replace("Date",
 		LIBCXX_NAMESPACE::to_string
@@ -143,7 +143,7 @@ void responseimpl::setCurrentDate()
 		 locale::create("C")));
 }
 
-ymdhms responseimpl::getCurrentDate() const
+ymdhms responseimpl::get_current_date() const
 {
 	auto date=equal_range("Date");
 
@@ -162,20 +162,20 @@ ymdhms responseimpl::getCurrentDate() const
 	return ymdhms();
 }
 
-void responseimpl::setNoCache()
+void responseimpl::set_no_cache()
 {
 	append("Cache-Control", "no-cache");
 	append("Pragma", "no-cache");
 }
 
-void responseimpl::setStatusCode(int statuscodeArg)
+void responseimpl::set_status_code(int statuscodeArg)
 {
 	if (statuscodeArg < 100 || statuscodeArg > 999)
 		throw EXCEPTION(_("Invalid status code"));
 	statuscode=statuscodeArg;
 }
 
-void responseimpl::setReasonPhrase(const std::string &reasonphraseArg)
+void responseimpl::set_reason_phrase(const std::string &reasonphraseArg)
 
 {
 	for (std::string::const_iterator b(reasonphraseArg.begin()),
@@ -398,11 +398,13 @@ LOG_FUNC_SCOPE_DECL(LIBCXX_NAMESPACE::http::getCookies, cookiesLogger);
 
 static const char set_cookie[]="Set-Cookie";
 
-void responseimpl::getCookies(std::list<cookie> &cookies) const
+std::list<cookie> responseimpl::get_cookies() const
 {
+	std::list<cookie> cookies;
+
 	LOG_FUNC_SCOPE(cookiesLogger);
 
-	auto current_date=getCurrentDate();
+	auto current_date=get_current_date();
 
 	for (auto cookie_headers=equal_range(set_cookie);
 	     cookie_headers.first != cookie_headers.second;
@@ -520,9 +522,11 @@ void responseimpl::getCookies(std::list<cookie> &cookies) const
 			LOG_TRACE(e->backtrace);
 		}
 	}
+
+	return cookies;
 }
 
-void responseimpl::addCookie(const cookie &c)
+void responseimpl::add_cookie(const cookie &c)
 {
 	std::ostringstream o;
 

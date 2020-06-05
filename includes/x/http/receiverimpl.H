@@ -764,7 +764,7 @@ public:
 		this->state=receiverimplbase<input_iter>::error_state;
 		internal_get_message(msg);
 
-		if (!req.responseHasMessageBody(msg))
+		if (!req.response_has_message_body(msg))
 		{
 			this->state=receiverimplbase<input_iter>::message_state;
 			return false;

@@ -24,11 +24,11 @@ response_exception::response_exception(int statuscodeArg,
 				       httpver_t httpverArg)
 	: responseimpl(statuscodeArg, reasonphraseArg, httpverArg)
 {
-	(*this) << getStatusCode() << ' ' << getReasonPhrase();
+	(*this) << get_status_code() << ' ' << get_reason_phrase();
 
-	setCurrentDate();
+	set_current_date();
 	append("Content-Type: text/html");
-	setCannedBodyStr();
+	set_canned_body_str();
 	done();
 }
 
@@ -36,14 +36,14 @@ response_exception::~response_exception()
 {
 }
 
-void response_exception::setCannedBodyStr()
+void response_exception::set_canned_body_str()
 {
-	setCannedBodyStr("");
+	set_canned_body_str("");
 }
 
-void response_exception::setCannedBodyStr(const std::string &extra)
+void response_exception::set_canned_body_str(const std::string &extra)
 {
-	std::string reasonstresc=xml::escapestr(getReasonPhrase());
+	std::string reasonstresc=xml::escapestr(get_reason_phrase());
 
 	body="<html><head><title>" + reasonstresc + "</title></head>"
 		"<body><h1>" + reasonstresc + "</h1>" + extra +

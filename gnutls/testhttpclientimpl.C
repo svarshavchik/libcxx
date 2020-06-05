@@ -71,7 +71,7 @@ static void testhttpsproxyerror()
 			LIBCXX_NAMESPACE::fdptr(), LIBCXX_NAMESPACE::http::isproxy);
 
 	LIBCXX_NAMESPACE::http::requestimpl req;
-	req.setURI("https://example.com");
+	req.set_URI("https://example.com");
 
 	LIBCXX_NAMESPACE::http::responseimpl resp;
 
@@ -80,7 +80,7 @@ static void testhttpsproxyerror()
 
 	resp.to_string(std::ostreambuf_iterator<char>(std::cout));
 	try {
-		if (req.responseHasMessageBody(resp))
+		if (req.response_has_message_body(resp))
 			std::copy(client->begin(), client->end(),
 				  std::ostreambuf_iterator<char>(std::cout));
 	} catch (const LIBCXX_NAMESPACE::exception &e)
@@ -88,7 +88,7 @@ static void testhttpsproxyerror()
 		std::cerr << e << std::endl;
 	}
 
-	if (resp.getStatusCode() != 404)
+	if (resp.get_status_code() != 404)
 		throw EXCEPTION("I expected a 404");
 
 	b=LIBCXX_NAMESPACE::fdptr();
@@ -201,7 +201,7 @@ static void testhttpsproxyconnect()
 			       LIBCXX_NAMESPACE::http::isproxy);
 
 		LIBCXX_NAMESPACE::http::requestimpl req;
-		req.setURI("https://example.com");
+		req.set_URI("https://example.com");
 
 		LIBCXX_NAMESPACE::http::responseimpl resp;
 
@@ -211,14 +211,14 @@ static void testhttpsproxyconnect()
 		resp.to_string(std::ostreambuf_iterator<char>(std::cout));
 
 		try {
-			if (req.responseHasMessageBody(resp))
+			if (req.response_has_message_body(resp))
 				std::copy(client.begin(), client.end(),
 					  std::ostreambuf_iterator<char>(std::cout));
 		} catch (const LIBCXX_NAMESPACE::exception &e)
 		{
 			std::cerr << e << std::endl;
 		}
-		if (resp.getStatusCode() != 200)
+		if (resp.get_status_code() != 200)
 			throw EXCEPTION("I expected a 200");
 
 		if (client.send(req, resp))
@@ -242,7 +242,7 @@ static void dorequest(const std::string &url,
         cert->set_x509_trust_default();
 
 	LIBCXX_NAMESPACE::http::requestimpl req;
-	req.setURI(url);
+	req.set_URI(url);
 
 	if (proxy.size() > 0)
 	{
@@ -264,7 +264,7 @@ static void dorequest(const std::string &url,
 	}
 	else
 	{
-		auto hostport=req.getURI().getHostPort();
+		auto hostport=req.get_URI().get_host_port();
 
 		auto sock=LIBCXX_NAMESPACE::netaddr
 			::create(hostport.first, hostport.second)
@@ -283,7 +283,7 @@ static void dorequest(const std::string &url,
 		throw EXCEPTION("Was not able to send a request");
 
 	resp.to_string(std::ostreambuf_iterator<char>(std::cout));
-	if (req.responseHasMessageBody(resp))
+	if (req.response_has_message_body(resp))
 		std::copy(client.begin(), client.end(),
 			  std::ostreambuf_iterator<char>(std::cout));
 }

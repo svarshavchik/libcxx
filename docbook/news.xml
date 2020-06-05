@@ -6,25 +6,25 @@ See COPYING for distribution information.
 -->
 
 <section id="news">
-  <title>Release 0.21 of &app;</title>
+  <title>Release 0.22 of &app;</title>
 
   <itemizedlist>
     <listitem>
       <para>
-	Improvements to the <link linkend="xml_parse">XML parser API</link>.
+	The library gets updated to the C++20 language version, and
+	requires gcc 10.
       </para>
     </listitem>
     <listitem>
       <para>
-	<link linkend="mptobj">Transferrable mutex locks</link>.
-      </para>
-    </listitem>
-    <listitem>
-      <para>
-	Add support to the
+	Redesigned
 	<link linkend="serialization">Serialization API</link>
-	for serializing <classname>std::tuple</classname>s and
-	<classname>std::reference_wrapper</classname>s.
+	to be const-correct.
+	Cleaned up <acronym>HTTP</acronym>
+	<link linkend="httpuseragent">client</link>
+	and
+	<link linkend="httpserver">server</link> API, replacing camcel-case
+	methods with standardized names.
       </para>
     </listitem>
   </itemizedlist>

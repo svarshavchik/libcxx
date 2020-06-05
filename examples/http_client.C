@@ -12,8 +12,8 @@ void http_example()
 	x::http::useragent::base::response
 		resp=ua->request(x::http::GET, "https://localhost");
 
-	std::cout << resp->message.getStatusCode()
-		  << " " << resp->message.getReasonPhrase() << std::endl;
+	std::cout << resp->message.get_status_code()
+		  << " " << resp->message.get_reason_phrase() << std::endl;
 
 	for (auto hdr: resp->message)
 	{
@@ -28,7 +28,7 @@ void http_example()
 		std::cout << std::flush;
 	}
 
-	if (resp->message.getStatusCodeClass() != x::http::resp_success)
+	if (resp->message.get_status_code_class() != x::http::resp_success)
 		exit(1);
 
 }

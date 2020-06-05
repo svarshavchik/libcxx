@@ -562,7 +562,7 @@ static void testoptions9()
 	ymd_interval_value->value.to_string(o);
 
 	std::cout << std::endl << "URI path: "
-		  << uri_value->value.getPath() << std::endl;
+		  << uri_value->value.get_path() << std::endl;
 }
 
 static void testoptions10()

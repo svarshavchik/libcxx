@@ -39,7 +39,7 @@ class useragentBase;
 //!
 //! http::responseimpl resp;
 //!
-//! req.setURI("http://www.example.com");
+//! req.set_URI("http://www.example.com");
 //!
 //! http::useragent::base::response resp=ua->request(req);
 //!
@@ -50,7 +50,7 @@ class useragentBase;
 //!         e=resp->end();
 //!     dosomething(b, e);
 //! }
-//! if (resp->getStatusCode(0 != 200)
+//! if (resp->get_status_code() != 200)
 //!     throw EXCEPTION("Request failed");
 //!
 //! \endcode
@@ -66,8 +66,8 @@ class useragentBase;
 //!
 //! http::requestimpl req;
 //!
-//! req.setMethod(req.POST);
-//! req.setURI("http://www.example.com/submit.cgi");
+//! req.set_method(req.POST);
+//! req.set_URI("http://www.example.com/submit.cgi");
 //!
 //! http::useragent::base::response resp=ua->request(req, text.begin(), text.end());
 //!

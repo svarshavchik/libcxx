@@ -109,7 +109,7 @@ uriimpl::authority_t::parse(std::string::const_iterator,
 			    int);
 
 template std::ostreambuf_iterator<char>
-uriimpl::authority_t::emitUserinfo(std::ostreambuf_iterator<char>)
+uriimpl::authority_t::emit_userinfo(std::ostreambuf_iterator<char>)
 	const;
 
 template std::ostreambuf_iterator<char>
@@ -324,7 +324,7 @@ template std::ostreambuf_iterator<char>
 uriimpl::to_string(std::ostreambuf_iterator<char>, const const_locale &, bool)
 	const;
 
-std::string uriimpl::toStringi18n(const const_locale &localeRef, int flags)
+std::string uriimpl::to_string_i18n(const const_locale &localeRef, int flags)
 	const
 {
 	std::ostringstream o;
@@ -334,7 +334,7 @@ std::string uriimpl::toStringi18n(const const_locale &localeRef, int flags)
 	return o.str();
 }
 
-void uriimpl::setScheme(const std::string &value)
+void uriimpl::set_scheme(const std::string &value)
 {
 	std::string::const_iterator b(value.begin()), e(value.end());
 
@@ -354,14 +354,14 @@ void uriimpl::setScheme(const std::string &value)
 	scheme=value;
 }
 
-void uriimpl::setAuthority(const std::string &value)
+void uriimpl::set_authority(const std::string &value)
 {
 	authority_t newauth(value);
 
 	authority=newauth;
 }
 
-void uriimpl::setPath(const std::string &value)
+void uriimpl::set_path(const std::string &value)
 {
 	for (std::string::const_iterator b(value.begin()), e(value.end());
 	     b != e; ++b)
@@ -374,12 +374,12 @@ void uriimpl::setPath(const std::string &value)
 	path=value;
 }
 
-http::form::parameters uriimpl::getForm() const
+http::form::parameters uriimpl::get_form() const
 {
-	return http::form::parameters::create(getQuery());
+	return http::form::parameters::create(get_query());
 }
 
-void uriimpl::setQuery(const std::string &value)
+void uriimpl::set_query(const std::string &value)
 {
 	for (std::string::const_iterator b(value.begin()), e(value.end());
 	     b != e; ++b)
@@ -392,13 +392,13 @@ void uriimpl::setQuery(const std::string &value)
 	query=value;
 }
 
-void uriimpl::setQuery(const http::form::const_parameters &value)
+void uriimpl::set_query(const http::form::const_parameters &value)
 
 {
-	setQuery(std::string(value->encode_begin(), value->encode_end()));
+	set_query(std::string(value->encode_begin(), value->encode_end()));
 }
 
-void uriimpl::setFragment(const std::string &value)
+void uriimpl::set_fragment(const std::string &value)
 {
 	for (std::string::const_iterator b(value.begin()), e(value.end());
 	     b != e; ++b)
@@ -411,9 +411,9 @@ void uriimpl::setFragment(const std::string &value)
 	fragment=value;
 }
 
-int uriimpl::getSchemePort(const std::string &protocol) const
+int uriimpl::get_scheme_port(const std::string &protocol) const
 {
-	std::string s=getScheme();
+	std::string s=get_scheme();
 
 	if (s.size() == 0)
 		invalid_authority();
@@ -428,21 +428,21 @@ int uriimpl::getSchemePort(const std::string &protocol) const
 	return ntohs(service->s_port);
 }
 
-void uriimpl::fixSchemePort(const std::string &protocol)
+void uriimpl::fix_scheme_port(const std::string &protocol)
 
 {
-	std::pair<std::string, int> hostport=getHostPort();
+	std::pair<std::string, int> hostport=get_host_port();
 
-	if (hostport.second == getSchemePort())
+	if (hostport.second == get_scheme_port())
 		authority.hostport=hostport.first;
 }
 
-std::pair<std::string, int> uriimpl::getHostPort(const std::string &protocol)
+std::pair<std::string, int> uriimpl::get_host_port(const std::string &protocol)
 	const
 {
-	const std::string &hostport=getAuthority().hostport;
+	const std::string &hostport=get_authority().hostport;
 
-	if (hostport.size() == 0 || getScheme().size() == 0)
+	if (hostport.size() == 0 || get_scheme().size() == 0)
 		invalid_authority();
 
 	std::string::const_iterator b=hostport.begin(), e=hostport.end(),
@@ -479,7 +479,7 @@ std::pair<std::string, int> uriimpl::getHostPort(const std::string &protocol)
 	}
 	else
 	{
-		retval.second=getSchemePort(protocol);
+		retval.second=get_scheme_port(protocol);
 	}
 	return retval;
 }

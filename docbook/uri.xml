@@ -22,13 +22,13 @@ See COPYING for distribution information.
 
 &ns;::uriimpl u("http://uid:pw@host/path?query#fragment");
 
-std::cout &lt;&lt; "scheme: " &lt;&lt; u.getScheme() &lt;&lt; std::endl
+std::cout &lt;&lt; "scheme: " &lt;&lt; u.get_scheme() &lt;&lt; std::endl
 	  &lt;&lt; "authority: " &lt;&lt; (u.getAuthority() ?
 			       u.getAuthority().to_string()
 			       : std::string("(null)")) &lt;&lt; std::endl
-	  &lt;&lt; "path: " &lt;&lt; u.getPath() &lt;&lt; std::endl
-	  &lt;&lt; "query: " &lt;&lt; u.getQuery() &lt;&lt; std::endl
-	  &lt;&lt; "fragment: " &lt;&lt; u.getFragment() &lt;&lt; std::endl;
+	  &lt;&lt; "path: " &lt;&lt; u.get_path() &lt;&lt; std::endl
+	  &lt;&lt; "query: " &lt;&lt; u.get_query() &lt;&lt; std::endl
+	  &lt;&lt; "fragment: " &lt;&lt; u.get_fragment() &lt;&lt; std::endl;
       </programlisting>
     </informalexample>
   </blockquote>
@@ -49,16 +49,16 @@ std::cout &lt;&lt; "scheme: " &lt;&lt; u.getScheme() &lt;&lt; std::endl
 
   <para>
     The constructors throw an exception if the passed string cannot be
-    parsed as an <acronym>URI</acronym>. <methodname>getScheme</methodname>(),
-    <methodname>getAuthority</methodname>(),
-    <methodname>getPath</methodname>(),
-    <methodname>getQuery</methodname>(), and
-    <methodname>getFragment</methodname>() retrieve the corresponding parts of the
+    parsed as an <acronym>URI</acronym>. <methodname>get_scheme</methodname>(),
+    <methodname>get_authority</methodname>(),
+    <methodname>get_path</methodname>(),
+    <methodname>get_query</methodname>(), and
+    <methodname>get_fragment</methodname>() retrieve the corresponding parts of the
     <acronym>URI</acronym>.
   </para>
 
   <para>
-    <methodname>getAuthority</methodname>() returns a reference to
+    <methodname>get_authority</methodname>() returns a reference to
     a
     <ulink url="&link-x--uriimpl--authority-t;"><classname>&ns;::uriimpl::authority_t</classname></ulink>,
     a class that's
@@ -116,14 +116,14 @@ std::cout &lt;&lt; "scheme: " &lt;&lt; u.getScheme() &lt;&lt; std::endl
   </variablelist>
 
   <para>
-    <methodname>setScheme</methodname>(),
-    <methodname>setAuthority</methodname>(),
-    <methodname>setPath</methodname>(),
-    <methodname>setQuery</methodname>(), and
-    <methodname>setFragment</methodname>() replace the corresponding part of the
+    <methodname>set_scheme</methodname>(),
+    <methodname>set_authority</methodname>(),
+    <methodname>set_path</methodname>(),
+    <methodname>set_query</methodname>(), and
+    <methodname>set_fragment</methodname>() replace the corresponding part of the
     <acronym>URI</acronym>. Their
     <classname>std::string</classname> parameter specifies the new value
-    (including <methodname>setAuthority</methodname>()). An exception gets thrown
+    (including <methodname>set_authority</methodname>()). An exception gets thrown
     if the passed string contains characters that are not allowed in the
     <acronym>URI</acronym> part.
   </para>
@@ -170,7 +170,7 @@ absuri.to_string(std::back_insert_iterator&lt;std::string&gt;(str));
 
 &ns;::uriimpl u("http://host/path?parameter=value");
 
-auto form=u.getForm();
+auto form=u.get_form();
 
 for (const auto &amp;param: *form)
 {
@@ -180,8 +180,8 @@ for (const auto &amp;param: *form)
   </blockquote>
 
   <para>
-    <methodname>getForm</methodname>() invokes
-    <methodname>getQuery</methodname>() and returns a
+    <methodname>get_form</methodname>() invokes
+    <methodname>get_query</methodname>() and returns a
     <link linkend="httpform"><classname>&ns;::http::form::parameters</classname></link>.
   </para>
 
@@ -196,7 +196,7 @@ for (const auto &amp;param: *form)
 
 &ns;::uriimpl u("http://&#x43f;&#x440;&#x438;&#x432;&#x435;&#x442;.example.com/path", &ns;::locale::base::utf8());
 
-std::cout &lt;&lt; u.getHostPort().first &lt;&lt; std::endl;</programlisting>
+std::cout &lt;&lt; u.get_host_port().first &lt;&lt; std::endl;</programlisting>
       </informalexample>
     </blockquote>
 

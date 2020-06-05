@@ -48,7 +48,7 @@ requestimpl::requestimpl() noexcept : proxyFormat(false),
 requestimpl::requestimpl(const cgiimpl &cgi)
 	: messageimpl(cgi.headers), proxyFormat(false),
 	  method(cgi.method),
-	  uri(cgi.getURI(cgi.uri_query)), httpver(httpver_t::http11)
+	  uri(cgi.get_URI(cgi.uri_query)), httpver(httpver_t::http11)
 {
 	erase("Host");
 }
@@ -114,7 +114,7 @@ void requestimpl::parse_start_line()
 	std::pair<const_iterator, const_iterator>
 		hosthdr(equal_range("Host"));
 
-	const uriimpl::authority_t &auth=uri.getAuthority();
+	const uriimpl::authority_t &auth=uri.get_authority();
 
 	if (hosthdr.first != hosthdr.second)
 	{
@@ -123,7 +123,7 @@ void requestimpl::parse_start_line()
 		newauth.hostport=hosthdr.first->second.value();
 
 		if (auth.hostport.size() == 0)
-			uri.setAuthority(newauth);
+			uri.set_authority(newauth);
 
 		if (++hosthdr.first != hosthdr.second)
 			bad_message();
@@ -131,8 +131,8 @@ void requestimpl::parse_start_line()
 	else if (httpver == httpver_t::http11 && auth.hostport.size() == 0)
 		bad_message(); // Host header required for HTTP/1.1 messages
 
-	if (uri.getScheme().size() == 0)
-		uri.setScheme("http");
+	if (uri.get_scheme().size() == 0)
+		uri.set_scheme("http");
 
 	erase("Host");
 }
@@ -148,21 +148,21 @@ const char *requestimpl::methodstr(method_t method) noexcept
 	return "";
 }
 
-bool requestimpl::hasMessageBody() const
+bool requestimpl::has_message_body() const
 {
 	const_iterator e=end();
 
 	return find(content_length) != e || find(transfer_encoding) != e;
 }
 
-bool requestimpl::shouldHaveMessageBody() const
+bool requestimpl::should_have_message_body() const
 {
 	return method == POST || method == PUT;
 }
 
-bool requestimpl::responseHasMessageBody(const responseimpl &resp) const
+bool requestimpl::response_has_message_body(const responseimpl &resp) const
 {
-	int code=resp.getStatusCode();
+	int code=resp.get_status_code();
 
 	if (method == HEAD || (method == CONNECT && code == 200) ||
 	    (code / 100) == 1 || code == 204 || code == 304)
@@ -173,13 +173,13 @@ bool requestimpl::responseHasMessageBody(const responseimpl &resp) const
 
 std::string requestimpl::hostheader() const
 {
-	std::pair<std::string, int> hostport(uri.getHostPort());
+	std::pair<std::string, int> hostport(uri.get_host_port());
 
 	std::string o="Host: ";
 
 	o += hostport.first;
 
-	if (hostport.second != uri.getSchemePort())
+	if (hostport.second != uri.get_scheme_port())
 	{
 		o += ":";
 		o += LIBCXX_NAMESPACE::to_string(hostport.second,
@@ -215,8 +215,10 @@ bool requestimpl::is_basic_auth(std::string::const_iterator b,
 	return true;
 }
 
-void requestimpl::getCookies(std::map<std::string, std::string> &cookies) const
+cookies_t requestimpl::get_cookies() const
 {
+	cookies_t cookies;
+
 	for (auto header=equal_range("Cookie");
 	     header.first != header.second; ++header.first)
 	{
@@ -235,6 +237,8 @@ void requestimpl::getCookies(std::map<std::string, std::string> &cookies) const
 					header.first->second.begin(),
 					header.first->second.end());
 	}
+
+	return cookies;
 }
 
 template std::istreambuf_iterator<char>

@@ -26,7 +26,7 @@
 #include <x/logger.H>
 
 #include <list>
-#include <map>
+#include <unordered_map>
 #include <iterator>
 
 #include <x/namespace.h>
@@ -539,7 +539,7 @@ public:
 		//! Map key is the authentication realm. The value is a
 		//! a factory for the authentication implementation.
 
-		typedef std::map<std::string, challenge> challenges_t;
+		typedef std::unordered_map<std::string, challenge> challenges_t;
 
 		//! New authentication challenges
 

@@ -79,8 +79,8 @@ void testwritetimeout()
 		LIBCXX_NAMESPACE::http::requestimpl req;
 		LIBCXX_NAMESPACE::http::responseimpl resp;
 
-		req.setURI("http://example.com");
-		req.setMethod(LIBCXX_NAMESPACE::http::GET);
+		req.set_URI("http://example.com");
+		req.set_method(LIBCXX_NAMESPACE::http::GET);
 
 		cl.send(req, resp);
 
@@ -117,8 +117,8 @@ void testrecvtimeout()
 		LIBCXX_NAMESPACE::http::requestimpl req;
 		LIBCXX_NAMESPACE::http::responseimpl resp;
 
-		req.setURI("http://example.com");
-		req.setMethod(LIBCXX_NAMESPACE::http::GET);
+		req.set_URI("http://example.com");
+		req.set_method(LIBCXX_NAMESPACE::http::GET);
 
 		cl.send(req, resp);
 
@@ -194,12 +194,12 @@ void testbodytimeout(const char *str)
 		LIBCXX_NAMESPACE::http::requestimpl req;
 		LIBCXX_NAMESPACE::http::responseimpl resp;
 
-		req.setURI("http://example.com");
-		req.setMethod(LIBCXX_NAMESPACE::http::GET);
+		req.set_URI("http://example.com");
+		req.set_method(LIBCXX_NAMESPACE::http::GET);
 
 		cl.send(req, resp);
 
-		if (req.responseHasMessageBody(resp))
+		if (req.response_has_message_body(resp))
 			for (typename conn_type::fdclientimpl::iterator
 				     b=cl.begin(), e=cl.end(); b != e; ++b)
 				;
@@ -278,8 +278,8 @@ void testheaderlimit()
 		LIBCXX_NAMESPACE::http::requestimpl req;
 		LIBCXX_NAMESPACE::http::responseimpl resp;
 
-		req.setURI("http://example.com");
-		req.setMethod(LIBCXX_NAMESPACE::http::GET);
+		req.set_URI("http://example.com");
+		req.set_method(LIBCXX_NAMESPACE::http::GET);
 
 		cl.send(req, resp);
 
@@ -323,13 +323,13 @@ void testrequest()
 		LIBCXX_NAMESPACE::http::requestimpl req;
 		LIBCXX_NAMESPACE::http::responseimpl resp;
 
-		req.setURI("http://example.com");
-		req.setMethod(LIBCXX_NAMESPACE::http::GET);
+		req.set_URI("http://example.com");
+		req.set_method(LIBCXX_NAMESPACE::http::GET);
 
 		if (!cl.send(req, resp))
 			throw EXCEPTION("Send failed");
 
-		if (req.responseHasMessageBody(resp))
+		if (req.response_has_message_body(resp))
 		{
 			std::copy(cl.begin(), cl.end(),
 				  std::ostreambuf_iterator<char>(std::cout));

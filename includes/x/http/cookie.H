@@ -91,7 +91,7 @@ public:
 	//! Set cookie path
 
 	//! Used by a server when it creates a cookie.
-	cookie &setPath(const std::string &path);
+	cookie &set_path(const std::string &path);
 
 	//! Set cookie expiration
 

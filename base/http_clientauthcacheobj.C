@@ -35,9 +35,9 @@ clientauthcacheObj::~clientauthcacheObj()
 
 std::string clientauthcacheObj::decompose_authority(const uriimpl &uri)
 {
-	auto hostport=uri.getHostPort();
+	auto hostport=uri.get_host_port();
 
-	std::string n=uri.getScheme() + ":" + hostport.first
+	std::string n=uri.get_scheme() + ":" + hostport.first
 	  + ":" + to_string(hostport.second, locale::base::c());
 
 	std::transform(n.begin(), n.end(), n.begin(), chrcasecmp::tolower);
@@ -50,7 +50,7 @@ void clientauthcacheObj::decompose_path(const uriimpl &uri,
 {
 	// Note that strtok_str() strips off the trailing /.
 
-	strtok_str(uri.getPath(), "/", path);
+	strtok_str(uri.get_path(), "/", path);
 }
 
 void clientauthcacheObj::save_basic_authorization(const responseimpl &resp,
@@ -78,7 +78,7 @@ void clientauthcacheObj::save_authorization(const responseimpl &resp,
 	LOG_DEBUG("Updating authorization for scheme "
 		  << auth_tostring(auth->scheme)
 		  << ", realm " << auth->realm
-		  << ", code " << resp.getStatusCode());
+		  << ", code " << resp.get_status_code());
 
 	auto writelock=(*space)->create_writelock();
 
@@ -113,9 +113,9 @@ void clientauthcacheObj::search_authorizations(const requestimpl &req,
 					       const clientauth &auth)
 {
 	LOG_DEBUG("Searching proxy authorizations, uri: "
-		  << to_string(req.getURI()));
+		  << to_string(req.get_URI()));
 
-	const std::string authority=decompose_authority(req.getURI());
+	const std::string authority=decompose_authority(req.get_URI());
 
 	{
 		auto lock=proxy_authorizations->create_readlock();
@@ -130,7 +130,7 @@ void clientauthcacheObj::search_authorizations(const requestimpl &req,
 	}
 
 	LOG_DEBUG("Searching www authorizations, uri: "
-		  << to_string(req.getURI()));
+		  << to_string(req.get_URI()));
 
 	auto lock=www_authorizations->create_readlock();
 
@@ -149,7 +149,7 @@ void clientauthcacheObj
 			    authorization_map_t &auth_map,
 			    std::list<std::string> &path)
 {
-	decompose_path(req.getURI(), path);
+	decompose_path(req.get_URI(), path);
 
 	if (!lock->to_child(path, true))
 	{
@@ -188,7 +188,7 @@ bool clientauthcacheObj
 		     const responseimpl::scheme_parameters_t &params)
 {
 	LOG_DEBUG("Authorization failed: status code "
-		  << resp.getStatusCode()
+		  << resp.get_status_code()
 		  << ", scheme " << auth_tostring(scheme)
 		  << ", realm " << realm);
 

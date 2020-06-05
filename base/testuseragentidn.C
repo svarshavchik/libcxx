@@ -54,16 +54,16 @@ void myfdserverObj::received(const LIBCXX_NAMESPACE::http::requestimpl &req,
 {
 	std::cout << "In received" << std::endl;
 
-	if (req.hasMessageBody())
+	if (req.has_message_body())
 		for (iterator b(begin()), e(end()); b != e; ++b)
 			;
 
 	std::cout << "Getting URI" << std::endl;
 
-	LIBCXX_NAMESPACE::uriimpl uri=req.getURI();
+	LIBCXX_NAMESPACE::uriimpl uri=req.get_URI();
 
-	if (uri.getPath() == "/")
-		uri.setPath("");
+	if (uri.get_path() == "/")
+		uri.set_path("");
 
 	std::string uri_str=LIBCXX_NAMESPACE::to_string(uri);
 
@@ -125,7 +125,7 @@ static void test1req()
 	std::cout << body << std::endl;
 	listener->stop();
 	listener->wait();
-	if (resp->message.getStatusCode() != 200)
+	if (resp->message.get_status_code() != 200)
 		throw EXCEPTION("Test request failed");
 	if (uri != body)
 		throw EXCEPTION("Uris don't match");
@@ -136,7 +136,7 @@ static void test1req()
 		throw EXCEPTION("Uri other than expected");
 
 	std::string uri_utf8 =
-		resp->uri.toStringi18n(LIBCXX_NAMESPACE::locale::base::utf8());
+		resp->uri.to_string_i18n(LIBCXX_NAMESPACE::locale::base::utf8());
 
 	if (uri_utf8.substr(0, sizeof(I18NAME)-1) != I18NAME)
 		throw EXCEPTION("Unexpected result of URI conversion back to UTF8");

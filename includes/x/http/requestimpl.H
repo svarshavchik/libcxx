@@ -20,6 +20,10 @@ namespace LIBCXX_NAMESPACE::http {
 class responseimpl;
 class cgiimpl;
 
+//! Container for cookies.
+
+typedef std::unordered_map<std::string,	std::string> cookies_t;
+
 //! Known HTTP request types
 
 typedef enum {
@@ -113,7 +117,7 @@ public:
 		: proxyFormat(false), method(methodArg),
 		  uri(uriArg), httpver(httpver_t::http11)
 	{
-		uri.fixSchemePort();
+		uri.fix_scheme_port();
 		init_request_params(std::forward<Args_t>(args)...);
 	}
 
@@ -156,54 +160,53 @@ public:
 
 	//! Retrieve the request message type
 
-	method_t getMethod() const noexcept
+	method_t get_method() const noexcept
 	{
 		return method;
 	}
 
 	//! Retrieve the request URI
 
-	const uriimpl &getURI() const noexcept
+	const uriimpl &get_URI() const noexcept
 	{
 		return uri;
 	}
 
 	//! Retrieve the request URI
 
-	uriimpl &getURI() noexcept
+	uriimpl &get_URI() noexcept
 	{
 		return uri;
 	}
 
 	//! Retrieve the HTTP version
 
-	httpver_t getVersion() const noexcept
+	httpver_t get_version() const noexcept
 	{
 		return httpver;
 	}
 
 	//! Return any cookies the client sent.
 
-	void getCookies(//! Any cookies are placed here
-			std::map<std::string, std::string> &cookies) const;
+	cookies_t get_cookies() const;
 
 	//! Set the request message type
 
-	void setMethod(method_t methodArg)
+	void set_method(method_t methodArg)
 	{
 		method=methodArg;
 	}
 
 	//! Set the request URI
 
-	void setURI(const uriimpl &uriArg) noexcept
+	void set_URI(const uriimpl &uriArg) noexcept
 	{
 		uri=uriArg;
 	}
 
 	//! Set the HTTP version
 
-	void setVersion(httpver_t versionArg) noexcept
+	void set_version(httpver_t versionArg) noexcept
 	{
 		httpver=versionArg;
 	}
@@ -253,7 +256,7 @@ public:
 
 		if (method == CONNECT)
 		{
-			std::string hostport=uri.getAuthority().hostport;
+			std::string hostport=uri.get_authority().hostport;
 
 			iter=std::copy(hostport.begin(), hostport.end(), iter);
 		}
@@ -286,20 +289,20 @@ public:
 	//! \return \c true if there is a Content-Length or a Transfer-Encoding
 	//! header, \c false otherwise.
 
-	bool hasMessageBody() const;
+	bool has_message_body() const;
 
 	//! Determine whether this request should have a message body
 
 	//! A POST and a PUT should have a message body, other methods don't
 
-	bool shouldHaveMessageBody() const;
+	bool should_have_message_body() const;
 
 	//! Determine whether a response to this request has a message body
 
 	//! A response to a HEAD request, or a 1xx, 204, or 304 responses
 	//! do not have a message body. All other requests have a message body.
 
-	bool responseHasMessageBody(const responseimpl &resp) const;
+	bool response_has_message_body(const responseimpl &resp) const;
 
 	//! Retrieve basic authentication credentials in the request.
 

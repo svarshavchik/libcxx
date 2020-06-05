@@ -56,7 +56,7 @@ static void dotestclient(const char *testname,
 			break;
 		}
 
-		if (r.responseHasMessageBody(resp))
+		if (r.response_has_message_body(resp))
 		{
 			std::copy(cl.begin(), cl.end(),
 				  std::back_insert_iterator<std::string>
@@ -99,13 +99,13 @@ static void dotestpipelineeof()
 	if (!cl.send(r, serverresp.begin(), serverresp.end(), resp))
 		throw EXCEPTION("dotestpipelineeof: first request failed");
 
-	if (r.responseHasMessageBody(resp))
+	if (r.response_has_message_body(resp))
 		cl.discardbody();
 
 	if (!cl.send(r, serverresp.begin(), serverresp.end(), resp))
 		throw EXCEPTION("dotestpipelineeof: first request failed");
 
-	if (r.responseHasMessageBody(resp))
+	if (r.response_has_message_body(resp))
 		cl.discardbody();
 
 	if (cl.send(r, serverresp.begin(), serverresp.end(), resp))
@@ -139,7 +139,7 @@ static void testnocontinue()
 		if (!cl.send(req, resp))
 			throw EXCEPTION("testnocontinue: message 1 did not send");
 
-		if (req.responseHasMessageBody(resp))
+		if (req.response_has_message_body(resp))
 			throw EXCEPTION("testnocontinue: did not expect a body in response to a head");
 	}
 
@@ -147,18 +147,18 @@ static void testnocontinue()
 		LIBCXX_NAMESPACE::http::requestimpl req;
 		LIBCXX_NAMESPACE::http::responseimpl resp;
 
-		req.setMethod(LIBCXX_NAMESPACE::http::POST);
-		req.setURI("http://localhost");
+		req.set_method(LIBCXX_NAMESPACE::http::POST);
+		req.set_URI("http://localhost");
 
 		std::string dummy;
 
 		if (!cl.send(req, dummy.begin(), dummy.end(), resp))
 			throw EXCEPTION("testnocontinue: message 2 did not send");
 
-		if (resp.getStatusCode() != 404)
+		if (resp.get_status_code() != 404)
 			throw EXCEPTION("Response was not 404");
 
-		if (!req.responseHasMessageBody(resp))
+		if (!req.response_has_message_body(resp))
 			throw EXCEPTION("testnocontinue: did not get 404 body");
 
 		cl.discardbody();
@@ -207,13 +207,13 @@ static void mkforceepipe(LIBCXX_NAMESPACE::http::fdclientimpl &cl1)
 		LIBCXX_NAMESPACE::http::requestimpl req;
 		LIBCXX_NAMESPACE::http::responseimpl resp;
 
-		req.setMethod(LIBCXX_NAMESPACE::http::GET);
-		req.setURI("http://localhost");
+		req.set_method(LIBCXX_NAMESPACE::http::GET);
+		req.set_URI("http://localhost");
 
 		if (!cl1.send(req, resp))
 			throw EXCEPTION("forceepipe: message 1 did not send");
 
-		if (req.responseHasMessageBody(resp))
+		if (req.response_has_message_body(resp))
 			cl1.discardbody();
 	}
 
@@ -221,13 +221,13 @@ static void mkforceepipe(LIBCXX_NAMESPACE::http::fdclientimpl &cl1)
 		LIBCXX_NAMESPACE::http::requestimpl req;
 		LIBCXX_NAMESPACE::http::responseimpl resp;
 
-		req.setMethod(LIBCXX_NAMESPACE::http::GET);
-		req.setURI("http://localhost");
+		req.set_method(LIBCXX_NAMESPACE::http::GET);
+		req.set_URI("http://localhost");
 
 		if (!cl2->send(req, resp))
 			throw EXCEPTION("forceepipe: message 2 did not send");
 
-		if (req.responseHasMessageBody(resp))
+		if (req.response_has_message_body(resp))
 			cl2->discardbody();
 
 		req.append("Connection", "close");
@@ -250,8 +250,8 @@ static void forceepipe()
 		LIBCXX_NAMESPACE::http::requestimpl req;
 		LIBCXX_NAMESPACE::http::responseimpl resp;
 
-		req.setMethod(LIBCXX_NAMESPACE::http::GET);
-		req.setURI("http://localhost");
+		req.set_method(LIBCXX_NAMESPACE::http::GET);
+		req.set_URI("http://localhost");
 
 		if (cl.send(req, resp))
 			throw EXCEPTION("forceepipe: test message 1 did not err out");
@@ -265,8 +265,8 @@ static void forceepipe()
 		LIBCXX_NAMESPACE::http::requestimpl req;
 		LIBCXX_NAMESPACE::http::responseimpl resp;
 
-		req.setMethod(LIBCXX_NAMESPACE::http::POST);
-		req.setURI("http://localhost");
+		req.set_method(LIBCXX_NAMESPACE::http::POST);
+		req.set_URI("http://localhost");
 
 		std::string dummy;
 
@@ -391,4 +391,3 @@ int main(int argc, char **argv)
 	}
 	return (0);
 }
-

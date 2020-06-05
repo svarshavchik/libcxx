@@ -66,7 +66,7 @@ useragentObj::cache_key_t::cache_key_t()
 }
 
 useragentObj::cache_key_t::cache_key_t(const uriimpl &uri)
-	: scheme(uri.getScheme()), hostport(uri.getAuthority().hostport)
+	: scheme(uri.get_scheme()), hostport(uri.get_authority().hostport)
 {
 }
 
@@ -227,9 +227,9 @@ useragentObj::request_with_headers(const fd *terminate_fd,
 				   const form::const_parameters &form)
 
 {
-	if (req.getMethod() == GET)
+	if (req.get_method() == GET)
 	{
-		req.getURI().setQuery(form);
+		req.get_URI().set_query(form);
 		return request_with_headers(terminate_fd, req);
 	}
 
@@ -256,7 +256,7 @@ useragentObj::response useragentObj::do_request(const fd *terminate_fd,
 						request_sans_body &impl)
 {
 	bool initial=true;
-	method_t meth=req.getMethod();
+	method_t meth=req.get_method();
 
 	uriimpl redirected_uri;
 
@@ -285,7 +285,7 @@ useragentObj::response useragentObj::do_request(const fd *terminate_fd,
 		// Check for redirects that we should handle
 		// See RFC 2616.
 
-		switch (response->message.getStatusCode()) {
+		switch (response->message.get_status_code()) {
 		case 301:
 		case 302:
 		case 307:
@@ -340,13 +340,13 @@ useragentObj::response
 				   user_agent_header.get());
 	}
 
-	uriimpl &uri=req.getURI();
+	uriimpl &uri=req.get_URI();
 
 	// If the URI has user_info, install it as a default basic
 	// authentication scheme.
 
 	{
-		const uriimpl::authority_t &auth=uri.getAuthority();
+		const uriimpl::authority_t &auth=uri.get_authority();
 
 		if (auth.has_userinfo)
 		{
@@ -356,16 +356,16 @@ useragentObj::response
 
 			no_auth.hostport=auth.hostport;
 
-			uri.setAuthority(no_auth);
+			uri.set_authority(no_auth);
 
 			// Fake response to a www challenge.
 
 			responseimpl resp;
-			resp.setStatusCode(resp.www_authenticate_code);
+			resp.set_status_code(resp.www_authenticate_code);
 
 			authcache->
 				save_basic_authorization(resp,
-							 req.getURI(),
+							 req.get_URI(),
 							 "",
 							 useridcolonpassword);
 		}
@@ -426,7 +426,7 @@ useragentObj::do_request_with_auth(const fd *terminate_fd,
 	{
 		std::list<std::pair<std::string, std::string> > tray;
 
-		cookies->find(req.getURI(), tray);
+		cookies->find(req.get_URI(), tray);
 
 		if (!tray.empty())
 		{
@@ -444,7 +444,7 @@ useragentObj::do_request_with_auth(const fd *terminate_fd,
 		}
 	}
 
-	LOG_DEBUG("Sending request to " + to_string(req.getURI()));
+	LOG_DEBUG("Sending request to " + to_string(req.get_URI()));
 	LOG_TRACE( ({
 				std::ostringstream o;
 
@@ -453,7 +453,7 @@ useragentObj::do_request_with_auth(const fd *terminate_fd,
 				o.str();
 			}));
 
-	cache_key_t key(req.getURI());
+	cache_key_t key(req.get_URI());
 
 	while (1)
 	{
@@ -461,7 +461,7 @@ useragentObj::do_request_with_auth(const fd *terminate_fd,
 
 		fdclientimpl &c=dynamic_cast<fdclientimpl &>(*cl);
 
-		auto resp=response::create(req.getURI(), key);
+		auto resp=response::create(req.get_URI(), key);
 
 		if (!impl(c, req, resp->message))
 			continue;
@@ -476,7 +476,7 @@ useragentObj::do_request_with_auth(const fd *terminate_fd,
 					o.str();
 				}));
 
-		if (req.responseHasMessageBody(resp->message))
+		if (req.response_has_message_body(resp->message))
 		{
 			resp->content_begin_iter=c.begin();
 			resp->content_end_iter=c.end();
@@ -527,7 +527,7 @@ bool useragentObj::process_challenges(const clientauth &authorizations,
 {
 	// While we're at it, store any new cookies, here.
 
-	cookies->store(req.getURI(), resp->message);
+	cookies->store(req.get_URI(), resp->message);
 
 	process_authentication_info(resp, req,
 				    responseimpl::authentication_info,
@@ -563,7 +563,7 @@ bool useragentObj::process_challenges(const clientauth &authorizations,
 					    // was installed in do_request().
 
 					    this->authcache->
-						    fail_authorization(req.getURI(),
+						    fail_authorization(req.get_URI(),
 								       resp->message,
 								       authorizations,
 								       scheme,
@@ -573,7 +573,7 @@ bool useragentObj::process_challenges(const clientauth &authorizations,
 
 
 				    if (this->authcache->
-					fail_authorization(req.getURI(),
+					fail_authorization(req.get_URI(),
 							   resp->message,
 							   authorizations,
 							   scheme,
@@ -586,7 +586,7 @@ bool useragentObj::process_challenges(const clientauth &authorizations,
 				    switch (scheme) {
 				    case auth::basic:
 					    p=ref<challengeObj::basicObj>
-						    ::create(req.getURI(),
+						    ::create(req.get_URI(),
 							     realm);
 					    break;
 				    case auth::digest:
@@ -595,7 +595,7 @@ bool useragentObj::process_challenges(const clientauth &authorizations,
 						    auto func=&challengeObj
 							    ::create_digest;
 						    if (func)
-							    p=func(req.getURI(),
+							    p=func(req.get_URI(),
 								   realm,
 								   params);
 					    }

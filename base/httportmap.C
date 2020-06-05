@@ -233,8 +233,8 @@ httportmapObj::request_csv_list(const fdptr &timeoutfd,
 			    "Accept", "text/csv",
 			    params);
 
-	if (resp->message.getStatusCode() != 200)
-		throw EXCEPTION(resp->message.getReasonPhrase());
+	if (resp->message.get_status_code() != 200)
+		throw EXCEPTION(resp->message.get_reason_phrase());
 
 	return resp;
 }

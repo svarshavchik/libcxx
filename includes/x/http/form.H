@@ -443,7 +443,7 @@ private:
 				      const std::string &form_encoding)
 	{
 
-		const std::string &s=req.getURI().getQuery();
+		const std::string &s=req.get_URI().get_query();
 
 		decode_params(s.begin(), s.end()); // GET
 

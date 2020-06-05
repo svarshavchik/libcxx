@@ -310,7 +310,7 @@ void clientauthimplObj::digest::req::add_header(requestimpl &req,
 	response.insert(std::make_pair("realm",
 				       std::make_pair(true, digestref->realm)));
 
-	std::string digest_uri=req.getURI().getPath();
+	std::string digest_uri=req.get_URI().get_path();
 
 	if (digest_uri.empty())
 		digest_uri="/";
@@ -351,7 +351,7 @@ void clientauthimplObj::digest::req::add_header(requestimpl &req,
 	// auth, auth-int
 	// nc
 
-		auto a2=std::string(requestimpl::methodstr(req.getMethod()))
+		auto a2=std::string(requestimpl::methodstr(req.get_method()))
 			+ ":" + digest_uri;
 
 		nonce=lock->nonce;
@@ -446,7 +446,7 @@ void clientauthimplObj::digest::req
 		if (rsp_auth == info.end())
 			return;
 
-		std::string digest_uri=req.getURI().getPath();
+		std::string digest_uri=req.get_URI().get_path();
 
 		if (digest_uri.empty())
 			digest_uri="/";
@@ -551,4 +551,3 @@ std::string nonce_count_to_hex(uint32_t nonce_count)
 {
 #endif
 }
-

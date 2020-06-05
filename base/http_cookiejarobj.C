@@ -39,9 +39,7 @@ cookiejarObj::~cookiejarObj()
 void cookiejarObj::store(const uriimpl &request,
 			 const responseimpl &resp)
 {
-	std::list<cookie> cookies;
-
-	resp.getCookies(cookies);
+	auto cookies=resp.get_cookies();
 
 	time_t now=time(NULL);
 
@@ -198,7 +196,7 @@ void cookiejarObj::find(const uriimpl &uri,
 
 	std::list<std::string> domain, path;
 
-	std::string uri_domain=uri.getHostPort().first;
+	std::string uri_domain=uri.get_host_port().first;
 
 	std::transform(uri_domain.begin(),
 		       uri_domain.end(),
@@ -210,14 +208,14 @@ void cookiejarObj::find(const uriimpl &uri,
 	if (domain.empty())
 		return;
 
-	std::string scheme=uri.getScheme();
+	std::string scheme=uri.get_scheme();
 
 	std::transform(scheme.begin(),
 		       scheme.end(),
 		       scheme.begin(),
 		       chrcasecmp::tolower);
 
-	strtok_str(uri.getPath(), "/", path);
+	strtok_str(uri.get_path(), "/", path);
 
 	time_t now=time(NULL);
 

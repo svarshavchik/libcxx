@@ -30,7 +30,7 @@ myserverimpl::~myserverimpl()
 void myserverimpl::received(const LIBCXX_NAMESPACE::http::requestimpl &req,
 			   bool bodyflag)
 {
-	if (req.hasMessageBody())
+	if (req.has_message_body())
 	{
 		for (iterator b(begin()), e(end()); b != e; ++b)
 			;
@@ -97,7 +97,7 @@ static void testuseragent()
 
 			o << "https://localhost:" << portnum;
 
-			req.setURI(o.str());
+			req.set_URI(o.str());
 		}
 
 		LIBCXX_NAMESPACE::http::useragent

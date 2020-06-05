@@ -233,8 +233,8 @@ auto resp=ua-&gt;request(&ns;::http::GET, "http://localhost");</programlisting>
 		<programlisting>
 &ns;::http::requestimpl req;
 
-req.setMethod(&ns;::http::GET);
-req.setURI("http://localhost");
+req.set_method(&ns;::http::GET);
+req.set_URI("http://localhost");
 
 auto resp=ua-&gt;request(req);</programlisting>
 	      </informalexample>
@@ -530,8 +530,8 @@ auto resp=ua-&gt;request(&ns;::http::POST, "http://localhost/cgi-bin/req.pl",
 &ns;::http::useragent::base::response
     resp=ua-&gt;request(&ns;::http::GET, "https://localhost");
 
-std::cout &lt;&lt; resp-&gt;message.getStatusCode()
-      &lt;&lt; " " &lt;&lt; resp-&gt;message.getReasonPhrase() &lt;&lt; std::endl;
+std::cout &lt;&lt; resp-&gt;message.get_satus_code()
+      &lt;&lt; " " &lt;&lt; resp-&gt;message.get_reason_phrase() &lt;&lt; std::endl;
 
 for (auto hdr: resp-&gt;message)
 {
@@ -596,9 +596,10 @@ if (resp-&gt;has_content())
 	  The <varname>message</varname> class member is a
 	  <ulink url="&link-x--http--responseimpl;"><classname>&ns;::http::responseimpl</classname></ulink>
 	  class instance with the headers of the
-	  response, a <methodname>getStatusCode</methodname>() that returns the
+	  response, a <methodname>get_status_code</methodname>()
+	  that returns the
 	  numerical three digit <acronym>HTTP</acronym> status code, and a
-	  <methodname>getReasonPhrase</methodname>(), that returns the brief
+	  <methodname>get_reason_phrase</methodname>(), that returns the brief
 	  <acronym>HTTP</acronym> status response.
 	</para>
       </listitem>

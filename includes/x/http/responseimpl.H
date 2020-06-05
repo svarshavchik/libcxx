@@ -84,61 +84,60 @@ public:
 
 	//! Retrieve the HTTP version
 
-	httpver_t getVersion() const noexcept
+	httpver_t get_version() const noexcept
 	{
 		return httpver;
 	}
 
 	//! Get the status code
 
-	int getStatusCode() const noexcept
+	int get_status_code() const noexcept
 	{
 		return statuscode;
 	}
 
 	//! Get the status code class
 
-	int getStatusCodeClass() const noexcept
+	int get_status_code_class() const noexcept
 	{
 		return statuscode / 100;
 	}
 
 	//! Get the reason phrase
 
-	const std::string &getReasonPhrase() const noexcept
+	const std::string &get_reason_phrase() const noexcept
 	{
 		return reasonphrase;
 	}
 
 	//! Set the HTTP version
-	void setVersion(httpver_t versionArg) noexcept
+	void set_version(httpver_t versionArg) noexcept
 	{
 		httpver=versionArg;
 	}
 
 	//! Set the status code
-	void setStatusCode(int status);
+	void set_status_code(int status);
 
 	//! Set the reason phrase
-	void setReasonPhrase(const std::string &reasonphrase);
+	void set_reason_phrase(const std::string &reasonphrase);
 
 	//! Set current date
-	void setCurrentDate();
+	void set_current_date();
 
 	//! Get the server's current date
-	ymdhms getCurrentDate() const;
+	ymdhms get_current_date() const;
 
 	//! Get cookies in the response
-	void getCookies(//! Any cookies are placed here
-			std::list<cookie> &cookies) const;
+	std::list<cookie> get_cookies() const;
 
 	//! Add a cookie
-	void addCookie(const cookie &c);
+	void add_cookie(const cookie &c);
 
 	//! Set all the non-caching headers.
 
 	//! Sets Cache-Control: no-cache and Pragma: no-cache directives
-	void setNoCache();
+	void set_no_cache();
 
 private:
 
@@ -618,7 +617,7 @@ private:
 			       httpver_t httpverArg,
 			       Args && ...args)
 	{
-		setVersion(httpverArg);
+		set_version(httpverArg);
 		add_authorization_params(header,
 					 std::forward<Args>(args)...);
 	}

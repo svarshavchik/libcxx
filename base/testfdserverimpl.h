@@ -70,8 +70,8 @@ public:
 
 		LIBCXX_NAMESPACE::http::responseimpl resp;
 
-		resp.setVersion(LIBCXX_NAMESPACE::http::httpver_t::http11);
-		resp.setStatusCode(200);
+		resp.set_version(LIBCXX_NAMESPACE::http::httpver_t::http11);
+		resp.set_status_code(200);
 
 		std::list<char> dummy;
 
@@ -104,8 +104,8 @@ void testhttp10()
 
 		LIBCXX_NAMESPACE::http::requestimpl req;
 
-		req.setVersion(LIBCXX_NAMESPACE::http::httpver_t::http10);
-		req.setURI("http://example.com");
+		req.set_version(LIBCXX_NAMESPACE::http::httpver_t::http10);
+		req.set_URI("http://example.com");
 
 		LIBCXX_NAMESPACE::http::responseimpl resp;
 
@@ -114,15 +114,15 @@ void testhttp10()
 
 		resp.to_string(std::ostreambuf_iterator<char>(std::cout));
 
-		if (req.responseHasMessageBody(resp))
+		if (req.response_has_message_body(resp))
 		{
 			std::copy(cl.begin(), cl.end(),
 				  std::ostreambuf_iterator<char>(std::cout));
 		}
 
 		req=LIBCXX_NAMESPACE::http::requestimpl();
-		req.setVersion(LIBCXX_NAMESPACE::http::httpver_t::http10);
-		req.setURI("http://example.com");
+		req.set_version(LIBCXX_NAMESPACE::http::httpver_t::http10);
+		req.set_URI("http://example.com");
 
 		if (cl.send(req, resp))
 			throw EXCEPTION("testhttp10: message sent when it should not have been");
@@ -155,8 +155,8 @@ void testhttp11()
 		{
 			LIBCXX_NAMESPACE::http::requestimpl req;
 
-			req.setVersion(LIBCXX_NAMESPACE::http::httpver_t::http11);
-			req.setURI("http://example.com");
+			req.set_version(LIBCXX_NAMESPACE::http::httpver_t::http11);
+			req.set_URI("http://example.com");
 
 			if (i)
 				req.replace("Connection","close");
@@ -168,7 +168,7 @@ void testhttp11()
 
 			resp.to_string(std::ostreambuf_iterator<char>(std::cout));
 
-			if (req.responseHasMessageBody(resp))
+			if (req.response_has_message_body(resp))
 			{
 				std::copy(cl.begin(), cl.end(),
 					  std::ostreambuf_iterator<char>(std::cout));
@@ -178,8 +178,8 @@ void testhttp11()
 		LIBCXX_NAMESPACE::http::requestimpl req;
 		LIBCXX_NAMESPACE::http::responseimpl resp;
 
-		req.setVersion(LIBCXX_NAMESPACE::http::httpver_t::http11);
-		req.setURI("http://example.com");
+		req.set_version(LIBCXX_NAMESPACE::http::httpver_t::http11);
+		req.set_URI("http://example.com");
 
 		if (cl.send(req, resp))
 			throw EXCEPTION("testhttp11: message sent when it should not have been");
@@ -216,12 +216,12 @@ void testhttpsendmsgerror()
 
 	sclient->install(cl);
 
-	cl.setPeerHttp11();
+	cl.set_peer_http11();
 
 	LIBCXX_NAMESPACE::http::requestimpl req;
 
-	req.setVersion(LIBCXX_NAMESPACE::http::httpver_t::http11);
-	req.setURI("http://example.com");
+	req.set_version(LIBCXX_NAMESPACE::http::httpver_t::http11);
+	req.set_URI("http://example.com");
 	LIBCXX_NAMESPACE::http::responseimpl resp;
 
 	bool caught=false;
@@ -302,8 +302,8 @@ void testhttpresponsemsgerror()
 
 	LIBCXX_NAMESPACE::http::requestimpl req;
 
-	req.setVersion(LIBCXX_NAMESPACE::http::httpver_t::http11);
-	req.setURI("http://example.com");
+	req.set_version(LIBCXX_NAMESPACE::http::httpver_t::http11);
+	req.set_URI("http://example.com");
 
 	LIBCXX_NAMESPACE::http::responseimpl resp;
 

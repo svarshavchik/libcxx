@@ -95,7 +95,7 @@ void gnutls::http::fdtlsclientimpl::init(sendmsg &msg)
 	if (sess.null())
 		LIBCXX_NAMESPACE::http::responseimpl::throw_bad_gateway();
 
-	std::pair<std::string, int> hostport(msg.req.getURI().getHostPort());
+	std::pair<std::string, int> hostport(msg.req.get_URI().get_host_port());
 
 	session save_session(sess);
 
@@ -114,13 +114,13 @@ void gnutls::http::fdtlsclientimpl::init(sendmsg &msg)
 
 		LIBCXX_NAMESPACE::http::requestimpl connect;
 
-		connect.setMethod(LIBCXX_NAMESPACE::http::CONNECT);
-		connect.setURI(proxyurl.str());
+		connect.set_method(LIBCXX_NAMESPACE::http::CONNECT);
+		connect.set_URI(proxyurl.str());
 
 		proxyerror=LIBCXX_NAMESPACE::http::responseimpl();
 		proxyconn.send(connect, proxyerror);
 
-		if (proxyerror.getStatusCode() != 200)
+		if (proxyerror.get_status_code() != 200)
 		{
 			proxyfailed=true;
 			return;

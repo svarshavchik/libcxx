@@ -166,7 +166,7 @@ void myfdserverObj::received(const LIBCXX_NAMESPACE::http::requestimpl &req,
 {
 	std::cout << "In received" << std::endl;
 
-	if (req.hasMessageBody())
+	if (req.has_message_body())
 		for (iterator b(begin()), e(end()); b != e; ++b)
 			;
 
@@ -276,7 +276,7 @@ static void test1req(const savebody &body)
 
 	listener->stop();
 	listener->wait();
-	if (resp->message.getStatusCode() != 200)
+	if (resp->message.get_status_code() != 200)
 		throw EXCEPTION("Test request failed");
 }
 
@@ -326,7 +326,7 @@ static void test2req(const savebody &body)
 
 	listener->stop();
 	listener->wait();
-	if (resp->message.getStatusCode() != 200)
+	if (resp->message.get_status_code() != 200)
 		throw EXCEPTION("Test request failed");
 }
 
@@ -345,7 +345,7 @@ static void testhttp10req(const savebody &body)
 	LIBCXX_NAMESPACE::http::requestimpl req(LIBCXX_NAMESPACE::http::GET,
 					      serveraddr);
 
-	req.setVersion(LIBCXX_NAMESPACE::http::httpver_t::http10);
+	req.set_version(LIBCXX_NAMESPACE::http::httpver_t::http10);
 
 	std::cout << "Sending a test request" << std::endl;
 
@@ -375,7 +375,7 @@ static void testhttp10req(const savebody &body)
 
 	listener->stop();
 	listener->wait();
-	if (resp->message.getStatusCode() != 200)
+	if (resp->message.get_status_code() != 200)
 		throw EXCEPTION("Test request failed");
 }
 
@@ -427,7 +427,7 @@ static void testdestroyget(const savebody &body)
 
 	listener->stop();
 	listener->wait();
-	if (resp->message.getStatusCode() != 200)
+	if (resp->message.get_status_code() != 200)
 		throw EXCEPTION("Test request failed");
 }
 
@@ -485,7 +485,7 @@ static void testdestroypost(const savebody &body)
 
 	listener->stop();
 	listener->wait();
-	if (resp->message.getStatusCode() != 200)
+	if (resp->message.get_status_code() != 200)
 		throw EXCEPTION("Test request failed");
 }
 
@@ -519,7 +519,7 @@ void testpoolthreadObj::run()
 	try {
 		LIBCXX_NAMESPACE::http::requestimpl req;
 
-		req.setURI(uri);
+		req.set_URI(uri);
 
 		std::cout << "Sending a test request" << std::endl;
 
@@ -912,7 +912,7 @@ void formpost()
 	for (char dummy: *resp)
 		(void)dummy;
 
-	if (resp->message.getStatusCode() != 200)
+	if (resp->message.get_status_code() != 200)
 		throw EXCEPTION("Form limit test 1 failed");
 
 	resp=ua->request(LIBCXX_NAMESPACE::http::POST,
@@ -923,7 +923,7 @@ void formpost()
 	for (char dummy: *resp)
 		(void)dummy;
 
-	if (resp->message.getStatusCode() != 413)
+	if (resp->message.get_status_code() != 413)
 		throw EXCEPTION("Form limit test 2 failed");
 
 	formdata="--xxxboundary\r\n"
@@ -943,7 +943,7 @@ void formpost()
 	for (char dummy: *resp)
 		(void)dummy;
 
-	if (resp->message.getStatusCode() != 200)
+	if (resp->message.get_status_code() != 200)
 		throw EXCEPTION("Form limit test 3 failed");
 
 	formdata="--xxxboundary\r\n"
@@ -964,7 +964,7 @@ void formpost()
 	for (char dummy: *resp)
 		(void)dummy;
 
-	if (resp->message.getStatusCode() != 413)
+	if (resp->message.get_status_code() != 413)
 		throw EXCEPTION("Form limit test 4 failed");
 
 	LIBCXX_NAMESPACE::property::load_property
@@ -1100,10 +1100,10 @@ public:
 					(LIBCXX_NAMESPACE::http::auth::basic,
 					 "www auth");
 			}
-			resp.setStatusCode(statuscode);
+			resp.set_status_code(statuscode);
 		}
 
-		switch (resp.getStatusCode()) {
+		switch (resp.get_status_code()) {
 		case LIBCXX_NAMESPACE::http::responseimpl
 			::proxy_authenticate_code:
 			resp.append(resp.proxy_authenticate,
@@ -1176,7 +1176,7 @@ void testclientauth1()
 			ua->request(LIBCXX_NAMESPACE::http::GET,
 				    serveraddr);
 
-		if (resp->message.getStatusCode() !=
+		if (resp->message.get_status_code() !=
 		    LIBCXX_NAMESPACE::http::responseimpl
 		    ::proxy_authenticate_code ||
 		    resp->challenges.size() != 1 ||
@@ -1200,7 +1200,7 @@ void testclientauth1()
 			ua->request(LIBCXX_NAMESPACE::http::GET,
 				    serveraddr);
 
-		if (resp->message.getStatusCode() != 200)
+		if (resp->message.get_status_code() != 200)
 		{
 			throw EXCEPTION("Proxy authorization did not get through");
 		}
@@ -1239,17 +1239,17 @@ void testclientauth2()
 
 		{
 			LIBCXX_NAMESPACE::uriimpl::authority_t
-				auth=new_uri.getAuthority();
+				auth=new_uri.get_authority();
 
 			auth.has_userinfo=true;
 			auth.userinfo="user:password";
-			new_uri.setAuthority(auth);
+			new_uri.set_authority(auth);
 		}
 
 		LIBCXX_NAMESPACE::http::useragent::base::response resp=
 			ua->request(LIBCXX_NAMESPACE::http::GET, new_uri);
 
-		if (resp->message.getStatusCode() != 200)
+		if (resp->message.get_status_code() != 200)
 		{
 			throw EXCEPTION("Proxy authorization did not get through");
 		}
@@ -1266,7 +1266,7 @@ void testclientauth2()
 		LIBCXX_NAMESPACE::http::useragent::base::response resp=
 			ua->request(LIBCXX_NAMESPACE::http::GET, server1addr);
 
-		if (resp->message.getStatusCode() != 200)
+		if (resp->message.get_status_code() != 200)
 		{
 			throw EXCEPTION("Proxy authorization did not get through");
 		}
@@ -1283,7 +1283,7 @@ void testclientauth2()
 		LIBCXX_NAMESPACE::http::useragent::base::response resp=
 			ua->request(LIBCXX_NAMESPACE::http::GET, server2addr);
 
-		if (resp->message.getStatusCode() != 200)
+		if (resp->message.get_status_code() != 200)
 		{
 			throw EXCEPTION("Proxy authorization did not get through");
 		}
@@ -1300,7 +1300,7 @@ void testclientauth2()
 		LIBCXX_NAMESPACE::http::useragent::base::response resp=
 			ua->request(LIBCXX_NAMESPACE::http::GET, server1addr);
 
-		if (resp->message.getStatusCode() !=
+		if (resp->message.get_status_code() !=
 		    LIBCXX_NAMESPACE::http::responseimpl::www_authenticate_code)
 		{
 			throw EXCEPTION("WWW challenge was not received");
@@ -1318,7 +1318,7 @@ void testclientauth2()
 		LIBCXX_NAMESPACE::http::useragent::base::response resp=
 			ua->request(LIBCXX_NAMESPACE::http::GET, server1addr);
 
-		if (resp->message.getStatusCode() != 200)
+		if (resp->message.get_status_code() != 200)
 		{
 			throw EXCEPTION("Unexpected status code");
 		}
@@ -1355,7 +1355,7 @@ void testclientauth3()
 			ua->request(LIBCXX_NAMESPACE::http::GET,
 				    serveraddr);
 
-		if (resp->message.getStatusCode() !=
+		if (resp->message.get_status_code() !=
 		    LIBCXX_NAMESPACE::http::responseimpl
 		    ::proxy_authenticate_code)
 		{
@@ -1376,7 +1376,7 @@ void testclientauth3()
 			ua->request(LIBCXX_NAMESPACE::http::GET,
 				    serveraddr);
 
-		if (resp->message.getStatusCode() !=
+		if (resp->message.get_status_code() !=
 		    LIBCXX_NAMESPACE::http::responseimpl
 		    ::www_authenticate_code)
 		{
@@ -1448,9 +1448,7 @@ public:
 	{
 		auto val=getform(req, bodyflag);
 
-		std::map<std::string, std::string> cookies;
-
-		req.getCookies(cookies);
+		auto cookies=req.get_cookies();
 
 		std::ostringstream o;
 
@@ -1477,28 +1475,28 @@ public:
 		}
 
 		if (cancel == "name1")
-			resp.addCookie(LIBCXX_NAMESPACE::http::cookie("name1",
-								      "value1")
+			resp.add_cookie(LIBCXX_NAMESPACE::http::cookie("name1",
+								       "value1")
 				       .setDomain("localhost")
-				       .setPath("/")
+				       .set_path("/")
 				       .setCancel());
 		else
-			resp.addCookie(LIBCXX_NAMESPACE::http::cookie("name1",
-								      "value1")
-				       .setDomain("localhost")
-				       .setPath("/")
-				       .setHttpOnly()
-				       .setExpiresIn(24 * 60 * 60));
+			resp.add_cookie(LIBCXX_NAMESPACE::http::cookie("name1",
+								       "value1")
+					.setDomain("localhost")
+					.set_path("/")
+					.setHttpOnly()
+					.setExpiresIn(24 * 60 * 60));
 
-		resp.addCookie(LIBCXX_NAMESPACE::http::cookie("name2", "value2")
-			       .setDomain("localhost")
-			       .setPath("/")
-			       .setSecure()
-			       .setExpiresIn(24 * 60 * 60));
+		resp.add_cookie(LIBCXX_NAMESPACE::http::cookie("name2", "value2")
+				.setDomain("localhost")
+				.set_path("/")
+				.setSecure()
+				.setExpiresIn(24 * 60 * 60));
 
-		resp.addCookie(LIBCXX_NAMESPACE::http::cookie("name3", "value3")
+		resp.add_cookie(LIBCXX_NAMESPACE::http::cookie("name3", "value3")
 			       .setDomain("localhost")
-			       .setPath("/")
+			       .set_path("/")
 			       .setCancel());
 
 		send(resp, req, o.str());
@@ -1578,7 +1576,7 @@ public:
 	void received(const LIBCXX_NAMESPACE::http::requestimpl &req,
 		      bool bodyflag) override
 	{
-		std::string p=req.getURI().getPath();
+		std::string p=req.get_URI().get_path();
 
 		if (p == "/path1")
 		{
@@ -1598,9 +1596,9 @@ public:
 			p="/path1";
 		}
 
-		auto uri=req.getURI();
+		auto uri=req.get_URI();
 
-		uri.setPath(p);
+		uri.set_path(p);
 		LIBCXX_NAMESPACE::http::responseimpl::throw_redirect(uri);
 	}
 

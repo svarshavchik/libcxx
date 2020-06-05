@@ -732,15 +732,15 @@ static int stop(const std::string &socketName)
 
 	LIBCXX_NAMESPACE::http::requestimpl req;
 
-	req.setURI("http://localhost/portmap/stop");
+	req.set_URI("http://localhost/portmap/stop");
 
 	LIBCXX_NAMESPACE::http::responseimpl resp;
 
 	if (client.send(req, resp))
 	{
-		if (resp.getStatusCode() == 200)
+		if (resp.get_status_code() == 200)
 		{
-			if (req.responseHasMessageBody(resp))
+			if (req.response_has_message_body(resp))
 			{
 				for (LIBCXX_NAMESPACE::http::fdclientimpl
 					     ::iterator
@@ -765,7 +765,7 @@ static int stop(const std::string &socketName)
 			return 0;
 		}
 
-		if (req.responseHasMessageBody(resp))
+		if (req.response_has_message_body(resp))
 			std::copy(client.begin(), client.end(),
 				  std::ostreambuf_iterator<char>(std::cerr));
 		std::cerr << std::endl;
@@ -1057,14 +1057,14 @@ static int docgi()
 	    cgi.remote_addr->address() != cgi.server_addr->address())
 		req.replace("X-External-Request", "1");
 
-	if (!(req.hasMessageBody()
+	if (!(req.has_message_body()
 	      ? client.send(req, cgi.begin(), cgi.end(), resp)
 	      : client.send(req, resp)))
 		throw EXCEPTION("Internal error: request refused");
 
 	LIBCXX_NAMESPACE::http::cgiimpl::send_response_header(resp);
 
-	if (req.responseHasMessageBody(resp))
+	if (req.response_has_message_body(resp))
 		std::copy(client.begin(), client.end(),
 			  std::ostreambuf_iterator<char>(std::cout));
 	std::cout << std::flush;

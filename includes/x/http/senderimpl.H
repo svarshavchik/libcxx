@@ -577,16 +577,16 @@ public:
 
 	//! Set peer's HTTP version
 
-	void setPeerHttpVersion(httpver_t level)
+	void set_peer_http_version(httpver_t level)
 	{
 		peerhttpver=level;
 	}
 
 	//! Set the peer's HTTP version as HTTP 1.1
 
-	void setPeerHttp11()
+	void set_peer_http11()
 	{
-		setPeerHttpVersion(httpver_t::http11);
+		set_peer_http_version(httpver_t::http11);
 	}
 
 	//! Return the current value of the output iterator
@@ -603,7 +603,7 @@ public:
 		  //! to set or remove certain headers.
 		  requestimpl &req)
 	{
-		if (req.shouldHaveMessageBody())
+		if (req.should_have_message_body())
 			senderimpl_encode::expected_message_body();
 		sendimpl(req);
 	}
@@ -644,12 +644,12 @@ public:
 		  //! Whether it's ok to proceed with the body of the request
 		  wait_continue &do_sendbody)
 	{
-		if (!req.shouldHaveMessageBody())
+		if (!req.should_have_message_body())
 			senderimpl_encode::unexpected_message_body();
 
 		write_message_scope writing(*this);
 
-		if (req.getVersion() == httpver_t::http10 ||
+		if (req.get_version() == httpver_t::http10 ||
 		    peerhttpver == httpver_t::http10)
 		{
 			iter=senderimpl_encode::http10_request_encoding
@@ -680,7 +680,7 @@ public:
 		  //! Original request
 		  const requestimpl &req)
 	{
-		if (req.responseHasMessageBody(resp))
+		if (req.response_has_message_body(resp))
 			senderimpl_encode::expected_message_body();
 
 		sendimpl(resp);
@@ -729,7 +729,7 @@ public:
 	{
 		write_message_scope writing(*this);
 
-		if (resp.getVersion() == httpver_t::http10 ||
+		if (resp.get_version() == httpver_t::http10 ||
 		    peerhttpver == httpver_t::http10)
 		{
 			iter=senderimpl_encode::http10_response_encoding
@@ -737,7 +737,7 @@ public:
 				 ::iterator_category>::
 				send(resp, iter, beg_iter, end_iter,
 				     do_sendbody,
-				     req.responseHasMessageBody(resp));
+				     req.response_has_message_body(resp));
 		}
 		else
 		{
@@ -746,7 +746,7 @@ public:
 				 ::iterator_category>::
 				send(resp, iter, beg_iter, end_iter,
 				     do_sendbody,
-				     req.responseHasMessageBody(resp));
+				     req.response_has_message_body(resp));
 		}
 		writing.done();
 	}

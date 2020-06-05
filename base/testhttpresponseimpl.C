@@ -100,21 +100,21 @@ void testsetcurrentdate()
 {
 	LIBCXX_NAMESPACE::http::responseimpl resp;
 
-	resp.getCurrentDate();
+	resp.get_current_date();
 
-	resp.setCurrentDate();
+	resp.set_current_date();
 
 	time_t now=LIBCXX_NAMESPACE::ymdhms();
 
-	time_t now2=resp.getCurrentDate();
+	time_t now2=resp.get_current_date();
 
 	if (now2 < now-30 || now2 > now+30)
-		throw EXCEPTION("Something wrong with getCurrentDate");
+		throw EXCEPTION("Something wrong with get_current_date");
 
 	sleep(2);
 
-	if ((time_t)resp.getCurrentDate() != now2)
-		throw EXCEPTION("Something wrong with getCurrentDate (2)");
+	if ((time_t)resp.get_current_date() != now2)
+		throw EXCEPTION("Something wrong with get_current_date (2)");
 
 }
 
@@ -233,9 +233,7 @@ void testgetcookies()
 
 		resp.parse(str.begin(), str.end(), 10000);
 
-		std::list<LIBCXX_NAMESPACE::http::cookie> cookies;
-
-		resp.getCookies(cookies);
+		auto cookies=resp.get_cookies();
 		cookies2string("http://subdomain.example.com/images/subdir/",
 			       cookies, test.exp);
 	}
@@ -256,7 +254,7 @@ void testgetcookies()
 		c.secure=true;
 		c.httponly=true;
 
-		resp.addCookie(c);
+		resp.add_cookie(c);
 
 		resp.to_string(std::ostreambuf_iterator<char>(o));
 

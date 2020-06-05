@@ -143,7 +143,7 @@ bool dotestdigestscheme(ComputeFunctor &&compute,
 
 	std::string a2=
 		std::string(LIBCXX_NAMESPACE::http::requestimpl
-			    ::methodstr(req.getMethod()))
+			    ::methodstr(req.get_method()))
 		+ ":" + info.uri;
 
 	info.response=compute(a1req, a2, info, req);
@@ -473,7 +473,7 @@ public:
 
 		// Set nonce_changed only if the URI has a newnonce parameter.
 
-		auto form=req.getURI().getForm();
+		auto form=req.get_URI().get_form();
 
 		if (form->find("newnonce") != form->end())
 		{
@@ -511,7 +511,7 @@ void testserverauth_rfc2069_or_2617()
 
 		resp->message.to_string(std::ostreambuf_iterator<char>
 				       (std::cout));
-		if (resp->message.getStatusCode() !=
+		if (resp->message.get_status_code() !=
 		    LIBCXX_NAMESPACE::http::responseimpl
 		    ::www_authenticate_code ||
 		    resp->challenges.size() != 1 ||
@@ -533,7 +533,7 @@ void testserverauth_rfc2069_or_2617()
 
 		resp->message.to_string(std::ostreambuf_iterator<char>
 				       (std::cout));
-		if (resp->message.getStatusCode() !=
+		if (resp->message.get_status_code() !=
 		    LIBCXX_NAMESPACE::http::responseimpl
 		    ::www_authenticate_code ||
 		    resp->challenges.size() != 1 ||
@@ -558,7 +558,7 @@ void testserverauth_rfc2069_or_2617()
 
 		resp->message.to_string(std::ostreambuf_iterator<char>
 				       (std::cout));
-		if (resp->message.getStatusCodeClass() != 2)
+		if (resp->message.get_status_code_class() != 2)
 		{
 			throw EXCEPTION("Right password failed");
 		}
@@ -585,7 +585,7 @@ void testserverauth_rfc2069_or_2617()
 
 		resp->message.to_string(std::ostreambuf_iterator<char>
 				       (std::cout));
-		if (resp->message.getStatusCodeClass() != 2)
+		if (resp->message.get_status_code_class() != 2)
 		{
 			throw EXCEPTION("Right password failed");
 		}
@@ -608,7 +608,7 @@ void testserverauth_rfc2069_or_2617()
 			      LIBCXX_NAMESPACE::http::form::parameters
 			      ::create("newnonce", "1"));
 
-	if (resp->message.getStatusCodeClass() != 2)
+	if (resp->message.get_status_code_class() != 2)
 	{
 		throw EXCEPTION("Newnonce request failed");
 	}
@@ -768,7 +768,7 @@ std::string testbasicdigestauth()
 
 		resp->message.to_string(std::ostreambuf_iterator<char>
 				       (std::cout));
-		if (resp->message.getStatusCode() !=
+		if (resp->message.get_status_code() !=
 		    LIBCXX_NAMESPACE::http::responseimpl
 		    ::www_authenticate_code ||
 		    resp->challenges.size() != 1)
@@ -784,7 +784,7 @@ std::string testbasicdigestauth()
 
 	resp->message.to_string(std::ostreambuf_iterator<char>
 			       (std::cout));
-	if (resp->message.getStatusCodeClass() != 2)
+	if (resp->message.get_status_code_class() != 2)
 	{
 		throw EXCEPTION("Right password failed");
 	}

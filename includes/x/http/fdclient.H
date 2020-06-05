@@ -27,11 +27,11 @@ class fdclientObj;
 //!
 //! http::responseimpl resp;
 //!
-//! req.setURI("http://www.example.com");
+//! req.set_URI("http://www.example.com");
 //!
 //! if (cl->send(req, resp))
 //! {
-//!    if (req.responseHasMessageBody(resp))
+//!    if (req.response_has_message_body(resp))
 //!    {
 //!        http::fdclientimpl::iterator b(cl->begin()), e(cl->end());
 //!
