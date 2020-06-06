@@ -16,15 +16,17 @@ namespace LIBCXX_NAMESPACE {
 #endif
 
 class LIBCXX_PUBLIC obj;
+class with_constructorObj;
+
 template<typename, typename> class const_ref;
 template<typename, typename> class ref;
 template<typename, typename> class const_ptr;
 template<typename, typename> class ptr;
 
-//! Objects are derived from \ref obj "obj"
+//! Objects must inherit from \ref obj "obj"
 
-template<typename T>
-concept is_derived_from_obj = std::is_base_of<obj, T>::value;
+template<typename objClass>
+concept derived_from_obj = std::is_base_of<obj, objClass>::value;
 
 //! Helper class for the is_derived_from_ref_t concept
 

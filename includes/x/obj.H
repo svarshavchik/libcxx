@@ -63,10 +63,10 @@ template<class> class objFunctorCallbackObj;
 
 //! Superclass of reference-counted objects
 
-//! The \ref obj "obj" class should be the superclass for all
+//! The \ref obj "obj" class is the superclass for all
 //! reference-counted objects. \ref obj "obj" maintains an internal
-//! reference count for this instance of the object. Your superclass should
-//! be \b virtually derived from \ref obj "obj", like this:
+//! reference count for this instance of the object. The subclass
+//! virtually derives from \ref obj "obj", like this:
 //!
 //! \code
 //! class myClass : virtual public obj {
@@ -75,17 +75,13 @@ template<class> class objFunctorCallbackObj;
 //! };
 //! \endcode
 //!
-//! Virtually deriving from \ref obj "obj" is required for
-//! multiple inheritance to work correctly.
+//! \ref obj "obj" should be virtual inherited. Multiply-inheriting
+//! from two objects correctly virtually inherits a single instance of obj.
 //!
 //! \ref obj "obj"'s definition prohibits copying (the copy constructor
 //! and the assignment operator are private, and not implemented). All
-//! subclasses of \ref obj "obj" must be allocated on the heap, by
-//! \c new.
-//!
-//! Subclass destructors must be explicitly declared as
-//! "noexcept", signifying that the destructors do not throw any exceptions.
-//! This is required.
+//! subclasses of \ref obj "obj" must be created in dynamic scope, by
+//! \c new, and this is handled by reference and pointer handles.
 //!
 //! Instances of \ref obj "obj" and its superclasses are
 //! not accessed directly, using a native pointer, but using
@@ -262,6 +258,30 @@ private:
 
 	weakinfobase get_weakbase();
 };
+
+//! Objects with a constructor().
+
+//! Objects that implement a constructor() method must inherit from
+//! \c with_constructorObj:
+//!
+//! \code
+//! class widgetObj : virtual public &ns::obj, public &ns::with_constructorObj {
+//!
+//! public:
+//!
+//!     widgetObj(int width, int height);
+//!
+//!     void constructor(int, int);
+//! };
+//!
+//! auto w=&ns;::ref<widgetObj>::create(10, 10);
+//!
+//! \endcode
+//!
+//! create() constructs the new object normally, but also calls
+//! constructor(), forwarding to it the same parameters.
+
+class with_constructorObj {};
 
 #if 0
 {

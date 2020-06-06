@@ -643,7 +643,7 @@ static void dirtest() noexcept
 	}
 }
 
-class testmutexObj : public LIBCXX_NAMESPACE::obj {
+class testmutexObj : virtual public LIBCXX_NAMESPACE::obj {
 
 public:
 	LIBCXX_NAMESPACE::mutex m;
@@ -2728,7 +2728,8 @@ void deduction_guide(deductedObj *p, LIBCXX_NAMESPACE::ref<deductedObj,
 
 static int objinit1_n=0;
 
-class objinit1 : virtual public LIBCXX_NAMESPACE::obj {
+class objinit1 : virtual public LIBCXX_NAMESPACE::obj,
+		 public LIBCXX_NAMESPACE::with_constructorObj {
 
 public:
 	int n;
@@ -3466,6 +3467,30 @@ void testthreadlock2()
 
 	if (*clock != nthread*ncycles)
 		throw EXCEPTION("testthread2: counter is " << *clock);
+}
+
+class publicObj : virtual public LIBCXX_NAMESPACE::obj {
+
+
+	class implObj: virtual public LIBCXX_NAMESPACE::obj {
+
+		implObj() {}
+		~implObj() {}
+	};
+
+	const LIBCXX_NAMESPACE::ref<implObj> impl;
+public:
+	publicObj(const LIBCXX_NAMESPACE::ref<implObj> &impl)
+		: impl{impl}
+	{
+	}
+};
+
+class finalObj final : virtual public LIBCXX_NAMESPACE::obj {};
+
+void final_create()
+{
+	LIBCXX_NAMESPACE::ref<finalObj>::create();
 }
 
 int main()

@@ -22,7 +22,7 @@ public:
 	~loc() {}
 };
 
-class dummyThread : public LIBCXX_NAMESPACE::obj {
+class dummyThread : virtual public LIBCXX_NAMESPACE::obj {
 
 public:
 	dummyThread() {}
@@ -44,7 +44,7 @@ public:
 			throw EXCEPTION("Object did not survive");
 	}
 };
-		
+
 static void testthreadlocal()
 {
 	auto l=LIBCXX_NAMESPACE::ptr<loc>::create(2);
@@ -98,7 +98,7 @@ void threadsingletontest(singleton_type &instance, int expected_increment)
 			throw EXCEPTION("thread singleton test failed");
 }
 
-class testThreadSingletonThread : public LIBCXX_NAMESPACE::obj {
+class testThreadSingletonThread : virtual public LIBCXX_NAMESPACE::obj {
 
 public:
 	int cnt;
@@ -164,4 +164,3 @@ int main(int argc, char **argv)
 	testthreadsingleton();
 	return (0);
 }
-

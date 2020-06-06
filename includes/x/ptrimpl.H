@@ -75,7 +75,7 @@ public:
 	ptrImpl(//! If pArg is not NULL, the object's reference count gets incremented.
 		//! When pArg is NULL, this is an unbound reference.
 		objClass *pArg) noexcept
-		requires is_derived_from_obj<objClass> LIBCXX_INLINE;
+		requires derived_from_obj<objClass> LIBCXX_INLINE;
 
 	//! Default destructor
 	~ptrImpl() LIBCXX_INLINE;
@@ -87,34 +87,34 @@ public:
 		//! If this reference is bound to an instance of
 		//! \c objClass, its reference count gets incremented.
 		const ptrImpl<objClass> &o ) noexcept
-		requires is_derived_from_obj<objClass> LIBCXX_INLINE;
+		requires derived_from_obj<objClass> LIBCXX_INLINE;
 
 	template<typename baseClass>
 	explicit
 	ptrImpl(const const_ref<objClass, baseClass> &o) noexcept
-		requires is_derived_from_obj<objClass>;
+		requires derived_from_obj<objClass>;
 
 	template<typename baseClass>
 	explicit
 	ptrImpl(const ref<objClass, baseClass> &o) noexcept
-		requires is_derived_from_obj<objClass>;
+		requires derived_from_obj<objClass>;
 
 	template<typename baseClass>
 	explicit
 	ptrImpl(const_ref<objClass, baseClass> &&o) noexcept
-		requires is_derived_from_obj<objClass>;
+		requires derived_from_obj<objClass>;
 
 	template<typename baseClass>
 	inline explicit
 	ptrImpl(ref<objClass, baseClass> &&o) noexcept
-		requires is_derived_from_obj<objClass>;
+		requires derived_from_obj<objClass>;
 
 	//! Move constructor
 
 	inline ptrImpl(//! An existing reference.
 		       ptrImpl<objClass> &&o )
 		noexcept
-		requires is_derived_from_obj<objClass> LIBCXX_INLINE
+		requires derived_from_obj<objClass> LIBCXX_INLINE
 		: refP{o.refP}
 	{
 		o.refP=nullptr;
@@ -126,7 +126,7 @@ public:
 	inline ptrImpl(//! An existing reference.
 		       const_ptr<objClass, baseClass> &&o )
 		noexcept
-		requires is_derived_from_obj<objClass>;
+		requires derived_from_obj<objClass>;
 
 	//! Move constructor
 
@@ -134,7 +134,7 @@ public:
 	inline ptrImpl(//! An existing reference.
 		       ptr<objClass, baseClass> &&o )
 		noexcept
-		requires is_derived_from_obj<objClass>;
+		requires derived_from_obj<objClass>;
 
 	//! The default assignment operator
 
@@ -196,7 +196,7 @@ template<typename objClass>
 template<typename baseClass>
 inline ptrImpl<objClass>::ptrImpl(//! An existing reference.
 	       const_ptr<objClass, baseClass> &&o )
-	noexcept requires is_derived_from_obj<objClass> : refP{nullptr}
+	noexcept requires derived_from_obj<objClass> : refP{nullptr}
 {
 	std::swap(refP, o.refP);
 }
@@ -206,7 +206,7 @@ template<typename objClass>
 template<typename baseClass>
 inline ptrImpl<objClass>::ptrImpl(//! An existing reference.
 				  ptr<objClass, baseClass> &&o )
-	noexcept requires is_derived_from_obj<objClass> : refP{nullptr}
+	noexcept requires derived_from_obj<objClass> : refP{nullptr}
 {
 	std::swap(refP, o.refP);
 }

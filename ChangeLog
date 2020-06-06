@@ -1,5 +1,10 @@
 0.22
 
+2020-06-06  Sam Varshavchik  <mrsam@courier-mta.com>
+
+	* Require inheritance from x::with_constructorObj by objects
+	that implement constructor().
+
 2020-06-05  Sam Varshavchik  <mrsam@courier-mta.com>
 
 	* http: rename methods, removing camelcase.

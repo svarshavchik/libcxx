@@ -7,7 +7,7 @@
 #include <sstream>
 #include <list>
 
-class booksObj : public x::obj {
+class booksObj : virtual public x::obj {
 
 public:
 	booksObj() {}

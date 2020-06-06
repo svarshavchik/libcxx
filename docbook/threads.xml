@@ -50,7 +50,7 @@ See COPYING for distribution information.
       object. The lock must exist in auto scope (on the stack), in order to
       enforce the underlying requirement that mutexes must be unlocked by
       the same execution thread that locked them.
-      An <ulink url="&link-typedef-x-mptobj;"><classname>&ns;::mptobj</classname></ulink>
+      An <link linkend="mptobj"><classname>&ns;::mptobj</classname></link>
       adds additional support for transferring the logical mutex locked to
       a different execution thread.
     </para>
@@ -168,7 +168,7 @@ typedef &ns;::mpcobj&lt;messages_t&gt;::lock lock_t;
       <title>Transferrable mutex locks</title>
 
       <para>
-	<link linkend="&link-typedef-x-mptobj;">&ns;::mptobj</link> implements
+	<url linkend="&link-typedef-x-mptobj;">&ns;::mptobj</url> implements
 	a mutex-protected object whose lock ownership is transferrable to
 	a different execution thread.
       </para>

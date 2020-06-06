@@ -833,23 +833,6 @@ class ptrref_base {
 
 public:
 
-	//! Instantiate a new class intance, put it into a reference or a pointer.
-
-	//! \ref ref "INSERT_LIBX_NAMESPACE::ref<class>" and
-	//! \ref ptr "INSERT_LIBX_NAMESPACE::ptr<class>" define a %create()
-	//! that calls \c %base::factory&lt;TYPE&gt;::%create(), where \c TYPE
-	//! is the \c ref or the \c ptr type, with the arguments to
-	//! %create() getting forwarded.
-
-	template<typename ptrrefType> class objfactory
-	{
-	public:
-
-		template<typename... Args_t>
-		static inline ptrrefType
-		create(Args_t &&...args) LIBCXX_INLINE;
-	};
-
 	//! Used by create() to determine if an object implement constructor().
 
 	//! The first parameter is an object class. The second parameter is a
@@ -876,10 +859,29 @@ public:
 
 		static constexpr bool value=true;
 	};
-	template<typename ptrrefType, typename args,
-		 bool has_init=has_init<typename ptrrefType::obj_type,
-					args>::value>
-	struct create_and_init;
+
+	//! Instantiate a new class intance, put it into a reference or a pointer.
+
+	//! \ref ref "INSERT_LIBX_NAMESPACE::ref<class>" and
+	//! \ref ptr "INSERT_LIBX_NAMESPACE::ptr<class>" define a %create()
+	//! that calls \c %base::factory&lt;TYPE&gt;::%create(), where \c TYPE
+	//! is the \c ref or the \c ptr type, with the arguments to
+	//! %create() getting forwarded.
+
+	template<typename ptrrefType> class objfactory
+	{
+	public:
+
+		template<typename... Args_t,
+			 bool has_constructor=
+			 has_init<typename ptrrefType::obj_type,
+				  create_args<Args_t...>>::value>
+		static inline ptrrefType
+		create(Args_t &&...args)
+			requires derived_from_obj
+			<typename ptrrefType::obj_type>
+			LIBCXX_INLINE;
+	};
 };
 
 //! Define the default base class for a \ref ptr "ptr" or a \ref ref "ref".
@@ -928,26 +930,6 @@ template<typename objClass> const_ref(objClass *) -> const_ref<objClass>;
 //! Deduction guide for a \ref const_ref "const_ref".
 
 template<typename objClass> const_ref(const objClass *) -> const_ref<objClass>;
-
-//! create() and object that does not have a constructor().
-template<typename ptrrefType, typename args >
-struct ptrref_base::create_and_init<ptrrefType, args, false> {
-
-	template<typename ...Args>
-	static inline ptrrefType create(Args && ...argsValue)
-		requires is_derived_from_obj<typename ptrrefType::obj_type>
-		LIBCXX_INLINE;
-};
-
-//! create() and object with a constructor().
-template<typename ptrrefType, typename args >
-struct ptrref_base::create_and_init<ptrrefType, args, true> {
-
-	template<typename ...Args>
-	static inline ptrrefType create(Args && ...argsValue)
-		requires is_derived_from_obj<typename ptrrefType::obj_type>
-		LIBCXX_INLINE;
-};
 
 #define x_ptrfwd_H_included
 
