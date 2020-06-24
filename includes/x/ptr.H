@@ -172,7 +172,7 @@ inline auto const_ptr<objClass,baseClass>::create(Args_t &&...args)
 
 template<typename objClass, typename baseClass>
 template<typename T>
-inline auto const_ptr<objClass,baseClass>::
+inline std::strong_ordering const_ptr<objClass,baseClass>::
 operator<=>(const T &o)
 	const noexcept requires is_derived_from_ref_or_ptr<T>
 {
@@ -190,71 +190,6 @@ operator==(const T &o)
 	const noexcept requires is_derived_from_ref_or_ptr<T>
 {
 	return operator<=>(o) == std::strong_ordering::equal;
-}
-
-//! Comparison operator
-
-//! std::compare_three_way support total ordering of pointers.
-
-template<typename objClass, typename baseClass>
-template<typename T>
-inline bool const_ptr<objClass,baseClass>::
-operator!=(const T &o)
-	const noexcept requires is_derived_from_ref_or_ptr<T>
-{
-	return !operator==(o);
-}
-
-//! Comparison operator
-
-//! std::compare_three_way support total ordering of pointers.
-
-template<typename objClass, typename baseClass>
-template<typename T>
-inline bool const_ptr<objClass,baseClass>
-::operator<(const T &o)
-	const noexcept requires is_derived_from_ref_or_ptr<T>
-{
-	return operator<=>(o) == std::strong_ordering::less;
-}
-
-//! Comparison operator
-
-//! std::compare_three_way support total ordering of pointers.
-
-template<typename objClass, typename baseClass>
-template<typename T>
-inline bool const_ptr<objClass,baseClass>
-::operator>=(const T &o)
-	const noexcept requires is_derived_from_ref_or_ptr<T>
-{
-	return !operator<(o);
-}
-
-//! Comparison operator
-
-//! std::compare_three_way support total ordering of pointers.
-
-template<typename objClass, typename baseClass>
-template<typename T>
-inline bool const_ptr<objClass,baseClass>
-::operator>(const T &o)
-	const noexcept requires is_derived_from_ref_or_ptr<T>
-{
-	return operator<=>(o) == std::strong_ordering::greater;
-}
-
-//! Comparison operator
-
-//! std::compare_three_way support total ordering of pointers.
-
-template<typename objClass, typename baseClass>
-template<typename T>
-inline bool const_ptr<objClass,baseClass>
-::operator<=(const T &o)
-	const noexcept requires is_derived_from_ref_or_ptr<T>
-{
-	return !operator>(o);
 }
 
 template<typename objClass, typename baseClass>

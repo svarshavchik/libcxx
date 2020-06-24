@@ -12,6 +12,7 @@
 #include <iterator>
 #include <functional>
 #include <map>
+#include <compare>
 #include <x/uriimplfwd.H>
 #include <x/http/formfwd.H>
 #include <x/exception.H>
@@ -318,25 +319,14 @@ public:
 
 		//! Comparison operator
 
-		//! \return 0 if this authority is the same as the other
-		//! authority, or a negative or a positive value, based on
-		//! an arbitrary comparison function's notion of which one
-		//! is lexicographically before the other one.
-
-		int compare(const authority_t &o) const noexcept;
+		std::strong_ordering operator<=>(const authority_t &o) const
+			noexcept;
 
 		//! Comparison operator
 
-		inline int operator<=>(const authority_t &o) const noexcept
+		inline bool operator==(const authority_t &o) const noexcept
 		{
-			return compare(o);
-		}
-
-		//! Comparison operator
-
-		inline int operator==(const authority_t &o) const noexcept
-		{
-			return compare(o) == 0;
+			return operator<=>(o) == std::strong_ordering::equal;
 		}
 	};
 
@@ -778,25 +768,13 @@ public:
 
 	//! Comparison operator
 
-	//! \return 0 if this URI is the same as the other
-	//! authority, or a negative or a positive value, based on
-	//! an arbitrary comparison function's notion of which one
-	//! is lexicographically before the other one.
-
-	int compare(const uriimpl &o) const noexcept;
+	std::strong_ordering operator<=>(const uriimpl &o) const noexcept;
 
 	//! Comparison operator
 
-	inline int operator<=>(const uriimpl &o) const noexcept
+	inline bool operator==(const uriimpl &o) const noexcept
 	{
-		return compare(o);
-	}
-
-	//! Comparison operator
-
-	inline int operator==(const uriimpl &o) const noexcept
-	{
-		return compare(o) == 0;
+		return operator<=>(o) == std::strong_ordering::equal;
 	}
 
 	//! Return \c true if this URI encloses another URI.

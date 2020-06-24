@@ -65,7 +65,8 @@ std::string uriimpl::authority_t::to_string() const
 	return o.str();
 }
 
-int uriimpl::authority_t::compare(const authority_t &o) const noexcept
+std::strong_ordering uriimpl::authority_t::operator<=>(const authority_t &o)
+	const noexcept
 {
 	int n=userinfo.compare(o.userinfo);
 
@@ -80,7 +81,13 @@ int uriimpl::authority_t::compare(const authority_t &o) const noexcept
 	if (n == 0)
 		n=chrcasecmp::compare(hostport, o.hostport);
 
-	return n;
+	if (n < 0)
+		return std::strong_ordering::less;
+
+	if (n > 0)
+		return std::strong_ordering::greater;
+
+	return std::strong_ordering::equal;
 }
 
 void uriimpl::authority_t::validate_port()
@@ -281,12 +288,17 @@ uriimpl &uriimpl::operator+=(const uriimpl &r)
 	return *this;
 }
 
-int uriimpl::compare(const uriimpl &o) const noexcept
+std::strong_ordering uriimpl::operator<=>(const uriimpl &o) const noexcept
 {
 	int n=chrcasecmp::compare(scheme, o.scheme);
 
 	if (n == 0)
-		n=authority.compare(o.authority);
+	{
+		auto c=authority <=> o.authority;
+
+		if (c != std::strong_ordering::equal)
+			return c;
+	}
 
 	if (n == 0)
 		n=path.compare(o.path);
@@ -297,14 +309,20 @@ int uriimpl::compare(const uriimpl &o) const noexcept
 	if (n == 0)
 		n=fragment.compare(o.fragment);
 
-	return n;
+	if (n < 0)
+		return std::strong_ordering::less;
+
+	if (n > 0)
+		return std::strong_ordering::greater;
+
+	return std::strong_ordering::equal;
 }
 
 bool uriimpl::operator<<(const uriimpl &o) const
 {
 	return ((!scheme.size() || chrcasecmp::compare(scheme, o.scheme) == 0)
 		&&
-		(!authority || authority.compare(o.authority) == 0)
+		(!authority || authority == o.authority)
 		&& !authority.has_userinfo
 		&& query.size() == 0 && fragment.size() == 0 &&
 		(path == o.path ||

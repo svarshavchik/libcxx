@@ -216,16 +216,8 @@ struct explicit_refptr : T {
 	{
 	}
 
-	using T::operator*;
-	using T::operator->;
-	using T::operator=;
-	using T::operator==;
-	using T::operator!=;
-	using T::operator<;
-	using T::operator>;
-	using T::operator<=;
-	using T::operator>=;
 	using T::operator<=>;
+	using T::operator==;
 
 	//! Inherited ! operator.
 	inline bool operator!() const noexcept

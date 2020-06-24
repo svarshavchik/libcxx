@@ -394,15 +394,14 @@ int main(int argc, char **argv)
 {
 	try {
 		if (LIBCXX_NAMESPACE::uriimpl("http://localhost")
-		    .compare(LIBCXX_NAMESPACE::uriimpl("HTTP://localhost")))
+		    != LIBCXX_NAMESPACE::uriimpl("HTTP://localhost"))
 			throw EXCEPTION("URI scheme is not case insensitive");
 
 		if (LIBCXX_NAMESPACE::uriimpl("http://user@localhost")
-		    .compare(LIBCXX_NAMESPACE::uriimpl("http://user@LOCALHOST")))
+		    != LIBCXX_NAMESPACE::uriimpl("http://user@LOCALHOST"))
 			throw EXCEPTION("URI authority host is not case insensitive");
 		if (LIBCXX_NAMESPACE::uriimpl("http://user@localhost")
-		    .compare(LIBCXX_NAMESPACE::uriimpl("http://USER@localhost"))
-		    == 0)
+		    == LIBCXX_NAMESPACE::uriimpl("http://USER@localhost"))
 			throw EXCEPTION("URI authority userinfo is not case sensitive");
 
 		testuri("http://uid:pw@host/path?query#fragment");
