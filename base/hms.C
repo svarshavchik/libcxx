@@ -157,6 +157,12 @@ void hms::normalize(//! Hours
 	}
 }
 
+template void hms::normalize<int32_t>(int32_t &hv,
+				      int32_t &mv,
+				      int32_t &sv,
+				      int32_t days,
+				      int32_t weeks);
+
 hms hms::operator-() const
 {
 	int32_t nh(-h);
