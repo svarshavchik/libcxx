@@ -132,7 +132,16 @@ public:
 	}
 };
 
+#include "localscope.H"
+
+// This ensures that mainscope_destructor runs after all threads have
+// stopped, by the kill_cleanup_thread
+
+mainscope_destructor mainscope_destructor::instance;
+
 cleanup_thread_shutdown kill_cleanup_thread LIBCXX_HIDDEN;
+
+void cleanup_thread_func() LIBCXX_HIDDEN;
 
 // Join threads, as they terminate.
 

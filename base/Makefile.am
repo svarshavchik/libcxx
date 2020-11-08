@@ -140,6 +140,7 @@ libcxx_la_SOURCES=\
 	kqueuenb_internal.h	\
 	localeobj.C		\
 	localscope.C		\
+	localscope.H		\
 	logger.C		\
 	messages.C		\
 	mime_contentheadercollector.C \

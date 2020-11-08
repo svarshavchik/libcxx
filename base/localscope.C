@@ -28,42 +28,24 @@ static bool destructed=false;
 
 run_async::localscope *run_async::localscope::mainscope=nullptr;
 
-namespace {
-#if 0
-}
-#endif
+#include "localscope.H"
 
-// Helper class that destroys mainscope at application termination.
+mainscope_destructor::mainscope_destructor()=default;
 
-class mainscope_destructor {
-
- public:
-	mainscope_destructor()=default;
-
-	~mainscope_destructor()
-	{
-		auto p=({
-				std::unique_lock<std::mutex>
-					lock{mainscopemutex};
-				destructed=false;
-
-				auto *tp=run_async::localscope::mainscope;
-				run_async::localscope::mainscope=nullptr;
-				destructed=true;
-				tp;
-			});
-		if (p)
-			delete p;
-	}
-
-	static mainscope_destructor instance;
-};
-
-mainscope_destructor mainscope_destructor::instance;
-
-#if 0
+mainscope_destructor::~mainscope_destructor()
 {
-#endif
+	auto p=({
+			std::unique_lock<std::mutex>
+				lock{mainscopemutex};
+			destructed=false;
+
+			auto *tp=run_async::localscope::mainscope;
+			run_async::localscope::mainscope=nullptr;
+			destructed=true;
+			tp;
+		});
+	if (p)
+		delete p;
 }
 
 void run_async::localscope::register_singleton(const ref<obj> &p)
