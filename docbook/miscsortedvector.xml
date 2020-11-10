@@ -1,12 +1,12 @@
 <!--
 
-Copyright 2015 Double Precision, Inc.
+Copyright 2015-2020 Double Precision, Inc.
 See COPYING for distribution information.
 
 -->
 
 <chapter id="sortedvector">
-  <title>Sorted vectors</title>
+  <title>Sorted and range vectors</title>
 
   <blockquote>
     <informalexample>
@@ -229,6 +229,46 @@ metadata_vector.insert_range(lower_bound, range, value);</programlisting>
       Otherwise,
       <methodname>insert_range</methodname>() returns
       <literal>true</literal> after completing the insert.
+    </para>
+  </section>
+
+  <section id="rangevector">
+    <title>Vectors of ranges</title>
+    <blockquote>
+      <informalexample>
+	<programlisting>
+struct range {
+    int begin;
+    int end;
+};
+
+&ns;::sorted_range&lt;range&gt; ranges;
+
+ranges.add(range{1, 5});
+ranges.add(range{3,10});
+ranges.remove(range{4,7});
+      </programlisting>
+    </informalexample>
+  </blockquote>
+
+    <para>
+      The <ulink url="&link-x--sorted-range;"><classname>&ns;::sorted_range</classname></ulink>
+      template
+      implements a subclass of a <classname>std::vector</classname> that
+      stores a sorted list of ranges. The template parameter is a class
+      with <varname>begin</varname> and <varname>end</varname> members.
+      These values specify a range defined by the
+      <varname>begin</varname> value and up to but not including the
+      <varname>end</varname> value.
+    </para>
+
+    <para>
+      <methodname>add</methodname>()
+      and
+      <methodname>remove</methodname>()
+      update the sorted list of ranges, automatically removing overlapping
+      and duplicate ranges. Other methods implement several additional
+      operations on the sorted range.
     </para>
   </section>
 </chapter>

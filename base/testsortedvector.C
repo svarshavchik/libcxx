@@ -5,6 +5,7 @@
 
 #include "libcxx_config.h"
 #include "x/sorted_vector.H"
+#include "x/sorted_range.H"
 #include "x/exception.H"
 
 #include <iostream>
@@ -308,6 +309,533 @@ void testvoidspecializatoin()
 	sv.adjust_keys(0, 0);
 }
 
+struct testrange {
+	int begin;
+	int end;
+
+	constexpr bool operator==(const testrange &o) const
+	{
+		return begin == o.begin &&
+			end == o.end;
+	}
+
+	constexpr bool operator!=(const testrange &o) const
+	{
+		return !operator==(o);
+	}
+
+	constexpr auto operator<=>(const testrange &o) const
+	{
+		auto r=begin <=> o.begin;
+
+		if (r == std::strong_ordering::equal)
+			r=end <=> o.end;
+
+		return r;
+	}
+};
+
+void testaddrange()
+{
+	static const struct {
+
+		std::vector<testrange> added_ranges;
+		std::vector<testrange> final_ranges;
+	} tests[] = {
+		// Test 1
+		{
+			{
+				{3, 4},
+				{7, 7},
+				{1, 2},
+			},
+			{
+				{1, 2},
+				{3, 4}
+			}
+		},
+		// Test 2
+		{
+			{
+				{3, 4},
+				{1, 3},
+			},
+			{
+				{1, 4},
+			}
+		},
+		// Test 3
+		{
+			{
+				{3, 5},
+				{1, 4},
+			},
+			{
+				{1, 5},
+			}
+		},
+		// Test 4
+		{
+			{
+				{3, 5},
+				{1, 5},
+			},
+			{
+				{1, 5},
+			}
+		},
+		// Test 5
+		{
+			{
+				{3, 5},
+				{1, 6},
+			},
+			{
+				{1, 6},
+			}
+		},
+		// Test 6
+		{
+			{
+				{1, 3},
+				{8, 10},
+
+				{4, 5},
+			},
+			{
+				{1, 3},
+				{4, 5},
+				{8, 10},
+			}
+		},
+		// Test 7
+		{
+			{
+				{1, 3},
+				{8, 10},
+
+				{3, 5},
+			},
+			{
+				{1, 5},
+				{8, 10},
+			}
+		},
+		// Test 8
+		{
+			{
+				{1, 3},
+				{8, 10},
+
+				{2, 5},
+			},
+			{
+				{1, 5},
+				{8, 10},
+			}
+		},
+		// Test 9
+		{
+			{
+				{1, 3},
+				{8, 10},
+
+				{1, 5},
+			},
+			{
+				{1, 5},
+				{8, 10},
+			}
+		},
+		// Test 10
+		{
+			{
+				{1, 3},
+				{8, 10},
+
+				{7, 8},
+			},
+			{
+				{1, 3},
+				{7, 10},
+			}
+		},
+		// Test 11
+		{
+			{
+				{1, 3},
+				{8, 10},
+
+				{7, 9},
+			},
+			{
+				{1, 3},
+				{7, 10},
+			}
+		},
+		// Test 12
+		{
+			{
+				{1, 3},
+				{8, 10},
+
+				{7, 10},
+			},
+			{
+				{1, 3},
+				{7, 10},
+			}
+		},
+		// Test 13
+		{
+			{
+				{1, 3},
+				{8, 10},
+
+				{0, 10},
+			},
+			{
+				{0, 10},
+			}
+		},
+		// Test 14
+		{
+			{
+				{0, 10},
+
+				{0, 5},
+			},
+			{
+				{0, 10},
+			}
+		},
+		// Test 15
+		{
+			{
+				{0, 10},
+
+				{5, 10},
+			},
+			{
+				{0, 10},
+			}
+		},
+		// Test 16
+		{
+			{
+				{0, 10},
+
+				{5, 7},
+			},
+			{
+				{0, 10},
+			}
+		},
+	};
+
+	int testnum=0;
+
+	for (const auto &t:tests)
+	{
+		++testnum;
+		sorted_range<testrange> r;
+
+		for (const auto &v:t.added_ranges)
+			r.add(v);
+
+		std::vector<testrange> v{r.begin(), r.end()};
+
+		if (v != t.final_ranges ||
+		    (r == r && r < r && r != r))
+			throw EXCEPTION("testaddrange test " << testnum
+					<< " failed");
+	}
+}
+
+void testremoverange()
+{
+	static const struct {
+		std::vector<testrange> added_ranges;
+		testrange remove;
+		std::vector<testrange> final_ranges;
+		testrange extract;
+		std::vector<testrange> extracted;
+	} tests[] = {
+		// Test 1
+		{
+			{
+				{5, 10},
+				{15,20},
+			},
+			{8, 8},
+			{
+				{5, 10},
+				{15,20},
+			},
+			{3, 4},
+			{},
+		},
+		// Test 2
+		{
+			{
+				{5, 10},
+				{15,20},
+			},
+			{1, 1},
+			{
+				{5, 10},
+				{15,20},
+			},
+			{3, 8},
+			{
+				{5, 8},
+			},
+		},
+		// Test 3
+		{
+			{
+				{5, 10},
+				{15,20},
+			},
+			{1, 5},
+			{
+				{5, 10},
+				{15,20},
+			},
+			{3, 12},
+			{
+				{5, 10},
+			},
+
+		},
+		// Test 4
+		{
+			{
+				{5, 10},
+				{15,20},
+			},
+			{13, 14},
+			{
+				{5, 10},
+				{15,20},
+			},
+			{7, 12},
+			{
+				{7, 10},
+			},
+		},
+		// Test 5
+		{
+			{
+				{5, 10},
+				{15,20},
+			},
+			{1, 6},
+			{
+				{6, 10},
+				{15,20},
+			},
+			{8, 18},
+			{
+				{8, 10},
+				{15, 18},
+			},
+		},
+		// Test 6
+		{
+			{
+				{5, 10},
+				{15,20},
+			},
+			{1, 10},
+			{
+				{15,20},
+			},
+			{15, 20},
+			{
+				{15, 20},
+			},
+		},
+		// Test 7
+		{
+			{
+				{5, 10},
+				{15,20},
+			},
+			{8, 15},
+			{
+				{5, 8},
+				{15,20},
+			},
+			{7, 15},
+			{
+				{7, 8},
+			},
+		},
+		// Test 8
+		{
+			{
+				{5, 10},
+				{15,20},
+			},
+			{8, 16},
+			{
+				{5, 8},
+				{16,20},
+			},
+			{1, 2},
+			{
+			},
+		},
+		// Test 9
+		{
+			{
+				{5, 10},
+				{15,20},
+			},
+			{8, 20},
+			{
+				{5, 8},
+			},
+			{8, 9},
+			{
+			},
+		},
+		// Test 10
+		{
+			{
+				{5, 10},
+				{15,20},
+			},
+			{8, 30},
+			{
+				{5, 8},
+			},
+			{7, 9},
+			{
+				{7, 8},
+			},
+		},
+		// Test 11
+		{
+			{
+				{5, 10},
+				{15,20},
+			},
+			{18, 19},
+			{
+				{5, 10},
+				{15, 18},
+				{19, 20},
+			},
+			{10, 19},
+			{
+				{15, 18},
+			},
+		},
+		// Test 12
+		{
+			{
+				{5, 10},
+				{15,20},
+			},
+			{13, 14},
+			{
+				{5, 10},
+				{15, 20},
+			},
+			{7, 16},
+			{
+				{7, 10},
+				{15, 16},
+			},
+
+		},
+		// Test 13
+		{
+			{
+				{5, 10},
+				{15,20},
+			},
+			{20, 25},
+			{
+				{5, 10},
+				{15, 20},
+			},
+			{3, 23},
+			{
+				{5, 10},
+				{15, 20},
+			}
+		},
+		// Test 14
+		{
+			{
+				{5, 10},
+				{15,20},
+			},
+			{21, 25},
+			{
+				{5, 10},
+				{15, 20},
+			},
+			{1, 14},
+			{
+				{5, 10},
+			},
+		},
+	};
+
+	int testnum=0;
+
+	for (const auto &t:tests)
+	{
+		++testnum;
+		sorted_range<testrange> r;
+
+		for (const auto &v:t.added_ranges)
+			r.add(v);
+
+		r.remove(t.remove);
+
+		std::vector<testrange> v{r.begin(), r.end()};
+
+		if (v != t.final_ranges)
+			throw EXCEPTION("testremoverange test " << testnum
+					<< " failed (1)");
+
+		auto r_extracted=r.extract(t.extract);
+
+		v=std::vector<testrange>{r_extracted.begin(),
+			r_extracted.end()};
+
+		if (v != t.extracted)
+			throw EXCEPTION("testremoverange test " << testnum
+					<< " failed (2)");
+		r.shift(1);
+		r.range();
+	}
+}
+
+void testaddranges()
+{
+	sorted_range<testrange> a, b;
+
+	a.add({1, 3});
+	a.add({7, 9});
+
+	b.add({5, 6});
+	b.add({8, 10});
+
+	a << b;
+
+	a << std::move(b);
+
+	if (std::vector<testrange>{a.begin(), a.end()} !=
+	    std::vector<testrange>{ {1, 3}, {5, 6}, {7, 10} })
+		throw EXCEPTION("testaddranges failed");
+}
+
 int main()
 {
 	try {
@@ -316,6 +844,9 @@ int main()
 		testuniq();
 		testremove();
 		testadjust();
+		testaddrange();
+		testremoverange();
+		testaddranges();
 	} catch(const exception &e)
 	{
 		std::cout << e << std::endl;
