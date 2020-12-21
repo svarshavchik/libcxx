@@ -182,7 +182,7 @@ using ptr_cast=typename ptr_cast_lookup<T>::type;
 //! \endcode
 //!
 //! refs and ptrs to one type are convertible to refs and ptrs to a different
-//! type, and the casting occurs statically, if possible, or dymaically.
+//! type, and the casting occurs statically, if possible, or dynamicaly.
 //! It follows that a function with a ref or a ptr to one type participates
 //! in overload resolution when the corresponding parameter is a ref or a ptr
 //! to another type, due to an availability of the conversion.
@@ -193,7 +193,7 @@ using ptr_cast=typename ptr_cast_lookup<T>::type;
 //! a ptr to the same type.
 //!
 //! \note
-//! Overload resolution still occurs all variations of ref and ptr
+//! Overload resolution still occurs for all variations of ref and ptr
 //! as long as the underlying reference-counted class is a same.
 //! an \c INSERT_LIBX_NAMESPACE::explicit_refptr<INSERT_LIBX_NAMESPACE::const_ref<classObj>>
 //! participates in overload resolution with a
@@ -206,9 +206,12 @@ struct explicit_refptr : T {
 	template<typename Arg,
 		 typename=std::enable_if_t<
 			 std::is_same_v<typename refptr_traits<
-			 std::remove_cv_t<std::remove_reference_t<Arg>>
+						std::remove_cvref_t<Arg>
 						>::obj_t,
 					typename refptr_traits<T>::obj_t>,
+
+			 // This catches const ref or ptr being passed to
+			 // a non-const one.
 			 decltype((*std::declval<void (*)(const T &)>())
 				  (std::declval<const Arg &>()))>>
 	explicit_refptr(Arg &&arg)
