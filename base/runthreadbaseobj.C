@@ -67,6 +67,7 @@ public:
 	cleanup_thread_shutdown()
 	{
 		xmlInitGlobals();
+		xmlInitParser();
 	}
 
 	~cleanup_thread_shutdown()
@@ -79,6 +80,7 @@ public:
 
 		// Make sure all threads stop before cleaning up libxml2
 		xmlCleanupGlobals();
+		xmlCleanupParser();
 	}
 
 	inline void do_cleanup_thread()
