@@ -197,7 +197,9 @@ using ptr_cast=typename ptr_cast_lookup<T>::type;
 //! as long as the underlying reference-counted class is a same.
 //! an \c INSERT_LIBX_NAMESPACE::explicit_refptr<INSERT_LIBX_NAMESPACE::const_ref<classObj>>
 //! participates in overload resolution with a
-//! \c INSERT_LIBX_NAMESPACE::ref<classObj> parameter, for example.
+//! \c INSERT_LIBX_NAMESPACE::ref<classObj> parameter, for example. Use
+//! \ref explicit_arg "INSERT_LIBX_NAMESPACE::explicit_arg" to disable
+//! all overload resolution.
 
 template<typename T>
 struct explicit_refptr : T {
@@ -226,6 +228,12 @@ struct explicit_refptr : T {
 	inline bool operator!() const noexcept
 	{
 		return T::operator!();
+	}
+
+	//! Inherited bool operator
+	inline operator bool() const noexcept
+	{
+		return T::operator bool();
 	}
 };
 

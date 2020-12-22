@@ -3228,10 +3228,26 @@ int only_nonconst(const LIBCXX_NAMESPACE::explicit_refptr<
 	return 4;
 }
 
+
+int only_expl1ref(const LIBCXX_NAMESPACE::very_explicit_refptr<
+		  LIBCXX_NAMESPACE::ptr<expl1Obj>> &arg)
+{
+	return arg ? 1:10;
+}
+
+int only_expl1ref(const LIBCXX_NAMESPACE::very_explicit_refptr<
+		  LIBCXX_NAMESPACE::const_ptr<expl1Obj>> &arg)
+{
+	return arg ? 2:10;
+}
+
 void testexpl()
 {
 	auto one=LIBCXX_NAMESPACE::ref<expl1Obj>::create();
 	auto two=LIBCXX_NAMESPACE::ref<expl2Obj>::create();
+
+	auto three=LIBCXX_NAMESPACE::ptr<expl1Obj>::create();
+	auto four=LIBCXX_NAMESPACE::const_ptr<expl1Obj>::create();
 
 	if (only_expl1(one) != 1 ||
 	    only_expl2(two) != 2 ||
@@ -3241,6 +3257,14 @@ void testexpl()
 		std::cerr << "explicit_refptr failed" << std::endl;
 		exit(1);
 	}
+
+	if (only_expl1ref(three) != 1 ||
+	    only_expl1ref(four) != 2)
+	{
+		std::cerr << "very_explicit_refptr failed" << std::endl;
+		exit(1);
+	}
+
 }
 
 class testthreadlockobj : virtual public LIBCXX_NAMESPACE::obj {

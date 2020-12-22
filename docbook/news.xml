@@ -27,6 +27,13 @@ See COPYING for distribution information.
 	methods with standardized names.
       </para>
     </listitem>
+
+    <listitem>
+      <para>
+	New templates: <link linkend="rangevector"><classname>&ns;::sorted_range</classname></link>,
+	and <link linkend="explicitrefptr"><classname>&ns;::explicit_arg</classname></link>.
+      </para>
+    </listitem>
   </itemizedlist>
 </section>
 

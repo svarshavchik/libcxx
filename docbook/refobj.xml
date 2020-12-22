@@ -1225,6 +1225,43 @@ void foo(const &ns;::explicit_refptr&lt;class2&gt; &amp;arg)
 	for a parameter of an &reforptr; of a
 	<classname>class2Obj</classname>.
       </para>
+
+      <para>
+	An <classname>explicit_ref</classname> of a &ref; still participates
+	in overload resultion of a &ptr; to the same underlying object.
+	An
+	<ulink url="&link-explicit-arg;"><classname>&ns;::explicit_arg</classname></ulink>
+	only participates in an overload resolution for the same exact
+	&reforptr;:
+      </para>
+      <blockquote>
+	<informalexample>
+	  <programlisting>
+#include &lt;x/refptr_traits.H&gt;
+
+typedef &ns;::ref&lt;class1Obj&gt; class1;
+
+typedef &ns;::ref&lt;class1Obj&gt; class1ptr;
+
+void foo(const &ns;::explicit_arg&lt;class1&gt; &amp;arg)
+{
+    const class1 &amp;rarg=arg;
+
+    // ...
+}
+
+void foo(const &ns;::explicit_arg&lt;class1ptr&gt; &amp;arg)
+{
+    if (arg)
+    {
+        const class2 &amp;rarg=arg;
+
+        // ...
+    }
+}</programlisting>
+	</informalexample>
+      </blockquote>
+
     </section>
 
   </section>
