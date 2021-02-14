@@ -108,15 +108,7 @@ GCRYPT_CFLAGS=`$GCRYPT_CONFIG --cflags`
 AC_SUBST(GCRYPT_LIBS)
 AC_SUBST(GCRYPT_CFLAGS)
 
-libcxx_save_LIBS="$LIBS"
-LIBS="-lcourier-unicode"
-AC_LINK_IFELSE(
-[AC_LANG_PROGRAM([
-#include <courier-unicode.h>
-],[
-	unicode_default_chset();
-])],[:],[AC_MSG_ERROR([The Courier Unicode Library 1.2 appears not to be installed. You may need to install a separate development subpackage, in addition to the main package])])
-LIBS="$libcxx_save_LIBS"
+AX_COURIER_UNICODE_VERSION(1.2)
 
 # Also update the flags placed into libcxx.pc in the Makefile.am
 # and buildoptions in docbook/book.xml

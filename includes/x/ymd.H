@@ -23,6 +23,7 @@
 #include <ctime>
 #include <type_traits>
 #include <optional>
+#include <compare>
 #include <courier-unicode.h>
 
 namespace LIBCXX_NAMESPACE {
@@ -442,38 +443,21 @@ public:
 
 	//! Compare this date with another one.
 
-	bool operator<(const ymd &other) const noexcept
+	std::strong_ordering operator<=>(const ymd &other) const noexcept
 	{
-		return year < other.year ? true:
-			year > other.year ? false:
-			month < other.month ? true:
-			month > other.month ? false:
-			day < other.day;
-	}
-
-	//! Compare this date with another one.
-
-	bool operator>(const ymd &other) const noexcept
-	{
-		return year > other.year ? true:
-			year < other.year ? false:
-			month > other.month ? true:
-			month < other.month ? false:
-			day > other.day;
-	}
-
-	//! Compare this date with another one.
-
-	bool operator<=(const ymd &other) const noexcept
-	{
-		return !operator>(other);
-	}
-
-	//! Compare this date with another one.
-
-	bool operator>=(const ymd &other) const noexcept
-	{
-		return !operator<(other);
+		if (year < other.year)
+			return std::strong_ordering::less;
+		if (year > other.year)
+			return std::strong_ordering::greater;
+		if (month < other.month)
+			return std::strong_ordering::less;
+		if (month > other.month)
+			return std::strong_ordering::greater;
+		if (day < other.day)
+			return std::strong_ordering::less;
+		if (day > other.day)
+			return std::strong_ordering::greater;
+		return std::strong_ordering::equal;
 	}
 
 	//! Is this year a leap year

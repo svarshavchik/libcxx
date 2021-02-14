@@ -208,33 +208,21 @@ time_t ymdhms::to_time_t(const std::string &s,
 		- tz;
 }
 
-bool ymdhms::operator<(const ymdhms &o) const
+std::strong_ordering ymdhms::operator<=>(const ymdhms &o) const noexcept
 {
 	if (getUTCoffset() != o.getUTCoffset())
-		return tz->compute_time_t(*this) <
+		return tz->compute_time_t(*this) <=>
 			tz->compute_time_t(o);
 
-	if (ymd::operator<(o))
-		return true;
-	if (ymd::operator>(o))
-		return false;
-	return hms::operator<(o);
+	auto c=ymd::operator<=>(o);
+
+	if (c != std::strong_ordering::equal)
+		return c;
+
+	return hms::operator<=>(o);
 }
 
-bool ymdhms::operator>(const ymdhms &o) const
-{
-	if (getUTCoffset() != o.getUTCoffset())
-		return tz->compute_time_t(*this) <
-			tz->compute_time_t(o);
-
-	if (ymd::operator>(o))
-		return true;
-	if (ymd::operator<(o))
-		return false;
-	return hms::operator>(o);
-}
-
-bool ymdhms::operator==(const ymdhms &o) const
+bool ymdhms::operator==(const ymdhms &o) const noexcept
 {
 	if (getUTCoffset() != o.getUTCoffset())
 		return tz->compute_time_t(*this) <
@@ -243,19 +231,9 @@ bool ymdhms::operator==(const ymdhms &o) const
 	return ymd::operator==(o) && hms::operator==(o);
 }
 
-bool ymdhms::operator!=(const ymdhms &o) const
+bool ymdhms::operator!=(const ymdhms &o) const noexcept
 {
 	return !operator==(o);
-}
-
-bool ymdhms::operator<=(const ymdhms &o) const
-{
-	return !operator>(o);
-}
-
-bool ymdhms::operator>=(const ymdhms &o) const
-{
-	return !operator<(o);
 }
 
 ymdhms::formatter::formatter(const ymdhms &objArg)

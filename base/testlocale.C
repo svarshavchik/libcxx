@@ -150,6 +150,12 @@ int main(int argc, char *argv[])
 		    != "2000")
 			throw EXCEPTION("What's up with the C locale?");
 
+		if (!LIBCXX_NAMESPACE::locale::create("he_IL.utf8")
+		    ->right_to_left())
+		{
+			throw EXCEPTION("What's up with right_to_left?");
+		}
+
 		teststrtok();
 		teststrsplit();
 		testunicode();

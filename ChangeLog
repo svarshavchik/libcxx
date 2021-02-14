@@ -1,3 +1,7 @@
+2021-02-14  Sam Varshavchik  <mrsam@courier-mta.com>
+
+	* right_to_left() method in locale objects.
+
 2020-11-09  Sam Varshavchik  <mrsam@courier-mta.com>
 
 	* includes/x/sorted_range.H: sorted_range implementation.

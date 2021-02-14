@@ -12,6 +12,7 @@
 #include <x/facet.H>
 #include <iostream>
 #include <type_traits>
+#include <compare>
 #include <x/namespace.h>
 
 namespace LIBCXX_NAMESPACE {
@@ -329,27 +330,15 @@ public:
 
 	//! Comparison operator
 
-	bool operator<(const ymdhms &o) const;
+	std::strong_ordering operator<=>(const ymdhms &) const noexcept;
 
 	//! Comparison operator
 
-	bool operator>(const ymdhms &o) const;
+	bool operator==(const ymdhms &o) const noexcept;
 
 	//! Comparison operator
 
-	bool operator==(const ymdhms &o) const;
-
-	//! Comparison operator
-
-	bool operator!=(const ymdhms &o) const;
-
-	//! Comparison operator
-
-	bool operator<=(const ymdhms &o) const;
-
-	//! Comparison operator
-
-	bool operator>=(const ymdhms &o) const;
+	bool operator!=(const ymdhms &o) const noexcept;
 
 	//! Helper used by serialize()
 

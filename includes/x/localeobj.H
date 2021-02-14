@@ -129,6 +129,11 @@ public:
 
 	std::string fromutf8(const std::string_view &text) const;
 
+	//! Whether this locale main text direction is right to left.
+
+	//! Heuristically determine this locale's main text direction.
+	bool right_to_left() const;
+
 	//! Make this locale the global locale.
 
 	//! The global locale is the default locale used by the C

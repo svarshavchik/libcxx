@@ -9,6 +9,7 @@
 #include "x/to_string.H"
 #include "x/singleton.H"
 #include "x/exception.H"
+#include "x/ymd.H"
 
 #include <courier-unicode.h>
 
@@ -201,6 +202,15 @@ std::string localeObj::tolower(const std::string &text) const
 std::string localeObj::toupper(const std::string &text) const
 {
 	return unicode::toupper(text, charset());
+}
+
+bool localeObj::right_to_left() const
+{
+	x::ymd d{2021, 1, 1};
+
+	auto s=d.format_date(U"%B\n", const_ref{this});
+
+	return unicode::bidi_get_direction(s).direction != UNICODE_BIDI_LR;
 }
 
 std::u32string localeObj::tou32(const std::string &text) const

@@ -21,6 +21,7 @@
 #include <sstream>
 #include <list>
 #include <vector>
+#include <compare>
 #include <stdint.h>
 
 namespace LIBCXX_NAMESPACE {
@@ -257,7 +258,7 @@ public:
 
 	//! Comparison operator
 
-	bool operator<(const hms &o) const noexcept
+	std::strong_ordering operator<=>(const hms &o) const noexcept
 	{
 		hms a(*this);
 		hms b(o);
@@ -265,22 +266,20 @@ public:
 		normalize(a.h, a.m, a.s, 0, 0);
 		normalize(b.h, b.m, b.s, 0, 0);
 
-		return a.h < b.h || (a.h == b.h
-				     && a.m * 60 + a.s < b.m * 60 + b.s);
-	}
+		if (a.h < b.h)
+			return std::strong_ordering::less;
+		if (a.h > b.h)
+			return std::strong_ordering::greater;
+		if (a.m < b.m)
+			return std::strong_ordering::less;
+		if (a.m > b.m)
+			return std::strong_ordering::greater;
+		if (a.s < b.s)
+			return std::strong_ordering::less;
+		if (a.s > b.s)
+			return std::strong_ordering::greater;
 
-	//! Comparison operator
-
-	bool operator>(const hms &o) const noexcept
-	{
-		hms a(*this);
-		hms b(o);
-
-		normalize(a.h, a.m, a.s, 0, 0);
-		normalize(b.h, b.m, b.s, 0, 0);
-
-		return a.h > b.h || (a.h == b.h
-				     && a.m * 60 + a.s > b.m * 60 + b.s);
+		return std::strong_ordering::equal;
 	}
 
 	//! Comparison operator
@@ -303,20 +302,6 @@ public:
 		return !operator==(o);
 	}
 
-	//! Comparison operator
-
-	bool operator>=(const hms &o) const noexcept
-	{
-		return !operator<(o);
-	}
-
-	//! Comparison operator
-
-	bool operator<=(const hms &o) const noexcept
-	{
-		return !operator>(o);
-	}
-
 private:
 	//! Internal string array
 
@@ -326,8 +311,7 @@ private:
 
 	//! \internal
 	//!
-	static void parsing_error()
- __attribute__((noreturn));
+	static void parsing_error() __attribute__((noreturn));
 
 	//! Set the current value
 

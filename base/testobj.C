@@ -40,6 +40,7 @@
 #include "x/mpthreadlock.H"
 #include "x/visitor.H"
 #include "x/optional_args.H"
+#include "x/explicit_arg.H"
 
 #include <iostream>
 #include <algorithm>
@@ -3229,13 +3230,13 @@ int only_nonconst(const LIBCXX_NAMESPACE::explicit_refptr<
 }
 
 
-int only_expl1ref(const LIBCXX_NAMESPACE::very_explicit_refptr<
+int only_expl1ref(const LIBCXX_NAMESPACE::explicit_arg<
 		  LIBCXX_NAMESPACE::ptr<expl1Obj>> &arg)
 {
 	return arg ? 1:10;
 }
 
-int only_expl1ref(const LIBCXX_NAMESPACE::very_explicit_refptr<
+int only_expl1ref(const LIBCXX_NAMESPACE::explicit_arg<
 		  LIBCXX_NAMESPACE::const_ptr<expl1Obj>> &arg)
 {
 	return arg ? 2:10;
