@@ -19,6 +19,7 @@
 #include "x/timerfd.H"
 #include "x/property_value.H"
 #include "x/hms.H"
+#include "x/strtok.H"
 #include "gettext_in.h"
 
 #include <sys/poll.h>
@@ -48,7 +49,8 @@ namespace LIBCXX_NAMESPACE {
 };
 #endif
 
-#define LOCK_SESSION std::unique_lock<std::recursive_mutex> session_mutex_lock(session_mutex)
+#define LOCK_SESSION \
+	std::unique_lock<std::recursive_mutex> session_mutex_lock{session_mutex}
 
 static property::value<hms> session_cache_expiration
 ( LIBCXX_NAMESPACE_STR "::gnutls::session_cache::expiration",
@@ -416,6 +418,59 @@ void gnutls::sessionObj::get_server_names(gnutls_session_t sess,
 	}
 }
 
+void gnutls::sessionObj::set_alpn(const std::string_view &protocols,
+				  gnutls_alpn_flags_t flags)
+{
+	std::vector<std::string_view> protocols_vec;
+
+	strtok_str(protocols, ", \t\r\n", protocols_vec);
+
+	std::vector<gnutls_datum_t> datums;
+
+	datums.reserve(protocols_vec.size());
+
+	for (auto &p:protocols_vec)
+		datums.push_back(gnutls_datum_t{reinterpret_cast<unsigned
+								 char *>
+						(const_cast<char *>(p.data())),
+						(unsigned int)p.size()});
+
+	const gnutls_datum_t *datums_p=nullptr;
+
+	if (!datums.empty())
+		datums_p=&datums[0];
+
+	LOCK_SESSION;
+
+	chkerr(gnutls_alpn_set_protocols(sess, datums_p, datums.size(),
+					 flags),
+	       "gnutls_alpn_set_protocols");
+}
+
+std::optional<std::string> gnutls::sessionObj::get_alpn() const
+{
+	std::optional<std::string> ret;
+
+	LOCK_SESSION;
+
+	gnutls_datum_t protocol;
+
+	auto e=gnutls_alpn_get_selected_protocol(sess, &protocol);
+
+	if (e == GNUTLS_E_REQUESTED_DATA_NOT_AVAILABLE)
+		return ret;
+
+	chkerr(e, "gnutls_alpn_get_selected_protocol");
+
+	if (!protocol.size)
+		ret.emplace();
+	else
+	{
+		ret.emplace(protocol.data, protocol.data+protocol.size);
+	}
+	return ret;
+}
+
 void gnutls::sessionObj::set_session_data(const datum_t &session_dataArg)
 {
 	LOCK_SESSION;
@@ -611,34 +666,48 @@ void gnutls::sessionObj::verify_peers_x509(const std::string *hostname)
 				   *hostname)).c_str());
 }
 
-gnutls_cipher_algorithm_t gnutls::sessionObj::getCipher() const
+const_fdbase gnutls::sessionObj::get_transport()
+{
+	LOCK_SESSION;
+
+	return transport;
+}
+
+void gnutls::sessionObj::set_transport(const fdbase &transportArg)
+{
+	LOCK_SESSION;
+
+	transport=transportArg;
+}
+
+gnutls_cipher_algorithm_t gnutls::sessionObj::get_cipher() const
 {
 	LOCK_SESSION;
 
 	return gnutls_cipher_get(sess);
 }
 
-gnutls_kx_algorithm_t gnutls::sessionObj::getKx() const
+gnutls_kx_algorithm_t gnutls::sessionObj::get_kx() const
 {
 	LOCK_SESSION;
 
 	return gnutls_kx_get(sess);
 }
 
-gnutls_mac_algorithm_t gnutls::sessionObj::getMac() const
+gnutls_mac_algorithm_t gnutls::sessionObj::get_mac() const
 {
 	LOCK_SESSION;
 
 	return gnutls_mac_get(sess);
 }
 
-std::string gnutls::sessionObj::getSuite() const
+std::string gnutls::sessionObj::get_suite() const
 {
 	LOCK_SESSION;
 
-	return gnutls::session::base::get_cipher_name(getCipher()) + "/"
-		+ gnutls::session::base::get_kx_name(getKx()) + "/"
-		+ gnutls::session::base::get_mac_name(getMac());
+	return gnutls::session::base::get_cipher_name(get_cipher()) + "/"
+		+ gnutls::session::base::get_kx_name(get_kx()) + "/"
+		+ gnutls::session::base::get_mac_name(get_mac());
 }
 
 bool gnutls::sessionObj::bye(int &direction,

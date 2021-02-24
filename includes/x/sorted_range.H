@@ -34,11 +34,11 @@ struct default_sorted_range_update {
 //! first template parameter is a type that has two members, begin and end.
 //!
 //! The second template parameter optionally defines a three-way comparator
-//! implements strong ordering of begin and end values.
+//! that implements strong ordering of begin and end values.
 //!
 //! The third template parameter optionally defines an updater class.
 //!
-//! The third optional
+//! The fourth optional
 //! template parameter defines the underlying container, a vector by default.
 //!
 //! [begin, end) specifies a range of value starting with "begin" and up to

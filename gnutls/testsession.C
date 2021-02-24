@@ -17,27 +17,51 @@
 #include <algorithm>
 #include <iomanip>
 #include <cstring>
+#include <tuple>
 #include <poll.h>
 
-class serverThread : virtual public LIBCXX_NAMESPACE::obj {
+class server_thread_setup : virtual public LIBCXX_NAMESPACE::obj {
 
 public:
 	void run(const LIBCXX_NAMESPACE::fd &fd);
+
+	virtual void setup_sess(const LIBCXX_NAMESPACE::gnutls::session &)
+	{
+	}
+	virtual void run_server(const LIBCXX_NAMESPACE::gnutls::session &)=0;
 };
 
-class clientThread : virtual public LIBCXX_NAMESPACE::obj {
+class server_thread : public server_thread_setup {
+
+public:
+	void run_server(const LIBCXX_NAMESPACE::gnutls::session &) override;
+};
+
+class client_thread_setup : virtual public LIBCXX_NAMESPACE::obj {
 
 public:
 	void run(const LIBCXX_NAMESPACE::fd &fd);
+
+	virtual void setup_sess(const LIBCXX_NAMESPACE::gnutls::session &)
+	{
+	}
+
+	virtual void run_client(const LIBCXX_NAMESPACE::gnutls::session &)=0;
 };
 
-class credCallback : public LIBCXX_NAMESPACE::gnutls::credentials::callbackObj {
+class client_thread : public client_thread_setup {
+
+public:
+	void run_client(const LIBCXX_NAMESPACE::gnutls::session &) override;
+};
+
+class cred_callback : public LIBCXX_NAMESPACE::gnutls::credentials::callbackObj {
 
 public:
 	bool expecthostname;
 
-	credCallback() noexcept;
-	~credCallback();
+	cred_callback() noexcept;
+	~cred_callback();
 
 	keycertptr get(const LIBCXX_NAMESPACE::gnutls::sessionObj *sess,
 		       const std::list<std::string> &hostname_list,
@@ -46,17 +70,17 @@ public:
 		       size_t n_req_ca_dn) override;
 };
 
-credCallback::credCallback() noexcept
+cred_callback::cred_callback() noexcept
 	: expecthostname(false)
 {
 }
 
-credCallback::~credCallback()
+cred_callback::~cred_callback()
 {
 }
 
-credCallback::keycertptr
-credCallback::get(const LIBCXX_NAMESPACE::gnutls::sessionObj *sess,
+cred_callback::keycertptr
+cred_callback::get(const LIBCXX_NAMESPACE::gnutls::sessionObj *sess,
 		  const std::list<std::string> &hostname_list,
 		  const std::vector<gnutls_pk_algorithm_t> &algos,
 		  const gnutls_datum_t *req_ca_dn,
@@ -115,8 +139,7 @@ credCallback::get(const LIBCXX_NAMESPACE::gnutls::sessionObj *sess,
 	return retval;
 }
 
-void serverThread::run(const LIBCXX_NAMESPACE::fd &fd)
-
+void server_thread_setup::run(const LIBCXX_NAMESPACE::fd &fd)
 {
 	int direction;
 
@@ -125,17 +148,17 @@ void serverThread::run(const LIBCXX_NAMESPACE::fd &fd)
 	LIBCXX_NAMESPACE::gnutls::x509::crt::base::import_cert_list(calist, "testrsa1.crt",
 					       GNUTLS_X509_FMT_PEM);
 
-	LIBCXX_NAMESPACE::ptr<credCallback> cred(LIBCXX_NAMESPACE::ptr<credCallback>::create());
+	auto cred=LIBCXX_NAMESPACE::ref<cred_callback>::create();
 
 	cred->expecthostname=true;
 
-	LIBCXX_NAMESPACE::gnutls::credentials::certificate
-		serverCert(LIBCXX_NAMESPACE::gnutls::credentials::certificate::create());
+	auto serverCert=
+		LIBCXX_NAMESPACE::gnutls::credentials::certificate::create();
 
 	serverCert->set_x509_trust_file("testrsa1.crt", GNUTLS_X509_FMT_PEM);
 
-	LIBCXX_NAMESPACE::gnutls::session sess(LIBCXX_NAMESPACE::gnutls::session::create(GNUTLS_SERVER,
-							   fd));
+	auto sess=LIBCXX_NAMESPACE::gnutls::session::create(GNUTLS_SERVER,
+							    fd);
 	sess->credentials_set(serverCert);
 	serverCert->set_callback(cred);
 
@@ -144,13 +167,15 @@ void serverThread::run(const LIBCXX_NAMESPACE::fd &fd)
 	sess->set_default_priority();
 
 	{
-		LIBCXX_NAMESPACE::gnutls::dhparams dh(LIBCXX_NAMESPACE::gnutls::dhparams::create());
-		LIBCXX_NAMESPACE::gnutls::datum_t dh_dat(LIBCXX_NAMESPACE::gnutls::datum_t::create());
+		auto dh=LIBCXX_NAMESPACE::gnutls::dhparams::create();
+		auto dh_dat=LIBCXX_NAMESPACE::gnutls::datum_t::create();
 
 		dh_dat->load("dhparams.dat");
 		dh->import_pk(dh_dat, GNUTLS_X509_FMT_PEM);
 		serverCert->set_dh_params(dh);
 	}
+
+	setup_sess(sess);
 
 	try {
 		int direction;
@@ -162,6 +187,14 @@ void serverThread::run(const LIBCXX_NAMESPACE::fd &fd)
 		throw;
 	}
 
+	run_server(sess);
+
+	sess->bye(direction);
+}
+
+
+void server_thread::run_server(const LIBCXX_NAMESPACE::gnutls::session &sess)
+{
 	std::list<LIBCXX_NAMESPACE::gnutls::x509::crt> clientCerts;
 
 	sess->get_peer_certificates(clientCerts);
@@ -174,7 +207,7 @@ void serverThread::run(const LIBCXX_NAMESPACE::fd &fd)
 		throw EXCEPTION("Did not receive expected client cert");
 	}
 
-	LIBCXX_NAMESPACE::iostream si(sess->getiostream());
+	auto si=sess->getiostream();
 
 	std::string buf;
 
@@ -185,27 +218,27 @@ void serverThread::run(const LIBCXX_NAMESPACE::fd &fd)
 
 	if (si->get() != EOF)
 		throw EXCEPTION("Received unexpected data");
-	sess->bye(direction);
 }
 
-void clientThread::run(const LIBCXX_NAMESPACE::fd &fd)
+void client_thread_setup::run(const LIBCXX_NAMESPACE::fd &fd)
 
 {
 	int direction;
 
-	LIBCXX_NAMESPACE::ptr<credCallback> cred(LIBCXX_NAMESPACE::ptr<credCallback>::create());
+	auto cred=LIBCXX_NAMESPACE::ref<cred_callback>::create();
 
-	LIBCXX_NAMESPACE::gnutls::credentials::certificate
-		clientCert(LIBCXX_NAMESPACE::gnutls::credentials::certificate::create());
+	auto clientCert=LIBCXX_NAMESPACE::gnutls::credentials::certificate::create();
 
 	clientCert->set_x509_trust_file("testrsa1.crt", GNUTLS_X509_FMT_PEM);
 
-	LIBCXX_NAMESPACE::gnutls::session sess(LIBCXX_NAMESPACE::gnutls::session::create(GNUTLS_CLIENT, fd));
+	auto sess=LIBCXX_NAMESPACE::gnutls::session::create(GNUTLS_CLIENT, fd);
 
 	clientCert->set_callback(cred);
 	sess->credentials_set(clientCert);
 	sess->set_server_name("nobody.example.com");
 	sess->set_default_priority();
+
+	setup_sess(sess);
 
 	try {
 		sess->handshake(direction);
@@ -216,7 +249,7 @@ void clientThread::run(const LIBCXX_NAMESPACE::fd &fd)
 		throw;
 	}
 
-	std::cout << "Session: " << sess->getSuite() << std::endl;
+	std::cout << "Session: " << sess->get_suite() << std::endl;
 
 	try {
 		sess->verify_peer("subcert.domain.com");
@@ -227,45 +260,38 @@ void clientThread::run(const LIBCXX_NAMESPACE::fd &fd)
 		throw;
 	}
 
+	run_client(sess);
+
+	sess->bye(direction);
+}
+
+void client_thread::run_client(const LIBCXX_NAMESPACE::gnutls::session &sess)
+{
 	{
 		std::list<LIBCXX_NAMESPACE::gnutls::x509::crt> certList;
 
 		sess->get_peer_certificates(certList);
 
-		std::list<LIBCXX_NAMESPACE::gnutls::x509::crt>::iterator
-			b=certList.begin(),
-			e=certList.end();
-
-		while (b != e)
-			std::cout << (*b++)->print();
+		for (auto cert : certList)
+			std::cout << cert->print();
 	}
 
-	LIBCXX_NAMESPACE::iostream ios(sess->getiostream());
+	auto ios=sess->getiostream();
 
 	(*ios) << "Hello world" << std::endl << std::flush;
 
 	if (!ios->good())
 		throw EXCEPTION("Send failed");
-	sess->bye(direction);
 }
 
 static void testsession()
 {
 	alarm(10);
 
-	LIBCXX_NAMESPACE::fdptr a,b;
+	auto [a, b]=LIBCXX_NAMESPACE::fd::base::socketpair();
 
-	{
-		std::pair<LIBCXX_NAMESPACE::fd, LIBCXX_NAMESPACE::fd>
-			p(LIBCXX_NAMESPACE::fd::base::socketpair());
-
-		a=p.first;
-		b=p.second;
-	}
-
-
-	LIBCXX_NAMESPACE::ref<serverThread> server_threadObj=LIBCXX_NAMESPACE::ref<serverThread>::create();
-	LIBCXX_NAMESPACE::ref<clientThread> client_threadObj=LIBCXX_NAMESPACE::ref<clientThread>::create();
+	auto server_threadObj=LIBCXX_NAMESPACE::ref<server_thread>::create();
+	auto client_threadObj=LIBCXX_NAMESPACE::ref<client_thread>::create();
 
 	auto ta=LIBCXX_NAMESPACE::run(server_threadObj, a),
 		tb=LIBCXX_NAMESPACE::run(client_threadObj, b);
@@ -279,8 +305,8 @@ static void testsession2()
 {
 	LIBCXX_NAMESPACE::fd tmpfile=LIBCXX_NAMESPACE::fd::base::tmpfile();
 
-	LIBCXX_NAMESPACE::gnutls::session sess(LIBCXX_NAMESPACE::gnutls::session::create
-				(GNUTLS_SERVER, tmpfile));
+	auto sess=LIBCXX_NAMESPACE::gnutls::session::create(GNUTLS_SERVER,
+							    tmpfile);
 
 	sess->set_default_priority();
 }
@@ -866,6 +892,140 @@ static void testwriteabort()
 		throw EXCEPTION("Write abort did not happen");
 }
 
+class alpn_server : public server_thread_setup {
+
+public:
+
+	std::string protocols;
+	std::optional<std::string> selected_protocol;
+
+	alpn_server(const std::string &protocols) : protocols{protocols}
+	{
+	}
+
+	void setup_sess(const LIBCXX_NAMESPACE::gnutls::session &sess)
+		override
+	{
+		if (!protocols.empty())
+			sess->set_alpn(protocols);
+	}
+
+	void run_server(const LIBCXX_NAMESPACE::gnutls::session &) override;
+};
+
+class alpn_client : public client_thread_setup {
+
+public:
+
+	std::string protocols;
+	std::optional<std::string> selected_protocol;
+
+	alpn_client(const std::string &protocols) : protocols{protocols}
+	{
+	}
+
+	void setup_sess(const LIBCXX_NAMESPACE::gnutls::session &sess)
+		override
+	{
+		if (!protocols.empty())
+			sess->set_alpn(protocols);
+	}
+
+	void run_client(const LIBCXX_NAMESPACE::gnutls::session &) override;
+};
+
+void alpn_server::run_server(const LIBCXX_NAMESPACE::gnutls::session &sess)
+{
+	selected_protocol=sess->get_alpn();
+}
+
+void alpn_client::run_client(const LIBCXX_NAMESPACE::gnutls::session &sess)
+{
+	selected_protocol=sess->get_alpn();
+}
+
+void testalpn()
+{
+	alarm(30);
+
+	static const struct {
+		const char *server_proto;
+		const char *client_proto;
+
+		const char *negotiated;
+	} tests[]={
+		{ "", "", "" },
+		{ "server", "", ""},
+		{ "", "clent", ""},
+		{ "common", "common", "common" },
+		{ "server1,server2", "server1", "server1"},
+		{ "server1,server2", "server2", "server2"},
+		{ "client1", "client1,client2", "client1"},
+		{ "client2", "client1,client2", "client2"},
+		{ "server1", "client2", NULL},
+	};
+
+	for (const auto &t:tests)
+	{
+		auto [a, b]=LIBCXX_NAMESPACE::fd::base::socketpair();
+
+		auto server=LIBCXX_NAMESPACE::ref<alpn_server>::create(t.server_proto);
+		auto client=LIBCXX_NAMESPACE::ref<alpn_client>::create(t.client_proto);
+
+		auto ta=LIBCXX_NAMESPACE::run(server, a),
+			tb=LIBCXX_NAMESPACE::run(client, b);
+		std::tie(a, b) = LIBCXX_NAMESPACE::fd::base::socketpair();
+
+		ta->wait();
+		tb->wait();
+
+		for (const auto &[thr, res]:
+			     {std::tuple{ta, server->selected_protocol},
+			      std::tuple{tb, client->selected_protocol}} )
+		{
+			bool thrown=false;
+
+			try {
+				thr->get();
+			} catch(...) {
+				if (t.negotiated)
+					throw;
+
+				thrown=true;
+			}
+
+			if (t.negotiated)
+			{
+				if (!*t.negotiated)
+				{
+					if (res)
+						throw EXCEPTION
+							("Expected no "
+							 "negotiated protocol "
+							 "but got "
+							 << *res);
+				}
+				else if (!res || t.negotiated != *res)
+				{
+					throw EXCEPTION
+						("Expected to "
+						 "negotiate ["
+						 << t.negotiated
+						 << "] but got ["
+						 << (res ? *res:"nothing")
+						 << "]");
+				}
+			}
+			else if (!thrown)
+				throw EXCEPTION("Expected ALPN"
+						" negotiation "
+						"to fail.");
+		}
+	}
+	alarm(0);
+
+}
+
 int main(int argc, char **argv)
 {
 	LIBCXX_NAMESPACE::option::list options(LIBCXX_NAMESPACE::option::list::create());
@@ -887,6 +1047,8 @@ int main(int argc, char **argv)
 			testrehandshake();
 		testreadabort();
 		testwriteabort();
+
+		testalpn();
 	} catch (LIBCXX_NAMESPACE::exception &e) {
 		std::cout << e << std::endl;
 	}

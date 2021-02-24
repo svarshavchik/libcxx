@@ -58,7 +58,7 @@ void clientObj::impl_tls_extraObj::shutdown(const fdbase &socket)
 
 fdbase clientObj::impl_tls_extraObj::setTransport(const fdbase &socket)
 {
-	session->setTransport(socket);
+	session->set_transport(socket);
 	return session;
 }
 

@@ -1,3 +1,7 @@
+2021-02-23  Sam Varshavchik  <mrsam@courier-mta.com>
+
+	* gnutls: Implement support for ALPN. Clean up some camelcase.
+
 2021-02-14  Sam Varshavchik  <mrsam@courier-mta.com>
 
 	* right_to_left() method in locale objects.

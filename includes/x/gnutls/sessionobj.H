@@ -19,6 +19,8 @@
 #include <gnutls/gnutls.h>
 
 #include <string>
+#include <string_view>
+#include <optional>
 #include <mutex>
 
 namespace LIBCXX_NAMESPACE::gnutls {
@@ -86,35 +88,43 @@ public:
 
 	//! Return the underlying transport object
 
-	const_fdbase getTransport()
-	{
-		return transport;
-	}
+	const_fdbase get_transport();
 
 	//! Update the underlying transport object
 
-	void setTransport(const fdbase &transportArg)
-	{
-		transport=transportArg;
-	}
+	void set_transport(const fdbase &transportArg);
+
+	//! Set the supported application level protocol
+
+	//! The string can be a comma-delimited string, setting multiple
+	//! protocols.
+
+	void set_alpn(const std::string_view &,
+		      gnutls_alpn_flags_t flags=GNUTLS_ALPN_MANDATORY);
+
+	//! Get the negotiated session's protocol
+
+	//! Return a nullopt if no ALPN was negotiated.
+
+	std::optional<std::string> get_alpn() const;
 
 	//! Return the negotiated session cipher algorithm
 
-	gnutls_cipher_algorithm_t getCipher() const;
+	gnutls_cipher_algorithm_t get_cipher() const;
 
 	//! Return the negotiated key exchange algorithm
 
-	gnutls_kx_algorithm_t getKx() const;
+	gnutls_kx_algorithm_t get_kx() const;
 
 	//! Return the negotiated hash algorithm
 
-	gnutls_mac_algorithm_t getMac() const;
+	gnutls_mac_algorithm_t get_mac() const;
 
 	//! Return a generic description of this session's encryption suite
 
 	//! \return a string of the form "cipher/kx/mac(/compression)?"
 	//!
-	std::string getSuite() const;
+	std::string get_suite() const;
 
 private:
 

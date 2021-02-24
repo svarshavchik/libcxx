@@ -72,7 +72,7 @@ void gnutls::http::fdtlsserverimpl::clear()
 
 void gnutls::http::fdtlsserverimpl::filedesc_installed(const fdbase &transport)
 {
-	sess->setTransport(transport);
+	sess->set_transport(transport);
 
 	set_readwrite_timeout(handshake_timeout.get().seconds());
 

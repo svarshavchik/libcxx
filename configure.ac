@@ -1,9 +1,9 @@
 #
-# Copyright 2012-2020 Double Precision, Inc.
+# Copyright 2012-2021 Double Precision, Inc.
 # See COPYING for distribution information.
 
 AC_PREREQ(2.61)
-AC_INIT(libcxx, 0.22.0, [mrsam@courier-mta.com])
+AC_INIT(libcxx, 0.23.0, [mrsam@courier-mta.com])
 
 AC_CONFIG_SRCDIR([includes/x/obj.H])
 AC_CONFIG_HEADER([libcxx_config.h])
@@ -41,9 +41,9 @@ XGETTEXT_EXTRA_OPTIONS="--keyword=_txt --keyword=_txtw --keyword=_txtn:1,2 --key
 #   $libdir/pkgconfig/libcxx-$VERSION.pc
 #   $datadir/aclocak/libcxx-$VERSION.m4
 #
-ABIVER=0.22
+ABIVER=0.23
 AC_SUBST(ABIVER)
-VERSION_INFO=22:0:0
+VERSION_INFO=23:0:0
 AC_SUBST(VERSION_INFO)
 
 # Checks for libraries.
@@ -108,7 +108,7 @@ GCRYPT_CFLAGS=`$GCRYPT_CONFIG --cflags`
 AC_SUBST(GCRYPT_LIBS)
 AC_SUBST(GCRYPT_CFLAGS)
 
-AX_COURIER_UNICODE_VERSION(1.2)
+AX_COURIER_UNICODE_VERSION(2.1)
 
 # Also update the flags placed into libcxx.pc in the Makefile.am
 # and buildoptions in docbook/book.xml

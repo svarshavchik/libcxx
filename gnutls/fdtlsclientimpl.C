@@ -55,7 +55,7 @@ void gnutls::http::fdtlsclientimpl::install(const session &sessArg,
 
 void gnutls::http::fdtlsclientimpl::filedesc_installed(const fdbase &transport)
 {
-	sess->setTransport(transport);
+	sess->set_transport(transport);
 }
 
 void gnutls::http::fdtlsclientimpl::install(const fd &filedescArg,
