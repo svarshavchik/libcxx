@@ -424,14 +424,11 @@ public:
 						(messageimpl::expect,
 						 expectations);
 
-					for (messageimpl::keywordseti_t
-						     ::const_iterator
-						     b(expectations.begin()),
-						     e(expectations.end());
-					     b != e; ++b)
+					for (const auto &expectation
+						     :expectations)
 					{
 						if (chrcasecmp::str_equal_to()
-						    (*b, messageimpl::
+						    (expectation, messageimpl::
 						     expect_100_continue))
 						{
 							got_100_continue=true;

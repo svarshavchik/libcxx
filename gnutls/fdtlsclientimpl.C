@@ -17,6 +17,8 @@ namespace LIBCXX_NAMESPACE {
 };
 #endif
 
+using http::httpver_t;
+
 property::value<hms>
 gnutls::http::fdtlsclientimpl::handshake_timeout(LIBCXX_NAMESPACE_STR
 						 "::https::client::handshake_timeout",
@@ -129,6 +131,8 @@ void gnutls::http::fdtlsclientimpl::init(sendmsg &msg)
 
 	set_readwrite_timeout(handshake_timeout.get().seconds());
 
+	save_session->set_alpn("http/1.1,http/1.0");
+
 	int dummy;
 
 	bool flag=save_session->handshake(dummy);
@@ -153,9 +157,24 @@ void gnutls::http::fdtlsclientimpl::init(sendmsg &msg)
 			::throwResponseException(502, (std::string)*e);
 	}
 
+	auto protocol=save_session->get_alpn();
+
+	if (protocol)
+	{
+		if (*protocol == "http/1.1")
+		{
+			set_peer_http_version(httpver_t::http11);
+		}
+		else if (*protocol == "http/1.0")
+		{
+			set_peer_http_version(httpver_t::http10);
+		}
+	}
+
 	handshake_required=false;
 
 	sess=save_session;
+
 }
 
 void gnutls::http::fdtlsclientimpl::clear()

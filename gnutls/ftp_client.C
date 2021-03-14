@@ -73,7 +73,7 @@ gnutls::session clientObj::impl_tls_extraObj
 	session->credentials_set(credentials);
 	session->set_default_priority();
 	session->set_private_extensions();
-
+	session->set_alpn("ftp");
 	if (!server_name.empty())
 		session->set_server_name(server_name);
 

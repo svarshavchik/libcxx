@@ -1,3 +1,5 @@
+0.23
+
 2021-02-23  Sam Varshavchik  <mrsam@courier-mta.com>
 
 	* gnutls: Implement support for ALPN. Clean up some camelcase.

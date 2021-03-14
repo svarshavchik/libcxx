@@ -21,9 +21,7 @@ inline LIBCXX_NAMESPACE::gnutls::session
 testsessionfactory::create(unsigned mode,
 			   const LIBCXX_NAMESPACE::fdbase &transportArg)
 {
-	LIBCXX_NAMESPACE::gnutls::credentials::certificate
-		crt(LIBCXX_NAMESPACE::gnutls::credentials::certificate
-		    ::create());
+	auto crt=LIBCXX_NAMESPACE::gnutls::credentials::certificate::create();
 
 	if (mode == GNUTLS_CLIENT)
 	{
@@ -46,8 +44,7 @@ testsessionfactory::create(unsigned mode,
 		crt->set_dh_params(dh);
 	}
 
-	LIBCXX_NAMESPACE::gnutls::session sess=
-		LIBCXX_NAMESPACE::gnutls::session::create(mode, transportArg);
+	auto sess=LIBCXX_NAMESPACE::gnutls::session::create(mode, transportArg);
 
 	sess->credentials_set(crt);
 	sess->set_default_priority();
@@ -67,12 +64,8 @@ public:
 		virtual public LIBCXX_NAMESPACE::obj {
 
 	public:
-		fdserverObj()
-		{
-		}
-		~fdserverObj()
-		{
-		}
+		fdserverObj()=default;
+		~fdserverObj()=default;
 
 		void run(const LIBCXX_NAMESPACE::fd &socket)
 		{

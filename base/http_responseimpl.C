@@ -85,7 +85,7 @@ responseimpl::responseimpl(int statuscodeArg,
 
 void responseimpl::bad_message()
 {
-	responseimpl::throw_internal_server_error();
+	throwResponseException(500, "Invalid HTTP response");
 }
 
 responseimpl::responseimpl(int statuscodeArg,

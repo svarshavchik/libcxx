@@ -23,8 +23,14 @@ See COPYING for distribution information.
 	Cleaned up <acronym>HTTP</acronym>
 	<link linkend="httpuseragent">client</link>
 	and
-	<link linkend="httpserver">server</link> API, replacing camcel-case
+	<link linkend="httpserver">server</link> API, replacing camel-case
 	methods with standardized names.
+      </para>
+    </listitem>
+
+    <listitem>
+      <para>
+	Added support for the TLS ALPN extension.
       </para>
     </listitem>
 

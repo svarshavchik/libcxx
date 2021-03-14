@@ -267,10 +267,10 @@ void testsessioncache()
 int main(int argc, char **argv)
 {
 	try {
-		LIBCXX_NAMESPACE::option::string_value
-			uri(LIBCXX_NAMESPACE::option::string_value::create());
+		alarm(30);
+		auto uri=LIBCXX_NAMESPACE::option::string_value::create();
 
-		LIBCXX_NAMESPACE::option::list options(LIBCXX_NAMESPACE::option::list::create());
+		auto options=LIBCXX_NAMESPACE::option::list::create();
 
 		options->add(uri, 'u', "uri",
 			     LIBCXX_NAMESPACE::option::list::base::hasvalue,
@@ -279,7 +279,7 @@ int main(int argc, char **argv)
 
 		options->addDefaultOptions();
 
-		LIBCXX_NAMESPACE::option::parser opt_parser(LIBCXX_NAMESPACE::option::parser::create());
+		auto opt_parser=LIBCXX_NAMESPACE::option::parser::create();
 
 		opt_parser->setOptions(options);
 
@@ -297,6 +297,7 @@ int main(int argc, char **argv)
 
 		testuseragent();
 		testsessioncache();
+		alarm(0);
 	} catch (LIBCXX_NAMESPACE::exception &e) {
 		std::cout << e << std::endl;
 		exit(1);

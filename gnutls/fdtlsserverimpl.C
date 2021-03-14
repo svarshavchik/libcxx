@@ -60,7 +60,7 @@ void gnutls::http::fdtlsserverimpl::run(const fd &connection,
 	cleanup_helper helper(this);
 
 	sess=sessionArg;
-
+	sess->set_alpn("http/1.1,http/1.0");
 	LIBCXX_NAMESPACE::http::fdserverimpl::run(connection, terminator);
 }
 

@@ -550,6 +550,8 @@ protected:
 private:
 	//! Peer's known HTTP version support
 
+	//! We initialize it to http10 and then update it to http11 if we
+	//! see an HTTP/1.1 message from the peer.
 	httpver_t peerhttpver;
 
 public:

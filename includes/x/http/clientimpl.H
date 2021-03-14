@@ -475,7 +475,8 @@ protected:
 	{
 		receiver_t::message(resp, req);
 
-		this->set_peer_http_version(resp.get_version());
+		if (resp.get_version() == httpver_t::http11)
+			this->set_peer_http_version(httpver_t::http11);
 
 		pipelined=req.get_version() == httpver_t::http10 ||
 			resp.get_version() == httpver_t::http10 ||

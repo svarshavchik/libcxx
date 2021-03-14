@@ -8,6 +8,7 @@
 #include "x/threads/run.H"
 #include "x/http/fdtlsclient.H"
 #include <iostream>
+#include <iterator>
 
 class myFakeErrorProxy : virtual public LIBCXX_NAMESPACE::obj {
 
@@ -295,18 +296,14 @@ int main(int argc, char **argv)
 		 "::gnutls::ignore_premature_termination_error",
 		 "true", true, true);
 
-	LIBCXX_NAMESPACE::option::string_value
-		proxy_value(LIBCXX_NAMESPACE::option::string_value::create());
+	auto proxy_value=LIBCXX_NAMESPACE::option::string_value::create();
 
-	LIBCXX_NAMESPACE::option::int_value
-		opts_value(LIBCXX_NAMESPACE::option::int_value::create(0));
+	auto opts_value=LIBCXX_NAMESPACE::option::int_value::create(0);
 
-	LIBCXX_NAMESPACE::option::or_op<int>::value
-		noverifypeer_value(LIBCXX_NAMESPACE::option::or_op<int>::value::create(opts_value, LIBCXX_NAMESPACE::http::noverifypeer)),
-		noverifycert_value(LIBCXX_NAMESPACE::option::or_op<int>::value::create(opts_value, LIBCXX_NAMESPACE::http::noverifycert));
+	auto noverifypeer_value=LIBCXX_NAMESPACE::option::or_op<int>::value::create(opts_value, LIBCXX_NAMESPACE::http::noverifypeer),
+		noverifycert_value=LIBCXX_NAMESPACE::option::or_op<int>::value::create(opts_value, LIBCXX_NAMESPACE::http::noverifycert);
 
-	LIBCXX_NAMESPACE::option::list
-		options(LIBCXX_NAMESPACE::option::list::create());
+	auto options=LIBCXX_NAMESPACE::option::list::create();
 
 	options->add(noverifypeer_value, 0,
 		     "noverifypeer",
@@ -324,8 +321,7 @@ int main(int argc, char **argv)
 		.addArgument("url", 0)
 		.addDefaultOptions();
 
-	LIBCXX_NAMESPACE::option::parser
-		parser(LIBCXX_NAMESPACE::option::parser::create());
+	auto parser=LIBCXX_NAMESPACE::option::parser::create();
 
 	parser->setOptions(options);
 
