@@ -246,6 +246,9 @@ public:
 	//! Return the text representation of the current node
 	virtual std::string get_text() const=0;
 
+	//! Return the text representation of the current node as a u32string
+	std::u32string get_u32text() const;
+
 	//! Return the current node's language
 	virtual std::string get_lang() const=0;
 
