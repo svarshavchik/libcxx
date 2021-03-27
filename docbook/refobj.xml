@@ -1230,7 +1230,7 @@ void foo(const &ns;::explicit_refptr&lt;class2&gt; &amp;arg)
 	An <classname>explicit_ref</classname> of a &ref; still participates
 	in overload resultion of a &ptr; to the same underlying object.
 	An
-	<ulink url="&link-explicit-arg;"><classname>&ns;::explicit_arg</classname></ulink>
+	<ulink url="&link-x--explicit-arg;"><classname>&ns;::explicit_arg</classname></ulink>
 	only participates in an overload resolution for the same exact
 	&reforptr;:
       </para>
