@@ -396,7 +396,7 @@ void test6()
 		->create_namespace("ns2", std::string("http://www.example.com"))
 		->create_namespace("ns3", LIBCXX_NAMESPACE::uriimpl("http://www.example.com/x"))
 		->element({"ns2:body"});
-	lock->create_next_sibling()->element({"body", "http://www.example.com/x"})->attribute({"attr1", "value1"});
+	lock->create_next_sibling()->element({"body", "http://www.example.com/x"})->attribute({"attr1", U"value1"});
 
 	if (lock->prefix() != "ns3" ||
 	    lock->uri() != "http://www.example.com/x")

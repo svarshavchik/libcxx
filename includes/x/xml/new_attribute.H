@@ -8,6 +8,8 @@
 
 #include <x/xml/attribute.H>
 #include <x/uriimplfwd.H>
+#include <string>
+#include <variant>
 
 namespace LIBCXX_NAMESPACE::xml {
 #if 0
@@ -24,6 +26,10 @@ public:
 	//! Attribute value
 	std::string attrvalue;
 
+	//! Attribute value may be specified as a string or a unicode string.
+
+	typedef std::variant<std::string, std::u32string> value_t;
+
 	//! Create a new attribute
 
 	new_attribute(//! Attribute name
@@ -37,7 +43,7 @@ public:
 		      const std::string &attrnameArg,
 
 		      //! Attribute's value
-		      const std::string &attrvalueArg);
+		      const value_t &attrvalueArg);
 
 	//! Create a new attribute in a given namespace
 
@@ -52,7 +58,7 @@ public:
 		      const std::string &attrnamespaceArg,
 
 		      //! Attribute's value
-		      const std::string &attrvalueArg);
+		      const value_t &attrvalueArg);
 
 	//! Create a new attribute in a given namespace
 
@@ -67,7 +73,7 @@ public:
 		      const uriimpl &attrnamespaceArg,
 
 		      //! Attribute's value
-		      const std::string &attrvalueArg);
+		      const value_t &attrvalueArg);
 
 	//! Create a new attribute in a given namespace
 
@@ -82,7 +88,7 @@ public:
 		      const char *attrnamespaceArg,
 
 		      //! Attribute's value
-		      const std::string &attrvalueArg);
+		      const value_t &attrvalueArg);
 
 	//! Destructor
 	~new_attribute();
