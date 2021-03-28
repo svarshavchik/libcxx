@@ -11,13 +11,24 @@ namespace LIBCXX_NAMESPACE::xml {
 }
 #endif
 
-std::string escapestr(const std::string &str,
+std::string escapestr(const std::string_view &str,
 		      bool escapeqac)
 {
 	std::string s;
 
 	escape(str.begin(), str.end(),
-	       std::back_insert_iterator<std::string>(s), escapeqac);
+	       std::back_insert_iterator{s}, escapeqac);
+
+	return s;
+}
+
+std::u32string escapestr(const std::u32string_view &str,
+		      bool escapeqac)
+{
+	std::u32string s;
+
+	escape(str.begin(), str.end(),
+	       std::back_insert_iterator{s}, escapeqac);
 
 	return s;
 }
@@ -30,62 +41,15 @@ template std::ostreambuf_iterator<char>
 escape(std::string::const_iterator, std::string::const_iterator,
        std::ostreambuf_iterator<char>, bool);
 
-template std::back_insert_iterator<std::string>
-escape(std::vector<int16_t>::const_iterator,
-       std::vector<int16_t>::const_iterator,
-       std::back_insert_iterator<std::string>, bool);
-
-template std::ostreambuf_iterator<char>
-escape(std::vector<int16_t>::const_iterator,
-       std::vector<int16_t>::const_iterator,
-       std::ostreambuf_iterator<char>, bool);
-
-template std::back_insert_iterator<std::string>
-escape(std::vector<uint16_t>::const_iterator,
-       std::vector<uint16_t>::const_iterator,
-       std::back_insert_iterator<std::string>, bool);
-
-template std::ostreambuf_iterator<char>
-escape(std::vector<uint16_t>::const_iterator,
-       std::vector<uint16_t>::const_iterator,
-       std::ostreambuf_iterator<char>, bool);
-
-template std::back_insert_iterator<std::string>
-escape(std::vector<int32_t>::const_iterator,
-       std::vector<int32_t>::const_iterator,
-       std::back_insert_iterator<std::string>, bool);
-
-template std::ostreambuf_iterator<char>
-escape(std::vector<int32_t>::const_iterator,
-       std::vector<int32_t>::const_iterator,
-       std::ostreambuf_iterator<char>, bool);
-
-template std::back_insert_iterator<std::string>
+template std::back_insert_iterator<std::u32string>
 escape(std::vector<uint32_t>::const_iterator,
        std::vector<uint32_t>::const_iterator,
-       std::back_insert_iterator<std::string>, bool);
+       std::back_insert_iterator<std::u32string>, bool);
 
-template std::ostreambuf_iterator<char>
-escape(std::vector<uint32_t>::const_iterator,
-       std::vector<uint32_t>::const_iterator,
-       std::ostreambuf_iterator<char>, bool);
-
-template std::string
+template auto
 escapestr(std::string::const_iterator, std::string::const_iterator, bool);
 
-template std::string
-escapestr(std::vector<int16_t>::const_iterator,
-	  std::vector<int16_t>::const_iterator, bool);
-
-template std::string
-escapestr(std::vector<uint16_t>::const_iterator,
-	  std::vector<uint16_t>::const_iterator, bool);
-
-template std::string
-escapestr(std::vector<int32_t>::const_iterator,
-	  std::vector<int32_t>::const_iterator, bool);
-
-template std::string
+template auto
 escapestr(std::vector<uint32_t>::const_iterator,
 	  std::vector<uint32_t>::const_iterator, bool);
 

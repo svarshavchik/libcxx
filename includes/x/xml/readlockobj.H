@@ -7,6 +7,7 @@
 #define x_xml_readlockobj_H
 
 #include <x/uriimplfwd.H>
+#include <x/explicit_arg.H>
 #include <x/obj.H>
 #include <x/xml/dtdfwd.H>
 #include <x/xml/newdtdfwd.H>
@@ -172,40 +173,24 @@ public:
 	//! exist, or the current node is not an element node.
 
 	virtual std::string get_attribute(//! Attribute's name
-					  const std::string &attribute_name,
+					  const std::string_view &attribute_name,
 					  //! Attribute's namespace
-					  const uriimpl &attribute_namespace) const=0;
+					  const explicit_arg<uriimpl> &attribute_namespace) const=0;
 
 	//! Return the value of an attribute of the current element node.
 
 	//! \overload
 
 	virtual std::string get_attribute(//! Attribute's name
-					  const std::string &attribute_name,
-					  //! Attribute's namespace
-					  const std::string &attribute_namespace) const=0;
+					  const std::string_view &attribute_name,
+					  //! Attribute's_view namespace
+					  const std::string_view &attribute_namespace) const=0;
+
 
 	//! Return the value of an attribute of the current element node.
 
 	//! \overload
-
-	std::string get_attribute(//! Attribute's name
-				  const std::string &attribute_name,
-				  //! Attribute's namespace
-				  const char *attribute_namespace) const
-	{
-		return get_attribute(attribute_name,
-				     std::string(attribute_namespace));
-	}
-
-	//! Return the value of an attribute of the current element node.
-
-	//! \overload
-	std::string get_attribute(const attribute &attr) const
-	{
-		return get_attribute(attr.attrname,
-				     attr.attrnamespace);
-	}
+	std::string get_attribute(const attribute &attr) const;
 
 	//! Return the value of an attribute of the current element node.
 
@@ -217,7 +202,8 @@ public:
 
 					      //! This attribute name is not
 					      //! in any namespace.
-					      const std::string &attribute_name) const=0;
+					      const std::string_view
+					      &attribute_name) const=0;
 
 	//! Return the value of an attribute of the current element node.
 
@@ -229,7 +215,8 @@ public:
 
 					  //! This attribute name is not
 					  //! in any namespace.
-					  const std::string &attribute_name) const=0;
+					  const std::string_view &attribute_name
+					  ) const=0;
 
 	//! Enumerate all attributes of this element node
 
@@ -248,6 +235,38 @@ public:
 
 	//! Return the text representation of the current node as a u32string
 	std::u32string get_u32text() const;
+
+	//! Return the attribute as a u32string.
+	std::u32string get_u32any_attribute(//! Attribute's name
+
+					    //! This attribute name is not
+					    //! in any namespace.
+					    const std::string_view
+					    &attribute_name) const;
+
+	//! Return the attribute as a u32string.
+	std::u32string get_u32attribute(//! Attribute's name
+					const std::string_view &attribute_name,
+					//! Attribute's namespace
+					const explicit_arg<uriimpl> &attribute_namespace) const;
+
+	//! Return the attribute as a u32string.
+
+	std::u32string get_u32attribute(//! Attribute's name
+					const std::string_view &attribute_name,
+					//! Attribute's_view namespace
+					const std::string_view &attribute_namespace) const;
+
+	//! Return the attribute as a u32string.
+	std::u32string get_u32attribute(const attribute &attr) const;
+
+	//! Return the attribute as a u32string.
+	std::u32string get_u32attribute(//! Attribute's name
+
+				     //! This attribute name is not
+				     //! in any namespace.
+				     const std::string_view &attribute_name
+				     ) const;
 
 	//! Return the current node's language
 	virtual std::string get_lang() const=0;

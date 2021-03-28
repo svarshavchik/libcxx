@@ -1,3 +1,9 @@
+2021-03-28  Sam Varshavchik  <mrsam@courier-mta.com>
+
+	* base/xml_readlock.C: use string_views as parameters in get_attribute()
+	and get_any_attribute(). Add get_u32attribute() and
+	get_u32any_attribute().
+
 0.23
 
 2021-02-23  Sam Varshavchik  <mrsam@courier-mta.com>

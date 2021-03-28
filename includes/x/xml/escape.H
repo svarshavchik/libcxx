@@ -58,10 +58,15 @@ OutputIterator escape(//! Beginning input iterator.
 
 			o << "&#x" << std::hex;
 
-			if (sizeof(ch) == 1)
+			if constexpr (sizeof(ch) == 1)
 				o << (int)(unsigned char)ch;
+			else if constexpr
+				(std::is_same_v<decltype(ch), char32_t>
+				 )
+				o << (unsigned long long)ch;
 			else
 				o << ch;
+
 			o << ";";
 
 			std::string s=o.str();
@@ -100,17 +105,28 @@ OutputIterator escape(//! Beginning input iterator.
 //! string value.
 
 std::string escapestr(//! The original string
-		      const std::string &str,
+		      const std::string_view &str,
 
 		      //! Set this flag to true to also escape quotes, apostrophes, and control characters
 		      bool escapeqac=false);
 
 //! Convenience function for escaping a string
 
+//! Invoke escape() for an ordinary std::u32string, and return a replacement
+//! u32string value.
+
+std::u32string escapestr(//! The original string
+			 const std::u32string_view &str,
+
+			 //! Set this flag to true to also escape quotes, apostrophes, and control characters
+			 bool escapeqac=false);
+
+//! Convenience function for escaping a string
+
 //! \overload
 //! The string to escape gets defined by a beginning and an ending iterator.
 template<typename iter_type>
-std::string escapestr(//! Beginning iterator
+auto escapestr(//! Beginning iterator
 		      iter_type beg_iter,
 
 		      //! Ending iterator
@@ -119,10 +135,9 @@ std::string escapestr(//! Beginning iterator
 		      //! Whether to replace quotes, apostrophes, and commas.
 		      bool escapeqac=false)
 {
-	std::string s;
+	std::basic_string<std::remove_cvref_t<decltype(*beg_iter)>> s;
 
-	escape(beg_iter, end_iter, std::back_insert_iterator<std::string>(s),
-	       escapeqac);
+	escape(beg_iter, end_iter, std::back_insert_iterator(s), escapeqac);
 	return s;
 }
 
@@ -135,62 +150,15 @@ extern template std::ostreambuf_iterator<char>
 escape(std::string::const_iterator, std::string::const_iterator,
        std::ostreambuf_iterator<char>, bool);
 
-extern template std::back_insert_iterator<std::string>
-escape(std::vector<int16_t>::const_iterator,
-       std::vector<int16_t>::const_iterator,
-       std::back_insert_iterator<std::string>, bool);
-
-extern template std::ostreambuf_iterator<char>
-escape(std::vector<int16_t>::const_iterator,
-       std::vector<int16_t>::const_iterator,
-       std::ostreambuf_iterator<char>, bool);
-
-extern template std::back_insert_iterator<std::string>
-escape(std::vector<uint16_t>::const_iterator,
-       std::vector<uint16_t>::const_iterator,
-       std::back_insert_iterator<std::string>, bool);
-
-extern template std::ostreambuf_iterator<char>
-escape(std::vector<uint16_t>::const_iterator,
-       std::vector<uint16_t>::const_iterator,
-       std::ostreambuf_iterator<char>, bool);
-
-extern template std::back_insert_iterator<std::string>
-escape(std::vector<int32_t>::const_iterator,
-       std::vector<int32_t>::const_iterator,
-       std::back_insert_iterator<std::string>, bool);
-
-extern template std::ostreambuf_iterator<char>
-escape(std::vector<int32_t>::const_iterator,
-       std::vector<int32_t>::const_iterator,
-       std::ostreambuf_iterator<char>, bool);
-
-extern template std::back_insert_iterator<std::string>
+extern template std::back_insert_iterator<std::u32string>
 escape(std::vector<uint32_t>::const_iterator,
        std::vector<uint32_t>::const_iterator,
-       std::back_insert_iterator<std::string>, bool);
+       std::back_insert_iterator<std::u32string>, bool);
 
-extern template std::ostreambuf_iterator<char>
-escape(std::vector<uint32_t>::const_iterator,
-       std::vector<uint32_t>::const_iterator,
-       std::ostreambuf_iterator<char>, bool);
-
-extern template std::string
+extern template auto
 escapestr(std::string::const_iterator, std::string::const_iterator, bool);
 
-extern template std::string
-escapestr(std::vector<int16_t>::const_iterator,
-	  std::vector<int16_t>::const_iterator, bool);
-
-extern template std::string
-escapestr(std::vector<uint16_t>::const_iterator,
-	  std::vector<uint16_t>::const_iterator, bool);
-
-extern template std::string
-escapestr(std::vector<int32_t>::const_iterator,
-	  std::vector<int32_t>::const_iterator, bool);
-
-extern template std::string
+extern template auto
 escapestr(std::vector<uint32_t>::const_iterator,
 	  std::vector<uint32_t>::const_iterator, bool);
 

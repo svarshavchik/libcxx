@@ -114,12 +114,16 @@ void test2()
 			throw EXCEPTION("get_attribute() failed");
 		if (lock->get_attribute(a) != "value")
 			throw EXCEPTION("get_attribute(doc::base::attribute) failed");
+		if (lock->get_u32attribute(a) != U"value")
+			throw EXCEPTION("get_attribute(doc::base::attribute) failed");
 		if (lock->get_attribute("attribute", "") != "value")
 			throw EXCEPTION("get_attribute(empty namespace str) failed");
 	}
 
 	if (lock->get_any_attribute("attribute") != "value")
 		throw EXCEPTION("get_any_attribute() failed");
+	if (lock->get_u32any_attribute("attribute") != U"value")
+		throw EXCEPTION("get_u32any_attribute() failed");
 
 	if (lock->path() != "/root")
 		throw EXCEPTION("Root node is not /root");
@@ -152,10 +156,17 @@ void test2()
 	if (lock2->get_attribute("attribute", "http://www.example.com")
 	    != "value")
 		throw EXCEPTION("namespaces get_attribute() did not work");
+	if (lock2->get_u32attribute("attribute", "http://www.example.com")
+	    != U"value")
+		throw EXCEPTION("namespaces get_attribute() did not work");
 
 	if (lock2->get_attribute("attribute", LIBCXX_NAMESPACE::uriimpl("http://www.example.com"))
 	    != "value")
 		throw EXCEPTION("namespaces get_attribute(uriimpl) did not work");
+
+	if (lock2->get_u32attribute("attribute", LIBCXX_NAMESPACE::uriimpl("http://www.example.com"))
+	    != U"value")
+		throw EXCEPTION("namespaces get_u32attribute(uriimpl) did not work");
 
 	attributes=lock2->get_all_attributes();
 

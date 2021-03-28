@@ -497,16 +497,16 @@ class LIBCXX_HIDDEN impldocObj::readlockImplObj : public writelockObj,
 		return p;
 	}
 
-	std::string get_attribute(const std::string &attribute_name,
-				  const uriimpl &attribute_namespace)
+	std::string get_attribute(const std::string_view &attribute_name,
+				  const explicit_arg<uriimpl> &attribute_namespace)
 		const override
 	{
 		return get_attribute(attribute_name,
 				     to_string(attribute_namespace));
 	}
 
-	std::string get_attribute(const std::string &attribute_name,
-				  const std::string &attribute_namespace)
+	std::string get_attribute(const std::string_view &attribute_name,
+				  const std::string_view &attribute_namespace)
 		const override
 	{
 		locked_xml_n_t::lock x_lock{locked_xml_n};
@@ -525,7 +525,7 @@ class LIBCXX_HIDDEN impldocObj::readlockImplObj : public writelockObj,
 		return s;
 	}
 
-	std::string get_attribute(const std::string &attribute_name)
+	std::string get_attribute(const std::string_view &attribute_name)
 		const override
 	{
 		locked_xml_n_t::lock x_lock{locked_xml_n};
@@ -542,8 +542,8 @@ class LIBCXX_HIDDEN impldocObj::readlockImplObj : public writelockObj,
 		return s;
 	}
 
-	std::string get_any_attribute(const std::string &attribute_name) const
-		override
+	std::string get_any_attribute(const std::string_view &attribute_name)
+		const override
 	{
 		locked_xml_n_t::lock x_lock{locked_xml_n};
 
