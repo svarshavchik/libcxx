@@ -8,6 +8,7 @@
 
 #include <x/namespace.h>
 #include <map>
+#include <cstddef>
 
 namespace LIBCXX_NAMESPACE {
 #if 0

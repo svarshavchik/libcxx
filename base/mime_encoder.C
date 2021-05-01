@@ -26,13 +26,13 @@ encoderObj::section::~section()
 }
 
 auto encoderObj::section::begin() const
-	-> decltype( (*(encoderbase *)nullptr)->begin())
+	-> decltype( std::declval<const_encoderbase &&>()->begin())
 {
 	return operator*().begin();
 }
 
 auto encoderObj::section::end() const
-	-> decltype( (*(encoderbase *)nullptr)->end())
+	-> decltype( std::declval<const_encoderbase &&>()->end())
 {
 	return operator*().end();
 }

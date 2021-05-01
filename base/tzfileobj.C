@@ -242,7 +242,9 @@ void tzfileObj::init_utc()
 	tzstr->clear();
 	ttinfo->clear();
 
-	tzstr->insert(tzstr->end(), UTC, UTC+4);
+	tzstr->reserve(4);
+	tzstr->insert(tzstr->end(), std::begin(UTC),
+		      std::end(UTC));
 
 	ttinfo_s tt=ttinfo_s();
 

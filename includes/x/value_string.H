@@ -254,8 +254,8 @@ public:
 
 	//! The initial value, a default constructor
 
-	template<typename T=void, typename=std::void_t<T,
-						       decltype(value_type{})>>
+	template<typename T=value_type,
+		 typename =std::enable_if_t<std::is_constructible_v<T>>>
 	static auto initial_value()
 	{
 		return value_type{};

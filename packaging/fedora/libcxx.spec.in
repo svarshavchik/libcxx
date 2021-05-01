@@ -102,7 +102,7 @@ installed on this server.
 %package selinux
 Summary: libcxx selinux policy file
 Requires: %{name} = %{version}-%{release}
-Requires:       selinux-policy >= %{selinux_policy_version}
+Requires:       selinux-policy >= %{_selinux_policy_version}
 Requires(post):   %{name} = %{version}-%{release},
 Requires(post):   %{_sbindir}/semodule, %{__restorecon}
 Requires(postun): %{_sbindir}/semodule

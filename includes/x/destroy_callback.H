@@ -90,7 +90,7 @@ class destroy_callbackBase::guard_object<ref<objClass, baseClass>>
 	//! Constructor forwards whatever it gets to ref's constructor
 
 	template<typename ...Args>
-		guard_object<ref<objClass, baseClass>>(Args && ...args)
+		guard_object(Args && ...args)
 		: ref<objClass, baseClass>(std::forward<Args>(args)...)
 	{
 		operator()(*this);

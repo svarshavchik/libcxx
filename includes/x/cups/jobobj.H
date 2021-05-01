@@ -12,6 +12,7 @@
 #include <string_view>
 #include <functional>
 #include <tuple>
+#include <optional>
 
 namespace LIBCXX_NAMESPACE::cups {
 #if 0

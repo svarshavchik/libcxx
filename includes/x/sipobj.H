@@ -10,6 +10,7 @@
 #include <x/errors.H>
 
 #include <shared_mutex>
+#include <mutex>
 
 namespace LIBCXX_NAMESPACE {
 

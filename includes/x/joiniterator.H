@@ -72,7 +72,7 @@ public:
 
 	//! Define the type returned by this container's begin().
 
-	typedef decltype(std::begin(*(container_type *)nullptr)) container_iter_t;
+	typedef decltype(std::begin(std::declval<container_type &&>())) container_iter_t;
 };
 
 //! Define the underlying container and iterator.
@@ -89,7 +89,7 @@ public:
 
 	//! What container_cotnainer_iter_t's operator*() returns.
 
-	typedef decltype(**(container_container_iter_t *)nullptr
+	typedef decltype(*std::declval<container_container_iter_t &&>()
 			 ) underlying_container_ref_t;
 
 	//! Remove the reference from underlying_container_ref_t.

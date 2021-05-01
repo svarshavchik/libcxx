@@ -229,7 +229,7 @@ class multipart_section_processorObj : public outputrefiteratorObj<int> {
 
 	//! What the section functor returns
 
-	typedef decltype( (*(functor_type *)nullptr)() ) iter_t;
+	typedef decltype( std::declval<functor_type &&>()() ) iter_t;
 
 	//! A container for the current iterator
 

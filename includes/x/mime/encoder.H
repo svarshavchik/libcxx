@@ -40,10 +40,6 @@ typedef ref<encoderObj, encoderBase> encoder;
 
 typedef const_ref<encoderObj, encoderBase> const_encoder;
 
-template<typename header_type>
-encoder make_message_rfc822_section(const headersimpl<header_type> &,
-				    const_encoder &&);
-
 //! Generate input iterators for a sequence containing an encoding MIME object.
 
 //! An encoded MIME object recursively contains other objects that produce
@@ -74,11 +70,13 @@ class encoderObj: public encoderbaseObj {
 		//! Return the beginning iterator for the referenced subsection
 
 		auto begin() const
-			-> decltype( (*(const_encoderbase *)nullptr)->begin());
+			-> decltype( std::declval<const_encoderbase &&>()
+				     ->begin());
 
 		//! Return the ending iterator for the referenced subsection
 		auto end() const
-			-> decltype( (*(const_encoderbase *)nullptr)->end());
+			-> decltype( std::declval<const_encoderbase &&>()
+				     ->end());
 	};
 
 	//! Components of this MIME section
@@ -210,8 +208,9 @@ public:
 	//! Create a message/rfc822 section
 
 	template<typename header_type>
-	encoder make_message_rfc822_section(const headersimpl<header_type> &,
-					    const_encoder &&);
+	friend encoder make_message_rfc822_section(const
+						   headersimpl<header_type> &,
+						   const_encoder &&);
 
 };
 
