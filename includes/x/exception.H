@@ -1,5 +1,5 @@
 /*
-** Copyright 2012-2020 Double Precision, Inc.
+** Copyright 2012-2021 Double Precision, Inc.
 ** See COPYING for distribution information.
 */
 
@@ -17,6 +17,7 @@ This file defines the EXCEPTION macro.
 #include <x/exceptionobj.H>
 #include <x/exceptionfwd.H>
 #include <string>
+#include <iostream>
 
 namespace LIBCXX_NAMESPACE {
 #if 0

@@ -15,7 +15,7 @@ Name: libcxxbase%{expand:%(echo @VERSION@ | tr -d '.')}
 Name: libcxxbase
 %endif
 Version: @VERSION@
-Release: 1%{?extrarelease}
+Release: 1%{?dist}%{?extrarelease}
 License: GPL
 URL: http://www.libcxx.org
 Source0: libcxx-%{version}.tar.bz2

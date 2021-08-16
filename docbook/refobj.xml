@@ -176,7 +176,10 @@ See COPYING for distribution information.
 	  this is more likely to increase
 	  heap fragmentation, and heap usage, especially
 	  in long running applications, as reference-counted objects get
-	  created and destroyed.
+	  created and destroyed. <classname>make_shared</classname>
+	  partially mitigates this, however the end result has to be
+	  compatible with the stock <classname>shared_ptr</classname> and that
+	  introduces additional behind the scenes complexity.
 	</para>
       </listitem>
 
