@@ -1,3 +1,7 @@
+2021-08-24  Sam Varshavchik  <mrsam@courier-mta.com>
+
+	* xml: "nonet" option enabled by default, when parsing XML documents.
+
 2021-03-28  Sam Varshavchik  <mrsam@courier-mta.com>
 
 	* includes/x/xml/new_attribute.H (class new_attribute): new attribute

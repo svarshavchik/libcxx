@@ -15,7 +15,7 @@ See COPYING for distribution information.
 
 &ns;::xml::doc empty_document=&ns;::xml::doc::create();
 
-&ns;::xml::doc loaded_document=&ns;::xml::doc::create("testxml.xml", "nonet xinclude");
+&ns;::xml::doc loaded_document=&ns;::xml::doc::create("testxml.xml", "xinclude");
 </programlisting>
     </informalexample>
   </blockquote>
@@ -50,10 +50,17 @@ See COPYING for distribution information.
     flags.
     Each option name consists of the <classname>xmlParserOption</classname>
     in lower case, and without the <quote>XML_PARSE_</quote> prefix.
-    In the above example, <quote>nonet</quote> and <quote>xinclude</quote>
-    specify the <literal>XML_PARSE_NONET</literal> and
-    <literal>XML_PARSE_XINCLUDE</literal> options.
+    The example above specifies <quote>xinclude</quote>, the
+    <literal>XML_PARSE_XINCLUDE</literal> option.
   </para>
+
+  <note>
+    <para>
+      The <quote>nonet</quote>/<literal>XML_PARSE_NONET</literal> option
+      is enabled by default. Include <quote>!nonet</quote> to turn this
+      option off.
+    </para>
+  </note>
 
   <para>
     It is also possible to parse an &xml; document from an arbitrary source,

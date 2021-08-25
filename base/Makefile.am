@@ -267,7 +267,7 @@ srcdir.h:
 
 xml_parser_options.h:
 	echo '#include <libxml/parser.h>' >xml_parser_options.tmp.c
-	$(COMPILE) -E xml_parser_options.tmp.c | perl -n -e 'print "{(int)$$1, \"" . lc($$2) . "\"},\n" if /<</ && /^\s+(XML_PARSE_(\w+))/' >xml_parser_options.h.tmp
+	$(COMPILE) -E xml_parser_options.tmp.c | perl -n -e 'print "{(int)$$1, \"!" . lc($$2) . "\"},\n" if /<</ && /^\s+(XML_PARSE_(\w+))/' >xml_parser_options.h.tmp
 	mv -f xml_parser_options.h.tmp xml_parser_options.h
 	rm -f xml_parser_options.tmp.c
 

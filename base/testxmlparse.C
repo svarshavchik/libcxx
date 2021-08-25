@@ -17,11 +17,13 @@
 #include "x/fd.H"
 #include "x/uriimpl.H"
 #include "x/locale.H"
+#include "x/netaddr.H"
 #include <algorithm>
 #include <iostream>
 #include <fstream>
 #include <iterator>
 #include <unistd.h>
+#include <poll.h>
 
 static LIBCXX_NAMESPACE::xml::doc parse(const std::string &str)
 {
@@ -778,6 +780,67 @@ void test30()
 
 void test31()
 {
+	std::list<LIBCXX_NAMESPACE::fd> fdlist;
+
+	LIBCXX_NAMESPACE::netaddr::create("localhost", "")->bind(fdlist, true);
+
+	for (auto sock:fdlist)
+	{
+		sock->listen();
+	}
+	int portnum=fdlist.front()->getsockname()->port();
+
+	auto [r, w] = LIBCXX_NAMESPACE::fd::base::pipe();
+
+	LIBCXX_NAMESPACE::run_lambda
+		([r, sock=fdlist.front()]
+		{
+			struct pollfd pfd[2];
+
+			while (1)
+			{
+				do
+				{
+					pfd[0].fd=r->get_fd();
+					pfd[1].fd=sock->get_fd();
+
+					pfd[0].events=pfd[1].events=
+						(POLLIN|POLLHUP);
+				} while (poll(pfd, 2, -1) <= 0);
+
+				if (pfd[0].revents & (POLLIN|POLLHUP))
+					break;
+
+				if (!(pfd[1].revents & POLLIN))
+					continue;
+
+				auto c=sock->accept();
+
+				if (!c)
+					continue;
+
+				auto io=c->getiostream();
+
+				std::string s;
+
+				while (std::getline(*io, s))
+				{
+					if (s == "\r")
+						break;
+				}
+
+				(*io) << "HTTP/1.0 200 OK\r\n\r\n";
+
+				(*io) << std::flush;
+			}
+		});
+
+	alarm(30);
+
+	std::ostringstream o;
+
+	o << "http://localhost:" << portnum << "/";
+
 	std::string docstr=({
 			auto empty_document=LIBCXX_NAMESPACE::xml::doc::create();
 
@@ -792,8 +855,8 @@ void test31()
 
 			{
 				auto intdtd=empty_document->writelock()
-					->create_internal_dtd("-//W3C//DTD XHTML 1.0 Strict//EN",
-							      LIBCXX_NAMESPACE::uriimpl("http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"));
+					->create_internal_dtd("-//LOCAL",
+							      LIBCXX_NAMESPACE::uriimpl(o.str()));
 
 				intdtd->create_parsed_entity("XML", "",
 							     "filename.xml");
@@ -809,10 +872,11 @@ void test31()
 
 	bool caught=false;
 	unlink("filename.xml");
+
 	try {
 		LIBCXX_NAMESPACE::xml::doc::create(docstr.begin(),
 						   docstr.end(), "test31",
-						   "noent");
+						   "dtdload");
 	} catch (const LIBCXX_NAMESPACE::exception &e)
 	{
 		caught=true;

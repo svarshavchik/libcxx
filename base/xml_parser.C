@@ -125,7 +125,7 @@ implparserObj::implparserObj(const std::string_view &uriArg,
 			     const std::string_view &options)
 	: uri(uriArg),
 	  p(nullptr),
-	  p_options(0),
+	  p_options(XML_PARSE_NONET),
 	  buffer_size(0)
 {
 // XML_PARSER_ options that are pulled out of libxml/parser.h
@@ -149,11 +149,19 @@ implparserObj::implparserObj(const std::string_view &uriArg,
 
 	for (const auto &option:parser_options)
 	{
-		auto iter=requested_options.find(option.optname);
+		auto iter=requested_options.find(option.optname+1);
 
 		if (iter != requested_options.end())
 		{
 			p_options |= option.optvalue;
+			requested_options.erase(iter);
+		}
+
+		iter=requested_options.find(option.optname);
+
+		if (iter != requested_options.end())
+		{
+			p_options &= (~option.optvalue);
 			requested_options.erase(iter);
 		}
 	}

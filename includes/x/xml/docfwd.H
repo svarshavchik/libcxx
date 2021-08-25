@@ -35,13 +35,17 @@ class docBase;
 //! An %exception gets thrown if an error occurs when parsing the document.
 //!
 //! \code
-//! auto loaded_document=INSERT_LIBX_NAMESPACE::xml::doc::create("filename.xml", "nonet");
+//! auto loaded_document=INSERT_LIBX_NAMESPACE::xml::doc::create("filename.xml", "!nonet");
 //! \endcode
 //!
 //! The second optional argument is a comma or a whitespace delimited list of
 //! parsing options. This is the list of \c XML_PARSE_ options listed in
 //! \c libxml/parser.h. \c XML_PARSE_XINCLUDE gets specified as "xinclude",
 //! \c XML_PARSE_NONET as "nonet", and so on.
+//!
+//! \note
+//! The "nonet", or \c XML_PARSE_NONET option is enabled by default.
+//! Use "!nonet" to turn off this option.
 //!
 //! \code
 //! auto parsed_document=INSERT_LIBX_NAMESPACE::xml::doc::create(container.begin(), container.end(), "filename.xml");
