@@ -9,6 +9,8 @@
 #include <x/namespace.h>
 #include <x/threads/run.H>
 #include <x/singletonfwd.H>
+#include <x/sentry.H>
+#include <pthread.h>
 
 namespace LIBCXX_NAMESPACE {
 
@@ -47,6 +49,11 @@ template<typename obj_type,
 
 	//! The instance on the main thread's local object pool, and its pointer
 
+	//! Reverting to pthread_mutex_t, since there is no guarantee that
+	//! std::mutex is trivially destructible, and the singleton can be
+	//! in static scope, and global destruction phase can begin while
+	//! some thread is still in its death throes.
+
 	struct static_instance_t {
 
 		//! Pointer to the instance.
@@ -55,14 +62,18 @@ template<typename obj_type,
 
 		//! The mutex.
 
-		std::mutex instance_mutex;
+		pthread_mutex_t instance_mutex = PTHREAD_MUTEX_INITIALIZER;
 	};
-
 
 private:
 	//! The instance on the main thread's local object pool.
 
-	static static_instance_t static_instance;
+	static static_instance_t &get_static_instance()
+	{
+		static static_instance_t static_instance;
+
+		return static_instance;
+	}
 
 	//! A wrapper that sets/clears the instance pointer
 
@@ -77,16 +88,17 @@ private:
 		//! Constructor
 		wrapperObj() : p{ref<obj_type, baseClass>::create()}
 		{
-			static_instance.instance=&*p; // Already protected
+			get_static_instance().instance=&*p; // Already protected
 		}
 
 		//! Destructor
 		~wrapperObj()
 		{
-			std::unique_lock<std::mutex> lock{
-				static_instance.instance_mutex
-					};
-			static_instance.instance=0;
+			auto &static_instance=get_static_instance();
+
+			pthread_mutex_lock(&static_instance.instance_mutex);
+			static_instance.instance=nullptr;
+			pthread_mutex_unlock(&static_instance.instance_mutex);
 		}
 	};
 
@@ -106,11 +118,20 @@ public:
 
 	static ref<obj_type, baseClass> get()
 	{
+		auto s=make_sentry([]
+		{
+			auto &static_instance=get_static_instance();
+
+			pthread_mutex_unlock(&static_instance.instance_mutex);
+		});
+
+		auto &static_instance=get_static_instance();
+
 		ptr<wrapperObj> wrapped;
 
-		std::unique_lock<std::mutex> lock{
-			static_instance.instance_mutex
-				};
+		pthread_mutex_lock(&static_instance.instance_mutex);
+
+		s.guard();
 
 		if (!static_instance.instance)
 		{
@@ -122,13 +143,6 @@ public:
 		return ref<obj_type, baseClass>{static_instance.instance};
 	}
 };
-
-
-template<typename obj_type, typename baseClass> typename
-singleton<obj_type, baseClass>::static_instance_t singleton<obj_type,
-							    baseClass
-							    >::static_instance;
-
 
 #if 0
 {

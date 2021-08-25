@@ -8,7 +8,7 @@
 
 #include <x/namespace.h>
 #include <x/weakptr.H>
-#include <x/mpobj.H>
+#include <pthread.h>
 
 namespace LIBCXX_NAMESPACE {
 
@@ -63,22 +63,68 @@ class singletonptr : public ptr<ref_type, baseClass> {
 
 	//! The global instance.
 
-	static weakptr<ptr<ref_type, baseClass>> global;
+	//! Reverting to pthread_mutex_t, since there is no guarantee that
+	//! std::mutex is trivially destructible, and the singleton can be
+	//! in static scope, and global destruction phase can begin while
+	//! some thread is still in its death throes.
+
+	static pthread_mutex_t &get_instance_mutex()
+	{
+		static pthread_mutex_t m=PTHREAD_MUTEX_INITIALIZER;
+		return m;
+	}
+
+	static ref_type *&get_object()
+	{
+		static ref_type *object=nullptr;
+
+		return object;
+	}
+
+	//! Whether this is the initial one.
+
+	bool initial;
 
 public:
 
 	//! Explicit constructor
 	singletonptr(const ptr<ref_type, baseClass> &p)
-		: ptr<ref_type, baseClass>{p}
+		: ptr<ref_type, baseClass>{p}, initial{true}
 	{
-		global=p;
+		if (!p)
+			return;
+
+		auto &instance_mutex=get_instance_mutex();
+
+		pthread_mutex_lock(&instance_mutex);
+		get_object()=&*p;
+		pthread_mutex_unlock(&instance_mutex);
 	}
 
 	//! Default constructor
-	singletonptr() : ptr<ref_type, baseClass>{global.getptr()}
+	singletonptr() : initial{false}
 	{
+		auto &instance_mutex=get_instance_mutex();
+
+		pthread_mutex_lock(&instance_mutex);
+		ptr<ref_type> p{get_object()};
+		pthread_mutex_unlock(&instance_mutex);
+
+		ptr<ref_type, baseClass>::operator=(p);
 	}
 
+	//! Destructor
+	~singletonptr()
+	{
+		if (initial)
+		{
+			auto &instance_mutex=get_instance_mutex();
+
+			pthread_mutex_lock(&instance_mutex);
+			get_object()=nullptr;
+			pthread_mutex_unlock(&instance_mutex);
+		}
+	}
 	using ptr<ref_type, baseClass>::operator*;
 
 	using ptr<ref_type, baseClass>::operator->;
@@ -87,11 +133,6 @@ public:
 
 	using ptr<ref_type, baseClass>::operator !;
 };
-
-// Instantiate the static class member.
-
-template<typename ref_type, typename baseClass>
-weakptr<ptr<ref_type, baseClass>> singletonptr<ref_type, baseClass>::global;
 
 #if 0
 {

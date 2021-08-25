@@ -10,6 +10,7 @@
 #include "x/messages.H"
 #include "gettext_in.h"
 #include <cstdlib>
+#include <pthread.h>
 
 namespace LIBCXX_NAMESPACE {
 #if 0
@@ -23,8 +24,20 @@ __thread run_async::localscope *run_async::localscope::localscopeptr=0;
 //
 // mainscopemutex protects the 'destructed' flag and the 'mainscope' pointer.
 
-static std::mutex mainscopemutex;
-static bool destructed=false;
+namespace {
+	struct static_instance_t {
+
+		pthread_mutex_t instance_mutex = PTHREAD_MUTEX_INITIALIZER;
+		bool destructed = false;
+	};
+}
+
+static static_instance_t &get_main_instance()
+{
+	static static_instance_t instance;
+
+	return instance;
+}
 
 run_async::localscope *run_async::localscope::mainscope=nullptr;
 
@@ -34,14 +47,16 @@ mainscope_destructor::mainscope_destructor()=default;
 
 mainscope_destructor::~mainscope_destructor()
 {
+	auto &main_instance=get_main_instance();
+
 	auto p=({
-			std::unique_lock<std::mutex>
-				lock{mainscopemutex};
-			destructed=false;
+			pthread_mutex_lock(&main_instance.instance_mutex);
+			main_instance.destructed=false;
 
 			auto *tp=run_async::localscope::mainscope;
 			run_async::localscope::mainscope=nullptr;
-			destructed=true;
+			main_instance.destructed=true;
+			pthread_mutex_unlock(&main_instance.instance_mutex);
 			tp;
 		});
 	if (p)
@@ -50,9 +65,10 @@ mainscope_destructor::~mainscope_destructor()
 
 void run_async::localscope::register_singleton(const ref<obj> &p)
 {
-	std::unique_lock<std::mutex> lock(mainscopemutex);
+	auto &main_instance=get_main_instance();
+	pthread_mutex_lock(&main_instance.instance_mutex);
 
-	if (destructed)
+	if (main_instance.destructed)
 	{
 		static const char fatal[]=
 			"Attempting to construct a singleton during "
@@ -66,6 +82,7 @@ void run_async::localscope::register_singleton(const ref<obj> &p)
 		mainscope=new localscope;
 
 	mainscope->strongobjects.push_back(p);
+	pthread_mutex_unlock(&main_instance.instance_mutex);
 }
 
 run_async::localscope::localscope()
