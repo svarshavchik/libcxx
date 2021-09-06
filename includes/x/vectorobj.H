@@ -59,6 +59,7 @@ public:
 
 	~vectorObj() {}
 
+	using std::vector<T, Allocator>::operator=;
 
 	//! Dump the contents of this vector to a stream
 
