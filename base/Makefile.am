@@ -281,7 +281,7 @@ sysconf_DATA=effective_tld_names.dat
 EXTRA_DIST += effective_tld_names.dat
 
 dist-hook:
-	find $(srcdir)/effective_tld_names.dat.timestamp -mtime +30 -exec rm -f {} \; ; $(MAKE) effective_tld_names.dat
+	find $(srcdir)/effective_tld_names.dat.timestamp -mtime +180 -exec rm -f {} \; ; $(MAKE) effective_tld_names.dat
 
 if HAVE_REPO
 effective_tld_names.dat: effective_tld_names.dat.timestamp

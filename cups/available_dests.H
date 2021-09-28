@@ -10,6 +10,8 @@
 #include "x/ref.H"
 #include "x/obj.H"
 #include "x/mpobj.H"
+#include "x/threads/run.H"
+#include "cupsthread.H"
 #include <cups/cups.h>
 
 namespace LIBCXX_NAMESPACE::cups {
@@ -17,22 +19,27 @@ namespace LIBCXX_NAMESPACE::cups {
 }
 #endif
 
-class LIBCXX_HIDDEN available_destsObj : virtual public obj {
+class LIBCXX_HIDDEN available_destsObj;
 
- public:
+class available_destsObj : virtual public obj {
 
-	// As long as cups.h insists on the library taking non-const
-	// cups_dest_t parameters we will use locking to protect ourselves.
+public:
+	// Object that runs a dedicated CUPS execution thread
 
-	typedef mpobj<cups_dest_t *, std::recursive_mutex> dests_t;
+	const cupsthread thr;
 
-	dests_t dests;
+private:
 
-	const decltype(cupsGetDests2(CUPS_HTTP_DEFAULT,
-			       std::declval<cups_dest_t **>())) n_dests;
+	// The internal execution thread.
+	runthread<void> internal_thread;
+
+public:
+
+	// Start the execution thread and obtain a list of all print destinations.
 
 	available_destsObj();
 
+	// The destructor stops the CUPS execution thread
 	~available_destsObj();
 };
 

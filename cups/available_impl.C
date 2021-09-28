@@ -17,50 +17,67 @@ namespace LIBCXX_NAMESPACE::cups {
 }
 #endif
 
-available_implObj::dest_t::lock::lock(const available_implObj &me)
-	: available_destsObj::dests_t::lock{me.available_destinations->dests},
-	mpobj<locked_dests_s>::lock{me.dest}
-	{
-	}
-
-available_implObj::dest_t::lock::~lock()=default;
-
 available_implObj
 ::available_implObj(const available_dests &available_destinations,
 		    cups_dest_t *dest)
 	: available_destinations{available_destinations},
-	  dest{locked_dests_s{dest}}
+	  dest{dest}
 {
 }
 
 available_implObj::~available_implObj()=default;
 
+void available_implObj::in_thread(const functionref<void (cups_dest_t *)>
+				 &closure) const
+{
+	available_destinations->thr->in_thread
+		([&]
+		 (auto, auto)
+		{
+			closure(dest);
+		});
+}
+
 std::string available_implObj::name() const
 {
-	dest_t::lock lock{*this};
+	std::string name;
 
-	return lock->dest->name;
+	in_thread([&]
+		  (auto dest)
+	{
+		name=dest->name;
+	});
+
+	return name;
 }
 
 bool available_implObj::is_default() const
 {
-	dest_t::lock lock{*this};
+	bool flag;
 
-	return !!lock->dest->is_default;
+	in_thread([&]
+		  (auto dest)
+	{
+		flag=!!dest->is_default;
+	});
+
+	return flag;
 }
 
 std::unordered_map<std::string,std::string> available_implObj::options() const
 {
-	dest_t::lock lock{*this};
-
 	std::unordered_map<std::string, std::string> m;
 
-	for (decltype(lock->dest->num_options) j=0;
-	     j<lock->dest->num_options; ++j)
+	in_thread([&]
+		  (auto dest)
 	{
-		m.emplace(lock->dest->options[j].name,
-			  lock->dest->options[j].value);
-	}
+		for (decltype(dest->num_options) j=0;
+		     j<dest->num_options; ++j)
+		{
+			m.emplace(dest->options[j].name,
+				  dest->options[j].value);
+		}
+	});
 
 	return m;
 }
@@ -90,18 +107,30 @@ bool available_implObj::is_discovered() const
 
 const_destination available_implObj::info() const
 {
-	dest_t::lock lock{*this};
+	ptr<destination_implObj> p;
 
-	return ref<destination_implObj>::create(available_destinations,
-						lock->dest);
+	in_thread([&]
+		  (auto dest)
+	{
+		p=ref<destination_implObj>::create(available_destinations,
+						   dest);
+	});
+
+	return p;
 }
 
 destination available_implObj::info()
 {
-	dest_t::lock lock{*this};
+	ptr<destination_implObj> p;
 
-	return ref<destination_implObj>::create(available_destinations,
-						lock->dest);
+	in_thread([&]
+		  (auto dest)
+	{
+		p=ref<destination_implObj>::create(available_destinations,
+						   dest);
+	});
+
+	return p;
 }
 
 #if 0

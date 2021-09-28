@@ -7,6 +7,7 @@
 #include "x/locale.H"
 #include "x/exception.H"
 #include "x/cups/destination.H"
+#include "x/functionalrefptr.H"
 #include <map>
 #include <iostream>
 

@@ -17,42 +17,32 @@ namespace LIBCXX_NAMESPACE::cups {
 }
 #endif
 
-class LIBCXX_HIDDEN available_implObj : public availableObj {
+class LIBCXX_HIDDEN available_implObj;
 
- public:
+class available_implObj : public availableObj {
+
+public:
 
 	const available_dests available_destinations;
 
-	// As long as cups.h insists on the library taking non-const
-	// cups_dest_t parameters we will use locking to protect ourselves.
-	//
-	// We will make sure that available_destination's lock is always
-	// acquired before the lock on this object.
+private:
+	// Our CUPS destination
 
-	struct locked_dests_s {
-		cups_dest_t *dest;
-	};
+	// Accessed by the CUPS connection thread
 
-	struct dest_t : public mpobj<locked_dests_s> {
+	cups_dest_t *dest;
 
-		struct lock : public available_destsObj::dests_t::lock,
-			      public mpobj<locked_dests_s>::lock {
-
-			lock(const available_implObj &me);
-
-			~lock();
-
-			using mpobj<locked_dests_s>::lock::operator*;
-			using mpobj<locked_dests_s>::lock::operator->;
-		};
-	};
-
-	mutable dest_t dest;
+public:
 
 	available_implObj(const available_dests &available_destinations,
 			  cups_dest_t *dest);
 
 	~available_implObj();
+
+	// Invoke a closure, passing it our print destination.
+
+	void in_thread(const functionref<void (cups_dest_t *)> &closure)
+		const;
 
 	std::string name() const override;
 

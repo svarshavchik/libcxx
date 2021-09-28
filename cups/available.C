@@ -12,6 +12,7 @@
 
 #include <utility>
 #include <algorithm>
+#include <tuple>
 
 namespace LIBCXX_NAMESPACE::cups {
 #if 0
@@ -30,30 +31,46 @@ std::vector<available> available_destinations()
 {
 	auto cd=ref<available_destsObj>::create();
 
-	std::vector<ref<available_implObj>> v;
+	std::vector<std::tuple<ref<available_implObj>, const char *>> v;
 
-	v.reserve(cd->n_dests);
+	cd->thr->in_thread
+		([&]
+		 (auto dests,
+		  auto n_dests)
+		{
+			v.reserve(n_dests);
 
-	available_destsObj::dests_t::lock lock{cd->dests};
+			auto b=dests;
+			auto e=dests+n_dests;
 
-	for (std::remove_cv_t<decltype(cd->n_dests)> i=0; i<cd->n_dests; ++i)
+			while (b != e)
+			{
+				v.emplace_back(ref<available_implObj>
+					       ::create(cd, b),
+					       b->name);
+				++b;
+			}
+
+			std::sort(v.begin(), v.end(),
+				  []
+				  (const auto &a, const auto &b)
+				  {
+					  const auto &[ar, aname]=a;
+					  const auto &[br, bname]=b;
+					  return chrcasecmp::compare(aname,
+								     bname)<0;
+				  });
+		});
+
+	std::vector<available> ret;
+
+	ret.reserve(v.size());
+	for (const auto &t:v)
 	{
-		auto d=ref<available_implObj>::create(cd, (*lock)+i);
-		v.push_back(d);
+		ret.push_back(std::get<0>(t));
 	}
 
-	std::sort(v.begin(), v.end(),
-		  []
-		  (const auto &a, const auto &b)
-		  {
-			  available_implObj::dest_t::lock la{*a};
-			  available_implObj::dest_t::lock lb{*b};
-
-			  return chrcasecmp::compare(la->dest->name,
-						     lb->dest->name) < 0;
-		  });
-
-	return {v.begin(), v.end()};
+	return ret;
 }
 
 #if 0

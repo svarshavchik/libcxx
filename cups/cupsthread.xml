@@ -1,0 +1,14 @@
+<class name="cupsthreadObj">
+  <method name="shutdown" />
+
+  <method name="access_destinations">
+    <param>
+      <decl>const functionref&lt;void (cups_dest_t *, decltype(n_dests))&gt; &amp; closure</decl>
+    </param>
+
+    <param>
+      <decl>mpcobj&lt;bool&gt; *completed</decl>
+    </param>
+  </method>
+
+</class>

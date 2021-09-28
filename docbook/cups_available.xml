@@ -34,7 +34,7 @@ if (iter != printers.end())
 
   <para>
     <ulink url="&link-function-x--cups-available-destinations;"><function>&ns;::cups::available_destinations</function></ulink>()
-    queries the local network, and return a vector
+    queries the local network, and returns a vector
     of available print destinations. Each destination is
     an <ulink url="&link-typedef-x--cups-available;"><classname>&ns;::cups::available</classname></ulink> object
     that provides some basic information about the printer.

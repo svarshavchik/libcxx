@@ -19,7 +19,7 @@ See COPYING for distribution information.
   </blockquote>
 
   <para>
-    Invoke an <link linkend="cups_available">available destination</link>'s
+    Invoking an <link linkend="cups_available">available destination</link>'s
     <methodname>info</methodname>() method returns an
     <ulink url="&link-typedef-x--cups-destination;"><classname>&ns;::cups::destination</classname></ulink>
     object that provides additional information about the printer:

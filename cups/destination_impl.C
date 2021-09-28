@@ -20,6 +20,7 @@
 #include <iostream>
 #include <cstring>
 #include <cstdint>
+
 namespace LIBCXX_NAMESPACE::cups {
 #if 0
 }
@@ -29,57 +30,50 @@ static property::value<int> connect_timeout(LIBCXX_NAMESPACE_STR
 					    "::cups::connect_timeout_ms",
 					    30000);
 
-destination_implObj::info_t::lock::lock(const destination_implObj &me)
-	: available_destsObj::dests_t::lock{me.available_destinations->dests},
-	mpobj<lock_info_s>::lock{me.info}
-	{
-	}
-
-destination_implObj::info_t::lock::~lock()=default;
-
 collectionObj::~collectionObj()=default;
-
-destination_implObj::cups_http_t_wrapper::cups_http_t_wrapper(cups_dest_t *dest)
-	: http{cupsConnectDest(dest, CUPS_DEST_FLAGS_NONE,
-			       connect_timeout.get(),
-			       NULL, NULL, 0, NULL, NULL)}
-{
-	if (!http)
-		throw EXCEPTION(libmsg(_("Print queue connection failed.")));
-}
-
-destination_implObj::cups_http_t_wrapper::~cups_http_t_wrapper()
-{
-	httpClose(http);
-}
-
-destination_implObj::cups_dinfo_t_wrapper
-::cups_dinfo_t_wrapper(http_t *http, cups_dest_t *dest)
-	: info{cupsCopyDestInfo(http, dest)}
-{
-	if (!info)
-		throw EXCEPTION(libmsg(_("Print destination not available.")));
-}
-
-destination_implObj::cups_dinfo_t_wrapper::~cups_dinfo_t_wrapper()
-{
-	cupsFreeDestInfo(info);
-}
-
-destination_implObj::lock_info_s::lock_info_s(cups_dest_t *dest)
-	: dest{dest}, http{dest}, info{http, dest}
-{
-}
 
 destination_implObj
 ::destination_implObj(const available_dests &available_destinations,
 		      cups_dest_t *dest)
 	: available_destinations{available_destinations},
-	  info{dest}
+	  dest{dest},
+	  http{nullptr},
+	  info{nullptr}
 {
+	http=cupsConnectDest(dest, CUPS_DEST_FLAGS_NONE,
+			     connect_timeout.get(),
+			     NULL, NULL, 0, NULL, NULL);
+
+	if (!http)
+		throw EXCEPTION(libmsg(_("Print queue connection failed.")));
+
+	info=cupsCopyDestInfo(http, dest);
+
+	if (!info)
+	{
+		httpClose(http);
+		throw EXCEPTION(libmsg(_("Print destination not available.")));
+	}
 }
 
-destination_implObj::~destination_implObj()=default;
+destination_implObj::~destination_implObj()
+{
+	cupsFreeDestInfo(info);
+	httpClose(http);
+}
+
+void destination_implObj::in_thread(const functionref<void (cups_dest_t *,
+							    http_t *,
+							    cups_dinfo_t *)>
+				    &closure) const
+{
+	available_destinations->thr->in_thread
+		([&]
+		 (auto, auto)
+		{
+			closure(dest, http, info);
+		});
+}
 
 bool destination_implObj::supported(const std::string_view &option) const
 {
@@ -90,13 +84,21 @@ bool destination_implObj::supported(const std::string_view &option) const
 	std::copy(option.begin(), option.end(), option_s);
 	option_s[s]=0;
 
-	info_t::lock lock{*this};
+	bool flag;
 
-	return !!cupsCheckDestSupported(lock->http,
-					lock->dest,
-					lock->info,
-					option_s,
-					nullptr);
+	in_thread([&, ptr=&*option_s]
+		  (auto *dest,
+		   auto *http,
+		   auto *info)
+	{
+		flag=!!cupsCheckDestSupported(http,
+					      dest,
+					      info,
+					      ptr,
+					      nullptr);
+	});
+
+	return flag;
 }
 
 bool destination_implObj::supported(const std::string_view &option,
@@ -115,34 +117,46 @@ bool destination_implObj::supported(const std::string_view &option,
 	std::copy(value.begin(), value.end(), value_s);
 	value_s[s]=0;
 
-	info_t::lock lock{*this};
+	bool flag;
 
-	return !!cupsCheckDestSupported(lock->http,
-					lock->dest,
-					lock->info,
-					option_s,
-					value_s);
+	in_thread([&, o=&*option_s, v=&*value_s]
+		  (auto dest,
+		   auto http,
+		   auto info)
+	{
+		flag=!!cupsCheckDestSupported(http,
+					      dest,
+					      info,
+					      o, v);
+	});
+
+	return flag;
 }
 
 std::unordered_set<std::string> destination_implObj::supported_options() const
 {
 	std::unordered_set<std::string> s;
 
-	info_t::lock lock{*this};
-
-	auto attrs=cupsFindDestSupported(lock->http, lock->dest,
-					 lock->info,
-					 "job-creation-attributes");
-
-	if (!attrs)
-		return s;
-
-	auto count=ippGetCount(attrs);
-
-	for (decltype (count) i=0; i<count; i++)
+	in_thread([&]
+		  (auto dest,
+		   auto http,
+		   auto info)
 	{
-		s.insert(ippGetString(attrs, i, nullptr));
-	}
+		auto attrs=cupsFindDestSupported(http, dest,
+						 info,
+						 "job-creation-attributes");
+
+		if (!attrs)
+			return;
+
+		auto count=ippGetCount(attrs);
+
+		for (decltype (count) i=0; i<count; i++)
+		{
+			s.insert(ippGetString(attrs, i, nullptr));
+		}
+	});
+
 	return s;
 }
 
@@ -163,6 +177,8 @@ option_values_t
 destination_implObj::option_values(const std::string_view &option)
 	const
 {
+	option_values_t values;
+
 	auto s=option.size();
 
 	char option_s[s+1];
@@ -171,19 +187,29 @@ destination_implObj::option_values(const std::string_view &option)
 	option_s[s]=0;
 
 	auto[name, unicode_flag]=parse_unicode_option(option_s);
-	info_t::lock lock{*this};
 
-	auto attrs=cupsFindDestSupported(lock->http, lock->dest,
-					 lock->info,
-					 name);
+	in_thread([&]
+		  (auto dest,
+		   auto http,
+		   auto info)
+	{
+		auto attrs=cupsFindDestSupported(http, dest,
+						 info,
+						 name);
 
-	return parse_attribute_values(lock, attrs, name, unicode_flag);
+		values=parse_attribute_values(dest, http, info,
+					      attrs, name, unicode_flag);
+	});
+
+	return values;
 }
 
 option_values_t
 destination_implObj::default_option_values(const std::string_view &option)
 	const
 {
+	option_values_t values;
+
 	auto s=option.size();
 
 	char option_s[s+1];
@@ -193,19 +219,28 @@ destination_implObj::default_option_values(const std::string_view &option)
 
 	auto[name, unicode_flag]=parse_unicode_option(option_s);
 
-	info_t::lock lock{*this};
+	in_thread([&]
+		  (auto dest,
+		   auto http,
+		   auto info)
+	{
+		auto attrs=cupsFindDestDefault(http, dest,
+					       info,
+					       name);
 
-	auto attrs=cupsFindDestDefault(lock->http, lock->dest,
-				       lock->info,
-				       name);
+		values=parse_attribute_values(dest, http, info,
+					      attrs, name, unicode_flag);
+	});
 
-	return parse_attribute_values(lock, attrs, name, unicode_flag);
+	return values;
 }
 
 option_values_t
 destination_implObj::ready_option_values(const std::string_view &option)
 	const
 {
+	option_values_t values;
+
 	auto s=option.size();
 
 	char option_s[s+1];
@@ -214,13 +249,21 @@ destination_implObj::ready_option_values(const std::string_view &option)
 	option_s[s]=0;
 
 	auto[name, unicode_flag]=parse_unicode_option(option_s);
-	info_t::lock lock{*this};
 
-	auto attrs=cupsFindDestReady(lock->http, lock->dest,
-				     lock->info,
-				     name);
+	in_thread([&]
+		  (auto dest,
+		   auto http,
+		   auto info)
+	{
+		auto attrs=cupsFindDestReady(http, dest,
+					     info,
+					     name);
 
-	return parse_attribute_values(lock, attrs, name, unicode_flag);
+		values=parse_attribute_values(dest, http, info,
+					      attrs, name, unicode_flag);
+	});
+
+	return values;
 }
 
 static constexpr int str_to_int(const char *p, int v)
@@ -304,7 +347,9 @@ static std::string no_localizer(const std::string_view &v)
 }
 
 option_values_t
-destination_implObj::parse_attribute_values(info_t::lock &lock,
+destination_implObj::parse_attribute_values(cups_dest_t *dest,
+					    http_t *http,
+					    cups_dinfo_t *info,
 					    ipp_attribute_t *attrs,
 					    const char *option_s,
 					    bool unicode_flag)
@@ -435,7 +480,8 @@ destination_implObj::parse_attribute_values(info_t::lock &lock,
 				{
 					std::string n=ippGetName(attr);
 					c->emplace(n, parse_attribute_values
-						   (lock, attr, n.c_str(),
+						   (dest, http, info,
+						    attr, n.c_str(),
 						    unicode_flag));
 				}
 				v.push_back(c);
@@ -481,17 +527,17 @@ destination_implObj::parse_attribute_values(info_t::lock &lock,
 
 			lang_s=val;
 
-			if (cupsGetDestMediaByName(lock->http,
-						   lock->dest,
-						   lock->info,
+			if (cupsGetDestMediaByName(http,
+						   dest,
+						   info,
 						   val,
 						   CUPS_MEDIA_FLAGS_DEFAULT,
 						   &size))
 			{
 				auto l=cupsLocalizeDestMedia
-					(lock->http,
-					 lock->dest,
-					 lock->info,
+					(http,
+					 dest,
+					 info,
 					 CUPS_MEDIA_FLAGS_DEFAULT,
 					 &size);
 
@@ -501,9 +547,9 @@ destination_implObj::parse_attribute_values(info_t::lock &lock,
 		}
 		else
 		{
-			auto c=cupsLocalizeDestValue(lock->http,
-						     lock->dest,
-						     lock->info,
+			auto c=cupsLocalizeDestValue(http,
+						     dest,
+						     info,
 						     option_s,
 						     val);
 
@@ -544,14 +590,18 @@ destination_implObj::user_defaults() const
 {
 	std::unordered_map<std::string, std::string> ret;
 
-	info_t::lock lock{*this};
-
-	for (decltype(lock->dest->num_options) i=0;
-	     i < lock->dest->num_options; ++i)
+	in_thread([&]
+		  (auto dest,
+		   auto http,
+		   auto info)
 	{
-		ret.emplace(lock->dest->options[i].name,
-			    lock->dest->options[i].value);
-	}
+		for (decltype(dest->num_options) i=0;
+		     i < dest->num_options; ++i)
+		{
+			ret.emplace(dest->options[i].name,
+				    dest->options[i].value);
+		}
+	});
 
 	return ret;
 }
@@ -560,7 +610,6 @@ job destination_implObj::create_job()
 {
 	return ref<job_implObj>::create(ref(this));
 }
-
 
 resolution::operator std::string() const
 {

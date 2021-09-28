@@ -24,13 +24,31 @@ job_implObj::job_implObj(const ref<destination_implObj> &destination)
 {
 }
 
-job_implObj::~job_implObj()
+void job_implObj::in_thread(const functionref<void (cups_dest_t *,
+						    http_t *,
+						    cups_dinfo_t *,
+						    job_info_s &)> &closure)
 {
-	job_info_t::lock lock{job_info};
-
-	cupsFreeOptions(lock->num_options, lock->options);
+	destination->in_thread([&]
+			       (auto dest,
+				auto http,
+				auto info)
+	{
+		closure(dest, http, info, job_info_in_thread);
+	});
 }
 
+job_implObj::~job_implObj()
+{
+	in_thread([]
+		  (auto dest,
+		   auto http,
+		   auto info,
+		   auto &job_info)
+	{
+		cupsFreeOptions(job_info.num_options, job_info.options);
+	});
+}
 
 void job_implObj::set_option(const std::string_view &name,
 			     const std::string_view &value)
@@ -48,11 +66,17 @@ void job_implObj::set_option(const std::string_view &name,
 	std::copy(value.begin(), value.end(), value_str);
 	value_str[s]=0;
 
-	job_info_t::lock lock{job_info};
-
-	lock->num_options=cupsAddOption(name_str, value_str,
-					lock->num_options,
-					&lock->options);
+	in_thread([name=&*name_str,
+		   value=&*value_str]
+		  (auto dest,
+		   auto http,
+		   auto info,
+		   auto &job_info)
+	{
+		job_info.num_options=cupsAddOption(name, value,
+						   job_info.num_options,
+						   &job_info.options);
+	});
 }
 
 void job_implObj::set_option(const std::string_view &name,
@@ -65,11 +89,17 @@ void job_implObj::set_option(const std::string_view &name,
 	std::copy(name.begin(), name.end(), name_str);
 	name_str[s]=0;
 
-	job_info_t::lock lock{job_info};
+	in_thread([&, name=&*name_str]
+		  (auto dest,
+		   auto http,
+		   auto info,
+		   auto &job_info)
+	{
 
-	lock->num_options=cupsAddIntegerOption(name_str, value,
-					       lock->num_options,
-					       &lock->options);
+		job_info.num_options=cupsAddIntegerOption(name, value,
+							  job_info.num_options,
+							  &job_info.options);
+	});
 }
 
 
@@ -303,12 +333,37 @@ void job_implObj::set_option(const std::string_view &name,
 void job_implObj::add_document(const std::string &name,
 			       const document_t &document)
 {
-	job_info_t::lock lock{job_info};
-
-	lock->documents.push_back({name, document});
+	in_thread([&]
+		  (auto dest,
+		   auto http,
+		   auto info,
+		   auto &job_info)
+	{
+		job_info.documents.push_back({name, document});
+	});
 }
 
 int job_implObj::submit(const std::string_view &title)
+{
+	int result;
+
+	in_thread([&]
+		  (auto dest,
+		   auto http,
+		   auto info,
+		   auto &job_info)
+	{
+		result=submit(title, dest, http, info, job_info);
+	});
+
+	return result;
+}
+
+int job_implObj::submit(const std::string_view &title,
+			cups_dest_t *dest,
+			http_t *http,
+			cups_dinfo_t *info,
+			job_info_s &job_info)
 {
 	size_t s=title.size();
 
@@ -317,41 +372,37 @@ int job_implObj::submit(const std::string_view &title)
 	std::copy(title.begin(), title.end(), title_str);
 	title_str[s]=0;
 
-	job_info_t::lock job_lock{job_info};
-
-	if (job_lock->documents.empty())
+	if (job_info.documents.empty())
 		return 0;
-
-	destination_implObj::info_t::lock lock{*destination};
 
 	int job_id;
 
-	auto status=cupsCreateDestJob(lock->http,
-				      lock->dest,
-				      lock->info,
+	auto status=cupsCreateDestJob(http,
+				      dest,
+				      info,
 				      &job_id,
 				      title_str,
-				      job_lock->num_options,
-				      job_lock->options);
+				      job_info.num_options,
+				      job_info.options);
 
 	if (status != IPP_STATUS_OK)
 		throw EXCEPTION(ippErrorString(status));
 
 	auto job_sentry=make_sentry([&]
 				    {
-					    cupsCancelDestJob(lock->http,
-							      lock->dest,
+					    cupsCancelDestJob(http,
+							      dest,
 							      job_id);
 				    });
 
 	job_sentry.guard();
 
-	for (const auto &doc:job_lock->documents)
+	for (const auto &doc:job_info.documents)
 	{
 		auto [mime_type, contents]=doc.document();
 
-		auto status=cupsStartDestDocument(lock->http,
-						  lock->dest, lock->info,
+		auto status=cupsStartDestDocument(http,
+						  dest, info,
 						  job_id,
 						  doc.name.c_str(),
 						  mime_type.c_str(),
@@ -362,15 +413,15 @@ int job_implObj::submit(const std::string_view &title)
 		auto doc_sentry=make_sentry
 			([&]
 			 {
-				 cupsFinishDestDocument(lock->http,
-							lock->dest,
-							lock->info);
+				 cupsFinishDestDocument(http,
+							dest,
+							info);
 			 });
 		doc_sentry.guard();
 
 		while (auto res=contents())
 		{
-			status=cupsWriteRequestData(lock->http,
+			status=cupsWriteRequestData(http,
 						    res->data(),
 						    res->size());
 
@@ -379,9 +430,9 @@ int job_implObj::submit(const std::string_view &title)
 		}
 		doc_sentry.unguard();
 
-		auto ipp_status=cupsFinishDestDocument(lock->http,
-						       lock->dest,
-						       lock->info);
+		auto ipp_status=cupsFinishDestDocument(http,
+						       dest,
+						       info);
 
 		if (ipp_status != IPP_STATUS_OK)
 			throw EXCEPTION(cupsLastErrorString());
@@ -389,9 +440,9 @@ int job_implObj::submit(const std::string_view &title)
 
 	job_sentry.unguard();
 
-	auto ipp_status=cupsCloseDestJob(lock->http,
-					 lock->dest,
-					 lock->info,
+	auto ipp_status=cupsCloseDestJob(http,
+					 dest,
+					 info,
 					 job_id);
 
 	if (ipp_status != IPP_STATUS_OK)

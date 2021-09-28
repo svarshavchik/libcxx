@@ -63,6 +63,18 @@ class availableObj;
 //! info() connects to the print destination, and queries
 //! its properties. This executes cupsCopyDestInfo(), and
 //! cupsConnectDest(). An exception gets thrown if the connection fails.
+//!
+//! INSERT_LIBX_NAMESPACE::cups::available_destinations() automatically
+//! starts an execution thread in the background that handles all communications
+//! with the printing system.
+//!
+//! Functions and methods of these objects use the background execution thread
+//! to handle all requests. Each function and method stops and waits until
+//! the execution thread finishes the request.
+//!
+//! The background execution thread gets automatically stopped after all
+//! available destination objects, printer objects, and print job objects
+//! go out of scope and get destroyed.
 
 typedef ref<availableObj> available;
 

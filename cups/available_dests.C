@@ -12,16 +12,15 @@ namespace LIBCXX_NAMESPACE::cups {
 #endif
 
 available_destsObj::available_destsObj()
-	: n_dests{cupsGetDests2(CUPS_HTTP_DEFAULT,
-				&*dests_t::lock{this->dests})}
+	: thr{cupsthread::create()},
+	  internal_thread{start_threadmsgdispatcher(thr)}
 {
 }
 
 available_destsObj::~available_destsObj()
 {
-	dests_t::lock lock{dests};
-
-	cupsFreeDests(n_dests, *lock);
+	thr->shutdown();
+	internal_thread->wait();
 }
 
 #if 0

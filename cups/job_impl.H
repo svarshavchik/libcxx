@@ -37,9 +37,14 @@ class LIBCXX_HIDDEN job_implObj : public jobObj {
 		std::vector<document_info> documents;
 	};
 
-	typedef mpobj<job_info_s> job_info_t;
+	// Job information, accessed in the CUPS connection thread only
 
-	mutable job_info_t job_info;
+	job_info_s job_info_in_thread;
+
+	void in_thread(const functionref<void (cups_dest_t *,
+					       http_t *,
+					       cups_dinfo_t *,
+					       job_info_s &)> &closure);
 
 	job_implObj(const ref<destination_implObj> &destination);
 
@@ -58,6 +63,13 @@ class LIBCXX_HIDDEN job_implObj : public jobObj {
 			  const document_t &document) override;
 
 	int submit(const std::string_view &title) override;
+
+ private:
+	static int submit(const std::string_view &title,
+			  cups_dest_t *dest,
+			  http_t *http,
+			  cups_dinfo_t *info,
+			  job_info_s &job_info);
 };
 
 #if 0
