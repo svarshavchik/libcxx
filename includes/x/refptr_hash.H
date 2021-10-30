@@ -64,5 +64,7 @@ namespace std {
 	};
 };
 
+#define x_refptr_hash_H_defined 1
+#include <x/functionalrefptr_hash.H>
 
 #endif

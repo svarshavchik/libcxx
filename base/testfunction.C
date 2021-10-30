@@ -12,6 +12,8 @@ void fwd_decl(const LIBCXX_NAMESPACE::functionref<void ()> &foo);
 #include "x/mcguffinmap.H"
 #include "x/exception.H"
 #include "x/visitor.H"
+#include "x/refptr_hash.H"
+#include <unordered_map>
 #include <iostream>
 #include <cstdlib>
 #include <variant>
@@ -221,12 +223,35 @@ int check_text_param(const v_t &v)
 		 }, v);
 }
 
+void testfunctionref2()
+{
+	std::unordered_map< functionref<void ()>, int> map;
+
+	functionref<void ()> cl1{ []{} }, cl2{ []{} };
+
+	map.emplace(cl1, 1);
+	map.emplace(cl2, 2);
+
+	auto iter=map.find(cl1);
+
+	if (iter == map.end() || iter->second != 1)
+		throw EXCEPTION("testfunctionref2 failed (1)");
+
+	iter=map.find(cl2);
+
+	if (iter == map.end() || iter->second != 2)
+		throw EXCEPTION("testfunctionref2 failed (2)");
+
+	if (cl1 == cl2 || cl1 != cl1)
+		throw EXCEPTION("testfunctionref2 failed (3)");
+}
 
 int main()
 {
 	try {
 		testfunction();
 		testfunctionref();
+		testfunctionref2();
 		testmcguffinmap();
 		if (check_text_param(functionref<void (one &)>{
 					[](one &)

@@ -115,4 +115,8 @@ public:
 {
 #endif
 }
+
+#define x_functionalrefptrobj_H_defined 1
+#include <x/functionalrefptr_hash.H>
+
 #endif
