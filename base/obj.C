@@ -67,7 +67,7 @@ obj::obj() noexcept : refcnt{-1}
 
 		std::unique_lock lock{get_obj_map_mutex()};
 
-		get_obj_list().insert({this, trace.backtrace});
+		get_obj_list().emplace(this, std::move(trace.backtrace));
 	}
 }
 

@@ -109,7 +109,8 @@ Summary: libcxx selinux policy file
 Requires: %{name} = %{version}-%{release}
 Requires:       selinux-policy >= %{_selinux_policy_version}
 Requires(post):   %{name} = %{version}-%{release},
-Requires(post):   %{_sbindir}/semodule, %{__restorecon}
+Requires(post):   %{_sbindir}/semodule
+Requires(post):   %{_sbindir}/fixfiles
 Requires(postun): %{_sbindir}/semodule
 
 %description selinux
@@ -242,7 +243,7 @@ fi
 
 %post selinux
 %selinux_modules_install %{_datadir}/httportmap/libcxx.pp
-%{__restorecon} %{_sbindir}/httportmapd
+%{_sbindir}/fixfiles restore %{_sbindir}/httportmapd
 
 %postun selinux
 %selinux_modules_uninstall libcxx
