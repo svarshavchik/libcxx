@@ -6,40 +6,32 @@ See COPYING for distribution information.
 -->
 
 <section id="news">
-  <title>Release 0.22 of &app;</title>
+  <title>Release 0.24 of &app;</title>
 
   <itemizedlist>
     <listitem>
       <para>
-	The library gets updated to the C++20 language version, and
-	requires gcc 10.
+	Define <classname>std::hash</classname> specializations for
+	<link linkend="functional"><classname>functionref</classname> and
+	  <classname>functionptr</classname></link>. Define a specialization
+	for <classname>std::hash&lt;void&gt;</classname>.
       </para>
     </listitem>
     <listitem>
       <para>
-	Redesigned
-	<link linkend="serialization">Serialization API</link>
-	to be const-correct.
-	Cleaned up <acronym>HTTP</acronym>
-	<link linkend="httpuseragent">client</link>
-	and
-	<link linkend="httpserver">server</link> API, replacing camel-case
-	methods with standardized names.
+	Fixes multithreading issues with the <link linkend="cups">CUPS
+	  library</link>.
+      </para>
+    </listitem>
+    <listitem>
+      <para>
+	The <link linkend="xml">XML parser</link> uses the
+	<quote>nonet</quote> flag by default, unless turned off.
+	Use <classname>std::u32string</classname> strings with the XML
+	parser, directly.
       </para>
     </listitem>
 
-    <listitem>
-      <para>
-	Added support for the TLS ALPN extension.
-      </para>
-    </listitem>
-
-    <listitem>
-      <para>
-	New templates: <link linkend="rangevector"><classname>&ns;::sorted_range</classname></link>,
-	and <link linkend="explicitrefptr"><classname>&ns;::explicit_arg</classname></link>.
-      </para>
-    </listitem>
   </itemizedlist>
 </section>
 

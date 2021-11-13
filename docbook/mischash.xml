@@ -1,0 +1,40 @@
+<!--
+
+Copyright 2012 Double Precision, Inc.
+See COPYING for distribution information.
+
+-->
+
+<chapter id="transparenthash">
+  <title>Specialization for <classname>std::hash&lt;void&gt;</classname></title>
+
+  <blockquote>
+    <informalexample>
+      <programlisting>
+#include &lt;&ns;/hash.H&gt;
+
+std::unordered_map&lt;std::string, int,
+  std::hash&lt;void>,
+  std::equal_to&lt;void>> table;
+
+bool answer(const std::string_view &amp;question)
+{
+   auto iter=table.find(question);
+
+   return iter != table.end() &amp;&amp; iter->second == 42;
+}</programlisting>
+    </informalexample>
+  </blockquote>
+
+  <para>
+    Including <filename>&lt;&ns;/hash.H&gt;</filename>
+    defines a transparent specialization for <classname>std::hash</classname>.
+  </para>
+</chapter>
+
+<!--
+Local Variables:
+mode: sgml
+sgml-parent-document: ("book.xml" "part" "chapter")
+End:
+-->

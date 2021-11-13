@@ -41,6 +41,7 @@
 #include "x/visitor.H"
 #include "x/optional_args.H"
 #include "x/explicit_arg.H"
+#include "x/hash.H"
 
 #include <iostream>
 #include <algorithm>
@@ -48,8 +49,11 @@
 #include <queue>
 #include <cstring>
 #include <unistd.h>
+#include <string>
+#include <string_view>
 #include <variant>
 #include <utility>
+#include <functional>
 #include <sys/types.h>
 #include <sys/wait.h>
 
@@ -3518,6 +3522,19 @@ void final_create()
 	LIBCXX_NAMESPACE::ref<finalObj>::create();
 }
 
+void testhash()
+{
+	std::unordered_map<std::string, int,
+		std::hash<void>,
+			   std::equal_to<void>> h{ {std::string{"a"}, 42} };
+
+	auto iter=h.find(std::string_view{"a"});
+
+	if (iter == h.end() || iter->second != 42)
+		throw EXCEPTION("hash<void> does not seem to work");
+	return;
+}
+
 int main()
 {
 	alarm(60);
@@ -3604,5 +3621,6 @@ int main()
 	testoptional_argsref();
 	test_optional_arg_deduce({});
 	testexpl();
+	testhash();
 	return 0;
 }
