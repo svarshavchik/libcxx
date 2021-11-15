@@ -32,6 +32,12 @@ See COPYING for distribution information.
       </para>
     </listitem>
 
+    <listitem>
+      <para>
+	<ulink url="&link-typedef-x-mpweakptr;"><classname>&ns;::mpweakptr</classname></ulink>
+	is a thread-safe <link linkend="weakptr">weak pointer</link>.
+      </para>
+    </listitem>
   </itemizedlist>
 </section>
 

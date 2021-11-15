@@ -1808,6 +1808,17 @@ if (!origw.null())
 	<link linkend="thrsafenote">important comments about thread safety of
 	  references</link>.
     </para>
+
+    <para>
+      <ulink url="&link-typedef-x-mpweakptr;"><classname>&ns;::mpweakptr</classname></ulink>
+      implements a mutext-protected wrapper for weak pointers. It is a
+      reference-counted object that contains a mutex-protected weak pointer.
+      The thread-safe <methodname>getptr</methodname>() method uses a mutex
+      to protect the call to the underlying weak pointer's
+      <methodname>getptr</methodname>(). The similarly thread-safe
+      <methodname>setptr</methodname>() method updates the mutex-protected
+      weak pointer.
+    </para>
   </section>
 
   <section id="refptrtraits">

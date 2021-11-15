@@ -385,6 +385,7 @@ noinst_PROGRAMS=\
 	testweak                      \
 	testweak2                     \
 	testweak3                     \
+	testweak4		      \
 	testweakcapture		      \
 	testworkerpool                \
 	testxmlescape                 \
@@ -442,6 +443,10 @@ testweak2_LDFLAGS=$(TESTLINKTYPE)
 testweak3_SOURCES=testweak3.C
 testweak3_LDADD=libcxx.la
 testweak3_LDFLAGS=$(TESTLINKTYPE)
+
+testweak4_SOURCES=testweak4.C
+testweak4_LDADD=libcxx.la
+testweak4_LDFLAGS=$(TESTLINKTYPE)
 
 testlogger_SOURCES=testlogger.C
 testlogger_LDADD=libcxx.la
@@ -846,6 +851,7 @@ check-am: $(noinst_PROGRAMS) $(noinst_DATA)
 	./testweak3 2>test.weak3.tmp >&2
 	diff $(srcdir)/testweak3.tst test.weak3.tmp
 	rm test.weak3.tmp
+	./testweak4
 	PROPERTIES=$(srcdir)/testlogger2.txt ./testlogger 0 2>&1 | sort >testlogger.tst.tmp
 	rm -rf testlogdir; PROPERTIES=$(srcdir)/testlogger.txt ./testlogger 2>>testlogger.tst.tmp >&2
 	diff $(srcdir)/testlogger.tst testlogger.tst.tmp
