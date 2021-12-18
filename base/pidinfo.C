@@ -272,7 +272,17 @@ std::string exestarttime(pid_t p)
 #else
 
 selfexeObj::selfexeObj()
-	: procselfexe(fileattr::create("/proc/self/exe", true)->readlink())
+	: procselfexe{
+			({
+				auto s=fileattr::create("/proc/self/exe",
+							true)->try_readlink();
+
+				if (!s)
+					s="/dev/null";
+
+				*s;
+			})
+		}
 {
 }
 
@@ -333,7 +343,18 @@ selfexeinit::~selfexeinit()
 
 std::string exename()
 {
-	return procselfexe.get()->procselfexe;
+	std::string default_name="/dev/null";
+
+	try {
+		default_name=procselfexe.get()->procselfexe;
+	} catch (const exception &e)
+	{
+		std::cerr << e << std::endl;
+	} catch (...)
+	{
+	}
+
+	return default_name;
 }
 
 #if 0

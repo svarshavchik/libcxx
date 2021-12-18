@@ -6,32 +6,69 @@ See COPYING for distribution information.
 -->
 
 <chapter id="configdir">
-  <title>Application-specific configuration directories</title>
+  <title>Application identifiers and configuration directories</title>
+
+  <blockquote>
+    <informalexample>
+      <programlisting>
+#include &lt;&ns;/appid.H&gt;
+
+std::string_view &ns;::appid() noexcept
+{
+    return "example.libcxx.com";
+}</programlisting>
+    </informalexample>
+  </blockquote>
+
+  <para>
+    <ulink url="&link-function-x-appid;"><function>&ns;::appid</function></ulink>()'s
+    returns the application's identifier. This is a string that uniquely
+    identifies an application. The naming convention is to use an Internet
+    domain name that the application owns. It's also acceptable to use
+    <quote><replaceable>mailbox@domain.com</replaceable></quote>, formatted like
+    an E-mail address, using an application-owned domain.
+  </para>
+
+  <para>
+    An application declares and defines
+    <function>&ns;::appid</function>() (in one of its translation
+    units), as shown. If it's not declared &appshort; provides a weakly-defined
+    default function that returns a string based on the executable's filename
+    and <quote>localhost.localdomain</quote>.
+  </para>
 
   <blockquote>
     <informalexample>
       <programlisting>
 #include &lt;&ns;/config.H&gt;
 
+std::string configdir=&ns;::configdir();
+
 std::string configdir=&ns;::configdir("example@libcxx.com");</programlisting>
     </informalexample>
   </blockquote>
 
   <para>
-    <ulink url="&link-function-x-configdir;"><function>&ns;::configdir</function></ulink>()'s
-    parameter is an application identifier string.
-    <function>&ns;::configdir</function>() creates the directory
+    <function>&ns;::configdir</function>() calls
+    <function>&ns;::appid</function>() and creates the directory
     <filename>$HOME/.libcxx/<replaceable>appid</replaceable></filename> if it
     does not exist already, and returns an absolute pathname to this directory.
-    <function>&ns;::configdir</function>() installs a hidden symbolic links
+    <function>&ns;::configdir</function>() installs hidden symbolic links
     to the running process's executable in this directory; and ignores
     all of its other contents.
   </para>
 
   <para>
+    An overloaded
+    <ulink url="&link-function-x-configdir;"><function>&ns;::configdir</function></ulink>()
+    function takes the application identifier as an explicit parameter.
+  </para>
+
+  <para>
     <function>&ns;::configdir</function>() makes periodic checks of all
     subdirectories in <filename>$HOME/.libcxx</filename>, and removes
-    subdirectories with broken symbolic links. This is meant to be used for
+    subdirectories with broken symbolic links.
+    <function>&ns;::configdir</function>()'s intended usage is to implement
     a per-user application configuration directories; with a mechanism that
     automatically purges configuration directories linked to uninstalled
     applications, as long as at least one &appshort; application gets

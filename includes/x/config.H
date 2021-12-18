@@ -7,7 +7,6 @@
 #define x_config_H
 
 #include <x/namespace.h>
-#include <string>
 #include <string_view>
 
 namespace LIBCXX_NAMESPACE {
@@ -18,7 +17,8 @@ namespace LIBCXX_NAMESPACE {
 //! Return the configuration directory name.
 
 //! configdir() returns the string "$HOME/.libcxx-config/<appid>", which is
-//! a directory, and performs some housekeeping.
+//! a directory, and performs some housekeeping. The <appid> part comes
+//! from appid().
 //!
 //! \c appid is the application identifier. Identifiers use the Internet
 //! Domain Name System hierarchy to generate unique application identifiers.
@@ -26,6 +26,7 @@ namespace LIBCXX_NAMESPACE {
 //! of "subdomain.domain.com" or
 //! "name@domain.com", where the "domain.com" is an Internet domain
 //! that belongs to the application.
+//! An exception gets thrown if the application identifier is an empty string.
 //!
 //! configdir() creates "$HOME/.libcxx-config/<appid>" if it does not exist
 //! already, and creates a "$HOME/.libcxx-config/<appid>/.exe" that points to
@@ -59,6 +60,14 @@ namespace LIBCXX_NAMESPACE {
 //! this refreshes its own symbolic links,
 //! and configuration directories with broken symbolic links that are older
 //! than 60 days get removed.
+//!
+//! \see appid
+
+std::string configdir();
+
+//! Returns a configuration directory for an explicit appid.
+
+//! Creates an application directory based on an explicit appid.
 
 std::string configdir(const std::string_view &appid);
 

@@ -6,7 +6,8 @@
 #include <string>
 #include "x/ref.H"
 #include "x/exception.H"
-
+#include "x/appid.H"
+#include "x/config.H"
 #include <x/obj.H>
 #include <iostream>
 
@@ -56,6 +57,7 @@ void testconvert()
 int main()
 {
 	try {
+		std::cout << "appid: " << appid() << std::endl;
 		testconvert();
 	} catch(const exception &e)
 	{

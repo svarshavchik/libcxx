@@ -8,10 +8,16 @@
 #include "x/pwd.H"
 #include "x/dir.H"
 #include "x/fileattr.H"
+#include "x/appid.H"
 #include <iostream>
 #include <unistd.h>
 #include <fcntl.h>
 #include <sys/stat.h>
+
+std::string LIBCXX_NAMESPACE::appid() noexcept
+{
+	return "testconfig@libcxx.com";
+}
 
 using namespace LIBCXX_NAMESPACE;
 
@@ -28,13 +34,19 @@ void testconfig()
 	std::string dir3=std::string{
 		p->pw_dir
 	} + "/.libcxx/testconfig3@libcxx.com";
+	std::string dir4=std::string{
+		p->pw_dir
+	} + "/.libcxx/testconfig4@libcxx.com";
 
 	dir::base::rmrf(dir, true);
 	dir::base::rmrf(dir2, true);
 	dir::base::rmrf(dir3, true);
+	dir::base::rmrf(dir4, true);
 
-	configdir("testconfig@libcxx.com");
+	if (configdir("testconfig@libcxx.com") != configdir())
+		throw EXCEPTION("appid() is not working");
 	configdir("testconfig3@libcxx.com");
+	configdir("testconfig4@libcxx.com");
 
 	unlink((dir + "/.exe").c_str());
 	if (symlink("/does/../not/../exist",
@@ -54,6 +66,7 @@ void testconfig()
 	ts[0].tv_sec=time(NULL)- 1000 * 24 * 60 * 60;
 	ts[1]=ts[0];
 
+	utimensat(AT_FDCWD, (dir4 + "/.exe").c_str(), ts, AT_SYMLINK_NOFOLLOW);
 	utimensat(AT_FDCWD, (dir2 + "/.exe").c_str(), ts, AT_SYMLINK_NOFOLLOW);
 	utimensat(AT_FDCWD, (dir + "/.exe").c_str(), ts, AT_SYMLINK_NOFOLLOW);
 
@@ -63,11 +76,15 @@ void testconfig()
 	fileattr::create(dir3 + "/.exe", false)->stat();
 
 	if (fileattr::create(dir2, false)->try_stat())
-		throw EXCEPTION("Should've been removed");
+		throw EXCEPTION("dir2 should've been removed");
+
+	if (fileattr::create(dir4, false)->try_stat())
+		throw EXCEPTION("dir4 should've been removed");
 
 	dir::base::rmrf(dir, true);
 	dir::base::rmrf(dir2, true);
 	dir::base::rmrf(dir3, true);
+	dir::base::rmrf(dir4, true);
 }
 
 int main()

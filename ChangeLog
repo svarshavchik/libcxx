@@ -1,3 +1,10 @@
+2021-12-17  Sam Varshavchik  <mrsam@courier-mta.com>
+
+	* Implemenet appid(), and implement configdir() in terms of
+	appid().
+
+0.24
+
 2021-08-24  Sam Varshavchik  <mrsam@courier-mta.com>
 
 	* xml: "nonet" option enabled by default, when parsing XML documents.
