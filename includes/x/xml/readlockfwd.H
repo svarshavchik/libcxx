@@ -174,7 +174,19 @@ typedef std::unordered_set<attribute> get_all_attributes_t;
 //! specifies an attribute that's not in any namespace.
 //!
 //! \code
+//! int n=rlock->get_attribute<int>("style");
+//!
+//! int n=rlock->get_any_attribute<int>("style");
+//! \endcode
+//!
+//! Overloaded get_attribute() and get_any_attribute() return the attribute
+//! value converted to a numeric type. The template parameter can
+//! be any integer or floating point type.
+//!
+//! \code
 //! std::string text=rlock->get_text();
+//!
+//! double n=rlock->get_text<double>();
 //!
 //! std::string lang=rlock->get_lang();
 //!
@@ -188,6 +200,10 @@ typedef std::unordered_set<attribute> get_all_attributes_t;
 //! \endcode
 //!
 //! get_text() returns the text representation of the current node.
+//! An overloaded template function returns the text representation of the
+//! current node converted to a numeric value. The template parameter can
+//! be any integer or floating point type.
+//!
 //! get_lang() returns the current's node declared language (the
 //! \c xml:lang attribute, if it's defined, an empty string otherwise).
 //! is_text() returns true if the current node is a text node.
@@ -200,6 +216,16 @@ typedef std::unordered_set<attribute> get_all_attributes_t;
 //!
 //! get_base() returns the node's base URI, as defined in RFC 2396
 //! section 5.1.1.
+//!
+//! \code
+//! std::u32string text=rlock->get_u32text();
+//!
+//! std::u32string text=rlock->get_u32attribute("style");
+//!
+//! std::u32string text=rlock->get_u32any_attribute("style");
+//! \endcode
+//!
+//! These function return the corresponding text values as unicode strings.
 //!
 //! \code
 //! rlock->save_file("filename.xml");

@@ -118,7 +118,7 @@ void value_conversion_error(const std::string &value)
 //! constructs an object using the default constructor. default_value()
 //! calls the class's default_value() method.
 
-template<typename value_type, typename=void> class value_string;
+template<typename value_type> class value_string;
 
 //! A \c std::string %value
 
@@ -225,7 +225,7 @@ struct value_default_value<T, std::void_t<decltype(T::default_value())>> {
 
 // Default implementation.
 
-template<typename value_type, typename> class value_string
+template<typename value_type> class value_string
 	: public value_default_value<value_type> {
 
 
@@ -267,9 +267,8 @@ public:
 //! This implementation implements from_string() and to_string() for a
 //! natural integer %value.
 
-template<typename value_type>
-class value_string<value_type,
-		   std::enable_if_t<std::numeric_limits<value_type>::is_integer>>
+template<std::integral value_type>
+class value_string<value_type>
 {
 public:
 
@@ -331,11 +330,8 @@ public:
 //! The to_string() and from_string() methods convert the floating value to
 //! a string representation.
 
-template<typename value_type>
-class value_string<value_type,
-		   std::enable_if_t<
-			   std::numeric_limits<value_type>::is_specialized &&
-			   !std::numeric_limits<value_type>::is_integer>> {
+template<std::floating_point value_type>
+class value_string<value_type> {
 
 public:
 

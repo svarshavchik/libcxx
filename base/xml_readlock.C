@@ -6,7 +6,9 @@
 #include "libcxx_config.h"
 #include "x/xml/readlock.H"
 #include "x/uriimpl.H"
+#include "x/messages.H"
 #include <courier-unicode.h>
+#include "gettext_in.h"
 
 namespace LIBCXX_NAMESPACE::xml {
 #if 0
@@ -16,6 +18,13 @@ namespace LIBCXX_NAMESPACE::xml {
 readlockObj::readlockObj()=default;
 
 readlockObj::~readlockObj()=default;
+
+void readlockObj::value_conversion_error(const std::string &s)
+{
+	throw EXCEPTION(gettextmsg(_("Cannot convert \"%1%\""
+				     " to the required numeric value type"),
+				s));
+}
 
 std::u32string readlockObj::get_u32text() const
 {

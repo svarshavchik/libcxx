@@ -8,6 +8,7 @@
 
 #include <x/container_traits.H>
 #include <type_traits>
+#include <concepts>
 
 namespace LIBCXX_NAMESPACE::serialization {
 #if 0
@@ -42,11 +43,6 @@ public:
 template<typename T>
 concept serializable_integer=std::is_integral_v<
 	typename serialize_integer_type<T>::int_t>;
-
-//! A serializable floating point datatype.
-
-template<typename T>
-concept serializable_float=std::is_floating_point<T>::value;
 
 //! A serializable container.
 

@@ -1304,6 +1304,52 @@ void test80()
 		throw EXCEPTION("test80 failed");
 }
 
+void test90()
+{
+	auto doc=({
+			std::string dummy=
+				"<root xmlns:x='http://www.example.com'>"
+				"<child x:attribute='40.2'>10</child>"
+				"</root>";
+
+			LIBCXX_NAMESPACE::xml::doc::create(dummy.begin(),
+							   dummy.end(),
+							   "string");
+		});
+
+	auto lock=doc->readlock();
+
+	lock->get_root();
+
+	lock->get_xpath("/root/child")->to_node();
+
+	if (lock->get_attribute<double>("attribute",
+					"http://www.example.com") != 40.2)
+		throw EXCEPTION("get_attribute<double> failed");
+	if (lock->get_any_attribute<double>("attribute") != 40.2)
+		throw EXCEPTION("get_attribute<double> failed");
+
+	if (lock->get_text<float>() != 10)
+		throw EXCEPTION("get_text<float> failed");
+
+	if (lock->get_text<unsigned>() != 10)
+		throw EXCEPTION("get_text<unsigned> failed");
+
+	bool caught=false;
+
+	try {
+		lock->get_any_attribute<int>("attribute");
+	} catch (const LIBCXX_NAMESPACE::exception &e)
+	{
+		std::cerr << "Expected exception: " << e << std::endl;
+		caught=true;
+	}
+
+	if (!caught)
+		throw EXCEPTION("Expected exception from get_any_attribute "
+				"was not thrown");
+}
+
 int main(int argc, char **argv)
 {
 	try {
@@ -1336,6 +1382,7 @@ int main(int argc, char **argv)
 		test70();
 
 		test80();
+		test90();
 	} catch (LIBCXX_NAMESPACE::exception &e)
 	{
 		std::cerr << e << std::endl;

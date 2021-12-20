@@ -208,16 +208,6 @@ typename createnode_ret_t<T>::type_t createnodeObj::text(T t)
 	return createnode_ret_t<T>::text(*this, t);
 }
 
-//! Helper used by text()
-
-//! Used by an overloaded \ref createnode "createnode->text()" method to
-//! resolve for all numerical types except for chars.
-
-template<typename T, size_t n> struct text_not_char {
-
-	static constexpr bool flag=sizeof(T) > 1;
-};
-
 //! Specialization for \ref writelock "writelock->text()".
 
 //! Implements writelock->text(n) for all numeric types except chars.
@@ -225,12 +215,9 @@ template<typename T, size_t n> struct text_not_char {
 //! to_chars for floating point values.
 
 template<typename T>
-struct createnode_ret_t<T,std::enable_if_t
-			<text_not_char
-			 <T,
-			  sizeof(decltype(std::to_chars
-					  (nullptr, nullptr,
-					   std::declval<T &&>())))>::flag>> {
+struct createnode_ret_t<T, std::enable_if_t
+			<std::is_integral_v<T> ||
+			 std::is_floating_point_v<T>>> {
 
 	//! Return type for SFINAE
 	typedef createnode type_t;

@@ -321,6 +321,10 @@ const char *tname(datatype value) noexcept;
 
 void container_toolong() __attribute__((noreturn));
 
+//! Something went wrong with to_chars().
+
+void serialization_conversion_error() __attribute__((noreturn));
+
 //! The name of a class cannot be empty
 
 //! Throw an %exception.

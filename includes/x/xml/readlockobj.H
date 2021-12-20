@@ -17,6 +17,8 @@
 #include <x/xml/readlockfwd.H>
 #include <x/xml/save_to_callback.H>
 #include <x/xml/attribute.H>
+#include <type_traits>
+#include <charconv>
 
 namespace LIBCXX_NAMESPACE::xml {
 #if 0
@@ -92,7 +94,6 @@ public:
 	virtual bool get_previous_sibling()=0;
 
 	//! Go to the document's first child node that's an element node
-
 	//! Returns \c true if the current node has child nodes that
 	//! are element nodes,
 	//! and positions the current node to the first child element
@@ -232,6 +233,74 @@ public:
 
 	//! Return the text representation of the current node
 	virtual std::string get_text() const=0;
+
+	//! Return the current node converted to a numeric value.
+
+	template<typename T,
+		 typename=std::enable_if_t< std::is_arithmetic_v<T>>>
+	T get_text() const
+	{
+		auto s=get_text();
+
+		T v;
+
+		auto cp=s.c_str();
+
+		auto ret=std::from_chars(cp, cp+s.size(), v);
+
+		if (ret.ec != std::errc{} || *ret.ptr)
+			value_conversion_error(s);
+
+		return v;
+	}
+
+	//! Return an attribute converted to a numeric value.
+	template<typename T,
+		 typename ...Args,
+		 typename=std::enable_if_t< std::is_arithmetic_v<T>>,
+		 typename=std::void_t<
+			 decltype(
+				 std::declval<readlockObj &>().get_attribute(
+					 std::declval<Args &&>()...
+				 ))>>
+	T get_attribute(Args && ...args) const
+	{
+		auto s=get_attribute(std::forward<Args>(args)...);
+
+		T v;
+
+		auto cp=s.c_str();
+
+		auto ret=std::from_chars(cp, cp+s.size(), v);
+
+		if (ret.ec != std::errc{} || *ret.ptr)
+			value_conversion_error(s);
+
+		return v;
+	}
+
+	//! Return an attribute converted to a numeric value.
+
+	template<typename T,
+		typename=std::enable_if_t< std::is_arithmetic_v<T>>>
+	T get_any_attribute(const std::string_view &value) const
+	{
+		auto s=get_any_attribute(value);
+
+		T v;
+
+		auto cp=s.c_str();
+
+		auto ret=std::from_chars(cp, cp+s.size(), v);
+
+		if (ret.ec != std::errc{} || *ret.ptr)
+			value_conversion_error(s);
+
+		return v;
+	}
+
+	static void value_conversion_error(const std::string &s)
+		__attribute__((noreturn));
 
 	//! Return the text representation of the current node as a u32string
 	std::u32string get_u32text() const;

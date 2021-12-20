@@ -17,6 +17,7 @@
 #include <type_traits>
 #include <unordered_map>
 #include <functional>
+#include <charconv>
 
 #include <x/exception.H>
 #include <x/serialization.H>
@@ -652,7 +653,7 @@ public:
 
 //! Deserialize a native float value
 
-template<serializable_float value_type>
+template<std::floating_point value_type>
 class deserialize_value_nonconst<value_type> {
 
 	//! The actual deserialized type is a \c std::string
@@ -692,16 +693,12 @@ public:
 
 		impl.deserialize_type(strvalue, i);
 
-		std::istringstream iss(strvalue);
+		auto p=strvalue.c_str();
 
-		std::ios_base::iostate state(std::ios_base::goodbit);
+		auto ret=std::from_chars(p, p+strvalue.size(), value);
 
-		std::use_facet<std::num_get<char> >(std::locale("C"))
-			.get(std::istreambuf_iterator<char>(iss.rdbuf()),
-			     std::istreambuf_iterator<char>(),
-			     iss, state, value);
-
-		if (state & std::ios_base::failbit)
+		if (ret.ec != std::errc{} ||
+		    ret.ptr != p+strvalue.size())
 			floatmismatch(strvalue);
 	}
 

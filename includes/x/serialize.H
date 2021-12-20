@@ -15,6 +15,7 @@
 #include <sstream>
 #include <iomanip>
 #include <functional>
+#include <charconv>
 
 #include <x/exception.H>
 #include <x/serialization.H>
@@ -334,7 +335,7 @@ public:
 //! floats are serialized as strings, and are type-compatible with std::string.
 //! \see serialize_value
 //!
-template<serializable_float value_type>
+template<std::floating_point value_type>
 class serialize_value_nonconst<value_type> {
 public:
 
@@ -363,8 +364,6 @@ public:
 
 				    )
 	{
-		std::ostringstream s;
-
 		// I found that digits10 is often one less than the real value,
 		// so that the results of calculations are rounded off.
 		// Furthermore there's usually a partial digit as a result
@@ -372,16 +371,24 @@ public:
 		// Therefore, to capture all of the available precision, add
 		// 2 to digits10.
 
-		s << std::setprecision(std::numeric_limits<value_type>::digits10+2);
+		char buffer[std::numeric_limits<value_type>::digits10+2
+			    // +/- sign, decimal point, anything else:
+			    +10];
 
-		std::use_facet<std::num_put<char> >(std::locale("C"))
-			.put(std::ostreambuf_iterator<char>(s.rdbuf()), s,
-			     ' ', value);
+		auto ret=to_chars(std::begin(buffer),
+				  std::end(buffer),
+				  value,
+				  std::chars_format::general);
+
+		if (ret.ec != std::errc{})
+			serialization_conversion_error();
+
+		*ret.ptr=0;
 
 		// Use std::string for the heavy lifting
 
 		serialize_value<std::string>
-			::serialize_bytes(i, s.str(), toiter);
+			::serialize_bytes(i, std::string{buffer}, toiter);
 	}
 
 };

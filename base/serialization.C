@@ -67,6 +67,11 @@ void container_toolong()
 	throw EXCEPTION(libmsg(_txt("Container size exceeds the allowed maximum")));
 }
 
+void serialization_conversion_error()
+{
+	throw EXCEPTION(libmsg(_txt("Unexpected serialization conversion error")));
+}
+
 void classname_toolong(const char *str)
 {
 	throw EXCEPTION(gettextmsg(libmsg(_txt("%1%: object name is too long")),
