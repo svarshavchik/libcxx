@@ -184,7 +184,6 @@ private:
 
 public:
 	template<typename baseType> friend class ptrImpl;
-	template<typename baseClass> friend class ptrBase;
 
 	friend class exception;
 	friend class weakinfoObj;

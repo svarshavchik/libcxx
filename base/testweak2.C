@@ -10,6 +10,7 @@
 #include "x/weakmap.H"
 #include "x/weakunordered_map.H"
 #include "x/weakunordered_multimap.H"
+#include <x/weakptr.H>
 #include "x/ondestroy.H"
 
 #include <string>
@@ -167,6 +168,66 @@ void testunordered2()
 			  });
 }
 
+bool selfdestroy1_created=false;
+
+struct selfdestroy1Obj : virtual public LIBCXX_NAMESPACE::obj {
+
+	typedef LIBCXX_NAMESPACE::weakmultimap<int, LIBCXX_NAMESPACE::obj> mm_t;
+
+	mm_t mm=mm_t::create();
+
+	~selfdestroy1Obj()
+	{
+		mm->find_or_create(
+			0,
+			[&]
+			{
+				selfdestroy1_created=true;
+
+				return LIBCXX_NAMESPACE::ref<
+					LIBCXX_NAMESPACE::obj>::create();
+			});
+	}
+};
+
+void testselfdestroy1()
+{
+	auto p=LIBCXX_NAMESPACE::ref<selfdestroy1Obj>::create();
+
+	p->mm->insert(0, p);
+
+	p=LIBCXX_NAMESPACE::ref<selfdestroy1Obj>::create();
+
+	if (!selfdestroy1_created)
+		throw EXCEPTION("testselfdestroy1 failed");
+}
+
+
+bool selfdestroy2_created=false;
+
+struct selfdestroy2Obj : virtual public LIBCXX_NAMESPACE::obj {
+
+	LIBCXX_NAMESPACE::weakptr<LIBCXX_NAMESPACE::ptr<selfdestroy2Obj>> me;
+
+	~selfdestroy2Obj()
+	{
+		if (me.getptr().null())
+			selfdestroy2_created=true;
+	}
+};
+
+void testselfdestroy2()
+{
+	auto p=LIBCXX_NAMESPACE::ref<selfdestroy2Obj>::create();
+
+	p->me=p;
+
+	p=LIBCXX_NAMESPACE::ref<selfdestroy2Obj>::create();
+
+	if (!selfdestroy2_created)
+		throw EXCEPTION("testselfdestroy2 failed");
+}
+
 int main(int argc, char **argv)
 {
 	try {
@@ -207,6 +268,8 @@ int main(int argc, char **argv)
 		}
 		test_find_or_create();
 		test_find_or_create2();
+		testselfdestroy1();
+		testselfdestroy2();
 
 		testunordered1();
 		testunordered2();

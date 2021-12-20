@@ -73,12 +73,29 @@ public:
 
 	//! Format the nth parameter
 
-	template<size_t n>
-	inline void format_arg(//! Output stream
-			       std::ostream &o,
+	inline void format_arg(
+		//! Output stream
+		std::ostream &o,
 
-			       //! If \c n is \c i then format the parameter
-			       size_t i) const
+		//! Format this parameter
+		size_t i) const
+	{
+		do_format_arg(o, i,
+			      std::make_index_sequence<sizeof...(Args)>{});
+	}
+
+	template<size_t ...n>
+	inline void do_format_arg(std::ostream &o,
+				  size_t i,
+				  std::index_sequence<n...>) const
+	{
+		(
+			do_format_1arg<n>(o, i), ...
+		);
+	}
+
+	template<size_t n>
+	inline void do_format_1arg(std::ostream &o, size_t i) const
 	{
 		if (i == n)
 			o << std::get<n>(args);
@@ -87,71 +104,6 @@ public:
 	//! Convert to a string.
 	operator std::string() const;
 };
-
-//! Helper object for formatting parameters into an output stream
-
-//! \internal
-
-template<typename helper_type, size_t n>
-class gettext_helper_format_args {
-
-public:
-
-	//! Iterate over formatting parameters
-
-	//! Iterate to parameter n-1, then format the nth parameter.
-
-	static inline void format(//! Formatting parameters
-				  const helper_type &h,
-
-				  //! Output stream
-				  std::ostream &o,
-
-				  //! Which parameter to format.
-				  size_t i)
-	{
-		gettext_helper_format_args<helper_type, n-1>
-			::format(h, o, i);
-		h.template format_arg<n-1>(o, i);
-	}
-};
-
-//! Specialization stops iteration at parameter #0
-
-//! \internal
-//!
-template<typename helper_type>
-class gettext_helper_format_args<helper_type, 0> {
-
-public:
-
-	//! No more.
-
-	static inline void format(const helper_type &h,
-				  std::ostream &o, size_t i)
-	{
-	}
-};
-
-//! Format a specific formatting parameter, in gettextmsg()
-
-//! \internal
-//! Iterate over all formatting parameters, selecting the one to be formatted
-//! next.
-
-template<typename ...Args>
-inline void gettext_format_args(//! Parameters to gettextmsg()
-				const gettext_helper<Args...> &h,
-
-				//! Output stream
-				std::ostream &o,
-
-				//! Which parameter number to format.
-				size_t i)
-{
-	gettext_helper_format_args< gettext_helper<Args...>,
-				    sizeof...(Args)>::format(h, o, i);
-}
 
 //! Overload the << operator on the return value of gettextmsg()
 
@@ -180,7 +132,7 @@ std::ostream
 			continue;
 		}
 
-		gettext_format_args(h, o, n-1);
+		h.format_arg(o, n-1);
 	}
 	return o;
 }
