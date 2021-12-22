@@ -13,9 +13,14 @@ See COPYING for distribution information.
       <programlisting>
 #include &lt;&ns;/appid.H&gt;
 
-std::string_view &ns;::appid() noexcept
+std::string &ns;::appid() noexcept
 {
     return "example.libcxx.com";
+}
+
+std::string &ns;::appver() noexcept
+{
+    return "1.0";
 }</programlisting>
     </informalexample>
   </blockquote>
@@ -33,8 +38,16 @@ std::string_view &ns;::appid() noexcept
     An application declares and defines
     <function>&ns;::appid</function>() (in one of its translation
     units), as shown. If it's not declared &appshort; provides a weakly-defined
-    default function that returns a string based on the executable's filename
-    and <quote>localhost.localdomain</quote>.
+    default implementation that returns a string based on the executable's
+    filename and <quote>localhost.localdomain</quote>.
+  </para>
+
+  <para>
+    Similarly,
+    <ulink url="&link-function-x-appver;"><function>&ns;::appver</function></ulink>()
+    declares the application's version. If it's not declared &appshort;
+    provides a weakly-defined default version string from the application's
+    executable's timestamp.
   </para>
 
   <blockquote>

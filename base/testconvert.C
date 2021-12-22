@@ -58,6 +58,7 @@ int main()
 {
 	try {
 		std::cout << "appid: " << appid() << std::endl;
+		std::cout << "appver: " << appver() << std::endl;
 		testconvert();
 	} catch(const exception &e)
 	{

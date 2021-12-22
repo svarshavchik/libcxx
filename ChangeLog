@@ -6,7 +6,7 @@
 
 2021-12-17  Sam Varshavchik  <mrsam@courier-mta.com>
 
-	* Implemenet appid(), and implement configdir() in terms of
+	* Implement appid(), appver(), and implement configdir() in terms of
 	appid().
 
 0.24

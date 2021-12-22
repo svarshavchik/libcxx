@@ -13,6 +13,9 @@
 #include "x/sysexception.H"
 #include "x/property_value.H"
 #include "x/strtok.H"
+#include "x/fileattr.H"
+#include <limits>
+#include <charconv>
 #include <unistd.h>
 #include <sys/stat.h>
 #include <fcntl.h>
@@ -56,6 +59,26 @@ std::string appid() noexcept
 	}
 
 	return s;
+}
+
+std::string appver() noexcept __attribute__((weak));
+
+std::string appver() noexcept
+{
+	auto s=fileattr::create(exename())->stat().st_mtim;
+
+	char buffer[std::numeric_limits<decltype(s.tv_sec)>::digits10 +
+		    std::numeric_limits<decltype(s.tv_nsec)>::digits10+4];
+
+	auto ret=std::to_chars(std::begin(buffer),
+			       std::end(buffer)-1,
+			       s.tv_sec);
+
+	*ret.ptr++='.';
+
+	ret=std::to_chars(ret.ptr, std::end(buffer), s.tv_nsec);
+
+	return {&buffer[0], ret.ptr};
 }
 
 std::string configdir()
