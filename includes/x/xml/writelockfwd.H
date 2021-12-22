@@ -248,6 +248,15 @@ class writelockObj;
 //! second parameter's vector.
 //!
 //! \code
+//! creator->clone(rlock);
+//! \endcode
+//!
+//! clone() inserts a part of another XML document. \c rlock is a
+//! \ref readlock "read lock" on another XML document. The portion of
+//! the XML document anchored at the read lock gets copied into this
+//! XML document.
+//!
+//! \code
 //! wlock->remove();
 //! \endcode
 //!

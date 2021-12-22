@@ -13,6 +13,7 @@ This file defines a type-safe number.
 #define x_number_H
 
 #include <x/namespace.h>
+#include <x/numberfwd.H>
 #include <ostream>
 #include <utility>
 #include <type_traits>
@@ -25,13 +26,6 @@ namespace LIBCXX_NAMESPACE {
 #if 0
 };
 #endif
-
-//! \internal
-
-class number_default_base;
-
-template<typename value_type_t, typename tag,
-	 typename base_class=number_default_base> class number;
 
 //! Define only operations on same \ref number "type-safe numerical aliases".
 
@@ -872,4 +866,8 @@ namespace xml {
 {
 #endif
 }
+
+#define x_number_defined 1
+#include <x/xml/readlock_number.H>
+
 #endif

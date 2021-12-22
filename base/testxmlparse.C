@@ -1309,7 +1309,7 @@ void test90()
 	auto doc=({
 			std::string dummy=
 				"<root xmlns:x='http://www.example.com'>"
-				"<child x:attribute='40.2'>10</child>"
+				"<child x:attribute='40.2' x:n='5'>10</child>"
 				"</root>";
 
 			LIBCXX_NAMESPACE::xml::doc::create(dummy.begin(),
@@ -1348,6 +1348,49 @@ void test90()
 	if (!caught)
 		throw EXCEPTION("Expected exception from get_any_attribute "
 				"was not thrown");
+
+	if (lock->get_text<LIBCXX_NAMESPACE::number<int, void>>() != 10 ||
+	    lock->get_attribute<LIBCXX_NAMESPACE::number<int, void>>(
+		    "n",
+		    "http://www.example.com") != 5 ||
+	    lock->get_any_attribute<LIBCXX_NAMESPACE::number<int, void>>(
+		    "n"
+	    ) != 5)
+		throw EXCEPTION("get<number> failed");
+
+}
+
+void test100()
+{
+	auto doc1=({
+			std::string doc="<root><child1><child2>text</child2></child1></root>";
+
+			LIBCXX_NAMESPACE::xml::doc::create(doc.begin(),
+							   doc.end(), "STRING");
+		});
+
+	auto doc2=LIBCXX_NAMESPACE::xml::doc::create();
+
+	auto lock=doc2->writelock();
+
+	lock->create_child()->element({"root2"});
+
+	auto rlock=doc1->readlock();
+
+	rlock->get_root();
+
+	rlock->get_xpath("/root/child1")->to_node();
+
+	lock->create_child()->clone(rlock);
+
+	std::string s;
+
+	lock->save_to(std::back_insert_iterator<std::string>(s));
+
+	if (s != "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
+	    "<root2><child1><child2>text</child2></child1></root2>\n")
+		throw EXCEPTION("clone() failed");
+
 }
 
 int main(int argc, char **argv)
@@ -1383,6 +1426,7 @@ int main(int argc, char **argv)
 
 		test80();
 		test90();
+		test100();
 	} catch (LIBCXX_NAMESPACE::exception &e)
 	{
 		std::cerr << e << std::endl;

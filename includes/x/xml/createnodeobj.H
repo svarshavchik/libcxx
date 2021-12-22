@@ -11,6 +11,7 @@
 #include <x/xml/createnodefwd.H>
 #include <x/xml/new_element.H>
 #include <x/xml/new_attribute.H>
+#include <x/xml/readlockfwd.H>
 
 #include <string>
 #include <charconv>
@@ -61,6 +62,9 @@ public:
 	//! Create a new text node
 	virtual createnode text(//! Content of the new text node
 				const std::u32string_view &text)=0;
+
+	//! Duplicate a new node
+	virtual createnode clone(const const_readlock &lock)=0;
 
 	//! Create a new text node
 

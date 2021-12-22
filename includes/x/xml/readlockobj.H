@@ -8,6 +8,7 @@
 
 #include <x/uriimplfwd.H>
 #include <x/explicit_arg.H>
+#include <x/numberfwd.H>
 #include <x/obj.H>
 #include <x/xml/dtdfwd.H>
 #include <x/xml/newdtdfwd.H>
@@ -19,6 +20,7 @@
 #include <x/xml/attribute.H>
 #include <type_traits>
 #include <charconv>
+#include <utility>
 
 namespace LIBCXX_NAMESPACE::xml {
 #if 0
@@ -30,6 +32,9 @@ namespace LIBCXX_NAMESPACE::xml {
 class readlockObj : virtual public obj {
 
 public:
+
+	struct LIBCXX_HIDDEN cloned_node;
+
 	//! Constructor
 	readlockObj();
 
@@ -219,6 +224,10 @@ public:
 					  const std::string_view &attribute_name
 					  ) const=0;
 
+	//! Internal fucntion used by clone().
+
+	virtual cloned_node get_cloned_node() const=0;
+
 	//! Enumerate all attributes of this element node
 
 	virtual get_all_attributes_t get_all_attributes() const=0;
@@ -254,6 +263,9 @@ public:
 		return v;
 	}
 
+	template<typesafe_number T>
+	T get_text() const;
+
 	//! Return an attribute converted to a numeric value.
 	template<typename T,
 		 typename ...Args,
@@ -279,6 +291,15 @@ public:
 		return v;
 	}
 
+	template<typesafe_number T,
+		 typename ...Args,
+		 typename=std::void_t<
+			 decltype(
+				 std::declval<readlockObj &>().get_attribute(
+					 std::declval<Args &&>()...
+				 ))>>
+	T get_attribute(Args && ...args) const;
+
 	//! Return an attribute converted to a numeric value.
 
 	template<typename T,
@@ -298,6 +319,9 @@ public:
 
 		return v;
 	}
+
+	template<typesafe_number T>
+	T get_any_attribute(const std::string_view &value) const;
 
 	static void value_conversion_error(const std::string &s)
 		__attribute__((noreturn));
@@ -448,4 +472,9 @@ private:
 {
 #endif
 }
+
+#define x_xml_readlock_defined 1
+
+#include <x/xml/readlock_number.H>
+
 #endif

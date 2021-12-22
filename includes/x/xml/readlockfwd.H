@@ -15,7 +15,7 @@ namespace LIBCXX_NAMESPACE::xml {
 }
 #endif
 
-class readlockObj;
+class LIBCXX_PUBLIC readlockObj;
 
 //! Container populated by get_all_attributes
 
@@ -181,7 +181,8 @@ typedef std::unordered_set<attribute> get_all_attributes_t;
 //!
 //! Overloaded get_attribute() and get_any_attribute() return the attribute
 //! value converted to a numeric type. The template parameter can
-//! be any integer or floating point type.
+//! be any integer, floating point type or a
+//! \ref number "type-safe numerical alias".
 //!
 //! \code
 //! std::string text=rlock->get_text();
@@ -202,7 +203,8 @@ typedef std::unordered_set<attribute> get_all_attributes_t;
 //! get_text() returns the text representation of the current node.
 //! An overloaded template function returns the text representation of the
 //! current node converted to a numeric value. The template parameter can
-//! be any integer or floating point type.
+//! be any integer, floating point type or a
+//! \ref number "type-safe numerical alias".
 //!
 //! get_lang() returns the current's node declared language (the
 //! \c xml:lang attribute, if it's defined, an empty string otherwise).

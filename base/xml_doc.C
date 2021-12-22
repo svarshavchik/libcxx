@@ -505,6 +505,17 @@ class LIBCXX_HIDDEN impldocObj::readlockImplObj : public writelockObj,
 				     to_string(attribute_namespace));
 	}
 
+	cloned_node get_cloned_node() const override
+	{
+		locked_xml_n_t::lock x_lock{locked_xml_n};
+
+		auto &xml_n=*x_lock;
+
+		if (!xml_n)
+			throw EXCEPTION("clone(): no current node");
+
+		return { xmlCopyNode(xml_n, 1) };
+	}
 	std::string get_attribute(const std::string_view &attribute_name,
 				  const std::string_view &attribute_namespace)
 		const override
@@ -1016,6 +1027,12 @@ class LIBCXX_HIDDEN impldocObj::createnodeImplObj : public createnodeObj,
 	{
 		create(guard(xmlNewText(to_xml_char{text}),
 			     "text"));
+		return createnode{this};
+	}
+
+	createnode clone(const const_ref<readlockObj> &lock) override
+	{
+		create(guard(lock->get_cloned_node().node, "clone"));
 		return createnode{this};
 	}
 

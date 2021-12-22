@@ -25,6 +25,10 @@ namespace LIBCXX_NAMESPACE {
 };
 #endif
 
+struct readlockObj::cloned_node {
+	xmlNodePtr node;
+};
+
 // Sigh... libxml2's global error handler.
 
 class LIBCXX_HIDDEN error_handler {
