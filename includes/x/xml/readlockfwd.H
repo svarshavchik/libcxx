@@ -263,7 +263,7 @@ typedef std::unordered_set<attribute> get_all_attributes_t;
 //! validate an XML document's DTD.
 //!
 //! \code
-//! INSERT_LIBX_NAMESPACE::xml::xpath xpath=rlock->get_xpath("body/p[1]");
+//! INSERT_LIBX_NAMESPACE::xml::xpath xpath=rlock->get_xpath("body/pfix:p[1]");
 //! \endcode
 //!
 //! \ref xml::readlockObj::get_xpath "get_xpath"() evaluates
@@ -271,6 +271,28 @@ typedef std::unordered_set<attribute> get_all_attributes_t;
 //! the reader lock is currently positioned to. Returns a
 //! reference-counted that \ref xml::xpath "represents the results" of the
 //! XPath-derived nodeset.
+//!
+//! The xpath expression may reference namespace prefixes that are in scope
+//! at the document node where the reader lock is currently positioned.
+//!
+//! \code
+//! std::unordered_map<std::string, std::string> nslist=rlock->namespaces();
+//! \endcode
+//!
+//! namespaces() returns the namespace prefixes and URIs that are in scope
+//! for the document node that the reader lock is currently positioned to.
+//!
+//! \code
+//! INSERT_LIBX_NAMESPACE::xml::xpath xpath=rlock->get_xpath(
+//!      "body/pfix:p[1]",
+//!      {
+//!          { "pfix", "http://www.example.com" },
+//!      });
+//! \endcode
+//!
+//! An optional 2nd parameter to get_xpath() lists explicit namespace prefixes
+//! and URIs referenced by the XPath expression. They override and supercede
+//! any existing namespace URIs and prefixes in the document.
 
 typedef ref<readlockObj> readlock;
 

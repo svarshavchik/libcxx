@@ -3,6 +3,9 @@
 	* xml: make parameters to element()/attribute() string_view-friendly.
 	Fix new attribute conversion to unicode.
 
+	* xml: Implement namespaces(), add default and explicit namespace
+	prefixes in XPath expressions.
+
 2021-12-21  Sam Varshavchik  <mrsam@courier-mta.com>
 
 	* xml: clone() parts of one XML document into another one. Implement

@@ -6,8 +6,9 @@
 #ifndef x_xml_readlockobj_H
 #define x_xml_readlockobj_H
 
-#include <x/uriimplfwd.H>
+#include <x/xml/readlockfwd.H>
 #include <x/explicit_arg.H>
+#include <x/uriimplfwd.H>
 #include <x/numberfwd.H>
 #include <x/obj.H>
 #include <x/xml/dtdfwd.H>
@@ -15,12 +16,13 @@
 #include <x/xml/docobj.H>
 #include <x/xml/docfwd.H>
 #include <x/xml/xpathfwd.H>
-#include <x/xml/readlockfwd.H>
 #include <x/xml/save_to_callback.H>
 #include <x/xml/attribute.H>
 #include <type_traits>
 #include <charconv>
 #include <utility>
+#include <string>
+#include <unordered_map>
 
 namespace LIBCXX_NAMESPACE::xml {
 #if 0
@@ -382,6 +384,11 @@ public:
 			       //! Set to true to indent formatted XML
 			       bool format=false) const=0;
 
+	//! Return namespaces active for the given node.
+
+	virtual std::unordered_map<std::string,
+				   std::string> namespaces() const=0;
+
 	//! Evaluate an XPATH expression against the current node
 
 	//! An exception gets thrown if \c expr is not a valid XPath
@@ -389,6 +396,16 @@ public:
 	//!
 	//! \return \ref xpath "INSERT_LIBX_NAMESPACE::xml::xpath".
 	virtual xpath get_xpath(const std::string &expr)=0;
+
+	//! Evaluate an XPATH expression, with explicit namespace references.
+
+	//! An exception gets thrown if \c expr is not a valid XPath
+	//! expression.
+	//!
+	//! \return \ref xpath "INSERT_LIBX_NAMESPACE::xml::xpath".
+	virtual xpath get_xpath(const std::string &expr,
+				const std::unordered_map<std::string,
+				uriimpl> &namespaces)=0;
 
 protected:
 	//! Callback shim to save formatted XML into an output iterator

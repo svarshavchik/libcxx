@@ -21,7 +21,8 @@ auto doc=&ns;::xml::doc::create("filename.xml");
   </blockquote>
 
   <para>
-    A reader lock blocks other threads from modifying the &xml; document.
+    A <ulink url="&link-typedef-x--xml-readlock;">reader lock</ulink>
+    blocks other threads from modifying the &xml; document.
     It blocks the creation of a <link linkend="xml_writelock">writer
       lock</link>.
     If a writer lock exists, <methodname>readlock</methodname>() blocks until

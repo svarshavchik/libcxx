@@ -11,9 +11,11 @@
 #include "x/messages.H"
 #include "x/sysexception.H"
 #include "x/weakptr.H"
+#include "x/functional.H"
 #include "xml_internal.h"
 #include "gettext_in.h"
 #include <courier-unicode.h>
+#include <libxml/xpathInternals.h>
 #include <sstream>
 
 namespace LIBCXX_NAMESPACE::xml {
@@ -591,7 +593,55 @@ class LIBCXX_HIDDEN impldocObj::readlockImplObj : public writelockObj,
 		return attributes;
 	}
 
+	std::unordered_map<std::string,
+			   std::string> namespaces() const override
+	{
+		std::unordered_map<std::string, std::string> ret;
+
+		auto l=get_global_locale();
+
+		extract_namespaces(
+			[&]
+			(const xmlChar *prefix, const xmlChar *ns)
+			{
+				std::string ns_s{
+					reinterpret_cast<const char *>(ns)
+				};
+
+				std::string pf_s{
+					reinterpret_cast<const char *>(prefix)
+				};
+
+				ret.emplace(l->fromutf8(pf_s),
+					    l->fromutf8(ns_s));
+			});
+
+		return ret;
+	}
+
+	template<typename F> void extract_namespaces(F &&f) const
+	{
+		do_extract_namespaces(make_function<void (const xmlChar *,
+							  const xmlChar *)>
+				      (std::forward<F>(f)));
+	}
+
+	void do_extract_namespaces(const function<void (const xmlChar *,
+							const xmlChar *)> &f)
+		const
+	{
+		locked_xml_n_t::lock x_lock{locked_xml_n};
+
+		for (auto xml_n=*x_lock; xml_n; xml_n=xml_n->parent)
+			for (auto def=xml_n->nsDef; def; def=def->next)
+				f(def->prefix, def->href);
+	}
+
 	xpath get_xpath(const std::string &expr) override;
+
+	xpath get_xpath(const std::string &expr,
+			const std::unordered_map<std::string,
+			uriimpl> &namespaces) override;
 
 	bool is_blank() const override
 	{
@@ -1826,9 +1876,57 @@ class LIBCXX_HIDDEN impldocObj::xpathImplObj : public xpathObj,
 xpath
 impldocObj::readlockImplObj::get_xpath(const std::string &expr)
 {
-	return ref<xpathImplObj>::create(ref<xpathcontextObj>
-					 ::create(ref<readlockImplObj>(this)),
-					 expr);
+	auto ctx=ref<xpathcontextObj>::create(ref<readlockImplObj>(this));
+
+	extract_namespaces
+		([&]
+		 (const xmlChar *prefix, const xmlChar *ns)
+		{
+			error_handler::error trap_errors;
+
+			auto res=xmlXPathRegisterNs(
+				ctx->context,
+				prefix,
+				ns
+			);
+
+			trap_errors.check();
+
+			if (res)
+			{
+				throw EXCEPTION(libmsg(_txt("Namespace copy "
+							    "failed")));
+			}
+		});
+
+	return ref<xpathImplObj>::create(ctx, expr);
+}
+
+xpath
+impldocObj::readlockImplObj::get_xpath(
+	const std::string &expr,
+	const std::unordered_map<std::string, uriimpl> &namespaces)
+{
+	auto ctx=ref<xpathcontextObj>::create(ref<readlockImplObj>(this));
+
+	for (const auto &[prefix, ns] : namespaces)
+	{
+		error_handler::error trap_errors;
+
+		auto res=xmlXPathRegisterNs(
+			ctx->context,
+			to_xml_char{prefix, *this},
+			to_xml_char{to_string(ns), *this});
+
+		trap_errors.check();
+
+		if (res)
+		{
+			throw EXCEPTION(gettextmsg(libmsg(_txt("Prefix %1%")),
+						   prefix));
+		}
+	}
+	return ref<xpathImplObj>::create(ctx, expr);
 }
 
 std::string quote_string_literal(const std::string_view &str, char quote)

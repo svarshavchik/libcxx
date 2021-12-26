@@ -21,7 +21,8 @@ auto doc=&ns;::xml::doc::create();
   </blockquote>
 
   <para>
-    A writer lock blocks all other <link linkend="xml_readlock">reader</link>
+    A <ulink url="&link-typedef-x--xml-writelock;">writer lock</ulink>
+    blocks all other <link linkend="xml_readlock">reader</link>
     and writer locks.
     It blocks the creation of all other locks.
     If any other lock exists, <methodname>writelock</methodname>() blocks until

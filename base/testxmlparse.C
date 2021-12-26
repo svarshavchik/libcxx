@@ -1393,6 +1393,56 @@ void test100()
 
 }
 
+void test110()
+{
+	auto doc1=({
+			std::string doc="<root xmlns:x='http://www.example.com'><child2/><x:child1 xmlns:y='http://www.example.com/y'>text</x:child1></root>";
+
+			LIBCXX_NAMESPACE::xml::doc::create(doc.begin(),
+							   doc.end(), "STRING");
+		});
+
+	auto lock=doc1->readlock();
+
+	lock->get_root();
+
+	lock->get_xpath("/root/child2")->to_node();
+
+	lock->get_xpath("/root/z:child1", {
+			{ "z", "http://www.example.com"},
+			{ "x", "http://www.example.com/wrongx"}
+		})->to_node();
+
+	if (lock->get_text() != "text")
+		throw EXCEPTION("Namespace xpath 1 failed");
+
+	if (lock->namespaces() != std::unordered_map<std::string, std::string>{
+			{"x", "http://www.example.com" },
+			{"y", "http://www.example.com/y" }
+		})
+		throw EXCEPTION("namespaces() failed");
+
+	lock->get_xpath("/root/child2")->to_node();
+
+	lock->get_xpath("/root/x:child1", {
+			{ "x", LIBCXX_NAMESPACE::uriimpl{
+					"http://www.example.com"
+				}},
+			{ "sc", "http://www.example.com"},
+			{ "ss", std::string{"http://www.example.com"}},
+		})->to_node();
+
+	if (lock->get_text() != "text")
+		throw EXCEPTION("Namespace xpath 2 failed");
+
+	lock->get_xpath("/root/child2")->to_node();
+	lock->get_xpath("/root/x:child1")->to_node();
+
+	if (lock->get_text() != "text")
+		throw EXCEPTION("Namespace xpath 3 failed");
+}
+
+
 int main(int argc, char **argv)
 {
 	try {
@@ -1427,6 +1477,7 @@ int main(int argc, char **argv)
 		test80();
 		test90();
 		test100();
+		test110();
 	} catch (LIBCXX_NAMESPACE::exception &e)
 	{
 		std::cerr << e << std::endl;
