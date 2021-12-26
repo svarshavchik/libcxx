@@ -7,13 +7,15 @@
 
 #include "x/xml/attribute.H"
 
+#include <iostream>
+
 namespace LIBCXX_NAMESPACE::xml {
 #if 0
 }
 #endif
 
-attribute::attribute(const std::string &attrnameArg,
-		     const std::string &attrnamespaceArg)
+attribute::attribute(const std::string_view &attrnameArg,
+		     const std::string_view &attrnamespaceArg)
 	: attrname{attrnameArg}, attrnamespace{attrnamespaceArg}
 {
 }

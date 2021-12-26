@@ -14,36 +14,29 @@ namespace LIBCXX_NAMESPACE::xml {
 }
 #endif
 
-new_element::new_element(const std::string &nameArg)
+new_element::new_element(const std::string_view &nameArg)
 	: new_element{nameArg, "", ""}
 {
 	prefix_given=false;
 }
 
-new_element::new_element(const std::string &nameArg,
-			 const std::string &uriArg)
+new_element::new_element(const std::string_view &nameArg,
+			 const std::string_view &uriArg)
 	: new_element{nameArg, "", uriArg}
 {
 	prefix_given=false;
 }
 
-new_element::new_element(const std::string &nameArg,
-			 const char *uriArg)
-	: new_element{nameArg, "", uriArg}
-{
-	prefix_given=false;
-}
-
-new_element::new_element(const std::string &nameArg,
-			 const uriimpl &uriArg)
+new_element::new_element(const std::string_view &nameArg,
+			 const explicit_arg<uriimpl> &uriArg)
 	: new_element{nameArg, "", to_string(uriArg)}
 {
 	prefix_given=false;
 }
 
-new_element::new_element(const std::string &nameArg,
-			 const std::string &prefixArg,
-			 const std::string &uriArg)
+new_element::new_element(const std::string_view &nameArg,
+			 const std::string_view &prefixArg,
+			 const std::string_view &uriArg)
 	: name{nameArg}, prefix{prefixArg}, uri{uriArg}, prefix_given{true}
 {
 }

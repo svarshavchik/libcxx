@@ -8,6 +8,7 @@
 
 #include <x/xml/readlockfwd.H>
 #include <x/xml/readlockobj.H>
+#include <x/uriimpl.H>
 #include <x/ref.H>
 
 namespace LIBCXX_NAMESPACE::xml {

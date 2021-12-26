@@ -9,6 +9,7 @@
 #include <x/xml/createnodefwd.H>
 #include <x/xml/createnodeobj.H>
 #include <x/ref.H>
+#include <x/uriimpl.H>
 
 namespace LIBCXX_NAMESPACE::xml {
 #if 0

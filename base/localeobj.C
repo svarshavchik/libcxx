@@ -10,6 +10,7 @@
 #include "x/singleton.H"
 #include "x/exception.H"
 #include "x/ymd.H"
+#include "gettext_in.h"
 
 #include <courier-unicode.h>
 
@@ -270,7 +271,7 @@ std::string localeObj::toutf8(const std::string_view &text) const
 	    || !convert(text.data(), text.size())
 	    || !convert.end(errflag)
 	    || errflag)
-		throw EXCEPTION("UTF-8 encoding error");
+		throw EXCEPTION(libmsg(_txt("UTF-8 encoding error")));
 
 	return std::move(convert.convstr);
 }

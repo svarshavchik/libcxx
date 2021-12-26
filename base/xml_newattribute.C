@@ -17,46 +17,28 @@ namespace LIBCXX_NAMESPACE::xml {
 #endif
 
 
-new_attribute::new_attribute(const std::string &attrnameArg,
-			     const value_t &attrvalueArg)
-	: new_attribute{attrnameArg, "", attrvalueArg}
+new_attribute::new_attribute(const std::string_view &attrnameArg,
+			     value_t attrvalueArg)
+	: new_attribute{attrnameArg, "", std::move(attrvalueArg)}
 {
 }
 
-new_attribute::new_attribute(const std::string &attrnameArg,
-			     const std::string &attrnamespaceArg,
-			     const value_t &attrvalueArg)
-	: attribute{attrnameArg, attrnamespaceArg}, attrvalue{
-			std::visit(LIBCXX_NAMESPACE::visitor{
-					[]
-					(const std::string &s)
-					{
-						return s;
-					},
-					[]
-					(const std::u32string &s)
-					{
-						return unicode::iconvert
-							::fromu::convert
-							(s, unicode::utf_8)
-							.first;
-					},
-		}, attrvalueArg)}
+new_attribute::new_attribute(const std::string_view &attrnameArg,
+			     const std::string_view &attrnamespaceArg,
+			     value_t attrvalueArg)
+	: attribute{attrnameArg, attrnamespaceArg},
+	  attrvalue{std::move(attrvalueArg)}
 {
 }
 
-new_attribute::new_attribute(const std::string &attrnameArg,
-			     const uriimpl &attrnamespaceArg,
-			     const value_t &attrvalueArg)
-	: new_attribute{attrnameArg, to_string(attrnamespaceArg), attrvalueArg}
-{
-}
-
-new_attribute::new_attribute(const std::string &attrnameArg,
-			     const char *attrnamespaceArg,
-			     const value_t &attrvalueArg)
-	: new_attribute{attrnameArg, std::string(attrnamespaceArg),
-			attrvalueArg}
+new_attribute::new_attribute(const std::string_view &attrnameArg,
+			     const explicit_arg<uriimpl> &attrnamespaceArg,
+			     value_t attrvalueArg)
+	: new_attribute{
+			attrnameArg,
+			to_string(attrnamespaceArg),
+			std::move(attrvalueArg)
+		}
 {
 }
 

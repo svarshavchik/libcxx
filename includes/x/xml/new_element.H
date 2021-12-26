@@ -7,8 +7,10 @@
 #define x_xml_new_element_H
 
 #include <x/uriimplfwd.H>
+#include <x/explicit_arg.H>
 #include <x/namespace.h>
 #include <string>
+#include <string_view>
 
 namespace LIBCXX_NAMESPACE::xml {
 #if 0
@@ -34,6 +36,7 @@ class new_element {
 public:
 	//! New element's name
 	std::string name;
+
 	//! New element's prefix
 	std::string prefix;
 
@@ -45,45 +48,36 @@ public:
 
 	//! Create a new element in an unnamed namespace.
 	new_element(//! New element's name
-		    const std::string &nameArg);
+		    const std::string_view &nameArg);
 
 	//! Create a new element in a given namespace
 
 	new_element(//! New element's name
-		    const std::string &namearg,
+		    const std::string_view &namearg,
 
 		    //! New element's URI. This URI must be opened in
 		    //! some parent node of the new element.
-		    const std::string &uriArg);
+		    const std::string_view &uriArg);
 
 	//! Create a new element in a given namespace
 
 	new_element(//! New element's name
-		    const std::string &nameArg,
+		    const std::string_view &nameArg,
 
 		    //! New element's URI. This URI must be opened in
 		    //! some parent node of the new element.
-		    const char *uriArg);
-
-	//! Create a new element in a given namespace
-
-	new_element(//! New element's name
-		    const std::string &nameArg,
-
-		    //! New element's URI. This URI must be opened in
-		    //! some parent node of the new element.
-		    const uriimpl &uriArg);
+		    const explicit_arg<uriimpl> &uriArg);
 
 	//! Create a new element in a new namespace
 	new_element(//! New element's name
-		    const std::string &nameArg,
+		    const std::string_view &nameArg,
 
 		    //! The new namespace is opened in this element,
 		    //! this is its prefix.
-		    const std::string &prefixArg,
+		    const std::string_view &prefixArg,
 
 		    //! The new namespace's URI
-		    const std::string &uriArg);
+		    const std::string_view &uriArg);
 
 	//! Destructor
 

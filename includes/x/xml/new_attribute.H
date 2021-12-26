@@ -8,7 +8,9 @@
 
 #include <x/xml/attribute.H>
 #include <x/uriimplfwd.H>
+#include <x/explicit_arg.H>
 #include <string>
+#include <string_view>
 #include <variant>
 
 namespace LIBCXX_NAMESPACE::xml {
@@ -23,12 +25,12 @@ namespace LIBCXX_NAMESPACE::xml {
 
 class new_attribute : public attribute {
 public:
-	//! Attribute value
-	std::string attrvalue;
-
 	//! Attribute value may be specified as a string or a unicode string.
 
 	typedef std::variant<std::string, std::u32string> value_t;
+
+	//! Attribute value
+	value_t attrvalue;
 
 	//! Create a new attribute
 
@@ -40,55 +42,40 @@ public:
 		      //! by this element or one of its parent elements.
 		      //! Otherwise the attribute gets created in the
 		      //! unknown namespace.
-		      const std::string &attrnameArg,
+		      const std::string_view &attrnameArg,
 
 		      //! Attribute's value
-		      const value_t &attrvalueArg);
+		      value_t attrvalueArg);
 
 	//! Create a new attribute in a given namespace
 
 	new_attribute(//! Attribute name
-		      const std::string &attrnameArg,
+		      const std::string_view &attrnameArg,
 
 		      //! Attribute's namespace URI.
 
 		      //! A namespace with the given URI must be opened
 		      //! by this element or one of its parent elements.
 
-		      const std::string &attrnamespaceArg,
+		      const std::string_view &attrnamespaceArg,
 
 		      //! Attribute's value
-		      const value_t &attrvalueArg);
+		      value_t attrvalueArg);
 
 	//! Create a new attribute in a given namespace
 
 	new_attribute(//! Attribute name
-		      const std::string &attrnameArg,
+		      const std::string_view &attrnameArg,
 
 		      //! Attribute's namespace URI.
 
 		      //! A namespace with the given URI must be opened
 		      //! by this element or one of its parent elements.
 
-		      const uriimpl &attrnamespaceArg,
+		      const explicit_arg<uriimpl> &attrnamespaceArg,
 
 		      //! Attribute's value
-		      const value_t &attrvalueArg);
-
-	//! Create a new attribute in a given namespace
-
-	new_attribute(//! Attribute name
-		      const std::string &attrnameArg,
-
-		      //! Attribute's namespace URI.
-
-		      //! A namespace with the given URI must be opened
-		      //! by this element or one of its parent elements.
-
-		      const char *attrnamespaceArg,
-
-		      //! Attribute's value
-		      const value_t &attrvalueArg);
+		      value_t attrvalueArg);
 
 	//! Destructor
 	~new_attribute();

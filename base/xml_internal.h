@@ -291,6 +291,11 @@ struct to_xml_char {
 		}
 	};
 
+	to_xml_char(const std::u32string_view &s, const get_localeObj &)
+		: to_xml_char{s}
+	{
+	}
+
 	to_xml_char(const std::u32string_view &s)
 		: s{ ({
 				       utf8_convert conv;

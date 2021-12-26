@@ -33,7 +33,7 @@ createnode createnodeObj::create_namespace(const std::string &prefix,
 }
 
 createnode createnodeObj::create_namespace(const std::string &prefix,
-					const uriimpl &uri)
+					   const uriimpl &uri)
 {
 	do_create_namespace(prefix, uri);
 	return createnode{this};

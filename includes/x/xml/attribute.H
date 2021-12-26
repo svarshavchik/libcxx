@@ -8,6 +8,7 @@
 
 #include <x/namespace.h>
 #include <string>
+#include <string_view>
 #include <functional>
 
 namespace LIBCXX_NAMESPACE::xml {
@@ -28,8 +29,8 @@ public:
 	std::string attrnamespace;
 
 	//! Constructor
-	attribute(const std::string &attrnameArg,
-		  const std::string &attrnamespaceArg);
+	attribute(const std::string_view &attrnameArg,
+		  const std::string_view &attrnamespaceArg);
 
 	//! Destructor
 	~attribute();

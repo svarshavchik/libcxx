@@ -1401,7 +1401,7 @@ class LIBCXX_HIDDEN impldocObj::writelockImplObj
 
 	void create_attribute(const std::string &attrname,
 			      const xmlNsPtr attrnamespace,
-			      const std::string &attrvalue)
+			      const new_attribute::value_t &attrvalue)
 	{
 		locked_xml_n_t::lock lock{locked_xml_n};
 
@@ -1410,7 +1410,12 @@ class LIBCXX_HIDDEN impldocObj::writelockImplObj
 		get_localeObj &SUPER=static_cast<readlockImplObj &>(*this);
 
 		to_xml_char an{attrname, SUPER};
-		to_xml_char av{attrvalue, SUPER};
+
+		auto av=std::visit([&]
+				   (const auto &s)
+		{
+			return to_xml_char{s, SUPER};
+		}, attrvalue);
 
 		if (xml_n && xml_n->type == XML_ELEMENT_NODE)
 		{
