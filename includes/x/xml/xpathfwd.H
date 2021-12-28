@@ -66,22 +66,10 @@ class xpathObj;
 //! to evaluate to a single node. In this example the reader lock gets
 //! repositioned to the desired element in the XML documen.
 //!
-//! \code
-//! bool flag=xpath->as_bool();
-//!
-//! double number=xpath->as_number();
-//!
-//! std::string string=xpath->as_string();
-//! \endcode
-//!
-//! as_bool(), as_number(), and as_string() return the value of the
-//! XPath nodeset expressed as the corresponding data type.
-//!
 //! \note
-//! When a nodeset gets created by a writer lock, calling the writer
-//! lock's remove() automatically turns all xpath objects that were
-//! created by the writer lock, and which still exist, into empty
-//! nodesets (their count() methods will all return zero).
+//! to_node() throws an exception if the requested node no longer exists,
+//! it was removed by a writer lock's remove(). to_node() continues to
+//! work for other node in the set that still exist.
 
 typedef ref<xpathObj> xpath;
 

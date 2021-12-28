@@ -11,6 +11,7 @@
 #include "x/messages.H"
 #include "x/sysexception.H"
 #include "x/weakptr.H"
+#include "x/weaklist.H"
 #include "x/functional.H"
 #include "xml_internal.h"
 #include "gettext_in.h"
@@ -175,21 +176,7 @@ save_to_callback::~save_to_callback()=default;
 
 typedef mpobj<xmlNodePtr, std::recursive_mutex> locked_xml_n_t;
 
-class LIBCXX_HIDDEN removal_mcguffinObj;
-
-struct removal_mcguffinObj : virtual public obj {
-
-
-public:
-
-	mpobj<bool> removed{false};
-};
-
-typedef ref<removal_mcguffinObj> removal_mcguffin;
-typedef ptr<removal_mcguffinObj> removal_mcguffinptr;
-
 class LIBCXX_HIDDEN impldocObj::readlockImplObj : public writelockObj,
-						  public removal_mcguffinObj,
 						  public get_localeObj {
 
  public:
@@ -210,7 +197,9 @@ class LIBCXX_HIDDEN impldocObj::readlockImplObj : public writelockObj,
 	{
 	}
 
-	~readlockImplObj()
+	~readlockImplObj()=default;
+
+	virtual void register_xpath(const ref<impldocObj::xpathImplObj> &)
 	{
 	}
 
@@ -600,7 +589,10 @@ class LIBCXX_HIDDEN impldocObj::readlockImplObj : public writelockObj,
 
 		auto l=get_global_locale();
 
+		locked_xml_n_t::lock x_lock{locked_xml_n};
+
 		extract_namespaces(
+			x_lock,
 			[&]
 			(const xmlChar *prefix, const xmlChar *ns)
 			{
@@ -619,27 +611,30 @@ class LIBCXX_HIDDEN impldocObj::readlockImplObj : public writelockObj,
 		return ret;
 	}
 
-	template<typename F> void extract_namespaces(F &&f) const
+	template<typename F> void extract_namespaces(
+		locked_xml_n_t::lock &x_lock,
+		F &&f) const
 	{
-		do_extract_namespaces(make_function<void (const xmlChar *,
-							  const xmlChar *)>
-				      (std::forward<F>(f)));
+		do_extract_namespaces(
+			x_lock,
+			make_function<void (const xmlChar *, const xmlChar *)>
+			(std::forward<F>(f)));
 	}
 
-	void do_extract_namespaces(const function<void (const xmlChar *,
+	void do_extract_namespaces(locked_xml_n_t::lock &x_lock,
+				   const function<void (const xmlChar *,
 							const xmlChar *)> &f)
 		const
 	{
-		locked_xml_n_t::lock x_lock{locked_xml_n};
 
 		for (auto xml_n=*x_lock; xml_n; xml_n=xml_n->parent)
 			for (auto def=xml_n->nsDef; def; def=def->next)
 				f(def->prefix, def->href);
 	}
 
-	xpath get_xpath(const std::string &expr) override;
+	xpath get_xpath(const std::string_view &expr) override;
 
-	xpath get_xpath(const std::string &expr,
+	xpath get_xpath(const std::string_view &expr,
 			const std::unordered_map<std::string,
 			uriimpl> &namespaces) override;
 
@@ -778,14 +773,6 @@ class LIBCXX_HIDDEN impldocObj::readlockImplObj : public writelockObj,
 	void remove() override
 	{
 		create_child();
-	}
-
-	virtual removal_mcguffin get_removal_mcguffin()
-	{
-		// We never remove anything here, so for the purposes of
-		// the removal mcguffin, just return ourselves.
-
-		return removal_mcguffin{this};
 	}
 
 	createnode create_next_sibling() override
@@ -1308,6 +1295,52 @@ class LIBCXX_HIDDEN impldocObj::createprevioussiblingObj : public createnodeImpl
 	}
 };
 
+//////////////////////////////////////////////////////////////////////////////
+
+class LIBCXX_HIDDEN impldocObj::xpathImplObj : public xpathObj,
+					       public get_localeObj {
+
+ public:
+	const ref<readlockImplObj> lock;
+
+	// Return our locale object.
+	const const_locale &get_global_locale() const final override;
+
+	const std::string expression;
+
+	// Access to nodes_under_lock requires a locked_xml_n_t. This is
+	// all nodes in a nodeset, and this gets synchronized with remove()
+	// and all other operation that access the write lock's XML node.
+
+	std::vector<xmlNodePtr> nodes_under_lock;
+
+	inline auto &nodes(locked_xml_n_t::lock &)
+	{
+		return nodes_under_lock;
+	}
+
+	inline const auto &nodes(locked_xml_n_t::lock &) const
+	{
+		return nodes_under_lock;
+	}
+
+	xpathImplObj(const ref<readlockImplObj> &lock,
+		     const xpathcontext &context,
+		     const std::string_view &expressionArg);
+
+	~xpathImplObj();
+
+	void about_to_remove(locked_xml_n_t::lock &lock);
+
+	size_t count() const override;
+
+	size_t count(locked_xml_n_t::lock &m_lock) const;
+
+	void to_node() override;
+
+	void to_node(size_t n) override;
+};
+
 class LIBCXX_HIDDEN impldocObj::writelockImplObj
 	: public readlockImplObj,
 	  public createchildObj,
@@ -1315,25 +1348,28 @@ class LIBCXX_HIDDEN impldocObj::writelockImplObj
 	  public createprevioussiblingObj {
 
  public:
-	// Removal mcguffin
 
-	// get_removal_mcguffin() returns this object, creating if it does
-	// not exist. remove() releases this reference on the object.
+	typedef weaklist<impldocObj::xpathImplObj> current_xpaths_t;
 
-	mpobj<removal_mcguffinptr> current_removal_mcguffin;
+	const current_xpaths_t current_xpaths;
+
+	void register_xpath(const ref<impldocObj::xpathImplObj> &xp) override
+	{
+		current_xpaths->push_back(xp);
+	}
 
 	writelockImplObj(const ref<impldocObj> &implArg,
 			 const ref<obj> &lockArg)
 		: readlockImplObj(implArg, lockArg),
 		createchildObj(static_cast<readlockImplObj &>(*this)),
 		createnextsiblingObj(static_cast<readlockImplObj &>(*this)),
-		createprevioussiblingObj(static_cast<readlockImplObj &>(*this))
+		createprevioussiblingObj(static_cast<readlockImplObj &>(*this)),
+		current_xpaths{current_xpaths_t::create()}
 	{
 	}
 
-	~writelockImplObj()
-	{
-	}
+	~writelockImplObj()=default;
+
 
 	ref<readlockObj> clone() const override
 	{
@@ -1494,11 +1530,15 @@ class LIBCXX_HIDDEN impldocObj::writelockImplObj
 		if (!xml_n)
 			return;
 
-		mpobj<removal_mcguffinptr>::lock
-			mcguffin_lock{current_removal_mcguffin};
+		for (const auto &xp : *current_xpaths)
+		{
+			auto p=xp.getptr();
 
-		if (*mcguffin_lock)
-			(*mcguffin_lock)->removed=true;
+			if (!p)
+				continue;
+
+			p->about_to_remove(lock);
+		}
 
 		auto parent=xml_n->parent;
 		if (!parent || parent->type == XML_DOCUMENT_NODE)
@@ -1523,22 +1563,6 @@ class LIBCXX_HIDDEN impldocObj::writelockImplObj
 		xmlUnlinkNode(xml_n);
 		xmlFreeNode(xml_n);
 		xml_n=parent;
-
-		*mcguffin_lock=removal_mcguffinptr{};
-	}
-
-	removal_mcguffin get_removal_mcguffin() override
-	{
-		locked_xml_n_t::lock lock{locked_xml_n};
-		mpobj<removal_mcguffinptr>::lock
-			mcguffin_lock{current_removal_mcguffin};
-
-		if (!*mcguffin_lock)
-			*mcguffin_lock=removal_mcguffin::create();
-
-		removal_mcguffin m=*mcguffin_lock;
-
-		return m;
 	}
 
 	void do_set_base(const char *uri) override
@@ -1705,187 +1729,202 @@ ref<writelockObj> impldocObj::writelock()
 
 ////////////////////////////////////////////////////////////////////////////
 
+// Temporary object that gets constructed when creating a new xpath nodeset
+//
+// The first thing it does is acquire a node lock, then it calls
+// xmlXPathNewContext to create the context for the xpath.
 
-class LIBCXX_HIDDEN impldocObj::xpathcontextObj : virtual public obj {
+class LIBCXX_HIDDEN impldocObj::xpathcontext {
 
  public:
-	ref<readlockImplObj> lock;
-
+	locked_xml_n_t::lock x_lock;
 	xmlXPathContextPtr context;
 
-	xpathcontextObj(ref<readlockImplObj> &&lockArg)
-		: lock(std::move(lockArg)),
-		context(xmlXPathNewContext(lock->impl->p))
-		{
-			locked_xml_n_t::lock x_lock{lock->locked_xml_n};
+	xpathcontext(const ref<readlockImplObj> &lock) :
+		x_lock{lock->locked_xml_n},
+		context{xmlXPathNewContext(lock->impl->p)}
+	{
+		locked_xml_n_t::lock x_lock{lock->locked_xml_n};
 
-			auto &xml_n=*x_lock;
+		auto &xml_n=*x_lock;
 
-			if (!context)
-				throw EXCEPTION(libmsg(_txt("xmlXpathNewContext failed")));
-			if (!(context->node=xml_n))
-				throw EXCEPTION(libmsg(_txt("Lock not positioned on a node")));
-		}
+		if (!context)
+			throw EXCEPTION(libmsg(_txt("xmlXpathNewContext failed")
+					));
+		if (!(context->node=xml_n))
+			throw EXCEPTION(libmsg(_txt("Lock not positioned on "
+						    "a node")));
+	}
 
-	~xpathcontextObj()
+	~xpathcontext()
 	{
 		if (context)
 			xmlXPathFreeContext(context);
 	}
 };
 
-class LIBCXX_HIDDEN impldocObj::xpathImplObj : public xpathObj,
-					       public get_localeObj {
 
- public:
-	const ref<readlockImplObj> lock;
+const const_locale &impldocObj::xpathImplObj::get_global_locale() const
+{
+	return lock->get_global_locale();
+}
 
-	// Return our locale object.
-	const const_locale &get_global_locale() const final override
+// Helper object used when creating an xpath nodeset. Takes a context,
+// then evaluates the xpath expression.
+//
+// nodes() retrieves the xmlNode pointers in the xpath nodeset and places
+// them in a convenient vector.
+
+struct LIBCXX_HIDDEN create_objp {
+
+	xmlXPathObjectPtr created_objp=nullptr;
+
+	create_objp(
+		impldocObj::xpathImplObj &me,
+		const impldocObj::xpathcontext &context)
 	{
-		return lock->get_global_locale();
-	}
-
-	const std::string expression;
-	const removal_mcguffin mcguffin;
-	xmlXPathObjectPtr objp;
-
-	struct mcguffin_lock : locked_xml_n_t::lock {
-
-	private:
-		mpobj<bool>::lock removal_lock;
-
-	public:
-		mcguffin_lock(const xpathImplObj &me)
-			: locked_xml_n_t::lock{me.lock->locked_xml_n},
-			  removal_lock{me.mcguffin->removed}
-		{
-		}
-
-		inline bool gone() const
-		{
-			return *removal_lock;
-		}
-
-		using locked_xml_n_t::lock::operator*;
-	};
-
-	static auto create_objp(xpathImplObj &me,
-				const ref<xpathcontextObj> &context)
-	{
-		mcguffin_lock lock{me};
-
 		error_handler::error trap_errors;
 
 		auto objp=xmlXPathEval(to_xml_char{me.expression, me},
-				       context->context);
+				       context.context);
 
 		trap_errors.check();
 
 		if (!objp)
-			throw EXCEPTION(gettextmsg(libmsg(_txt("Cannot parse xpath expression: %1%")),
-						   me.expression));
+			throw EXCEPTION(
+				gettextmsg
+				(libmsg
+				 (_txt
+				  ("Cannot parse xpath expression: %1%")),
+				 me.expression));
 
-		return objp;
+		created_objp=objp;
 	}
 
-	xpathImplObj(const ref<xpathcontextObj> &context,
-		     const std::string &expressionArg)
-		: lock(context->lock), expression(expressionArg),
-		mcguffin(lock->get_removal_mcguffin()),
-		objp{create_objp(*this, context)}
+	std::vector<xmlNodePtr> nodes()
 	{
+		if (!created_objp)
+			return {};
+
+		return {created_objp->nodesetval->nodeTab,
+			created_objp->nodesetval->nodeTab +
+			created_objp->nodesetval->nodeNr};
 	}
 
-	~xpathImplObj()
+	~create_objp()
 	{
-		if (objp)
-			xmlXPathFreeObject(objp);
-	}
-
-	size_t count() const override
-	{
-		mcguffin_lock m_lock{*this};
-
-		return count(m_lock);
-	}
-
-	size_t count(mcguffin_lock &m_lock) const
-	{
-		return !m_lock.gone() && objp && objp->nodesetval
-			? objp->nodesetval->nodeNr:0;
-	}
-
-	void to_node() override
-	{
-		mcguffin_lock x_lock{*this};
-
-		auto c=count(x_lock);
-
-		auto &xml_n=*x_lock;
-
-		if (c < 1)
-			throw EXCEPTION(gettextmsg(libmsg(_txt("%1% does not exist")),
-						   expression));
-		if (c > 1)
-			throw EXCEPTION(gettextmsg(libmsg(_txt("Found %1% %2% elements")),
-						   c, expression));
-
-		xml_n=objp->nodesetval->nodeTab[0];
-	}
-
-	void to_node(size_t n) override
-	{
-		mcguffin_lock x_lock{*this};
-
-		auto &xml_n=*x_lock;
-
-		if (n == 0 || n > count(x_lock))
-			throw EXCEPTION(gettextmsg(libmsg(_txt("%1% node #%2% does not exist")),
-						   expression, n));
-
-		xml_n=objp->nodesetval->nodeTab[n-1];
-	}
-
-	bool as_bool() const override
-	{
-		mcguffin_lock x_lock{*this};
-
-		return !x_lock.gone() && objp ?
-			!!xmlXPathCastToBoolean(objp):false;
-	}
-
-	double as_number() const override
-	{
-		mcguffin_lock x_lock{*this};
-
-		return !x_lock.gone() && objp ? xmlXPathCastToNumber(objp):0;
-	}
-
-	std::string as_string() const override
-	{
-		mcguffin_lock x_lock{*this};
-
-
-		return !x_lock.gone() && objp ?
-			not_null(xmlXPathCastToString(objp),
-				 "xmlXPathCastToString", *this):"";
+		if (created_objp)
+			xmlXPathFreeObject(created_objp);
 	}
 };
 
-xpath
-impldocObj::readlockImplObj::get_xpath(const std::string &expr)
+impldocObj::xpathImplObj::xpathImplObj(const ref<readlockImplObj> &lock,
+				       const xpathcontext &context,
+				       const std::string_view &expressionArg)
+	: lock{lock}, expression{expressionArg},
+	  nodes_under_lock{create_objp{*this, context}.nodes()}
 {
-	auto ctx=ref<xpathcontextObj>::create(ref<readlockImplObj>(this));
+}
+
+impldocObj::xpathImplObj::~xpathImplObj()=default;
+
+void impldocObj::xpathImplObj::about_to_remove(locked_xml_n_t::lock &lock)
+{
+	auto &nodes=this->nodes(lock);
+
+	std::equal_to<xmlNodePtr> ptr_equal;
+
+	// Iterate over the nodes in a nodeset, for each node: check if that
+	// node or any of its parents is the one that's about to be removed.
+	// If so invalidate the pointer in the nodeset by setting it to null.
+
+	for (auto &ptr:nodes)
+	{
+		for (auto p=ptr; p; p=p->parent)
+		{
+			if (ptr_equal(p, *lock))
+			{
+				ptr=nullptr;
+				break;
+			}
+		}
+	}
+}
+
+size_t impldocObj::xpathImplObj::count() const
+{
+	locked_xml_n_t::lock m_lock{lock->locked_xml_n};
+
+	return count(m_lock);
+}
+
+size_t impldocObj::xpathImplObj::count(locked_xml_n_t::lock &m_lock) const
+{
+	return nodes(m_lock).size();
+}
+
+void impldocObj::xpathImplObj::to_node()
+{
+	locked_xml_n_t::lock x_lock{lock->locked_xml_n};
+
+	auto c=count(x_lock);
+
+	auto &xml_n=*x_lock;
+
+	if (c < 1)
+		throw EXCEPTION(gettextmsg(libmsg(_txt("%1% does not exist")),
+					   expression));
+	if (c > 1)
+		throw EXCEPTION(gettextmsg(libmsg(_txt("Found %1% %2% elements")
+					   ), c, expression));
+
+	auto &n=nodes(x_lock)[0];
+
+	if (!n)
+		throw EXCEPTION(gettextmsg(libmsg(_txt("%1% was removed")),
+					   expression));
+
+	xml_n=n;
+}
+
+void impldocObj::xpathImplObj::to_node(size_t n)
+{
+	locked_xml_n_t::lock x_lock{lock->locked_xml_n};
+
+	auto &nodes=this->nodes(x_lock);
+
+	auto &xml_n=*x_lock;
+
+	if (n == 0 || n > count(x_lock))
+		throw EXCEPTION(gettextmsg(libmsg(_txt("%1% node #%2% does not"
+						       " exist")),
+					   expression, n));
+
+	if (!nodes[n-1])
+	{
+		throw EXCEPTION(gettextmsg(libmsg(_txt("%1% was removed")),
+					   expression));
+	}
+
+	xml_n=nodes[n-1];
+}
+
+xpath
+impldocObj::readlockImplObj::get_xpath(const std::string_view &expr)
+{
+	auto lock=ref{this};
+
+	xpathcontext ctx{lock};
 
 	extract_namespaces
-		([&]
+		(ctx.x_lock,
+		 [&]
 		 (const xmlChar *prefix, const xmlChar *ns)
 		{
 			error_handler::error trap_errors;
 
 			auto res=xmlXPathRegisterNs(
-				ctx->context,
+				ctx.context,
 				prefix,
 				ns
 			);
@@ -1899,22 +1938,28 @@ impldocObj::readlockImplObj::get_xpath(const std::string &expr)
 			}
 		});
 
-	return ref<xpathImplObj>::create(ctx, expr);
+	auto new_xpath=ref<xpathImplObj>::create(lock, ctx, expr);
+
+	lock->register_xpath(new_xpath);
+
+	return new_xpath;
 }
 
 xpath
 impldocObj::readlockImplObj::get_xpath(
-	const std::string &expr,
+	const std::string_view &expr,
 	const std::unordered_map<std::string, uriimpl> &namespaces)
 {
-	auto ctx=ref<xpathcontextObj>::create(ref<readlockImplObj>(this));
+	auto lock=ref{this};
+
+	xpathcontext ctx{lock};
 
 	for (const auto &[prefix, ns] : namespaces)
 	{
 		error_handler::error trap_errors;
 
 		auto res=xmlXPathRegisterNs(
-			ctx->context,
+			ctx.context,
 			to_xml_char{prefix, *this},
 			to_xml_char{to_string(ns), *this});
 
@@ -1926,7 +1971,11 @@ impldocObj::readlockImplObj::get_xpath(
 						   prefix));
 		}
 	}
-	return ref<xpathImplObj>::create(ctx, expr);
+	auto new_xpath=ref<xpathImplObj>::create(lock, ctx, expr);
+
+	lock->register_xpath(new_xpath);
+
+	return new_xpath;
 }
 
 std::string quote_string_literal(const std::string_view &str, char quote)

@@ -18,6 +18,8 @@
 #include <x/xml/xpathfwd.H>
 #include <x/xml/save_to_callback.H>
 #include <x/xml/attribute.H>
+#include <string>
+#include <string_view>
 #include <type_traits>
 #include <charconv>
 #include <utility>
@@ -395,7 +397,7 @@ public:
 	//! expression.
 	//!
 	//! \return \ref xpath "INSERT_LIBX_NAMESPACE::xml::xpath".
-	virtual xpath get_xpath(const std::string &expr)=0;
+	virtual xpath get_xpath(const std::string_view &expr)=0;
 
 	//! Evaluate an XPATH expression, with explicit namespace references.
 
@@ -403,7 +405,7 @@ public:
 	//! expression.
 	//!
 	//! \return \ref xpath "INSERT_LIBX_NAMESPACE::xml::xpath".
-	virtual xpath get_xpath(const std::string &expr,
+	virtual xpath get_xpath(const std::string_view &expr,
 				const std::unordered_map<std::string,
 				uriimpl> &namespaces)=0;
 

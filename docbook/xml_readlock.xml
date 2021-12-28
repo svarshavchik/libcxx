@@ -391,14 +391,14 @@ rlock-&gt;get_xpath("body/p[1]")-&gt;to_node();</programlisting>
     </blockquote>
 
     <para>
-      The parameter to a reader lock's
+      The parameter to a reader or a writer lock's
       <methodname>get_xpath</methodname>() is an XPath expression.
       <methodname>get_xpath</methodname>() returns a
       <ulink url="&link-typedef-x--xml-xpath;"><classname>&ns;::xml::xpath</classname></ulink>
       representing the resulting nodeset from evaluating the expression against
-      the current node the reader lock is positioned to.
+      the current node the reader, or the writer, lock is positioned to.
       <methodname>to_node</methodname>() expects the nodeset containing exactly
-      one node, and it positions the reader lock, that created the
+      one node. It positions the lock, that created the
       <classname>&ns;::xml::xpath</classname>, to the node.
     </para>
 
@@ -438,22 +438,13 @@ for (size_t i=1, n=xpath-&gt;count(); i&lt;=n; ++i)
       </para>
     </note>
 
-    <blockquote>
-      <informalexample>
-	<programlisting>
-bool flag=xpath-&gt;as_bool();
-
-double number=xpath-&gt;as_number();
-
-std::string string=xpath-&gt;as_string();</programlisting>
-      </informalexample>
-    </blockquote>
-
-    <para>
-      <methodname>as_bool</methodname>(), <methodname>as_number</methodname>(),
-      and <methodname>as_string</methodname>() return the value of the
-      XPath nodeset expressed as the corresponding data type.
-    </para>
+    <note>
+      <para>
+	<methodname>to_node</methodname>() throws an exception if the requested
+	node no longer exists <link linkend="xml_writelock_remove">because
+	  it was <methodname>remove</methodname>()d</link>.
+      </para>
+    </note>
   </section>
 </chapter>
 <!--

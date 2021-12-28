@@ -92,7 +92,7 @@ class LIBCXX_HIDDEN impldocObj : public docObj, public get_localeObj {
 	class createprevioussiblingObj;
 	class writelockImplObj;
 
-	class xpathcontextObj;
+	class xpathcontext;
 	class xpathImplObj;
 
 	class save_impl;

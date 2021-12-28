@@ -17,7 +17,7 @@ namespace LIBCXX_NAMESPACE {
 //! Return the configuration directory name.
 
 //! configdir() returns the string "$HOME/.libcxx-config/<appid>", which is
-//! a directory, and performs some housekeeping. The <appid> part comes
+//! a directory, and performs some housekeeping. The \<appid> part comes
 //! from appid().
 //!
 //! \c appid is the application identifier. Identifiers use the Internet

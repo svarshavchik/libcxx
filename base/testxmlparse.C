@@ -1067,7 +1067,7 @@ void test34()
 
 static void test40()
 {
-	std::string docstr="<root><child><subchild /><subchild /></child><bool>1</bool><num>2.5</num></root>";
+	std::string docstr="<root><child><subchild><subsubchild/></subchild><subchild><subsubchild /></subchild></child><bool /></root>";
 
 	auto doc=LIBCXX_NAMESPACE::xml::doc::create(docstr.begin(),
 						    docstr.end(),
@@ -1145,29 +1145,11 @@ static void test40()
 	}
 
 	{
-		auto readlock=doc->readlock();
-
-		readlock->get_root();
-
-		if (readlock->get_xpath("notbool")->as_bool())
-			throw EXCEPTION("as_bool failed");
-
-		if (!readlock->get_xpath("bool")->as_bool())
-			throw EXCEPTION("as_bool failed");
-
-		if (readlock->get_xpath("num")->as_string() != "2.5")
-			throw EXCEPTION("as_bool failed");
-
-		if (readlock->get_xpath("num")->as_number() != 2.5)
-			throw EXCEPTION("as_number failed");
-	}
-
-	{
 		auto writelock=doc->writelock();
 
 		writelock->get_root();
 
-		auto xpath=writelock->get_xpath("child/subchild");
+		auto xpath=writelock->get_xpath("child/subchild/subsubchild");
 
 		if (xpath->count() != 2)
 			throw EXCEPTION("Expected 2 subchild elements");
@@ -1177,10 +1159,37 @@ static void test40()
 		if (xpath->count() != 2)
 			throw EXCEPTION("Expected 2 subchild elements");
 
+		xpath->to_node(1);
+		if (writelock->path() != "/root/child/subchild[1]/subsubchild")
+			throw EXCEPTION("xpath 1 is wrong");
+		xpath->to_node(2);
+		if (writelock->path() != "/root/child/subchild[2]/subsubchild")
+			throw EXCEPTION("xpath 2 is wrong");
+		writelock->get_parent();
 		writelock->remove();
 
-		if (xpath->count() != 0)
-			throw EXCEPTION("xpath was not invalidated");
+		if (xpath->count() != 2)
+			throw EXCEPTION("xpath is not valid any more");
+
+		if (writelock->path() != "/root/child")
+			throw EXCEPTION("did not position to parent node");
+
+		xpath->to_node(1);
+		if (writelock->path() != "/root/child/subchild/subsubchild")
+			throw EXCEPTION("xpath 1 is wrong after remove");
+
+		bool thrown=false;
+
+		try {
+			xpath->to_node(2);
+		} catch (const LIBCXX_NAMESPACE::exception &e)
+		{
+			std::cout << "Expected exception: " << e << std::endl;
+			thrown=true;
+		}
+
+		if (!thrown)
+			throw EXCEPTION("to_node succeeded after removal");
 	}
 }
 

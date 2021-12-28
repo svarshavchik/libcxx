@@ -1,5 +1,13 @@
 2021-12-27  Sam Varshavchik  <mrsam@courier-mta.com>
 
+	* Remove as_bool(), as_number() and as_string(), they've been
+	superceded by overloaded get_text().
+
+	* xml: remove() no longer automatically invalidates all xpath nodesets,
+	only individual nodes that got removed. to_node() will throw an
+	exception for them, and continue to work for any nodes that were
+	not removed.
+
 	* make uriimpl string_view-friendly, add error check to idn
 	conversions.
 

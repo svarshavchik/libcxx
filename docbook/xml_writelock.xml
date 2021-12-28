@@ -520,11 +520,15 @@ wlock->remove();</programlisting>
     <note>
       <para>
 	When an <link linkend="xmlxpath">XPath nodeset</link>
-	gets created by a writer lock, calling <methodname>remove</methodname>()
-	automatically turns all xpath objects that were
-	created by the writer lock, and which still exist, into empty
-	nodesets (their <methodname>count</methodname>() methods will all
-	return zero).
+	gets created by a writer lock: calling <methodname>remove</methodname>()
+	invalidates all nodes in XPath nodesets which were affected by
+	the removal.
+	Other nodes remain. The nodesets' sizes do not change.
+	For example: a nodeset
+	had five nodes and one of them were removed. The nodeset's
+	<methodname>count</methodname>() is still 5, but a
+	<methodname>to_node</methodname>() to the removed node throws an
+	exception (and succeeds normally for the other four).
       </para>
     </note>
   </section>

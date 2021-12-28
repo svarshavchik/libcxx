@@ -39,15 +39,6 @@ public:
 
 	virtual void to_node(//! This is 1-based, not 0-based index.
 			     size_t n)=0;
-
-	//! Evaluate the xpath expression as a bool.
-	virtual bool as_bool() const=0;
-
-	//! Evaluate the xpath expression as a number.
-	virtual double as_number() const=0;
-
-	//! Evaluate the xpath expression as a string.
-	virtual std::string as_string() const=0;
 };
 
 #if 0
