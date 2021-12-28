@@ -8,11 +8,13 @@
 
 #include <cstring>
 #include <string>
+#include <string_view>
 #include <algorithm>
 #include <iterator>
 #include <functional>
 #include <map>
 #include <compare>
+#include <concepts>
 #include <x/uriimplfwd.H>
 #include <x/http/formfwd.H>
 #include <x/exception.H>
@@ -24,6 +26,19 @@ namespace LIBCXX_NAMESPACE {
 #if 0
 };
 #endif
+
+//! Types that can be used to construct a uriimpl
+
+//! uriimpl's constructor's parameter is either a \c std::string_view or
+//! something that can be used to construct one.
+
+template<typename T>
+concept uriimpl_convertable = requires(T &&t) {
+
+	{ std::is_same<T, std::string_view>{} } -> std::convertible_to<std::false_type>;
+
+	{ std::string_view{t} };
+};
 
 //! A non reference-counted URI implementation
 
@@ -520,15 +535,24 @@ public:
 public:
 	//! Constructor
 
-	uriimpl(const char *urlString);
-
-	//! Constructor
-
 	uriimpl(//! URI string
-		const std::string &urlString,
+		const std::string_view &urlString,
 
 		//! Optional \ref idn "libidn flags".
 		int flags=0);
+
+	//! Constructor template
+
+	//! If something is convertible to a string_view, forward it to the
+	//! real constructor. This template participates in overload
+	//! resolution only if the parameter is not already a string_view.
+
+	template<uriimpl_convertable T>
+	uriimpl(T &&t, int flag=0)
+		: uriimpl{ std::string_view{ std::forward<T>(t)}, flag}
+	{
+	}
+
 	//! Destructor
 
 	~uriimpl();
@@ -813,6 +837,10 @@ extern template void uriimpl::parse(std::string::const_iterator,
 				    std::string::const_iterator,
 				    int);
 
+extern template void uriimpl::parse(std::string_view::const_iterator,
+				    std::string_view::const_iterator,
+				    int);
+
 extern template std::ostreambuf_iterator<char>
 uriimpl::to_string(std::ostreambuf_iterator<char>, bool,
 		  const const_locale *, int)
@@ -832,6 +860,11 @@ uriimpl::authority_t::parse(std::string::const_iterator,
 			    std::string::const_iterator,
 			    int);
 
+extern template
+std::string_view::const_iterator
+uriimpl::authority_t::parse(std::string_view::const_iterator,
+			    std::string_view::const_iterator,
+			    int);
 extern template std::ostreambuf_iterator<char>
 uriimpl::authority_t::to_string(std::ostreambuf_iterator<char>)
 	const;

@@ -115,6 +115,11 @@ uriimpl::authority_t::parse(std::string::const_iterator,
 			    std::string::const_iterator,
 			    int);
 
+template std::string_view::const_iterator
+uriimpl::authority_t::parse(std::string_view::const_iterator,
+			    std::string_view::const_iterator,
+			    int);
+
 template std::ostreambuf_iterator<char>
 uriimpl::authority_t::emit_userinfo(std::ostreambuf_iterator<char>)
 	const;
@@ -134,14 +139,10 @@ uriimpl::uriimpl() noexcept
 {
 }
 
-uriimpl::uriimpl(const std::string &urlString,
+uriimpl::uriimpl(const std::string_view &urlString,
 		 int flags)
 {
 	parse(urlString.begin(), urlString.end(), flags);
-}
-
-uriimpl::uriimpl(const char *urlString) : uriimpl(std::string(urlString))
-{
 }
 
 uriimpl::~uriimpl()
@@ -331,6 +332,10 @@ bool uriimpl::operator<<(const uriimpl &o) const
 
 template void uriimpl::parse(std::string::const_iterator,
 			     std::string::const_iterator,
+			     int);
+
+template void uriimpl::parse(std::string_view::const_iterator,
+			     std::string_view::const_iterator,
 			     int);
 
 template std::ostreambuf_iterator<char>

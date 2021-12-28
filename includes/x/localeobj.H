@@ -100,7 +100,7 @@ public:
 
 	//! Return the character set used by this locale
 
-	inline const std::string &charset() const noexcept
+	std::string charset() const noexcept
 	{
 		return locale_charset;
 	}

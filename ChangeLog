@@ -1,3 +1,8 @@
+2021-12-27  Sam Varshavchik  <mrsam@courier-mta.com>
+
+	* make uriimpl string_view-friendly, add error check to idn
+	conversions.
+
 2021-12-26  Sam Varshavchik  <mrsam@courier-mta.com>
 
 	* xml: make parameters to element()/attribute() string_view-friendly.

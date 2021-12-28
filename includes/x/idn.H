@@ -9,7 +9,7 @@
 #include <x/namespace.h>
 #include <x/locale.H>
 
-#include <string>
+#include <string_view>
 #include <idna.h>
 
 namespace LIBCXX_NAMESPACE {
@@ -36,7 +36,7 @@ public:
 	//! Convert domain name to ASCII compatible encoding used by DNS
 
 	static std::string to_ascii(//! i18n domain in the UTF-8 locale.
-				    const std::string &str,
+				    const std::string_view &str,
 
 				    //! libidn flags, \c IDNA_ALLOW_UNASSIGNED or \c IDNA_USE_STD3_ASCII_RULES
 				    int flags=0);
@@ -47,7 +47,7 @@ public:
 
 	static std::string from_ascii(//! Domain name, using ASCII compatible encoding
 
-				      const std::string &str,
+				      const std::string_view &str,
 
 				      //! libidn flags, \c IDNA_ALLOW_UNASSIGNED or \c IDNA_USE_STD3_ASCII_RULES
 				      int flags=0);

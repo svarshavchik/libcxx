@@ -7,19 +7,29 @@
 #include "x/idn.H"
 #include "x/to_string.H"
 #include "x/iconviofilter.H"
+#include "gettext_in.h"
 #include <idna.h>
 #include <courier-unicode.h>
+#include <iterator>
 
 namespace LIBCXX_NAMESPACE {
 #if 0
 };
 #endif
 
-std::string idn::to_ascii(const std::string &str, int flags)
+std::string idn::to_ascii(const std::string_view &str, int flags)
 {
 	std::u32string u32;
+	bool errflag;
 
-	unicode::iconvert::convert(str, unicode::utf_8, u32);
+	unicode::iconvert::tou::convert(std::begin(str),
+					std::end(str),
+					locale::base::global()->charset(),
+					errflag,
+					std::back_insert_iterator{u32});
+
+	if (errflag)
+		throw EXCEPTION(libmsg(_txt("Unicode conversion error")));
 
 	u32.push_back(0);
 
@@ -38,7 +48,7 @@ std::string idn::to_ascii(const std::string &str, int flags)
 	return s;
 }
 
-std::string idn::from_ascii(const std::string &str, int flags)
+std::string idn::from_ascii(const std::string_view &str, int flags)
 {
 	std::u32string u(str.begin(), str.end());
 
@@ -60,7 +70,18 @@ std::string idn::from_ascii(const std::string &str, int flags)
 	u=std::u32string(output, output+n);
 	free(output);
 
-	return unicode::iconvert::convert(u, unicode::utf_8);
+	std::string s;
+	bool errflag;
+
+	unicode::iconvert::fromu::convert(std::begin(u), std::end(u),
+					  locale::base::global()->charset(),
+					  std::back_insert_iterator{s},
+					  errflag);
+
+	if (errflag)
+		throw EXCEPTION(libmsg(_txt("Unicode conversion error")));
+
+	return s;
 }
 
 #if 0
