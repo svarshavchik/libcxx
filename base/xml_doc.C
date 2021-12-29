@@ -1803,7 +1803,7 @@ struct LIBCXX_HIDDEN create_objp {
 
 	std::vector<xmlNodePtr> nodes()
 	{
-		if (!created_objp)
+		if (!created_objp || !created_objp->nodesetval)
 			return {};
 
 		return {created_objp->nodesetval->nodeTab,

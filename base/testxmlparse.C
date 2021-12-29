@@ -1449,6 +1449,25 @@ void test110()
 
 	if (lock->get_text() != "text")
 		throw EXCEPTION("Namespace xpath 3 failed");
+
+	{
+
+	auto doc1=({
+			std::string doc="<?xml version=\"1.0\"?>\n\
+<libcxx:windows xmlns:libcxx=\"https://www.libcxx.org/w\" libcxx:version=\"1640739574.805326267\"></libcxx:windows>";
+
+			LIBCXX_NAMESPACE::xml::doc::create(doc.begin(),
+							   doc.end(), "STRING");
+		});
+	}
+
+	lock=doc1->readlock();
+	lock->get_root();
+
+	if (lock->get_xpath("libcxx:window/libcxx:table", {
+				{"libcxx", "https://www.libcxx.org/w"},
+			})->count() != 0)
+		throw EXCEPTION("Empty nodeset's count is not 0");
 }
 
 
