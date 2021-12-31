@@ -20,13 +20,6 @@ License: GPL
 URL: http://www.libcxx.org
 Source0: libcxx-%{version}.tar.bz2
 
-%define _hardened_build 1
-
-# %define _general_options  -fexceptions -g -grecord-gcc-switches -pipe
-# %define _preprocessor_defines %{nil}
-
-
-
 BuildRequires: gcc-c++
 BuildRequires: pkg-config
 BuildRequires: libstdc++-devel
