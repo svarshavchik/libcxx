@@ -6,36 +6,31 @@ See COPYING for distribution information.
 -->
 
 <section id="news">
-  <title>Release 0.24 of &app;</title>
+  <title>Release 0.25 of &app;</title>
 
   <itemizedlist>
     <listitem>
       <para>
-	Define <classname>std::hash</classname> specializations for
-	<link linkend="functional"><classname>functionref</classname> and
-	  <classname>functionptr</classname></link>. Define a specialization
-	for <classname>std::hash&lt;void&gt;</classname>.
+	Add support for namespaces to XPaths. Provide overloads for
+	parsing and generating XML content as numerical data types.
+      </para>
+      <para>
+	<link linkend="xml_writelock"><function>remove</function>()ing an XML
+	  element</link> does not automatically invalidate
+	<link linkend="xmlxpath">all existing XPath</link> nodesets, but only
+	nodes that get removed.
       </para>
     </listitem>
     <listitem>
       <para>
-	Fixes multithreading issues with the <link linkend="cups">CUPS
-	  library</link>.
+	<link linkend="uri">URI</link> objects accept
+	<classname>std::string_view</classname> parameters.
       </para>
     </listitem>
     <listitem>
       <para>
-	The <link linkend="xml">XML parser</link> uses the
-	<quote>nonet</quote> flag by default, unless turned off.
-	Use <classname>std::u32string</classname> strings with the XML
-	parser, directly.
-      </para>
-    </listitem>
-
-    <listitem>
-      <para>
-	<ulink url="&link-typedef-x-mpweakptr;"><classname>&ns;::mpweakptr</classname></ulink>
-	is a thread-safe <link linkend="weakptr">weak pointer</link>.
+	Implement a framework for defining
+	<link linkend="confidir">application identifiers and versions</link>.
       </para>
     </listitem>
   </itemizedlist>
