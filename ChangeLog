@@ -1,3 +1,9 @@
+2022-02-04  Sam Varshavchik  <mrsam@courier-mta.com>
+
+	* includes/x/libcxx.m4.in: Update LIBCXX_INIT macro: do not include
+	the -std=c++20 option in the C build command, only the C++ build
+	command.
+
 2021-12-27  Sam Varshavchik  <mrsam@courier-mta.com>
 
 	* Remove as_bool(), as_number() and as_string(), they've been

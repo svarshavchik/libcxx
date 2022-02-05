@@ -12,7 +12,7 @@ PKG_CHECK_EXISTS([libcxx-$LIBCXX_VERSION],[:],[AC_MSG_ERROR([LibCXX version $LIB
 
 libcxx_pkgdatadir="`$PKG_CONFIG --variable=pkgdatadir libcxx-$LIBCXX_VERSION`"
 CFLAGS="$CFLAGS `$PKG_CONFIG --cflags libcxx-$LIBCXX_VERSION`"
-CXXFLAGS="$CXXFLAGS `$PKG_CONFIG --cflags libcxx-$LIBCXX_VERSION`"
+CXXFLAGS="$CXXFLAGS -std=c++20 `$PKG_CONFIG --cflags libcxx-$LIBCXX_VERSION`"
 LDFLAGS="$LDFLAGS `$PKG_CONFIG --libs libcxx-$LIBCXX_VERSION`"
 CC="`$PKG_CONFIG --variable=CC libcxx-$LIBCXX_VERSION`"
 CXX="`$PKG_CONFIG --variable=CXX libcxx-$LIBCXX_VERSION`"

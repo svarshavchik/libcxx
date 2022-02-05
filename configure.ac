@@ -110,7 +110,7 @@ AC_SUBST(GCRYPT_CFLAGS)
 
 AX_COURIER_UNICODE_VERSION(2.1)
 
-# Also update the flags placed into libcxx.pc in the Makefile.am
+# Also update the flags placed into includes/x/libcxx.m4.in
 # and buildoptions in docbook/book.xml
 CXXFLAGS="$CXXFLAGS -std=c++20 -fno-omit-frame-pointer -pthread"
 
