@@ -748,6 +748,16 @@ AM_CONDITIONAL(HAVE_REPO, test -d ${srcdir}/docbook)
 
 AC_DEFINE_UNQUOTED(LIBCXX_INTERNAL_BUILD,1,[Building LibCXX])
 
+AC_CHECK_PROG(PCRE2, pcre2-config, yes, no)
+
+if test "$PCRE2" = "no"
+then
+	AC_MSG_ERROR([pcre2-config was not found, please install PCRE2])
+fi
+
+PCRELIBS="`pcre2-config --libs8`"
+AC_SUBST(PCRELIBS)
+
 AC_CONFIG_FILES([Doxyfile po/Makefile.in
 		 Makefile
 		 libltdl/Makefile

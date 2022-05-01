@@ -29,7 +29,7 @@ BuildRequires: gnutls-devel
 BuildRequires: libgcrypt-devel
 BuildRequires: %{__perl}
 BuildRequires: libxslt
-BuildRequires: pcre-devel
+BuildRequires: pcre2-devel
 BuildRequires: libyaml-devel
 BuildRequires: file-devel
 BuildRequires: libidn-devel
@@ -77,7 +77,7 @@ Requires: libxslt
 Requires: libstdc++-devel
 Requires: gnutls-devel
 Requires: libgcrypt-devel
-Requires: pcre-devel
+Requires: pcre2-devel
 Requires: libyaml-devel
 Requires: file-devel
 Requires: libidn-devel

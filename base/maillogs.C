@@ -257,11 +257,10 @@ public:
 	void operator()(const std::string &s) override
 	{
 		try {
-			if (regex->match(s))
+			if (!regex->match(s).empty())
 				out(s);
 		} catch (const LIBCXX_NAMESPACE::exception &e)
 		{
-			// Garbage matches can result PCRE_ERROR_MATCHLIMIT
 			std::ostringstream o;
 
 			o << e;
@@ -294,7 +293,7 @@ static void searchlogs_pattern(outputbase &output,
 				      args.pattern->value, 0);
 	else if (args.utf8pattern->is_set())
 		do_searchlogs_pattern(output, files, state, args,
-		 		      args.utf8pattern->value, PCRE_UTF8);
+		 		      args.utf8pattern->value, PCRE2_UTF);
 	else searchlogs(output, files, state, args);
 }
 

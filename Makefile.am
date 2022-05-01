@@ -129,7 +129,7 @@ libcxx-@ABIVER@.pc: Makefile
 	echo "Description: libcxx library" >>libcxx.pc.tmp
 	echo "Version: @VERSION@" >>libcxx.pc.tmp
 	echo "Requires.private: gnutls" >>libcxx.pc.tmp
-	echo "Cflags: -fno-omit-frame-pointer -pthread -I$(includedir)/libcxx-@ABIVER@" >>libcxx.pc.tmp
+	echo "Cflags: -fno-omit-frame-pointer -pthread -I$(includedir)/libcxx-@ABIVER@ `pcre2-config --cflags`" >>libcxx.pc.tmp
 	echo "Libs: -L${libdir}/libcxx-@ABIVER@ -Wl,-rpath -Wl,${libdir}/libcxx-@ABIVER@" >>libcxx.pc.tmp
 	mv -f libcxx.pc.tmp libcxx-@ABIVER@.pc
 

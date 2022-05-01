@@ -1,5 +1,5 @@
 /*
-** Copyright 2012-2021 Double Precision, Inc.
+** Copyright 2012-2022 Double Precision, Inc.
 ** See COPYING for distribution information.
 */
 
@@ -7,94 +7,126 @@
 #include "x/pcre.H"
 #include "x/exception.H"
 #include "x/to_string.H"
+#include "x/messages.H"
+#include "x/locale.H"
+#include "gettext_in.h"
 
 namespace LIBCXX_NAMESPACE {
 #if 0
 };
 #endif
 
-pcreObj::pcreObj(const std::string &pattern, int options)
-	: compiled(nullptr), studied(nullptr)
+pcreObj::pcreObj(const std::string_view &pattern, uint32_t options)
 {
-	const char *errptr;
-	int erroffset;
+	int errcode;
+	PCRE2_SIZE errindex;
 
-	if (options & PCRE_UTF8)
+	compiled=pcre2_compile(
+		reinterpret_cast<PCRE2_SPTR8>(pattern.data()),
+		pattern.size(),
+		options,
+		&errcode,
+		&errindex,
+		nullptr);
+
+	if (!compiled)
 	{
-		int flag;
-
-		pcre_config(PCRE_CONFIG_UTF8, &flag);
-
-		if (!flag)
-			options &= ~PCRE_UTF8;
+		throw EXCEPTION(
+			gettextmsg(
+				libmsg(_txt("Invalid regular expression "
+					    "offset %1% of: %s")),
+				errindex,
+				pattern));
 	}
 
-	if ((compiled=pcre_compile(pattern.c_str(), options, &errptr,
-				   &erroffset, NULL)) == NULL)
-		throw EXCEPTION(errptr);
+	match_data=pcre2_match_data_create_from_pattern(compiled, nullptr);
 
-	studied=pcre_study(compiled, PCRE_STUDY_JIT_COMPILE, &errptr);
+	if (!match_data)
+	{
+		pcre2_code_free(compiled);
 
-	if (errptr)
-		throw EXCEPTION(errptr);
+		throw EXCEPTION(
+			gettextmsg(
+				libmsg(_txt("Failed to create match data "
+					    "for: ")),
+				pattern));
+	}
 }
 
 pcreObj::~pcreObj()
 {
-	if (studied)
-		pcre_free_study(studied);
+	if (match_data)
+		pcre2_match_data_free(match_data);
 	if (compiled)
-		pcre_free(compiled);
+		pcre2_code_free(compiled);
 }
 
-void pcreObj::set_match_limit(unsigned long match_limit)
+std::vector<std::string_view> pcreObj::match_impl(
+	const std::string_view &string,
+	size_t starting_offset,
+	uint32_t options) const
 {
-	if (studied)
+	if (starting_offset >= string.size())
+		return {};
+
+	std::unique_lock lock{objmutex};
+
+	std::vector<std::string_view> ret;
+
+	int rc=pcre2_match(compiled,
+			   reinterpret_cast<PCRE2_SPTR8>(string.data()),
+			   string.size(),
+			   starting_offset,
+			   options,
+			   match_data,
+			   nullptr);
+
+	if (rc < 0)
+		return ret;
+
+	PCRE2_SIZE *ovector=pcre2_get_ovector_pointer(match_data);
+	uint32_t ovector_count=pcre2_get_ovector_count(match_data);
+
+	ret.reserve(ovector_count);
+
+	if (ovector)
 	{
-		studied->match_limit=match_limit;
-		studied->flags |= PCRE_EXTRA_MATCH_LIMIT;
+		for (uint32_t cnt=0; cnt < ovector_count; ++cnt)
+			ret.emplace_back(&string.data()[ovector[cnt*2]],
+					 ovector[cnt*2+1]-ovector[cnt*2]);
 	}
+
+	return ret;
 }
 
-void pcreObj::set_match_limit_recursion(unsigned long match_limit_recursion)
+std::vector<std::vector<std::string_view>> pcreObj::match_all_impl(
+	const std::string_view &string,
+	uint32_t options) const
 {
-	if (studied)
+	size_t starting_offset=0;
+
+	std::vector<std::vector<std::string_view>> ret;
+
+	while (1)
 	{
-		studied->match_limit_recursion=match_limit_recursion;
-		studied->flags |= PCRE_EXTRA_MATCH_LIMIT_RECURSION;
+		auto matches=match(string, starting_offset, options);
+
+		if (matches.empty())
+			break;
+
+		auto &first_match=matches[0];
+
+		if (first_match.size() == 0)
+			++starting_offset;
+		else
+			starting_offset=
+				first_match.data()+first_match.size()-
+				string.data();
+
+		ret.push_back(std::move(matches));
 	}
-}
 
-bool pcreObj::match(const std::string &string, int options)
-{
-	int cnt;
-
-	if (pcre_fullinfo(compiled, studied, PCRE_INFO_CAPTURECOUNT, &cnt) < 0)
-		throw EXCEPTION("pcre_fullinfo failed");
-
-	int buf_size=(cnt+1)*3;
-	int captured[buf_size];
-
-	int n=pcre_exec(compiled, studied, string.c_str(),
-			string.size(), 0, options, captured, buf_size);
-
-	subpatterns.clear();
-
-	if (n == PCRE_ERROR_NOMATCH || n == 0)
-		return false;
-
-	if (n < 0)
-		throw EXCEPTION("pcre_exec failed ("
-				<< to_string(n)
-				<< ")");
-
-	subpatterns.reserve(n);
-
-	for (int i=0; i<n; ++i)
-		subpatterns.push_back(string.substr(captured[i*2],
-						    captured[i*2+1]
-						    -captured[i*2]));
-	return true;
+	return ret;
 }
 
 #if 0

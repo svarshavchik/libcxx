@@ -1,6 +1,6 @@
 <!--
 
-Copyright 2012 Double Precision, Inc.
+Copyright 2012-2022 Double Precision, Inc.
 See COPYING for distribution information.
 
 -->
@@ -17,13 +17,13 @@ std::string line;
 
 &ns;::pcre pattern=&ns;::pcre::create("(.*) (.*)");
 
-if (!pattern->match(line))
-    std::cout &lt;&lt; "No match" &lt; &lt; std::endl;
-else
-{
-    if (pattern->subpatterns.size() == 3)
-        process_words(pattern->subpatterns[1],
-                      pattern->subpatterns[2]);
+std::vector&lt;std::string_view&gt; patterns=pattern->match("abra cadabra");
+
+if (patterns.empty())
+
+if (patterns.size() == 3)
+     process_words(patterns[1],
+                   patterns[2]);
 }</programlisting>
     </informalexample>
   </blockquote>
@@ -31,7 +31,7 @@ else
   <para>
     This is a
     <application>Perl</application>-compatible regular expression engine,
-    a facade for the <application>PCRE</application> library.
+    a facade for the <application>PCRE2</application> library.
   </para>
 
   <para>
@@ -42,43 +42,62 @@ else
     the given regular expression's syntax is malformed.
     <function>create</function>() takes an optional second argument,
     an <classname>int</classname> of option flags, see
-    <citerefentry><refentrytitle>pcre_compile</refentrytitle><manvolnum>3</manvolnum></citerefentry>
+    <citerefentry><refentrytitle>pcre2_compile</refentrytitle><manvolnum>3</manvolnum></citerefentry>
     for a list of available option flags.
   </para>
 
   <para>
     Once compiled, <methodname>match</methodname>() checks if the string
-    matches a regular expression. <methodname>match</methodname>() also
-    takes an optional second argument,
-    an <classname>int</classname> of option flags,
-    <citerefentry><refentrytitle>pcre_exec</refentrytitle><manvolnum>3</manvolnum></citerefentry>
-    for a list of available option flags.
+    matches a regular expression. <methodname>match</methodname>() takes
+    two optional arguments:
   </para>
 
+  <orderedlist>
+    <listitem>
+      <para>Starting index to search, this defaults to 0.</para>
+    </listitem>
+
+    <listitem>
+      <para>
+	Options for
+	<citerefentry><refentrytitle>pcre2_match</refentrytitle><manvolnum>3</manvolnum></citerefentry>.
+      </para>
+    </listitem>
+  </orderedlist>
+
   <para>
-    Upon a succesful match, the part of the string that matched each
-    subpattern, if any, in the regular expression can be found in the
-    <varname>subpatterns</varname> vector.
-    <varname>subpatterns[0]</varname> is always the entire matched string,
-    <varname>subpatterns[1]</varname> is the first subpattern, and so on.
+    An empty vector gets returned if the match fails. A successful
+    regular expression match
+    returns a non-empty vector of
+    <classname>std::string_view</classname>. The first one is the matched
+    regular expression. Sub-patterns (as specified by the regular expression)
+    get returned as additional values.
   </para>
 
   <note>
     <para>
-      Although, once constructed, the reference-counted object's
-      <methodname>match</methodname>() can be invoked by multiple threads,
-      this object is not directly thread safe. It's up to you to make the
-      necessary arrangement for invoking
-      <methodname>match</methodname>(), and accessing
-      <varname>subpatterns</varname> by one thread at a time.
+      The search string parameter must be an lvalue, and cannot be a temporary
+      rvalue. The
+      string views are views into the exact location in the original string.
+      As such, each string view's <methodname>data</methodname>() gives
+      the exact location in the passed-in string where the regular expression
+      was matched.
     </para>
   </note>
+
+  <para>
+    There's also a <methodname>match_all</methodname>() that returns a vector
+    of <classname>std::string_view</classname> vectors.
+    <methodname>match_all</methodname>() repeatedly invokes
+    <methodname>match</methodname>() to find every occurence of the regular
+    expression in the searched string.
+  </para>
 
   <note>
     <para>
       An error from the underlying
       <application>PCRE</application> library can result in a thrown
-      exception. Specifically, PCRE_ERROR_MATCHLIMIT. The caller
+      exception. The caller
       should catch any thrown exceptions, and decide what to do with them.
     </para>
   </note>
