@@ -14,6 +14,7 @@ AC_PROG_CXX
 LT_CONFIG_LTDL_DIR([libltdl])
 LT_INIT([dlopen])
 LTDL_INIT([recursive])
+AC_PROG_SYSCONFTOOL
 
 AC_PROG_LIBTOOL
 AM_GNU_GETTEXT([external])
@@ -47,6 +48,39 @@ VERSION_INFO=25:0:0
 AC_SUBST(VERSION_INFO)
 
 # Checks for libraries.
+
+AC_ARG_WITH(httportmaprc,[AS_HELP_STRING([--with-httportmaprc=file],[Specify httportmap settings file])],
+	[HTTPORTMAPRC="$withval"],
+	[
+HTTPORTMAPRC=/etc/httportmap
+
+if test -d /etc/sysconfig
+then
+	HTTPORTMAPRC=/etc/sysconfig/httportmap
+fi
+])
+AC_SUBST(HTTPORTMAPRC)
+
+APACHECONFDIR=""
+
+AC_ARG_WITH(apacheconfdir,[AS_HELP_STRING([--with-apacheconfdir=dir],[Specify a non-default location of Apache configuration file])],
+	[APACHECONFDIR="$withval"],
+[
+	for d in /etc/httpd /etc/apache2
+	do
+		if test -d "$d"
+		then
+			APACHECONFDIR=$d
+		fi
+	done
+])
+
+if test "$APACHECONFDIR" = ""
+then
+	AC_MSG_ERROR([Could not find Apache configuration directory, specify --with-apacheconfdir])
+fi
+
+AC_SUBST(APACHECONFDIR)
 
 AC_ARG_WITH(pkgconfigdir,[AS_HELP_STRING([--with-pkgconfigdir=dir],[Specify where pkgconfig configuration file gets installed])],
 	[PKGCONFIGDIR="$withval"],
@@ -766,7 +800,7 @@ AC_CONFIG_FILES([Doxyfile po/Makefile.in
 		 httportmap/testsuite
 		 httportmap/apache.conf
 		 packaging/fedora/libcxx.spec
-		 packaging/fedora/sysinit
+		 sysinit
 		 packaging/fedora/Makefile
 		 packaging/fedora/libcxx.fc
 		 packaging/freebsd10/devel/libcxx/Makefile

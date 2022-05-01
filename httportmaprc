@@ -1,0 +1,20 @@
+##VERSION: 1
+#
+# httportmap configuration file
+
+
+##NAME: args:0
+#
+# Any additional arguments to httportmapd
+
+args=""
+
+##NAME: http:0
+#
+# Set to "yes" to Have httportmap open and listen for request on the http
+# portmap.
+#
+# This is automatically disabled is apache is installed, in which case
+# this is controlled by the apache configuration file.
+
+http=no

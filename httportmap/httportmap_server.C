@@ -668,19 +668,19 @@ public:
 		iter(ptr->stop);
 	}
 
-	std::string systemd_dir() const
+	std::string container_dir() const
 	{
 		return sockname + ".systemd";
 	}
 
-	std::string systemd_lockfile() const
+	std::string container_lockfile() const
 	{
-		return systemd_dir() + "/lock";
+		return container_dir() + "/lock";
 	}
 
-	std::string systemd_sockfile() const
+	std::string container_sockfile() const
 	{
-		return systemd_dir() + "/socket";
+		return container_dir() + "/socket";
 	}
 };
 
@@ -802,31 +802,31 @@ static void start_as_child(const args &a)
 		exit(1);
 }
 
-// systemd-specific code to deal with its stupidity. Have a process listen
-// for nothing other than a signal to reexec itself.
+// Container-specific code. Have a process listen for nothing other than a
+// signal to reexec itself.
 //
 // After updating libcxx, the start() commands starts the new httportmap
 // executable, which negotiated with the existing executable to do an
 // orderly handover, at which point the old executable exits. The new
 // httportmap daemon is a child of the new, started executable.
 //
-// systemd can't deal with this. We must have the existing process listen
+// Containers make this complicated. We must have the existing process listen
 // and reexec itself. We'll use a separate socket to pass the startup
 // arguments, from the terminal-initiated command to the running daemon,
 // which then
 
-static void systemd_brain_damage(const std::string &me,
+static void container_brain_damage(const std::string &me,
 				 const LIBCXX_NAMESPACE::fd &lockfile,
 				 const LIBCXX_NAMESPACE::fd &listenfd);
 
-static void systemd_start(const args &a,
+static void container_start(const args &a,
 			  const std::string &exename)
 {
 	auto pipe=as_child();
 
-	mkdir(a.systemd_dir().c_str(), 0700);
-	std::string lockfilename=a.systemd_lockfile();
-	std::string sockname=a.systemd_sockfile();
+	mkdir(a.container_dir().c_str(), 0700);
+	std::string lockfilename=a.container_lockfile();
+	std::string sockname=a.container_sockfile();
 
 	LIBCXX_NAMESPACE::fdptr lockfile=
 		LIBCXX_NAMESPACE::fd::base::lockf(lockfilename,
@@ -852,10 +852,10 @@ static void systemd_start(const args &a,
 	parent_can_exit(pipe, 0);
 
 	listenfd->listen();
-	systemd_brain_damage(exename, lockfile, listenfd);
+	container_brain_damage(exename, lockfile, listenfd);
 }
 
-static void systemd_brain_damage(const std::string &me,
+static void container_brain_damage(const std::string &me,
 				 const LIBCXX_NAMESPACE::fd &lockfile,
 				 const LIBCXX_NAMESPACE::fd &listenfd)
 {
@@ -876,14 +876,14 @@ static void systemd_brain_damage(const std::string &me,
 
 	const char *n=me.c_str();
 
-	execl(n, n, "systemd-reload", lockfile_ss.c_str(),
+	execl(n, n, "container-reload", lockfile_ss.c_str(),
 	      listenfd_ss.c_str(),
 	      cl_ss.c_str(), (char *)0);
 	throw SYSEXCEPTION("exec");
 }
 
-static void systemd_reload(const std::string &exename,
-			   const std::list<std::string> &s)
+static void container_reload(const std::string &exename,
+			     const std::list<std::string> &s)
 {
 	if (s.size() != 3)
 		return; // Something incompatible.
@@ -919,21 +919,21 @@ static void systemd_reload(const std::string &exename,
 	if (newargs.stop)
 	{
 		stop(newargs.sockname);
-		unlink(newargs.systemd_sockfile().c_str());
-		unlink(newargs.systemd_lockfile().c_str());
+		unlink(newargs.container_sockfile().c_str());
+		unlink(newargs.container_lockfile().c_str());
 		return;
 	}
 	cl->close();
 	start_as_child(newargs);
-	systemd_brain_damage(exename, fds.front(), fds.back());
+	container_brain_damage(exename, fds.front(), fds.back());
 }
 
-static void systemd_send(const args &a)
+static void container_send(const args &a)
 {
 	try {
 		auto sock=LIBCXX_NAMESPACE::netaddr::create(SOCK_STREAM,
 							  "file:" +
-							  a.systemd_sockfile(),
+							  a.container_sockfile(),
 							  "")
 			->connect();
 
@@ -984,38 +984,38 @@ static int main2(int argc, char **argv)
 		return stop(opts.socket->value);
 	}
 
-	if (cmd == "systemd-start")
+	if (cmd == "container-start")
 	{
 		args a=opts;
 
 		a.daemon=true;
-		systemd_start(a, me);
+		container_start(a, me);
 		return 0;
 	}
 
-	if (cmd == "systemd-restart")
+	if (cmd == "container-restart")
 	{
 		args a=opts;
 
 		a.daemon=true;
-		systemd_send(a);
+		container_send(a);
 		return 0;
 	}
 
-	if (cmd == "systemd-stop")
+	if (cmd == "container-stop")
 	{
 		args a=opts;
 
 		a.stop=true;
-		systemd_send(a);
+		container_send(a);
 		return 0;
 	}
 
-	if (cmd == "systemd-reload")
+	if (cmd == "container-reload")
 	{
 		optionParser->args.pop_front();
 
-		systemd_reload(me, optionParser->args);
+		container_reload(me, optionParser->args);
 		return 0;
 	}
 

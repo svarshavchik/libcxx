@@ -36,6 +36,8 @@ BuildRequires: libidn-devel
 BuildRequires: libtool-ltdl-devel
 BuildRequires: libxml2-devel
 BuildRequires: cups-devel
+BuildRequires: sysconftool
+BuildRequires: httpd-filesystem
 Requires(post): /bin/systemctl
 Requires(preun): /bin/systemctl
 
@@ -138,7 +140,7 @@ rm -rf $RPM_BUILD_ROOT
 mkdir -p $RPM_BUILD_ROOT/etc/httpd/conf.d
 %{__install} -m 0444 httportmap/apache.conf $RPM_BUILD_ROOT/etc/httpd/conf.d/httportmap.conf
 mkdir -p $RPM_BUILD_ROOT/etc/rc.d/init.d
-%{__install} -m 0555 packaging/fedora/sysinit $RPM_BUILD_ROOT%{_datadir}/httportmap/sysinit
+%{__install} -m 0555 sysinit $RPM_BUILD_ROOT%{_datadir}/httportmap/sysinit
 %{__install} -m 0555 packaging/fedora/libcxx.pp \
  packaging/fedora/libcxx.fc \
  packaging/fedora/libcxx.te \
@@ -146,7 +148,7 @@ mkdir -p $RPM_BUILD_ROOT/etc/rc.d/init.d
 
 mkdir -p $RPM_BUILD_ROOT%{_unitdir}
 %{__install} -m 0644 packaging/fedora/systemd $RPM_BUILD_ROOT%{_unitdir}/httportmap.service
-
+%{__install} -m 0755 sysconftool $RPM_BUILD_ROOT%{_datadir}/httportmap/sysconftool
 %{__mkdir_p} $RPM_BUILD_ROOT%{_localstatedir}/run/httportmap.systemd
 %{__mkdir_p} $RPM_BUILD_ROOT%{_localstatedir}/run/httportmap.priv
 
@@ -193,6 +195,8 @@ rm -rf $RPM_BUILD_ROOT
 
 %else
 %{_bindir}/properties --set %{_sysconfdir}/httportmapd.properties %{_sbindir}/httportmapd >/dev/null
+%{_datadir}/httportmap/sysconftool %{_sysconfdir}/sysconfig/httportmap.dist
+
 for f in %{_localstatedir}/tlsparams/system.dh
 do
 	test -f $f || ln $f.dist $f
@@ -269,6 +273,7 @@ fi
 %attr(0600, root, root) %verify(user group mode) %ghost %config(missingok) %{_localstatedir}/run/httportmap.lock
 %attr(0700, root, root) %ghost %dir %{_localstatedir}/run/httportmap.systemd
 
+%{_sysconfdir}/sysconfig/*.dist
 %dir %{_sysconfdir}/tlsparams
 %config(noreplace) %{_sysconfdir}/tlsparams/*
 

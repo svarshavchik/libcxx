@@ -109,7 +109,7 @@ rpm:
 	rpmbuild -ta --clean \
 		--define "_topdir `pwd`/rpm" \
 		--define "extrarelease .`date '+%Y%m%d%H%M%S'`" @PACKAGE@-@VERSION@.tar.bz2
-	sh $$HOME/repos.sh
+	sh $$HOME/bin/rpmrepos.sh
 
 pkgconfdir=@PKGCONFIGDIR@
 
@@ -158,3 +158,48 @@ upload:
 	rm -f @PACKAGE@-@VERSION@.tar.bz2.sig; gpg --detach-sign --default-key mrsam@courier-mta.com @PACKAGE@-@VERSION@.tar.bz2; test -f @PACKAGE@-@VERSION@.tar.bz2.sig || exit 1
 	pag upload @PACKAGE@-@VERSION@.tar.bz2
 	pag upload @PACKAGE@-@VERSION@.tar.bz2.sig
+
+EXTRA_DIST += httportmaprc
+
+install-data-local:
+	mkdir -p `dirname $(DESTDIR)@HTTPORTMAPRC@`
+	$(INSTALL) -m 0644 httportmaprc $(DESTDIR)@HTTPORTMAPRC@.dist
+
+uninstall-local:
+	rm -f $(DESTDIR)@HTTPORTMAPRC@.dist
+
+# Copyright 2000 Double Precision, Inc.  See COPYING for
+# distribution information.
+
+# Need to add sysconftoolize to package:
+
+EXTRA_DIST += sysconftool
+
+# NOTE: when using a complex directory hierarchy it is only necessary to
+# include sysconftool in the top level directory, and it is not necessary
+# to add sysconftool to EXTRA_DIST in subdirectories.
+
+SYSCONFFILES=@HTTPORTMAPRC@.dist
+
+# SYSCONFFILES should be all of your .dist files, this is a default.
+# You can also change install-configure-local target below, instead.
+
+# If -- in a complex directory hierarchy -- a certain subdirectory does not
+# need install-configure, leave it defined as an empty rule to prevent
+# sysconftoolize from appending another form template to this Makefile.am
+
+install-configure:
+	@list='$(SUBDIRS)'; for subdir in $$list; do \
+		( case "$$subdir" in .) continue;; \
+			*) target=install-configure;; esac ; \
+		cd $$subdir ; $(MAKE) -$(MAKEFLAGS) install-configure DESTDIR=$(DESTDIR) 2>/dev/null) \
+			; done ; exit 0
+	$(MAKE) -$(MAKEFLAGS) install-configure-local DESTDIR=$(DESTDIR)
+
+# Modify the following target as appropriate:
+
+install-configure-local:
+	@list='$(SYSCONFFILES)'; for file in $$list; do \
+		file="$(DESTDIR)$$file" ; \
+		case "$$file" in *.dist) \
+			@SYSCONFTOOL@ $$file;; esac ; done

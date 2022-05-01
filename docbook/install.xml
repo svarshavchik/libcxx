@@ -131,8 +131,10 @@ See COPYING for distribution information.
 
       <listitem>
 	<para>
-	  <ulink url="http://www.courier-mta.org/unicode/">The Courier Unicode
-	    Library</ulink>.
+	  <ulink url="https://www.courier-mta.org/unicode/">The Courier Unicode
+	    Library</ulink> (and
+	  <ulink url="https://www.courier-mta.org/sysconftool/">sysconftool</ulink>
+	  if building from the git repository).
 	</para>
       </listitem>
 
@@ -420,7 +422,59 @@ See COPYING for distribution information.
       In the source tarball, <filename>httportmap/apache.conf.in</filename>
       is a sample <application>Apache</application> configuration, with a
       placeholder for <command>httportmapd</command>'s installation location.
+      Additionally:
     </para>
+    <para>
+      <command>make install</command> installs
+      <filename>/etc/httportmaprc.dist</filename> (or what's specified by
+      <literal>--with-httportmaprc</literal> option to
+      <command>configure</command>).
+    </para>
+
+    <para>
+      The <command>sysconftool</command> and the <command>sysinit</command>
+      scripts do not get installed, there is no good default location
+      for them. These scripts are a blueprint for a typical start/stop
+      procedure for <command>httportmapd</command>:
+    </para>
+
+    <itemizedlist>
+      <listitem>
+	<para>
+	  Add <command>sysconftool</command> and the
+	  <command>sysinit</command> to the installed package.
+	</para>
+      </listitem>
+      <listitem>
+	<para>
+	  Have the package's installation script run
+	  <command>sysconftool</command> passing to it the
+	  full pathname of the <filename>httportmaprc.dist</filename> file
+	  (the <command>make install-configure</command> command executes this
+	  manually).
+	</para>
+      </listitem>
+
+      <listitem>
+	<para>
+	  <command>sysinit</command> is a typical start/stop script that
+	  takes the <quote>start</quote>, <quote>stop</quote>,
+	  <quote>status</quote>,
+	  <quote>restart</quote>, and <quote>try-restart</quote> (restart
+	  <command>httportmapd</command> if it's running) parameters
+	  (<quote>reload</quote> does nothing and
+	  <quote>force-reload</quote> is equivalent to a
+	  <quote>restart</quote>).
+	</para>
+
+	<para>
+	  It should be possible to set up <command>httportmapd</command>
+	  running in a container. If so, prepending a <quote>container</quote>
+	  parameter to the script (<quote>sysinit container start</quote>,
+	  etc) should make the startup sequence more container-friendly.
+	</para>
+      </listitem>
+    </itemizedlist>
   </simplesect>
 
   <simplesect id="multiver">

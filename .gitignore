@@ -35,4 +35,6 @@ Makefile.in
 /repo
 /rpm
 /stamp-h1
+/sysconftool
+/sysinit
 /xml

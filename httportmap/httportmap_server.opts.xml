@@ -55,7 +55,7 @@ See COPYING for distribution information.
   </option>
 
   <arg>
-    <name>start|stop|status|systemd-start|systemd-reload|systemd-stop</name>
+    <name>start|stop|status|container-start|container-reload|container-stop</name>
   </arg>
 
   <defaultoptions />

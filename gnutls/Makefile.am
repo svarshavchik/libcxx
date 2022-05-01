@@ -178,7 +178,7 @@ install-data-hook:
 	rm -f dhparams.dat testrsa?.key
 
 uninstall-hook:
-	test "`cat $(DESTDIR)@sysconfdir@/tlsparams/system.dh.conf 2>/dev/null`" = '$(DSACFG)' || exit 0; rm -f $(DESTDIR)@sysconfdir@/tlsparams/system.dh.conf; rm -f @localstatedir@/tlsparams/system.dh
+	test "`cat $(DESTDIR)@sysconfdir@/tlsparams/system.dh.conf 2>/dev/null`" = '$(DSACFG)' || exit 0; rm -f $(DESTDIR)@sysconfdir@/tlsparams/system.dh.conf; rm -f $(DESTDIR)@localstatedir@/tlsparams/system.dh
 	fgrep -q '>>>DEFAULT PARAMETERS' $(DESTDIR)@localstatedir@/tlsparams/system.dh || exit 0; rm -f $(DESTDIR)@localstatedir@/tlsparams/system.dh
 	-rmdir $(DESTDIR)@localstatedir@/tlsparams 2>/dev/null
 	-rmdir $(DESTDIR)@sysconfdir@/tlsparams 2>/dev/null

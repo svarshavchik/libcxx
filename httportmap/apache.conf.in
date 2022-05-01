@@ -1,13 +1,25 @@
-<Location /portmap>
-SetHandler cgi-script
-Options +ExecCGI
-</Location>
+<IfModule mod_alias.c>
+  <IfModule mod_cgi.c>
+    Define ENABLE_HTTPORTMAP
+  </IfModule>
 
-<Directory @sbindir@>
-  <Files "httportmapd">
-    Require all granted
-  </Files>
-</Directory>
+  <IfModule mod_cgid.c>
+    Define ENABLE_HTTPORTMAP
+  </IfModule>
 
-RewriteEngine on
-RewriteRule /portmap @httportmapd@
+  <IfDefine ENABLE_HTTPORTMAP>
+    <Location /portmap>
+      SetHandler cgi-script
+      Options +ExecCGI
+    </Location>
+
+    <Directory @sbindir@>
+      <Files "httportmapd">
+        Require all granted
+      </Files>
+    </Directory>
+
+    RewriteEngine on
+    RewriteRule /portmap @httportmapd@
+  </IfDefine>
+</IfModule>

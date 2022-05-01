@@ -18,24 +18,27 @@ prefix="@prefix@"
 exec_prefix="@exec_prefix@"
 sbindir="@sbindir@"
 
-if test -f /etc/sysconfig/httportmap
+http=""
+args=""
+
+if test -f @HTTPORTMAPRC@
 then
-    . /etc/sysconfig/httportmap
+    . @HTTPORTMAPRC@
 fi
 
 startcmd=start
 stopcmd=stop
 
-if test "$1" = "systemd"
+if test "$1" = "container"
 then
-    startcmd=systemd-start
-    stopcmd=systemd-stop
+    startcmd=container-start
+    stopcmd=container-stop
     shift
 fi
 
-if test "$1" = "systemd-restart"
+if test "$1" = "container-restart"
 then
-    startcmd=systemd-restart
+    startcmd=container-restart
     shift
 fi
 
@@ -47,9 +50,12 @@ case "$1" in
 
 	@sbindir@/tlsparamsgen.sh --definit &
 
-	if test ! -d /etc/httpd/conf.d
+	if test ! -d @APACHECONFDIR@
 	then
-	    args="$args --http"
+	    if test "$http" = "yes"
+	    then
+		args="$args --http"
+	    fi
 	fi
 
 	$sbindir/httportmapd $args --daemon $startcmd
