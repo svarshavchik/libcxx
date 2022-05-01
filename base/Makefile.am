@@ -724,7 +724,7 @@ testmimesectioniter_LDADD=libcxx.la
 testmimesectioniter_LDFLAGS=$(TESTLINKTYPE)
 
 testmimerfc2047_SOURCES=testmimerfc2047.C
-testmimerfc2047_LDADD=libcxx.la
+testmimerfc2047_LDADD=libcxx.la -lcourier-unicode
 testmimerfc2047_LDFLAGS=$(TESTLINKTYPE)
 
 testmimeencoder_SOURCES=testmimeencoder.C
