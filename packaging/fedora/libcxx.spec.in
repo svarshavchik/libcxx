@@ -126,9 +126,9 @@ This package installs files needed to develop applications that use libcxx.
 
 %prep
 %setup -q -n libcxx-%{version}
-%configure
 
 %build
+%configure
 %{__make} %{_smp_mflags}
 
 cd packaging/fedora
@@ -160,7 +160,7 @@ done
 chmod 600 $RPM_BUILD_ROOT%{_localstatedir}/run/httportmap.lock
 
 %{__mkdir_p} $RPM_BUILD_ROOT%{_sysconfdir}/cron.monthly
-%{__ln_s} %{_sbindir}/tlsparamsgen.sh $RPM_BUILD_ROOT%{_sysconfdir}/cron.monthly/tlsparamsgen
+%{__ln_s} ../../%{_sbindir}/tlsparamsgen.sh $RPM_BUILD_ROOT%{_sysconfdir}/cron.monthly/tlsparamsgen
 
 rm -f $RPM_BUILD_ROOT%{_libdir}/libcxx-@ABIVER@/*.la
 rm -f $RPM_BUILD_ROOT%{_libdir}/libcxx-@ABIVER@/*.so.[0123456789]+

@@ -397,7 +397,7 @@ decode_next_word(std::string::const_iterator b,
 		std::transform(next_lang.begin(),
 			       next_lang.end(),
 			       next_lang.begin(),
-			       std::ptr_fun(chrcasecmp::toupper));
+			       chrcasecmp::toupper);
 		charset=std::string(c_b, c_asterisk);
 	}
 

@@ -194,13 +194,17 @@ public:
 
 	typedef services_t::iterator s_iter;
 
-	class iterator : private services_t::const_iterator,
-			 public std::iterator<std::bidirectional_iterator_tag,
-					      entry> {
+	class iterator : private services_t::const_iterator {
 
 		services_obj_t::lock &l;
 
 	public:
+		typedef std::bidirectional_iterator_tag iterator_category;
+		typedef entry value_type;
+		typedef entry *pointer;
+		typedef entry &reference;
+		typedef void difference_type;
+
 		friend class httportmap_server;
 
 	private:

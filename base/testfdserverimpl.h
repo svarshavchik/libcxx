@@ -238,10 +238,15 @@ void testhttpsendmsgerror()
 		throw EXCEPTION("testhttpmessageerror: did not catch an exception");
 }
 
-template<typename conn_type>
-class endlessinputiter : public std::iterator<std::input_iterator_tag, char> {
+template<typename conn_type> class endlessinputiter {
 
 public:
+	typedef std::input_iterator_tag iterator_category;
+	typedef char value_type;
+	typedef void reference;
+	typedef void difference_type;
+	typedef void pointer;
+
 	endlessinputiter() {}
 	~endlessinputiter() {}
 

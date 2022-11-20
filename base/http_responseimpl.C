@@ -197,7 +197,7 @@ void responseimpl::parse_start_line()
 
 	b=httpver_parse(b, e, httpver);
 
-	b=std::find_if(b, e, std::not1(std::ptr_fun(isspace)));
+	b=std::find_if(b, e, [](char c){ return c != ' ' && c != '\t' && c != '\r' && c != '\n'; });
 
 	if (b == e || *b < '0' || *b > '9')
 		throw_bad_request();
@@ -213,7 +213,7 @@ void responseimpl::parse_start_line()
 	if (statuscode < 100)
 		throw_bad_request();
 
-	b=std::find_if(b, e, std::not1(std::ptr_fun(isspace)));
+	b=std::find_if(b, e, [](char c){ return c != ' ' && c != '\t' && c != '\r' && c != '\n'; });
 
 	reasonphrase=std::string(b, e);
 }

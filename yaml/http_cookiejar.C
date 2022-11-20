@@ -79,10 +79,14 @@ static inline yaml::newnode save_cookie(const cookie &c)
 
 // Iterate over cookies in a jar, to define a YAML sequence.
 
-class save_iterator : public std::iterator<std::input_iterator_tag,
-					   yaml::newnode> {
+class save_iterator {
 
 public:
+	typedef std::input_iterator_tag iterator_category;
+	typedef yaml::newnode value_type;
+	typedef void difference_type;
+	typedef void pointer;
+	typedef void reference;
 	time_t now;
 
 	cookiejar::base::iterator cur_iter, end_iter;

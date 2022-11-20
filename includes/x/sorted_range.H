@@ -13,6 +13,7 @@
 #include <tuple>
 #include <exception>
 #include <type_traits>
+#include <stdexcept>
 #include <x/namespace.h>
 
 namespace LIBCXX_NAMESPACE {

@@ -362,13 +362,12 @@ public:
 		state=error_state;
 
 		body_begin();
-		iterator begin_iter(this);
 
 		try {
 			switch (body_type) {
 			case body_toeof:
 				if (iter != iter_end)
-					return begin_iter;
+					return this;
 				break;
 			case body_content_length:
 				if (body_cnt)
@@ -376,12 +375,12 @@ public:
 					if (iter == iter_end)
 						responseimpl::throw_bad_request();
 
-					return begin_iter;
+					return this;
 				}
 				break;
 			case body_chunked:
 				if (next_chunk())
-					return begin_iter;
+					return this;
 				break;
 			}
 		} catch (...) {

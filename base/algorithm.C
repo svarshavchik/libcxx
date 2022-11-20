@@ -8,6 +8,7 @@
 #include "x/exception.H"
 #include "gettext_in.h"
 #include <utility>
+#include <stdio.h>
 
 namespace LIBCXX_NAMESPACE {
 #if 0

@@ -179,7 +179,7 @@ size_t gettext_fmt_getn(std::string_view::const_iterator &b,
 {
 	size_t n=0;
 
-	while ((++b != e), *b >= '0' && *b <= '9')
+	while (++b != e && *b >= '0' && *b <= '9')
 	{
 		n = n * 10 + (*b - '0');
 	}

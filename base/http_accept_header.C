@@ -68,7 +68,7 @@ void accept_header::parser::parse_typesubtype(const std::string &name,
 	else
 	{
 		newentry.type=name;
-		newentry.subtype="*";
+		newentry.subtype=std::string{"*"}; // TODO: gcc12 warning
 	}
 
 	if (terminator != ',')

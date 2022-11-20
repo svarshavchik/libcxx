@@ -45,8 +45,7 @@ inline static constexpr char tolower(char a) noexcept
 
 //! Template function for generating a comparison object for a single char.
 
-template<typename cmp> class cmp_char
-	: public std::binary_function<char, char, bool> {
+template<typename cmp> class cmp_char {
 
 public:
 	cmp_char() noexcept=default;
@@ -94,8 +93,7 @@ int compare(const std::string_view &a, const std::string_view &b) noexcept;
 
 //! Template function for generating a comparison object for a std::string_view
 
-template<typename cmp> class cmp_str
-	: public std::binary_function<std::string_view, std::string_view, bool> {
+template<typename cmp> class cmp_str {
 
 public:
 	cmp_str() noexcept=default;

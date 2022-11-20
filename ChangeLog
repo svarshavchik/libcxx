@@ -1,3 +1,7 @@
+2022-11-19  Sam Varshavchik  <mrsam@courier-mta.com>
+
+	* Update for gcc 12
+
 2022-05-01  Sam Varshavchik  <mrsam@courier-mta.com>
 
 	* base/pcreobj.C: update PCRE to PCRE2.
@@ -9,6 +13,8 @@
 	* includes/x/libcxx.m4.in: Update LIBCXX_INIT macro: do not include
 	the -std=c++20 option in the C build command, only the C++ build
 	command.
+
+0.25
 
 2021-12-27  Sam Varshavchik  <mrsam@courier-mta.com>
 

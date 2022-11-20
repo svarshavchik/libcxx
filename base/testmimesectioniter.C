@@ -36,7 +36,7 @@ void dochar2ints(const std::string &s,
 	std::transform(s.begin(),
 		       s.end(),
 		       std::back_insert_iterator<std::vector<int>>(i),
-		       std::ptr_fun(char2ints));
+		       char2ints);
 }
 
 inline char int2chars(int c)
@@ -66,7 +66,7 @@ void doint2chars(const std::vector<int> &i,
 	std::transform(i.begin(),
 		       i.end(),
 		       std::back_insert_iterator<std::string>(s),
-		       std::ptr_fun(int2chars));
+		       int2chars);
 }
 
 void testmimesectioniter()

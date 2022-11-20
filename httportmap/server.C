@@ -56,8 +56,7 @@ httpserverimpl::~httpserverimpl()
 {
 }
 
-class httpserverimpl::svclistiter : public std::iterator<std::input_iterator_tag,
-							 std::string> {
+class httpserverimpl::svclistiter {
 
 	class implObj : virtual public LIBCXX_NAMESPACE::obj {
 
@@ -94,6 +93,13 @@ private:
 	bool firstrow;
 	bool lastrow;
 public:
+
+	typedef std::input_iterator_tag iterator_category;
+	typedef std::string value_type;
+	typedef void difference_type;
+	typedef void pointer;
+	typedef void reference;
+
 	class csv;
 	class xml;
 
@@ -194,7 +200,10 @@ void httpserverimpl::svclistiter::implObj::filter()
 		if (external_query &&
 		    (std::find_if(beg_iter->port.begin(),
 				  beg_iter->port.end(),
-				  std::not1(std::ptr_fun(isdigit)))
+				  [](char c)
+				  {
+					  return !isdigit(c);
+				  })
 		     != beg_iter->port.end() ||
 		     beg_iter->port.size() == 0))
 		{

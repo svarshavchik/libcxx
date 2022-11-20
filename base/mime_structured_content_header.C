@@ -496,7 +496,7 @@ std::string structured_content_header::mime_content_type() const
 	std::transform(s.begin(),
 		       s.end(),
 		       s.begin(),
-		       std::ptr_fun(chrcasecmp::tolower));
+		       chrcasecmp::tolower);
 	return s;
 }
 
@@ -515,7 +515,7 @@ std::string structured_content_header::mime_content_subtype() const
 	std::transform(s.begin(),
 		       s.end(),
 		       s.begin(),
-		       std::ptr_fun(chrcasecmp::tolower));
+		       chrcasecmp::tolower);
 	return s;
 }
 
@@ -526,7 +526,7 @@ bool structured_content_header::is_message() const
 	std::transform(s.begin(),
 		       s.end(),
 		       s.begin(),
-		       std::ptr_fun(chrcasecmp::tolower));
+		       chrcasecmp::tolower);
 	return s == message_rfc822 || s == message_global;
 }
 

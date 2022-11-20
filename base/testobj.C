@@ -2296,7 +2296,7 @@ void testvector()
 	}
 
 	{
-		int buf[2];
+		int buf[2]={};
 		LIBCXX_NAMESPACE::vector<int>
 			v(LIBCXX_NAMESPACE::vector<int>::create(&buf[0],
 							      &buf[2]));

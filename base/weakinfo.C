@@ -80,7 +80,7 @@ ptr<obj> weakinfoObj::getstrongref()
 	// after which we can decrement the one we incremented temporarily,
 	// above.
 
-	ptr<obj> dummy{mutex_lock->objp};
+	ref<obj> dummy{mutex_lock->objp};
 
 	--mutex_lock->objp->refcnt;
 

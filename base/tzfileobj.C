@@ -107,8 +107,7 @@ tzfile tzfileBase::utc()
 }
 
 template<>
-class tzfileObj::frombe<int16_t> : public std::unary_function<uint16_t,
-							      uint16_t> {
+class tzfileObj::frombe<int16_t> {
 
 public:
 	uint16_t operator()(uint16_t arg) __attribute__((const))
@@ -118,8 +117,7 @@ public:
 };
 
 template<>
-class tzfileObj::frombe<int32_t> : public std::unary_function<uint32_t,
-							      uint32_t> {
+class tzfileObj::frombe<int32_t> {
 
 public:
 	uint32_t operator()(uint32_t arg) __attribute__((const))
@@ -129,8 +127,7 @@ public:
 };
 
 template<>
-class tzfileObj::frombe<int64_t> : public std::unary_function<uint64_t,
-							      uint64_t> {
+class tzfileObj::frombe<int64_t> {
 
 public:
 	uint64_t operator()(uint64_t arg) __attribute__((const))
@@ -852,7 +849,7 @@ tzfileObj::~tzfileObj()
 {
 }
 
-class tzfileObj::leap_search : std::binary_function<leaps_s, time_t, bool>
+class tzfileObj::leap_search
 {
 public:
 	bool operator()(const leaps_s &l,

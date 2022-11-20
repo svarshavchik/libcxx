@@ -19,12 +19,10 @@ std::string line;
 
 std::vector&lt;std::string_view&gt; patterns=pattern->match("abra cadabra");
 
-if (patterns.empty())
-
 if (patterns.size() == 3)
      process_words(patterns[1],
                    patterns[2]);
-}</programlisting>
+</programlisting>
     </informalexample>
   </blockquote>
 
@@ -36,12 +34,12 @@ if (patterns.size() == 3)
 
   <para>
     <ulink url="&link-typedef-x-pcre;"><classname>&ns;::pcre</classname></ulink>
-    constructs a <link linkend="refobj">reference to a reference-counted
+    is a <link linkend="refobj">reference to a reference-counted
       object</link> that specifies a regular expression.
     The <function>create</function>() constructor throws an exception if
     the given regular expression's syntax is malformed.
     <function>create</function>() takes an optional second argument,
-    an <classname>int</classname> of option flags, see
+    an <classname>uint32_t</classname> of option flags, see
     <citerefentry><refentrytitle>pcre2_compile</refentrytitle><manvolnum>3</manvolnum></citerefentry>
     for a list of available option flags.
   </para>
@@ -84,6 +82,14 @@ if (patterns.size() == 3)
       was matched.
     </para>
   </note>
+
+  <blockquote>
+    <informalexample>
+      <programlisting>
+std::vector&lt;std::vector&lt;std::string_view&gt;&gt; patterns=pattern->match_all("abra cadabra");
+</programlisting>
+    </informalexample>
+  </blockquote>
 
   <para>
     There's also a <methodname>match_all</methodname>() that returns a vector

@@ -92,21 +92,21 @@ void requestimpl::parse_start_line()
 	std::string::const_iterator b(start_line.begin()),
 		e(start_line.end()), p;
 
-	p=std::find_if(b, e, std::ptr_fun(isspace));
+	p=std::find_if(b, e, [](char c){ return c == ' ' || c == '\t' || c == '\r' || c == '\n'; });
 
 	if ((method=methodnum(std::string(b, p))) == CONNECT)
 	    responseimpl::throw_not_implemented();
 
-	b=std::find_if(p, e, std::not1(std::ptr_fun(isspace)));
-	p=std::find_if(b, e, std::ptr_fun(isspace));
+	b=std::find_if(p, e, [](char c){ return c != ' ' && c != '\t' && c != '\r' && c != '\n'; });
+	p=std::find_if(b, e, [](char c){ return c == ' ' || c == '\t' || c == '\r' || c == '\n'; });
 
 	uri.parse(b, p, 0);
 
-	b=std::find_if(p, e, std::not1(std::ptr_fun(isspace)));
+	b=std::find_if(p, e, [](char c){ return c != ' ' && c != '\t' && c != '\r' && c != '\n'; });
 
 	b=httpver_parse(b, e, httpver);
 
-	b=std::find_if(b, e, std::not1(std::ptr_fun(isspace)));
+	b=std::find_if(b, e, [](char c){ return c != ' ' && c != '\t' && c != '\r' && c != '\n'; });
 
 	if (b != e)
 		bad_message();

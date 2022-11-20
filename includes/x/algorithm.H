@@ -7,6 +7,7 @@
 #define x_algorithm_H
 
 #include <x/functional.H>
+#include <stddef.h>
 #include <vector>
 
 namespace LIBCXX_NAMESPACE {

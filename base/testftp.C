@@ -769,10 +769,14 @@ void retr_timeout_test()
 	}
 }
 
-class stor_timeout_iter : public std::iterator<std::input_iterator_tag,
-						 char, void, void, void>
+class stor_timeout_iter
 {
 public:
+	typedef std::input_iterator_tag iterator_category;
+	typedef char value_type;
+	typedef void difference_type;
+	typedef void ponter;
+	typedef void reference;
 
 	char operator*() const { return 'a'; }
 	stor_timeout_iter &operator++() { return *this; }

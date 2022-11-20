@@ -139,8 +139,7 @@ iter_type messageimpl::httpver_toString(iter_type iter, httpver_t httpver)
 
 //! Predicate class for splitting comma-separated values
 
-class messageimpl::commaValuesPredicate
-	: public std::unary_function<char, bool> {
+class messageimpl::commaValuesPredicate {
 
 public:
 	//! Constructor
@@ -170,7 +169,11 @@ iter_type messageimpl::getCommaValues(const char *headername,
 		for (std::string::const_iterator
 			     b=headers.first->second.begin(),
 			     e=headers.first->second.end();
-		     (b=std::find_if(b, e, std::not1(predicate))) != e; )
+		     (b=std::find_if(b, e, [&]
+				     (char c)
+		     {
+			     return !predicate(c);
+		     })) != e; )
 		{
 			std::string::const_iterator p=b;
 
