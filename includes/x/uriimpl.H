@@ -150,8 +150,10 @@ public:
 
 			if (*beg_iter != '[')
 			{
+				std::string s;
+
 				beg_iter=parse_nonipliteral(beg_iter, end_iter,
-							    flags);
+							    flags, s);
 
 				if (beg_iter == end_iter || *beg_iter != '@')
 				{
@@ -160,7 +162,7 @@ public:
 				}
 				++beg_iter;
 				has_userinfo=true;
-				userinfo=hostport;
+				userinfo=s;
 			}
 
 			hostport.clear();
@@ -214,8 +216,10 @@ public:
 				return beg_iter;
 			}
 
+			std::string s;
+
 			beg_iter=parse_nonipliteral(beg_iter, end_iter,
-						    flags);
+						    flags, s);
 
 			validate_port();
 
@@ -232,14 +236,27 @@ public:
 
 		//! \internal
 		//!
+		//! Scans ahead to the first instance of gen_delims, except
+		//! that : is allowed.
+		//!
+		//! We can potentially have "user:password@host:port, and
+		//! the caller will figure out if we stopped at an @.
+		//!
+		//! Most of the time it's going to be host:port, and we
+		//! will launder the "host" portion through idna.
+		//!
+		//! However if it's going to be user:password we are not
+		//! going to do that. The last parameter is the initially
+		//! empty std::string that gets filled with the original
+		//! string we collected, and hostport gets proactively
+		//! set with the collected string.
 
 		template<typename iter_type>
 		iter_type parse_nonipliteral(iter_type beg_iter,
 					     iter_type end_iter,
-					     int flags)
+					     int flags,
+					     std::string &s)
 		{
-			std::string s;
-
 			char c;
 
                         while (beg_iter != end_iter &&

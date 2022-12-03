@@ -459,19 +459,19 @@ size_t foo(iconv_t cd, char **inbuf, size_t *inbytesleft,
 LIBS="$libcxx_save_LIBS"
 AC_DEFINE_UNQUOTED(ICONV_INBUF_ARG,$iconv_in_type,[type of third argument to iconv()])
 
-LIBS="$libcxx_save_LIBS -lidn"
+LIBS="$libcxx_save_LIBS -lidn2"
 
 AC_TRY_LINK([
-#include <idna.h>
+#include <idn2.h>
 ],[
 	const uint32_t *input=0;
 	uint32_t *output;
 	char *coutput;
 
-	idna_to_unicode_4z4z(input, &output, 0);
-	idna_to_ascii_4z(input, &coutput, 0);
+	idn2_to_unicode_4z4z(input, &output, 0);
+	idn2_to_ascii_4z(input, &coutput, 0);
 	return 0;
-],[LIBIDN=-lidn],AC_MSG_ERROR([Could not find or link with libidn]))
+],[LIBIDN=-lidn2],AC_MSG_ERROR([Could not find or link with libidn]))
 
 AC_SUBST(LIBIDN)
 LIBS="$libcxx_save_LIBS"

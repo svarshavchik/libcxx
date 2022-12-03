@@ -10,7 +10,6 @@
 #include <x/locale.H>
 
 #include <string_view>
-#include <idna.h>
 
 namespace LIBCXX_NAMESPACE {
 #if 0

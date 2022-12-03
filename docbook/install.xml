@@ -142,7 +142,7 @@ See COPYING for distribution information.
 	<para>
 	  <application>gnutls</application>,
 	  <application>libgcrypt</application> (at least 1.6),
-	  <application>libidn</application>,
+	  <application>libidn2</application>,
 	  <application>libxml2</application>,
 	  <application>libxslt</application>,
 	  <application>libyaml</application> and

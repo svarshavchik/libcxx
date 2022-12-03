@@ -32,7 +32,7 @@ See COPYING for distribution information.
 	<application>libgcrypt</application>,
 	<application>gettext</application>,
 	<application>libunwind</application>,
-	<application>libidn</application> and
+	<application>libidn2</application> and
 	<application>libiconv</application> packages need to be installed to
 	build &app;, in addition to the current stable port of
 	<application>gcc<replaceable>NN</replaceable></application>

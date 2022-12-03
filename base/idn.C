@@ -8,7 +8,7 @@
 #include "x/to_string.H"
 #include "x/iconviofilter.H"
 #include "gettext_in.h"
-#include <idna.h>
+#include <idn2.h>
 #include <courier-unicode.h>
 #include <iterator>
 
@@ -36,7 +36,7 @@ std::string idn::to_ascii(const std::string_view &str, int flags)
 	char *p;
 
 	Idna_rc rc=(Idna_rc)
-		idna_to_ascii_4z(reinterpret_cast<const uint32_t *>
+		idn2_to_ascii_4z(reinterpret_cast<const uint32_t *>
 				 (&u32[0]), &p, flags);
 
 	if (rc)
@@ -57,7 +57,7 @@ std::string idn::from_ascii(const std::string_view &str, int flags)
 	uint32_t *output=0;
 
 	Idna_rc rc=(Idna_rc)
-		idna_to_unicode_4z4z(reinterpret_cast<const uint32_t *>
+		idn2_to_unicode_4z4z(reinterpret_cast<const uint32_t *>
 				     (&u[0]), &output, flags);
 
 	if (rc)
