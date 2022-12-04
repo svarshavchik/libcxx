@@ -2,11 +2,11 @@
 # Copyright 2012-2021 Double Precision, Inc.
 # See COPYING for distribution information.
 
-AC_PREREQ(2.61)
-AC_INIT(libcxx, 0.25.0, [mrsam@courier-mta.com])
+AC_PREREQ([2.71])
+AC_INIT([libcxx],[0.25.0],[mrsam@courier-mta.com])
 
 AC_CONFIG_SRCDIR([includes/x/obj.H])
-AC_CONFIG_HEADER([libcxx_config.h])
+AC_CONFIG_HEADERS([libcxx_config.h])
 AM_INIT_AUTOMAKE([dist-bzip2 foreign -Wno-portability subdir-objects])
 
 # Checks for programs.
@@ -16,7 +16,7 @@ LT_INIT([dlopen])
 LTDL_INIT([recursive])
 AC_PROG_SYSCONFTOOL
 
-AC_PROG_LIBTOOL
+LT_INIT
 AM_GNU_GETTEXT([external])
 AM_GNU_GETTEXT_VERSION([0.19.6])
 AC_LANG(C++)
@@ -361,11 +361,12 @@ AC_SUBST(LIBCXX_LOCALE_SAVE_ENV_T)
 AC_SUBST(LIBCXX_LOCALE_T_GLOBLOCK)
 AC_SUBST(HAVE_XLOCALE)
 
-AC_TRY_LINK([
+found_backtrace=0
+AC_LINK_IFELSE([AC_LANG_PROGRAM([[
 #include <execinfo.h>
 #include <stdio.h>
 
-],[
+]], [[
 	void *ptr;
 
 	backtrace(&ptr, 0);
@@ -374,17 +375,22 @@ AC_TRY_LINK([
 
 	*p=0;
 
-], [ AC_DEFINE_UNQUOTED(HAVE_BACKTRACE, 1, [Found glibc backtrace()]) ],
-[
+]])],[found_backtrace=1],[])
+
+if test "$found_backtrace" = 1
+then
+  AC_DEFINE_UNQUOTED(HAVE_BACKTRACE, 1, [Found glibc backtrace()])
+else
+
 
 libcxx_save_LIBS="$LIBS"
 LIBS="$LIBS -lunwind"
 
-	AC_TRY_LINK([
+	AC_LINK_IFELSE([AC_LANG_PROGRAM([[
 #define UNW_LOCAL_ONLY
 #include <libunwind.h>
 #include <dlfcn.h>
-], [
+]], [[
 	unw_cursor_t cursor; unw_context_t uc;
 	unw_word_t ip;
 	Dl_info info;
@@ -394,41 +400,47 @@ LIBS="$LIBS -lunwind"
 	unw_step(&cursor);
 	unw_get_reg(&cursor, UNW_REG_IP, &ip);
 	dladdr((void *)ip, &info);
-], [
+]])],[
    AC_DEFINE_UNQUOTED(HAVE_LIBUNWIND,1,[ Found libunwind ])
    LIBUNWIND="-lunwind"
-], [AC_MSG_ERROR([Cannot find backtrace() or libunwind])]
-)
+],[AC_MSG_ERROR([Cannot find backtrace() or libunwind])
+])
 
 LIBS="$libcxx_save_LIBS"
+fi
 
-])
 AC_SUBST(LIBUNWIND)
 
-AC_TRY_LINK([
+environ_undefined=0
+
+AC_LINK_IFELSE([AC_LANG_PROGRAM([[
 #include <unistd.h>
 
-], [
+]], [[
 char **p=environ;
 
 *p=0;
 
-], [ : ],
-   AC_TRY_LINK([
+]])],[ : ],[environ_undefined=1])
+
+
+if test "$environ_undefined" = 1
+then
+   AC_LINK_IFELSE([AC_LANG_PROGRAM([[
 
 extern "C" char **environ;
 
-], [
+]], [[
 char **p=environ;
 
 *p=0;
 
-] , [
+ ]])],[
 	AC_DEFINE_UNQUOTED(ENVIRON_EXPLICIT_DECLARE, 1, [ Whether "extern char **environ" is not defined in unistd.h ])
-	],
-  [
+	],[
   AC_MSG_ERROR([Unable to find extern char **environ])
-]))
+])
+fi
 
 libcxx_save_LIBS="$LIBS"
 LIBS="$LIBS $LIBCONV"
@@ -461,9 +473,9 @@ AC_DEFINE_UNQUOTED(ICONV_INBUF_ARG,$iconv_in_type,[type of third argument to ico
 
 LIBS="$libcxx_save_LIBS -lidn2"
 
-AC_TRY_LINK([
+AC_LINK_IFELSE([AC_LANG_PROGRAM([[
 #include <idn2.h>
-],[
+]], [[
 	const uint32_t *input=0;
 	uint32_t *output;
 	char *coutput;
@@ -471,49 +483,59 @@ AC_TRY_LINK([
 	idn2_to_unicode_4z4z(input, &output, 0);
 	idn2_to_ascii_4z(input, &coutput, 0);
 	return 0;
-],[LIBIDN=-lidn2],AC_MSG_ERROR([Could not find or link with libidn]))
+]])],[LIBIDN=-lidn2],[AC_MSG_ERROR(Could not find or link with libidn)])
 
 AC_SUBST(LIBIDN)
 LIBS="$libcxx_save_LIBS"
 
+dgettext_linked=0
+
 libcxx_save_LIBS="$LIBS"
-AC_TRY_LINK([
+AC_LINK_IFELSE([AC_LANG_PROGRAM([[
 #include <libintl.h>
 
 const char *foo(const char *domain, const char *msgid)
 {
 	return dgettext(domain, msgid);
 }
-],[
-], [ : ], [
+]], [[
+]])],[ dgettext_linked=1 ],[])
+
+if test "$dgettext_linked" = "0"
+then
    LINKLIBINTL="-lintl"
    LIBS="$LINKLIBINTL $LIBS"
 
-   AC_TRY_LINK([
+   AC_LINK_IFELSE([AC_LANG_PROGRAM([[
 #include <libintl.h>
 
    const char *foo(const char *domain, const char *msgid)
    {
 	return dgettext(domain, msgid);
    }
-   ],[
-   ], [ : ], [
+   ]], [[
+   ]])],[ dgettext_linked=1],[])
+
+   if test "$dgettext_linked" = 0
+   then
+
    LIBLINKINTLPATH="-L/usr/local/lib -R/usr/local/lib"
    LIBS="$LIBLINKINTLPATH $LIBS"
-      AC_TRY_LINK([
+      AC_LINK_IFELSE([AC_LANG_PROGRAM([[
 #include <libintl.h>
 
       const char *foo(const char *domain, const char *msgid)
       {
 	return dgettext(domain, msgid);
       }
-      ],[
+      ]], [[
 	LIBEXTRAPATH="LIBLINKINTLPATH $LIBEXTRAPATH"
-	], [
+	]])],[
 	AC_MSG_ERROR([Unable to find a working libintl.h])
-      ])
-   ])
-])
+      ],[])
+   fi
+fi
+
 
 LIBS="$libcxx_save_LIBS"
 
@@ -643,14 +665,14 @@ struct kinfo_file kf;
 ])
 fi
 
-AC_TRY_LINK( [
+AC_LINK_IFELSE([AC_LANG_PROGRAM([[
 #include <stdint.h>
 
 int64_t n;
 
-],[
+]], [[
 	__sync_fetch_and_add(&n, 0);
-],[ HAS_INT64_SYNC_FETCH_AND_ADD=1 ], [ HAS_INT64_SYNC_FETCH_AND_ADD=0 ])
+]])],[ HAS_INT64_SYNC_FETCH_AND_ADD=1 ],[ HAS_INT64_SYNC_FETCH_AND_ADD=0 ])
 
 AC_SUBST(HAS_INT64_SYNC_FETCH_AND_ADD)
 
@@ -699,11 +721,11 @@ fi
 CPPFLAGS="$YAMLCPPFLAGS $CPPFLAGS"
 LIBS="$YAMLLIBS $LIBS"
 
-AC_TRY_LINK([
+AC_LINK_IFELSE([AC_LANG_PROGRAM([[
 #include <yaml.h>
-], [
+]], [[
    yaml_get_version(0, 0, 0);
-], [ : ], AC_MSG_ERROR([Test link with LibYAML failed. Please install the LibYAML library and its development package. See config.log for more details about this error.]))
+]])],[ : ],[AC_MSG_ERROR(Test link with LibYAML failed. Please install the LibYAML library and its development package. See config.log for more details about this error.)])
 
 CPPFLAGS="$libcxx_save_CPPFLAGS"
 LIBS="$libcxx_save_LIBS"
