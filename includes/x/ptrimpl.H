@@ -72,10 +72,11 @@ public:
 
 	//! Default constructor
 
+	template<typename impl_objClass=objClass>
 	ptrImpl(//! If pArg is not NULL, the object's reference count gets incremented.
 		//! When pArg is NULL, this is an unbound reference.
 		objClass *pArg) noexcept
-		requires derived_from_obj<objClass> LIBCXX_INLINE;
+		requires derived_from_obj<impl_objClass> LIBCXX_INLINE;
 
 	//! Default destructor
 	~ptrImpl() LIBCXX_INLINE;
@@ -86,8 +87,7 @@ public:
 
 		//! If this reference is bound to an instance of
 		//! \c objClass, its reference count gets incremented.
-		const ptrImpl<objClass> &o ) noexcept
-		requires derived_from_obj<objClass> LIBCXX_INLINE;
+		const ptrImpl<objClass> &o ) noexcept LIBCXX_INLINE;
 
 	template<typename baseClass>
 	explicit
@@ -113,8 +113,7 @@ public:
 
 	inline ptrImpl(//! An existing reference.
 		       ptrImpl<objClass> &&o )
-		noexcept
-		requires derived_from_obj<objClass> LIBCXX_INLINE
+		noexcept LIBCXX_INLINE
 		: refP{o.refP}
 	{
 		o.refP=nullptr;

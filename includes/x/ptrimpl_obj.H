@@ -31,9 +31,9 @@ inline void ptrImpl<objClass>::setRef_noconscheck(objClass *newRefP) noexcept
 }
 
 template<typename objClass>
+template<typename impl_objClass>
 inline ptrImpl<objClass>::ptrImpl(objClass *pArg)
-	noexcept requires derived_from_obj<objClass>
-	: refP(pArg)
+	noexcept requires derived_from_obj<impl_objClass>: refP(pArg)
 {
 	if (refP && ++refP->obj::refcnt == 0)
 		ref_in_constructor(refP);
@@ -48,7 +48,7 @@ inline ptrImpl<objClass>::~ptrImpl()
 
 template<typename objClass>
 inline ptrImpl<objClass>::ptrImpl(const ptrImpl<objClass> &o )
-	noexcept requires derived_from_obj<objClass> : refP(o.refP)
+	noexcept : refP(o.refP)
 {
 	if (refP)
 		++refP->obj::refcnt;
