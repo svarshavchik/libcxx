@@ -63,6 +63,9 @@ public:
 		public LIBCXX_NAMESPACE::gnutls::http::fdtlsserverimpl,
 		virtual public LIBCXX_NAMESPACE::obj {
 
+	protected:
+		using fdtlsserverimpl::run;
+
 	public:
 		fdserverObj()=default;
 		~fdserverObj()=default;

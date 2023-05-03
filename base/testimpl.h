@@ -16,6 +16,8 @@ public:
 		{
 		}
 
+		using LIBCXX_NAMESPACE::http::fdserverimpl::run;
+
 		void run(const LIBCXX_NAMESPACE::fd &socket)
 		{
 			auto dummy=LIBCXX_NAMESPACE::fd::base::socketpair();

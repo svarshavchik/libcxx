@@ -37,6 +37,9 @@ class gnutls::http::fdtlsserverimpl : public LIBCXX_NAMESPACE::http::fdserverimp
 	//! The associated TLS session
 	sessionptr sess;
 
+protected:
+	using LIBCXX_NAMESPACE::http::fdserverimpl::run;
+
 public:
 	//! Default constructor
 	fdtlsserverimpl();

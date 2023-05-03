@@ -50,19 +50,6 @@ void definitionUsageObj::reset() noexcept
 {
 }
 
-bool definitionUsageObj::usage(std::ostream &o,
-			       size_t indentlevel,
-			       size_t width)
-{
-	return false;
-}
-
-void definitionUsageObj::help(std::ostream &o,
-			      size_t indentlevel,
-			      size_t width)
-{
-}
-
 #if 0
 {
 #endif

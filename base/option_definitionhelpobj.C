@@ -46,20 +46,7 @@ bool definitionHelpObj::is_set() const noexcept
 	return false;
 }
 
-bool definitionHelpObj::usage(std::ostream &o,
-			      size_t indentlevel,
-			      size_t width)
-{
-	return false;
-}
-
 void definitionHelpObj::reset() noexcept
-{
-}
-
-void definitionHelpObj::help(std::ostream &o,
-			     size_t indentlevel,
-			     size_t width)
 {
 }
 

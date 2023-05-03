@@ -1370,6 +1370,7 @@ class LIBCXX_HIDDEN impldocObj::writelockImplObj
 
 	~writelockImplObj()=default;
 
+	using createchildObj::clone;
 
 	ref<readlockObj> clone() const override
 	{

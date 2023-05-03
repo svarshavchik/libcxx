@@ -222,7 +222,7 @@ public:
 		}
 		else
 		{
-			mlock.try_lock();
+			(void)mlock.try_lock();
 			objp.meta.try_threadlock(mlock);
 		}
 	}

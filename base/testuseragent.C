@@ -50,6 +50,8 @@ typedef LIBCXX_NAMESPACE::ref<testserverObj> testserver;
 class myfdserverObj : public LIBCXX_NAMESPACE::http::fdserverimpl,
 		      virtual public LIBCXX_NAMESPACE::obj {
 
+	using LIBCXX_NAMESPACE::http::fdserverimpl::run;
+
 public:
 	testserver ptr;
 

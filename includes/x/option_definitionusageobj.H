@@ -59,21 +59,9 @@ public:
 
 	bool is_set() const noexcept override LIBCXX_HIDDEN;
 
-	//! Dummy usage() function
-
-	bool usage(std::ostream &o,
-		   size_t indentlevel,
-		   size_t width) LIBCXX_HIDDEN;
-
 	//! Dummy reset() function
 
 	void reset() noexcept override LIBCXX_HIDDEN;
-
-	//! Dummy usage() function
-
-	void help(std::ostream &o,
-		  size_t indentlevel,
-		  size_t width) LIBCXX_HIDDEN;
 };
 
 #if 0

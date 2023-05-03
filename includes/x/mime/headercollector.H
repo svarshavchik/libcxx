@@ -1,7 +1,7 @@
 /*
 ** Copyright 2012-2021 Double Precision, Inc.
 ** See COPYING for distribution information.
-*/ 
+*/
 #ifndef x_mime_headercollector_H
 #define x_mime_headercollector_H
 
@@ -27,7 +27,7 @@ namespace LIBCXX_NAMESPACE::mime {
 class header_collectorObj : public outputrefiteratorObj<int> {
 
 	//! Current state, current element handler.
-	
+
 	typedef void (header_collectorObj::*state_func)(int);
 
 	//! The underlying iterator.
@@ -117,7 +117,7 @@ class header_collectorBase {
 
 public:
 
-	
+
 	//! Subclass of header_collector that uses a functor/lambda
 
 	template<typename func_type>
@@ -125,6 +125,8 @@ public:
 
 		//! Callback
 		func_type func;
+
+		using header_collectorObj::operator=;
 
 	public:
 

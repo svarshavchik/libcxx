@@ -125,7 +125,7 @@ void testunordered1()
 	    !m->insert(2, obj2))
 		throw EXCEPTION("testunordered1 (3) failed");
 
-	if (!((*m)[3]=obj2))
+	if ((!((*m)[3]=obj2)))
 		throw EXCEPTION("testunordered1 (4) failed");
 
 	if (m->find_or_create(1, [&]
@@ -159,7 +159,7 @@ void testunordered2()
 	    !m->insert(2, obj2))
 		throw EXCEPTION("testunordered2 (3) failed");
 
-	if (!((*m)[3]=obj2))
+	if ((!((*m)[3]=obj2)))
 		throw EXCEPTION("testunordered2 (4) failed");
 
 	m->find_or_create(1, [&]

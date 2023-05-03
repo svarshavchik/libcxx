@@ -40,6 +40,8 @@ void testhttpnull()
 template<typename conn_type>
 class testhttp10_serverObj : public conn_type::fdserverObj {
 
+	using conn_type::fdserverObj::run;
+
 public:
 	testhttp10_serverObj()
 	{

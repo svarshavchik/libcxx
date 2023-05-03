@@ -81,6 +81,8 @@ public:
 	functionrefptr_impl(ref_or_ptr &&r);
 
 	using base_ref::operator *;
+	using base_ref::operator ==;
+	using base_ref::operator <=>;
 
 	//! Implement boolean operator.
 

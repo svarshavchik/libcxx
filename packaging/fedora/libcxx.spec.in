@@ -38,19 +38,23 @@ BuildRequires: libxml2-devel
 BuildRequires: cups-devel
 BuildRequires: sysconftool
 BuildRequires: httpd-filesystem
+BuildRequires: systemd-rpm-macros
+BuildRequires: systemd
+BuildRequires: selinux-policy
+BuildRequires: selinux-policy-devel
+
+%global selinuxtype targeted
+%global moduletype contrib
+%global modulename libcxx
+
 Requires(post): /bin/systemctl
 Requires(preun): /bin/systemctl
 
 %if %do_compat
 
 %else
-Recommends: %{name}-selinux
+Requires: (%{name}-selinux if selinux-policy-%{selinuxtype})
 Recommends: %{name}-httpd
-%endif
-
-BuildRequires: checkpolicy, selinux-policy-devel
-%if "%{_selinux_policy_version}" != ""
-Requires:       selinux-policy >= %{_selinux_policy_version}
 %endif
 
 %description
@@ -102,11 +106,8 @@ installed on this server.
 %package selinux
 Summary: libcxx selinux policy file
 Requires: %{name} = %{version}-%{release}
-Requires:       selinux-policy >= %{_selinux_policy_version}
 Requires(post):   %{name} = %{version}-%{release},
-Requires(post):   %{_sbindir}/semodule
-Requires(post):   %{_sbindir}/fixfiles
-Requires(postun): %{_sbindir}/semodule
+%{?selinux_requires}
 
 %description selinux
 This package install the selinux policy file for libcxx's httportmap
@@ -238,12 +239,18 @@ fi
 
 %else
 
+%pre selinux
+%selinux_relabel_pre -s %{selinuxtype}
+
 %post selinux
-%selinux_modules_install %{_datadir}/httportmap/libcxx.pp
+%selinux_modules_install -s %{selinuxtype} %{_datadir}/httportmap/libcxx.pp
 %{_sbindir}/fixfiles restore %{_sbindir}/httportmapd
 
 %postun selinux
-%selinux_modules_uninstall libcxx
+%selinux_modules_uninstall -s %{selinuxtype} libcxx
+
+%posttrans selinux
+%selinux_relabel_post -s %{selinuxtype}
 
 %endif
 
@@ -312,6 +319,7 @@ fi
 %{_datadir}/httportmap/libcxx.pp
 %{_datadir}/httportmap/libcxx.fc
 %{_datadir}/httportmap/libcxx.te
+%ghost %{_sharedstatedir}/selinux/%{selinuxtype}/active/modules/200/%{modulename}
 %endif
 
 %changelog

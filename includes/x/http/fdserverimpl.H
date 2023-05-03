@@ -176,6 +176,9 @@ public:
 	//! Destructor
 	~fdserverimpl();
 
+protected:
+	using superclass_t::run;
+public:
 	//! Run a server.
 
 	//! Invokes the superclass's %run().

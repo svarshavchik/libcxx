@@ -120,6 +120,8 @@ void test2()
 
 class mynotifycb : public LIBCXX_NAMESPACE::property::notifyObj {
 
+	using LIBCXX_NAMESPACE::property::notifyObj::event;
+
 public:
 	LIBCXX_NAMESPACE::property::value<int> *p;
 

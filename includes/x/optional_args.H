@@ -328,6 +328,9 @@ inline auto &optional_arg(optional_argconstrefs<Args...> &a)
 	return optional_arg<n>(a.get());
 }
 
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wdangling-reference"
+
 //! Return the parsed \ref optional_args "optional argument" or a default value.
 
 //! Like \ref optional_arg "optional_arg", but takes an extra \c std::optional
@@ -335,6 +338,11 @@ inline auto &optional_arg(optional_argconstrefs<Args...> &a)
 //! paramer was not constructed, the \c std::optional gets emplaced(), using
 //! any forwarded parameters, so that a reference to the requested type gets
 //! always returned.
+//!
+//! This normally resulting in a spurious dangling-reference warning, which
+//! is suppressed here. The returned reference will be either to the
+//! \ref optional_arg "optional_arg" or to the emplaced value in the
+//! passed-in \c std::optional.
 
 template<typename selected,
 	 typename ...OptArgs,
@@ -377,6 +385,8 @@ inline const optional_type
 
 	return *value;
 }
+#pragma GCC diagnostic pop
+
 
 //! Deduce the type extracted by optional_arg_or
 
@@ -396,6 +406,9 @@ template<typename T>
 using deduce_argconstref_t=
 	typename deduce_argconstref<std::remove_cv_t
 				    <std::remove_reference_t<T>>>::type;
+
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wdangling-reference"
 
 //! Return the parsed \ref optional_args "optional argument" or a default value.
 
@@ -499,6 +512,7 @@ inline const auto
 	value.emplace(std::forward<Args>(args)...);
 
 	return static_cast<const ret_t &>(*value);
+#pragma GCC diagnostic pop
 }
 
 #if 0

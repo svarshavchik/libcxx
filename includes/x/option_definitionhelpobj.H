@@ -58,21 +58,9 @@ public:
 
 	bool is_set() const noexcept override;
 
-	//! Dummy usage() function
-
-	bool usage(std::ostream &o,
-		   size_t indentlevel,
-		   size_t width);
-
 	//! Dummy reset() function
 
 	void reset() noexcept override;
-
-	//! Dummy help() function
-
-	void help(std::ostream &o,
-		  size_t indentlevel,
-		  size_t width);
 };
 
 #if 0

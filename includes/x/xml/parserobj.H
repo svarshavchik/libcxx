@@ -19,6 +19,7 @@ namespace LIBCXX_NAMESPACE::xml {
 
 class parserObj : public outputrefiteratorObj<char> {
 
+	using outputrefiteratorObj<char>::operator=;
 public:
 	//! Constructor
 	parserObj();

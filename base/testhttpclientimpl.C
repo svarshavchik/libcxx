@@ -168,6 +168,8 @@ static void testnocontinue()
 class testthread : virtual public LIBCXX_NAMESPACE::obj,
 		   public LIBCXX_NAMESPACE::http::fdserverimpl {
 
+	using LIBCXX_NAMESPACE::http::fdserverimpl::run;
+
 public:
 	testthread() {}
 	~testthread() {}
