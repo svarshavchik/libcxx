@@ -740,17 +740,27 @@ button quit(button::create(100, 100));</programlisting>
       <title>Range-based iteration on reference-counted objects</title>
 
       <para>
-	It can be convenient to use a reference-counted object that
+	It can be convenient to use a reference-counted object with a
 	<methodname>begin</methodname>() and <methodname>end</methodname>(),
-	<link linkend="dirwalk">&ns;::dirwalk</link>, as a range iterator:
+	like an
+	<ulink url="&link-typedef-x-weakmap;"><classname>&ns;::weakmap</classname></ulink>,
+	as a range iterator:
       </para>
 
       <blockquote>
 	<informalexample>
 	  <programlisting>
-&ns;::dirwalk etcdir=&ns;::dirwalk::create("/etc");
+typedef &ns;:ptr&lt;widgetObj&gt; widgetptr;
 
-for (auto config: *etcdir)
+typedef &ns;::weakmap&lt;std::string, widgetObj&gt; weakwidgetmap;
+
+weakwidgetmap get_current_widgets();
+
+auto current_widgets = get_current_widgets();
+
+// ...
+
+for (auto widget: *current_widgets)
 {
     // ...
 }</programlisting>
@@ -758,7 +768,8 @@ for (auto config: *etcdir)
       </blockquote>
 
       <para>
-	Note the need to dereference <varname>etcdir</varname> since, for
+	Note the need to dereference <varname>current_widgets</varname> since,
+	for
 	all practical purposes, it's a pointer.
 	<methodname>begin</methodname>() and
 	<methodname>end</methodname>() gets implemented in the object it points
@@ -774,7 +785,7 @@ for (auto config: *etcdir)
 	<blockquote>
 	  <informalexample>
 	    <programlisting>
-for (auto config: *&ns;::dirwalk::create("/etc"))
+for (auto widget: *get_current_widgets())
 {
     // ...
 }</programlisting>
@@ -782,7 +793,7 @@ for (auto config: *&ns;::dirwalk::create("/etc"))
 	</blockquote>
 
 	<para>
-	  The range iterator takes an rvalue reference. The reference from
+	  Range iteration uses rvalue fereferences. The reference from
 	  <methodname>create</methodname>() goes out of scope and gets destroyed,
 	  but the rvalue reference remains in scope, and gets invoked for the
 	  <methodname>begin</methodname>() and the
@@ -795,7 +806,7 @@ for (auto config: *&ns;::dirwalk::create("/etc"))
 	  <informalexample>
 	    <programlisting>
 
-auto &amp;&amp; range=*&ns;::dirwalk::create("/etc");
+auto &amp;&amp; range=*get_current_widgets();
 
 for (auto iter=range.begin(); auto != range.end(); ++iter)
 {
@@ -805,7 +816,7 @@ for (auto iter=range.begin(); auto != range.end(); ++iter)
 	</blockquote>
 
 	<para>
-	  <function>&ns;::dirwalk::create()</function> instantiates a
+	  <function>get_current_widgets()</function> returns a
 	  reference-counted object. <literal>*</literal> dereferences, and
 	  leaves it as an rvalue reference. The reference then gets destroyed,
 	  at the end of the sequence point, and as it's the only reference to

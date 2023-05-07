@@ -26,14 +26,12 @@
 #include "x/fileattr.H"
 #include "x/sysexception.H"
 #include "x/netaddr.H"
-#include "x/dir.H"
 #include "x/fdstreambufobj.H"
 #include "x/timerfd.H"
 #include "x/timespec.H"
 #include "x/eventqueue.H"
 #include "x/eventdestroynotify.H"
 #include "x/eventqueuedestroynotify.H"
-#include "x/dirwalk.H"
 #include "x/destroy_callback.H"
 #include "x/sentry.H"
 #include "x/mp.H"
@@ -56,6 +54,7 @@
 #include <functional>
 #include <sys/types.h>
 #include <sys/wait.h>
+#include <filesystem>
 
 void trimtest()
 {
@@ -521,8 +520,8 @@ static void fdtest2()
 static void dirtest() noexcept
 {
 	try {
-		LIBCXX_NAMESPACE::dir::base::rmrf("testdir");
-		LIBCXX_NAMESPACE::dir::base::mkdir_parent("testdir/a", 0777);
+		std::filesystem::remove_all("testdir");
+		mkdir("testdir", 0777);
 
 		LIBCXX_NAMESPACE::fd::base::open("testdir/a", O_CREAT|O_RDWR, 0666);
 		mkdir("testdir/b", 0777);
@@ -531,11 +530,11 @@ static void dirtest() noexcept
 
 		std::vector<std::string> dirContents;
 
-		LIBCXX_NAMESPACE::dir::create("testdir/nonexistent-subdir-does-not-throw-exception")->begin();
-
-		LIBCXX_NAMESPACE::dir d=LIBCXX_NAMESPACE::dir::create("testdir");
-
-		dirContents.insert(dirContents.end(), d->begin(), d->end());
+		for (auto &d:std::filesystem::directory_iterator{"testdir"})
+		{
+			dirContents.insert(dirContents.end(),
+					   d.path().filename());
+		}
 
 		std::sort(dirContents.begin(), dirContents.end());
 
@@ -547,101 +546,8 @@ static void dirtest() noexcept
 			std::cout << "entry: " << *b++ << std::endl;
 		}
 
-		LIBCXX_NAMESPACE::dir::base::rmrf("testdir");
+		std::filesystem::remove_all("testdir");
 		std::cout << "rm -rf completed" << std::endl;
-		std::cout << std::flush;
-
-		LIBCXX_NAMESPACE::dir::base::mkdir("testdir/a/b");
-
-		std::cout << "Testing dirwalk" << std::endl;
-
-		LIBCXX_NAMESPACE::dir::base::rmrf("testdir");
-
-		LIBCXX_NAMESPACE::dir::base::mkdir("testdir/a/b/c");
-
-		{
-			LIBCXX_NAMESPACE::dirwalk
-				dirwalk=LIBCXX_NAMESPACE::dirwalk
-				::create("testdir");
-
-			std::list<LIBCXX_NAMESPACE::dir::base::entry> strlist;
-
-			strlist.insert(strlist.end(),
-				       dirwalk->begin(),
-				       dirwalk->end());
-
-			while (!strlist.empty())
-			{
-				std::cout << "preorder: "
-					  << strlist.front().fullpath()
-					  << std::endl;
-				strlist.pop_front();
-			}
-		}
-
-		{
-			LIBCXX_NAMESPACE::dirwalk
-				dirwalk=LIBCXX_NAMESPACE::dirwalk
-				::create("testdir", true);
-
-			std::list<LIBCXX_NAMESPACE::dir::base::entry> strlist;
-
-			strlist.insert(strlist.end(),
-				       dirwalk->begin(),
-				       dirwalk->end());
-
-			while (!strlist.empty())
-			{
-				std::cout << "postorder: "
-					  << strlist.front().fullpath()
-					  << std::endl;
-				strlist.pop_front();
-			}
-		}
-
-		LIBCXX_NAMESPACE::fd::base::open("testdir/a/b/c/d",
-					       O_CREAT|O_RDWR, 0666);
-
-		{
-			LIBCXX_NAMESPACE::dirwalk
-				dirwalk=LIBCXX_NAMESPACE::dirwalk
-				::create("testdir");
-
-			std::list<LIBCXX_NAMESPACE::dir::base::entry> strlist;
-
-			strlist.insert(strlist.end(),
-				       dirwalk->begin(),
-				       dirwalk->end());
-
-			while (!strlist.empty())
-			{
-				std::cout << "preorder: "
-					  << strlist.front().fullpath()
-					  << std::endl;
-				strlist.pop_front();
-			}
-		}
-
-		{
-			LIBCXX_NAMESPACE::dirwalk
-				dirwalk=LIBCXX_NAMESPACE::dirwalk
-				::create("testdir", true);
-
-			std::list<LIBCXX_NAMESPACE::dir::base::entry> strlist;
-
-			strlist.insert(strlist.end(),
-				       dirwalk->begin(),
-				       dirwalk->end());
-
-			while (!strlist.empty())
-			{
-				std::cout << "postorder: "
-					  << strlist.front().fullpath()
-					  << std::endl;
-				strlist.pop_front();
-			}
-		}
-		LIBCXX_NAMESPACE::dir::base::rmrf("testdir");
 	} catch(const LIBCXX_NAMESPACE::exception &e)
 	{
 		std::cout << "dirtest: " << e << std::endl;

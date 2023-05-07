@@ -64,10 +64,6 @@ libcxx_la_SOURCES=\
 	destroycallbackflagwait4obj.C \
 	destroycallbackobj.C	\
 	df.C			\
-	dir.C			\
-	dirobj.C		\
-	dirwalkobj.C		\
-	dirwalktreeobj.C	\
 	dispatchablebaseobj.C	\
 	epoll.C			\
 	epollobj.C		\
@@ -162,7 +158,6 @@ libcxx_la_SOURCES=\
 	netifobj.C		\
 	obj.C			\
 	ondestroyobj.C		\
-	opendirobj.C		\
 	option_definitionbaseobj.C \
 	option_definitionhelpobj.C \
 	option_definitionobj.C  \
@@ -959,6 +954,7 @@ check-am: $(noinst_PROGRAMS) $(noinst_DATA)
 	./testcombinepath
 	./testconvert
 	./testconfig
+	./testglob
 
 $(XTEST_MO_DIR)/$(XTEST_MO_FILE): testmessages.po
 	mkdir -p $(XTEST_MO_DIR)

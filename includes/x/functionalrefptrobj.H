@@ -41,7 +41,7 @@ public:
 	using function_t::operator();
 };
 
-//! Implementation of a \ref functionref "reference-counted function object".
+//! \anchor functionalrefptr_impl_spec Implementation of a \ref functionref "reference-counted function object".
 
 //! Inherits of a \ref ref "ref" or a \ref ptr "ptr" and implements the \c () operator.
 

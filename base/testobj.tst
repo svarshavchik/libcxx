@@ -215,21 +215,6 @@ entry: a
 entry: b
 entry: c
 rm -rf completed
-Testing dirwalk
-preorder: testdir/a
-preorder: testdir/a/b
-preorder: testdir/a/b/c
-postorder: testdir/a/b/c
-postorder: testdir/a/b
-postorder: testdir/a
-preorder: testdir/a
-preorder: testdir/a/b
-preorder: testdir/a/b/c
-preorder: testdir/a/b/c/d
-postorder: testdir/a/b/c/d
-postorder: testdir/a/b/c
-postorder: testdir/a/b
-postorder: testdir/a
 Starting 5 threads
 Waiting until they get started
 Waiting until they stop

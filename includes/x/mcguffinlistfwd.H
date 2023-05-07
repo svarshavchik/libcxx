@@ -35,7 +35,7 @@ class mcguffinlistBase;
 //!
 //! Just like a \ref weaklist "INSERT_LIBX_NAMESPACE::weaklist", the
 //! container's
-//! \ref mcguffincontainerObj<ref<objClass,baseType>> "value that's referenced by an iterator"
+//! \ref mcguffincontainerObj "value that's referenced by an iterator"
 //! implements a
 //! \c getptr() method that returns the inserted value, if it still exists
 //! in the list. There are also two additional methods:

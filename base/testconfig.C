@@ -4,9 +4,9 @@
 */
 
 #include <string>
+#include <filesystem>
 #include "x/config.H"
 #include "x/pwd.H"
-#include "x/dir.H"
 #include "x/fileattr.H"
 #include "x/appid.H"
 #include <iostream>
@@ -38,10 +38,10 @@ void testconfig()
 		p->pw_dir
 	} + "/.libcxx/testconfig4@libcxx.com";
 
-	dir::base::rmrf(dir, true);
-	dir::base::rmrf(dir2, true);
-	dir::base::rmrf(dir3, true);
-	dir::base::rmrf(dir4, true);
+	std::filesystem::remove_all(dir);
+	std::filesystem::remove_all(dir2);
+	std::filesystem::remove_all(dir3);
+	std::filesystem::remove_all(dir4);
 
 	if (configdir("testconfig@libcxx.com") != configdir())
 		throw EXCEPTION("appid() is not working");
@@ -81,10 +81,10 @@ void testconfig()
 	if (fileattr::create(dir4, false)->try_stat())
 		throw EXCEPTION("dir4 should've been removed");
 
-	dir::base::rmrf(dir, true);
-	dir::base::rmrf(dir2, true);
-	dir::base::rmrf(dir3, true);
-	dir::base::rmrf(dir4, true);
+	std::filesystem::remove_all(dir);
+	std::filesystem::remove_all(dir2);
+	std::filesystem::remove_all(dir3);
+	std::filesystem::remove_all(dir4);
 }
 
 int main()

@@ -13,15 +13,10 @@ See COPYING for distribution information.
       <programlisting>
 #include &lt;&ns;/netif.H&gt;
 
-std::vector&lt;&ns;::netif&gt; interfaces;
+std::vector&lt;&ns;::netif&gt; interfaces=&ns;::netif::base::enumerate();
 
-&ns;::netif::enumerate(interfaces);
-
-for (std::vector&lt;&ns;::netif&gt;::iterator b(interfaces.begin()),
-    e(interfaces.end()); b != e; ++b)
+for (auto &amp;netif_ref : interfaces)
 {
-   &ns;::netif netif_ref(*b);
-
    std::cout &lt;&lt; "interface: " &lt;&lt; netif_ref-&gt;getName() &lt;&lt; std::endl;
 
    // ...
@@ -32,8 +27,8 @@ for (std::vector&lt;&ns;::netif&gt;::iterator b(interfaces.begin()),
   </blockquote>
 
   <para>
-    <ulink url="&link-x--netifBase;"><methodname>&ns;::netif::enumerate</methodname></ulink>()
-    populates a vector of <link linkend="refobj">references</link> to
+    <ulink url="&link-x--netifBase;"><methodname>&ns;::netif::base::enumerate</methodname></ulink>()
+    returns a vector of <link linkend="refobj">references</link> to
     <ulink url="&link-x--netifObj;"><classname>&ns;::netifObj</classname></ulink> objects.
     This object holds metadata about one network interface.
     <methodname>getName</methodname>() returns the network interface's name.

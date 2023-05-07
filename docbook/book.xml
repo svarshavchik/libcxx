@@ -23,7 +23,6 @@
 <!ENTITY netif SYSTEM "netif.xml">
 <!ENTITY iofilters SYSTEM "iofilters.xml">
 <!ENTITY iconv SYSTEM "iconv.xml">
-<!ENTITY dir SYSTEM "dir.xml">
 <!ENTITY threads SYSTEM "threads.xml">
 <!ENTITY forkexec SYSTEM "forkexec.xml">
 <!ENTITY locale SYSTEM "locale.xml">
@@ -144,7 +143,6 @@ See COPYING for distribution information.
     &netif;
     &iofilters;
     &iconv;
-    &dir;
     &singleton;
     &threads;
     &forkexec;

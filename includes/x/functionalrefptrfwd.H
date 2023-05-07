@@ -17,6 +17,10 @@ namespace LIBCXX_NAMESPACE {
 template<typename signature> class functionBase;
 template<typename signature> class functionObj;
 
+//! \anchor functionrefptr_impl Base template
+
+//! Specialized \ref functionalrefptr_impl_spec "for callable types only".
+
 template<typename type,
 	 typename signature> class functionrefptr_impl;
 

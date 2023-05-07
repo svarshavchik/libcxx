@@ -46,7 +46,6 @@ public:
 	//! \internal
 	//! This should be the first method invoked for a new
 	//! exception object.
-	//! \return a reference to this object.
 
 	void fileline(//! Name of the file that throws the exception.
 		      const char *file,

@@ -8,7 +8,6 @@
 #include "x/netif.H"
 #include "x/exception.H"
 #include "x/fd.H"
-#include "x/dir.H"
 #include "x/locale.H"
 #include "x/strtok.H"
 #include "x/netif.H"
@@ -38,9 +37,7 @@ template class base64<0, base64alphabet<',', '_'>>;
 
 uuid::macObj::macObj()
 {
-	std::vector<netif> interfaces;
-
-	netif::base::enumerate(interfaces);
+	std::vector<netif> interfaces=netif::base::enumerate();
 
 	for (std::vector<netif>::iterator b(interfaces.begin()),
 		     e(interfaces.end()); b != e; ++b)

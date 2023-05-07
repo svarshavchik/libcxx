@@ -84,11 +84,9 @@ void init_ifr(struct ifreq &ifr, const std::string &n) noexcept
 
 #ifdef SIOCGIFHWADDR
 
-void netifBase::enumerate(//! Enumerated interfaces placed here
-			  std::vector< netif > &interfaces)
-
+std::vector< netif > netifBase::enumerate()
 {
-	interfaces.clear();
+	std::vector< netif > interfaces;
 
 	fd sock=fd::base::socket(AF_INET, SOCK_STREAM, 0);
 
@@ -179,14 +177,14 @@ void netifBase::enumerate(//! Enumerated interfaces placed here
 						   index,
 						   fflags));
 	}
+
+	return interfaces;
 }
 
 #else
-void netifBase::enumerate(//! Enumerated interfaces placed here
-			  std::vector< netif > &interfaces)
-
+std::vector< netif > netifBase::enumerate()
 {
-	interfaces.clear();
+	std::vector< netif > interfaces;
 
 	fd sock=fd::base::socket(AF_INET, SOCK_STREAM, 0);
 
@@ -247,6 +245,8 @@ void netifBase::enumerate(//! Enumerated interfaces placed here
 						   index,
 						   fflags));
 	}
+
+	return interfaces;
 }
 
 #endif

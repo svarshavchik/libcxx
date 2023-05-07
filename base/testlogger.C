@@ -7,11 +7,11 @@
 #include "x/logger.H"
 #include "x/exception.H"
 #include "x/property_properties.H"
-#include "x/dir.H"
 
 #include <fstream>
 #include <vector>
 #include <algorithm>
+#include <filesystem>
 
 LOG_FUNC_SCOPE_DECL(testlogger, testlogger_outer);
 LOG_FUNC_SCOPE_DECL(testlogger::warnlevel, testlogger_inner_warnlevel);
@@ -49,26 +49,11 @@ static void testlogger()
 			LOG_ERROR("Error message 4");
 		}
 
-		std::vector<std::string> logfiles;
-
+		for (auto &d:std::filesystem::directory_iterator{"testlogdir"})
 		{
-			LIBCXX_NAMESPACE::dir testlogdir=
-				LIBCXX_NAMESPACE::dir::create("testlogdir");
+			auto filename=d.path();
 
-			logfiles.insert(logfiles.end(),
-					testlogdir->begin(),
-					testlogdir->end());
-		}
-
-		std::vector<std::string>::iterator
-			b(logfiles.begin()), e(logfiles.end());
-
-		while (b != e)
-		{
-			std::string filename=*b++;
-
-			filename="testlogdir/" + filename;
-			std::ifstream i(filename.c_str());
+			std::ifstream i(filename);
 
 			if (i.is_open())
 			{

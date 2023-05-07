@@ -78,19 +78,17 @@ std::list&lt;std::string&gt; container;
     <informalexample>
       <programlisting>
 #include &lt;&ns;/join.H&gt;
-#include &lt;&ns;/dir.H&gt;
 #include &lt;iostream&gt;
-#include &lt;iterator&gt;
+#include &lt;filesystem&gt;
 
 int main()
 {
     std::set&lt;std::string&gt; files;
 
-    &ns;::dir dir(".");
-
-    std::copy(dir.begin(), dir.end(),
-          std::insert_iterator&lt;std::set&lt;std::string&gt; &gt;(files,
-                                   files.end()));
+    for (auto &amp;d: std::filesystem::directory_iterator("."))
+    {
+        files.insert(d.path().filename());
+    }
 
     std::cout &lt;&lt; &ns;::join(files, "\n") &lt;&lt; std::endl;
     return 0;

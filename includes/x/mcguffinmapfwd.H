@@ -54,7 +54,7 @@ class mcguffinmapBase;
 //!
 //! Just like a \ref weakmap "INSERT_LIBX_NAMESPACE::weakmap", the
 //! container's
-//! \ref mcguffincontainerObj<ref<objClass,baseType>> "value that's referenced by an iterator"
+//! \ref mcguffincontainerObj "value that's referenced by an iterator"
 //! implements a
 //! \c getptr() method that returns the inserted value, if it still exists
 //! in the map. There are also two additional methods:

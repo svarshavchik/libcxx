@@ -70,6 +70,8 @@ public:
 	typedef ref_or_ptr type_t;
 };
 
+//! Constructor
+
 //! Only implemented for \ref functionptr "functionptr"s.
 
 template<typename base_ref,

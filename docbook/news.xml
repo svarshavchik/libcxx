@@ -6,31 +6,19 @@ See COPYING for distribution information.
 -->
 
 <section id="news">
-  <title>Release 0.25 of &app;</title>
+  <title>Release 0.26 of &app;</title>
 
   <itemizedlist>
     <listitem>
       <para>
-	Add support for namespaces to XPaths. Provide overloads for
-	parsing and generating XML content as numerical data types.
-      </para>
-      <para>
-	<link linkend="xml_writelock"><function>remove</function>()ing an XML
-	  element</link> does not automatically invalidate
-	<link linkend="xmlxpath">all existing XPath</link> nodesets, but only
-	nodes that get removed.
+	<classname>&ns;::dir</classname> and
+	<classname>&ns;::dirwalk</classname> classes removed, they were
+	made redundant by the filesystem library.
       </para>
     </listitem>
     <listitem>
       <para>
-	<link linkend="uri">URI</link> objects accept
-	<classname>std::string_view</classname> parameters.
-      </para>
-    </listitem>
-    <listitem>
-      <para>
-	Implement a framework for defining
-	<link linkend="confidir">application identifiers and versions</link>.
+	Minor API changes to several interfaces, that use move semantics.
       </para>
     </listitem>
   </itemizedlist>

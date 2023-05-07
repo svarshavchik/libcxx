@@ -4,7 +4,6 @@
 */
 
 #include "libcxx_config.h"
-#include "x/dirwalk.H"
 #include "x/singleton.H"
 #include "x/tzfile.H"
 #include "x/ymd.H"
@@ -21,6 +20,7 @@
 #include <iterator>
 #include <map>
 #include <set>
+#include <filesystem>
 #if HAVE_ENDIAN_H
 #include <endian.h>
 #endif
@@ -332,25 +332,30 @@ std::string tzfileBase::tzdir() noexcept
 	return p;
 }
 
-void tzfileBase::enumerate(std::set<std::string> &set)
+std::unordered_set<std::string> tzfileBase::enumerate()
 {
-	std::string dirname(tzdir());
+	std::unordered_set<std::string> set;
 
-	dirwalk dirnamewalk=dirwalk::create(dirname);
+	auto dirname=tzdir();
 
-	for (auto direntry:*dirnamewalk)
+	for (auto &direntry :
+		     std::filesystem::recursive_directory_iterator{dirname})
 	{
-		if (direntry.filetype() != DT_REG)
+		if (!direntry.is_regular_file())
 			continue;
 
-		if ( ((std::string)direntry).find('.') != std::string::npos)
+		std::string name{direntry.path()};
+
+		if (name.find('.') != std::string::npos)
 			continue;
 
-		if ((std::string)direntry == "leapseconds")
+		if (name == dirname + "/leapseconds")
 			continue;
 
-		set.insert(direntry.fullpath().substr(dirname.size()+1));
+		set.insert(name.substr(dirname.size()+1));
 	}
+
+	return set;
 }
 
 tzfileObj::tzfileObj(const std::string &tzname)

@@ -23,7 +23,7 @@ namespace LIBCXX_NAMESPACE::gnutls {
 //! internal form. A reference to this object is returned by a wrapper for
 //! some GnuTLS function.
 
-class rsapubkeyobj : virtual public pubkeyobj, virtual public obj {
+class rsapubkeyobj : virtual public obj, virtual public pubkeyobj {
 
 public:
 	//! Default constructor

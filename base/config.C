@@ -5,7 +5,6 @@
 
 #include "libcxx_config.h"
 #include "x/pwd.H"
-#include "x/dir.H"
 #include "x/config.H"
 #include "x/appid.H"
 #include "x/pidinfo.H"
@@ -21,6 +20,7 @@
 #include <fcntl.h>
 #include <vector>
 #include "gettext_in.h"
+#include <filesystem>
 
 namespace LIBCXX_NAMESPACE {
 #if 0
@@ -136,13 +136,9 @@ std::string configdir(const std::string_view &appid)
 		utimensat(AT_FDCWD, my_dotexe.c_str(), NULL,
 			  AT_SYMLINK_NOFOLLOW);
 
-		auto d=dir::create(basedir);
-
-		std::vector<std::string> contents{d->begin(), d->end()};
-
-		for (const auto &n:contents)
+		for (auto &d:std::filesystem::directory_iterator{basedir})
 		{
-			auto fullname = basedir + "/" + n;
+			std::string fullname=d.path();
 
 			auto dotexe = fullname + "/.exe";
 
@@ -176,7 +172,7 @@ std::string configdir(const std::string_view &appid)
 				continue;
 			}
 
-			dir::base::rmrf(fullname);
+			std::filesystem::remove_all(fullname);
 		}
 	}
 

@@ -152,6 +152,7 @@ public:
 	}
 };
 
+#ifndef DOXYGEN
 template<typename obj_type, typename base_class>
 __thread bool threadsingleton<ptr<obj_type, base_class> >::initialized=false;
 
@@ -160,6 +161,7 @@ __thread bool threadsingleton<ptr<obj_type, base_class> >::destroyed=false;
 
 template<typename obj_type, typename base_class>
 __thread obj_type *threadsingleton<ptr<obj_type, base_class> >::instance=NULL;
+#endif
 
 #if 0
 {

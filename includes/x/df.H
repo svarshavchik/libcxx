@@ -190,5 +190,4 @@ public:
 #endif
 }
 
-#include <x/dirobj.H>
 #endif

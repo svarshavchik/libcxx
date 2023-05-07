@@ -103,14 +103,11 @@ class tzfileBase;
 //! \par Enumerating available timezones
 //!
 //! \code
-//! std::set&lt;std::string&gt; timezones;
-//!
-//! tzfile::base::enumerate(timezones);
+//! auto container=tzfile::base::enumerate();
 //! \endcode
 //!
-//! enumerate() enumerates names of available timezones and places this list
-//! into the given \c std::set&lt;std::string&gt;. Note: the existing contents
-//! of the set, if any, are not cleared.
+//! enumerate() enumerates names of available timezones and returns a container
+//! of them.
 
 typedef ref<tzfileObj, tzfileBase> tzfile;
 
@@ -508,7 +505,7 @@ public:
 
 	//! Enumerate available timezones
 
-	static void enumerate(std::set<std::string> &);
+	static std::unordered_set<std::string> enumerate();
 
 	class localtz;
 	class utctz;

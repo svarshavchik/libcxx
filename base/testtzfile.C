@@ -409,18 +409,14 @@ static void testtzfile(int argc, char **argv)
 
 		std::cout << "Local timezone is " << local << std::endl;
 
-		std::set<std::string> timezones;
+		auto timezones=LIBCXX_NAMESPACE::tzfile::base::enumerate();
 
-		LIBCXX_NAMESPACE::tzfile::base::enumerate(timezones);
-
-		std::set<std::string>::const_iterator b, e;
-
-		for (b=timezones.begin(), e=timezones.end(); b != e; ++b)
+		for (auto &b:timezones)
 		{
 			std::ostringstream o;
 
 			try {
-				dump(*b, o);
+				dump(b, o);
 			} catch (LIBCXX_NAMESPACE::exception &e)
 			{
 				std::cerr << o.str() << std::endl;

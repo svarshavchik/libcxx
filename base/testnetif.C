@@ -14,9 +14,7 @@
 
 static void testnetif()
 {
-	std::vector<LIBCXX_NAMESPACE::netif> interfaces;
-
-	LIBCXX_NAMESPACE::netif::base::enumerate(interfaces);
+	auto interfaces = LIBCXX_NAMESPACE::netif::base::enumerate();
 
 	if (interfaces.empty())
 		throw EXCEPTION("Could not enumerate network interfaces");

@@ -83,7 +83,7 @@ html/index.html: html/ref/index.html $(wildcard docbook/*.xml) docbook/xmllinks.
 html/ref/index.html: $(DOCS_SRC) Doxyfile header.html
 	rm -rf html/ref
 	mkdir -p html/ref
-	doxygen; c=$$?;	perl -p -i -e 's/INSERT_LIBX_NAMESPACE/x/g' html/ref/*.html; exit $$c
+	doxygen; c=$$?;	perl -p -i -e 's/INSERT_LIBX_NAMESPACE/x/g' `find html -name '*.html' -print`; exit $$c
 
 header.html: Doxyfile
 	rm -rf header.html.tmp

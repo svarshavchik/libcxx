@@ -25,7 +25,7 @@ namespace LIBCXX_NAMESPACE {
 //! This is a subclass of fdObj that instantiates a signal file
 //! descriptor -- a Linux kernel-specific feature introduced in kernel 2.6.22.
 
-class signalfdObj : private fdObj, virtual public obj {
+class signalfdObj : virtual public obj, private fdObj {
 
 	//! Internal file descriptor creator.
 

@@ -61,7 +61,7 @@ typedef functionptr<void ()> ondestroy_cb_tptr;
 template<class refType> class weakptr;
 template<class> class objFunctorCallbackObj;
 
-//! Superclass of reference-counted objects
+//! \anchor obj Superclass of reference-counted objects
 
 //! The \ref obj "obj" class is the superclass for all
 //! reference-counted objects. \ref obj "obj" maintains an internal

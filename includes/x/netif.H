@@ -34,8 +34,7 @@ public:
 
 	//! Enumerate all interfaces
 
-	static void enumerate(//! Enumerated interfaces placed here
-			      std::vector<netif> &interfaces);
+	static std::vector<netif> enumerate();
 
 	//! An address and a netmask
 

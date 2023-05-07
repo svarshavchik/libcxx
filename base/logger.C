@@ -6,7 +6,6 @@
 #include "libcxx_config.h"
 #include "x/logger.H"
 #include "x/fileattr.H"
-#include "x/dir.H"
 #include "x/glob.H"
 #include "x/sysexception.H"
 #include "x/locale.H"

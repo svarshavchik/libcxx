@@ -5,7 +5,6 @@
 
 #include "libcxx_config.h"
 #include "x/glob.H"
-#include "x/dir.H"
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <fcntl.h>
@@ -14,10 +13,10 @@
 #include <iostream>
 #include <cstdlib>
 #include <iterator>
-
+#include <filesystem>
 static void testglob()
 {
-	LIBCXX_NAMESPACE::dir::base::rmrf("testdir");
+	std::filesystem::remove_all("testdir");
 
 	mkdir("testdir", 0777);
 	close(open("testdir/x", O_RDWR|O_CREAT|O_TRUNC, 0777));
@@ -66,6 +65,6 @@ int main(int argc, char **argv)
 		std::cout << e << std::endl;
 		exit(1);
 	}
-	LIBCXX_NAMESPACE::dir::base::rmrf("testdir");
+	std::filesystem::remove_all("testdir");
 	return 0;
 }
