@@ -3,7 +3,7 @@
 # See COPYING for distribution information.
 
 AC_PREREQ([2.71])
-AC_INIT([libcxx],[0.25.0],[mrsam@courier-mta.com])
+AC_INIT([libcxx],[0.26.0],[mrsam@courier-mta.com])
 
 AC_CONFIG_SRCDIR([includes/x/obj.H])
 AC_CONFIG_HEADERS([libcxx_config.h])
@@ -18,7 +18,7 @@ AC_PROG_SYSCONFTOOL
 
 LT_INIT
 AM_GNU_GETTEXT([external])
-AM_GNU_GETTEXT_VERSION([0.19.6])
+AM_GNU_GETTEXT_VERSION([0.21.1])
 AC_LANG(C++)
 
 XGETTEXT_EXTRA_OPTIONS="--keyword=_txt --keyword=_txtw --keyword=_txtn:1,2 --keyword=_txtnw:1,2 \`cd \$(top_srcdir); echo cups/*.C gnutls/*.C base/*.C yaml/*.C\`"
@@ -40,11 +40,11 @@ XGETTEXT_EXTRA_OPTIONS="--keyword=_txt --keyword=_txtw --keyword=_txtn:1,2 --key
 # Our package $VERSION is:
 #
 #   $libdir/pkgconfig/libcxx-$VERSION.pc
-#   $datadir/aclocak/libcxx-$VERSION.m4
+#   $datadir/aclocal/libcxx-$VERSION.m4
 #
-ABIVER=0.25
+ABIVER=0.26
 AC_SUBST(ABIVER)
-VERSION_INFO=25:0:0
+VERSION_INFO=26:0:0
 AC_SUBST(VERSION_INFO)
 
 # Checks for libraries.

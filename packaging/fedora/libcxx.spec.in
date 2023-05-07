@@ -180,6 +180,7 @@ rm -rf $RPM_BUILD_ROOT%{_localstatedir}/tlsparams
 rm -f $RPM_BUILD_ROOT%{_sysconfdir}/cron.monthly/*
 rm -f $RPM_BUILD_ROOT%{_sysconfdir}/*.dat
 rm -f $RPM_BUILD_ROOT%{_sysconfdir}/*.properties
+rm -f $RPM_BUILD_ROOT%{_sysconfdir}/sysconfig/httportmap.dist
 rm -f $RPM_BUILD_ROOT%{_localstatedir}/run/httportmap.lock
 
 # Basically what's in %files httpd
