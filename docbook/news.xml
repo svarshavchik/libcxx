@@ -11,9 +11,15 @@ See COPYING for distribution information.
   <itemizedlist>
     <listitem>
       <para>
+	This release removes several obsoleted and redundant classes and
+	templates.
 	<classname>&ns;::dir</classname> and
-	<classname>&ns;::dirwalk</classname> classes removed, they were
+	<classname>&ns;::dirwalk</classname> classes are removed, they were
 	made redundant by the filesystem library.
+	<function>&ns;::xml::quote_string_literal</function> is
+	obsoleted by <function>&ns;::xml::escapestr</function>(), added
+	<function>&ns;::xml::xpathescapestr</function>() for quoting
+	literal strings in XPath expressions.
       </para>
     </listitem>
     <listitem>

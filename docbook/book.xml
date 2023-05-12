@@ -208,7 +208,8 @@ See COPYING for distribution information.
 
       <para>
 	All of these classes and functions use the <literal>UTF-8</literal>
-	codeset. All text content returned from &xml; documents uses the
+	codeset, by default. All text content returned from &xml; documents
+	uses the
 	<literal>UTF-8</literal> codeset, and all text strings passed to these
 	functions must be in <literal>UTF-8</literal>.
       </para>

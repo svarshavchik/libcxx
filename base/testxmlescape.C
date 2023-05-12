@@ -5,11 +5,14 @@
 
 #include "libcxx_config.h"
 #include "x/xml/escape.H"
+#include "x/xml/doc.H"
+#include "x/xml/readlock.H"
+#include "x/xml/xpath.H"
 
 #include <iostream>
 #include <cstdlib>
 #include <vector>
-	
+
 static void testxmlescape()
 {
 	static const struct {
@@ -59,12 +62,52 @@ static void testxmlescapewide()
 		throw EXCEPTION("Encoding failure for wide string (opt true)");
 }
 
-					 
+
+void test120()
+{
+	std::string doc=R"XX(
+		<libcxx:windows xmlns:libcxx="https://www.libcxx.org/w" libcxx:version="0.31.0">
+  <libcxx:window>
+    <libcxx:name>main</libcxx:name>
+    <libcxx:window>
+      <libcxx:name>'"&amp;&lt;&gt;</libcxx:name>
+    </libcxx:window>
+  </libcxx:window>
+</libcxx:windows>
+	)XX";
+
+	auto doc1=LIBCXX_NAMESPACE::xml::doc::create(
+		doc.begin(), doc.end(), "STRING"
+	);
+
+	auto lock=doc1->readlock();
+
+	lock->get_root();
+
+	auto xpathexpr =
+		"libcxx:window[libcxx:name="
+		+ LIBCXX_NAMESPACE::xml::xpathescapestr("main")
+		+ "]/ns:window[libcxx:name="
+		+ LIBCXX_NAMESPACE::xml::xpathescapestr("'\"&<>") + "]";
+
+	auto xpath=lock->get_xpath(
+		xpathexpr,
+		{
+			{ "libcxx", "https://www.libcxx.org/w" },
+			{ "ns", "https://www.libcxx.org/w" },
+		});
+
+	if (xpath->count() != 1)
+		throw EXCEPTION("XPath expression did not work: "
+				+ xpathexpr);
+}
+
 int main(int argc, char **argv)
 {
 	try {
 		testxmlescape();
 		testxmlescapewide();
+		test120();
 	} catch (LIBCXX_NAMESPACE::exception &e)
 	{
 		std::cerr << e << std::endl;
@@ -72,4 +115,3 @@ int main(int argc, char **argv)
 	}
 	return (0);
 }
-

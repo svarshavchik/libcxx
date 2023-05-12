@@ -1979,48 +1979,6 @@ impldocObj::readlockImplObj::get_xpath(
 	return new_xpath;
 }
 
-std::string quote_string_literal(const std::string_view &str, char quote)
-{
-	std::string p;
-
-	size_t n=str.size();
-
-	p.reserve(n + n/20 + 2); // Opening bid: add 5%
-
-	p.push_back(quote);
-
-	char double_quote[]={quote, quote, 0};
-
-	for (const auto &c:str)
-	{
-		if (c == quote)
-		{
-			p += double_quote;
-		}
-		else if (c == '<')
-		{
-			p += "&lt;";
-		}
-		else if (c == '>')
-		{
-			p += "&gt;";
-		}
-		else if (c == '&')
-		{
-			p += "&amp;";
-		}
-		else if (c == '\0')
-		{
-			p += "&#0;"; // Script kiddy?
-		}
-		else
-			p.push_back(c);
-	}
-
-	p.push_back(quote);
-	return p;
-}
-
 #if 0
 {
 #endif

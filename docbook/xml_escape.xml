@@ -52,7 +52,7 @@ std::string str=&ns;::xml::escapestr("&lt;URL:http://www.example.com&gt;");</pro
 std::string s;
 
 &ns;::xml::escape(str.begin(), str.end(),
-               std::back_insert_iterator&lt;std::string&gt;(s), flag);
+               std::back_insert_iterator&lt;std::string&gt;{s}, flag);
 
 return s;</programlisting>
     </informalexample>
@@ -67,6 +67,51 @@ return s;</programlisting>
     <literal>0x80</literal> and higher get also replaced by
     <quote><literal>&amp;#x</literal><replaceable>N</replaceable><literal>;</literal></quote>.
   </para>
+
+  <blockquote>
+    <informalexample>
+      <programlisting>
+std::string str;
+
+std::string xpathq=&ns;::xml::xpathescapestr(str);
+</programlisting>
+    </informalexample>
+  </blockquote>
+
+  <para>
+    <function>&ns;::xml::xpathescapestr</function>() takes a literal string
+    and produces an XPath expression that evaluates to the string.
+    Literal strings in an XPath expression use quoted or apostrophes, but
+    XPath does not have an escaping mechanism for quotes or apostrophes.
+    <function>&ns;::xml::xpathescapestr</function>() effectively produces
+    '<replaceable>str</replaceable>', and any literal apostrophes in the
+    string get replaced by an expression that evaluates to an apostrophe.
+  </para>
+  <blockquote>
+    <informalexample>
+      <programlisting>
+std::string s;
+
+&ns;::xml::xpathescape(str.begin(), str.end(),
+               std::back_insert_iterator&lt;std::string&gt;{s});
+
+return s;</programlisting>
+    </informalexample>
+  </blockquote>
+  <para>
+    A more generic alternative is the
+    <function>&ns;::xml::xpathescape</function>() template function.
+    This function produces an expression for a literal string that's
+    defined by a sequence, with a beginning and an
+    ending iterator. The XPath expression gets written to an output iterator.
+  </para>
+
+  <note>
+    <para>
+      Null characters in the literal strings cannot be handled properly, and
+      will result in a broken XPath expression.
+    </para>
+  </note>
 </chapter>
 <!--
 Local Variables:

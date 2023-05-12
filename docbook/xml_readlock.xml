@@ -393,6 +393,10 @@ rlock-&gt;get_xpath("body/p[1]")-&gt;to_node();</programlisting>
     <para>
       The parameter to a reader or a writer lock's
       <methodname>get_xpath</methodname>() is an XPath expression.
+      <link linkend="xml_escape"><function>&ns;::xml::xpathescape</function>()
+	and <function>&ns;::xml::xpathescapestr</function></link>()
+      are available to help with referencing literal strings in the XPath
+      expression.
       <methodname>get_xpath</methodname>() returns a
       <ulink url="&link-typedef-x--xml-xpath;"><classname>&ns;::xml::xpath</classname></ulink>
       representing the resulting nodeset from evaluating the expression against

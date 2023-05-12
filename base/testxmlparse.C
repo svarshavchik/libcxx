@@ -1237,23 +1237,6 @@ static void test50()
 		throw EXCEPTION("test50 did not catch the expected exception");
 }
 
-void test60()
-{
-	if (LIBCXX_NAMESPACE::xml::quote_string_literal("foo", '\'')
-	    != "'foo'" ||
-	    LIBCXX_NAMESPACE::xml::quote_string_literal("ba\"r")
-	    != "\"ba\"\"r\"" ||
-	    LIBCXX_NAMESPACE::xml::quote_string_literal("b\"a\"r")
-	    != "\"b\"\"a\"\"r\"" ||
-	    LIBCXX_NAMESPACE::xml::quote_string_literal("bar\"")
-	    != "\"bar\"\"\"" ||
-	    LIBCXX_NAMESPACE::xml::quote_string_literal("\"bar")
-	    != "\"\"\"bar\"" ||
-	    LIBCXX_NAMESPACE::xml::quote_string_literal("&<>")
-	    != "\"&amp;&lt;&gt;\"")
-		throw EXCEPTION("quote_string_literal failed");
-}
-
 void test70()
 {
 	auto d=LIBCXX_NAMESPACE::xml::doc::create();
@@ -1470,7 +1453,6 @@ void test110()
 		throw EXCEPTION("Empty nodeset's count is not 0");
 }
 
-
 int main(int argc, char **argv)
 {
 	try {
@@ -1497,7 +1479,6 @@ int main(int argc, char **argv)
 
 		test40();
 		test50();
-		test60();
 
 		LIBCXX_NAMESPACE::locale::create("ru_RU.KOI8-R")->global();
 		test70();
