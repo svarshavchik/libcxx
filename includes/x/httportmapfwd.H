@@ -55,7 +55,7 @@ class httportmapBase;
 //! This implementation reserves the "libx" domain name suffix for internal
 //! use.
 //!
-//! In the above example, the second parameter is the socket that the 
+//! In the above example, the second parameter is the socket that the
 //! application already bound to some port and is listening on. The second
 //! parameter can also be an \c int, a \c std::string, or several other
 //! possibilities. The portmapper
@@ -98,7 +98,7 @@ class httportmapBase;
 //! \par Connecting to a service.
 //!
 //! \code
-//! fd socket=httportmap::create()->connect("addressbook.example.com", getuid());
+//! std::optional<fd> socket=httportmap::create()->connect("addressbook.example.com", getuid());
 //! \endcode
 //!
 //! This example creates a socket and connects to the "addressbook.example.com"
@@ -108,6 +108,9 @@ class httportmapBase;
 //! A registered application is presumed to be listening
 //! on a wildcard address. Alternatively the application may bind a separate
 //! socket on the same port for each network interface's IP address.
+//!
+//! An nullopt is returned if the application is not running. All other
+//! errors result in a thrown exception.
 //!
 //! \par Authenticating by pathname
 //!

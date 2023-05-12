@@ -439,10 +439,14 @@ bool httportmapObj::reg(const std::list<reginfo> &ports, const fdptr &timeoutfd)
 
 	if (conn->clientfd.null())
 	{
-		fd newfd(connect(httportmap::base::portmap_service, 0, timeoutfd));
+		auto newfd=connect(httportmap::base::portmap_service, 0,
+				   timeoutfd);
 
-		httportmapBase::connect_service(newfd);
-		conn->clientfd=newfd;
+		if (!newfd)
+			throw SYSEXCEPTION(_("Portmap connection failed"));
+
+		httportmapBase::connect_service(*newfd);
+		conn->clientfd=*newfd;
 	}
 
 	clock connection_lock(conn, timeoutfd, *this);
@@ -576,8 +580,8 @@ void httportmapObj::badresponse()
 	throw EXCEPTION(_("Unable to parse response from portmapper"));
 }
 
-fd httportmapObj::connect_any(const std::string &name,
-			      const fdptr &timeoutfd)
+std::optional<fd> httportmapObj::connect_any(const std::string &name,
+					     const fdptr &timeoutfd)
 {
 	std::vector<httportmap::base::service> entries;
 
@@ -588,38 +592,41 @@ fd httportmapObj::connect_any(const std::string &name,
 
 		services.insert(name);
 
-		list(std::back_insert_iterator<std::vector<httportmap::base::service>
-					       >(entries),
+		list(std::back_insert_iterator{entries},
 		     services, userids, pids, timeoutfd);
 	}
+
+	if (entries.empty())
+		return std::nullopt;
 
 	return do_connect(entries, timeoutfd, name);
 }
 
-fd httportmapObj::connect(const std::string &name,
-			  uid_t user,
-			  const fdptr &timeoutfd)
+std::optional<fd> httportmapObj::connect(const std::string &name,
+					 uid_t user,
+					 const fdptr &timeoutfd)
 {
 	std::vector<httportmap::base::service> entries;
 
-	list(std::back_insert_iterator<std::vector<httportmap::base::service> >
-	     (entries), name, user, timeoutfd);
+	list(std::back_insert_iterator{entries}, name, user, timeoutfd);
+
+	if (entries.empty())
+		return std::nullopt;
 
 	std::string o=name + "." + to_string(user, locale::base::c());
 
 	return do_connect(entries, timeoutfd, o);
 }
 
-fd httportmapObj::do_connect(std::vector<httportmap::base::service> &entries,
-			     const fdptr &timeoutfd,
-			     const std::string &servicename)
-
+std::optional<fd> httportmapObj::do_connect(
+	std::vector<httportmap::base::service> &entries,
+	const fdptr &timeoutfd,
+	const std::string &servicename)
 {
 	if (server.size() > 0)
 	{
-		for (std::vector<httportmap::base::service>::iterator
-			     b(entries.begin()),
-			     e(entries.end()), p; (p=b) != e; )
+		for (auto b=entries.begin(),
+			     e=entries.end(), p=b; (p=b) != e; )
 		{
 			++b;
 
@@ -628,13 +635,11 @@ fd httportmapObj::do_connect(std::vector<httportmap::base::service> &entries,
 		}
 	}
 
-	for (std::vector<httportmap::base::service>::const_iterator
-		     b(entries.begin()),
-		     e(entries.end()); b != e; )
-	{
-		const std::string &port=b->getPort();
+	bool errno_set=false;
 
-		++b;
+	for (auto &entry: entries)
+	{
+		const std::string &port=entry.getPort();
 
 		try {
 			netaddr res=port.substr(0, 1) == "/"
@@ -648,15 +653,17 @@ fd httportmapObj::do_connect(std::vector<httportmap::base::service> &entries,
 				? res->connect()
 				: res->connect(fdtimeoutconfig::terminate_fd
 					       (timeoutfd));
+		} catch (const sysexception &e)
+		{
+			errno_set=true;
 		} catch (...) {
-			if (b == e)
-				throw;
 		}
 	}
 
-	errno=ECONNREFUSED;
+	if (!errno_set)
+		errno=ECONNREFUSED;
 
-	throw SYSEXCEPTION(servicename);
+	return std::nullopt;
 }
 
 void httportmapObj::badclient()

@@ -20,6 +20,8 @@
 #include <vector>
 #include <iterator>
 #include <set>
+#include <string>
+#include <optional>
 
 namespace LIBCXX_NAMESPACE {
 
@@ -604,23 +606,23 @@ public:
 	//! The timeout file descriptor is used for both the connection to the
 	//! portmap service.
 
-	fd connect(//! Service's name
-		   const std::string &name,
+	std::optional<fd> connect(//! Service's name
+		const std::string &name,
 
-		   //! Service must be running as this user
-		   uid_t user,
+		//! Service must be running as this user
+		uid_t user,
 
-		   //! The connection times out when this file descriptor becomes readable
-		   const fdptr &timeoutfd=fdptr());
+		//! The connection times out when this file descriptor becomes readable
+		const fdptr &timeoutfd=fdptr());
 
 
 	//! Connect to the specified service which is running as root
 
-	fd connect_root(//! Service name
-			const std::string &name,
+	std::optional<fd> connect_root(//! Service name
+		const std::string &name,
 
-			//! The connection times out when this file descriptor becomes readable
-			const fdptr &timeoutfd=fdptr())
+		//! The connection times out when this file descriptor becomes readable
+		const fdptr &timeoutfd=fdptr())
 	{
 		return connect(name, 0, timeoutfd);
 	}
@@ -629,11 +631,11 @@ public:
 
 	//! \overload
 
-	fd connect_any(//! Service name
-		       const std::string &name,
+	std::optional<fd> connect_any(//! Service name
+		const std::string &name,
 
-		       //! The connection times out when this file descriptor becomes readable
-		       const fdptr &timeoutfd=fdptr());
+		//! The connection times out when this file descriptor becomes readable
+		const fdptr &timeoutfd=fdptr());
 
 private:
 
@@ -641,22 +643,22 @@ private:
 
 	//! \internal
 	//!
-	static void badclient() __attribute__((noreturn));
+	static void badclient() LIBCXX_HIDDEN __attribute__((noreturn));
 
 	//! Throw an internal %exception
 
 	//! \internal
 	//!
-	static void badsvcport() __attribute__((noreturn));
+	static void badsvcport() LIBCXX_HIDDEN __attribute__((noreturn));
 private:
 	//! Make a connection attempt after obtaining an enumerated list of services
 
 	//! \internal
 	//!
-	fd do_connect(std::vector<service> &entries,
-		      const fdptr &timeoutfd,
-		      const std::string &servicename)
-;
+	std::optional<fd> do_connect(std::vector<service> &entries,
+				     const fdptr &timeoutfd,
+				     const std::string &servicename)
+		LIBCXX_HIDDEN;
 };
 
 #ifndef DOXYGEN

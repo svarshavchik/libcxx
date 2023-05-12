@@ -184,19 +184,22 @@ singletonapp::impl::impl(const ref<singletonapp::factorybaseObj> &app,
 
 	while (1)
 	{
-		try {
-			connection=portmapclient->connect(n, uid);
+		auto client_conn=portmapclient->connect(n, uid);
 
+		if (client_conn)
+		{
 			char buf;
 
-			if (connection->read(&buf, 1) == 1)
+			if ((*client_conn)->read(&buf, 1) == 1)
+			{
+				connection=*client_conn;
 				return;
+			}
 
 			if (uid != getuid())
 				notrunning(uid);
 
 			continue;
-		} catch (...) {
 		}
 
 		if (uid != getuid())
