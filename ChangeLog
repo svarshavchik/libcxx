@@ -1,3 +1,12 @@
+0.26
+
+2023-05-29  Sam Varshavchik  <mrsam@courier-mta.com>
+
+	* Remove dir and dirwalk classes, they are replaced by <filesystem>.
+
+	* XML cleanup. Remove quote_string_literal(), superceded by
+	escapestr(), add xpathescapestr().
+
 2022-11-19  Sam Varshavchik  <mrsam@courier-mta.com>
 
 	* Update for gcc 12
