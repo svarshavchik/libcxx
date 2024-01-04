@@ -1,0 +1,60 @@
+#!/usr/bin/make -f
+
+%:
+	dh $@
+
+override_dh_auto_configure:
+	dh_auto_configure -- CC=gcc-@DEBGCC@ CXX=g++-@DEBGCC@
+
+override_dh_auto_test:
+	:
+override_dh_makeshlibs:
+	dh_makeshlibs -n
+
+override_dh_builddeb:
+	dh_builddeb -- $(DEB_BUILDDEB_OPTIONS)
+
+
+ABIVER=@ABIVER@
+SOVERSION=@SOVERSION@
+
+override_dh_auto_install:
+	dh_auto_install
+	perl -p -i -e "s/dependency_libs=.*/dependency_libs=''/" debian/tmp/usr/lib/*/libcxx-$(ABIVER)/*.la
+	dh_installdirs --package libcxxbase$(SOVERSION) `cd debian/tmp; ls -d usr/lib/*/libcxx-$(ABIVER)`
+	dh_install --package libcxxbase$(SOVERSION) debian/tmp/usr/lib/*/libcxx-$(ABIVER)/libcxx.so.*  `cd debian/tmp; ls -d usr/lib/*/libcxx-$(ABIVER)`
+	dh_install --package libcxxbase$(SOVERSION) debian/tmp/usr/lib/*/libcxx-$(ABIVER)/libcxxtls.so.*  `cd debian/tmp; ls -d usr/lib/*/libcxx-$(ABIVER)`
+	dh_install --package libcxxbase$(SOVERSION) debian/tmp/usr/lib/*/libcxx-$(ABIVER)/libcxxyaml.so.*  `cd debian/tmp; ls -d usr/lib/*/libcxx-$(ABIVER)`
+	dh_install --package libcxxbase debian/tmp/etc/*.dist etc
+	mv debian/tmp/etc/tlsparams/system.dh.conf debian/tmp/etc/tlsparams/system.dh.conf.dist
+	dh_install --package libcxxbase debian/tmp/etc/tlsparams/system.dh.conf.dist
+	dh_install --package libcxxbase debian/tmp/usr/bin/* usr/bin
+	dh_install --package libcxxbase debian/tmp/usr/sbin/* usr/sbin
+	dh_install --package libcxxbase debian/tmp/usr/share/httportmap
+	dh_install --package libcxxbase usr/share/man/man1
+	dh_install --package libcxxbase usr/share/man/man8
+	mv debian/tmp/var/local/tlsparams/system.dh debian/tmp/var/local/tlsparams/system.dh.dist
+	dh_install --package libcxxbase debian/tmp/var/local/tlsparams/system.dh.dist
+	dh_install --package libcxxbase debian/tmp/etc/*.dat etc
+	dh_install --package libcxxbase debian/tmp/etc/*.properties etc
+	dh_install --package libcxxbase-ltdl$(SOVERSION) `cd debian/tmp; ls -d usr/lib/*/libcxx-$(ABIVER)/libcxxltdl.so.*; echo usr/lib/*/libcxx-$(ABIVER)`
+	dh_install --package libcxxbase-cups$(SOVERSION) `cd debian/tmp; ls -d usr/lib/*/libcxx-$(ABIVER)/libcxxcups.so.*; echo usr/lib/*/libcxx-$(ABIVER)`
+	dh_install --package libcxxbase-dev `cd debian/tmp; ls -d usr/lib/*/libcxx-$(ABIVER)/*.so; echo usr/lib/*/libcxx-$(ABIVER)`
+	dh_install --package libcxxbase-dev `cd debian/tmp; ls -d usr/lib/*/libcxx-$(ABIVER)/*.a; echo usr/lib/*/libcxx-$(ABIVER)`
+	dh_install --package libcxxbase-dev `cd debian/tmp; ls -d usr/lib/*/libcxx-$(ABIVER)/*.la; echo usr/lib/*/libcxx-$(ABIVER)`
+	dh_install --package libcxxbase-dev debian/tmp/usr/lib/*/pkgconfig/libcxx*pc
+	dh_install --package libcxxbase-dev debian/tmp/usr/include/libcxx-$(ABIVER) usr/include/libcxx-$(ABIVER)
+	dh_install --package libcxxbase-dev debian/tmp/usr/share/libcxx-$(ABIVER) usr/include/libcxx-$(ABIVER)
+	dh_install --package libcxxbase-dev debian/tmp/usr/share/aclocal/* usr/share/aclocal
+	dh_install --package libcxxbase sysconftool usr/share/portmap
+	mkdir -p debian/tmp/etc/cron.monthly
+	ln -s ../../usr/sbin/tlsparamsgen.sh debian/tmp/etc/cron.monthly/tlsparamsgen
+	dh_install --package libcxxbase etc/cron.monthly/tlsparamsgen
+	mkdir -p debian/tmp/etc/apache2/conf-available
+	cp httportmap/apache.conf debian/tmp/etc/apache2/conf-available/httportmap.conf
+	dh_install --package libcxxbase-apache2 etc/apache2/conf-available/httportmap.conf
+	chmod +x sysinit
+	dh_install --package libcxxbase sysinit usr/share/httportmap
+	mkdir -p debian/tmp/lib/systemd/system
+	cp debian/httportmap.service debian/tmp/lib/systemd/system
+	dh_install --package libcxxbase lib/systemd/system/httportmap.service

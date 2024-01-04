@@ -1,0 +1,95 @@
+Source: libcxxbase
+Priority: optional
+Maintainer: Sam Varshavchik <mrsam@courier-mta.com>
+Build-Depends: debhelper-compat (= 13),
+	       gcc-@DEBGCC@,
+	       g++-@DEBGCC@,
+	       pkg-config,
+	       gettext,
+	       perl:any,
+	       gnutls-dev,
+	       libgcrypt-dev,
+	       libcourier-unicode-dev,
+	       libxslt-dev,
+	       xsltproc,
+	       libpcre2-dev,
+	       libyaml-dev,
+	       libmagic-dev,
+	       libidn2-dev,
+	       libltdl-dev,
+	       libxml2-dev,
+	       libcups2-dev,
+	       apache2,
+	       sysconftool,
+	       ca-certificates,
+	       systemd
+Standards-Version: 4.6.0
+Section: contrib/libs
+Homepage: https://www.libcxx.org/
+Rules-Requires-Root: no
+
+Package: libcxxbase
+Section: contrib/libdevel
+Architecture: any
+Depends: ${shlibs:Depends}, ${misc:Depends}
+Recommends: libcxxbase-apache2 (= ${binary:Version}),
+	    libcxxbase-ltdl@SOVERSION@ (= ${binary:Version}),
+	    libcxxbase-cups@SOVERSION@ (= ${binary:Version})
+Description: libcxx base library
+ The C++ class library provides many classes that are useful
+ for developing C++ applications on Linux.
+
+Package: libcxxbase-dev
+Section: contrib/libdevel
+Architecture: any
+Depends: libcxxbase (= ${binary:Version}),
+	 libcxxbase@SOVERSION@ (= ${binary:Version}),
+	 libcxxbase-ltdl@SOVERSION@ (= ${binary:Version}),
+	 libcxxbase-cups@SOVERSION@ (= ${binary:Version}),
+	 gnutls-dev,
+	 libgcrypt-dev,
+	 libcourier-unicode-dev,
+	 libxslt-dev,
+	 xsltproc,
+	 libpcre2-dev,
+	 libyaml-dev,
+	 libmagic-dev,
+	 libidn2-dev,
+	 libltdl-dev,
+	 libxml2-dev,
+	 libcups2-dev,
+	 ${misc:Depends}
+Description: libcxx development libraries
+ This package installs files needed to develop applications that use libcxx.
+
+Package: libcxxbase-apache2
+Architecture: any
+Depends: libcxxbase (= ${binary:Version}),
+	 apache2,
+	 systemd,
+         ${shlibs:Depends},
+	 ${misc:Depends}
+Description: libcxx apache configuration
+ This package enables the httportmap service which allows applications on
+ different machienes to discover and connect each other, using http.
+ Installing this package automatically enables httportmap if apache is
+ already running (requires alias and cgi modules, which get automatically
+ enabled).
+
+Package: libcxxbase@SOVERSION@
+Architecture: any
+Depends: ${shlibs:Depends}, ${misc:Depends}
+Description: libcxx runtime libraries.
+ This package contains libcxx runtime libraries.
+
+Package: libcxxbase-ltdl@SOVERSION@
+Architecture: any
+Depends: ${shlibs:Depends}, ${misc:Depends}
+Description: libcxx libtool wrapper
+ This package installs the libcxxltdl wrapper for libtool's ltdl library.
+
+Package: libcxxbase-cups@SOVERSION@
+Architecture: any
+Depends: ${shlibs:Depends}, ${misc:Depends}
+Description: libcxx CUPS library
+ This package installs the libcxxcups wrapper for the CUPS framework.

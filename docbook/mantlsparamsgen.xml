@@ -1,0 +1,141 @@
+<!--
+
+Copyright 2024 Double Precision, Inc.
+See COPYING for distribution information.
+
+-->
+
+<refentry id="tlsparamsgen.1">
+  <info>
+    <author>
+      <firstname>Sam</firstname>
+      <surname>Varshavchik</surname>
+      <contrib>Author</contrib>
+    </author>
+    <productname>&app;</productname>
+  </info>
+
+  <refmeta>
+    <refentrytitle>tlsparamsgen</refentrytitle>
+    <manvolnum>1</manvolnum>
+    <refmiscinfo class='manual'>&appshort;</refmiscinfo>
+  </refmeta>
+
+  <refnamediv>
+    <refname>tlsparamsgen</refname>
+    <refpurpose>Generate TLS parameters</refpurpose>
+  </refnamediv>
+
+  <refsynopsisdiv>
+    <cmdsynopsis id="tlsparamsgencmd">
+      <command>tlsparamsgen</command>
+
+      <arg choice='req'>-t=<replaceable>algorithm</replaceable></arg>
+      <arg choice='opt'>-n=<replaceable>bits</replaceable></arg>
+      <arg choice='opt'>-u=<replaceable>user</replaceable></arg>
+      <arg choice='opt'>-g=<replaceable>group</replaceable></arg>
+      <arg choice='opt'>-m=<replaceable>mode</replaceable></arg>
+      <arg choice='opt'>-d=</arg>
+      <arg choice='req' rep='repeat'>filename</arg>
+    </cmdsynopsis>
+  </refsynopsisdiv>
+
+  <refsect1 id="tlsparamsgendescr">
+    <title>Description</title>
+    <para>
+      The <command>tlsparamsgen</command> command generates a new set of
+      DH or RSA parameters and saves them in a predefined location.
+      &appshort; applications read the pregenerated parameters instead of
+      generating it themselves.
+    </para>
+
+    <para>
+      A regularly scheduled
+      <citerefentry>
+	<refentrytitle>cron</refentrytitle>
+	<manvolnum>8</manvolnum>
+      </citerefentry> job runs <command>tlsparamgsgen</command> periodically.
+    </para>
+  </refsect1>
+
+  <refsect1 id="tlsparamsgenopt">
+    <title>Options</title>
+
+    <variablelist>
+      <varlistentry>
+	<term><option>-t, --type=<replaceable>algorithm</replaceable></option></term>
+	<listitem>
+	  <para>
+	    Use either the <quote>rsa</quote> or <quote>dsa</quote>
+	    algorithm for generating the parameters. This is a required option.
+	  </para>
+	</listitem>
+      </varlistentry>
+
+      <varlistentry>
+	<term><option>-b, --bits=<replaceable>n</replaceable></option></term>
+	<listitem>
+	  <para>
+	    Number of bits in the generated RSA or DSA parameter (defaults
+	    to 1024 bits).
+	  </para>
+	</listitem>
+      </varlistentry>
+
+      <varlistentry>
+	<term><option>-u, --user=<replaceable>username</replaceable></option></term>
+	<listitem>
+	  <para>
+	    Create the DH or RSA parameter file owned by this username (when
+	    invoked by root).
+	  </para>
+	</listitem>
+      </varlistentry>
+
+      <varlistentry>
+	<term><option>-g, --group=<replaceable>groupname</replaceable></option></term>
+	<listitem>
+	  <para>
+	    Create the DH or RSA parameter file owned by this groupname (when
+	    invoked by root).
+	  </para>
+	</listitem>
+      </varlistentry>
+
+      <varlistentry>
+	<term><option>-m, --mode=<replaceable>permissions</replaceable></option></term>
+	<listitem>
+	  <para>
+	    Create the DH or RSA parameter file with permissions (specified
+	    as an octal permission value, defaults to <literal>400</literal>).
+	  </para>
+	</listitem>
+      </varlistentry>
+
+      <varlistentry>
+	<term><option>-d, --definit</option></term>
+	<listitem>
+	  <para>
+	    If there is an existing parameter file and it does not start
+	    with ">>>DEFAULT PARAMETERS" then do not generate and replace
+	    the parameter file.
+	  </para>
+
+	  <para>
+	    This is used when the system starts. This immediately creates
+	    new parameter files the first time the system is started after
+	    installing a default set of parameters from the &appshort;
+	    installation package.
+	  </para>
+	</listitem>
+      </varlistentry>
+    </variablelist>
+  </refsect1>
+</refentry>
+
+<!--
+Local Variables:
+mode: sgml
+sgml-parent-document: ("book.xml" "appendix" "refentry")
+End:
+-->

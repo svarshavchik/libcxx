@@ -1,0 +1,19 @@
+#! /bin/sh
+
+set -e
+
+if test "$1" = "configure"
+then
+	/usr/share/portmap/sysconftool /etc/httportmap.dist
+	/usr/bin/properties --set /etc/httportmapd.properties /usr/sbin/httportmapd
+	if test ! -f /etc/tlsparams/system.dh.conf
+	then
+	    cp -p /etc/tlsparams/system.dh.conf.dist /etc/tlsparams/system.dh.conf
+	fi
+	for f in /var/local/tlsparams/system.dh
+	do
+	    test -f $f || ln $f.dist $f
+	done
+fi
+
+#DEBHELPER#

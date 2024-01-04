@@ -14,9 +14,13 @@ Makefile.in
 /config.cache
 /config.guess
 /config.log
+/config.rpath
 /config.status
 /config.sub
 /configure
+/deb
+/deb.release
+/debuild
 /depcomp
 /libcxx_doctags
 /header.html

@@ -1,0 +1,13 @@
+#! /bin/sh
+
+set -e
+
+#DEBHELPER#
+
+# Remove an unchanged system.dh.conf before an upgrade, so the updated
+# package can reinstall its default one.
+
+if cmp -s /etc/tlsparams/system.dh.conf.dist /etc/tlsparams/system.dh.conf
+then
+    rm -f /etc/tlsparams/system.dh.conf
+fi

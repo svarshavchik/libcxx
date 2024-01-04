@@ -1,0 +1,14 @@
+[Unit]
+Description=HTTP-based portmapper
+Wants=network.target
+After=network.target
+Before=apache2
+
+[Install]
+WantedBy=multi-user.target
+
+[Service]
+Type=forking
+ExecStart=/usr/share/httportmap/sysinit container start
+ExecStop=/usr/share/httportmap/sysinit container stop
+ExecReload=/usr/share/httportmap/sysinit container-restart start

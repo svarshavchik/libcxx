@@ -1,0 +1,14 @@
+#! /bin/sh
+
+set -e
+
+#DEBHELPER#
+
+if test -e /usr/share/apache2/apache2-maintscript-helper
+then
+    . /usr/share/apache2/apache2-maintscript-helper
+    apache2_invoke enmod alias
+    apache2_invoke enmod cgi
+    apache2_invoke enconf httportmap
+    systemctl try-reload-or-restart apache2
+fi

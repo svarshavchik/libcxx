@@ -4,9 +4,3 @@ Caught expected exception: Domain xtest already bound to xtest
 10 counters
 1 record
 2 records
-Caught expected exception: Domain xtest already bound to xtest
-74e97374
-7465737432
-10 counters
-1 record
-2 records

@@ -22,7 +22,7 @@ gettext_in.h:
 	ln -s $(srcdir)/../base/gettext_in.h gettext_in.h
 
 tlsparamsdir.h:
-	echo '#define TLSPARAMSDIR "@localstatedir@/tlsparams"' >tlsparamsdir.h.tmp
+	echo '#define TLSPARAMSDIR "@localstatedir@/local/tlsparams"' >tlsparamsdir.h.tmp
 	mv -f tlsparamsdir.h.tmp tlsparamsdir.h
 
 
@@ -125,7 +125,7 @@ testx509privkey_LDFLAGS=$(LINKTYPE)
 
 testx509cert_SOURCES=testx509cert.C
 testx509cert_LDADD=../base/libcxx.la libcxxtls.la
-testx509cert_LDFLAGS=$(LINKTYPE)
+testx509cert_LDFLAGS=$(LINKTYPE) $(GCRYPT_LIBS) $(GNUTLS_LIBS)
 
 testsession_SOURCES=testsession.C
 testsession_LDADD=../base/libcxx.la libcxxtls.la
@@ -160,25 +160,26 @@ testserverauth_LDFLAGS=-static
 
 testmd_SOURCES=testmd.C
 testmd_LDADD=../base/libcxx.la libcxxtls.la
+testmd_LDFLAGS=$(GCRYPT_LIBS)
 
 $(call OPTIONS_GEN,tlsparamsgen.h,$(srcdir)/tlsparamsgen.xml)
 
 tlsparamsgen_SOURCES=tlsparamsgen.C
 tlsparamsgen_LDADD=../base/libcxx.la libcxxtls.la
 
-DSACFG=--type dsa --bits 2048 --mode 444 "@localstatedir@/tlsparams/system.dh"
+DSACFG=--type dsa --bits 2048 --mode 444 "@localstatedir@/local/tlsparams/system.dh"
 
 install-data-hook:
-	test ! -d $(DESTDIR)@localstatedir@/tlsparams || exit 0; set -e; mkdir -p $(DESTDIR)@localstatedir@/tlsparams; chmod 755 $(DESTDIR)@localstatedir@/tlsparams
+	test ! -d $(DESTDIR)@localstatedir@/local/tlsparams || exit 0; set -e; mkdir -p $(DESTDIR)@localstatedir@/local/tlsparams; chmod 755 $(DESTDIR)@localstatedir@/local/tlsparams
 	./testx509privkey
 	mkdir -p $(DESTDIR)@sysconfdir@/tlsparams
 	test ! -f $(DESTDIR)@sysconfdir@/tlsparams/system.dh.conf || exit 0; set -e;\
 		echo '$(DSACFG)' >$(DESTDIR)@sysconfdir@/tlsparams/system.dh.conf.tmp ; mv $(DESTDIR)@sysconfdir@/tlsparams/system.dh.conf.tmp $(DESTDIR)@sysconfdir@/tlsparams/system.dh.conf; chmod 444 $(DESTDIR)@sysconfdir@/tlsparams/system.dh.conf
-	test ! -f "$(DESTDIR)@localstatedir@/tlsparams/system.dh$(INSTALL_TLSPARAM_SUFFIX)" || exit 0; set -e; echo '>>>DEFAULT PARAMETERS (to be regenerated when by the startup script)' >system.dh; cat dhparams.dat >>system.dh; mv -f system.dh "$(DESTDIR)@localstatedir@/tlsparams/system.dh$(INSTALL_TLSPARAM_SUFFIX)"
+	test ! -f "$(DESTDIR)@localstatedir@/local/tlsparams/system.dh$(INSTALL_TLSPARAM_SUFFIX)" || exit 0; set -e; echo '>>>DEFAULT PARAMETERS (to be regenerated when by the startup script)' >system.dh; cat dhparams.dat >>system.dh; mv -f system.dh "$(DESTDIR)@localstatedir@/local/tlsparams/system.dh$(INSTALL_TLSPARAM_SUFFIX)"
 	rm -f dhparams.dat testrsa?.key
 
 uninstall-hook:
-	test "`cat $(DESTDIR)@sysconfdir@/tlsparams/system.dh.conf 2>/dev/null`" = '$(DSACFG)' || exit 0; rm -f $(DESTDIR)@sysconfdir@/tlsparams/system.dh.conf; rm -f $(DESTDIR)@localstatedir@/tlsparams/system.dh
-	fgrep -q '>>>DEFAULT PARAMETERS' $(DESTDIR)@localstatedir@/tlsparams/system.dh || exit 0; rm -f $(DESTDIR)@localstatedir@/tlsparams/system.dh
-	-rmdir $(DESTDIR)@localstatedir@/tlsparams 2>/dev/null
+	test "`cat $(DESTDIR)@sysconfdir@/tlsparams/system.dh.conf 2>/dev/null`" = '$(DSACFG)' || exit 0; rm -f $(DESTDIR)@sysconfdir@/tlsparams/system.dh.conf; rm -f $(DESTDIR)@localstatedir@/local/tlsparams/system.dh
+	fgrep -q '>>>DEFAULT PARAMETERS' $(DESTDIR)@localstatedir@/local/tlsparams/system.dh || exit 0; rm -f $(DESTDIR)@localstatedir@/local/tlsparams/system.dh
+	-rmdir $(DESTDIR)@localstatedir@/local/tlsparams 2>/dev/null
 	-rmdir $(DESTDIR)@sysconfdir@/tlsparams 2>/dev/null

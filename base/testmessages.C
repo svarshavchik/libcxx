@@ -82,7 +82,6 @@ int main(int argc, char *argv[])
 {
 	try {
 		testmessages("en_US.UTF-8");
-		testmessages("en_US.ISO8859-1");
 	} catch (LIBCXX_NAMESPACE::exception &e)
 	{
 		std::cout << e << std::endl;

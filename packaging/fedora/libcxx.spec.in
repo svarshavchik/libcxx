@@ -42,6 +42,7 @@ BuildRequires: systemd-rpm-macros
 BuildRequires: systemd
 BuildRequires: selinux-policy
 BuildRequires: selinux-policy-devel
+BuildRequires: ca-certificates
 
 %global selinuxtype targeted
 %global moduletype contrib
@@ -176,7 +177,7 @@ rm -rf $RPM_BUILD_ROOT%{_datadir}/httportmap
 rm -f $RPM_BUILD_ROOT%{_mandir}/*/*
 rm -f $RPM_BUILD_ROOT%{_unitdir}/*
 rm -f $RPM_BUILD_ROOT%{_sysconfdir}/tlsparams/*
-rm -rf $RPM_BUILD_ROOT%{_localstatedir}/tlsparams
+rm -rf $RPM_BUILD_ROOT%{_localstatedir}/local/tlsparams
 rm -f $RPM_BUILD_ROOT%{_sysconfdir}/cron.monthly/*
 rm -f $RPM_BUILD_ROOT%{_sysconfdir}/*.dat
 rm -f $RPM_BUILD_ROOT%{_sysconfdir}/*.properties
@@ -199,7 +200,7 @@ rm -rf $RPM_BUILD_ROOT
 %{_bindir}/properties --set %{_sysconfdir}/httportmapd.properties %{_sbindir}/httportmapd >/dev/null
 %{_datadir}/httportmap/sysconftool %{_sysconfdir}/sysconfig/httportmap.dist
 
-for f in %{_localstatedir}/tlsparams/system.dh
+for f in %{_localstatedir}/local/tlsparams/system.dh
 do
 	test -f $f || ln $f.dist $f
 done
@@ -223,7 +224,7 @@ fi
 %systemd_preun httportmap.service
 if test "$1" = 0
 then
-	rm -f %{_localstatedir}/tlsparams/system.dh
+	rm -f %{_localstatedir}/local/tlsparams/system.dh
 fi
 %endif
 
@@ -285,7 +286,7 @@ fi
 %dir %{_sysconfdir}/tlsparams
 %config(noreplace) %{_sysconfdir}/tlsparams/*
 
-%{_localstatedir}/tlsparams
+%{_localstatedir}/local/tlsparams
 %{_sysconfdir}/cron.monthly/*
 %config %{_sysconfdir}/*.dat
 %config %{_sysconfdir}/*.properties

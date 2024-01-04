@@ -1,0 +1,65 @@
+<!--
+
+Copyright 2024 Double Precision, Inc.
+See COPYING for distribution information.
+
+-->
+
+<refentry id="tlsparamsgensh.1">
+  <info>
+    <author>
+      <firstname>Sam</firstname>
+      <surname>Varshavchik</surname>
+      <contrib>Author</contrib>
+    </author>
+    <productname>&app;</productname>
+  </info>
+
+  <refmeta>
+    <refentrytitle>tlsparamsgen.sh</refentrytitle>
+    <manvolnum>1</manvolnum>
+    <refmiscinfo class='manual'>&appshort;</refmiscinfo>
+  </refmeta>
+
+  <refnamediv>
+    <refname>tlsparamsgen.sh</refname>
+    <refpurpose>Periodically generate systemwide TLS parameters</refpurpose>
+  </refnamediv>
+
+  <refsynopsisdiv>
+    <cmdsynopsis id="tlsparamsgenshcmd">
+      <command>tlsparamsgen.sh</command>
+    </cmdsynopsis>
+  </refsynopsisdiv>
+
+  <refsect1 id="tlsparamsgenshdescr">
+    <title>Description</title>
+    <para>
+      The <command>tlsparamsgen.sh</command> shell script runs at regular
+      intervals and creates a new set of systemwide generated TLS
+      parameters.
+      &appshort; applications read the pregenerated TLS parameters instead of
+      generating it themselves.
+    </para>
+
+    <para>
+      <command>tlsparamsgen.sh</command> reads each <filename>*.conf</filename>
+      file from a predetermined location (typically
+      <filename>/etc/tlsparams</filename>).
+      Each file contains options and parameters for
+      <link linkend="tlsparamsgen.1">
+        <citerefentry>
+	  <refentrytitle>tlsparamsgen</refentrytitle>
+	  <manvolnum>1</manvolnum>
+	</citerefentry>
+      </link>, which gets invoked accordingly.
+    </para>
+  </refsect1>
+</refentry>
+
+<!--
+Local Variables:
+mode: sgml
+sgml-parent-document: ("book.xml" "appendix" "refentry")
+End:
+-->

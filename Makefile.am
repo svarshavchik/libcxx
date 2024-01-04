@@ -15,29 +15,37 @@ BUILT_SOURCES=abi.xml
 $(shell :)DIST_SUBDIRS=$(call reverse,$(SUBDIRS) benchmarks)
 
 DISTCHECK_CONFIGURE_FLAGS=--with-pkgconfigdir='$$(prefix)/local/pkgconf'
-man_MANS = properties.1 maillogs.1 httportmapd.8
+man_MANS = properties.1 maillogs.1 tlsparamsgen.1 tlsparamsgen.sh.1 \
+	httportmapd.8
 EXTRA_DIST=config.rpath DoxygenLayout.xml abi.xml.in $(man_MANS) \
+	debuild \
+	packaging/debian/changelog.in \
+	packaging/debian/control.in \
+	packaging/debian/copyright \
+	packaging/debian/httportmap.service \
+	packaging/debian/libcxxbase.postinst \
+	packaging/debian/libcxxbase.postrm \
+	packaging/debian/libcxxbase.prerm \
+	packaging/debian/libcxxbase-apache2.postinst \
+	packaging/debian/libcxxbase-apache2.prerm \
+	packaging/debian/lintian-overrides.allow-errors \
+	packaging/debian/rules.in \
+	packaging/debian/source/format \
+	$(patsubst $(srcdir)/*,*, $(wildcard $(srcdir)/packaging/debian/*lintian-overrides)) \
 	$(patsubst $(srcdir)/%,%, \
            $(wildcard $(srcdir)/examples/*.C) \
 	   $(wildcard $(srcdir)/examples/*/configure.ac) \
 	   $(wildcard $(srcdir)/examples/*/Makefile.am) \
 	   $(wildcard $(srcdir)/examples/*/*.C) \
-	   $(srcdir)/packaging/freebsd10/devel/libcxx/Makefile.in \
-	   $(srcdir)/packaging/freebsd10/devel/libcxx/pkg-deinstall \
-	   $(srcdir)/packaging/freebsd10/devel/libcxx/pkg-descr \
-	   $(srcdir)/packaging/freebsd10/devel/libcxx/pkg-install \
-	   $(srcdir)/packaging/freebsd10/devel/libcxx/pkg-message \
-	   $(wildcard $(srcdir)/packaging/freebsd10/devel/libcxx/files/*.in) \
-	   $(wildcard $(srcdir)/packaging/freebsd10/devel/libcxx/files/patch*C) \
         )
 
 DOCS_SRC = $(shell find includes/x -name '*.H' -print)
 
 docs: html/index.html html/book.css html/logo.png html/robots.txt html/.htaccess html/frame.js html/icon.gif $(patsubst %,html/%,$(notdir $(wildcard $(srcdir)/docbook/*.png)))
 	chcon -R -t httpd_sys_content_t html 2>/dev/null || true
-	cd html; for d in `ls */. | sed 's@/.$$@@'`; do rm -rf ~/www/hostrocket/libcxx.org/$$d; done
-	cd ~/www/hostrocket/libcxx.org || exit 1; rm -f * 2>/dev/null; exit 0
-	rsync -a -X html/* ~/www/hostrocket/libcxx.org
+	test -d ~/www/hostrocket/libcxx.org || exit 0; cd html; for d in `ls */. | sed 's@/.$$@@'`; do rm -rf ~/www/hostrocket/libcxx.org/$$d; done
+	cd ~/www/hostrocket/libcxx.org || exit 0; rm -f * 2>/dev/null; exit 0
+	test -d ~/www/hostrocket/libcxx.org || exit 0; rsync -a -X html/* ~/www/hostrocket/libcxx.org
 
 html/%.png: html/index.html docbook/%.png
 	$(INSTALL) -m 0644 $(srcdir)/docbook/$(notdir $@) html
@@ -73,7 +81,7 @@ html/index.html: html/ref/index.html $(wildcard docbook/*.xml) docbook/xmllinks.
 	find html.tmp -name .gitignore -print | xargs rm -f
 	echo 'ForceType text/plain' >html.tmp/examples/.htaccess
 	echo 'Options +Indexes' >>html.tmp/examples/.htaccess
-	links -dump -no-numbering -no-references html.tmp/INSTALL.html >INSTALL.tmp
+	elinks -dump -no-numbering -no-references html.tmp/INSTALL.html >INSTALL.tmp
 	mv -f INSTALL.tmp INSTALL
 	mkdir html.tmp/ref
 	ln html/ref/* html.tmp/ref
@@ -110,6 +118,31 @@ rpm:
 		--define "_topdir `pwd`/rpm" \
 		--define "extrarelease .`date '+%Y%m%d%H%M%S'`" @PACKAGE@-@VERSION@.tar.bz2
 	sh $$HOME/bin/rpmrepos.sh
+
+.PHONY: deb
+
+deb: bump.deb.release
+	$(MAKE) dist
+	rm -rf deb
+	mkdir deb
+	cp libcxx-@VERSION@.tar.bz2 deb/libcxxbase_@VERSION@.orig.tar.bz2
+	cd deb; set -e; tar xf *.bz2; mv libcxx-@VERSION@ libcxxbase-@VERSION@
+	. ./deb.release; \
+	    cd deb/libcxxbase-@VERSION@; chmod +x debuild; \
+		DEBGCC=`$(CXX) -dM -E - </dev/null | grep __GNUC__ | \
+			awk ' { print $$3 }'` \
+                RELEASE="$$RELEASE" \
+		./debuild -us -uc
+	$$HOME/bin/debrepos.sh
+
+bump.deb.release:
+	VERSION="x"; \
+	test -f $(srcdir)/deb.release && . $(srcdir)/deb.release; \
+	NEXT_RELEASE=100; \
+	test "$$VERSION" = "@PACKAGE_VERSION@" && NEXT_RELEASE="$$RELEASE"; \
+	RELEASE=`expr $$NEXT_RELEASE + 1`; \
+	echo "VERSION=@PACKAGE_VERSION@" >$(srcdir)/deb.release; \
+	echo "RELEASE=$$RELEASE" >>$(srcdir)/deb.release;
 
 pkgconfdir=@PKGCONFIGDIR@
 

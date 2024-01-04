@@ -328,8 +328,12 @@ inline auto &optional_arg(optional_argconstrefs<Args...> &a)
 	return optional_arg<n>(a.get());
 }
 
+#ifdef __GNUC__
+#if __GNUC__ >= 13
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wdangling-reference"
+#endif
+#endif
 
 //! Return the parsed \ref optional_args "optional argument" or a default value.
 
@@ -385,8 +389,12 @@ inline const optional_type
 
 	return *value;
 }
-#pragma GCC diagnostic pop
 
+#ifdef __GNUC__
+#if __GNUC__ >= 13
+#pragma GCC diagnostic pop
+#endif
+#endif
 
 //! Deduce the type extracted by optional_arg_or
 
@@ -407,8 +415,12 @@ using deduce_argconstref_t=
 	typename deduce_argconstref<std::remove_cv_t
 				    <std::remove_reference_t<T>>>::type;
 
+#ifdef __GNUC__
+#if __GNUC__ >= 13
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wdangling-reference"
+#endif
+#endif
 
 //! Return the parsed \ref optional_args "optional argument" or a default value.
 
@@ -512,7 +524,11 @@ inline const auto
 	value.emplace(std::forward<Args>(args)...);
 
 	return static_cast<const ret_t &>(*value);
+#ifdef __GNUC__
+#if __GNUC__ >= 13
 #pragma GCC diagnostic pop
+#endif
+#endif
 }
 
 #if 0

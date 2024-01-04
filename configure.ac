@@ -4,12 +4,14 @@
 
 AC_PREREQ([2.71])
 AC_INIT([libcxx],[0.26.0],[mrsam@courier-mta.com])
+AC_CANONICAL_TARGET
 
 AC_CONFIG_SRCDIR([includes/x/obj.H])
 AC_CONFIG_HEADERS([libcxx_config.h])
 AM_INIT_AUTOMAKE([dist-bzip2 foreign -Wno-portability subdir-objects])
 
 # Checks for programs.
+
 AC_PROG_CXX
 LT_CONFIG_LTDL_DIR([libltdl])
 LT_INIT([dlopen])
@@ -18,7 +20,7 @@ AC_PROG_SYSCONFTOOL
 
 LT_INIT
 AM_GNU_GETTEXT([external])
-AM_GNU_GETTEXT_VERSION([0.21.1])
+AM_GNU_GETTEXT_VERSION([0.21])
 AC_LANG(C++)
 
 XGETTEXT_EXTRA_OPTIONS="--keyword=_txt --keyword=_txtw --keyword=_txtn:1,2 --keyword=_txtnw:1,2 \`cd \$(top_srcdir); echo cups/*.C gnutls/*.C base/*.C yaml/*.C\`"
@@ -44,7 +46,10 @@ XGETTEXT_EXTRA_OPTIONS="--keyword=_txt --keyword=_txtw --keyword=_txtn:1,2 --key
 #
 ABIVER=0.26
 AC_SUBST(ABIVER)
-VERSION_INFO=26:0:0
+
+SOVERSION=26
+VERSION_INFO=${SOVERSION}:0:0
+AC_SUBST(SOVERSION)
 AC_SUBST(VERSION_INFO)
 
 # Checks for libraries.
@@ -85,7 +90,8 @@ AC_SUBST(APACHECONFDIR)
 AC_ARG_WITH(pkgconfigdir,[AS_HELP_STRING([--with-pkgconfigdir=dir],[Specify where pkgconfig configuration file gets installed])],
 	[PKGCONFIGDIR="$withval"],
 	[
-for d in /usr/lib64/pkgconfig /usr/lib/pkgconfig /usr/local/libdata/pkgconfig
+for d in /usr/lib64/pkgconfig /usr/lib/$host_cpu-$host_os/pkgconfig \
+      /usr/lib/pkgconfig /usr/local/libdata/pkgconfig
 do
 	if test -d "$d"
 	then
@@ -835,6 +841,6 @@ AC_CONFIG_FILES([Doxyfile po/Makefile.in
 		 sysinit
 		 packaging/fedora/Makefile
 		 packaging/fedora/libcxx.fc
-		 packaging/freebsd10/devel/libcxx/Makefile
+		 debuild
 		 ])
 AC_OUTPUT

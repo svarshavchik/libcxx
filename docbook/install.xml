@@ -44,13 +44,7 @@ See COPYING for distribution information.
     </informaltable>
 
   <para>
-    &app; uses Linux-specific APIs. It was possible to build an earlier
-    version of &app; on &freebsdver;, but the port is not maintained at
-    present, see <xref linkend="freebsdport" />
-    for more information.
-  </para>
-
-  <para>
+    &app; uses Linux-specific APIs.
     &app; targets the current generally-available version of
     <application>gcc</application>, and code that uses &app; should
     use
@@ -253,10 +247,10 @@ See COPYING for distribution information.
       Generating these parameters is often a time-consuming task, depending
       on the hardware, so &app; loads pregenerated parameters from
       a file.
-      The files are located in <filename><replaceable>localstatedir</replaceable>/tlsparams</filename>,
-      which is usually
+      The files are located in <filename><replaceable>localstatedir</replaceable>/tlsparams</filename>
+      (usually
       <filename>/usr/local/var/tlsparams</filename> or
-      <filename>/var/tlsparams</filename>.
+      <filename>/var/local/tlsparams</filename>).
       The installable package should have a <command>cron</command> entry
       that periodically regenerates the parameter files.
       The process for doing so is as follows:
@@ -296,14 +290,15 @@ See COPYING for distribution information.
     </para>
 
     <para>
-      This is taken care of by the Fedora package. No manual action is required
-      with the Fedora packages.
+      This is taken care of by the Fedora and Ubuntu packages.
+      No manual action is required
+      with the Fedora and Ubuntu packages.
       All of this is described
       for documentation purposes only.
     </para>
 
     <para>
-      Furthermore, the Fedora package uses a
+      Furthermore, the Fedora and Ubuntu packages use a
       slightly more robust approach, as follows:
     </para>
 
@@ -313,7 +308,8 @@ See COPYING for distribution information.
 	  The <quote><literal>INSTALL_TLSPARAM_SUFFIX=.dist</literal></quote>
 	  parameter to <command>make install</command> installs the stock
 	  ephemeral parameter files with a <quote>.dist</quote> suffix. This
-	  is what goes into the <acronym>RPM</acronym> package.
+	  is what goes into the <acronym>RPM</acronym> and
+	  <acronym>DEB</acronym> package.
 	</para>
       </listitem>
 
@@ -340,7 +336,8 @@ See COPYING for distribution information.
 	  initial stock files,
 	  and runs <command>tlsparamsgen</command> in the
 	  background, immediately.
-	  The <acronym>RPM</acronym>s also install a monthly
+	  The <acronym>RPM</acronym>/<acronym>DEB</acronym> packages
+	  also install a monthly
 	  <command>cron</command> job to generate new parameter files.
 	</para>
       </listitem>

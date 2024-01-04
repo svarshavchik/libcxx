@@ -84,11 +84,12 @@
 <!ENTITY gnutls_certs SYSTEM "gnutls_certs.xml">
 <!ENTITY gnutls_sessions SYSTEM "gnutls_sessions.xml">
 <!ENTITY gcrypt_md SYSTEM "gcrypt_md.xml">
-<!ENTITY freebsd SYSTEM "freebsd.xml">
 <!ENTITY install SYSTEM "install.xml">
 <!ENTITY manproperties SYSTEM "manproperties.xml">
 <!ENTITY manmaillogs SYSTEM "manmaillogs.xml">
 <!ENTITY manhttportmapd SYSTEM "manhttportmapd.xml">
+<!ENTITY mantlsparamsgen SYSTEM "mantlsparamsgen.xml">
+<!ENTITY mantlsparamsgensh SYSTEM "mantlsparamsgensh.xml">
 <!ENTITY httpuseragent SYSTEM "httpuseragent.xml">
 <!ENTITY httpserver SYSTEM "httpserver.xml">
 <!ENTITY ftpclient SYSTEM "ftpclient.xml">
@@ -104,8 +105,6 @@
 <!ENTITY const_ptr "<classname>&ns;::const_ptr</classname>">
 <!ENTITY reforptr "&ref; or an &ptr;">
 <!ENTITY stl "<acronym>STL</acronym>">
-<!ENTITY freebsdver "FreeBSD 10">
-<!ENTITY freebsdverdir "<filename>packaging/freebsd10/devel/libcxx</filename>">
 <!ENTITY gcrypt "<application>Libgcrypt</application>">
 <!ENTITY automakeintro SYSTEM "automakeintro.inc.xml">
 <!ENTITY automakelibxinit SYSTEM "automakelibxinit.inc.xml">
@@ -442,7 +441,6 @@ See COPYING for distribution information.
       </para>
     </chapter>
   </part>
-  &freebsd;
 
   <appendix id="manpages">
     <title>Manual Pages</title>
@@ -450,6 +448,8 @@ See COPYING for distribution information.
     &manhttportmapd;
     &manmaillogs;
     &manproperties;
+    &mantlsparamsgen;
+    &mantlsparamsgensh;
   </appendix>
 
   <appendix id="COPYING">

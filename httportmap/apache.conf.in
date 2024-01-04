@@ -8,18 +8,14 @@
   </IfModule>
 
   <IfDefine ENABLE_HTTPORTMAP>
-    <Location /portmap>
-      SetHandler cgi-script
-      Options +ExecCGI
-    </Location>
+    Alias /portmap @httportmapd@
 
-    <Directory @sbindir@>
+     <Directory @sbindir@>
       <Files "httportmapd">
+        SetHandler cgi-script
+        Options +ExecCGI
         Require all granted
       </Files>
     </Directory>
-
-    RewriteEngine on
-    RewriteRule /portmap @httportmapd@
   </IfDefine>
 </IfModule>

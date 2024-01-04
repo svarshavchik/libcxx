@@ -48,7 +48,8 @@ requestimpl::requestimpl() noexcept : proxyFormat(false),
 requestimpl::requestimpl(const cgiimpl &cgi)
 	: messageimpl(cgi.headers), proxyFormat(false),
 	  method(cgi.method),
-	  uri(cgi.get_URI(cgi.uri_query)), httpver(httpver_t::http11)
+	  uri(cgi.get_URI(cgi.uri_path | cgi.uri_query)),
+	  httpver(httpver_t::http11)
 {
 	erase("Host");
 }
