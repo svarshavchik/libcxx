@@ -1,16 +1,13 @@
 #
-# DOCUMENT ME
+# Internal package automation
 #
 maintainer-script-calls-systemctl [postinst:13]
-#
-# DOCUMENT ME
-#
 maintainer-script-calls-systemctl [prerm:13]
 #
-# DOCUMENT ME
+# This is our standard service name.
 #
 non-standard-apache2-configuration-name httportmap.conf != libcxxbase-apache2.conf
 #
-# DOCUMENT ME
+# This is an apache2-only package.
 #
 web-application-works-only-with-apache httportmap.conf
