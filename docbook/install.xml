@@ -56,36 +56,123 @@ See COPYING for distribution information.
   <para>
     &app; should be converted into an installable package instead of building
     and installing &app; directly. The source tarball
-    contains a build script for Fedora. Running
-    <quote><command>rpmbuild -ta libcxx-<replaceable>version</replaceable>.tar.bz2</command></quote>
-    creates the following packages:
+    contains build scripts for Fedora and Ubuntu (most likely works on Debian
+    too, but untested.
   </para>
 
-  <itemizedlist>
-    <listitem>
-      <para>The main binary rpm package, with runtime libraries.</para>
-    </listitem>
-    <listitem>
-      <para>
-	The <quote>devel</quote> subpackage, containing header files and
-	other supporting files used for developing applications that use the
-	&app;.
-      </para>
-    </listitem>
-    <listitem>
-      <para>
-	An <quote>httpd</quote> subpackage containing an Apache configuration
-	file. This subpackage only needs to be installed if Apache is also
-	installed.
-      </para>
-    </listitem>
-  </itemizedlist>
+  <simplesect id="packages">
+    <title>RPM and DEB packages</title>
 
-  <para>
-    Use the following documentation as a guide for preparing an
-    installable &app; package on platforms other than Fedora.
-  </para>
+    <note>
+      <para>
+	These packages use their own, generic, installation layout
+	that may deviate slightly from the package installation conventions
+	preferred by the distributions:
+      </para>
+    </note>
 
+    <para>
+      On Fedora: running
+      <quote><command>rpmbuild -ta libcxx-<replaceable>version</replaceable>.tar.bz2</command></quote>
+      creates the following packages:
+    </para>
+
+    <itemizedlist>
+      <listitem>
+	<para>The main binary rpm package, with runtime libraries.</para>
+      </listitem>
+      <listitem>
+	<para>
+	  The <quote>ltdl</quote> and <quote>cups</quote> subpackages
+	  with additional runtime libraries that have additional
+	  dependencies.
+	</para>
+      </listitem>
+
+      <listitem>
+	<para>
+	  The <quote>devel</quote> subpackage, containing header files and
+	  other supporting files used for developing applications that use the
+	  &app;.
+	</para>
+      </listitem>
+      <listitem>
+	<para>
+	  An <quote>httpd</quote> subpackage containing an Apache configuration
+	  file. This subpackage only needs to be installed if Apache is also
+	  installed.
+	</para>
+      </listitem>
+      <listitem>
+	<para>
+	  An <quote>selinux</quote> subpackage that installs an SELinux
+	  policy file for &app;.
+	</para>
+      </listitem>
+    </itemizedlist>
+
+    <para>
+      Use the following process to build DEB packages:
+    </para>
+
+    <itemizedlist>
+      <listitem>
+	<para>
+	  Create an empty directory and copy/move the tarball into it:
+	</para>
+	<blockquote>
+	  <informalexample>
+	    <programlisting>
+$ mkdir tmp
+$ mv libcxx-VERSION.tar.bz2 tmp
+$ cd tmp</programlisting>
+	  </informalexample>
+	</blockquote>
+	<para>Unpack the tarball and cd into the unpacked subdirectory:</para>
+	<blockquote>
+	  <informalexample>
+	    <programlisting>
+$ tar xvf libcxx-VERSION.tar.bz2
+$ cd courier-VERSION</programlisting>
+	  </informalexample>
+	</blockquote>
+      </listitem>
+      <listitem>
+	<para>
+	  Run the <command>debuild</command> script in the current directory,
+	  which is a wrapper for the system
+	  <command>debuild</command> script,
+	  and forwards its parameters to it:
+	</para>
+	<blockquote>
+	  <informalexample>
+	    <programlisting>$ ./debuild -us -uc</programlisting>
+	  </informalexample>
+	</blockquote>
+      </listitem>
+    </itemizedlist>
+
+    <note>
+      <para>
+	The above steps must be followed strictly. The
+	<command>debuild</command> script expects the
+	distributed tarball in its parent
+	directory.
+      </para>
+    </note>
+
+    <para>
+      This eventually produces a <filename>deb</filename> subdirectory with
+      .deb packages that can be
+      installed with "dpkg -i".
+    </para>
+
+    <para>
+      Use the following documentation as a guide for preparing an
+      installable &app; package on platforms other than Fedora and
+      Ubuntu/Debian:
+    </para>
+  </simplesect>
   <simplesect id="reqprereq">
     <title>Requirements and prerequisites</title>
 
