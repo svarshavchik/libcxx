@@ -104,6 +104,7 @@ header.html: Doxyfile
 .PHONY: rpm
 
 dist-hook:
+	chmod +x $(distdir)/debuild
 	rm -f $(distdir)/includes/x/namespace.h
 	rm -f $(distdir)/includes/x/msgdispatcher.xsl
 	rm -f $(distdir)/includes/x/threadmsgdispatcher.xsl
@@ -121,28 +122,18 @@ rpm:
 
 .PHONY: deb
 
-deb: bump.deb.release
-	$(MAKE) dist
+deb: dist
 	rm -rf deb
 	mkdir deb
-	cp libcxx-@VERSION@.tar.bz2 deb/libcxxbase_@VERSION@.orig.tar.bz2
-	cd deb; set -e; tar xf *.bz2; mv libcxx-@VERSION@ libcxxbase-@VERSION@
-	. ./deb.release; \
-	    cd deb/libcxxbase-@VERSION@; chmod +x debuild; \
+	cp libcxx-@VERSION@.tar.bz2 deb
+	cd deb; set -e; tar xf libcxx-@VERSION@.tar.bz2; cd libcxx-@VERSION@; \
 		DEBGCC=`$(CXX) -dM -E - </dev/null | grep __GNUC__ | \
 			awk ' { print $$3 }'` \
-                RELEASE="$$RELEASE" \
+                RELEASE="`date +%Y%m%d%H%M%S`" \
 		./debuild -us -uc
+	rm -rf deb.new; mv deb/*/deb deb.new
+	rm -rf deb; mv deb.new deb
 	$$HOME/bin/debrepos.sh
-
-bump.deb.release:
-	VERSION="x"; \
-	test -f $(srcdir)/deb.release && . $(srcdir)/deb.release; \
-	NEXT_RELEASE=100; \
-	test "$$VERSION" = "@PACKAGE_VERSION@" && NEXT_RELEASE="$$RELEASE"; \
-	RELEASE=`expr $$NEXT_RELEASE + 1`; \
-	echo "VERSION=@PACKAGE_VERSION@" >$(srcdir)/deb.release; \
-	echo "RELEASE=$$RELEASE" >>$(srcdir)/deb.release;
 
 pkgconfdir=@PKGCONFIGDIR@
 

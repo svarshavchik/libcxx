@@ -35,7 +35,7 @@ Depends: ${shlibs:Depends}, ${misc:Depends}
 Recommends: libcxxbase-apache2 (= ${binary:Version}),
 	    libcxxbase-ltdl@SOVERSION@ (= ${binary:Version}),
 	    libcxxbase-cups@SOVERSION@ (= ${binary:Version})
-Description: libcxx base library
+Description: LibCXX base library
  The C++ class library provides many classes that are useful
  for developing C++ applications on Linux.
 
@@ -46,6 +46,8 @@ Depends: libcxxbase (= ${binary:Version}),
 	 libcxxbase@SOVERSION@ (= ${binary:Version}),
 	 libcxxbase-ltdl@SOVERSION@ (= ${binary:Version}),
 	 libcxxbase-cups@SOVERSION@ (= ${binary:Version}),
+	 gcc-@DEBGCC@,
+	 g++-@DEBGCC@,
 	 gnutls-dev,
 	 libgcrypt-dev,
 	 libcourier-unicode-dev,
@@ -59,8 +61,9 @@ Depends: libcxxbase (= ${binary:Version}),
 	 libxml2-dev,
 	 libcups2-dev,
 	 ${misc:Depends}
-Description: libcxx development libraries
- This package installs files needed to develop applications that use libcxx.
+Provides: libcxxbase-abi (= @ABIVER@)
+Description: LibCXX development libraries
+ This package installs files needed to develop applications that use LibCXX.
 
 Package: libcxxbase-apache2
 Architecture: any
@@ -69,7 +72,7 @@ Depends: libcxxbase (= ${binary:Version}),
 	 systemd,
          ${shlibs:Depends},
 	 ${misc:Depends}
-Description: libcxx apache configuration
+Description: LibCXX apache configuration
  This package enables the httportmap service which allows applications on
  different machienes to discover and connect each other, using http.
  Installing this package automatically enables httportmap if apache is
@@ -79,17 +82,17 @@ Description: libcxx apache configuration
 Package: libcxxbase@SOVERSION@
 Architecture: any
 Depends: ${shlibs:Depends}, ${misc:Depends}
-Description: libcxx runtime libraries.
- This package contains libcxx runtime libraries.
+Description: LibCXX runtime libraries.
+ This package contains LibCXX runtime libraries.
 
 Package: libcxxbase-ltdl@SOVERSION@
 Architecture: any
 Depends: ${shlibs:Depends}, ${misc:Depends}
-Description: libcxx libtool wrapper
+Description: LibCXX libtool wrapper
  This package installs the libcxxltdl wrapper for libtool's ltdl library.
 
 Package: libcxxbase-cups@SOVERSION@
 Architecture: any
 Depends: ${shlibs:Depends}, ${misc:Depends}
-Description: libcxx CUPS library
+Description: LibCXX CUPS library
  This package installs the libcxxcups wrapper for the CUPS framework.

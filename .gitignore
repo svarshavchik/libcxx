@@ -19,7 +19,6 @@ Makefile.in
 /config.sub
 /configure
 /deb
-/deb.release
 /debuild
 /depcomp
 /libcxx_doctags

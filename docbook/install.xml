@@ -133,7 +133,7 @@ $ cd tmp</programlisting>
 	  <informalexample>
 	    <programlisting>
 $ tar xvf libcxx-VERSION.tar.bz2
-$ cd courier-VERSION</programlisting>
+$ cd libcxx-VERSION</programlisting>
 	  </informalexample>
 	</blockquote>
       </listitem>
@@ -142,13 +142,29 @@ $ cd courier-VERSION</programlisting>
 	  Run the <command>debuild</command> script in the current directory,
 	  which is a wrapper for the system
 	  <command>debuild</command> script,
-	  and forwards its parameters to it:
+	  and it forwards its parameters to it:
 	</para>
 	<blockquote>
 	  <informalexample>
 	    <programlisting>$ ./debuild -us -uc</programlisting>
 	  </informalexample>
 	</blockquote>
+
+	<para>
+	  This creates DEB packages that use the default version of gcc
+	  (<filename>/usr/bin/g++</filename>). This is overriden by setting
+	  <envar>DEBGCC</envar>:
+	</para>
+
+	<blockquote>
+	  <informalexample>
+	    <programlisting>$ DEBGCC=12 ./debuild -us -uc</programlisting>
+	  </informalexample>
+	</blockquote>
+
+	<para>
+	  This uses <filename>/usr/bin/g++-12</filename> to compile &app;.
+	</para>
       </listitem>
     </itemizedlist>
 

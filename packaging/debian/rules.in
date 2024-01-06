@@ -43,8 +43,8 @@ override_dh_auto_install:
 	dh_install --package libcxxbase-dev `cd debian/tmp; ls -d usr/lib/*/libcxx-$(ABIVER)/*.a; echo usr/lib/*/libcxx-$(ABIVER)`
 	dh_install --package libcxxbase-dev `cd debian/tmp; ls -d usr/lib/*/libcxx-$(ABIVER)/*.la; echo usr/lib/*/libcxx-$(ABIVER)`
 	dh_install --package libcxxbase-dev debian/tmp/usr/lib/*/pkgconfig/libcxx*pc
-	dh_install --package libcxxbase-dev debian/tmp/usr/include/libcxx-$(ABIVER) usr/include/libcxx-$(ABIVER)
-	dh_install --package libcxxbase-dev debian/tmp/usr/share/libcxx-$(ABIVER) usr/include/libcxx-$(ABIVER)
+	dh_install --package libcxxbase-dev debian/tmp/usr/include/libcxx-$(ABIVER) usr/include
+	dh_install --package libcxxbase-dev debian/tmp/usr/share/libcxx-$(ABIVER) usr/share
 	dh_install --package libcxxbase-dev debian/tmp/usr/share/aclocal/* usr/share/aclocal
 	dh_install --package libcxxbase sysconftool usr/share/portmap
 	mkdir -p debian/tmp/etc/cron.monthly
