@@ -29,7 +29,6 @@ Homepage: https://www.libcxx.org/
 Rules-Requires-Root: no
 
 Package: libcxxbase
-Section: contrib/libdevel
 Architecture: any
 Depends: ${shlibs:Depends}, ${misc:Depends}
 Recommends: libcxxbase-apache2 (= ${binary:Version}),
@@ -60,6 +59,7 @@ Depends: libcxxbase (= ${binary:Version}),
 	 libltdl-dev,
 	 libxml2-dev,
 	 libcups2-dev,
+	 pkg-config,
 	 ${misc:Depends}
 Provides: libcxxbase-abi (= @ABIVER@)
 Description: LibCXX development libraries
