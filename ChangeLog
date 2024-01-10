@@ -1,3 +1,10 @@
+0.26.1
+
+2024-01-09  Sam Varshavchik  <mrsam@courier-mta.com>
+
+	* Remove unmantained freebsd packaging. Add ubuntu/debian packaging
+	scripts.
+
 0.26
 
 2023-05-29  Sam Varshavchik  <mrsam@courier-mta.com>

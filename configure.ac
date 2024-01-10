@@ -3,7 +3,7 @@
 # See COPYING for distribution information.
 
 AC_PREREQ([2.71])
-AC_INIT([libcxx],[0.26.0],[mrsam@courier-mta.com])
+AC_INIT([libcxx],[0.26.1],[mrsam@courier-mta.com])
 AC_CANONICAL_TARGET
 
 AC_CONFIG_SRCDIR([includes/x/obj.H])
