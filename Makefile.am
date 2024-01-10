@@ -14,7 +14,9 @@ BUILT_SOURCES=abi.xml
 
 $(shell :)DIST_SUBDIRS=$(call reverse,$(SUBDIRS) benchmarks)
 
-DISTCHECK_CONFIGURE_FLAGS=--with-pkgconfigdir='$$(prefix)/local/pkgconf'
+DISTCHECK_CONFIGURE_FLAGS=--with-pkgconfigdir='$$(prefix)/local/pkgconf' \
+	--with-httportmaprc=$$dc_install_base/etc
+
 man_MANS = properties.1 maillogs.1 tlsparamsgen.1 tlsparamsgen.sh.1 \
 	httportmapd.8
 EXTRA_DIST=config.rpath DoxygenLayout.xml abi.xml.in $(man_MANS) \
@@ -187,7 +189,7 @@ EXTRA_DIST += httportmaprc
 
 install-data-local:
 	mkdir -p `dirname $(DESTDIR)@HTTPORTMAPRC@`
-	$(INSTALL) -m 0644 httportmaprc $(DESTDIR)@HTTPORTMAPRC@.dist
+	$(INSTALL) -m 0644 $(srcdir)/httportmaprc $(DESTDIR)@HTTPORTMAPRC@.dist
 
 uninstall-local:
 	rm -f $(DESTDIR)@HTTPORTMAPRC@.dist
