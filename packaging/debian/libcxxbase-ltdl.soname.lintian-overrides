@@ -1,0 +1,4 @@
+#
+# This is a version-specific dedicated directory.
+#
+custom-library-search-path RUNPATH /usr/lib/*/libcxx*

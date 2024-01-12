@@ -1,10 +1,7 @@
 #
 # This is a version-specific dedicated directory.
 #
-custom-library-search-path RUNPATH /usr/lib/x86_64-linux-gnu/libcxx-0.26 [usr/bin/maillogs]
-custom-library-search-path RUNPATH /usr/lib/x86_64-linux-gnu/libcxx-0.26 [usr/bin/properties]
-custom-library-search-path RUNPATH /usr/lib/x86_64-linux-gnu/libcxx-0.26 [usr/bin/tlsparamsgen]
-custom-library-search-path RUNPATH /usr/lib/x86_64-linux-gnu/libcxx-0.26 [usr/sbin/httportmapd]
+custom-library-search-path RUNPATH /usr/lib/*/libcxx*
 #
 # /var/local already exists, we create /var/local/tlsparams
 #

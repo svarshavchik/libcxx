@@ -27,6 +27,13 @@ cd libcxx-@VERSION@
 rm -rf debian
 cp -pr packaging/debian .
 
+ln -s libcxxbase.soname.lintian-overrides \
+   debian/libcxxbase@SOVERSION@.lintian-overrides
+ln -s libcxxbase-cups.soname.lintian-overrides \
+   debian/libcxxbase-cups@SOVERSION@.lintian-overrides
+ln -s libcxxbase-ltdl.soname.lintian-overrides \
+   debian/libcxxbase-ltdl@SOVERSION@.lintian-overrides
+
 . /etc/lsb-release
 
 RELEASE="${RELEASE-100}+`echo $DISTRIB_RELEASE | tr '.' '+'`"
@@ -46,3 +53,4 @@ done
 chmod +x debian/rules
 
 debuild "$@"
+exit 1

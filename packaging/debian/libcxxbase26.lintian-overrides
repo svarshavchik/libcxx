@@ -1,5 +1,0 @@
-#
-# This is a version-specific dedicated directory.
-#
-custom-library-search-path RUNPATH /usr/lib/x86_64-linux-gnu/libcxx-0.26 [usr/lib/x86_64-linux-gnu/libcxx-0.26/libcxxtls.so.26.0.0]
-custom-library-search-path RUNPATH /usr/lib/x86_64-linux-gnu/libcxx-0.26 [usr/lib/x86_64-linux-gnu/libcxx-0.26/libcxxyaml.so.26.0.0]

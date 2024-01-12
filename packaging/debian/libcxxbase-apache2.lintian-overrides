@@ -1,8 +1,7 @@
 #
 # Internal package automation
 #
-maintainer-script-calls-systemctl [postinst:13]
-maintainer-script-calls-systemctl [prerm:13]
+maintainer-script-calls-systemctl [*]
 #
 # This is our standard service name.
 #
