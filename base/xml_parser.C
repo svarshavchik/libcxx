@@ -43,10 +43,16 @@ void error_handler::error::check()
 error_handler::error __thread *error_handler::error::thread_error;
 bool __thread error_handler::error::errorflag;
 
+#if LIBXML_VERSION < 21200
+typedef xmlErrorPtr ERROR_ARG_TYPE;
+#else
+typedef const xmlError *ERROR_ARG_TYPE;
+#endif
+
 extern "C" {
 
 	static void handleStructuredError(void *dummy,
-					  xmlErrorPtr error)
+					  ERROR_ARG_TYPE error)
 	{
 		std::ostream &o=error_handler::error::thread_error
 			? error_handler::error::thread_error->message
