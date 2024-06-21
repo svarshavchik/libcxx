@@ -53,4 +53,3 @@ done
 chmod +x debian/rules
 
 debuild "$@"
-exit 1

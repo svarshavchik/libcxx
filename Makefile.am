@@ -31,6 +31,8 @@ EXTRA_DIST=config.rpath DoxygenLayout.xml abi.xml.in $(man_MANS) \
 	packaging/debian/libcxxbase-apache2.postinst \
 	packaging/debian/libcxxbase-apache2.prerm \
 	packaging/debian/lintian-overrides.allow-errors \
+	packaging/debian/patches/series \
+	packaging/debian/patches/sendmail-path \
 	packaging/debian/rules.in \
 	packaging/debian/source/format \
 	$(patsubst $(srcdir)/*,*, $(wildcard $(srcdir)/packaging/debian/*lintian-overrides)) \
