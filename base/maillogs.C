@@ -125,7 +125,7 @@ public:
 			{
 				const char *p=getenv("SENDMAIL");
 
-				if (!p) p="/usr/bin/sendmail";
+				if (!p) p="/usr/sbin/sendmail";
 				sendmail=p;
 				argv.push_back(sendmail);
 			}
