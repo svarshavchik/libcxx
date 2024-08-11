@@ -17,6 +17,13 @@ then
 	esac
 fi
 
+if test  "$DEBGCC" = "default"
+then
+    DEBGCC=""
+else
+    DEBGCC="-$DEBGCC"
+fi
+
 rm -rf deb
 mkdir deb
 cp ../libcxx-@VERSION@.tar.bz2 deb/libcxxbase_@VERSION@.orig.tar.bz2

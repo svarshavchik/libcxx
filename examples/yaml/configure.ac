@@ -1,21 +1,21 @@
 #                                               -*- Autoconf -*-
 # Process this file with autoconf to produce a configure script.
 
-AC_PREREQ([2.69])
-AC_INIT([libcxx-examples], [0.0.0], [libcxx-users@lists.libcxx.org])
+AC_PREREQ([2.71])
+AC_INIT([libcxx-examples],[0.0.0],[libcxx-users@lists.libcxx.org])
 AC_CONFIG_SRCDIR([parser.C])
 AC_CONFIG_HEADERS([config.h])
 AM_INIT_AUTOMAKE([dist-bzip2 foreign -Wno-portability])
 AM_SILENT_RULES([yes])
 
-# Checks for programs.
-AC_PROG_CC
-AC_PROG_CXX
-
 # Override compiler with the same one used to be libx.
 # This sets CXXFLAGS to enable the correct C++ standard
 # mode for libx-based applications.
 LIBCXX_INIT
+
+# Checks for programs.
+AC_PROG_CC
+AC_PROG_CXX
 
 # Checks for libraries.
 
@@ -27,4 +27,5 @@ AC_TYPE_UID_T
 
 # Checks for library functions.
 
-AC_OUTPUT(Makefile)
+AC_CONFIG_FILES([Makefile])
+AC_OUTPUT

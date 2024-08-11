@@ -16,6 +16,8 @@ CXXFLAGS="$CXXFLAGS -std=c++20 `$PKG_CONFIG --cflags libcxx-$LIBCXX_VERSION`"
 LDFLAGS="$LDFLAGS `$PKG_CONFIG --libs libcxx-$LIBCXX_VERSION`"
 CC="`$PKG_CONFIG --variable=CC libcxx-$LIBCXX_VERSION`"
 CXX="`$PKG_CONFIG --variable=CXX libcxx-$LIBCXX_VERSION`"
+CCLD="`$PKG_CONFIG --variable=CCLD libcxx-$LIBCXX_VERSION`"
+CXXLD="`$PKG_CONFIG --variable=CXXLD libcxx-$LIBCXX_VERSION`"
 LIBCXX_AM="include $libcxx_pkgdatadir/*.mk"
 AC_SUBST([LIBCXX_AM])
 AC_SUBST([LIBCXX_VERSION])

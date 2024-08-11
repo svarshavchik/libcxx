@@ -4,7 +4,7 @@
 	dh $@
 
 override_dh_auto_configure:
-	dh_auto_configure -- CC=gcc-@DEBGCC@ CXX=g++-@DEBGCC@
+	dh_auto_configure -- CC=gcc@DEBGCC@ CXX=g++@DEBGCC@
 
 override_dh_auto_test:
 	:

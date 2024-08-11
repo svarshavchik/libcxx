@@ -164,7 +164,37 @@ $ cd libcxx-VERSION</programlisting>
 
 	<para>
 	  This uses <filename>/usr/bin/g++-12</filename> to compile &app;.
+	  When using <command>pbuilder</command> to build &app;
+	  for a different distribution it is often desirable to leave the
+	  version of gcc unspecified:
 	</para>
+
+	<blockquote>
+	  <informalexample>
+	    <programlisting><![CDATA[
+	    $ DEBGCC=default ./debuild -us -uc
+	    ]]></programlisting>
+	  </informalexample>
+	</blockquote>
+
+	<para>
+	  This builds this package using the default gcc version but without
+	  pegging the resulting package with an explicit gcc version, so
+	  that <command>pbuilder</command> will pick up the default version
+	  of gcc when building the source package on a different distribution.
+	</para>
+
+	<note>
+	  <para>
+	    This builds binary+source packages that are not pegged to
+	    a specific version of gcc. This allows building &app; and all of its
+	    dependent packages on a different distribution or a release and
+	    updating to the new distribution or a release. Afterwards, &app;'s
+	    deb packages should be rebuild, again, using pbuilder, without
+	    a <envar>DEBGCC</envar> to build debs that are properly pegged
+	    to an explicit version of gcc.
+	  </para>
+	</note>
       </listitem>
     </itemizedlist>
 

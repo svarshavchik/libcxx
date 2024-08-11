@@ -129,10 +129,11 @@ deb: dist
 	mkdir deb
 	cp libcxx-@VERSION@.tar.bz2 deb
 	cd deb; set -e; tar xf libcxx-@VERSION@.tar.bz2; cd libcxx-@VERSION@; \
+		test "$$DEBGCC" = "default" || \
 		DEBGCC=`$(CXX) -dM -E - </dev/null | grep __GNUC__ | \
-			awk ' { print $$3 }'` \
+			awk ' { print $$3 }'` ; \
                 RELEASE="`date +%Y%m%d%H%M%S`" \
-		./debuild -us -uc
+		DEBGCC="$$DEBGCC" ./debuild -us -uc
 	rm -rf deb.new; mv deb/*/deb deb.new
 	rm -rf deb; mv deb.new deb
 	$$HOME/bin/debrepos.sh
@@ -150,6 +151,8 @@ libcxx-@ABIVER@.pc: Makefile
 	echo "includedir=${includedir}/libcxx-@ABIVER@" >>libcxx.pc.tmp
 	echo "CC=$(CC)" >>libcxx.pc.tmp
 	echo "CXX=$(CXX)" >>libcxx.pc.tmp
+	echo "CCLD=$(CXX)" >>libcxx.pc.tmp
+	echo "CXXLD=$(CXX)" >>libcxx.pc.tmp
 	echo "" >>libcxx.pc.tmp
 	echo "Name: libcxx-@ABIVER@" >>libcxx.pc.tmp
 	echo "Description: libcxx library" >>libcxx.pc.tmp

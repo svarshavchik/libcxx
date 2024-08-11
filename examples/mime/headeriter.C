@@ -5,10 +5,15 @@
 #include <iterator>
 #include <iostream>
 
-class headercollector : public std::iterator<std::output_iterator_tag,
-					     void, void, void, void> {
+class headercollector {
 
 public:
+	typedef std::output_iterator_tag iterator_category;
+	typedef void value_type;
+	typedef void reference;
+	typedef void difference_type;
+	typedef void pointer;
+
 	std::multimap<std::string, std::string> *h;
 	std::string name;
 

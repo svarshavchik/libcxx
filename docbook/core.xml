@@ -106,6 +106,9 @@ application_LDADD=-lcxx</programlisting>
       <literal>LIBCXX_AM</literal> automake macro which pulls in Makefile
       macros used in <xref linkend="msgdispatcher" /> and
       <xref linkend="options" />.
+      <literal>LIBCXX_INIT</literal> must appear in
+      <filename>configure.ac</filename> before <literal>LT_INIT</literal> or
+      any compiler toolchain invocation.
     </para>
 
     <para>
