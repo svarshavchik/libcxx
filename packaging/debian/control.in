@@ -4,7 +4,7 @@ Maintainer: Sam Varshavchik <mrsam@courier-mta.com>
 Build-Depends: debhelper-compat (= 13),
 	       gcc@DEBGCC@,
 	       g++@DEBGCC@,
-	       pkg-config,
+	       pkgconf,
 	       gettext,
 	       perl:any,
 	       gnutls-dev,
@@ -30,7 +30,7 @@ Rules-Requires-Root: no
 
 Package: libcxxbase
 Architecture: any
-Depends: ${shlibs:Depends}, ${misc:Depends}
+Depends: ${shlibs:Depends}, ${misc:Depends}, anacron
 Recommends: libcxxbase-apache2 (= ${binary:Version}),
 	    libcxxbase-ltdl@SOVERSION@ (= ${binary:Version}),
 	    libcxxbase-cups@SOVERSION@ (= ${binary:Version})
@@ -59,7 +59,7 @@ Depends: libcxxbase (= ${binary:Version}),
 	 libltdl-dev,
 	 libxml2-dev,
 	 libcups2-dev,
-	 pkg-config,
+	 pkgconf,
 	 ${misc:Depends}
 Provides: libcxxbase-abi (= @ABIVER@)
 Description: LibCXX development libraries

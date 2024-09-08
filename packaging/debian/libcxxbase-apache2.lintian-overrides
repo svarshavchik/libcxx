@@ -5,8 +5,8 @@ maintainer-script-calls-systemctl [*]
 #
 # This is our standard service name.
 #
-non-standard-apache2-configuration-name httportmap.conf != libcxxbase-apache2.conf
+non-standard-apache2-configuration-name httportmap.conf != libcxxbase-apache2.conf [etc/apache2/conf-available/httportmap.conf]
 #
 # This is an apache2-only package.
 #
-web-application-works-only-with-apache httportmap.conf
+web-application-works-only-with-apache httportmap.conf [etc/apache2/conf-available/httportmap.conf]
