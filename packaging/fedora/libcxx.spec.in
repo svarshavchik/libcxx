@@ -75,7 +75,7 @@ Summary: libcxx development libraries
 Requires: %{name} = 0:%{version}-%{release}
 Requires: %{name}-ltdl = 0:%{version}-%{release}
 Requires: %{name}-cups = 0:%{version}-%{release}
-Requires: %{_datadir}/aclocal
+Requires: automake
 Requires: gcc-c++
 Requires: pkg-config
 Requires: libxslt
