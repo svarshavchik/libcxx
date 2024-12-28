@@ -8,7 +8,7 @@
 #include "portmap_server.H"
 #include "server.H"
 #include "reexecfd.H"
-#include "localstatedir.h"
+#include "runstatedir.h"
 #include "portmapdatadir.h"
 #include "x/locale.H"
 #include "x/fileattr.H"
@@ -34,7 +34,7 @@
 #include <sys/wait.h>
 
 #ifndef DEFAULTSOCKET
-#define DEFAULTSOCKET LOCALSTATEDIR "/run/httportmap"
+#define DEFAULTSOCKET RUNSTATEDIR "/httportmap"
 #endif
 
 #include "../base/pidinfo_internal.h"

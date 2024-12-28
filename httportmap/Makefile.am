@@ -24,13 +24,13 @@ httportmapd_SOURCES=\
 httportmapd_LDADD=../base/libcxx.la
 httportmapd_LDFLAGS=$(TESTLINKTYPE)
 
-BUILT_SOURCES=localstatedir.h portmapdatadir.h httportmap_server.opts.h
-CLEANFILES=localstatedir.h portmapdatadir.h httportmap_server.opts.h
+BUILT_SOURCES=runstatedir.h portmapdatadir.h httportmap_server.opts.h
+CLEANFILES=runstatedir.h portmapdatadir.h httportmap_server.opts.h
 
 $(call OPTIONS_GEN,httportmap_server.opts.h,httportmap_server.opts.xml)
 
-localstatedir.h:
-	echo "#define LOCALSTATEDIR \"@localstatedir@\"" >localstatedir.h
+runstatedir.h:
+	echo "#define RUNSTATEDIR \"@runstatedir@\"" >runstatedir.h
 
 portmapdatadir.h:
 	echo "#define PORTMAPDATADIR \"$(portmapdatadir)\"" >portmapdatadir.h

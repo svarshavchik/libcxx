@@ -2,7 +2,7 @@
 /httportmap
 /httportmap_server.opts.h
 /httportmapd
-/localstatedir.h
+/runstatedir.h
 /portmapdatadir.h
 /testhttportmap
 /testhttportmap2

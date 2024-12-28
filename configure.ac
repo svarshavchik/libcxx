@@ -766,9 +766,10 @@ test "x$exec_prefix" = xNONE && exec_prefix='${prefix}'
 eval "prefix=\"$prefix\""
 eval "exec_prefix=\"$exec_prefix\""
 eval "sbindir=\"$sbindir\""
+eval "bindir=\"$bindir\""
 eval "localstatedir=\"$localstatedir\""
+eval "runstatedir=\"$runstatedir\""
 eval "httportmapd=\"$sbindir/httportmapd\""
-
 AC_SUBST(httportmapd)
 
 AM_CONDITIONAL(HAVE_REPO, test -d ${srcdir}/docbook)
@@ -784,6 +785,12 @@ fi
 
 PCRELIBS="`pcre2-config --libs8`"
 AC_SUBST(PCRELIBS)
+
+env LC_ALL=C perl -e 'use POSIX qw(strftime); print strftime("DATE=\"%a %b %d %Y\"; DATEFULL=\"%a, %d %b %Y %H:%M:%S %z\"", localtime)' >configure.date
+. ./configure.date
+rm configure.date
+AC_SUBST(DATE)
+AC_SUBST(DATEFULL)
 
 AC_CONFIG_FILES([Doxyfile po/Makefile.in
 		 Makefile

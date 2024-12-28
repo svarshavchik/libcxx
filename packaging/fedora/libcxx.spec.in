@@ -151,15 +151,15 @@ mkdir -p $RPM_BUILD_ROOT/etc/rc.d/init.d
 mkdir -p $RPM_BUILD_ROOT%{_unitdir}
 %{__install} -m 0644 packaging/fedora/systemd $RPM_BUILD_ROOT%{_unitdir}/httportmap.service
 %{__install} -m 0755 sysconftool $RPM_BUILD_ROOT%{_datadir}/httportmap/sysconftool
-%{__mkdir_p} $RPM_BUILD_ROOT%{_localstatedir}/run/httportmap.systemd
-%{__mkdir_p} $RPM_BUILD_ROOT%{_localstatedir}/run/httportmap.priv
+%{__mkdir_p} $RPM_BUILD_ROOT%{_runstatedir}/httportmap.systemd
+%{__mkdir_p} $RPM_BUILD_ROOT%{_runstatedir}/httportmap.priv
 
-for f in $RPM_BUILD_ROOT%{_localstatedir}/run/httportmap $RPM_BUILD_ROOT%{_localstatedir}/run/httportmap.client $RPM_BUILD_ROOT%{_localstatedir}/run/httportmap.priv/socket
+for f in $RPM_BUILD_ROOT%{_runstatedir}/httportmap $RPM_BUILD_ROOT%{_runstatedir}/httportmap.client $RPM_BUILD_ROOT%{_runstatedir}/httportmap.priv/socket
 do
 	%{__perl} -e 'use Socket; socket(S, PF_UNIX, SOCK_STREAM, 0); bind(S, sockaddr_un("'$f'"));'
 done
->$RPM_BUILD_ROOT%{_localstatedir}/run/httportmap.lock
-chmod 600 $RPM_BUILD_ROOT%{_localstatedir}/run/httportmap.lock
+>$RPM_BUILD_ROOT%{_runstatedir}/httportmap.lock
+chmod 600 $RPM_BUILD_ROOT%{_runstatedir}/httportmap.lock
 
 %{__mkdir_p} $RPM_BUILD_ROOT%{_sysconfdir}/cron.monthly
 %{__ln_s} ../../%{_sbindir}/tlsparamsgen.sh $RPM_BUILD_ROOT%{_sysconfdir}/cron.monthly/tlsparamsgen
@@ -182,7 +182,7 @@ rm -f $RPM_BUILD_ROOT%{_sysconfdir}/cron.monthly/*
 rm -f $RPM_BUILD_ROOT%{_sysconfdir}/*.dat
 rm -f $RPM_BUILD_ROOT%{_sysconfdir}/*.properties
 rm -f $RPM_BUILD_ROOT%{_sysconfdir}/sysconfig/httportmap.dist
-rm -f $RPM_BUILD_ROOT%{_localstatedir}/run/httportmap.lock
+rm -f $RPM_BUILD_ROOT%{_runstatedir}/httportmap.lock
 
 # Basically what's in %files httpd
 
@@ -232,10 +232,10 @@ fi
 
 if test "$1" = 0
 then
-   rm -rf %{_localstatedir}/httportmap
-   rm -rf %{_localstatedir}/httportmap.client
-   rm -rf %{_localstatedir}/httportmap.lock
-   rm -rf %{_localstatedir}/httportmap.priv
+   rm -rf %{_runstatedir}/httportmap
+   rm -rf %{_runstatedir}/httportmap.client
+   rm -rf %{_runstatedir}/httportmap.lock
+   rm -rf %{_runstatedir}/httportmap.priv
 fi
 %if %do_compat
 
@@ -275,12 +275,12 @@ fi
 %{_datadir}/httportmap
 %{_mandir}/*/*
 %{_unitdir}/*
-%attr(0777, root, root) %verify(user group mode) %ghost %config(missingok) %{_localstatedir}/run/httportmap
-%attr(0777, root, root) %verify(user group mode) %ghost %config(missingok) %{_localstatedir}/run/httportmap.client
-%attr(0700, root, root) %ghost %dir %{_localstatedir}/run/httportmap.priv
-%attr(0777, root, root) %verify(user group mode) %ghost %config(missingok) %{_localstatedir}/run/httportmap.priv/socket
-%attr(0600, root, root) %verify(user group mode) %ghost %config(missingok) %{_localstatedir}/run/httportmap.lock
-%attr(0700, root, root) %ghost %dir %{_localstatedir}/run/httportmap.systemd
+%attr(0777, root, root) %verify(user group mode) %ghost %config(missingok) %{_runstatedir}/httportmap
+%attr(0777, root, root) %verify(user group mode) %ghost %config(missingok) %{_runstatedir}/httportmap.client
+%attr(0700, root, root) %ghost %dir %{_runstatedir}/httportmap.priv
+%attr(0777, root, root) %verify(user group mode) %ghost %config(missingok) %{_runstatedir}/httportmap.priv/socket
+%attr(0600, root, root) %verify(user group mode) %ghost %config(missingok) %{_runstatedir}/httportmap.lock
+%attr(0700, root, root) %ghost %dir %{_runstatedir}/httportmap.systemd
 
 %{_sysconfdir}/sysconfig/*.dist
 %dir %{_sysconfdir}/tlsparams
@@ -325,6 +325,9 @@ fi
 %endif
 
 %changelog
+* @DATE@ Sam Varshavchik <mrsam@courier-mta.com>
+- Update Makefile
+
 * Sat Sep 22 2018 Sam Varshavchik <mrsam@octopus.email-scan.com>
 - New installation layout
 

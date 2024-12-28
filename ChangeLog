@@ -1,3 +1,7 @@
+2024-12-28  Sam Varshavchik  <mrsam@courier-mta.com>
+
+	* Fix rpm and selinux packaging.
+
 0.26.1
 
 2024-01-09  Sam Varshavchik  <mrsam@courier-mta.com>
