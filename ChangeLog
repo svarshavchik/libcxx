@@ -1,3 +1,7 @@
+2025-04-06  Sam Varshavchik  <mrsam@courier-mta.com>
+
+	* gcc 15/fedora 42 fixes
+
 2024-12-28  Sam Varshavchik  <mrsam@courier-mta.com>
 
 	* Fix rpm and selinux packaging.

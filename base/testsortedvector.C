@@ -831,7 +831,9 @@ void testaddranges()
 
 	a << std::move(b);
 
-	if (std::vector<testrange>{a.begin(), a.end()} !=
+	std::vector<testrange> result{a.begin(), a.end()};
+
+	if (result !=
 	    std::vector<testrange>{ {1, 3}, {5, 6}, {7, 10} })
 		throw EXCEPTION("testaddranges failed");
 }

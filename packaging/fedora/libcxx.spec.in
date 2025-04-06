@@ -270,8 +270,11 @@ fi
 
 %else
 
-%{_bindir}/*
-%{_sbindir}/*
+%{_bindir}/maillogs
+%{_bindir}/properties
+%{_bindir}/tlsparamsgen
+%{_sbindir}/httportmapd
+%{_sbindir}/tlsparamsgen.sh
 %{_datadir}/httportmap
 %{_mandir}/*/*
 %{_unitdir}/*
