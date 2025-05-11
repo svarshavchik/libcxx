@@ -4,7 +4,7 @@
 */
 
 #ifndef x_threads_weaklocal_H
-#define x_threads_local_H
+#define x_threads_weaklocal_H
 
 #include <x/namespace.h>
 #include <x/threads/weaklocalfwd.H>
@@ -24,7 +24,7 @@ run_async::makeweakthreadlocal(const ref<objClass, baseType> &refobj)
 {
 	if (!localscope::localscopeptr)
 		no_local_variables();
-			
+
 	return weakthreadlocal<objClass, baseType>
 		::create(refobj, localscope::localscopeptr->mcguffin);
 }
