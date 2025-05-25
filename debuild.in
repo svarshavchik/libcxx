@@ -53,7 +53,7 @@ s/@""RELEASE""@/$RELEASE/g
 s/@""DEBGCC""@/$DEBGCC/g
 s/@""SOVERSION""@/@SOVERSION@/g
 s/@""ABIVER""@/@ABIVER@/g
-s/@DATE@/`date -R`/g
+s/@""DATE""@/`date -R`/g
 " <$f.in >$f
 done
 
