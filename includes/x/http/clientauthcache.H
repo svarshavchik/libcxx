@@ -4,7 +4,7 @@
 */
 
 #ifndef x_http_clientauthcache_H
-#define x_http_clientauthcacje_H
+#define x_http_clientauthcache_H
 
 #include <x/http/clientauthcachefwd.H>
 #include <x/http/clientauthcacheobj.H>
