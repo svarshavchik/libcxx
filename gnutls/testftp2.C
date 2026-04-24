@@ -1,5 +1,5 @@
 /*
-** Copyright 2013-2021 Double Precision, Inc.
+** Copyright 2013-2021 S. Varshavchik
 ** See COPYING for distribution information.
 */
 #include "libcxx_config.h"

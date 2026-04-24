@@ -1,5 +1,5 @@
 #
-# Copyright 2012-2021 Double Precision, Inc.
+# Copyright 2012-2021 S. Varshavchik
 # See COPYING for distribution information.
 #
 
@@ -197,7 +197,7 @@ install-data-local:
 uninstall-local:
 	rm -f $(DESTDIR)@HTTPORTMAPRC@.dist
 
-# Copyright 2000 Double Precision, Inc.  See COPYING for
+# Copyright 2000 S. Varshavchik  See COPYING for
 # distribution information.
 
 # Need to add sysconftoolize to package:

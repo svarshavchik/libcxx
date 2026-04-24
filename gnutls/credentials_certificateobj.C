@@ -1,5 +1,5 @@
 /*
-** Copyright 2012-2021 Double Precision, Inc.
+** Copyright 2012-2021 S. Varshavchik
 ** See COPYING for distribution information.
 */
 
@@ -9,6 +9,7 @@
 #include "x/gnutls/dhparams.H"
 #include "x/gnutls/x509_crt.H"
 #include "x/gnutls/init.H"
+#include "x/fileattr.H"
 #include "x/logger.H"
 #include "gettext_in.h"
 
@@ -240,10 +241,16 @@ void gnutls::credentials::certificateObj
 ::set_x509_trust_file(std::string filename,
 		      gnutls_x509_crt_fmt_t format)
 {
-	chkerr(gnutls_certificate_set_x509_trust_file(cred,
-						      filename.c_str(),
-						      format),
-	       "gnutls_certificate_set_x509_trust_file");
+	if (S_ISDIR(fileattr::create(filename, false)->stat().st_mode))
+		chkerr(gnutls_certificate_set_x509_trust_dir(cred,
+							     filename.c_str(),
+							     format),
+		       "gnutls_certificate_set_x509_trust_dir");
+	else
+		chkerr(gnutls_certificate_set_x509_trust_file(cred,
+							      filename.c_str(),
+							      format),
+		       "gnutls_certificate_set_x509_trust_file");
 }
 
 void gnutls::credentials::certificateObj::set_verify_flags(unsigned int flags)

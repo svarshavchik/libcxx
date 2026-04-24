@@ -1,5 +1,5 @@
 #
-# Copyright 2012-2021 Double Precision, Inc.
+# Copyright 2012-2021 S. Varshavchik
 # See COPYING for distribution information.
 
 AC_PREREQ([2.71])
@@ -688,9 +688,9 @@ export CXXFLAGS
 LDFLAGS="$LDFLAGS -z relro -z now"
 export LDFLAGS
 
-for f in /etc/pki/tls/cert.pem /etc/ssl/certs/ca-certificates.crt /usr/local/share/certs/ca-root-nss.crt
+for f in /etc/pki/tls/cert.pem /etc/pki/tls/certs /etc/ssl/certs/ca-certificates.crt /usr/local/share/certs/ca-root-nss.crt
 do
-	if test -f "$f"
+	if test -e "$f"
 	then
 		cacerts="$f"
 	fi
