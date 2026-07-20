@@ -135,14 +135,14 @@ fi
 AC_SUBST(GNUTLS_LIBS)
 AC_SUBST(GNUTLS_CFLAGS)
 
-AC_CHECK_PROGS(GCRYPT_CONFIG,libgcrypt-config,none)
-if test "$GCRYPT_CONFIG" = "none"
+AC_CHECK_PROGS(PKG_CONFIG,pkg-config,none)
+if test "$PKG_CONFIG" = "none"
 then
-	AC_MSG_ERROR([libgcrypt-config not found, install the gcrypt library development files])
+	AC_MSG_ERROR([pkg-config not found, install the pkgconf package])
 fi
 
-GCRYPT_LIBS=`$GCRYPT_CONFIG --libs`
-GCRYPT_CFLAGS=`$GCRYPT_CONFIG --cflags`
+GCRYPT_LIBS=`$PKG_CONFIG libgcrypt --libs`
+GCRYPT_CFLAGS=`$PKG_CONFIG libgcrypt --cflags`
 
 AC_SUBST(GCRYPT_LIBS)
 AC_SUBST(GCRYPT_CFLAGS)
